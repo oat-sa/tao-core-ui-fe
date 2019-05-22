@@ -54,11 +54,9 @@ export default inputs.map(input => {
             ...localExternals
         ],
         plugins: [
-            cssResolve({
-                map: true
-            }),
+            cssResolve(),
             alias({
-                resolve: ['.js', '.json', '.tpl'],
+                resolve: ['.js', '.json', '.tpl', '.css'],
                 ...aliases
             }),
             handlebarsPlugin({

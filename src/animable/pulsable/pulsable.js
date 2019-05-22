@@ -31,7 +31,7 @@ import Promise from '@oat-sa/tao-core-sdk/promise';
 import componentFactory from 'ui/component';
 import makeAlignable from 'ui/component/alignable';
 import pulseTpl from 'ui/animable/pulsable/tpl/pulse';
-import 'ui/animable/pulsable/scss/pulse.scss';
+import 'ui/animable/pulsable/css/pulse.css';
 
 var defaultConfig = {
     pulseCount: 3

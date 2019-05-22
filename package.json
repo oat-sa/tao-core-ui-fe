@@ -6,6 +6,7 @@
         "test:keepAlive": "node ./build/webserver.js",
         "test": "node ./build/testrunner.js",
         "build": "rollup --config ./build/rollup.config.js",
+        "buildScss": "node ./build/scss.js",
         "lint": "eslint test"
     },
     "keywords": [],
@@ -17,6 +18,7 @@
         "autoprefixer": "^9.5.1",
         "glob": "^7.1.4",
         "http-server": "^0.11.1",
+        "mkdirp": "^0.5.1",
         "node-qunit-puppeteer": "^1.0.12",
         "postcss": "^7.0.16",
         "postcss-scss": "^2.0.0",
