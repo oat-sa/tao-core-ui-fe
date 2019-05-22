@@ -1,0 +1,27 @@
+{
+    "name": "@oat-sa/tao-ui-sdk",
+    "version": "0.1.0",
+    "description": "",
+    "scripts": {
+        "test:keepAlive": "node ./build/webserver.js",
+        "test": "node ./build/testrunner.js",
+        "build": "rollup --config ./build/rollup.config.js",
+        "lint": "eslint test"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "glob": "^7.1.4",
+        "http-server": "^0.11.1",
+        "node-qunit-puppeteer": "^1.0.12",
+        "node-sass": "^4.12.0",
+        "promise-limit": "^2.7.0",
+        "rollup": "^1.12.1",
+        "rollup-plugin-alias": "^1.5.1",
+        "rollup-plugin-handlebars-plus": "github:btamas/rollup-plugin-handlebars-plus"
+    },
+    "dependencies": {
+        "@oat-sa/tao-core-libs": "github:oat-sa/tao-core-libs-fe#feature/NEX-107_add-tao-core-sdk-dependencies"
+    }
+}
