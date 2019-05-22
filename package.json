@@ -12,16 +12,25 @@
     "author": "",
     "license": "ISC",
     "devDependencies": {
+        "@csstools/postcss-sass": "^4.0.0",
+        "@oat-sa/browserslist-config-tao": "^0.1.0",
+        "autoprefixer": "^9.5.1",
         "glob": "^7.1.4",
         "http-server": "^0.11.1",
         "node-qunit-puppeteer": "^1.0.12",
         "node-sass": "^4.12.0",
+        "postcss": "^7.0.16",
+        "postcss-scss": "^2.0.0",
         "promise-limit": "^2.7.0",
         "rollup": "^1.12.1",
         "rollup-plugin-alias": "^1.5.1",
         "rollup-plugin-handlebars-plus": "github:btamas/rollup-plugin-handlebars-plus"
     },
     "dependencies": {
-        "@oat-sa/tao-core-libs": "github:oat-sa/tao-core-libs-fe#feature/NEX-107_add-tao-core-sdk-dependencies"
-    }
+        "@oat-sa/tao-core-libs": "github:oat-sa/tao-core-libs-fe#feature/NEX-107_add-tao-core-sdk-dependencies",
+        "@oat-sa/tao-core-sdk": "^0.1.0"
+    },
+    "browserslist": [
+        "extends @oat-sa/browserslist-config-tao"
+    ]
 }

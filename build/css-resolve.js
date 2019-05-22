@@ -18,9 +18,15 @@
 
 const fs = require('fs');
 const path = require('path');
-const sass = require('node-sass');
 const { outputDir, srcDir, aliases } = require('./path');
+const postcss = require('postcss');
+const postcssScss = require('postcss-scss');
+const postcssConfig = require('./postcss.config');
 
+/**
+ * resolve aliases in module name like ui or core
+ * @param {string} id
+ */
 const resolveAlias = id => {
     for (let alias in aliases) {
         if (aliases.hasOwnProperty(alias)) {
@@ -33,50 +39,88 @@ const resolveAlias = id => {
     return id;
 };
 
-const buildCss = cssFile => {
+/**
+ * Build css file with postcss
+ * @param {string} cssFile
+ * @param {map: Boolean} options
+ */
+const buildCss = (cssFile, options) => {
     const outputFile = path.resolve(outputDir, path.relative(srcDir, cssFile));
-    fs.copyFile(cssFile, outputFile, err => {
+    fs.readFile(cssFile, 'utf8', (err, source) => {
         if (err) {
-            throw err;
+            throw new Error(`File not found: ${cssFile}`);
         }
+        postcss(postcssConfig.plugins)
+            .process(source, {
+                from: cssFile,
+                to: outputFile,
+                map: options.map ? { annotation: true } : false
+            })
+            .then(writeOutResult);
     });
 };
 
-const buildScss = scssFile => {
+/**
+ * Build scss file with postcss and postcssScss plugin
+ * @param {string} scssFile
+ * @param {map: Boolean} options
+ */
+const buildScss = (scssFile, options) => {
     const outputFile = path.resolve(
         outputDir,
         path.relative(srcDir, scssFile.replace(/([\/\.])scss(\/|$)/g, '$1css$2'))
     );
 
-    sass.render(
-        {
-            file: scssFile,
-            includePaths: [path.resolve(srcDir, '..', 'scss')]
-        },
-        (err, result) => {
+    fs.readFile(scssFile, 'utf8', (err, source) => {
+        if (err) {
+            throw new Error(`File not found: ${scssFile}`);
+        }
+        postcss(postcssConfig.plugins)
+            .process(source, {
+                syntax: postcssScss,
+                from: scssFile,
+                to: outputFile,
+                map: options.map ? { annotation: true } : false
+            })
+            .then(writeOutResult);
+    });
+};
+
+/**
+ * Write out compiled css and source map
+ * @param {LazyResult} result
+ */
+const writeOutResult = result => {
+    const outputFile = result.opts.to;
+    fs.mkdir(path.dirname(outputFile), { recursive: true }, () => {
+        fs.writeFile(outputFile, result.css, { flag: 'w' }, err => {
             if (err) {
                 throw err;
             }
-            fs.mkdir(path.dirname(outputFile), { recursive: true }, () => {
-                fs.writeFile(outputFile, result.css, { flag: 'w' }, err => {
-                    if (err) {
-                        throw err;
-                    }
-                });
+        });
+
+        if (result.map) {
+            fs.writeFile(`${outputFile}.map`, result.map, { flag: 'w' }, err => {
+                if (err) {
+                    throw err;
+                }
             });
         }
-    );
+    });
 };
 
-export default () => ({
+/**
+ * Css resolve plugin
+ */
+export default ({ map } = { map: false }) => ({
     name: 'css-resolve', // this name will show up in warnings and errors
     resolveId(source, importer) {
         if (/\.s?css$/.test(source) && importer) {
             const file = resolveAlias(source);
             if (path.extname(source) === '.scss') {
-                buildScss(file);
+                buildScss(file, { map });
             } else {
-                buildCss(file);
+                buildCss(file, { map });
             }
             return {
                 id: `css!${source}`,

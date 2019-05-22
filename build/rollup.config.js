@@ -44,13 +44,19 @@ export default inputs.map(input => {
             'lodash',
             'jquery',
             'handlebars',
-            'core/promise',
-            'ui/component',
-            'ui/component/alignable',
+            'interact',
+            '@oat-sa/tao-core-libs/lodash',
+            '@oat-sa/tao-core-libs/jquery',
+            '@oat-sa/tao-core-sdk/promise',
+            '@oat-sa/tao-core-sdk/eventifier',
+            'ui/transformer',
+            'ui/stacker',
             ...localExternals
         ],
         plugins: [
-            cssResolve(),
+            cssResolve({
+                map: true
+            }),
             alias({
                 resolve: ['.js', '.json', '.tpl'],
                 ...aliases

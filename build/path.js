@@ -24,7 +24,8 @@ const rootPath = path.resolve(__dirname, '..');
 const srcDir = path.resolve(rootPath, 'src');
 
 module.exports = {
-    srcDir, 
+    rootPath,
+    srcDir,
     testDir: path.resolve(rootPath, 'test'),
     scssVendorDir: path.resolve(rootPath, 'scss'),
     outputDir: path.resolve(rootPath, 'dist'),
