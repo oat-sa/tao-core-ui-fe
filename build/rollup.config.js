@@ -23,6 +23,19 @@ import handlebarsPlugin from 'rollup-plugin-handlebars-plus';
 import cssResolve from './css-resolve';
 import externalAlias from './external-alias';
 
+const Handlebars = require('@oat-sa/tao-core-libs/src/handlebars');
+
+const originalVisitor = Handlebars.Visitor;
+Handlebars.Visitor = function() {
+    return originalVisitor.call(this);
+}
+Handlebars.Visitor.prototype = Object.create(originalVisitor.prototype);
+Handlebars.Visitor.prototype.accept = function() {
+    try {
+        originalVisitor.prototype.accept.apply(this, arguments);
+    } catch(e) {}
+}
+
 const { srcDir, outputDir, aliases } = require('./path');
 
 const inputs = glob.sync(path.join(srcDir, '**', '*.js'));
@@ -70,7 +83,8 @@ export default inputs.map(input => {
                     id: 'handlebars',
                     options: {
                         sourceMap: false
-                    }
+                    },
+                    module: Handlebars
                 },
                 templateExtension: '.tpl'
             })

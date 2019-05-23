@@ -19,14 +19,19 @@
         "autoprefixer": "^9.5.1",
         "glob": "^7.1.4",
         "http-server": "^0.11.1",
+        "jquery-autocomplete": "^1.2.1",
         "mkdirp": "^0.5.1",
         "node-qunit-puppeteer": "^1.0.12",
+        "popper.js": "^1.14.5",
         "postcss": "^7.0.16",
         "postcss-scss": "^2.0.0",
         "promise-limit": "^2.7.0",
+        "qunit": "^2.9.2",
+        "require-css": "^0.1.10",
         "rollup": "^1.12.1",
         "rollup-plugin-alias": "^1.5.1",
-        "rollup-plugin-handlebars-plus": "github:btamas/rollup-plugin-handlebars-plus"
+        "rollup-plugin-handlebars-plus": "github:btamas/rollup-plugin-handlebars-plus",
+        "tooltip.js": "^1.3.1"
     },
     "dependencies": {
         "@oat-sa/tao-core-libs": "github:oat-sa/tao-core-libs-fe#feature/NEX-107_add-tao-core-sdk-dependencies",
