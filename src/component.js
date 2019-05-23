@@ -18,9 +18,9 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
-import $ from '@oat-sa/tao-core-libs/jquery';
-import _ from '@oat-sa/tao-core-libs/lodash';
-import eventifier from '@oat-sa/tao-core-sdk/eventifier';
+import $ from 'jquery';
+import _ from 'lodash';
+import eventifier from 'core/eventifier';
 import defaultTpl from 'ui/component/tpl/component';
 
 var _slice = [].slice;

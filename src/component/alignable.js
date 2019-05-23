@@ -40,7 +40,7 @@
  * *
  * @author Christophe Noël <christophe@taotesting.com>
  */
-import _ from '@oat-sa/tao-core-libs/lodash';
+import _ from 'lodash';
 import makePlaceable from 'ui/component/placeable';
 
 var defaultConfig = {};

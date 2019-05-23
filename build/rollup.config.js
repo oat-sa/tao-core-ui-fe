@@ -21,6 +21,7 @@ import glob from 'glob';
 import alias from 'rollup-plugin-alias';
 import handlebarsPlugin from 'rollup-plugin-handlebars-plus';
 import cssResolve from './css-resolve';
+import externalAlias from './external-alias';
 
 const { srcDir, outputDir, aliases } = require('./path');
 
@@ -45,18 +46,23 @@ export default inputs.map(input => {
             'jquery',
             'handlebars',
             'interact',
-            '@oat-sa/tao-core-libs/lodash',
-            '@oat-sa/tao-core-libs/jquery',
-            '@oat-sa/tao-core-sdk/promise',
-            '@oat-sa/tao-core-sdk/eventifier',
-            'ui/transformer',
-            'ui/stacker',
+            'moment',
+            'jquery.autocomplete',
+            'jquery.fileDownload',
+            'context',
+            'nouislider',
+            'async',
+            'iframeNotifier',
+            'select2',
+            'module',
+            'helpers',
             ...localExternals
         ],
         plugins: [
+            externalAlias(['core', 'lib', 'util', 'layout']),
             cssResolve(),
             alias({
-                resolve: ['.js', '.json', '.tpl', '.css'],
+                resolve: ['.js', '.json', '.tpl'],
                 ...aliases
             }),
             handlebarsPlugin({

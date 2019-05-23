@@ -57,7 +57,7 @@ const writeOutResult = result => {
     });
 };
 
-glob(path.join(srcDir, '**', '*.scss'), (err, files) => {
+glob(path.join(srcDir, '**', '[^_]*.scss'), (err, files) => {
     if (err) {
         throw err;
     }

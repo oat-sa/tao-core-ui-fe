@@ -25,7 +25,7 @@
  *
  * @author Christophe Noël <christophe@taotesting.com>
  */
-import _ from '@oat-sa/tao-core-libs/lodash';
+import _ from 'lodash';
 import stackerFactory from 'ui/stacker';
 
 var defaultConfig = {

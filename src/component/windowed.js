@@ -21,9 +21,9 @@
  *
  * @author Christophe Noël <christophe@taotesting.com>
  */
-import _ from '@oat-sa/tao-core-libs/lodash';
+import _ from 'lodash';
 import __ from 'i18n';
-import $ from '@oat-sa/tao-core-libs/jquery';
+import $ from 'jquery';
 import makePlaceable from 'ui/component/placeable';
 import windowTpl from 'ui/component/tpl/window';
 

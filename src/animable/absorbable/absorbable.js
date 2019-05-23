@@ -26,8 +26,8 @@
  *
  * @author Sam <sam@taotesting.com>
  */
-import _ from '@oat-sa/tao-core-libs/lodash';
-import Promise from '@oat-sa/tao-core-sdk/promise';
+import _ from 'lodash';
+import Promise from 'core/promise';
 import componentFactory from 'ui/component';
 import makeAlignable from 'ui/component/alignable';
 import absorbTpl from 'ui/animable/absorbable/tpl/absorb';
