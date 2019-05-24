@@ -28,7 +28,7 @@ requirejs.config({
         qunit: '/node_modules/qunit/qunit',
         'test/ui': '/test',
 
-        'jquery.autocomplete': '/node_modules/jquery-autocomplete/jquery.autocomplete',
+        'jquery.autocomplete': '/node_modules/devbridge-autocomplete/dist/jquery.autocomplete',
 
         'lib/popper/tooltip': '/node_modules/tooltip.js/dist/umd/tooltip',
         popper: '/node_modules/popper.js/dist/umd/popper',
