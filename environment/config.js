@@ -20,9 +20,10 @@ requirejs.config({
     baseUrl: '/',
     paths: {
         css: '/node_modules/require-css/css',
-        // json: '/node_modules/requirejs-plugins/src/json',
+        json: '/node_modules/requirejs-plugins/src/json',
         // async: '/node_modules/requirejs-plugins/src/async',
-        // text: '/node_modules/text/text',
+        text: '/node_modules/text/text',
+        tpl: '/lib/tpl',
 
         'qunit-parameterize': '/environment/qunit2-parameterize',
         qunit: '/node_modules/qunit/qunit',
@@ -32,7 +33,13 @@ requirejs.config({
 
         'lib/popper/tooltip': '/node_modules/tooltip.js/dist/umd/tooltip',
         popper: '/node_modules/popper.js/dist/umd/popper',
+        select2: '/node_modules/select2/select2',
+        interact: '/node_modules/interactjs/dist/interact',
+        'lib/dompurify/purify': '/node_modules/dompurify/dist/purify',
+        'lib/gamp/gamp': '/node_modules/gamp/src/gamp',
         lib: '/lib',
+
+        taoCss: '/css',
 
         core: '/node_modules/@oat-sa/tao-core-sdk/dist/core',
         util: '/node_modules/@oat-sa/tao-core-sdk/dist/util',
@@ -53,7 +60,7 @@ requirejs.config({
 
 define('qunitLibs', ['qunit/qunit', 'css!qunit/qunit.css']);
 define('qunitEnv', ['qunitLibs', 'qunit-parameterize'], function() {
-    requirejs.config({nodeIdCompat: true});
+    // requirejs.config({ nodeIdCompat: true });
 });
 
 define('context', ['module'], function(module) {

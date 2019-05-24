@@ -31,6 +31,7 @@ module.exports = {
     outputDir: path.resolve(rootPath, 'dist'),
     testOutputDir: path.resolve(rootPath, 'test'),
     aliases: {
-        ui: srcDir
+        ui: srcDir,
+        helpers: path.resolve(rootPath, 'helpers')
     }
 };

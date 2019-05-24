@@ -28,13 +28,13 @@ const Handlebars = require('@oat-sa/tao-core-libs/src/handlebars');
 const originalVisitor = Handlebars.Visitor;
 Handlebars.Visitor = function() {
     return originalVisitor.call(this);
-}
+};
 Handlebars.Visitor.prototype = Object.create(originalVisitor.prototype);
 Handlebars.Visitor.prototype.accept = function() {
     try {
         originalVisitor.prototype.accept.apply(this, arguments);
-    } catch(e) {}
-}
+    } catch (e) {}
+};
 
 const { srcDir, outputDir, aliases } = require('./path');
 
@@ -86,6 +86,7 @@ export default inputs.map(input => {
                     },
                     module: Handlebars
                 },
+                helpers: ['helpers/i18n-helper.js'],
                 templateExtension: '.tpl'
             })
         ]
