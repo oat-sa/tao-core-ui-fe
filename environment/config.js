@@ -60,7 +60,7 @@ requirejs.config({
 
 define('qunitLibs', ['qunit/qunit', 'css!qunit/qunit.css']);
 define('qunitEnv', ['qunitLibs', 'qunit-parameterize'], function() {
-    // requirejs.config({ nodeIdCompat: true });
+    requirejs.config({ nodeIdCompat: true });
 });
 
 define('context', ['module'], function(module) {

@@ -40,7 +40,7 @@ const { srcDir, outputDir, aliases } = require('./path');
 
 const inputs = glob.sync(path.join(srcDir, '**', '*.js'));
 
-const localExternals = inputs.map(input => path.relative(srcDir, input).replace(/\.js$/, ''));
+const localExternals = inputs.map(input => `ui/${path.relative(srcDir, input).replace(/\.js$/, '')}`);
 
 export default inputs.map(input => {
     const name = path.relative(srcDir, input).replace(/\.js$/, '');
