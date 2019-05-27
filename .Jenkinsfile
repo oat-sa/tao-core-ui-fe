@@ -19,6 +19,10 @@ pipeline {
             steps {
                 dir('.') {
                     sh(
+                        label: 'Install git',
+                        script: 'apt-get install git'
+                    )
+                    sh(
                         label: 'Setup frontend toolchain',
                         script: 'npm install'
                     )
