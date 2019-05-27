@@ -6,7 +6,7 @@ pipeline {
         stage('Frontend Tests') {
             agent {
                 docker {
-                    image 'eduwass/docker-node-git'
+                    image 'mkenney/npm'
                     reuseNode true
                 }
             }
