@@ -6,7 +6,7 @@ pipeline {
         stage('Frontend Tests') {
             agent {
                 docker {
-                    image 'alekzonder/puppeteer'
+                    image 'eduwass/docker-node-git'
                     reuseNode true
                 }
             }
@@ -18,10 +18,6 @@ pipeline {
             }
             steps {
                 dir('.') {
-                    sh(
-                        label: 'Install git',
-                        script: 'apt-get install git'
-                    )
                     sh(
                         label: 'Setup frontend toolchain',
                         script: 'npm install'
