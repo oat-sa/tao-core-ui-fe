@@ -24,7 +24,7 @@ import eventifier from 'core/eventifier';
 import areaBroker from 'ui/documentViewer/providers/pdfViewer/pdfjs/areaBroker';
 import findBarFactory from 'ui/documentViewer/providers/pdfViewer/pdfjs/findBar';
 import wrapperFactory from 'ui/documentViewer/providers/pdfViewer/pdfjs/wrapper';
-import viewerTpl from 'ui/documentViewer/providers/pdfViewer/pdfjs/viewer';
+import viewerTpl from 'ui/documentViewer/providers/pdfViewer/pdfjs/viewer.tpl';
 
 /**
  * Enable/disable an element

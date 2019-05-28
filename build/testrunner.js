@@ -32,7 +32,7 @@ const limit = promiseLimit(5);
 
 webServer.then(({ host, port }) =>
     Promise.all(
-        glob.sync(path.join(testDir, '**', TESTNAME, '**', '*.html')).map(testFile => {
+        glob.sync(path.join(testDir, '**', TESTNAME, '**', 'test.html')).map(testFile => {
             const test = path.relative(testDir, testFile);
             const qunitArgs = {
                 // Path to qunit tests suite

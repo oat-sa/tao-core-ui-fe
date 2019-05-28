@@ -43,21 +43,28 @@ const resolveAlias = id => {
  */
 const copyCss = cssFile => {
     const outputFile = path.resolve(outputDir, path.relative(srcDir, cssFile));
-    mkdirp(path.dirname(outputFile), () => {
-        fs.copyFile(cssFile, outputFile, err => {
-            if (err) {
-                throw err;
-            }
-        });
-        const mapFile = `${cssFile}.map`;
-        fs.access(mapFile, fs.constants.F_OK, err => {
-            if (!err) {
-                fs.copyFile(mapFile, `${outputFile}.map`, err => {
-                    if (err) {
-                        throw err;
-                    }
-                });
-            }
+
+    fs.access(cssFile, fs.constants.F_OK, err => {
+        if (err) {
+            console.error(`${cssFile} was not found!`);
+            return;
+        }
+        mkdirp(path.dirname(outputFile), () => {
+            fs.copyFile(cssFile, outputFile, err => {
+                if (err) {
+                    throw err;
+                }
+            });
+            const mapFile = `${cssFile}.map`;
+            fs.access(mapFile, fs.constants.F_OK, err => {
+                if (!err) {
+                    fs.copyFile(mapFile, `${outputFile}.map`, err => {
+                        if (err) {
+                            throw err;
+                        }
+                    });
+                }
+            });
         });
     });
 };

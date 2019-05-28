@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Ui Test - Dropdown</title>
+        <script type="text/javascript" src="/environment/require.js"></script>
+        <script type="text/javascript">
+            require(['/environment/config.js'], function() {
+                require(['qunitEnv'], function() {
+                    require(['test/ui/dropdown/test'], function() {
+                        QUnit.start();
+                    });
+                });
+            });
+        </script>
+    </head>
+    <body class="delivery-scope">
+        <div id="qunit"></div>
+        <div id="qunit-fixture">
+            <div id="fixture-init"></div>
+            <div id="fixture-mouse1"></div>
+            <div id="fixture-mouse2"></div>
+            <div id="fixture-mouse3"></div>
+            <div id="fixture-html-items"></div>
+            <div id="fixture-removal"></div>
+        </div>
+        <div id="visual-test-hover" style="height: 200px"></div>
+        <div id="visual-test-click" style="height: 200px"></div>
+    </body>
+</html>

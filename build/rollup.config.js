@@ -22,6 +22,7 @@ import alias from 'rollup-plugin-alias';
 import handlebarsPlugin from 'rollup-plugin-handlebars-plus';
 import cssResolve from './css-resolve';
 import externalAlias from './external-alias';
+import resolve from 'rollup-plugin-node-resolve';
 
 const Handlebars = require('@oat-sa/tao-core-libs/src/handlebars');
 
@@ -72,12 +73,14 @@ export default inputs.map(input => {
             ...localExternals
         ],
         plugins: [
-            externalAlias(['core', 'lib', 'util', 'layout']),
             cssResolve(),
+            externalAlias(['core', 'lib', 'util', 'layout']),
             alias({
                 resolve: ['.js', '.json', '.tpl'],
                 ...aliases
             }),
+            resolve(),
+            // commonjs(),
             handlebarsPlugin({
                 handlebars: {
                     id: 'handlebars',
@@ -86,9 +89,20 @@ export default inputs.map(input => {
                     },
                     module: Handlebars
                 },
-                helpers: ['helpers/i18n-helper.js'],
+                helpers: ['helpers/i18n-helper.js', 'helpers/property.js', 'helpers/dompurify.js', 'helpers/equal.js'],
                 templateExtension: '.tpl'
-            })
+            }),
+            {
+                name: 'mu',
+                generateBundle(options, bundle) {
+                    if (options.name.indexOf('datetime/picker') !== -1) {
+                        bundle['picker.js'].code = bundle['picker.js'].code.replace(
+                            /flatpickrLocalization\.hasOwnProperty\('default'\)/,
+                            false
+                        );
+                    }
+                }
+            }
         ]
     };
 });

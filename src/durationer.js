@@ -7,6 +7,7 @@ import __ from 'i18n';
 import Pluginifier from 'core/pluginifier';
 import Handlebars from 'handlebars';
 import moment from 'moment';
+import 'ui/incrementer';
 
 var ns = 'durationer';
 var dataNs = 'ui.' + ns;

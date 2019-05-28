@@ -20,7 +20,7 @@
  */
 
 import Promise from 'core/promise';
-import viewerTpl from 'ui/documentViewer/providers/pdfViewer/fallback/viewer';
+import viewerTpl from 'ui/documentViewer/providers/pdfViewer/fallback/viewer.tpl';
 
 /**
  * Wraps the component that use the native PDF viewer provided by the browser.

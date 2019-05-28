@@ -23,7 +23,7 @@ import _ from 'lodash';
 import autoscroll from 'ui/autoscroll';
 import hider from 'ui/hider';
 import searchEngineFactory from 'ui/documentViewer/providers/pdfViewer/pdfjs/searchEngine';
-import findBarTpl from 'ui/documentViewer/providers/pdfViewer/pdfjs/findBar';
+import findBarTpl from 'ui/documentViewer/providers/pdfViewer/pdfjs/findBar.tpl';
 
 /**
  * The keypress delay before performing a search

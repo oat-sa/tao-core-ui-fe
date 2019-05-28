@@ -30,6 +30,7 @@ requirejs.config({
         'test/ui': '/test',
 
         'jquery.autocomplete': '/node_modules/devbridge-autocomplete/dist/jquery.autocomplete',
+        'jquery.mockjax': '/node_modules/jquery-mockjax/dist/jquery.mockjax',
 
         'lib/popper/tooltip': '/node_modules/tooltip.js/dist/umd/tooltip',
         popper: '/node_modules/popper.js/dist/umd/popper',
@@ -37,7 +38,9 @@ requirejs.config({
         interact: '/node_modules/interactjs/dist/interact',
         'lib/dompurify/purify': '/node_modules/dompurify/dist/purify',
         'lib/gamp/gamp': '/node_modules/gamp/src/gamp',
+        'lib/flatpickr': '/node_modules/flatpickr/dist',
         lib: '/lib',
+        layout: '/layout',
 
         taoCss: '/css',
 
@@ -53,6 +56,9 @@ requirejs.config({
     shim: {
         'qunit-parameterize': {
             deps: ['qunit/qunit']
+        },
+        'lib/flatpickr/l10n/index': {
+            deps: ['lib/flatpickr/flatpickr']
         }
     },
     waitSeconds: 15
