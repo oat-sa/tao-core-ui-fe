@@ -1,6 +1,6 @@
 <div class="ui-generis-widget combo-box">
     <div class="left">
-        {{> ui/generis/widget/widget }}
+        {{> ui-generis-widget-label }}
     </div>
     <div class="right">
         <select name="{{uri}}">

@@ -21,7 +21,6 @@ requirejs.config({
     paths: {
         css: '/node_modules/require-css/css',
         json: '/node_modules/requirejs-plugins/src/json',
-        // async: '/node_modules/requirejs-plugins/src/async',
         text: '/node_modules/text/text',
         tpl: '/lib/tpl',
 
@@ -39,6 +38,8 @@ requirejs.config({
         'lib/dompurify/purify': '/node_modules/dompurify/dist/purify',
         'lib/gamp/gamp': '/node_modules/gamp/src/gamp',
         'lib/flatpickr': '/node_modules/flatpickr/dist',
+        async: '/node_modules/async/lib/async',
+        helpers: '/lib/helpers',
         lib: '/lib',
         layout: '/layout',
 

@@ -1,4 +1,5 @@
-### ui/generis/widget/widget (is a ui/component)
+### ui-generis-widget-label (is a ui/component)
+
 ```
 /**
  * Examples

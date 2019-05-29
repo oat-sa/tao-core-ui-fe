@@ -45,7 +45,7 @@
  *   <li>fileExists(baseUrl, [message])</li>
  *   <li>validRegex([message])</li>
  * </ul>
- * For more information see 'core/validator/validators' module
+ * For more information see 'ui/validator/validators' module
  *
  * JavaScript:
  * <pre>
@@ -66,6 +66,7 @@
 import $ from 'jquery';
 import _ from 'lodash';
 import highlighterFactory from 'ui/formValidator/highlighters/highlighter';
+import 'ui/validator';
 
 var defaultOptions = {
     highlighter: {
@@ -180,7 +181,7 @@ var formValidatorFactory = function formValidatorFactory(options) {
      * @private
      * @param {jQuery} $field - validated field
      * @param {boolean} valid - whether field is valid
-     * @param {array} report - list of reports {@see core/validator/Report}
+     * @param {array} report - list of reports {@see ui/validator/Report}
      */
     function afterFieldValidate($field, valid, report) {
         var firstErrorData;

@@ -20,8 +20,11 @@ import _ from 'lodash';
 import __ from 'i18n';
 import componentFactory from 'ui/component';
 import generisValidatorFactory from 'ui/generis/validator/validator';
+import Handlebars from 'handlebars';
+import ptl from 'ui/generis/widget/widget.tpl';
 import 'ui/generis/widget/css/widget.css';
 
+Handlebars.registerPartial('ui-generis-widget-label', ptl);
 /**
  * The factory
  * @param {Object} [options.validator]

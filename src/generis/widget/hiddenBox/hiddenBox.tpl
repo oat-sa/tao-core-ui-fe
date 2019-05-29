@@ -1,6 +1,6 @@
 <div class="ui-generis-widget hidden-box">
     <div class="left">
-        {{> ui/generis/widget/widget }}
+        {{> ui-generis-widget-label }}
     </div>
     <div class="right">
         <input name="{{uri}}" type="password">
@@ -9,7 +9,7 @@
 
 <div class="ui-generis-widget hidden-box confirmation">
     <div class="left">
-        {{> ui/generis/widget/widget confirmation }}
+        {{> ui-generis-widget-label confirmation }}
     </div>
     <div class="right">
         <input name="{{confirmation.uri}}" type="password">

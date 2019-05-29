@@ -16,6 +16,7 @@
     "devDependencies": {
         "@csstools/postcss-sass": "^4.0.0",
         "@oat-sa/browserslist-config-tao": "^0.1.0",
+        "async": "^0.2.10",
         "autoprefixer": "^9.5.1",
         "devbridge-autocomplete": "^1.2.20",
         "dompurify": "^1.0.10",
@@ -23,7 +24,7 @@
         "gamp": "^0.2.1",
         "glob": "^7.1.4",
         "http-server": "^0.11.1",
-        "interactjs": "^1.2.7",
+        "interactjs": "^1.2.8",
         "jquery-mockjax": "^2.5.0",
         "mkdirp": "^0.5.1",
         "node-qunit-puppeteer": "^1.0.12",
@@ -44,7 +45,7 @@
     },
     "dependencies": {
         "@oat-sa/tao-core-libs": "github:oat-sa/tao-core-libs-fe#db02701d35a66f88d57ffbdb08542b4e5fc58d8f",
-        "@oat-sa/tao-core-sdk": "^0.1.0"
+        "@oat-sa/tao-core-sdk": "^0.1.1"
     },
     "browserslist": [
         "extends @oat-sa/browserslist-config-tao"

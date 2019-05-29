@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import _ from 'lodash';
-import Report from 'core/validator/Report';
-import Validator from 'core/validator/Validator';
+import Report from 'ui/validator/Report';
+import Validator from 'ui/validator/Validator';
 
 /**
  * Validate the set of matched elements (inputs).

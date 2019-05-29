@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import async from 'async';
-import Report from 'core/validator/Report';
-import validators from 'core/validator/validators';
+import Report from 'ui/validator/Report';
+import validators from 'ui/validator/validators';
 
 var _buildRule = function(rule) {
     var ret = null;
