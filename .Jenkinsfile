@@ -8,7 +8,6 @@ pipeline {
                 docker {
                     image 'btamas/puppeteer-git'
                     args '--cap-add=SYS_ADMIN'
-                    reuseNode true
                 }
             }
             environment {
