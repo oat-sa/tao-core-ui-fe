@@ -21,7 +21,6 @@
  * @author Aleh Hutnikau
  */
 import $ from 'jquery';
-import _ from 'lodash';
 import messageHighlighter from 'ui/formValidator/highlighters/message';
 import tooltipHighlighter from 'ui/formValidator/highlighters/tooltip';
 

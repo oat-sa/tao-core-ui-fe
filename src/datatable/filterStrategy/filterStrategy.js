@@ -21,7 +21,6 @@
  * @author Aleh Hutnikau
  */
 
-import _ from 'lodash';
 import providerRegistry from 'core/providerRegistry';
 import multipleStrategy from 'ui/datatable/filterStrategy/multiple';
 import singleStrategy from 'ui/datatable/filterStrategy/single';

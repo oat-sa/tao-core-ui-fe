@@ -19,7 +19,7 @@
  * Plugin that multiplies the current operand by 10^x.
  * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
  */
-import _ from 'lodash';
+
 import __ from 'i18n';
 import nsHelper from 'util/namespace';
 import pluginFactory from 'ui/maths/calculator/core/plugin';

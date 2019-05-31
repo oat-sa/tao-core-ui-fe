@@ -19,7 +19,7 @@
  * Plugin that manages a simple value reminder in the calculator
  * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
  */
-import _ from 'lodash';
+
 import __ from 'i18n';
 import nsHelper from 'util/namespace';
 import pluginFactory from 'ui/maths/calculator/core/plugin';

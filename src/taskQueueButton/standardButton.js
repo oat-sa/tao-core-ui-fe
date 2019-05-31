@@ -56,7 +56,6 @@
  */
 
 import _ from 'lodash';
-import __ from 'i18n';
 import loadingButton from 'ui/loadingButton/loadingButton';
 import makeTaskable from 'ui/taskQueueButton/taskable';
 

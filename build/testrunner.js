@@ -28,7 +28,7 @@ const { testDir } = require('./path');
 const TESTNAME = process.argv[2] || '*';
 
 let hasFailed = false;
-const limit = promiseLimit(5);
+const limit = promiseLimit(2);
 
 webServer.then(({ host, port }) =>
     Promise.all(

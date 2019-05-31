@@ -22,7 +22,6 @@
  * @author Bertrand Chevrier <bertrand@taotesting.com>
  */
 import _ from 'lodash';
-import interact from 'interact';
 import componentFactory from 'ui/component';
 import makeDraggable from 'ui/component/draggable';
 import makeResizable from 'ui/component/resizable';
