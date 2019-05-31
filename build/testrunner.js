@@ -28,7 +28,7 @@ const { testDir } = require('./path');
 const TESTNAME = process.argv[2] || '*';
 
 let hasFailed = false;
-const limit = promiseLimit(2);
+const limit = promiseLimit(process.env.PARALLEL_TESTS || 5);
 
 webServer.then(({ host, port }) =>
     Promise.all(
