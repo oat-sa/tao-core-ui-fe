@@ -1,16 +1,13 @@
 pipeline {
     agent {
-        label 'master'
+        docker {
+            image 'btamas/puppeteer-git'
+            args '--cap-add=SYS_ADMIN'
+            reuseNode true
+        }
     }
     stages {
-        stage('Frontend Tests') {
-            agent {
-                docker {
-                    image 'btamas/puppeteer-git'
-                    args '--cap-add=SYS_ADMIN'
-                    reuseNode true
-                }
-            }
+        stage('Test') {
             environment {
                 HOME = '.'
             }
