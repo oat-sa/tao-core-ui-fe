@@ -29,6 +29,10 @@ const buildScss = scssFile =>
                     to: outputFile,
                     map: { annotation: true }
                 })
+                .catch(err => {
+                    console.error(err);
+                    process.exit(-1);
+                })
                 .then(writeOutResult)
                 .then(resolve);
         });
