@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Ui Test - Calculator Plugin: sign</title>
+        <script type="text/javascript" src="/environment/require.js"></script>
+        <script type="text/javascript">
+            require(['/environment/config.js'], function() {
+                require(['qunitEnv'], function() {
+                    require(['test/ui/maths/calculator/plugins/modifiers/sign/test'], function() {
+                        QUnit.start();
+                    });
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <div id="qunit"></div>
+        <div id="qunit-fixture">
+            <div id="fixture-install"></div>
+            <div id="fixture-init"></div>
+            <div id="fixture-destroy"></div>
+            <div id="fixture-command"></div>
+        </div>
+    </body>
+</html>

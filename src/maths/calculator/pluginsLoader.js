@@ -24,6 +24,7 @@ import pluginDegradFactory from 'ui/maths/calculator/plugins/core/degrad';
 import pluginHistoryFactory from 'ui/maths/calculator/plugins/core/history';
 import pluginRemindFactory from 'ui/maths/calculator/plugins/core/remind';
 import pluginStepNavigationFactory from 'ui/maths/calculator/plugins/core/stepNavigation';
+import _ from 'lodash';
 
 /**
  * Load the plugins dynamically

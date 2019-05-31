@@ -29,6 +29,7 @@ import mimeType from 'core/mimetype';
 import fileSelectTpl from 'ui/resourcemgr/tpl/fileSelect';
 import feedback from 'ui/feedback';
 import context from 'context';
+import 'ui/uploader';
 
 var ns = 'resourcemgr';
 
