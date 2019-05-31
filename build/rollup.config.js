@@ -89,13 +89,7 @@ export default inputs.map(input => {
                     },
                     module: Handlebars
                 },
-                helpers: [
-                    'helpers/i18n-helper.js',
-                    'helpers/property.js',
-                    'helpers/dompurify.js',
-                    'helpers/equal.js',
-                    'helpers/includes.js'
-                ],
+                helpers: ['build/tpl.js'],
                 templateExtension: '.tpl'
             }),
             {
