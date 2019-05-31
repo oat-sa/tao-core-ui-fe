@@ -13,7 +13,7 @@ pipeline {
             }
             environment {
                 HOME = '.'
-                PARALLEL_TESTS = 5
+                PARALLEL_TESTS = 2
             }
             options {
                 skipDefaultCheckout()
