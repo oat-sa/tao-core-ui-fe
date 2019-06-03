@@ -58,7 +58,6 @@ requirejs.config({
         lib: '/lib',
         /* LIBS END */
 
-        layout: '/layout',
         taoCss: '/css',
 
         'ui/tooltip/default': '/src/tooltip/default'

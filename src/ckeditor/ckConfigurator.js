@@ -18,6 +18,7 @@
 import $ from 'jquery';
 import _ from 'lodash';
 import dtdHandler from 'ui/ckeditor/dtdHandler';
+import 'ckeditor';
 
 /**
  * Cache original config
