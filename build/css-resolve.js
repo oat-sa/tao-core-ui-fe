@@ -17,7 +17,7 @@
  */
 
 const fs = require('fs');
-const mkdirp = require('mkdirp');
+const { mkdirp } = require('fs-extra');
 const path = require('path');
 const { outputDir, srcDir, aliases } = require('./path');
 
