@@ -22,16 +22,25 @@ requirejs.config({
         css: '/node_modules/require-css/css',
         json: '/node_modules/requirejs-plugins/src/json',
         text: '/node_modules/text/text',
-        tpl: '/lib/tpl',
 
+        /* TEST related */
         'qunit-parameterize': '/environment/qunit2-parameterize',
         qunit: '/node_modules/qunit/qunit',
         'test/ui': '/test',
 
+        ui: '/dist',
+        core: '/node_modules/@oat-sa/tao-core-sdk/dist/core',
+        util: '/node_modules/@oat-sa/tao-core-sdk/dist/util',
+        jquery: '/node_modules/@oat-sa/tao-core-libs/dist/jquery',
+        lodash: '/node_modules/@oat-sa/tao-core-libs/dist/lodash',
+        moment: '/node_modules/@oat-sa/tao-core-libs/dist/moment',
+        handlebars: '/node_modules/@oat-sa/tao-core-libs/dist/handlebars',
+
+        /* LIBS */
+        tpl: '/lib/tpl',
         'jquery.autocomplete': '/node_modules/devbridge-autocomplete/dist/jquery.autocomplete',
         'jquery.mockjax': '/node_modules/jquery-mockjax/dist/jquery.mockjax',
         'jquery.fileDownload': '/lib/jquery.fileDownload',
-
         'lib/popper/tooltip': '/node_modules/tooltip.js/dist/umd/tooltip',
         popper: '/node_modules/popper.js/dist/umd/popper',
         select2: '/node_modules/select2/select2',
@@ -47,20 +56,12 @@ requirejs.config({
         nouislider: '/lib/sliders/jquery.nouislider',
         helpers: '/lib/helpers',
         lib: '/lib',
-        layout: '/layout',
+        /* LIBS END */
 
+        layout: '/layout',
         taoCss: '/css',
 
-        'ui/tooltip/default': '/src/tooltip/default',
-
-        core: '/node_modules/@oat-sa/tao-core-sdk/dist/core',
-        util: '/node_modules/@oat-sa/tao-core-sdk/dist/util',
-        ui: '/dist',
-
-        jquery: '/node_modules/@oat-sa/tao-core-libs/dist/jquery',
-        lodash: '/node_modules/@oat-sa/tao-core-libs/dist/lodash',
-        moment: '/node_modules/@oat-sa/tao-core-libs/dist/moment',
-        handlebars: '/node_modules/@oat-sa/tao-core-libs/dist/handlebars'
+        'ui/tooltip/default': '/src/tooltip/default'
     },
     shim: {
         'qunit-parameterize': {

@@ -4,8 +4,9 @@ const glob = require('glob');
 const postcss = require('postcss');
 const postcssScss = require('postcss-scss');
 const promiseLimit = require('promise-limit');
-const { srcDir } = require('./path');
+const { srcDir, scssVendorDir, rootPath } = require('./path');
 const postcssConfig = require('./postcss.config');
+const mkdirp = require('mkdirp');
 
 const limit = promiseLimit(5);
 
@@ -44,7 +45,7 @@ const buildScss = scssFile =>
  */
 const writeOutResult = result => {
     const outputFile = result.opts.to;
-    fs.mkdir(path.dirname(outputFile), { recursive: true }, () => {
+    mkdirp(path.dirname(outputFile), () => {
         fs.writeFile(outputFile, result.css, { flag: 'w' }, err => {
             if (err) {
                 throw err;
@@ -61,10 +62,26 @@ const writeOutResult = result => {
     });
 };
 
-glob(path.join(srcDir, '**', '[^_]*.scss'), (err, files) => {
-    if (err) {
-        throw err;
-    }
+console.log(
+    path.join(
+        rootPath,
+        `+(${path.relative(rootPath, srcDir)}|${path.relative(rootPath, scssVendorDir)})`,
+        '**',
+        '[^_]*.scss'
+    )
+);
+glob(
+    path.join(
+        rootPath,
+        `+(${path.relative(rootPath, scssVendorDir)}|${path.relative(rootPath, srcDir)})`,
+        '**',
+        '[^_]*.scss'
+    ),
+    (err, files) => {
+        if (err) {
+            throw err;
+        }
 
-    files.forEach(file => limit(() => buildScss(file)));
-});
+        files.forEach(file => limit(() => buildScss(file)));
+    }
+);
