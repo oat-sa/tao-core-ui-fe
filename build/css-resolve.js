@@ -29,7 +29,7 @@ const resolveAlias = id => {
     for (let alias in aliases) {
         if (aliases.hasOwnProperty(alias)) {
             let afterAlias;
-            if (id.indexOf(alias) === 0 && (afterAlias = id.substring(alias.length))[0] === '/') {
+            if (id.startsWith(alias) && (afterAlias = id.substring(alias.length))[0] === '/') {
                 return `${aliases[alias]}${afterAlias}`;
             }
         }
