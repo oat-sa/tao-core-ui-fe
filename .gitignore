@@ -62,4 +62,4 @@ typings/
 
 /node_modules
 /dist
-/src/**/css/
+css/

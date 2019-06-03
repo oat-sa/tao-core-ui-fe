@@ -84,3 +84,10 @@ define('context', ['module'], function(module) {
 });
 
 define('i18n', [], () => text => text);
+
+define('layout/loading-bar', [], () => ({
+    start: () => {},
+    stop: () => {}
+}));
+
+define('layout/logout-event', [], () => () => {});
