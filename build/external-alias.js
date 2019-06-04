@@ -19,7 +19,7 @@
 export default (externals = []) => ({
     name: 'external-alias', // this name will show up in warnings and errors
     resolveId(source, importer) {
-        if (importer && externals.find(external => new RegExp(`^${external}`).test(source))) {
+        if (importer && externals.find(external => source.startsWith(external))) {
             return {
                 id: source,
                 external: true,

@@ -84,6 +84,9 @@ define('context', ['module'], function(module) {
 
 define('i18n', [], () => text => text);
 
+/**
+ * Mock layout modules for tests
+ */
 define('layout/loading-bar', [], () => ({
     start: () => {},
     stop: () => {}

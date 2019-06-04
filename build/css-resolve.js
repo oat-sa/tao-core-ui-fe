@@ -46,7 +46,7 @@ const copyCss = cssFile => {
 
     fs.access(cssFile, fs.constants.F_OK, err => {
         if (err) {
-            console.error(`${cssFile} was not found!`);
+            console.error('\x1b[33m%s\x1b[0m', `${cssFile} was not found!`); // it is yellow
             return;
         }
         mkdirp(path.dirname(outputFile), () => {
