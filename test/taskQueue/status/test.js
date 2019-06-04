@@ -15,7 +15,7 @@
  *
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
  */
-define(['jquery', 'lodash', 'ui/taskQueue/status', 'css!taoCss/tao-main-style.css', 'css!taoCss/tao-3.css'], function(
+define(['jquery', 'lodash', 'ui/taskQueue/status',  ], function(
     $,
     _,
     taskQueueStatusFactory

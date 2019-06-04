@@ -22,8 +22,8 @@ define([
     'jquery',
     'lodash',
     'ui/maths/calculator/scientificCalculator',
-    'css!taoCss/tao-3.css',
-    'css!taoCss/tao-main-style.css'
+    
+    
 ], function($, _, scientificCalculatorFactory) {
     'use strict';
 

@@ -19,11 +19,7 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
-define(['jquery', 'lodash', 'ui/actionbar', 'css!taoCss/tao-3.css', 'css!taoCss/tao-main-style.css'], function(
-    $,
-    _,
-    actionbar
-) {
+define(['jquery', 'lodash', 'ui/actionbar'], function($, _, actionbar) {
     'use strict';
 
     // Toggle the sample display

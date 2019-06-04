@@ -23,7 +23,7 @@ define([
     'jquery',
     'ui/class/selector',
     'json!test/ui/class/selector/classes.json',
-    'css!taoCss/tao-main-style.css'
+    
 ], function($, classSelector, classes) {
     'use strict';
 

@@ -24,6 +24,7 @@ import __ from 'i18n';
 import component from 'ui/component';
 import mainTpl from 'ui/listbox/tpl/main';
 import listTpl from 'ui/listbox/tpl/list';
+import 'ui/listbox/css/listbox.css';
 
 /**
  * Some default values

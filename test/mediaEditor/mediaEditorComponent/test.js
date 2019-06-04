@@ -18,7 +18,7 @@
  * @author Oleksander Zagovorychev <zagovorichev@gmail.com>
  */
 
-define(['jquery', 'ui/mediaEditor/mediaEditorComponent', 'css!taoCss/tao-main-style.css'], function(
+define(['jquery', 'ui/mediaEditor/mediaEditorComponent', ], function(
     $,
     mediaEditorComponent
 ) {

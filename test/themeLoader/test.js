@@ -1,4 +1,4 @@
-define(['lodash', 'jquery', 'ui/themeLoader', 'css!taoCss/tao-main-style.css'], function(_, $, themeLoader) {
+define(['lodash', 'jquery', 'ui/themeLoader'], function(_, $, themeLoader) {
     'use strict';
 
     var config = {

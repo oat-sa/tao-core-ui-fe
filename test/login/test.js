@@ -19,7 +19,7 @@
 /**
  * @author Ilya Yarkavets <ilya.yarkavets@1pt.com>
  */
-define(['jquery', 'ui/login/login', 'css!taoCss/tao-main-style.css'], function($, loginFactory) {
+define(['jquery', 'ui/login/login'], function($, loginFactory) {
     'use strict';
 
     var passwordRevealConfig = {

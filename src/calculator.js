@@ -23,6 +23,7 @@ import _ from 'lodash';
 import __ from 'i18n';
 import dynamicComponent from 'ui/dynamicComponent';
 import calculatorBuild from 'lib/calculator/index';
+import 'ui/calculator/css/calculator.css';
 
 var _defaults = {
     title: __('Calculator'),

@@ -1,4 +1,4 @@
-define(['jquery', 'ui/progressbar', 'css!taoCss/tao-main-style.css'], function($) {
+define(['jquery', 'ui/progressbar'], function($) {
     'use strict';
 
     var containerId = 'mypg';

@@ -23,8 +23,8 @@ define([
     'lodash',
     'core/promise',
     'ui/maths/calculator/basicCalculator',
-    'css!taoCss/tao-3.css',
-    'css!taoCss/tao-main-style.css'
+    
+    
 ], function($, _, Promise, basicCalculatorFactory) {
     'use strict';
 

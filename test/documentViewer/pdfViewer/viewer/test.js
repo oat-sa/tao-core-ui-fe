@@ -24,7 +24,7 @@ define([
     'ui/documentViewer/viewerFactory',
     'ui/documentViewer/providers/pdfViewer',
     'test/ui/documentViewer/pdfViewer/mocks/mockPdfjs',
-    'css!taoCss/tao-main-style.css'
+    
 ], function(_, Promise, viewerFactory, pdfViewer, mockPdfjs) {
     'use strict';
 

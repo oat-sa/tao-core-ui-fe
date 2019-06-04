@@ -19,12 +19,12 @@
  * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
  */
 import _ from 'lodash';
-import areaBroker from 'core/areaBroker';
+import areaBroker from 'ui/areaBroker';
 
 /**
  * Creates an area broker with the required areas for the calculator panel.
  *
- * @see core/areaBroker
+ * @see ui/areaBroker
  *
  * @param {jQuery|HTMLElement|String} $container - the main container
  * @param {Object} mapping - keys are the area names, values are jQueryElement

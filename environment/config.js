@@ -58,7 +58,7 @@ requirejs.config({
         lib: '/lib',
         /* LIBS END */
 
-        taoCss: '/css',
+        basicStyle: '/css',
 
         'ui/tooltip/default': '/src/tooltip/default'
     },
@@ -73,7 +73,7 @@ requirejs.config({
     waitSeconds: 15
 });
 
-define('qunitLibs', ['qunit/qunit', 'css!qunit/qunit.css']);
+define('qunitLibs', ['qunit/qunit', 'css!qunit/qunit.css', 'css!basicStyle/basic.css']);
 define('qunitEnv', ['qunitLibs', 'qunit-parameterize'], function() {
     requirejs.config({ nodeIdCompat: true });
 });

@@ -22,6 +22,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 import eventifier from 'core/eventifier';
 import defaultTpl from 'ui/component/tpl/component';
+import 'ui/component/css/components.css';
 
 var _slice = [].slice;
 

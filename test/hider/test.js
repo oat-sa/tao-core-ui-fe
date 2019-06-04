@@ -21,7 +21,7 @@
  *
  * @author Bertrand Chevrier <bertrand@taotesting.com>
  */
-define(['jquery', 'ui/hider', 'css!taoCss/tao-main-style.css'], function($, hider) {
+define(['jquery', 'ui/hider'], function($, hider) {
     'use strict';
 
     QUnit.module('hider');

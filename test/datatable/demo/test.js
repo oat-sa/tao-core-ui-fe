@@ -30,7 +30,7 @@ define([
     'ui/dialog',
     'ui/datatable',
     'jquery.mockjax',
-    'css!taoCss/tao-3.css', 'css!taoCss/tao-main-style.css'
+     
 ], function($, _, featureTpl, queryTpl, fileTpl, demoData, dialog) {
     'use strict';
 

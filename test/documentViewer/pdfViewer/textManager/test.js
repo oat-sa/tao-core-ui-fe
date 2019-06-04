@@ -24,7 +24,7 @@ define([
     'core/promise',
     'pdfjs-dist/build/pdf',
     'ui/documentViewer/providers/pdfViewer/pdfjs/textManager',
-    'css!taoCss/tao-main-style.css'
+    
 ], function($, _, Promise, pdfjs, textManagerFactory) {
     'use strict';
 

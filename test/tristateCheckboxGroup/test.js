@@ -15,13 +15,7 @@
  *
  * Copyright (c) 2016 (original work) Open Assessment Technologies SA ;
  */
-define([
-    'jquery',
-    'lodash',
-    'ui/tristateCheckboxGroup',
-    'css!taoCss/tao-main-style.css',
-    'css!taoCss/tao-3.css'
-], function($, _, tristateCheckboxGroup) {
+define(['jquery', 'lodash', 'ui/tristateCheckboxGroup'], function($, _, tristateCheckboxGroup) {
     'use strict';
 
     QUnit.module('Tri-state Checkboxes');

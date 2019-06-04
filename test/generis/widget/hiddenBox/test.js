@@ -21,7 +21,7 @@ define([
     'lodash',
     'ui/generis/validator/validator',
     'ui/generis/widget/hiddenBox/hiddenBox',
-    'css!taoCss/tao-main-style.css'
+    
 ], function($, _, generisValidatorFactory, generisWidgetHiddenBoxFactory) {
     'use strict';
 

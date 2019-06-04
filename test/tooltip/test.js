@@ -18,12 +18,7 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
-define(['jquery', 'lodash', 'ui/tooltip', 'tpl!ui/tooltip/default', 'css!taoCss/tao-main-style.css'], function(
-    $,
-    _,
-    tooltip,
-    defaultTpl
-) {
+define(['jquery', 'lodash', 'ui/tooltip', 'tpl!ui/tooltip/default'], function($, _, tooltip, defaultTpl) {
     'use strict';
     var containerName = 'single';
     var containerNameMultiple = 'multiple';

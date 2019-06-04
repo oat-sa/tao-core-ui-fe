@@ -1,4 +1,4 @@
-define(['jquery', 'ui/uploader', 'css!taoCss/tao-main-style.css'], function($) {
+define(['jquery', 'ui/uploader'], function($) {
     'use strict';
 
     QUnit.test('plugin', function(assert) {

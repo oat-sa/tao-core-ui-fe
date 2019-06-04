@@ -27,8 +27,8 @@ define([
     'ui/maths/calculator/core/expression',
     'ui/maths/calculator/plugins/screen/simpleScreen/simpleScreen',
     'util/mathsEvaluator',
-    'css!taoCss/tao-3.css',
-    'css!taoCss/tao-main-style.css'
+    
+    
 ], function(
     $,
     _,

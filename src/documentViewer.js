@@ -21,7 +21,8 @@
 import _ from 'lodash';
 import component from 'ui/component';
 import viewerFactory from 'ui/documentViewer/viewerFactory';
-import documentViewerTpl from 'ui/documentViewer/documentViewer';
+import documentViewerTpl from 'ui/documentViewer/tpl/documentViewer';
+import 'ui/documentViewer/css/documentViewer.css';
 
 /**
  * Some defaults config

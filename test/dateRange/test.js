@@ -24,7 +24,7 @@
  * @author Alexander Zagovorichev <zagovorichev@1pt.com>
  * @author Bertrand Chevrier <bertrand@taotesting.com>
  */
-define(['ui/dateRange/dateRange', 'css!taoCss/tao-main-style.css'], function(dateRangeFactory) {
+define(['ui/dateRange/dateRange'], function(dateRangeFactory) {
     'use strict';
 
     QUnit.module('API');

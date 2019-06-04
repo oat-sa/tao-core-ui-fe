@@ -26,6 +26,7 @@ import __ from 'i18n';
 import $ from 'jquery';
 import makePlaceable from 'ui/component/placeable';
 import windowTpl from 'ui/component/tpl/window';
+import 'ui/component/css/windowComponent.css';
 
 var eventNs = '.windowed',
     cssNs = '.window-component',

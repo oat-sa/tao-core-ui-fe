@@ -23,6 +23,7 @@ import _ from 'lodash';
 import __ from 'i18n';
 import component from 'ui/component';
 import paginationStrategy from 'ui/pagination/paginationStrategy';
+import 'ui/pagination/css/pagination.css';
 
 /**
  * Default values

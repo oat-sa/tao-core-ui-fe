@@ -26,7 +26,7 @@ define([
     'ui/component/draggable',
     'ui/component/resizable',
     'ui/component/windowed',
-    'css!taoCss/tao-main-style.css'
+    
 ], function(_, $, componentFactory, makePlaceable, makeDraggable, makeResizable, makeWindowed) {
     'use strict';
 

@@ -15,11 +15,7 @@
  *
  * Copyright (c) 2016 (original work) Open Assessment Technologies SA ;
  */
-define(['jquery', 'lodash', 'ui/calculator', 'css!taoCss/tao-3.css', 'css!taoCss/tao-main-style.css'], function(
-    $,
-    _,
-    calculator
-) {
+define(['jquery', 'lodash', 'ui/calculator'], function($, _, calculator) {
     'use strict';
 
     QUnit.module('Calculator');

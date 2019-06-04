@@ -25,6 +25,7 @@ import __ from 'i18n';
 import component from 'ui/component';
 import mainTpl from 'ui/datalist/tpl/main';
 import listTpl from 'ui/datalist/tpl/list';
+import 'ui/datalist/css/datalist.css';
 
 /**
  * Some default values

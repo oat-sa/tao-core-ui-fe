@@ -21,7 +21,7 @@
  *
  * @author Bertrand Chevrier <bertrand@taotesting.com>
  */
-define(['lodash', 'jquery', 'ui/pageStatus', 'css!taoCss/tao-main-style.css'], function(_, $, pageStatusFactory) {
+define(['lodash', 'jquery', 'ui/pageStatus'], function(_, $, pageStatusFactory) {
     'use strict';
 
     var isHeadless = /HeadlessChrome/.test(navigator.userAgent);

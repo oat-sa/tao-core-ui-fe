@@ -26,6 +26,7 @@ import __ from 'i18n';
 import capitalize from 'util/capitalize';
 import tooltip from 'ui/tooltip';
 import 'jquery.autocomplete';
+import 'ui/autocomplete/css/autocomplete.css';
 
 /**
  * Namespace for component

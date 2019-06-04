@@ -23,7 +23,7 @@ define([
     'jquery',
     'ui/destination/selector',
     'json!test/ui/destination/selector/classes.json',
-    'css!taoCss/tao-main-style.css'
+    
 ], function($, destinationSelectorFactory, classes) {
     'use strict';
 

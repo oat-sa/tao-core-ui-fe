@@ -24,8 +24,8 @@ define([
     'core/promise',
     'ui/maths/calculator/core/board',
     'ui/maths/calculator/plugins/keyboard/templateKeyboard/templateKeyboard',
-    'css!taoCss/tao-3.css',
-    'css!taoCss/tao-main-style.css'
+    
+    
 ], function($, _, Promise, calculatorBoardFactory, templateKeyboardPluginFactory) {
     'use strict';
 

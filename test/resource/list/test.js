@@ -26,7 +26,7 @@ define([
     'ui/resource/list',
     'json!test/ui/resource/list/nodes.json',
     'css!ui/resource/css/selector',
-    'css!taoCss/tao-main-style.css'
+    
 ], function($, resourceListFactory, nodesData) {
     'use strict';
 

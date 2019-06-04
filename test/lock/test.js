@@ -1,4 +1,4 @@
-define(['jquery', 'ui/lock', 'css!taoCss/tao-main-style.css'], function($, lock) {
+define(['jquery', 'ui/lock'], function($, lock) {
     'use strict';
 
     QUnit.module('lock');

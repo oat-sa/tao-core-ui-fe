@@ -34,7 +34,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 import __ from 'i18n';
 import moment from 'moment';
-import taskQueueApi from 'core/taskQueue';
+import taskQueueApi from 'ui/taskQueue';
 import component from 'ui/component';
 import taskQueueStatusFactory from 'ui/taskQueue/status';
 import reportTpl from 'ui/taskQueue/tpl/report';

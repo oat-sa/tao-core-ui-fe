@@ -1,4 +1,4 @@
-define(['jquery', 'ui/deleter', 'css!taoCss/tao-main-style.css'], function($, deleter) {
+define(['jquery', 'ui/deleter'], function($, deleter) {
     'use strict';
 
     QUnit.module('Deleter Stand Alone Test');

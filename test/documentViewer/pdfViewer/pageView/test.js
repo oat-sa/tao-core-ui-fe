@@ -24,7 +24,7 @@ define([
     'pdfjs-dist/build/pdf',
     'ui/documentViewer/providers/pdfViewer/pdfjs/pageView',
     'ui/documentViewer/providers/pdfViewer/pdfjs/textManager',
-    'css!taoCss/tao-main-style.css'
+    
 ], function($, _, pdfjs, pageViewFactory, textManagerFactory) {
     'use strict';
 

@@ -18,7 +18,7 @@
  * @author Alexander Zagovorichev <zagovorichev@1pt.com>
  */
 
-define(['jquery', 'lodash', 'ui/pagination', 'css!taoCss/tao-main-style.css'], function($, _, paginationComponent) {
+define(['jquery', 'lodash', 'ui/pagination'], function($, _, paginationComponent) {
     'use strict';
 
     QUnit.module('API');

@@ -21,7 +21,7 @@ define([
     'lodash',
     'ui/generis/validator/validator',
     'ui/generis/widget/comboBox/comboBox',
-    'css!taoCss/tao-main-style.css'
+    
 ], function($, _, generisValidatorFactory, generisWidgetComboBoxFactory) {
     'use strict';
 

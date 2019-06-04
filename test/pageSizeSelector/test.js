@@ -18,7 +18,7 @@
 /**
  * @author Anton Tsymuk <anton@taotesting.com>
  */
-define(['jquery', 'ui/pageSizeSelector', 'css!taoCss/tao-main-style.css'], function($, pageSizeSelector) {
+define(['jquery', 'ui/pageSizeSelector'], function($, pageSizeSelector) {
     'use strict';
 
     var defaultSize = 500;

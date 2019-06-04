@@ -21,7 +21,7 @@ define([
     'lodash',
     'ui/generis/form/form',
     'json!test/ui/generis/data.json',
-    'css!taoCss/tao-main-style.css'
+    
 ], function($, _, generisFormFactory, generisData) {
     'use strict';
 

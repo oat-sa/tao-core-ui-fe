@@ -18,11 +18,7 @@
 /**
  * @author Sam <sam@taotesting.com>
  */
-define(['jquery', 'lodash', 'ui/dynamicComponent', 'css!taoCss/tao-3.css', 'css!taoCss/tao-main-style.css'], function(
-    $,
-    _,
-    dynamicComponent
-) {
+define(['jquery', 'lodash', 'ui/dynamicComponent'], function($, _, dynamicComponent) {
     'use strict';
 
     QUnit.module('component');

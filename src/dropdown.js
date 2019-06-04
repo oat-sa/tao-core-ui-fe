@@ -23,6 +23,7 @@ import _ from 'lodash';
 import component from 'ui/component';
 import dropdownTpl from 'ui/dropdown/tpl/dropdown';
 import itemTpl from 'ui/dropdown/tpl/list-item';
+import 'ui/dropdown/css/dropdown.css';
 
 /**
  * Some default config

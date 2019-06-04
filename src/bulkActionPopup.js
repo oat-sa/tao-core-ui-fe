@@ -27,6 +27,7 @@ import globalShortcut from 'util/shortcut';
 import namespaceHelper from 'util/namespace';
 import 'ui/modal';
 import 'select2';
+import 'ui/bulkActionPopup/css/bulkActionPopup.css';
 
 /**
  * Namespace used in events and shortcuts

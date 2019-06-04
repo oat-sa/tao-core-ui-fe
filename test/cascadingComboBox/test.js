@@ -18,11 +18,7 @@
 /**
  * @author Mikhail Kamarouski, <kamarouski@1pt.com>
  */
-define(['jquery', 'lodash', 'ui/cascadingComboBox', 'css!taoCss/tao-3.css', 'css!taoCss/tao-main-style.css'], function(
-    $,
-    _,
-    cascadingComboBox
-) {
+define(['jquery', 'lodash', 'ui/cascadingComboBox'], function($, _, cascadingComboBox) {
     'use strict';
 
     QUnit.module('Cascading ComboBox');

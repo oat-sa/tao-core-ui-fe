@@ -18,7 +18,7 @@
 /**
  * @author Anton Tsymuk <anton@taotesting.com>
  */
-define(['jquery', 'ui/dashboard', 'css!taoCss/tao-main-style.css'], function($, dashboard) {
+define(['jquery', 'ui/dashboard'], function($, dashboard) {
     'use strict';
 
     var data = [

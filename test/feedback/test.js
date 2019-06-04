@@ -1,4 +1,4 @@
-define(['jquery', 'ui/feedback', 'css!taoCss/tao-main-style.css'], function($, feedback) {
+define(['jquery', 'ui/feedback'], function($, feedback) {
     'use strict';
 
     QUnit.module('API');

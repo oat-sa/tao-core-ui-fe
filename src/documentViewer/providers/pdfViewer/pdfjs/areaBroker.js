@@ -19,7 +19,7 @@
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
 import _ from 'lodash';
-import areaBroker from 'core/areaBroker';
+import areaBroker from 'ui/areaBroker';
 
 var requireAreas = [
     'bar', // the place dedicated to display the controls
@@ -31,7 +31,7 @@ var requireAreas = [
 /**
  * Creates an area broker with the required areas for the PDF.js viewer.
  *
- * @see core/areaBroker
+ * @see ui/areaBroker
  *
  * @param {jQueryElement|HTMLElement|String} $container - the main container
  * @param {Object} mapping - keys are the area names, values are jQueryElement

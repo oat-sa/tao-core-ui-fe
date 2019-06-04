@@ -33,7 +33,7 @@
 
 import _ from 'lodash';
 import __ from 'i18n';
-import taskQueue from 'core/taskQueue';
+import taskQueue from 'ui/taskQueue';
 import component from 'ui/component';
 import report from 'ui/report';
 import statusTpl from 'ui/taskQueue/tpl/status';

@@ -18,7 +18,7 @@
 /**
  * @author Christophe Noël <christophe@taotesting.com>
  */
-define(['jquery', 'lodash', 'ui/highlighter', 'css!taoCss/tao-main-style.css'], function($, _, highlighterFactory) {
+define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory) {
     'use strict';
 
     var highlightRangeData;

@@ -27,37 +27,45 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
         assert.expect(3);
         assert.equal(typeof componentFactory, 'function', 'The component module exposes a function');
         assert.equal(typeof componentFactory(), 'object', 'The component factory produces an object');
-        assert.notStrictEqual(componentFactory(), componentFactory(), 'The component factory provides a different object on each call');
+        assert.notStrictEqual(
+            componentFactory(),
+            componentFactory(),
+            'The component factory provides a different object on each call'
+        );
     });
 
-    QUnit.cases.init([
-        {title: 'init'},
-        {title: 'destroy'},
-        {title: 'render'},
-        {title: 'setSize'},
-        {title: 'show'},
-        {title: 'hide'},
-        {title: 'enable'},
-        {title: 'disable'},
-        {title: 'is'},
-        {title: 'setState'},
-        {title: 'getContainer'},
-        {title: 'getElement'},
-        {title: 'getTemplate'},
-        {title: 'setTemplate'},
-        {title: 'getConfig'}
-    ]).test('instance API ', function(data, assert) {
-        var instance = componentFactory();
-        assert.expect(1);
-        assert.equal(typeof instance[data.title], 'function', 'The component instance exposes a "' + data.title + '" function');
-    });
+    QUnit.cases
+        .init([
+            { title: 'init' },
+            { title: 'destroy' },
+            { title: 'render' },
+            { title: 'setSize' },
+            { title: 'show' },
+            { title: 'hide' },
+            { title: 'enable' },
+            { title: 'disable' },
+            { title: 'is' },
+            { title: 'setState' },
+            { title: 'getContainer' },
+            { title: 'getElement' },
+            { title: 'getTemplate' },
+            { title: 'setTemplate' },
+            { title: 'getConfig' }
+        ])
+        .test('instance API ', function(data, assert) {
+            var instance = componentFactory();
+            assert.expect(1);
+            assert.equal(
+                typeof instance[data.title],
+                'function',
+                'The component instance exposes a "' + data.title + '" function'
+            );
+        });
 
     QUnit.test('init', function(assert) {
         var specs = {
             value: 10,
-            method: function() {
-
-            }
+            method: function() {}
         };
         var defaults = {
             label: 'a label'
@@ -73,14 +81,34 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
 
         assert.notEqual(instance, specs, 'The component instance must not be the same obect as the list of specs');
         assert.notEqual(instance.config, config, 'The component instance must duplicate the config set');
-        assert.equal(instance.hasOwnProperty('nothing'), false, 'The component instance must not accept undefined config properties');
-        assert.equal(instance.hasOwnProperty('dummy'), false, 'The component instance must not accept null config properties');
-        assert.equal(instance.hasOwnProperty('value'), false, 'The component instance must not accept properties from the list of specs');
+        assert.equal(
+            instance.hasOwnProperty('nothing'),
+            false,
+            'The component instance must not accept undefined config properties'
+        );
+        assert.equal(
+            instance.hasOwnProperty('dummy'),
+            false,
+            'The component instance must not accept null config properties'
+        );
+        assert.equal(
+            instance.hasOwnProperty('value'),
+            false,
+            'The component instance must not accept properties from the list of specs'
+        );
         assert.equal(instance.config.title, config.title, 'The component instance must catch the title config');
         assert.equal(instance.config.label, defaults.label, 'The component instance must set the label config');
         assert.equal(instance.is('rendered'), false, 'The component instance must not be rendered');
-        assert.equal(typeof instance.method, 'function', 'The component instance must have the functions provided in the list of specs');
-        assert.notEqual(instance.method, specs.method, 'The component instance must have created a delegate of the functions provided in the list of specs');
+        assert.equal(
+            typeof instance.method,
+            'function',
+            'The component instance must have the functions provided in the list of specs'
+        );
+        assert.notEqual(
+            instance.method,
+            specs.method,
+            'The component instance must have created a delegate of the functions provided in the list of specs'
+        );
 
         instance.destroy();
     });
@@ -107,11 +135,26 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
             replace: true
         });
 
-        assert.equal($container1.find('.dummy').length, 0, 'The container1 does not contain an element of the class dummy');
+        assert.equal(
+            $container1.find('.dummy').length,
+            0,
+            'The container1 does not contain an element of the class dummy'
+        );
         assert.equal(instance.is('rendered'), true, 'The component instance must be rendered');
-        assert.equal(typeof instance.getElement(), 'object', 'The component instance returns the rendered content as an object');
+        assert.equal(
+            typeof instance.getElement(),
+            'object',
+            'The component instance returns the rendered content as an object'
+        );
         assert.equal(instance.getElement().length, 1, 'The component instance returns the rendered content');
-        assert.equal(instance.getElement().parent().get(0), $container1.get(0), 'The component instance is rendered inside the right container');
+        assert.equal(
+            instance
+                .getElement()
+                .parent()
+                .get(0),
+            $container1.get(0),
+            'The component instance is rendered inside the right container'
+        );
 
         instance.destroy();
 
@@ -128,9 +171,20 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
 
         assert.equal($container2.find('.dummy').length, 1, 'The container2 contains an element of the class dummy');
         assert.equal(instance.is('rendered'), true, 'The component instance must be rendered');
-        assert.equal(typeof instance.getElement(), 'object', 'The component instance returns the rendered content as an object');
+        assert.equal(
+            typeof instance.getElement(),
+            'object',
+            'The component instance returns the rendered content as an object'
+        );
         assert.equal(instance.getElement().length, 1, 'The component instance returns the rendered content');
-        assert.equal(instance.getElement().parent().get(0), $container2.get(0), 'The component instance is rendered inside the right container');
+        assert.equal(
+            instance
+                .getElement()
+                .parent()
+                .get(0),
+            $container2.get(0),
+            'The component instance is rendered inside the right container'
+        );
 
         instance.destroy();
 
@@ -141,15 +195,30 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
         instance = componentFactory().init();
         instance.setTemplate(template);
 
-        assert.equal(typeof instance.getTemplate(), 'function', 'The template used to render the component is a function');
-        assert.equal((instance.getTemplate())(), template, 'The built template is the same as the provided one');
+        assert.equal(
+            typeof instance.getTemplate(),
+            'function',
+            'The template used to render the component is a function'
+        );
+        assert.equal(instance.getTemplate()(), template, 'The built template is the same as the provided one');
 
         instance.render($container3);
 
         assert.equal(instance.is('rendered'), true, 'The component instance must be rendered');
-        assert.equal(typeof instance.getElement(), 'object', 'The component instance returns the rendered content as an object');
+        assert.equal(
+            typeof instance.getElement(),
+            'object',
+            'The component instance returns the rendered content as an object'
+        );
         assert.equal(instance.getElement().length, 1, 'The component instance returns the rendered content');
-        assert.equal(instance.getElement().parent().get(0), $container3.get(0), 'The component instance is rendered inside the right container');
+        assert.equal(
+            instance
+                .getElement()
+                .parent()
+                .get(0),
+            $container3.get(0),
+            'The component instance is rendered inside the right container'
+        );
         assert.equal($container3.html(), renderedTemplate, 'The component instance has rendered the right content');
 
         instance.destroy();
@@ -185,11 +254,26 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
             height: expectedHeight
         });
 
-        assert.equal($container1.find('.dummy').length, 0, 'The container1 does not contain an element of the class dummy');
+        assert.equal(
+            $container1.find('.dummy').length,
+            0,
+            'The container1 does not contain an element of the class dummy'
+        );
         assert.equal(instance.is('rendered'), true, 'The component instance must be rendered');
-        assert.equal(typeof instance.getElement(), 'object', 'The component instance returns the rendered content as an object');
+        assert.equal(
+            typeof instance.getElement(),
+            'object',
+            'The component instance returns the rendered content as an object'
+        );
         assert.equal(instance.getElement().length, 1, 'The component instance returns the rendered content');
-        assert.equal(instance.getElement().parent().get(0), $container1.get(0), 'The component instance is rendered inside the right container');
+        assert.equal(
+            instance
+                .getElement()
+                .parent()
+                .get(0),
+            $container1.get(0),
+            'The component instance is rendered inside the right container'
+        );
 
         assert.equal(instance.getElement().width(), expectedWidth, 'The expected width has been set');
         assert.equal(instance.getElement().height(), expectedHeight, 'The expected height has been set');
@@ -221,9 +305,20 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
 
         assert.equal($container2.find('.dummy').length, 1, 'The container2 contains an element of the class dummy');
         assert.equal(instance.is('rendered'), true, 'The component instance must be rendered');
-        assert.equal(typeof instance.getElement(), 'object', 'The component instance returns the rendered content as an object');
+        assert.equal(
+            typeof instance.getElement(),
+            'object',
+            'The component instance returns the rendered content as an object'
+        );
         assert.equal(instance.getElement().length, 1, 'The component instance returns the rendered content');
-        assert.equal(instance.getElement().parent().get(0), $container2.get(0), 'The component instance is rendered inside the right container');
+        assert.equal(
+            instance
+                .getElement()
+                .parent()
+                .get(0),
+            $container2.get(0),
+            'The component instance is rendered inside the right container'
+        );
 
         assert.equal(instance.getElement().width(), expectedWidth, 'The expected width has been set');
         assert.equal(instance.getElement().height(), expectedHeight, 'The expected height has been set');
@@ -244,15 +339,30 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
         instance = componentFactory().init();
         instance.setTemplate(template);
 
-        assert.equal(typeof instance.getTemplate(), 'function', 'The template used to render the component is a function');
-        assert.equal((instance.getTemplate())(), template, 'The built template is the same as the provided one');
+        assert.equal(
+            typeof instance.getTemplate(),
+            'function',
+            'The template used to render the component is a function'
+        );
+        assert.equal(instance.getTemplate()(), template, 'The built template is the same as the provided one');
 
         instance.render($container3);
 
         assert.equal(instance.is('rendered'), true, 'The component instance must be rendered');
-        assert.equal(typeof instance.getElement(), 'object', 'The component instance returns the rendered content as an object');
+        assert.equal(
+            typeof instance.getElement(),
+            'object',
+            'The component instance returns the rendered content as an object'
+        );
         assert.equal(instance.getElement().length, 1, 'The component instance returns the rendered content');
-        assert.equal(instance.getElement().parent().get(0), $container3.get(0), 'The component instance is rendered inside the right container');
+        assert.equal(
+            instance
+                .getElement()
+                .parent()
+                .get(0),
+            $container3.get(0),
+            'The component instance is rendered inside the right container'
+        );
         assert.equal($container3.html(), renderedTemplate, 'The component instance has rendered the right content');
 
         instance.setSize(expectedWidth, expectedHeight);
@@ -269,48 +379,127 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
         assert.equal(instance.getElement(), null, 'The component instance has removed its rendered content');
     });
 
-    QUnit
-        .cases.init([
+    QUnit.cases
+        .init([
             {
                 title: 'content-box, no extra size, margin not included',
-                boxSizing: 'content-box', width: 100, height: 100, margin: 0, padding: 0, border: 0, includeMargin: false,
-                outerWidth: 100, outerHeight: 100
-            }, {
+                boxSizing: 'content-box',
+                width: 100,
+                height: 100,
+                margin: 0,
+                padding: 0,
+                border: 0,
+                includeMargin: false,
+                outerWidth: 100,
+                outerHeight: 100
+            },
+            {
                 title: 'content-box, with margin, margin not included',
-                boxSizing: 'content-box', width: 100, height: 100, margin: 10, padding: 0, border: 0, includeMargin: false,
-                outerWidth: 100, outerHeight: 100
-            }, {
+                boxSizing: 'content-box',
+                width: 100,
+                height: 100,
+                margin: 10,
+                padding: 0,
+                border: 0,
+                includeMargin: false,
+                outerWidth: 100,
+                outerHeight: 100
+            },
+            {
                 title: 'content-box, with margin, margin included',
-                boxSizing: 'content-box', width: 100, height: 100, margin: 10, padding: 0, border: 0, includeMargin: true,
-                outerWidth: 120, outerHeight: 120
-            }, {
+                boxSizing: 'content-box',
+                width: 100,
+                height: 100,
+                margin: 10,
+                padding: 0,
+                border: 0,
+                includeMargin: true,
+                outerWidth: 120,
+                outerHeight: 120
+            },
+            {
                 title: 'content-box, with margin/padding, margin included',
-                boxSizing: 'content-box', width: 100, height: 100, margin: 10, padding: 10, border: 0, includeMargin: true,
-                outerWidth: 140, outerHeight: 140
-            }, {
+                boxSizing: 'content-box',
+                width: 100,
+                height: 100,
+                margin: 10,
+                padding: 10,
+                border: 0,
+                includeMargin: true,
+                outerWidth: 140,
+                outerHeight: 140
+            },
+            {
                 title: 'content-box, with margin/padding/border, margin included',
-                boxSizing: 'content-box', width: 100, height: 100, margin: 10, padding: 10, border: 10, includeMargin: true,
-                outerWidth: 160, outerHeight: 160
-            }, {
+                boxSizing: 'content-box',
+                width: 100,
+                height: 100,
+                margin: 10,
+                padding: 10,
+                border: 10,
+                includeMargin: true,
+                outerWidth: 160,
+                outerHeight: 160
+            },
+            {
                 title: 'border-box, no extra size, margin not included',
-                boxSizing: 'border-box', width: 100, height: 100, margin: 0, padding: 0, border: 0, includeMargin: false,
-                outerWidth: 100, outerHeight: 100
-            }, {
+                boxSizing: 'border-box',
+                width: 100,
+                height: 100,
+                margin: 0,
+                padding: 0,
+                border: 0,
+                includeMargin: false,
+                outerWidth: 100,
+                outerHeight: 100
+            },
+            {
                 title: 'border-box, with margin, margin not included',
-                boxSizing: 'border-box', width: 100, height: 100, margin: 10, padding: 0, border: 0, includeMargin: false,
-                outerWidth: 100, outerHeight: 100
-            }, {
+                boxSizing: 'border-box',
+                width: 100,
+                height: 100,
+                margin: 10,
+                padding: 0,
+                border: 0,
+                includeMargin: false,
+                outerWidth: 100,
+                outerHeight: 100
+            },
+            {
                 title: 'border-box, with margin, margin included',
-                boxSizing: 'border-box', width: 100, height: 100, margin: 10, padding: 0, border: 0, includeMargin: true,
-                outerWidth: 120, outerHeight: 120
-            }, {
+                boxSizing: 'border-box',
+                width: 100,
+                height: 100,
+                margin: 10,
+                padding: 0,
+                border: 0,
+                includeMargin: true,
+                outerWidth: 120,
+                outerHeight: 120
+            },
+            {
                 title: 'border-box, with margin/padding, margin included',
-                boxSizing: 'border-box', width: 100, height: 100, margin: 10, padding: 10, border: 0, includeMargin: true,
-                outerWidth: 120, outerHeight: 120
-            }, {
+                boxSizing: 'border-box',
+                width: 100,
+                height: 100,
+                margin: 10,
+                padding: 10,
+                border: 0,
+                includeMargin: true,
+                outerWidth: 120,
+                outerHeight: 120
+            },
+            {
                 title: 'border-box, with margin/padding/border, margin included',
-                boxSizing: 'border-box', width: 100, height: 100, margin: 10, padding: 10, border: 10, includeMargin: true,
-                outerWidth: 120, outerHeight: 120
+                boxSizing: 'border-box',
+                width: 100,
+                height: 100,
+                margin: 10,
+                padding: 10,
+                border: 10,
+                includeMargin: true,
+                outerWidth: 120,
+                outerHeight: 120
             }
         ])
         .test('getOuterSize()', function(data, assert) {
@@ -327,9 +516,9 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
 
                     $component.css({
                         'box-sizing': data.boxSizing,
-                        'padding': data.padding + 'px',
-                        'margin': data.margin + 'px',
-                        'border': data.border + 'px solid black'
+                        padding: data.padding + 'px',
+                        margin: data.margin + 'px',
+                        border: data.border + 'px solid black'
                     });
 
                     outerSize = this.getOuterSize(data.includeMargin);
@@ -348,8 +537,8 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
 
     QUnit.test('show/hide', function(assert) {
         var instance = componentFactory()
-                        .init()
-                        .render();
+            .init()
+            .render();
 
         var $component = instance.getElement();
 
@@ -359,7 +548,11 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
         assert.equal($component.length, 1, 'The component instance returns the rendered content');
 
         assert.equal(instance.is('hidden'), false, 'The component instance is visible');
-        assert.equal(instance.getElement().hasClass('hidden'), false, 'The component instance does not have the hidden class');
+        assert.equal(
+            instance.getElement().hasClass('hidden'),
+            false,
+            'The component instance does not have the hidden class'
+        );
 
         instance.hide();
 
@@ -369,15 +562,19 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
         instance.show();
 
         assert.equal(instance.is('hidden'), false, 'The component instance is visible');
-        assert.equal(instance.getElement().hasClass('hidden'), false, 'The component instance does not have the hidden class');
+        assert.equal(
+            instance.getElement().hasClass('hidden'),
+            false,
+            'The component instance does not have the hidden class'
+        );
 
         instance.destroy();
     });
 
     QUnit.test('enable/disable', function(assert) {
         var instance = componentFactory()
-                        .init()
-                        .render();
+            .init()
+            .render();
         var $component = instance.getElement();
 
         assert.expect(8);
@@ -386,7 +583,11 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
         assert.equal($component.length, 1, 'The component instance returns the rendered content');
 
         assert.equal(instance.is('disabled'), false, 'The component instance is enabled');
-        assert.equal(instance.getElement().hasClass('disabled'), false, 'The component instance does not have the disabled class');
+        assert.equal(
+            instance.getElement().hasClass('disabled'),
+            false,
+            'The component instance does not have the disabled class'
+        );
 
         instance.disable();
 
@@ -396,15 +597,19 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
         instance.enable();
 
         assert.equal(instance.is('disabled'), false, 'The component instance is enabled');
-        assert.equal(instance.getElement().hasClass('disabled'), false, 'The component instance does not have the disabled class');
+        assert.equal(
+            instance.getElement().hasClass('disabled'),
+            false,
+            'The component instance does not have the disabled class'
+        );
 
         instance.destroy();
     });
 
     QUnit.test('state', function(assert) {
         var instance = componentFactory()
-                        .init()
-                        .render();
+            .init()
+            .render();
         var $component = instance.getElement();
 
         assert.expect(8);
@@ -413,17 +618,29 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
         assert.equal($component.length, 1, 'The component instance returns the rendered content');
 
         assert.equal(instance.is('customState'), false, 'The component instance does not have the customState state');
-        assert.equal(instance.getElement().hasClass('customState'), false, 'The component instance does not have the customState class');
+        assert.equal(
+            instance.getElement().hasClass('customState'),
+            false,
+            'The component instance does not have the customState class'
+        );
 
         instance.setState('customState', true);
 
         assert.equal(instance.is('customState'), true, 'The component instance has the customState state');
-        assert.equal(instance.getElement().hasClass('customState'), true, 'The component instance has the customState class');
+        assert.equal(
+            instance.getElement().hasClass('customState'),
+            true,
+            'The component instance has the customState class'
+        );
 
         instance.setState('customState', false);
 
         assert.equal(instance.is('customState'), false, 'The component instance does not have the customState state');
-        assert.equal(instance.getElement().hasClass('customState'), false, 'The component instance does not have the customState class');
+        assert.equal(
+            instance.getElement().hasClass('customState'),
+            false,
+            'The component instance does not have the customState class'
+        );
 
         instance.destroy();
     });
@@ -509,10 +726,14 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
 
         instance.init(config);
 
-        assert.deepEqual(instance.getConfig(), {
-            label: 'config',
-            init: true,
-            value: 12
-        }, 'The component contains the init config');
+        assert.deepEqual(
+            instance.getConfig(),
+            {
+                label: 'config',
+                init: true,
+                value: 12
+            },
+            'The component contains the init config'
+        );
     });
 });

@@ -23,8 +23,8 @@ define([
     'lodash',
     'ui/maths/calculator/core/plugin',
     'ui/maths/calculator/defaultCalculator',
-    'css!taoCss/tao-3.css',
-    'css!taoCss/tao-main-style.css'
+    
+    
 ], function($, _, pluginFactory, defaultCalculatorFactory) {
     'use strict';
 

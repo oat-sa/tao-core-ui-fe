@@ -6,6 +6,7 @@ import filePreview from 'ui/resourcemgr/filePreview';
 import fileSelector from 'ui/resourcemgr/fileSelector';
 import layout from 'ui/resourcemgr/tpl/layout';
 import 'ui/modal';
+import 'ui/resourcemgr/css/resourcemgr.css';
 
 var ns = 'resourcemgr';
 var dataNs = 'ui.' + ns;

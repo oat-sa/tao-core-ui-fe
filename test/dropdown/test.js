@@ -18,7 +18,7 @@
 /**
  * @author Martin Nicholson <martin@taotesting.com>
  */
-define(['jquery', 'ui/dropdown', 'css!taoCss/tao-main-style.css'], function($, dropdown) {
+define(['jquery', 'ui/dropdown'], function($, dropdown) {
     'use strict';
 
     var htmlItem = '<a><span>HTML Item</span></a>';

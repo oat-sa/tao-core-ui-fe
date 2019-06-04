@@ -22,7 +22,7 @@ define([
     'jquery',
     'core/promise',
     'ui/documentViewer/providers/pdfViewer/fallback/viewer',
-    'css!taoCss/tao-main-style.css'
+    
 ], function($, Promise, fallbackFactory) {
     'use strict';
 

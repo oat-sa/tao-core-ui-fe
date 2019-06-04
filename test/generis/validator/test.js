@@ -16,7 +16,7 @@
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
  */
 
-define(['jquery', 'lodash', 'ui/generis/validator/validator', 'css!taoCss/tao-main-style.css'], function(
+define(['jquery', 'lodash', 'ui/generis/validator/validator', ], function(
     $,
     _,
     generisValidatorFactory

@@ -55,8 +55,9 @@
 import __ from 'i18n';
 import _ from 'lodash';
 import component from 'ui/component';
-import dashboardTpl from 'ui/dashboard/dashboard';
-import metricsListTpl from 'ui/dashboard/dashboardMetricsList';
+import dashboardTpl from 'ui/dashboard/tpl/dashboard';
+import metricsListTpl from 'ui/dashboard/tpl/dashboardMetricsList';
+import 'ui/dashboard/css/dashboard.css';
 
 var defaults = {
     headerText: __('Outlook on the next Synchronization'),

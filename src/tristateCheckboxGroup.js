@@ -22,9 +22,10 @@ import $ from 'jquery';
 import _ from 'lodash';
 import __ from 'i18n';
 import component from 'ui/component';
-import layoutTpl from 'ui/tristateCheckboxGroup/list';
-import elementTpl from 'ui/tristateCheckboxGroup/li';
+import layoutTpl from 'ui/tristateCheckboxGroup/tpl/list';
+import elementTpl from 'ui/tristateCheckboxGroup/tpl/li';
 import tooltip from 'ui/tooltip';
+import 'ui/tristateCheckboxGroup/css/tristateCheckboxGroup.css';
 
 /**
  * Defines tristate checkboxes methods

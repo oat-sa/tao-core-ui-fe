@@ -22,7 +22,7 @@ define([
     'ui/taskQueue/taskQueueModel',
     'ui/taskQueueButton/taskable',
     'css!ui/resource/css/selector',
-    'css!taoCss/tao-main-style.css'
+    
 ], function($, _, componentFactory, taskQueueModelFactory, makeTaskable) {
     'use strict';
 

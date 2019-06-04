@@ -27,6 +27,7 @@ import loadingBar from 'layout/loading-bar';
 import loggerFactory from 'core/logger';
 import httpErrorParser from 'util/httpErrorParser';
 import pageSizeSelector from 'ui/pageSizeSelector';
+import 'ui/datatable/css/datatable.css';
 
 var ns = 'datatable';
 

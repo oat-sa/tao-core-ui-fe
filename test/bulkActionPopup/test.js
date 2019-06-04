@@ -18,15 +18,12 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
-define([
-    'jquery',
-    'lodash',
-    'ui/bulkActionPopup',
-    'ui/cascadingComboBox',
-    'lib/simulator/jquery.simulate',
-    'css!taoCss/tao-3.css',
-    'css!taoCss/tao-main-style.css'
-], function($, _, bulkActionPopup, cascadingComboBox) {
+define(['jquery', 'lodash', 'ui/bulkActionPopup', 'ui/cascadingComboBox', 'lib/simulator/jquery.simulate'], function(
+    $,
+    _,
+    bulkActionPopup,
+    cascadingComboBox
+) {
     'use strict';
 
     QUnit.module('Bulk Action Popup');

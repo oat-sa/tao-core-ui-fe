@@ -16,13 +16,11 @@
  * Copyright (c) 2016 (original work) Open Assessment Technologies SA ;
  */
 
-define([
-    'jquery',
-    'ui/movableComponent',
-    'ui/component/placeable',
-    'css!taoCss/tao-3.css',
-    'css!taoCss/tao-main-style.css'
-], function($, movableComponentFactory, makePlaceable) {
+define(['jquery', 'ui/movableComponent', 'ui/component/placeable'], function(
+    $,
+    movableComponentFactory,
+    makePlaceable
+) {
     'use strict';
 
     QUnit.module('API');

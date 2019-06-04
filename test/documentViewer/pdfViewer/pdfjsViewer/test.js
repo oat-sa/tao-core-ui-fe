@@ -25,7 +25,7 @@ define([
     'ui/documentViewer/providers/pdfViewer/pdfjs/wrapper',
     'ui/documentViewer/providers/pdfViewer/pdfjs/viewer',
     'pdfjs-dist/build/pdf',
-    'css!taoCss/tao-main-style.css'
+    
 ], function($, Promise, keystroker, wrapperFactory, viewerFactory, pdfjs) {
     'use strict';
 

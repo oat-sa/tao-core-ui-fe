@@ -26,7 +26,7 @@ define([
     'ui/resource/filters',
     'json!test/ui/resource/filters/properties.json',
     'css!ui/resource/css/selector',
-    'css!taoCss/tao-main-style.css'
+    
 ], function($, filtersFactory, propertiesData) {
     'use strict';
 

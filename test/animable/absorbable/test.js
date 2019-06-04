@@ -21,7 +21,7 @@ define([
     'ui/component',
     'ui/animable/absorbable/absorbable',
     'css!ui/resource/css/selector',
-    'css!taoCss/tao-main-style.css'
+    
 ], function($, _, componentFactory, makeAbsorbable) {
     'use strict';
 

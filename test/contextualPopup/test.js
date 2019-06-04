@@ -1,7 +1,4 @@
-define(['jquery', 'ui/contextualPopup', 'css!taoCss/tao-main-style.css', 'css!test/contextualPopup/test.css'], function(
-    $,
-    contextualPopup
-) {
+define(['jquery', 'ui/contextualPopup', 'css!test/contextualPopup/test.css'], function($, contextualPopup) {
     'use strict';
 
     QUnit.module('init popup');

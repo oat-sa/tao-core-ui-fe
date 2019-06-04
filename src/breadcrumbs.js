@@ -22,6 +22,7 @@
 import _ from 'lodash';
 import component from 'ui/component';
 import breadcrumbsTpl from 'ui/breadcrumbs/tpl/breadcrumbs';
+import 'ui/breadcrumbs/css/breadcrumbs.css';
 
 /**
  * Defines a breadcrumbs component

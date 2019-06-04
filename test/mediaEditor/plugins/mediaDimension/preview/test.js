@@ -21,7 +21,7 @@ define([
     'jquery',
     'lodash',
     'ui/mediaEditor/plugins/mediaDimension/mediaDimensionComponent',
-    'css!taoCss/tao-main-style.css'
+    
 ], function($, _, mediaDimensionComponent) {
     'use strict';
 

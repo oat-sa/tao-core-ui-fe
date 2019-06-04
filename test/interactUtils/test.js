@@ -1,4 +1,4 @@
-define(['jquery', 'lodash', 'interact', 'ui/interactUtils', 'core/mouseEvent', 'css!taoCss/tao-main-style.css'], function(
+define(['jquery', 'lodash', 'interact', 'ui/interactUtils', 'core/mouseEvent'], function(
     $,
     _,
     interact,

@@ -18,7 +18,8 @@
  */
 import $ from 'jquery';
 import _ from 'lodash';
-import popupTpl from 'ui/contextualPopup/popup';
+import popupTpl from 'ui/contextualPopup/tpl/popup';
+import 'ui/contextualPopup/css/contextualPopup.css';
 
 var _ns = '.contextual-popup';
 

@@ -15,11 +15,7 @@
  *
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
  */
-define(['jquery', 'lodash', 'ui/loadingButton/loadingButton', 'css!taoCss/tao-main-style.css'], function(
-    $,
-    _,
-    loadingButtonFactory
-) {
+define(['jquery', 'lodash', 'ui/loadingButton/loadingButton'], function($, _, loadingButtonFactory) {
     'use strict';
 
     QUnit.module('API');

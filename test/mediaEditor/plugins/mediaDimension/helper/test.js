@@ -17,7 +17,7 @@
  *
  */
 
-define(['lodash', 'ui/mediaEditor/plugins/mediaDimension/helper', 'css!taoCss/tao-main-style.css'], function(
+define(['lodash', 'ui/mediaEditor/plugins/mediaDimension/helper', ], function(
     _,
     helper
 ) {

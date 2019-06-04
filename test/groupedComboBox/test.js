@@ -18,11 +18,7 @@
 /**
  * @author Mikhail Kamarouski, <kamarouski@1pt.com>
  */
-define(['jquery', 'lodash', 'ui/groupedComboBox', 'css!taoCss/tao-3.css', 'css!taoCss/tao-main-style.css'], function(
-    $,
-    _,
-    groupedComboBox
-) {
+define(['jquery', 'lodash', 'ui/groupedComboBox'], function($, _, groupedComboBox) {
     'use strict';
 
     var selectEntries = {

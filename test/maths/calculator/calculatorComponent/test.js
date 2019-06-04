@@ -24,8 +24,8 @@ define([
     'core/promise',
     'ui/maths/calculator/core/plugin',
     'ui/maths/calculator/calculatorComponent',
-    'css!taoCss/tao-3.css',
-    'css!taoCss/tao-main-style.css'
+    
+    
 ], function($, _, Promise, pluginFactory, calculatorComponentFactory) {
     'use strict';
 

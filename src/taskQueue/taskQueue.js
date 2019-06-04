@@ -16,7 +16,7 @@
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
  */
 import urlHelper from 'util/url';
-import taskQueueModelFactory from 'core/taskQueue/taskQueueModel';
+import taskQueueModelFactory from 'ui/taskQueue/taskQueueModel';
 
 /**
  * Returns the singleton task queue preconfigured with the tao task queue REST API.

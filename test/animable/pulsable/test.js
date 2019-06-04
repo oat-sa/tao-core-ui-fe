@@ -21,7 +21,7 @@ define([
     'ui/component',
     'ui/animable/pulsable/pulsable',
     'css!ui/resource/css/selector',
-    'css!taoCss/tao-main-style.css'
+    
 ], function($, _, componentFactory, makePulsable) {
     'use strict';
 

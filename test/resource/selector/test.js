@@ -29,7 +29,7 @@ define([
     'json!test/ui/resource/tree/root.json',
     'json!test/ui/resource/tree/node.json',
     'json!test/ui/resource/list/nodes.json',
-    'css!taoCss/tao-main-style.css'
+    
 ], function($, _, resourceSelectorFactory, classesData, treeRootData, treeNodeData, listData) {
     'use strict';
 

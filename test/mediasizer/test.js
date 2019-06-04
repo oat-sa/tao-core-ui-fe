@@ -1,4 +1,4 @@
-define(['jquery', 'ui/mediasizer', 'css!taoCss/tao-main-style.css'], function($) {
+define(['jquery', 'ui/mediasizer'], function($) {
     var mode = 'nat'; // Nat (=natural size) | px (=pixels) | pc (=%)
 
     $('#_' + mode).show();

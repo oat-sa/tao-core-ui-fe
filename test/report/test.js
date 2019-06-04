@@ -16,11 +16,7 @@
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
  */
 
-define(['jquery', 'lodash', 'ui/report', 'css!taoCss/tao-3.css', 'css!taoCss/tao-main-style.css'], function(
-    $,
-    _,
-    report
-) {
+define(['jquery', 'lodash', 'ui/report'], function($, _, report) {
     'use strict';
 
     QUnit.module('API');

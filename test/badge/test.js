@@ -15,13 +15,7 @@
  *
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
  */
-define([
-    'jquery',
-    'lodash',
-    'ui/badge/badge',
-    'css!ui/resource/css/selector.css',
-    'css!taoCss/tao-main-style.css'
-], function($, _, badgeFactory) {
+define(['jquery', 'lodash', 'ui/badge/badge', 'css!ui/resource/css/selector.css'], function($, _, badgeFactory) {
     'use strict';
 
     QUnit.module('API');

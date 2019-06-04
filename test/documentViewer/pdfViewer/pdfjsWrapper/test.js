@@ -23,7 +23,7 @@ define([
     'core/eventifier',
     'pdfjs-dist/build/pdf',
     'ui/documentViewer/providers/pdfViewer/pdfjs/wrapper',
-    'css!taoCss/tao-main-style.css'
+    
 ], function($, eventifier, pdfjs, wrapperFactory) {
     'use strict';
 

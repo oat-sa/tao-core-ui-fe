@@ -26,7 +26,8 @@ import makeStackable from 'ui/component/stackable';
 import interactUtils from 'ui/interactUtils';
 import position from 'util/position';
 import uuid from 'lib/uuid';
-import layoutTpl from 'ui/dynamicComponent/layout';
+import layoutTpl from 'ui/dynamicComponent/tpl/layout';
+import 'ui/dynamicComponent/css/dynamicComponent.css';
 
 var _defaults = {
     title: '',

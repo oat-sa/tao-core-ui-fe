@@ -1,4 +1,4 @@
-define(['lodash', 'ui/themes', 'css!taoCss/tao-main-style.css'], function(_, themesHandler) {
+define(['lodash', 'ui/themes'], function(_, themesHandler) {
     'use strict';
 
     var config = {

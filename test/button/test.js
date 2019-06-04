@@ -19,11 +19,7 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
-define(['jquery', 'lodash', 'ui/button', 'css!taoCss/tao-3.css', 'css!taoCss/tao-main-style.css'], function(
-    $,
-    _,
-    button
-) {
+define(['jquery', 'lodash', 'ui/button'], function($, _, button) {
     'use strict';
 
     var renderCases;

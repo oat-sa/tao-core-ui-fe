@@ -19,7 +19,7 @@
 /**
  * @author Bertrand Chevrier <bertrand@taotesting.com>
  */
-define(['jquery', 'ui/waitingDialog/waitingDialog', 'css!taoCss/tao-main-style.css'], function($, waitingDialog) {
+define(['jquery', 'ui/waitingDialog/waitingDialog'], function($, waitingDialog) {
     'use strict';
 
     var config = { container: '#qunit-fixture' };

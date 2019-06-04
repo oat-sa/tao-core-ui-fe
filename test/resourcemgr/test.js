@@ -1,4 +1,4 @@
-define(['jquery', 'ui/resourcemgr', 'css!taoCss/tao-main-style.css'], function($) {
+define(['jquery', 'ui/resourcemgr'], function($) {
     'use strict';
 
     QUnit.module('Init');
