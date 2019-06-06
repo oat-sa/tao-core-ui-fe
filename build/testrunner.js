@@ -40,7 +40,13 @@ webServer.then(({ host, port }) =>
                 // (optional, 30000 by default) global timeout for the tests suite
                 timeout: 30000,
                 // (optional, false by default) should the browser console be redirected or not
-                redirectConsole: false
+                redirectConsole: false,
+                puppeteerArgs: [
+                    '--no-sandbox',
+                    '--disable-gpu',
+                    '--disable-popup-blocking',
+                    '--autoplay-policy=no-user-gesture-required'
+                ]
             };
 
             return limit(() =>
