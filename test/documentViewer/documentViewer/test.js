@@ -18,7 +18,7 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
-define(['lodash', 'core/promise', 'ui/documentViewer'], function(_, Promise, documentViewer) {
+define(['lodash', 'ui/documentViewer'], function(_,  documentViewer) {
     'use strict';
 
     QUnit.module('documentViewer factory');

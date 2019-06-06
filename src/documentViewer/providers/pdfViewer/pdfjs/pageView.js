@@ -19,7 +19,7 @@
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
 import $ from 'jquery';
-import Promise from 'core/promise';
+
 import hider from 'ui/hider';
 import pageTpl from 'ui/documentViewer/providers/pdfViewer/pdfjs/page';
 

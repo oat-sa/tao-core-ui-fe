@@ -23,7 +23,7 @@
  */
 
 import $ from 'jquery';
-import Promise from 'core/promise';
+
 import shortcuts from 'util/shortcut';
 
 var scrollHelper;

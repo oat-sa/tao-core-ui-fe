@@ -21,11 +21,11 @@
 define([
     'jquery',
     'lodash',
-    'core/promise',
+    
     'pdfjs-dist/build/pdf',
     'ui/documentViewer/providers/pdfViewer/pdfjs/textManager',
     
-], function($, _, Promise, pdfjs, textManagerFactory) {
+], function($, _,  pdfjs, textManagerFactory) {
     'use strict';
 
     var pdfUrl = location.href.replace('/pdfViewer/textManager/test.html', '/sample/demo.pdf');

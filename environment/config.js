@@ -31,10 +31,10 @@ requirejs.config({
         ui: '/dist',
         core: '/node_modules/@oat-sa/tao-core-sdk/dist/core',
         util: '/node_modules/@oat-sa/tao-core-sdk/dist/util',
-        jquery: '/node_modules/@oat-sa/tao-core-libs/dist/jquery',
-        lodash: '/node_modules/@oat-sa/tao-core-libs/dist/lodash',
-        moment: '/node_modules/@oat-sa/tao-core-libs/dist/moment',
-        handlebars: '/node_modules/@oat-sa/tao-core-libs/dist/handlebars',
+        jquery: '/node_modules/jquery/jquery',
+        lodash: '/node_modules/lodash/lodash',
+        moment: '/node_modules/moment/min/moment-with-locales',
+        handlebars: '/node_modules/handlebars/dist/handlebars.amd',
 
         /* LIBS */
         tpl: '/lib/tpl',

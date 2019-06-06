@@ -21,12 +21,12 @@
 define([
     'jquery',
     'lodash',
-    'core/promise',
+    
     'ui/maths/calculator/core/plugin',
     'ui/maths/calculator/calculatorComponent',
     
     
-], function($, _, Promise, pluginFactory, calculatorComponentFactory) {
+], function($, _,  pluginFactory, calculatorComponentFactory) {
     'use strict';
 
     QUnit.module('Factory');

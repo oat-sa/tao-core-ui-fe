@@ -19,7 +19,7 @@
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
 import $ from 'jquery';
-import Promise from 'core/promise';
+
 
 /**
  * Keep a component element visible inside a container.

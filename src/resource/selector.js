@@ -42,7 +42,7 @@
 import $ from 'jquery';
 import _ from 'lodash';
 import __ from 'i18n';
-import Promise from 'core/promise';
+
 import component from 'ui/component';
 import hider from 'ui/hider';
 import classesSelectorFactory from 'ui/class/selector';

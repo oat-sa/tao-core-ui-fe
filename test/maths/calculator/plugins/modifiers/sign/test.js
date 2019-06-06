@@ -21,11 +21,11 @@
 define([
     'jquery',
     'lodash',
-    'core/promise',
+    
     'ui/maths/calculator/core/board',
     'ui/maths/calculator/plugins/modifiers/sign',
     'json!test/ui/maths/calculator/plugins/modifiers/sign/testCases.json'
-], function($, _, Promise, calculatorBoardFactory, signPluginFactory, testCases) {
+], function($, _,  calculatorBoardFactory, signPluginFactory, testCases) {
     'use strict';
 
     QUnit.module('module');

@@ -21,7 +21,7 @@
 define([
     'jquery',
     'lodash',
-    'core/promise',
+    
     'ui/maths/calculator/core/board',
     'ui/maths/calculator/core/terms',
     'ui/maths/calculator/core/expression',
@@ -32,7 +32,7 @@ define([
 ], function(
     $,
     _,
-    Promise,
+    
     calculatorBoardFactory,
     registeredTerms,
     expressionHelper,

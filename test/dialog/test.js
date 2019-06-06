@@ -18,7 +18,7 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
-define(['jquery', 'lodash', 'core/promise', 'ui/dialog'], function($, _, Promise, dialog) {
+define(['jquery', 'lodash', 'ui/dialog'], function($, _, dialog) {
     'use strict';
 
     QUnit.module('dialog');

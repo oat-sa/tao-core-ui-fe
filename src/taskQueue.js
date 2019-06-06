@@ -51,7 +51,7 @@
  * @deprected this is the legacy task queue management api, please use views/js/ui/taskQueue/taskQueue.js instead
  */
 import _ from 'lodash';
-import Promise from 'core/promise';
+
 import eventifier from 'core/eventifier';
 import request from 'core/dataProvider/request';
 import polling from 'core/polling';

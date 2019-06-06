@@ -20,7 +20,7 @@
  */
 import _ from 'lodash';
 import __ from 'i18n';
-import Promise from 'core/promise';
+
 import dynamicComponent from 'ui/dynamicComponent';
 import calculatorBoardFactory from 'ui/maths/calculator/core/board';
 import pluginsLoader from 'ui/maths/calculator/pluginsLoader';

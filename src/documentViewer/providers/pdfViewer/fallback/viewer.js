@@ -19,7 +19,7 @@
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
 
-import Promise from 'core/promise';
+
 import viewerTpl from 'ui/documentViewer/providers/pdfViewer/fallback/viewer.tpl';
 
 /**

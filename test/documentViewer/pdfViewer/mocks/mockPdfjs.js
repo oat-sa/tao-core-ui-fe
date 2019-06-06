@@ -18,7 +18,7 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
-define(['lodash', 'core/eventifier', 'core/promise'], function(_, eventifier, Promise) {
+define(['lodash', 'core/eventifier'], function(_, eventifier) {
     'use strict';
 
     /**

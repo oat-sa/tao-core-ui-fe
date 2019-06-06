@@ -35,7 +35,7 @@
  */
 import $ from 'jquery';
 import _ from 'lodash';
-import Promise from 'core/promise';
+
 import eventifier from 'core/eventifier';
 import polling from 'core/polling';
 import request from 'core/dataProvider/request';

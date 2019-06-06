@@ -25,7 +25,7 @@ import externalAlias from './external-alias';
 import resolve from 'rollup-plugin-node-resolve';
 
 const { srcDir, outputDir, aliases } = require('./path');
-const Handlebars = require('@oat-sa/tao-core-libs/src/handlebars');
+const Handlebars = require('handlebars');
 
 /**
  * Support of handlebars 1.3.0

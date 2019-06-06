@@ -22,7 +22,7 @@
 
 import _ from 'lodash';
 import __ from 'i18n';
-import Promise from 'core/promise';
+
 import collections from 'core/collections';
 import componentFactory from 'ui/component';
 import areaBrokerFactory from 'ui/maths/calculator/core/areaBroker';

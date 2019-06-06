@@ -18,18 +18,17 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
-define([
-
-    'lodash',
-    'core/promise',
-    'ui/documentViewer/viewerFactory',
-    'tpl!test/ui/documentViewer/viewerFactory/mock'
-], function(_, Promise, viewerFactory, mockTpl) {
+define(['lodash', 'ui/documentViewer/viewerFactory', 'tpl!test/ui/documentViewer/viewerFactory/mock'], function(
+    _,
+    
+    viewerFactory,
+    mockTpl
+) {
     'use strict';
 
     QUnit.module('viewerFactory factory', {
         beforeEach: function(assert) {
-            viewerFactory.registerProvider('mock', {init: _.noop, load: _.noop});
+            viewerFactory.registerProvider('mock', { init: _.noop, load: _.noop });
         },
         afterEach: function(assert) {
             viewerFactory.clearProviders();
@@ -40,41 +39,55 @@ define([
         assert.expect(5);
 
         assert.equal(typeof viewerFactory, 'function', 'The viewerFactory module exposes a function');
-        assert.equal(typeof viewerFactory.registerProvider, 'function', 'The instance module exposes a function registerProvider()');
-        assert.equal(typeof viewerFactory.getProvider, 'function', 'The instance module exposes a function getProvider()');
+        assert.equal(
+            typeof viewerFactory.registerProvider,
+            'function',
+            'The instance module exposes a function registerProvider()'
+        );
+        assert.equal(
+            typeof viewerFactory.getProvider,
+            'function',
+            'The instance module exposes a function getProvider()'
+        );
         assert.equal(typeof viewerFactory('mock'), 'object', 'The viewerFactory factory produces an object');
-        assert.notStrictEqual(viewerFactory('mock'), viewerFactory('mock'), 'The viewerFactory factory provides a different object on each call');
+        assert.notStrictEqual(
+            viewerFactory('mock'),
+            viewerFactory('mock'),
+            'The viewerFactory factory provides a different object on each call'
+        );
     });
 
     var viewerFactoryApi = [
-        {name: 'init', title: 'init'},
-        {name: 'destroy', title: 'destroy'},
-        {name: 'render', title: 'render'},
-        {name: 'setSize', title: 'setSize'},
-        {name: 'show', title: 'show'},
-        {name: 'hide', title: 'hide'},
-        {name: 'enable', title: 'enable'},
-        {name: 'disable', title: 'disable'},
-        {name: 'is', title: 'is'},
-        {name: 'setState', title: 'setState'},
-        {name: 'getContainer', title: 'getContainer'},
-        {name: 'getElement', title: 'getElement'},
-        {name: 'getType', title: 'getType'},
-        {name: 'getUrl', title: 'getUrl'},
-        {name: 'getTemplate', title: 'getTemplate'},
-        {name: 'setTemplate', title: 'setTemplate'},
-        {name: 'trigger', title: 'trigger'},
-        {name: 'before', title: 'before'},
-        {name: 'on', title: 'on'},
-        {name: 'after', title: 'after'}
+        { name: 'init', title: 'init' },
+        { name: 'destroy', title: 'destroy' },
+        { name: 'render', title: 'render' },
+        { name: 'setSize', title: 'setSize' },
+        { name: 'show', title: 'show' },
+        { name: 'hide', title: 'hide' },
+        { name: 'enable', title: 'enable' },
+        { name: 'disable', title: 'disable' },
+        { name: 'is', title: 'is' },
+        { name: 'setState', title: 'setState' },
+        { name: 'getContainer', title: 'getContainer' },
+        { name: 'getElement', title: 'getElement' },
+        { name: 'getType', title: 'getType' },
+        { name: 'getUrl', title: 'getUrl' },
+        { name: 'getTemplate', title: 'getTemplate' },
+        { name: 'setTemplate', title: 'setTemplate' },
+        { name: 'trigger', title: 'trigger' },
+        { name: 'before', title: 'before' },
+        { name: 'on', title: 'on' },
+        { name: 'after', title: 'after' }
     ];
 
-    QUnit
-        .cases.init(viewerFactoryApi)
-        .test('has API ', function(data, assert) {
-            var instance = viewerFactory('mock');
-            assert.equal(typeof instance[data.name], 'function', 'The viewerFactory instance exposes a "' + data.name + '" function');
-        });
+    QUnit.cases.init(viewerFactoryApi).test('has API ', function(data, assert) {
+        var instance = viewerFactory('mock');
+        assert.equal(
+            typeof instance[data.name],
+            'function',
+            'The viewerFactory instance exposes a "' + data.name + '" function'
+        );
+    });
 
     QUnit.module('provider', {
         beforeEach: function(assert) {
@@ -90,14 +103,14 @@ define([
         }, 'An error is thrown when no provider is provided');
 
         assert.throws(function() {
-            viewerFactory.registerProvider('mock', {load: _.noop});
+            viewerFactory.registerProvider('mock', { load: _.noop });
         }, 'An error is thrown when a provider without init method is provided');
 
         assert.throws(function() {
-            viewerFactory.registerProvider('mock', {init: _.noop});
+            viewerFactory.registerProvider('mock', { init: _.noop });
         }, 'An error is thrown when a provider without load method is provided');
 
-        viewerFactory.registerProvider('mock', {init: _.noop, load: _.noop});
+        viewerFactory.registerProvider('mock', { init: _.noop, load: _.noop });
         assert.ok(true, 'No error is thrown when a well formatted provider is provided');
     });
 
@@ -123,11 +136,10 @@ define([
             load: _.noop
         });
 
-        viewerFactory('mock', expectedConfig)
-            .on('initialized', function() {
-                assert.ok(true, 'The viewer is initialized');
-                ready();
-            });
+        viewerFactory('mock', expectedConfig).on('initialized', function() {
+            assert.ok(true, 'The viewer is initialized');
+            ready();
+        });
     });
 
     QUnit.test('destroy()', function(assert) {
@@ -284,12 +296,11 @@ define([
             load: _.noop
         });
 
-        viewerFactory('mock')
-            .on('error', function() {
-                assert.ok(true, 'The viewer has thrown an error when initializing');
+        viewerFactory('mock').on('error', function() {
+            assert.ok(true, 'The viewer has thrown an error when initializing');
 
-                ready();
-            });
+            ready();
+        });
     });
 
     QUnit.test('load error', function(assert) {
@@ -307,12 +318,11 @@ define([
             }
         });
 
-        viewerFactory('mock')
-            .on('error', function() {
-                assert.ok(true, 'The viewer has thrown an error when loading');
+        viewerFactory('mock').on('error', function() {
+            assert.ok(true, 'The viewer has thrown an error when loading');
 
-                ready();
-            });
+            ready();
+        });
     });
 
     QUnit.test('setSize error', function(assert) {
@@ -334,12 +344,11 @@ define([
             }
         });
 
-        viewerFactory('mock')
-            .on('error', function() {
-                assert.ok(true, 'The viewer has thrown an error when resizing');
+        viewerFactory('mock').on('error', function() {
+            assert.ok(true, 'The viewer has thrown an error when resizing');
 
-                ready();
-            });
+            ready();
+        });
     });
 
     QUnit.test('unload error', function(assert) {
@@ -361,12 +370,11 @@ define([
             }
         });
 
-        viewerFactory('mock')
-            .on('error', function() {
-                assert.ok(true, 'The viewer has thrown an error when unloading');
+        viewerFactory('mock').on('error', function() {
+            assert.ok(true, 'The viewer has thrown an error when unloading');
 
-                ready();
-            });
+            ready();
+        });
     });
 
     QUnit.test('getType', function(assert) {
@@ -374,8 +382,8 @@ define([
 
         assert.expect(1);
 
-        viewerFactory.registerProvider('pdf', {init: _.noop, load: _.noop});
-        viewer = viewerFactory('pdf', {type: 'pdf', url: '/test.pdf'});
+        viewerFactory.registerProvider('pdf', { init: _.noop, load: _.noop });
+        viewer = viewerFactory('pdf', { type: 'pdf', url: '/test.pdf' });
         assert.equal(viewer.getType(), 'pdf', 'The type is defined');
     });
 
@@ -384,8 +392,8 @@ define([
 
         assert.expect(1);
 
-        viewerFactory.registerProvider('pdf', {init: _.noop, load: _.noop});
-        viewer = viewerFactory('pdf', {type: 'pdf', url: '/test.pdf'});
+        viewerFactory.registerProvider('pdf', { init: _.noop, load: _.noop });
+        viewer = viewerFactory('pdf', { type: 'pdf', url: '/test.pdf' });
         assert.equal(viewer.getUrl(), '/test.pdf', 'The url is defined');
     });
 

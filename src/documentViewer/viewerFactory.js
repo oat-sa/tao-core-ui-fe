@@ -19,7 +19,7 @@
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
 import _ from 'lodash';
-import Promise from 'core/promise';
+
 import providerRegistry from 'core/providerRegistry';
 import delegator from 'core/delegator';
 import component from 'ui/component';

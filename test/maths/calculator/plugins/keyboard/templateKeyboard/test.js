@@ -21,12 +21,12 @@
 define([
     'jquery',
     'lodash',
-    'core/promise',
+    
     'ui/maths/calculator/core/board',
     'ui/maths/calculator/plugins/keyboard/templateKeyboard/templateKeyboard',
     
     
-], function($, _, Promise, calculatorBoardFactory, templateKeyboardPluginFactory) {
+], function($, _,  calculatorBoardFactory, templateKeyboardPluginFactory) {
     'use strict';
 
     QUnit.module('module');

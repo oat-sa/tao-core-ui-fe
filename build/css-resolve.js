@@ -16,14 +16,14 @@
  * Copyright (c) 2019 (original work) Open Assessment Technologies SA ;
  */
 
-const fs = require('fs');
-const { mkdirp } = require('fs-extra');
+const { mkdirp, copyFile, access, constants } = require('fs-extra');
 const path = require('path');
 const { outputDir, srcDir, aliases } = require('./path');
 
 /**
  * resolve aliases in module name like ui or core
- * @param {string} id
+ * @param {string} id - module id
+ * @returns {string} id with resolved alias
  */
 const resolveAlias = id => {
     for (let alias in aliases) {
@@ -41,32 +41,34 @@ const resolveAlias = id => {
  * Copy CSS file and optionally the source map to output directory
  * @param {string} cssFile
  */
-const copyCss = cssFile => {
+const copyCss = async cssFile => {
     const outputFile = path.resolve(outputDir, path.relative(srcDir, cssFile));
 
-    fs.access(cssFile, fs.constants.F_OK, err => {
-        if (err) {
-            console.error('\x1b[33m%s\x1b[0m', `${cssFile} was not found!`); // it is yellow
-            return;
-        }
-        mkdirp(path.dirname(outputFile), () => {
-            fs.copyFile(cssFile, outputFile, err => {
-                if (err) {
-                    throw err;
-                }
-            });
-            const mapFile = `${cssFile}.map`;
-            fs.access(mapFile, fs.constants.F_OK, err => {
-                if (!err) {
-                    fs.copyFile(mapFile, `${outputFile}.map`, err => {
-                        if (err) {
-                            throw err;
-                        }
-                    });
-                }
-            });
-        });
-    });
+    // check css file existance
+    try {
+        await access(cssFile, constants.F_OK);
+    } catch (err) {
+        console.error('\x1b[33m%s\x1b[0m', `${cssFile} was not found!`); // it is yellow
+        return;
+    }
+
+    // create output directory if it is not exists
+    const outputFileDir = path.dirname(outputFile);
+    try {
+        await access(outputFileDir, constants.F_OK);
+    } catch (err) {
+        await mkdirp(outputFileDir);
+    }
+
+    // copy css file
+    await copyFile(cssFile, outputFile);
+
+    // copy map file if it exists
+    const mapFile = `${cssFile}.map`;
+    try {
+        await access(mapFile, constants.F_OK);
+        await copyFile(mapFile, `${outputFile}.map`)``;
+    } catch (e) {}
 };
 
 /**

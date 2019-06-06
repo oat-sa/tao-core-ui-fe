@@ -20,10 +20,10 @@
  */
 define([
     'jquery',
-    'core/promise',
+    
     'ui/documentViewer/providers/pdfViewer/fallback/viewer',
     
-], function($, Promise, fallbackFactory) {
+], function($,  fallbackFactory) {
     'use strict';
 
     var headless = /HeadlessChrome/.test(window.navigator.userAgent);

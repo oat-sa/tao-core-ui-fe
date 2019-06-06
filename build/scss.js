@@ -16,7 +16,7 @@
  * Copyright (c) 2019 (original work) Open Assessment Technologies SA ;
  */
 
-const fs = require('fs');
+const { mkdirp, copy, writeFile, readFile, access, constants } = require('fs-extra');
 const path = require('path');
 const glob = require('glob');
 const postcss = require('postcss');
@@ -24,7 +24,6 @@ const postcssScss = require('postcss-scss');
 const promiseLimit = require('promise-limit');
 const { srcDir, scssVendorDir, rootPath } = require('./path');
 const postcssConfig = require('./postcss.config');
-const { mkdirp, copy } = require('fs-extra');
 
 const limit = promiseLimit(5);
 
@@ -33,51 +32,57 @@ const limit = promiseLimit(5);
  * @param {string} scssFile
  * @param {map: Boolean} options
  */
-const buildScss = scssFile =>
-    new Promise(resolve => {
-        const outputFile = scssFile.replace(/([\/\.])scss(\/|$)/g, '$1css$2');
+const buildScss = async scssFile => {
+    const outputFile = scssFile.replace(/([\/\.])scss(\/|$)/g, '$1css$2');
 
-        fs.readFile(scssFile, 'utf8', (err, source) => {
-            if (err) {
-                throw new Error(`File not found: ${scssFile}`);
-            }
-            postcss(postcssConfig.plugins)
-                .process(source, {
-                    syntax: postcssScss,
-                    from: scssFile,
-                    to: outputFile,
-                    map: { annotation: true }
-                })
-                .catch(err => {
-                    console.error(err);
-                    process.exit(-1);
-                })
-                .then(writeOutResult)
-                .then(resolve);
+    // load file content
+    let source;
+    try {
+        source = await readFile(scssFile, 'utf8');
+    } catch (e) {
+        throw new Error(`File not found: ${scssFile}`);
+    }
+
+    // compile scss
+    let compiledSource;
+    try {
+        compiledSource = await postcss(postcssConfig.plugins).process(source, {
+            syntax: postcssScss,
+            from: scssFile,
+            to: outputFile,
+            map: { annotation: true }
         });
-    });
+    } catch (e) {
+        console.error(e);
+        process.exit(-1);
+    }
+
+    // write out css
+    return writeOutResult(compiledSource);
+};
 
 /**
  * Write out compiled css and source map
  * @param {LazyResult} result
  */
-const writeOutResult = result => {
+const writeOutResult = async result => {
     const outputFile = result.opts.to;
-    mkdirp(path.dirname(outputFile), () => {
-        fs.writeFile(outputFile, result.css, { flag: 'w' }, err => {
-            if (err) {
-                throw err;
-            }
-        });
+    const outputFileDir = path.dirname(outputFile);
 
-        if (result.map) {
-            fs.writeFile(`${outputFile}.map`, result.map, { flag: 'w' }, err => {
-                if (err) {
-                    throw err;
-                }
-            });
-        }
-    });
+    // create output directory if it doesn't exist
+    try {
+        await access(outputFileDir, constants.F_OK);
+    } catch (e) {
+        await mkdirp(outputFileDir);
+    }
+
+    // write out css
+    await writeFile(outputFile, result.css, { flag: 'w' });
+
+    // write out map if exist
+    if (result.map) {
+        await writeFile(`${outputFile}.map`, result.map, { flag: 'w' });
+    }
 };
 
 /**

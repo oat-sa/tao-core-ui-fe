@@ -21,10 +21,10 @@
 define([
     'jquery',
     'lodash',
-    'core/promise',
+    
     'ui/maths/calculator/core/board',
     'ui/maths/calculator/plugins/core/history'
-], function($, _, Promise, calculatorBoardFactory, historyPluginFactory) {
+], function($, _,  calculatorBoardFactory, historyPluginFactory) {
     'use strict';
 
     QUnit.module('module');
