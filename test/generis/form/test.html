@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Ui Test - Generis Form</title>
+        <script type="text/javascript" src="/environment/require.js"></script>
+        <script type="text/javascript">
+            require(['/environment/config.js'], function() {
+                require(['qunitEnv'], function() {
+                    require(['test/ui/generis/form/test'], function() {
+                        QUnit.start();
+                    });
+                });
+            });
+        </script>
+        <style>
+            #display-and-play {
+                border: 1px solid blue;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="qunit"></div>
+        <div id="qunit-fixture">
+            <div id="fixture-1"></div>
+            <div id="fixture-2"></div>
+            <div id="fixture-3"></div>
+            <div id="fixture-4"></div>
+            <div id="fixture-5"></div>
+            <div id="fixture-6"></div>
+        </div>
+        <div id="display-and-play">
+            <h2>Display & Play</h2>
+        </div>
+    </body>
+</html>
