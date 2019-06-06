@@ -16,13 +16,12 @@
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
  */
 
-define([
-    'jquery',
-    'lodash',
-    'ui/generis/validator/validator',
-    'ui/generis/widget/comboBox/comboBox',
-    
-], function($, _, generisValidatorFactory, generisWidgetComboBoxFactory) {
+define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget/comboBox/comboBox'], function(
+    $,
+    _,
+    generisValidatorFactory,
+    generisWidgetComboBoxFactory
+) {
     'use strict';
 
     var fields = [

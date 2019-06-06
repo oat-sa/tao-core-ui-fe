@@ -23,8 +23,7 @@ define([
     'lodash',
     'pdfjs-dist/build/pdf',
     'ui/documentViewer/providers/pdfViewer/pdfjs/pageView',
-    'ui/documentViewer/providers/pdfViewer/pdfjs/textManager',
-    
+    'ui/documentViewer/providers/pdfViewer/pdfjs/textManager'
 ], function($, _, pdfjs, pageViewFactory, textManagerFactory) {
     'use strict';
 

@@ -18,13 +18,12 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
  */
-define([
-    'jquery',
-    'lodash',
-    
-    'ui/maths/calculator/core/board',
-    'ui/maths/calculator/plugins/core/remind'
-], function($, _,  calculatorBoardFactory, remindPluginFactory) {
+define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculator/plugins/core/remind'], function(
+    $,
+    _,
+    calculatorBoardFactory,
+    remindPluginFactory
+) {
     'use strict';
 
     QUnit.module('module');
@@ -36,33 +35,43 @@ define([
 
         assert.equal(typeof remindPluginFactory, 'function', 'The plugin module exposes a function');
         assert.equal(typeof remindPluginFactory(calculator), 'object', 'The plugin factory produces an instance');
-        assert.notStrictEqual(remindPluginFactory(calculator), remindPluginFactory(calculator), 'The plugin factory provides a different instance on each call');
+        assert.notStrictEqual(
+            remindPluginFactory(calculator),
+            remindPluginFactory(calculator),
+            'The plugin factory provides a different instance on each call'
+        );
     });
 
     QUnit.module('api');
 
-    QUnit.cases.init([
-        {title: 'install'},
-        {title: 'init'},
-        {title: 'render'},
-        {title: 'destroy'},
-        {title: 'trigger'},
-        {title: 'getCalculator'},
-        {title: 'getAreaBroker'},
-        {title: 'getConfig'},
-        {title: 'setConfig'},
-        {title: 'getState'},
-        {title: 'setState'},
-        {title: 'show'},
-        {title: 'hide'},
-        {title: 'enable'},
-        {title: 'disable'}
-    ]).test('plugin API ', function(data, assert) {
-        var calculator = calculatorBoardFactory();
-        var plugin = remindPluginFactory(calculator);
-        assert.expect(1);
-        assert.equal(typeof plugin[data.title], 'function', 'The plugin instances expose a "' + data.title + '" function');
-    });
+    QUnit.cases
+        .init([
+            { title: 'install' },
+            { title: 'init' },
+            { title: 'render' },
+            { title: 'destroy' },
+            { title: 'trigger' },
+            { title: 'getCalculator' },
+            { title: 'getAreaBroker' },
+            { title: 'getConfig' },
+            { title: 'setConfig' },
+            { title: 'getState' },
+            { title: 'setState' },
+            { title: 'show' },
+            { title: 'hide' },
+            { title: 'enable' },
+            { title: 'disable' }
+        ])
+        .test('plugin API ', function(data, assert) {
+            var calculator = calculatorBoardFactory();
+            var plugin = remindPluginFactory(calculator);
+            assert.expect(1);
+            assert.equal(
+                typeof plugin[data.title],
+                'function',
+                'The plugin instances expose a "' + data.title + '" function'
+            );
+        });
 
     QUnit.module('behavior');
 
@@ -89,7 +98,8 @@ define([
                         ready();
                     });
 
-                plugin.install()
+                plugin
+                    .install()
                     .then(function() {
                         assert.ok(calculator.hasCommand('remind'), 'The command remind is now registered');
                         assert.ok(calculator.hasCommand('remindLast'), 'The command remindLast is now registered');
@@ -136,7 +146,8 @@ define([
                         ready();
                     });
 
-                plugin.install()
+                plugin
+                    .install()
                     .then(function() {
                         return plugin.init();
                     })
@@ -147,16 +158,29 @@ define([
                         assert.ok(calculator.hasCommand('remindClear'), 'The command remindClear is now registered');
 
                         assert.ok(!calculator.hasVariable('mem'), 'The remind variable does not exist at this time');
-                        assert.ok(!calculator.hasVariable('last'), 'The remind last variable does not exist at this time');
+                        assert.ok(
+                            !calculator.hasVariable('last'),
+                            'The remind last variable does not exist at this time'
+                        );
 
                         return new Promise(function(resolve) {
                             calculator
                                 .after('evaluate.test', function(r1) {
                                     calculator.off('evaluate.test');
 
-                                    assert.ok(!calculator.hasVariable('mem'), 'The remind variable still does not exist');
-                                    assert.ok(calculator.hasVariable('last'), 'The remind last variable should now exist');
-                                    assert.deepEqual(calculator.getVariable('last'), r1, 'The remind last variable is equal to the last result');
+                                    assert.ok(
+                                        !calculator.hasVariable('mem'),
+                                        'The remind variable still does not exist'
+                                    );
+                                    assert.ok(
+                                        calculator.hasVariable('last'),
+                                        'The remind last variable should now exist'
+                                    );
+                                    assert.deepEqual(
+                                        calculator.getVariable('last'),
+                                        r1,
+                                        'The remind last variable is equal to the last result'
+                                    );
                                     assert.equal(r1.value, '7', 'The result is correct');
 
                                     resolve();
@@ -194,12 +218,12 @@ define([
                 assert.ok(!calculator.hasCommand('remindStore'), 'The command remindStore is not yet registered');
                 assert.ok(!calculator.hasCommand('remindClear'), 'The command remindClear is not yet registered');
 
-                calculator
-                    .on('destroy', function() {
-                        ready();
-                    });
+                calculator.on('destroy', function() {
+                    ready();
+                });
 
-                plugin.install()
+                plugin
+                    .install()
                     .then(function() {
                         return plugin.init();
                     })
@@ -257,7 +281,8 @@ define([
                         ready();
                     });
 
-                plugin.install()
+                plugin
+                    .install()
                     .then(function() {
                         return plugin.init();
                     })
@@ -268,7 +293,10 @@ define([
                         assert.ok(calculator.hasCommand('remindClear'), 'The command remindClear is now registered');
 
                         assert.ok(!calculator.hasVariable('mem'), 'The remind variable does not exist at this time');
-                        assert.ok(!calculator.hasVariable('last'), 'The remind last variable does not exist at this time');
+                        assert.ok(
+                            !calculator.hasVariable('last'),
+                            'The remind last variable does not exist at this time'
+                        );
                     })
                     .then(function() {
                         return new Promise(function(resolve) {
@@ -276,9 +304,19 @@ define([
                                 .after('evaluate.test', function(result) {
                                     calculator.off('evaluate.test');
 
-                                    assert.ok(!calculator.hasVariable('mem'), 'The remind variable still does not exist');
-                                    assert.ok(calculator.hasVariable('last'), 'The remind last variable should now exist');
-                                    assert.deepEqual(calculator.getVariable('last'), result, 'The remind last variable is equal to the last result');
+                                    assert.ok(
+                                        !calculator.hasVariable('mem'),
+                                        'The remind variable still does not exist'
+                                    );
+                                    assert.ok(
+                                        calculator.hasVariable('last'),
+                                        'The remind last variable should now exist'
+                                    );
+                                    assert.deepEqual(
+                                        calculator.getVariable('last'),
+                                        result,
+                                        'The remind last variable is equal to the last result'
+                                    );
                                     assert.equal(result.value, '7', 'The result is correct');
 
                                     resolve();
@@ -293,9 +331,19 @@ define([
                                 .after('evaluate.test', function(result) {
                                     calculator.off('evaluate.test');
 
-                                    assert.ok(!calculator.hasVariable('mem'), 'The remind variable still does not exist');
-                                    assert.ok(calculator.hasVariable('last'), 'The remind last variable should now exist');
-                                    assert.deepEqual(calculator.getVariable('last'), result, 'The remind last variable is equal to the last result');
+                                    assert.ok(
+                                        !calculator.hasVariable('mem'),
+                                        'The remind variable still does not exist'
+                                    );
+                                    assert.ok(
+                                        calculator.hasVariable('last'),
+                                        'The remind last variable should now exist'
+                                    );
+                                    assert.deepEqual(
+                                        calculator.getVariable('last'),
+                                        result,
+                                        'The remind last variable is equal to the last result'
+                                    );
                                     assert.equal(result.value, '20', 'The result is correct');
 
                                     resolve();
@@ -311,9 +359,20 @@ define([
                                     calculator.off('command-remindStore.test');
 
                                     assert.ok(calculator.hasVariable('mem'), 'The remind variable should now exist');
-                                    assert.ok(calculator.hasVariable('last'), 'The remind last variable should now exist');
-                                    assert.deepEqual(calculator.getVariable('mem'), calculator.getVariable('last'), 'The remind last variable is equal to the last result');
-                                    assert.equal(calculator.getVariable('mem').value, '20', 'The variable contains the correct value');
+                                    assert.ok(
+                                        calculator.hasVariable('last'),
+                                        'The remind last variable should now exist'
+                                    );
+                                    assert.deepEqual(
+                                        calculator.getVariable('mem'),
+                                        calculator.getVariable('last'),
+                                        'The remind last variable is equal to the last result'
+                                    );
+                                    assert.equal(
+                                        calculator.getVariable('mem').value,
+                                        '20',
+                                        'The variable contains the correct value'
+                                    );
 
                                     resolve();
                                 })
@@ -326,7 +385,11 @@ define([
                                 .after('command-remind.test', function() {
                                     calculator.off('command-remind.test');
 
-                                    assert.equal(calculator.getExpression(), '10+mem', 'The expression has been updated with the remind variable');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        '10+mem',
+                                        'The expression has been updated with the remind variable'
+                                    );
 
                                     resolve();
                                 })
@@ -342,8 +405,16 @@ define([
 
                                     assert.ok(calculator.hasVariable('mem'), 'The remind variable still exist');
                                     assert.ok(calculator.hasVariable('last'), 'The remind last variable still exist');
-                                    assert.equal(calculator.getVariable('mem').value, '20', 'The remind variable contains the correct value');
-                                    assert.deepEqual(calculator.getVariable('last'), result, 'The remind last variable is equal to the last result');
+                                    assert.equal(
+                                        calculator.getVariable('mem').value,
+                                        '20',
+                                        'The remind variable contains the correct value'
+                                    );
+                                    assert.deepEqual(
+                                        calculator.getVariable('last'),
+                                        result,
+                                        'The remind last variable is equal to the last result'
+                                    );
                                     assert.equal(result.value, '30', 'The result is correct');
 
                                     resolve();
@@ -357,11 +428,23 @@ define([
                                 .after('evaluate.test', function(result) {
                                     calculator.off('evaluate.test');
 
-                                    assert.equal(calculator.getExpression(), 'last+mem', 'The expression has been properly updated');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        'last+mem',
+                                        'The expression has been properly updated'
+                                    );
                                     assert.ok(calculator.hasVariable('mem'), 'The remind variable still exist');
                                     assert.ok(calculator.hasVariable('last'), 'The remind last variable still exist');
-                                    assert.equal(calculator.getVariable('mem').value, '20', 'The remind variable contains the correct value');
-                                    assert.deepEqual(calculator.getVariable('last'), result, 'The remind last variable is equal to the last result');
+                                    assert.equal(
+                                        calculator.getVariable('mem').value,
+                                        '20',
+                                        'The remind variable contains the correct value'
+                                    );
+                                    assert.deepEqual(
+                                        calculator.getVariable('last'),
+                                        result,
+                                        'The remind last variable is equal to the last result'
+                                    );
                                     assert.equal(result.value, '50', 'The result is correct');
 
                                     resolve(result);
@@ -381,7 +464,11 @@ define([
 
                                     assert.ok(!calculator.hasVariable('mem'), 'The remind variable has been destroyed');
                                     assert.ok(calculator.hasVariable('last'), 'The remind last variable still exist');
-                                    assert.deepEqual(calculator.getVariable('last'), result, 'The remind last variable is equal to the last result');
+                                    assert.deepEqual(
+                                        calculator.getVariable('last'),
+                                        result,
+                                        'The remind last variable is equal to the last result'
+                                    );
 
                                     resolve();
                                 })

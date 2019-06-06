@@ -22,8 +22,7 @@ define([
     'jquery',
     'pdfjs-dist/build/pdf',
     'ui/documentViewer/providers/pdfViewer/pdfjs/pagesManager',
-    'ui/documentViewer/providers/pdfViewer/pdfjs/textManager',
-    
+    'ui/documentViewer/providers/pdfViewer/pdfjs/textManager'
 ], function($, pdfjs, pagesManagerFactory, textManagerFactory) {
     'use strict';
 

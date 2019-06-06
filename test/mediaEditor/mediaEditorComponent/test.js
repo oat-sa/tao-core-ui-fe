@@ -18,10 +18,7 @@
  * @author Oleksander Zagovorychev <zagovorichev@gmail.com>
  */
 
-define(['jquery', 'ui/mediaEditor/mediaEditorComponent', ], function(
-    $,
-    mediaEditorComponent
-) {
+define(['jquery', 'ui/mediaEditor/mediaEditorComponent'], function($, mediaEditorComponent) {
     'use strict';
 
     QUnit.module('Demo');

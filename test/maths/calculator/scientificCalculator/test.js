@@ -18,13 +18,7 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
  */
-define([
-    'jquery',
-    'lodash',
-    'ui/maths/calculator/scientificCalculator',
-    
-    
-], function($, _, scientificCalculatorFactory) {
+define(['jquery', 'lodash', 'ui/maths/calculator/scientificCalculator'], function($, _, scientificCalculatorFactory) {
     'use strict';
 
     QUnit.module('Factory');

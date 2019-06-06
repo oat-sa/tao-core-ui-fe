@@ -18,12 +18,7 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
-define([
-    'jquery',
-    
-    'ui/documentViewer/providers/pdfViewer/fallback/viewer',
-    
-], function($,  fallbackFactory) {
+define(['jquery', 'ui/documentViewer/providers/pdfViewer/fallback/viewer'], function($, fallbackFactory) {
     'use strict';
 
     var headless = /HeadlessChrome/.test(window.navigator.userAgent);

@@ -25,8 +25,7 @@ define([
     'ui/component/placeable',
     'ui/component/draggable',
     'ui/component/resizable',
-    'ui/component/windowed',
-    
+    'ui/component/windowed'
 ], function(_, $, componentFactory, makePlaceable, makeDraggable, makeResizable, makeWindowed) {
     'use strict';
 

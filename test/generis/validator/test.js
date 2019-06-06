@@ -16,11 +16,7 @@
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
  */
 
-define(['jquery', 'lodash', 'ui/generis/validator/validator', ], function(
-    $,
-    _,
-    generisValidatorFactory
-) {
+define(['jquery', 'lodash', 'ui/generis/validator/validator'], function($, _, generisValidatorFactory) {
     'use strict';
 
     var validations = [

@@ -17,10 +17,7 @@
  *
  */
 
-define(['lodash', 'ui/mediaEditor/plugins/mediaDimension/helper', ], function(
-    _,
-    helper
-) {
+define(['lodash', 'ui/mediaEditor/plugins/mediaDimension/helper'], function(_, helper) {
     'use strict';
 
     var workingConfiguration = {

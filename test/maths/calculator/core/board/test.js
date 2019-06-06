@@ -21,12 +21,11 @@
 define([
     'jquery',
     'lodash',
-    
     'ui/maths/calculator/core/plugin',
     'ui/maths/calculator/core/board',
     'ui/maths/calculator/core/terms',
     'ui/maths/calculator/core/tokenizer'
-], function($, _,  pluginFactory, calculatorBoardFactory, registeredTerms) {
+], function($, _, pluginFactory, calculatorBoardFactory, registeredTerms) {
     'use strict';
 
     var builtInCommands = {

@@ -21,7 +21,7 @@
  *
  * @author Bertrand Chevrier <bertrand@taotesting.com>
  */
-define(['jquery', 'ui/resource/selectable', ], function($, selectable) {
+define(['jquery', 'ui/resource/selectable'], function($, selectable) {
     'use strict';
 
     var noop = function() {};

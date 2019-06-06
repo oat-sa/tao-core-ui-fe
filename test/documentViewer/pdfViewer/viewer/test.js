@@ -20,12 +20,10 @@
  */
 define([
     'lodash',
-    
     'ui/documentViewer/viewerFactory',
     'ui/documentViewer/providers/pdfViewer',
-    'test/ui/documentViewer/pdfViewer/mocks/mockPdfjs',
-    
-], function(_,  viewerFactory, pdfViewer, mockPdfjs) {
+    'test/ui/documentViewer/pdfViewer/mocks/mockPdfjs'
+], function(_, viewerFactory, pdfViewer, mockPdfjs) {
     'use strict';
 
     var headless = /HeadlessChrome/.test(window.navigator.userAgent);

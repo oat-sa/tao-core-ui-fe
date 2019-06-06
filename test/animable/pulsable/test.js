@@ -15,14 +15,12 @@
  *
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
  */
-define([
-    'jquery',
-    'lodash',
-    'ui/component',
-    'ui/animable/pulsable/pulsable',
-    'css!ui/resource/css/selector',
-    
-], function($, _, componentFactory, makePulsable) {
+define(['jquery', 'lodash', 'ui/component', 'ui/animable/pulsable/pulsable', 'css!ui/resource/css/selector'], function(
+    $,
+    _,
+    componentFactory,
+    makePulsable
+) {
     'use strict';
 
     QUnit.module('API');

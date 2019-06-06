@@ -20,7 +20,6 @@
  */
 define([
     'lodash',
-    
     'ui/maths/calculator/pluginsLoader',
     'ui/maths/calculator/plugins/core/degrad',
     'ui/maths/calculator/plugins/core/history',
@@ -30,7 +29,6 @@ define([
     'test/ui/maths/calculator/pluginsLoader/plugin2'
 ], function(
     _,
-    
     loadPlugins,
     pluginDegradFactory,
     pluginHistoryFactory,

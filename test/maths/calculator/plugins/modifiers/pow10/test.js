@@ -21,11 +21,10 @@
 define([
     'jquery',
     'lodash',
-    
     'ui/maths/calculator/core/board',
     'ui/maths/calculator/plugins/modifiers/pow10',
     'json!test/ui/maths/calculator/plugins/modifiers/pow10/testCases.json'
-], function($, _,  calculatorBoardFactory, pow10PluginFactory, testCases) {
+], function($, _, calculatorBoardFactory, pow10PluginFactory, testCases) {
     'use strict';
 
     QUnit.module('module');

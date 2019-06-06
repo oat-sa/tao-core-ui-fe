@@ -21,7 +21,7 @@
  *
  * @author Bertrand Chevrier <bertrand@taotesting.com>
  */
-define(['ui/datetime/picker', ], function(dateTimePicker) {
+define(['ui/datetime/picker'], function(dateTimePicker) {
     'use strict';
 
     QUnit.module('API');

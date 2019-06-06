@@ -18,13 +18,12 @@
 /**
  * @author Christophe Noël <christophe@taotesting.com>
  */
-define([
-
-    'jquery',
-    'ui/component',
-    'ui/component/placeable',
-    'ui/component/draggable'
-], function($, componentFactory, makePlaceable, makeDraggable) {
+define(['jquery', 'ui/component', 'ui/component/placeable', 'ui/component/draggable'], function(
+    $,
+    componentFactory,
+    makePlaceable,
+    makeDraggable
+) {
     'use strict';
 
     QUnit.module('API');
@@ -45,7 +44,7 @@ define([
 
     QUnit.test('Display and play', function(assert) {
         var ready = assert.async();
-        var component = componentFactory({}, {width: 200, height: 300}),
+        var component = componentFactory({}, { width: 200, height: 300 }),
             $container = $('#outside');
 
         assert.expect(1);
@@ -59,8 +58,6 @@ define([
             })
             .init()
             .render($container)
-            .center()
-        ;
+            .center();
     });
-
 });

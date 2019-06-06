@@ -18,11 +18,7 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
-define([
-
-    'jquery',
-    'ui/documentViewer/providers/pdfViewer/pdfjs/areaBroker'
-], function($, areaBroker) {
+define(['jquery', 'ui/documentViewer/providers/pdfViewer/pdfjs/areaBroker'], function($, areaBroker) {
     'use strict';
 
     var fixture = '#qunit-fixture';
@@ -43,36 +39,56 @@ define([
         var $info = $('.info', $container);
         var $content = $('.content', $container);
         var mapping = {
-            'bar': $bar,
-            'actions': $actions,
-            'info': $info,
-            'content': $content
+            bar: $bar,
+            actions: $actions,
+            info: $info,
+            content: $content
         };
 
         assert.expect(7);
 
         assert.ok($container.length, 'The container exists');
 
-        assert.throws(function() {
-            areaBroker();
-        }, TypeError, 'A broker must be created with a container');
+        assert.throws(
+            function() {
+                areaBroker();
+            },
+            TypeError,
+            'A broker must be created with a container'
+        );
 
-        assert.throws(function() {
-            areaBroker('foo');
-        }, TypeError, 'A broker must be created with an existing container');
+        assert.throws(
+            function() {
+                areaBroker('foo');
+            },
+            TypeError,
+            'A broker must be created with an existing container'
+        );
 
-        assert.throws(function() {
-            areaBroker($container);
-        }, TypeError, 'A broker must be created with an area mapping');
+        assert.throws(
+            function() {
+                areaBroker($container);
+            },
+            TypeError,
+            'A broker must be created with an area mapping'
+        );
 
-        assert.throws(function() {
-            areaBroker($container, {
-                content: $content
-            });
-        }, TypeError, 'A broker must be created with a full area mapping');
+        assert.throws(
+            function() {
+                areaBroker($container, {
+                    content: $content
+                });
+            },
+            TypeError,
+            'A broker must be created with a full area mapping'
+        );
 
         assert.equal(typeof areaBroker($container, mapping), 'object', 'The factory creates an object');
-        assert.notEqual(areaBroker($container, mapping), areaBroker($container, mapping), 'The factory creates new instances');
+        assert.notEqual(
+            areaBroker($container, mapping),
+            areaBroker($container, mapping),
+            'The factory creates new instances'
+        );
     });
 
     QUnit.test('broker api', function(assert) {
@@ -83,10 +99,10 @@ define([
         var $info = $('.info', $container);
         var $content = $('.content', $container);
         var mapping = {
-            'bar': $bar,
-            'actions': $actions,
-            'info': $info,
-            'content': $content
+            bar: $bar,
+            actions: $actions,
+            info: $info,
+            content: $content
         };
         var broker = areaBroker($container, mapping);
 
@@ -108,10 +124,10 @@ define([
         var $info = $('.info', $container);
         var $content = $('.content', $container);
         var mapping = {
-            'bar': $bar,
-            'actions': $actions,
-            'info': $info,
-            'content': $content
+            bar: $bar,
+            actions: $actions,
+            info: $info,
+            content: $content
         };
         var broker = areaBroker($container, mapping);
 
@@ -119,20 +135,32 @@ define([
 
         assert.ok($container.length, 'The container exists');
 
-        assert.throws(function() {
-            broker.defineAreas();
-        }, TypeError, 'requires a mapping object');
+        assert.throws(
+            function() {
+                broker.defineAreas();
+            },
+            TypeError,
+            'requires a mapping object'
+        );
 
-        assert.throws(function() {
-            broker.defineAreas({});
-        }, TypeError, 'required mapping missing');
+        assert.throws(
+            function() {
+                broker.defineAreas({});
+            },
+            TypeError,
+            'required mapping missing'
+        );
 
-        assert.throws(function() {
-            broker.defineAreas({
-                'content': $content,
-                'bar': $bar
-            });
-        }, TypeError, 'required mapping incomplete');
+        assert.throws(
+            function() {
+                broker.defineAreas({
+                    content: $content,
+                    bar: $bar
+                });
+            },
+            TypeError,
+            'required mapping incomplete'
+        );
 
         broker.defineAreas(mapping);
 
@@ -150,10 +178,10 @@ define([
         var $info = $('.info', $container);
         var $content = $('.content', $container);
         var mapping = {
-            'bar': $bar,
-            'actions': $actions,
-            'info': $info,
-            'content': $content
+            bar: $bar,
+            actions: $actions,
+            info: $info,
+            content: $content
         };
         var broker = areaBroker($container, mapping);
 
@@ -176,10 +204,10 @@ define([
         var $info = $('.info', $container);
         var $content = $('.content', $container);
         var mapping = {
-            'bar': $bar,
-            'actions': $actions,
-            'info': $info,
-            'content': $content
+            bar: $bar,
+            actions: $actions,
+            info: $info,
+            content: $content
         };
         var broker = areaBroker($container, mapping);
 

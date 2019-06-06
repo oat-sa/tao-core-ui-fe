@@ -18,14 +18,12 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
  */
-define([
-    'jquery',
-    'lodash',
-    'ui/maths/calculator/core/plugin',
-    'ui/maths/calculator/defaultCalculator',
-    
-    
-], function($, _, pluginFactory, defaultCalculatorFactory) {
+define(['jquery', 'lodash', 'ui/maths/calculator/core/plugin', 'ui/maths/calculator/defaultCalculator'], function(
+    $,
+    _,
+    pluginFactory,
+    defaultCalculatorFactory
+) {
     'use strict';
 
     QUnit.module('Factory');

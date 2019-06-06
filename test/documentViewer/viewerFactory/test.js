@@ -20,7 +20,7 @@
  */
 define(['lodash', 'ui/documentViewer/viewerFactory', 'tpl!test/ui/documentViewer/viewerFactory/mock'], function(
     _,
-    
+
     viewerFactory,
     mockTpl
 ) {

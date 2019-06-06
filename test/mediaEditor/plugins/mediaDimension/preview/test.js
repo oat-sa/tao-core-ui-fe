@@ -17,12 +17,11 @@
  *
  */
 
-define([
-    'jquery',
-    'lodash',
-    'ui/mediaEditor/plugins/mediaDimension/mediaDimensionComponent',
-    
-], function($, _, mediaDimensionComponent) {
+define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensionComponent'], function(
+    $,
+    _,
+    mediaDimensionComponent
+) {
     'use strict';
 
     var workingConfiguration = {

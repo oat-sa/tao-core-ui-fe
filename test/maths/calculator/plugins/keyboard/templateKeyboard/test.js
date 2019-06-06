@@ -21,12 +21,9 @@
 define([
     'jquery',
     'lodash',
-    
     'ui/maths/calculator/core/board',
-    'ui/maths/calculator/plugins/keyboard/templateKeyboard/templateKeyboard',
-    
-    
-], function($, _,  calculatorBoardFactory, templateKeyboardPluginFactory) {
+    'ui/maths/calculator/plugins/keyboard/templateKeyboard/templateKeyboard'
+], function($, _, calculatorBoardFactory, templateKeyboardPluginFactory) {
     'use strict';
 
     QUnit.module('module');

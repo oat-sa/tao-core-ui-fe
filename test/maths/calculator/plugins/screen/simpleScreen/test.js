@@ -21,18 +21,14 @@
 define([
     'jquery',
     'lodash',
-    
     'ui/maths/calculator/core/board',
     'ui/maths/calculator/core/terms',
     'ui/maths/calculator/core/expression',
     'ui/maths/calculator/plugins/screen/simpleScreen/simpleScreen',
-    'util/mathsEvaluator',
-    
-    
+    'util/mathsEvaluator'
 ], function(
     $,
     _,
-    
     calculatorBoardFactory,
     registeredTerms,
     expressionHelper,

@@ -16,13 +16,12 @@
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
  */
 
-define([
-    'jquery',
-    'lodash',
-    'ui/generis/form/form',
-    'json!test/ui/generis/data.json',
-    
-], function($, _, generisFormFactory, generisData) {
+define(['jquery', 'lodash', 'ui/generis/form/form', 'json!test/ui/generis/data.json'], function(
+    $,
+    _,
+    generisFormFactory,
+    generisData
+) {
     'use strict';
 
     /**

@@ -19,12 +19,11 @@
 /**
  * @author Bertrand Chevrier <bertrand@taotesting.com>
  */
-define([
-    'jquery',
-    'ui/destination/selector',
-    'json!test/ui/destination/selector/classes.json',
-    
-], function($, destinationSelectorFactory, classes) {
+define(['jquery', 'ui/destination/selector', 'json!test/ui/destination/selector/classes.json'], function(
+    $,
+    destinationSelectorFactory,
+    classes
+) {
     'use strict';
 
     QUnit.module('API');

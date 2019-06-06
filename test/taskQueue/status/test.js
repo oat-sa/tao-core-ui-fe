@@ -15,11 +15,7 @@
  *
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
  */
-define(['jquery', 'lodash', 'ui/taskQueue/status',  ], function(
-    $,
-    _,
-    taskQueueStatusFactory
-) {
+define(['jquery', 'lodash', 'ui/taskQueue/status'], function($, _, taskQueueStatusFactory) {
     'use strict';
 
     QUnit.module('API');

@@ -18,13 +18,12 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
  */
-define([
-    'jquery',
-    'lodash',
-    
-    'ui/maths/calculator/core/board',
-    'ui/maths/calculator/plugins/core/history'
-], function($, _,  calculatorBoardFactory, historyPluginFactory) {
+define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculator/plugins/core/history'], function(
+    $,
+    _,
+    calculatorBoardFactory,
+    historyPluginFactory
+) {
     'use strict';
 
     QUnit.module('module');
@@ -36,33 +35,43 @@ define([
 
         assert.equal(typeof historyPluginFactory, 'function', 'The plugin module exposes a function');
         assert.equal(typeof historyPluginFactory(calculator), 'object', 'The plugin factory produces an instance');
-        assert.notStrictEqual(historyPluginFactory(calculator), historyPluginFactory(calculator), 'The plugin factory provides a different instance on each call');
+        assert.notStrictEqual(
+            historyPluginFactory(calculator),
+            historyPluginFactory(calculator),
+            'The plugin factory provides a different instance on each call'
+        );
     });
 
     QUnit.module('api');
 
-    QUnit.cases.init([
-        {title: 'install'},
-        {title: 'init'},
-        {title: 'render'},
-        {title: 'destroy'},
-        {title: 'trigger'},
-        {title: 'getCalculator'},
-        {title: 'getAreaBroker'},
-        {title: 'getConfig'},
-        {title: 'setConfig'},
-        {title: 'getState'},
-        {title: 'setState'},
-        {title: 'show'},
-        {title: 'hide'},
-        {title: 'enable'},
-        {title: 'disable'}
-    ]).test('plugin API ', function(data, assert) {
-        var calculator = calculatorBoardFactory();
-        var plugin = historyPluginFactory(calculator);
-        assert.expect(1);
-        assert.equal(typeof plugin[data.title], 'function', 'The plugin instances expose a "' + data.title + '" function');
-    });
+    QUnit.cases
+        .init([
+            { title: 'install' },
+            { title: 'init' },
+            { title: 'render' },
+            { title: 'destroy' },
+            { title: 'trigger' },
+            { title: 'getCalculator' },
+            { title: 'getAreaBroker' },
+            { title: 'getConfig' },
+            { title: 'setConfig' },
+            { title: 'getState' },
+            { title: 'setState' },
+            { title: 'show' },
+            { title: 'hide' },
+            { title: 'enable' },
+            { title: 'disable' }
+        ])
+        .test('plugin API ', function(data, assert) {
+            var calculator = calculatorBoardFactory();
+            var plugin = historyPluginFactory(calculator);
+            assert.expect(1);
+            assert.equal(
+                typeof plugin[data.title],
+                'function',
+                'The plugin instances expose a "' + data.title + '" function'
+            );
+        });
 
     QUnit.module('behavior');
 
@@ -89,7 +98,8 @@ define([
                         ready();
                     });
 
-                plugin.install()
+                plugin
+                    .install()
                     .then(function() {
                         assert.ok(calculator.hasCommand('historyClear'), 'The command historyClear is now registered');
                         assert.ok(calculator.hasCommand('historyUp'), 'The command historyUp is now registered');
@@ -134,7 +144,8 @@ define([
                         ready();
                     });
 
-                plugin.install()
+                plugin
+                    .install()
                     .then(function() {
                         return plugin.init();
                     })
@@ -156,12 +167,20 @@ define([
                     })
                     .then(function() {
                         return new Promise(function(resolve) {
-                            assert.equal(calculator.getLastResult().value, '0', 'The value of the last result is defaulted');
+                            assert.equal(
+                                calculator.getLastResult().value,
+                                '0',
+                                'The value of the last result is defaulted'
+                            );
                             calculator
                                 .after('evaluate.test', function(result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '-1', 'The expression is computed');
-                                    assert.equal(calculator.getLastResult().value, '-1', 'The result of "cos PI" is stored');
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '-1',
+                                        'The result of "cos PI" is stored'
+                                    );
                                     resolve();
                                 })
                                 .replace('cos PI')
@@ -209,12 +228,12 @@ define([
                 assert.ok(!calculator.hasCommand('historyDown'), 'The command historyDown is not yet registered');
                 assert.ok(!calculator.hasCommand('historyGet'), 'The command historyGet is not yet registered');
 
-                calculator
-                    .on('destroy', function() {
-                        ready();
-                    });
+                calculator.on('destroy', function() {
+                    ready();
+                });
 
-                plugin.install()
+                plugin
+                    .install()
                     .then(function() {
                         return plugin.init();
                     })
@@ -265,7 +284,8 @@ define([
                         ready();
                     });
 
-                plugin.install()
+                plugin
+                    .install()
                     .then(function() {
                         return plugin.init();
                     })
@@ -288,12 +308,20 @@ define([
                     })
                     .then(function() {
                         return new Promise(function(resolve) {
-                            assert.equal(calculator.getLastResult().value, '0', 'The value of the last result is defaulted');
+                            assert.equal(
+                                calculator.getLastResult().value,
+                                '0',
+                                'The value of the last result is defaulted'
+                            );
                             calculator
                                 .after('evaluate.test', function(result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '-1', 'The expression is computed');
-                                    assert.equal(calculator.getLastResult().value, '-1', 'The result of "cos PI" is stored');
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '-1',
+                                        'The result of "cos PI" is stored'
+                                    );
                                     resolve();
                                 })
                                 .replace('cos PI')
@@ -302,7 +330,11 @@ define([
                     })
                     .then(function() {
                         return new Promise(function(resolve) {
-                            assert.equal(calculator.getLastResult().value, '-1', 'The value of the last result is accurate');
+                            assert.equal(
+                                calculator.getLastResult().value,
+                                '-1',
+                                'The value of the last result is accurate'
+                            );
                             calculator
                                 .on('history.read', function(history) {
                                     calculator.off('history.read');
@@ -318,7 +350,11 @@ define([
                                 .after('evaluate.test', function(result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '-1', 'The expression is computed');
-                                    assert.equal(calculator.getLastResult().value, '-1', 'The result of "cos PI" is stored');
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '-1',
+                                        'The result of "cos PI" is stored'
+                                    );
                                     resolve();
                                 })
                                 .replace('cos PI')
@@ -330,7 +366,11 @@ define([
                             calculator
                                 .on('history.read', function(history) {
                                     calculator.off('history.read');
-                                    assert.deepEqual(history, ['cos PI'], 'since the same expression has been computed, history did not change');
+                                    assert.deepEqual(
+                                        history,
+                                        ['cos PI'],
+                                        'since the same expression has been computed, history did not change'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyGet');
@@ -338,12 +378,20 @@ define([
                     })
                     .then(function() {
                         return new Promise(function(resolve) {
-                            assert.equal(calculator.getLastResult().value, '-1', 'The value of the last result is still -1');
+                            assert.equal(
+                                calculator.getLastResult().value,
+                                '-1',
+                                'The value of the last result is still -1'
+                            );
                             calculator
                                 .after('evaluate.test', function(result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '0.3', 'The expression is computed');
-                                    assert.equal(calculator.getLastResult().value, '0.3', 'The result of ".1+.2" is stored');
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '0.3',
+                                        'The result of ".1+.2" is stored'
+                                    );
                                     resolve();
                                 })
                                 .replace('.1+.2')
@@ -363,12 +411,20 @@ define([
                     })
                     .then(function() {
                         return new Promise(function(resolve) {
-                            assert.equal(calculator.getLastResult().value, '0.3', 'The value of the last result is still 0.3');
+                            assert.equal(
+                                calculator.getLastResult().value,
+                                '0.3',
+                                'The value of the last result is still 0.3'
+                            );
                             calculator
                                 .after('evaluate.test', function(result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '0.6', 'The expression is computed');
-                                    assert.equal(calculator.getLastResult().value, '0.6', 'The result of "ans*2" is stored');
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '0.6',
+                                        'The result of "ans*2" is stored'
+                                    );
                                     resolve();
                                 })
                                 .replace('ans*2')
@@ -381,7 +437,11 @@ define([
                                 .on('history.read', function(history) {
                                     calculator.off('history.read');
                                     assert.equal(calculator.getExpression(), '', 'The expression is cleared');
-                                    assert.deepEqual(history, ['cos PI', '.1+.2', 'ans*2'], 'history still contains expressions');
+                                    assert.deepEqual(
+                                        history,
+                                        ['cos PI', '.1+.2', 'ans*2'],
+                                        'history still contains expressions'
+                                    );
                                     resolve();
                                 })
                                 .clear()
@@ -394,7 +454,11 @@ define([
                                 .on('history.read', function(history) {
                                     calculator.off('history.read');
                                     assert.equal(calculator.getExpression(), '', 'The expression is cleared');
-                                    assert.deepEqual(history, ['cos PI', '.1+.2', 'ans*2'], 'history still contains expressions');
+                                    assert.deepEqual(
+                                        history,
+                                        ['cos PI', '.1+.2', 'ans*2'],
+                                        'history still contains expressions'
+                                    );
                                     resolve();
                                 })
                                 .clear()
@@ -447,7 +511,8 @@ define([
                         ready();
                     });
 
-                plugin.install()
+                plugin
+                    .install()
                     .then(function() {
                         return plugin.init();
                     })
@@ -470,12 +535,20 @@ define([
                     })
                     .then(function() {
                         return new Promise(function(resolve) {
-                            assert.equal(calculator.getLastResult().value, '0', 'The value of the last result is defaulted');
+                            assert.equal(
+                                calculator.getLastResult().value,
+                                '0',
+                                'The value of the last result is defaulted'
+                            );
                             calculator
                                 .after('evaluate.test', function(result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '-1', 'The expression "cos PI" is computed');
-                                    assert.equal(calculator.getLastResult().value, '-1', 'The result of "cos PI" is stored');
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '-1',
+                                        'The result of "cos PI" is stored'
+                                    );
                                     resolve();
                                 })
                                 .replace('cos PI')
@@ -488,7 +561,11 @@ define([
                                 .after('evaluate.test', function(result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '-1', 'The expression "cos PI" is computed again');
-                                    assert.equal(calculator.getLastResult().value, '-1', 'The result of "cos PI" is stored');
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '-1',
+                                        'The result of "cos PI" is stored'
+                                    );
                                     resolve();
                                 })
                                 .replace('cos PI')
@@ -501,7 +578,11 @@ define([
                                 .after('evaluate.test', function(result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '0.3', 'The expression ".1+.2" is computed');
-                                    assert.equal(calculator.getLastResult().value, '0.3', 'The result of ".1+.2" is stored');
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '0.3',
+                                        'The result of ".1+.2" is stored'
+                                    );
                                     resolve();
                                 })
                                 .replace('.1+.2')
@@ -513,7 +594,11 @@ define([
                             calculator
                                 .on('history.read', function(history) {
                                     calculator.off('history.read');
-                                    assert.deepEqual(history, ['cos PI', '.1+.2'], 'history has been completed with 2 entries');
+                                    assert.deepEqual(
+                                        history,
+                                        ['cos PI', '.1+.2'],
+                                        'history has been completed with 2 entries'
+                                    );
                                     resolve(history);
                                 })
                                 .useCommand('historyGet');
@@ -532,12 +617,24 @@ define([
                     })
                     .then(function(history) {
                         return new Promise(function(resolve) {
-                            assert.equal(calculator.getLastResult().value, '0.3', 'The value of the last result did not change yet');
+                            assert.equal(
+                                calculator.getLastResult().value,
+                                '0.3',
+                                'The value of the last result did not change yet'
+                            );
                             calculator
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
-                                    assert.equal(calculator.getExpression(), history[history.length - 1], 'The last expression has been reminded');
-                                    assert.equal(calculator.getLastResult().value, '-1', 'The value of the last result has been restored to -1');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        history[history.length - 1],
+                                        'The last expression has been reminded'
+                                    );
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '-1',
+                                        'The value of the last result has been restored to -1'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyUp');
@@ -549,7 +646,11 @@ define([
                                 .after('evaluate.test', function(result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '3', 'The expression "1+2" is computed');
-                                    assert.equal(calculator.getLastResult().value, '3', 'The result of "1+2" is stored');
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '3',
+                                        'The result of "1+2" is stored'
+                                    );
                                     resolve();
                                 })
                                 .replace('1+2')
@@ -573,7 +674,11 @@ define([
                                 .after('evaluate.test', function(result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '12', 'The expression "3*4" is computed');
-                                    assert.equal(calculator.getLastResult().value, '12', 'The result of "3*4" is stored');
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '12',
+                                        'The result of "3*4" is stored'
+                                    );
                                     resolve();
                                 })
                                 .replace('3*4')
@@ -585,7 +690,11 @@ define([
                             calculator
                                 .on('history.read', function(history) {
                                     calculator.off('history.read');
-                                    assert.deepEqual(history, ['cos PI', '.1+.2', '1+2', '3*4'], 'history has been completed');
+                                    assert.deepEqual(
+                                        history,
+                                        ['cos PI', '.1+.2', '1+2', '3*4'],
+                                        'history has been completed'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyGet');
@@ -596,7 +705,11 @@ define([
                             calculator
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
-                                    assert.equal(calculator.getExpression(), '6*7', 'The expression is changed to "6*7"');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        '6*7',
+                                        'The expression is changed to "6*7"'
+                                    );
                                     resolve();
                                 })
                                 .replace('6*7');
@@ -608,8 +721,16 @@ define([
                             calculator
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
-                                    assert.equal(calculator.getExpression(), '3*4', 'The last expression has been reminded: "3*4"');
-                                    assert.equal(calculator.getLastResult().value, '3', 'The value of the last result has been restored to 3');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        '3*4',
+                                        'The last expression has been reminded: "3*4"'
+                                    );
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '3',
+                                        'The value of the last result has been restored to 3'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyUp');
@@ -620,8 +741,16 @@ define([
                             calculator
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
-                                    assert.equal(calculator.getExpression(), '1+2', 'The N-1 expression has been reminded: "1+2"');
-                                    assert.equal(calculator.getLastResult().value, '-1', 'The value of the last result has been restored to -1');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        '1+2',
+                                        'The N-1 expression has been reminded: "1+2"'
+                                    );
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '-1',
+                                        'The value of the last result has been restored to -1'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyUp');
@@ -632,8 +761,16 @@ define([
                             calculator
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
-                                    assert.equal(calculator.getExpression(), '.1+.2', 'The N-2 expression has been reminded: ".1+.2"');
-                                    assert.equal(calculator.getLastResult().value, '-1', 'The value of the last result has been restored to -1');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        '.1+.2',
+                                        'The N-2 expression has been reminded: ".1+.2"'
+                                    );
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '-1',
+                                        'The value of the last result has been restored to -1'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyUp');
@@ -644,8 +781,16 @@ define([
                             calculator
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
-                                    assert.equal(calculator.getExpression(), 'cos PI', 'The N-3 expression has been reminded: "cos PI"');
-                                    assert.equal(calculator.getLastResult().value, '0', 'The value of the last result has been restored to 0');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        'cos PI',
+                                        'The N-3 expression has been reminded: "cos PI"'
+                                    );
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '0',
+                                        'The value of the last result has been restored to 0'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyUp');
@@ -656,8 +801,16 @@ define([
                             calculator
                                 .after('command-historyUp.stop', function() {
                                     calculator.off('command-historyUp.stop');
-                                    assert.equal(calculator.getExpression(), 'cos PI', 'The expression is still the same: "cos PI"');
-                                    assert.equal(calculator.getLastResult().value, '0', 'The value of the last result did not change');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        'cos PI',
+                                        'The expression is still the same: "cos PI"'
+                                    );
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '0',
+                                        'The value of the last result did not change'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyUp');
@@ -668,8 +821,16 @@ define([
                             calculator
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
-                                    assert.equal(calculator.getExpression(), '.1+.2', 'The N-2 expression has been reminded: ".1+.2"');
-                                    assert.equal(calculator.getLastResult().value, '-1', 'The value of the last result has been restored to -1');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        '.1+.2',
+                                        'The N-2 expression has been reminded: ".1+.2"'
+                                    );
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '-1',
+                                        'The value of the last result has been restored to -1'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyDown');
@@ -680,8 +841,16 @@ define([
                             calculator
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
-                                    assert.equal(calculator.getExpression(), '1+2', 'The N-1 expression has been reminded: "1+2"');
-                                    assert.equal(calculator.getLastResult().value, '-1', 'The value of the last result has been restored to -1');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        '1+2',
+                                        'The N-1 expression has been reminded: "1+2"'
+                                    );
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '-1',
+                                        'The value of the last result has been restored to -1'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyDown');
@@ -692,8 +861,16 @@ define([
                             calculator
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
-                                    assert.equal(calculator.getExpression(), '3*4', 'The last expression has been reminded: "3*4"');
-                                    assert.equal(calculator.getLastResult().value, '3', 'The value of the last result has been restored to 3');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        '3*4',
+                                        'The last expression has been reminded: "3*4"'
+                                    );
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '3',
+                                        'The value of the last result has been restored to 3'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyDown');
@@ -705,7 +882,11 @@ define([
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
                                     assert.equal(calculator.getExpression(), '6*7', 'The expression has been reset');
-                                    assert.equal(calculator.getLastResult().value, '12', 'The value of the last result has been restored to 12');
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '12',
+                                        'The value of the last result has been restored to 12'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyDown');
@@ -717,7 +898,11 @@ define([
                                 .after('command-historyDown.stop', function() {
                                     calculator.off('command-historyDown.stop');
                                     assert.equal(calculator.getExpression(), '6*7', 'The expression did not change');
-                                    assert.equal(calculator.getLastResult().value, '12', 'The value of the last result is still 12');
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '12',
+                                        'The value of the last result is still 12'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyDown');
@@ -728,8 +913,16 @@ define([
                             calculator
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
-                                    assert.equal(calculator.getExpression(), '3*4', 'The last expression has been reminded: "3*4"');
-                                    assert.equal(calculator.getLastResult().value, '3', 'The value of the last result has been restored to 3');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        '3*4',
+                                        'The last expression has been reminded: "3*4"'
+                                    );
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '3',
+                                        'The value of the last result has been restored to 3'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyUp');
@@ -752,8 +945,16 @@ define([
                                 .on('history.read', function(history) {
                                     calculator.off('history.read');
                                     assert.deepEqual(history, [], 'history is empty');
-                                    assert.equal(calculator.getExpression(), '3*4', 'The expression is still there: "3*4"');
-                                    assert.equal(calculator.getLastResult().value, '3', 'The value of the last result is still 3');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        '3*4',
+                                        'The expression is still there: "3*4"'
+                                    );
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '3',
+                                        'The value of the last result is still 3'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyGet');
@@ -792,7 +993,8 @@ define([
                         ready();
                     });
 
-                plugin.install()
+                plugin
+                    .install()
                     .then(function() {
                         return plugin.init();
                     })
@@ -815,12 +1017,20 @@ define([
                     })
                     .then(function() {
                         return new Promise(function(resolve) {
-                            assert.equal(calculator.getLastResult().value, '0', 'The value of the last result is defaulted');
+                            assert.equal(
+                                calculator.getLastResult().value,
+                                '0',
+                                'The value of the last result is defaulted'
+                            );
                             calculator
                                 .after('evaluate.test', function(result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '-1', 'The expression "cos PI" is computed');
-                                    assert.equal(calculator.getLastResult().value, '-1', 'The result of "cos PI" is stored');
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '-1',
+                                        'The result of "cos PI" is stored'
+                                    );
                                     resolve();
                                 })
                                 .replace('cos PI')
@@ -833,7 +1043,11 @@ define([
                                 .after('evaluate.test', function(result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '-1', 'The expression "cos PI" is computed again');
-                                    assert.equal(calculator.getLastResult().value, '-1', 'The result of "cos PI" is stored');
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '-1',
+                                        'The result of "cos PI" is stored'
+                                    );
                                     resolve();
                                 })
                                 .replace('cos PI')
@@ -846,7 +1060,11 @@ define([
                                 .after('evaluate.test', function(result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '0.3', 'The expression ".1+.2" is computed');
-                                    assert.equal(calculator.getLastResult().value, '0.3', 'The result of ".1+.2" is stored');
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '0.3',
+                                        'The result of ".1+.2" is stored'
+                                    );
                                     resolve();
                                 })
                                 .replace('.1+.2')
@@ -858,7 +1076,11 @@ define([
                             calculator
                                 .on('history.read', function(history) {
                                     calculator.off('history.read');
-                                    assert.deepEqual(history, ['cos PI', '.1+.2'], 'history has been completed with 2 entries');
+                                    assert.deepEqual(
+                                        history,
+                                        ['cos PI', '.1+.2'],
+                                        'history has been completed with 2 entries'
+                                    );
                                     resolve(history);
                                 })
                                 .useCommand('historyGet');
@@ -877,12 +1099,24 @@ define([
                     })
                     .then(function(history) {
                         return new Promise(function(resolve) {
-                            assert.equal(calculator.getLastResult().value, '0.3', 'The value of the last result is still 0.3');
+                            assert.equal(
+                                calculator.getLastResult().value,
+                                '0.3',
+                                'The value of the last result is still 0.3'
+                            );
                             calculator
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
-                                    assert.equal(calculator.getExpression(), history[history.length - 1], 'The last expression has been reminded');
-                                    assert.equal(calculator.getLastResult().value, '-1', 'The value of the last result has been restored to -1');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        history[history.length - 1],
+                                        'The last expression has been reminded'
+                                    );
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '-1',
+                                        'The value of the last result has been restored to -1'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyUp');
@@ -894,7 +1128,11 @@ define([
                                 .after('evaluate.test', function(result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '3', 'The expression "1+2" is computed');
-                                    assert.equal(calculator.getLastResult().value, '3', 'The result of "1+2" is stored');
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '3',
+                                        'The result of "1+2" is stored'
+                                    );
                                     resolve();
                                 })
                                 .replace('1+2')
@@ -917,7 +1155,11 @@ define([
                             calculator
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
-                                    assert.equal(calculator.getExpression(), '6*7', 'The expression is changed to "6*7"');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        '6*7',
+                                        'The expression is changed to "6*7"'
+                                    );
                                     resolve();
                                 })
                                 .replace('6*7');
@@ -925,12 +1167,24 @@ define([
                     })
                     .then(function() {
                         return new Promise(function(resolve) {
-                            assert.equal(calculator.getLastResult().value, '3', 'The value of the last result is still 3');
+                            assert.equal(
+                                calculator.getLastResult().value,
+                                '3',
+                                'The value of the last result is still 3'
+                            );
                             calculator
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
-                                    assert.equal(calculator.getExpression(), '1+2', 'The last expression has been reminded: "1+2"');
-                                    assert.equal(calculator.getLastResult().value, '-1', 'The value of the last result has been restored to -1');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        '1+2',
+                                        'The last expression has been reminded: "1+2"'
+                                    );
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '-1',
+                                        'The value of the last result has been restored to -1'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyUp');
@@ -941,8 +1195,16 @@ define([
                             calculator
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
-                                    assert.equal(calculator.getExpression(), '.1+.2', 'The N-1 expression has been reminded: ".1+.2"');
-                                    assert.equal(calculator.getLastResult().value, '-1', 'The value of the last result has been restored to -1');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        '.1+.2',
+                                        'The N-1 expression has been reminded: ".1+.2"'
+                                    );
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '-1',
+                                        'The value of the last result has been restored to -1'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyUp');
@@ -953,7 +1215,11 @@ define([
                             calculator
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
-                                    assert.equal(calculator.getExpression(), '.1+.2+.3', 'The expression has been replaced by ".1+.2+.3"');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        '.1+.2+.3',
+                                        'The expression has been replaced by ".1+.2+.3"'
+                                    );
                                     resolve();
                                 })
                                 .replace('.1+.2+.3');
@@ -961,12 +1227,24 @@ define([
                     })
                     .then(function() {
                         return new Promise(function(resolve) {
-                            assert.equal(calculator.getLastResult().value, '-1', 'The value of the last result is still -1');
+                            assert.equal(
+                                calculator.getLastResult().value,
+                                '-1',
+                                'The value of the last result is still -1'
+                            );
                             calculator
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
-                                    assert.equal(calculator.getExpression(), '1+2', 'The last expression has been reminded: "1+2"');
-                                    assert.equal(calculator.getLastResult().value, '-1', 'The value of the last result has been restored to -1');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        '1+2',
+                                        'The last expression has been reminded: "1+2"'
+                                    );
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '-1',
+                                        'The value of the last result has been restored to -1'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyDown');
@@ -977,8 +1255,16 @@ define([
                             calculator
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
-                                    assert.equal(calculator.getExpression(), '.1+.2+.3', 'The replaced N-1 expression has been reminded: ".1+.2+.3"');
-                                    assert.equal(calculator.getLastResult().value, '-1', 'The value of the last result has been restored to -1');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        '.1+.2+.3',
+                                        'The replaced N-1 expression has been reminded: ".1+.2+.3"'
+                                    );
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '-1',
+                                        'The value of the last result has been restored to -1'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyUp');
@@ -990,7 +1276,11 @@ define([
                                 .after('evaluate.set', function(result) {
                                     calculator.off('evaluate.set');
                                     assert.equal(result.value, '0.6', 'The expression is computed');
-                                    assert.equal(calculator.getLastResult().value, '0.6', 'The result of ".1+.2+.3" is stored');
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '0.6',
+                                        'The result of ".1+.2+.3" is stored'
+                                    );
                                     resolve();
                                 })
                                 .evaluate();
@@ -1001,7 +1291,11 @@ define([
                             calculator
                                 .on('history.read', function(history) {
                                     calculator.off('history.read');
-                                    assert.deepEqual(history, ['cos PI', '.1+.2', '1+2', '.1+.2+.3'], 'history has been completed');
+                                    assert.deepEqual(
+                                        history,
+                                        ['cos PI', '.1+.2', '1+2', '.1+.2+.3'],
+                                        'history has been completed'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyGet');
@@ -1012,8 +1306,16 @@ define([
                             calculator
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
-                                    assert.equal(calculator.getExpression(), '.1+.2+.3', 'The last expression has been reminded: ".1+.2+.3"');
-                                    assert.equal(calculator.getLastResult().value, '-1', 'The value of the last result has been restored to -1');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        '.1+.2+.3',
+                                        'The last expression has been reminded: ".1+.2+.3"'
+                                    );
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '-1',
+                                        'The value of the last result has been restored to -1'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyUp');
@@ -1024,8 +1326,16 @@ define([
                             calculator
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
-                                    assert.equal(calculator.getExpression(), '1+2', 'The N-1 expression has been reminded: "1+2"');
-                                    assert.equal(calculator.getLastResult().value, '-1', 'The value of the last result has been restored to -1');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        '1+2',
+                                        'The N-1 expression has been reminded: "1+2"'
+                                    );
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '-1',
+                                        'The value of the last result has been restored to -1'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyUp');
@@ -1036,7 +1346,11 @@ define([
                             calculator
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
-                                    assert.equal(calculator.getExpression(), '1+2-1', 'The expression has been replaced by 1+2-1');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        '1+2-1',
+                                        'The expression has been replaced by 1+2-1'
+                                    );
                                     resolve();
                                 })
                                 .replace('1+2-1');
@@ -1044,12 +1358,24 @@ define([
                     })
                     .then(function() {
                         return new Promise(function(resolve) {
-                            assert.equal(calculator.getLastResult().value, '-1', 'The value of the last result is still -1');
+                            assert.equal(
+                                calculator.getLastResult().value,
+                                '-1',
+                                'The value of the last result is still -1'
+                            );
                             calculator
                                 .after('command-historyDown.set', function() {
                                     calculator.off('command-historyDown.set');
-                                    assert.equal(calculator.getExpression(), '.1+.2+.3', 'The last expression has been reminded: ".1+.2+.3"');
-                                    assert.equal(calculator.getLastResult().value, '-1', 'The value of the last result has been restored to -1');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        '.1+.2+.3',
+                                        'The last expression has been reminded: ".1+.2+.3"'
+                                    );
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '-1',
+                                        'The value of the last result has been restored to -1'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyDown');
@@ -1060,8 +1386,16 @@ define([
                             calculator
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
-                                    assert.equal(calculator.getExpression(), '1+2-1', 'The replaced N-1 expression has been reminded: "1+2-1"');
-                                    assert.equal(calculator.getLastResult().value, '-1', 'The value of the last result has been restored to -1');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        '1+2-1',
+                                        'The replaced N-1 expression has been reminded: "1+2-1"'
+                                    );
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '-1',
+                                        'The value of the last result has been restored to -1'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyUp');
@@ -1073,7 +1407,11 @@ define([
                                 .after('evaluate.set', function(result) {
                                     calculator.off('evaluate.set');
                                     assert.equal(result.value, '2', 'The expression is computed');
-                                    assert.equal(calculator.getLastResult().value, '2', 'The result of "1+2-1" is stored');
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '2',
+                                        'The result of "1+2-1" is stored'
+                                    );
                                     resolve();
                                 })
                                 .evaluate();
@@ -1084,7 +1422,11 @@ define([
                             calculator
                                 .on('history.read', function(history) {
                                     calculator.off('history.read');
-                                    assert.deepEqual(history, ['cos PI', '.1+.2', '1+2', '.1+.2+.3', '1+2-1'], 'history has been completed');
+                                    assert.deepEqual(
+                                        history,
+                                        ['cos PI', '.1+.2', '1+2', '.1+.2+.3', '1+2-1'],
+                                        'history has been completed'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyGet');
@@ -1095,8 +1437,16 @@ define([
                             calculator
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
-                                    assert.equal(calculator.getExpression(), '1+2-1', 'The last expression has been reminded: "1+2-1"');
-                                    assert.equal(calculator.getLastResult().value, '-1', 'The value of the last result has been restored to -1');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        '1+2-1',
+                                        'The last expression has been reminded: "1+2-1"'
+                                    );
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '-1',
+                                        'The value of the last result has been restored to -1'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyUp');
@@ -1107,8 +1457,16 @@ define([
                             calculator
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
-                                    assert.equal(calculator.getExpression(), '.1+.2+.3', 'The N-1 expression has been reminded: ".1+.2+.3"');
-                                    assert.equal(calculator.getLastResult().value, '-1', 'The value of the last result has been restored to -1');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        '.1+.2+.3',
+                                        'The N-1 expression has been reminded: ".1+.2+.3"'
+                                    );
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '-1',
+                                        'The value of the last result has been restored to -1'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyUp');
@@ -1119,8 +1477,16 @@ define([
                             calculator
                                 .on('replace.set', function() {
                                     calculator.off('replace.set');
-                                    assert.equal(calculator.getExpression(), '1+2', 'The replaced N-2 expression has been restored: "1+2"');
-                                    assert.equal(calculator.getLastResult().value, '-1', 'The value of the last result has been restored to -1');
+                                    assert.equal(
+                                        calculator.getExpression(),
+                                        '1+2',
+                                        'The replaced N-2 expression has been restored: "1+2"'
+                                    );
+                                    assert.equal(
+                                        calculator.getLastResult().value,
+                                        '-1',
+                                        'The value of the last result has been restored to -1'
+                                    );
                                     resolve();
                                 })
                                 .useCommand('historyUp');
@@ -1140,5 +1506,4 @@ define([
                 ready();
             });
     });
-
 });

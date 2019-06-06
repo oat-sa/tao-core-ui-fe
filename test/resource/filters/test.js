@@ -25,8 +25,7 @@ define([
     'jquery',
     'ui/resource/filters',
     'json!test/ui/resource/filters/properties.json',
-    'css!ui/resource/css/selector',
-    
+    'css!ui/resource/css/selector'
 ], function($, filtersFactory, propertiesData) {
     'use strict';
 

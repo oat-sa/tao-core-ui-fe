@@ -20,8 +20,7 @@ define([
     'lodash',
     'ui/component',
     'ui/animable/absorbable/absorbable',
-    'css!ui/resource/css/selector',
-    
+    'css!ui/resource/css/selector'
 ], function($, _, componentFactory, makeAbsorbable) {
     'use strict';
 

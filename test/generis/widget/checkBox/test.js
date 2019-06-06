@@ -16,13 +16,12 @@
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
  */
 
-define([
-    'jquery',
-    'lodash',
-    'ui/generis/validator/validator',
-    'ui/generis/widget/checkBox/checkBox',
-    
-], function($, _, generisValidatorFactory, generisWidgetCheckBoxFactory) {
+define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget/checkBox/checkBox'], function(
+    $,
+    _,
+    generisValidatorFactory,
+    generisWidgetCheckBoxFactory
+) {
     'use strict';
 
     var fields = [

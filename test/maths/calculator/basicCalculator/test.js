@@ -18,14 +18,7 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
  */
-define([
-    'jquery',
-    'lodash',
-    
-    'ui/maths/calculator/basicCalculator',
-    
-    
-], function($, _,  basicCalculatorFactory) {
+define(['jquery', 'lodash', 'ui/maths/calculator/basicCalculator'], function($, _, basicCalculatorFactory) {
     'use strict';
 
     QUnit.module('Factory');

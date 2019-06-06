@@ -20,13 +20,11 @@
  */
 define([
     'jquery',
-    
     'lib/simulator/jquery.keystroker',
     'ui/documentViewer/providers/pdfViewer/pdfjs/wrapper',
     'ui/documentViewer/providers/pdfViewer/pdfjs/viewer',
-    'pdfjs-dist/build/pdf',
-    
-], function($,  keystroker, wrapperFactory, viewerFactory, pdfjs) {
+    'pdfjs-dist/build/pdf'
+], function($, keystroker, wrapperFactory, viewerFactory, pdfjs) {
     'use strict';
 
     var pdfUrl = location.href.replace('/pdfViewer/pdfjsViewer/test.html', '/sample/demo.pdf');

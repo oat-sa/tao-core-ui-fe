@@ -18,14 +18,11 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
  */
-define([
-    'ui/maths/calculator/core/plugin'
-], function (pluginFactory) {
+define(['ui/maths/calculator/core/plugin'], function(pluginFactory) {
     'use strict';
 
     return pluginFactory({
         name: 'plugin2',
-        init: function init() {
-        }
+        init: function init() {}
     });
 });

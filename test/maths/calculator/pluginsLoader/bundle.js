@@ -18,8 +18,7 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
  */
-define([
-    'test/ui/maths/calculator/pluginsLoader/plugin1',
-    'test/ui/maths/calculator/pluginsLoader/plugin2'
-], function (plugin1, plugin2) {
-});
+define(['test/ui/maths/calculator/pluginsLoader/plugin1', 'test/ui/maths/calculator/pluginsLoader/plugin2'], function(
+    plugin1,
+    plugin2
+) {});

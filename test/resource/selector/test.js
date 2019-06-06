@@ -28,8 +28,7 @@ define([
     'json!test/ui/resource/selector/classes.json',
     'json!test/ui/resource/tree/root.json',
     'json!test/ui/resource/tree/node.json',
-    'json!test/ui/resource/list/nodes.json',
-    
+    'json!test/ui/resource/list/nodes.json'
 ], function($, _, resourceSelectorFactory, classesData, treeRootData, treeNodeData, listData) {
     'use strict';
 

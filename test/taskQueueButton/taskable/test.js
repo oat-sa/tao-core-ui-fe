@@ -21,8 +21,7 @@ define([
     'ui/component',
     'ui/taskQueue/taskQueueModel',
     'ui/taskQueueButton/taskable',
-    'css!ui/resource/css/selector',
-    
+    'css!ui/resource/css/selector'
 ], function($, _, componentFactory, taskQueueModelFactory, makeTaskable) {
     'use strict';
 

@@ -20,7 +20,6 @@
  */
 
 define([
-
     'jquery',
     'lodash',
     'tpl!test/ui/datatable/demo/feature',
@@ -29,8 +28,7 @@ define([
     'json!test/ui/datatable/demo/data.json',
     'ui/dialog',
     'ui/datatable',
-    'jquery.mockjax',
-     
+    'jquery.mockjax'
 ], function($, _, featureTpl, queryTpl, fileTpl, demoData, dialog) {
     'use strict';
 
@@ -91,17 +89,21 @@ define([
         }
 
         return _.filter(samples, function(row) {
-            return _.every(filterPatterns, function(pattern, field) {
-                return pattern.test(row[field]);
-            }) && (!filterPattern || _.some(filteredColumns, function(field) {
-                return filterPattern.test(row[field]);
-            }));
+            return (
+                _.every(filterPatterns, function(pattern, field) {
+                    return pattern.test(row[field]);
+                }) &&
+                (!filterPattern ||
+                    _.some(filteredColumns, function(field) {
+                        return filterPattern.test(row[field]);
+                    }))
+            );
         });
     }
 
     function query(request, model, options) {
         var queryOptions = options || {};
-        var criteria = request && request.data || {};
+        var criteria = (request && request.data) || {};
         var limit = _.isNumber(queryOptions.limit) ? Math.max(0, queryOptions.limit) : demoData.length;
         var filteredData = filter(sort(demoData.slice(0, limit), criteria), model, criteria, queryOptions);
         var rows = request.data.rows || 25;
@@ -162,790 +164,980 @@ define([
 
     QUnit.module('Datatable Demo');
 
-    QUnit.cases.init([{
-        title: 'Default',
-        config: {
-            url: '/demo-data/default',
-            rows: 10,
-            model: [{
-                id: 'login',
-                label: 'Login'
-            }, {
-                id: 'email',
-                label: 'Email'
-            }, {
-                id: 'firstname',
-                label: 'First Name'
-            }, {
-                id: 'lastname',
-                label: 'Last Name'
-            }, {
-                id: 'phone',
-                label: 'Phone'
-            }, {
-                id: 'country',
-                label: 'country'
-            }, {
-                id: 'state',
-                label: 'state'
-            }, {
-                id: 'city',
-                label: 'City'
-            }, {
-                id: 'street',
-                label: 'street'
-            }, {
-                id: 'zipcode',
-                label: 'Zip Code'
-            }]
-        }
-    }, {
-        title: 'Sortable',
-        config: {
-            url: '/demo-data/sortable',
-            rows: 10,
-            model: [{
-                id: 'login',
-                label: 'Login',
-                sortable: true
-            }, {
-                id: 'email',
-                label: 'Email',
-                sortable: true
-            }, {
-                id: 'firstname',
-                label: 'First Name',
-                sortable: true
-            }, {
-                id: 'lastname',
-                label: 'Last Name',
-                sortable: true
-            }, {
-                id: 'phone',
-                label: 'Phone',
-                sortable: true
-            }, {
-                id: 'country',
-                label: 'country',
-                sortable: true
-            }, {
-                id: 'state',
-                label: 'state',
-                sortable: true
-            }, {
-                id: 'city',
-                label: 'City',
-                sortable: true
-            }, {
-                id: 'street',
-                label: 'street',
-                sortable: true
-            }, {
-                id: 'zipcode',
-                label: 'Zip Code',
-                sortable: true
-            }]
-        }
-    }, {
-        title: 'Selectable',
-        config: {
-            url: '/demo-data/selectable',
-            rows: 10,
-            selectable: true,
-            model: [{
-                id: 'login',
-                label: 'Login'
-            }, {
-                id: 'email',
-                label: 'Email'
-            }, {
-                id: 'firstname',
-                label: 'First Name'
-            }, {
-                id: 'lastname',
-                label: 'Last Name'
-            }, {
-                id: 'phone',
-                label: 'Phone'
-            }, {
-                id: 'country',
-                label: 'country'
-            }, {
-                id: 'state',
-                label: 'state'
-            }, {
-                id: 'city',
-                label: 'City'
-            }, {
-                id: 'street',
-                label: 'street'
-            }, {
-                id: 'zipcode',
-                label: 'Zip Code'
-            }]
-        }
-    }, {
-        title: 'Row selection',
-        limit: 10,
-        config: {
-            url: '/demo-data/row-selection',
-            rows: 5,
-            rowSelection: true,
-            model: [{
-                id: 'login',
-                label: 'Login'
-            }, {
-                id: 'email',
-                label: 'Email'
-            }, {
-                id: 'firstname',
-                label: 'First Name'
-            }, {
-                id: 'lastname',
-                label: 'Last Name'
-            }, {
-                id: 'phone',
-                label: 'Phone'
-            }, {
-                id: 'country',
-                label: 'country'
-            }, {
-                id: 'state',
-                label: 'state'
-            }, {
-                id: 'city',
-                label: 'City'
-            }, {
-                id: 'street',
-                label: 'street'
-            }, {
-                id: 'zipcode',
-                label: 'Zip Code'
-            }]
-        }
-    }, {
-        title: 'Status',
-        config: {
-            url: '/demo-data/status',
-            rows: 10,
-            status: true,
-            model: [{
-                id: 'login',
-                label: 'Login'
-            }, {
-                id: 'email',
-                label: 'Email'
-            }, {
-                id: 'firstname',
-                label: 'First Name'
-            }, {
-                id: 'lastname',
-                label: 'Last Name'
-            }, {
-                id: 'phone',
-                label: 'Phone'
-            }, {
-                id: 'country',
-                label: 'country'
-            }, {
-                id: 'state',
-                label: 'state'
-            }, {
-                id: 'city',
-                label: 'City'
-            }, {
-                id: 'street',
-                label: 'street'
-            }, {
-                id: 'zipcode',
-                label: 'Zip Code'
-            }]
-        }
-    }, {
-        title: 'Status empty',
-        limit: 0,
-        config: {
-            url: '/demo-data/status-empty',
-            rows: 10,
-            status: {
-                available: 'Users found',
-                empty: 'No user found!'
+    QUnit.cases
+        .init([
+            {
+                title: 'Default',
+                config: {
+                    url: '/demo-data/default',
+                    rows: 10,
+                    model: [
+                        {
+                            id: 'login',
+                            label: 'Login'
+                        },
+                        {
+                            id: 'email',
+                            label: 'Email'
+                        },
+                        {
+                            id: 'firstname',
+                            label: 'First Name'
+                        },
+                        {
+                            id: 'lastname',
+                            label: 'Last Name'
+                        },
+                        {
+                            id: 'phone',
+                            label: 'Phone'
+                        },
+                        {
+                            id: 'country',
+                            label: 'country'
+                        },
+                        {
+                            id: 'state',
+                            label: 'state'
+                        },
+                        {
+                            id: 'city',
+                            label: 'City'
+                        },
+                        {
+                            id: 'street',
+                            label: 'street'
+                        },
+                        {
+                            id: 'zipcode',
+                            label: 'Zip Code'
+                        }
+                    ]
+                }
             },
-            model: [{
-                id: 'login',
-                label: 'Login'
-            }, {
-                id: 'email',
-                label: 'Email'
-            }, {
-                id: 'firstname',
-                label: 'First Name'
-            }, {
-                id: 'lastname',
-                label: 'Last Name'
-            }, {
-                id: 'phone',
-                label: 'Phone'
-            }, {
-                id: 'country',
-                label: 'country'
-            }, {
-                id: 'state',
-                label: 'state'
-            }, {
-                id: 'city',
-                label: 'City'
-            }, {
-                id: 'street',
-                label: 'street'
-            }, {
-                id: 'zipcode',
-                label: 'Zip Code'
-            }]
-        }
-    }, {
-        title: 'Status available',
-        config: {
-            url: '/demo-data/status-available',
-            rows: 10,
-            status: {
-                available: 'Users found',
-                empty: 'No user found!'
+            {
+                title: 'Sortable',
+                config: {
+                    url: '/demo-data/sortable',
+                    rows: 10,
+                    model: [
+                        {
+                            id: 'login',
+                            label: 'Login',
+                            sortable: true
+                        },
+                        {
+                            id: 'email',
+                            label: 'Email',
+                            sortable: true
+                        },
+                        {
+                            id: 'firstname',
+                            label: 'First Name',
+                            sortable: true
+                        },
+                        {
+                            id: 'lastname',
+                            label: 'Last Name',
+                            sortable: true
+                        },
+                        {
+                            id: 'phone',
+                            label: 'Phone',
+                            sortable: true
+                        },
+                        {
+                            id: 'country',
+                            label: 'country',
+                            sortable: true
+                        },
+                        {
+                            id: 'state',
+                            label: 'state',
+                            sortable: true
+                        },
+                        {
+                            id: 'city',
+                            label: 'City',
+                            sortable: true
+                        },
+                        {
+                            id: 'street',
+                            label: 'street',
+                            sortable: true
+                        },
+                        {
+                            id: 'zipcode',
+                            label: 'Zip Code',
+                            sortable: true
+                        }
+                    ]
+                }
             },
-            model: [{
-                id: 'login',
-                label: 'Login'
-            }, {
-                id: 'email',
-                label: 'Email'
-            }, {
-                id: 'firstname',
-                label: 'First Name'
-            }, {
-                id: 'lastname',
-                label: 'Last Name'
-            }, {
-                id: 'phone',
-                label: 'Phone'
-            }, {
-                id: 'country',
-                label: 'country'
-            }, {
-                id: 'state',
-                label: 'state'
-            }, {
-                id: 'city',
-                label: 'City'
-            }, {
-                id: 'street',
-                label: 'street'
-            }, {
-                id: 'zipcode',
-                label: 'Zip Code'
-            }]
-        }
-    }, {
-        title: 'Pagination',
-        config: {
-            url: '/demo-data/pagination',
-            rows: 10,
-            paginationStrategyTop: 'simple',
-            paginationStrategyBottom: 'pages',
-            model: [{
-                id: 'login',
-                label: 'Login'
-            }, {
-                id: 'email',
-                label: 'Email'
-            }, {
-                id: 'firstname',
-                label: 'First Name'
-            }, {
-                id: 'lastname',
-                label: 'Last Name'
-            }, {
-                id: 'phone',
-                label: 'Phone'
-            }, {
-                id: 'country',
-                label: 'country'
-            }, {
-                id: 'state',
-                label: 'state'
-            }, {
-                id: 'city',
-                label: 'City'
-            }, {
-                id: 'street',
-                label: 'street'
-            }, {
-                id: 'zipcode',
-                label: 'Zip Code'
-            }]
-        }
-    }, {
-        title: 'Filter',
-        config: {
-            url: '/demo-data/filter',
-            rows: 10,
-            filter: true,
-            status: {
-                available: 'Users found',
-                empty: 'No user found!'
+            {
+                title: 'Selectable',
+                config: {
+                    url: '/demo-data/selectable',
+                    rows: 10,
+                    selectable: true,
+                    model: [
+                        {
+                            id: 'login',
+                            label: 'Login'
+                        },
+                        {
+                            id: 'email',
+                            label: 'Email'
+                        },
+                        {
+                            id: 'firstname',
+                            label: 'First Name'
+                        },
+                        {
+                            id: 'lastname',
+                            label: 'Last Name'
+                        },
+                        {
+                            id: 'phone',
+                            label: 'Phone'
+                        },
+                        {
+                            id: 'country',
+                            label: 'country'
+                        },
+                        {
+                            id: 'state',
+                            label: 'state'
+                        },
+                        {
+                            id: 'city',
+                            label: 'City'
+                        },
+                        {
+                            id: 'street',
+                            label: 'street'
+                        },
+                        {
+                            id: 'zipcode',
+                            label: 'Zip Code'
+                        }
+                    ]
+                }
             },
-            model: [{
-                id: 'login',
-                label: 'Login'
-            }, {
-                id: 'email',
-                label: 'Email'
-            }, {
-                id: 'firstname',
-                label: 'First Name'
-            }, {
-                id: 'lastname',
-                label: 'Last Name'
-            }, {
-                id: 'phone',
-                label: 'Phone'
-            }, {
-                id: 'country',
-                label: 'country'
-            }, {
-                id: 'state',
-                label: 'state'
-            }, {
-                id: 'city',
-                label: 'City'
-            }, {
-                id: 'street',
-                label: 'street'
-            }, {
-                id: 'zipcode',
-                label: 'Zip Code'
-            }]
-        }
-    }, {
-        title: 'Filter single column',
-        config: {
-            url: '/demo-data/filter-single-column',
-            rows: 10,
-            filter: true,
-            status: {
-                available: 'Users found',
-                empty: 'No user found!'
+            {
+                title: 'Row selection',
+                limit: 10,
+                config: {
+                    url: '/demo-data/row-selection',
+                    rows: 5,
+                    rowSelection: true,
+                    model: [
+                        {
+                            id: 'login',
+                            label: 'Login'
+                        },
+                        {
+                            id: 'email',
+                            label: 'Email'
+                        },
+                        {
+                            id: 'firstname',
+                            label: 'First Name'
+                        },
+                        {
+                            id: 'lastname',
+                            label: 'Last Name'
+                        },
+                        {
+                            id: 'phone',
+                            label: 'Phone'
+                        },
+                        {
+                            id: 'country',
+                            label: 'country'
+                        },
+                        {
+                            id: 'state',
+                            label: 'state'
+                        },
+                        {
+                            id: 'city',
+                            label: 'City'
+                        },
+                        {
+                            id: 'street',
+                            label: 'street'
+                        },
+                        {
+                            id: 'zipcode',
+                            label: 'Zip Code'
+                        }
+                    ]
+                }
             },
-            model: [{
-                id: 'login',
-                label: 'Login',
-                filterable: true
-            }, {
-                id: 'email',
-                label: 'Email',
-                filterable: true
-            }, {
-                id: 'firstname',
-                label: 'First Name',
-                filterable: true
-            }, {
-                id: 'lastname',
-                label: 'Last Name',
-                filterable: true
-            }, {
-                id: 'phone',
-                label: 'Phone',
-                filterable: true
-            }, {
-                id: 'country',
-                label: 'country',
-                filterable: true
-            }, {
-                id: 'state',
-                label: 'state',
-                filterable: true
-            }, {
-                id: 'city',
-                label: 'City',
-                filterable: true
-            }, {
-                id: 'street',
-                label: 'street'
-            }, {
-                id: 'zipcode',
-                label: 'Zip Code'
-            }]
-        }
-    }, {
-        title: 'Filter multiple columns',
-        config: {
-            url: '/demo-data/filter-multiple-columns',
-            rows: 10,
-            filter: true,
-            filterStrategy: 'multiple',
-            status: {
-                available: 'Users found',
-                empty: 'No user found!'
+            {
+                title: 'Status',
+                config: {
+                    url: '/demo-data/status',
+                    rows: 10,
+                    status: true,
+                    model: [
+                        {
+                            id: 'login',
+                            label: 'Login'
+                        },
+                        {
+                            id: 'email',
+                            label: 'Email'
+                        },
+                        {
+                            id: 'firstname',
+                            label: 'First Name'
+                        },
+                        {
+                            id: 'lastname',
+                            label: 'Last Name'
+                        },
+                        {
+                            id: 'phone',
+                            label: 'Phone'
+                        },
+                        {
+                            id: 'country',
+                            label: 'country'
+                        },
+                        {
+                            id: 'state',
+                            label: 'state'
+                        },
+                        {
+                            id: 'city',
+                            label: 'City'
+                        },
+                        {
+                            id: 'street',
+                            label: 'street'
+                        },
+                        {
+                            id: 'zipcode',
+                            label: 'Zip Code'
+                        }
+                    ]
+                }
             },
-            model: [{
-                id: 'login',
-                label: 'Login',
-                filterable: true
-            }, {
-                id: 'email',
-                label: 'Email',
-                filterable: true
-            }, {
-                id: 'firstname',
-                label: 'First Name',
-                filterable: true
-            }, {
-                id: 'lastname',
-                label: 'Last Name',
-                filterable: true
-            }, {
-                id: 'phone',
-                label: 'Phone',
-                filterable: true
-            }, {
-                id: 'country',
-                label: 'country',
-                filterable: true
-            }, {
-                id: 'state',
-                label: 'state',
-                filterable: true
-            }, {
-                id: 'city',
-                label: 'City',
-                filterable: true
-            }, {
-                id: 'street',
-                label: 'street'
-            }, {
-                id: 'zipcode',
-                label: 'Zip Code'
-            }]
-        }
-    }, {
-        title: 'Filter required',
-        filterRequired: true,
-        config: {
-            url: '/demo-data/filter-required',
-            rows: 10,
-            filter: true,
-            filterStrategy: 'multiple',
-            status: {
-                available: 'Users found',
-                empty: 'No user found! Please precise your search'
+            {
+                title: 'Status empty',
+                limit: 0,
+                config: {
+                    url: '/demo-data/status-empty',
+                    rows: 10,
+                    status: {
+                        available: 'Users found',
+                        empty: 'No user found!'
+                    },
+                    model: [
+                        {
+                            id: 'login',
+                            label: 'Login'
+                        },
+                        {
+                            id: 'email',
+                            label: 'Email'
+                        },
+                        {
+                            id: 'firstname',
+                            label: 'First Name'
+                        },
+                        {
+                            id: 'lastname',
+                            label: 'Last Name'
+                        },
+                        {
+                            id: 'phone',
+                            label: 'Phone'
+                        },
+                        {
+                            id: 'country',
+                            label: 'country'
+                        },
+                        {
+                            id: 'state',
+                            label: 'state'
+                        },
+                        {
+                            id: 'city',
+                            label: 'City'
+                        },
+                        {
+                            id: 'street',
+                            label: 'street'
+                        },
+                        {
+                            id: 'zipcode',
+                            label: 'Zip Code'
+                        }
+                    ]
+                }
             },
-            model: [{
-                id: 'login',
-                label: 'Login',
-                filterable: true
-            }, {
-                id: 'email',
-                label: 'Email',
-                filterable: true
-            }, {
-                id: 'firstname',
-                label: 'First Name',
-                filterable: true
-            }, {
-                id: 'lastname',
-                label: 'Last Name',
-                filterable: true
-            }, {
-                id: 'phone',
-                label: 'Phone',
-                filterable: true
-            }, {
-                id: 'country',
-                label: 'country',
-                filterable: true
-            }, {
-                id: 'state',
-                label: 'state',
-                filterable: true
-            }, {
-                id: 'city',
-                label: 'City',
-                filterable: true
-            }, {
-                id: 'street',
-                label: 'street'
-            }, {
-                id: 'zipcode',
-                label: 'Zip Code'
-            }]
-        }
-    }, {
-        title: 'Actions',
-        config: {
-            url: '/demo-data/actions',
-            rows: 10,
-            actions: [{
-                id: 'file',
-                label: 'File',
-                icon: 'item',
-                action: function(id, row) {
-                    dialog({
-                        message: 'Use\'s file #' + id,
-                        content: fileTpl(row),
-                        buttons: 'ok',
-                        autoRender: true,
-                        autoDestroy: true
-                    });
+            {
+                title: 'Status available',
+                config: {
+                    url: '/demo-data/status-available',
+                    rows: 10,
+                    status: {
+                        available: 'Users found',
+                        empty: 'No user found!'
+                    },
+                    model: [
+                        {
+                            id: 'login',
+                            label: 'Login'
+                        },
+                        {
+                            id: 'email',
+                            label: 'Email'
+                        },
+                        {
+                            id: 'firstname',
+                            label: 'First Name'
+                        },
+                        {
+                            id: 'lastname',
+                            label: 'Last Name'
+                        },
+                        {
+                            id: 'phone',
+                            label: 'Phone'
+                        },
+                        {
+                            id: 'country',
+                            label: 'country'
+                        },
+                        {
+                            id: 'state',
+                            label: 'state'
+                        },
+                        {
+                            id: 'city',
+                            label: 'City'
+                        },
+                        {
+                            id: 'street',
+                            label: 'street'
+                        },
+                        {
+                            id: 'zipcode',
+                            label: 'Zip Code'
+                        }
+                    ]
                 }
-            }, {
-                id: 'remove',
-                label: 'Remove',
-                icon: 'bin',
-                action: function(id) {
-                    dialog({
-                        message: 'Deletion is not supported yet!',
-                        content: 'That would affect user id #' + id,
-                        buttons: 'ok',
-                        autoRender: true,
-                        autoDestroy: true
-                    });
-                }
-            }],
-            model: [{
-                id: 'login',
-                label: 'Login'
-            }, {
-                id: 'email',
-                label: 'Email'
-            }, {
-                id: 'firstname',
-                label: 'First Name'
-            }, {
-                id: 'lastname',
-                label: 'Last Name'
-            }, {
-                id: 'phone',
-                label: 'Phone'
-            }, {
-                id: 'country',
-                label: 'country'
-            }]
-        }
-    }, {
-        title: 'Tools',
-        config: {
-            url: '/demo-data/tools',
-            rows: 10,
-            selectable: true,
-            tools: [{
-                id: 'tool',
-                label: 'Tool',
-                icon: 'settings',
-                action: function() {
-                    dialog({
-                        message: 'It is a wonderful tool!',
-                        buttons: 'ok',
-                        autoRender: true,
-                        autoDestroy: true
-                    });
-                }
-            }, {
-                id: 'massAction',
-                label: 'Mass Action',
-                icon: 'play',
-                massAction: true,
-                action: function(selection) {
-                    dialog({
-                        message: 'This action will affect users [' + selection.join(', ') + ']',
-                        buttons: 'ok',
-                        autoRender: true,
-                        autoDestroy: true
-                    });
-                }
-            }],
-            actions: [{
-                id: 'file',
-                label: 'File',
-                icon: 'item',
-                action: function(id, row) {
-                    dialog({
-                        message: 'Use\'s file #' + id,
-                        content: fileTpl(row),
-                        buttons: 'ok',
-                        autoRender: true,
-                        autoDestroy: true
-                    });
-                }
-            }, {
-                id: 'remove',
-                label: 'Remove',
-                icon: 'bin',
-                action: function(id) {
-                    dialog({
-                        message: 'Deletion is not supported yet!',
-                        content: 'That would affect user id #' + id,
-                        buttons: 'ok',
-                        autoRender: true,
-                        autoDestroy: true
-                    });
-                }
-            }],
-            model: [{
-                id: 'login',
-                label: 'Login'
-            }, {
-                id: 'email',
-                label: 'Email'
-            }, {
-                id: 'firstname',
-                label: 'First Name'
-            }, {
-                id: 'lastname',
-                label: 'Last Name'
-            }, {
-                id: 'phone',
-                label: 'Phone'
-            }, {
-                id: 'country',
-                label: 'country'
-            }]
-        }
-    }, {
-        title: 'All',
-        config: {
-            url: '/demo-data/all',
-            rows: 10,
-            filter: true,
-            filterStrategy: 'multiple',
-            rowSelection: true,
-            selectable: true,
-            paginationStrategyTop: 'simple',
-            paginationStrategyBottom: 'pages',
-            status: {
-                available: 'Users found',
-                empty: 'No user found!'
             },
-            tools: [{
-                id: 'tool',
-                label: 'Tool',
-                icon: 'settings',
-                action: function() {
-                    dialog({
-                        message: 'It is a wonderful tool!',
-                        buttons: 'ok',
-                        autoRender: true,
-                        autoDestroy: true
-                    });
+            {
+                title: 'Pagination',
+                config: {
+                    url: '/demo-data/pagination',
+                    rows: 10,
+                    paginationStrategyTop: 'simple',
+                    paginationStrategyBottom: 'pages',
+                    model: [
+                        {
+                            id: 'login',
+                            label: 'Login'
+                        },
+                        {
+                            id: 'email',
+                            label: 'Email'
+                        },
+                        {
+                            id: 'firstname',
+                            label: 'First Name'
+                        },
+                        {
+                            id: 'lastname',
+                            label: 'Last Name'
+                        },
+                        {
+                            id: 'phone',
+                            label: 'Phone'
+                        },
+                        {
+                            id: 'country',
+                            label: 'country'
+                        },
+                        {
+                            id: 'state',
+                            label: 'state'
+                        },
+                        {
+                            id: 'city',
+                            label: 'City'
+                        },
+                        {
+                            id: 'street',
+                            label: 'street'
+                        },
+                        {
+                            id: 'zipcode',
+                            label: 'Zip Code'
+                        }
+                    ]
                 }
-            }, {
-                id: 'massAction',
-                label: 'Mass Action',
-                icon: 'play',
-                massAction: true,
-                action: function(selection) {
-                    dialog({
-                        message: 'This action will affect users [' + selection.join(', ') + ']',
-                        buttons: 'ok',
-                        autoRender: true,
-                        autoDestroy: true
-                    });
+            },
+            {
+                title: 'Filter',
+                config: {
+                    url: '/demo-data/filter',
+                    rows: 10,
+                    filter: true,
+                    status: {
+                        available: 'Users found',
+                        empty: 'No user found!'
+                    },
+                    model: [
+                        {
+                            id: 'login',
+                            label: 'Login'
+                        },
+                        {
+                            id: 'email',
+                            label: 'Email'
+                        },
+                        {
+                            id: 'firstname',
+                            label: 'First Name'
+                        },
+                        {
+                            id: 'lastname',
+                            label: 'Last Name'
+                        },
+                        {
+                            id: 'phone',
+                            label: 'Phone'
+                        },
+                        {
+                            id: 'country',
+                            label: 'country'
+                        },
+                        {
+                            id: 'state',
+                            label: 'state'
+                        },
+                        {
+                            id: 'city',
+                            label: 'City'
+                        },
+                        {
+                            id: 'street',
+                            label: 'street'
+                        },
+                        {
+                            id: 'zipcode',
+                            label: 'Zip Code'
+                        }
+                    ]
                 }
-            }],
-            actions: [{
-                id: 'file',
-                label: 'File',
-                icon: 'item',
-                action: function(id, row) {
-                    dialog({
-                        message: 'Use\'s file #' + id,
-                        content: fileTpl(row),
-                        buttons: 'ok',
-                        autoRender: true,
-                        autoDestroy: true
-                    });
+            },
+            {
+                title: 'Filter single column',
+                config: {
+                    url: '/demo-data/filter-single-column',
+                    rows: 10,
+                    filter: true,
+                    status: {
+                        available: 'Users found',
+                        empty: 'No user found!'
+                    },
+                    model: [
+                        {
+                            id: 'login',
+                            label: 'Login',
+                            filterable: true
+                        },
+                        {
+                            id: 'email',
+                            label: 'Email',
+                            filterable: true
+                        },
+                        {
+                            id: 'firstname',
+                            label: 'First Name',
+                            filterable: true
+                        },
+                        {
+                            id: 'lastname',
+                            label: 'Last Name',
+                            filterable: true
+                        },
+                        {
+                            id: 'phone',
+                            label: 'Phone',
+                            filterable: true
+                        },
+                        {
+                            id: 'country',
+                            label: 'country',
+                            filterable: true
+                        },
+                        {
+                            id: 'state',
+                            label: 'state',
+                            filterable: true
+                        },
+                        {
+                            id: 'city',
+                            label: 'City',
+                            filterable: true
+                        },
+                        {
+                            id: 'street',
+                            label: 'street'
+                        },
+                        {
+                            id: 'zipcode',
+                            label: 'Zip Code'
+                        }
+                    ]
                 }
-            }, {
-                id: 'remove',
-                label: 'Remove',
-                icon: 'bin',
-                action: function(id) {
-                    dialog({
-                        message: 'Deletion is not supported yet!',
-                        content: 'That would affect user id #' + id,
-                        buttons: 'ok',
-                        autoRender: true,
-                        autoDestroy: true
-                    });
+            },
+            {
+                title: 'Filter multiple columns',
+                config: {
+                    url: '/demo-data/filter-multiple-columns',
+                    rows: 10,
+                    filter: true,
+                    filterStrategy: 'multiple',
+                    status: {
+                        available: 'Users found',
+                        empty: 'No user found!'
+                    },
+                    model: [
+                        {
+                            id: 'login',
+                            label: 'Login',
+                            filterable: true
+                        },
+                        {
+                            id: 'email',
+                            label: 'Email',
+                            filterable: true
+                        },
+                        {
+                            id: 'firstname',
+                            label: 'First Name',
+                            filterable: true
+                        },
+                        {
+                            id: 'lastname',
+                            label: 'Last Name',
+                            filterable: true
+                        },
+                        {
+                            id: 'phone',
+                            label: 'Phone',
+                            filterable: true
+                        },
+                        {
+                            id: 'country',
+                            label: 'country',
+                            filterable: true
+                        },
+                        {
+                            id: 'state',
+                            label: 'state',
+                            filterable: true
+                        },
+                        {
+                            id: 'city',
+                            label: 'City',
+                            filterable: true
+                        },
+                        {
+                            id: 'street',
+                            label: 'street'
+                        },
+                        {
+                            id: 'zipcode',
+                            label: 'Zip Code'
+                        }
+                    ]
                 }
-            }],
-            model: [{
-                id: 'login',
-                label: 'Login',
-                sortable: true,
-                filterable: true
-            }, {
-                id: 'email',
-                label: 'Email',
-                sortable: true,
-                filterable: true
-            }, {
-                id: 'firstname',
-                label: 'First Name',
-                sortable: true,
-                filterable: true
-            }, {
-                id: 'lastname',
-                label: 'Last Name',
-                sortable: true,
-                filterable: true
-            }, {
-                id: 'phone',
-                label: 'Phone',
-                sortable: true,
-                filterable: true
-            }, {
-                id: 'country',
-                label: 'country',
-                sortable: true,
-                filterable: true
-            }]
-        }
-    }]).test('configured with ', function(testCase, assert) {
-        var $feature = $(featureTpl({
-            title: testCase.title,
-            config: JSON.stringify(testCase.config, null, 2)
-        })).appendTo($container);
-        var ready = assert.async();
-
-        assert.expect(1);
-
-        $.mockjax({
-            url: testCase.config.url,
-            dataType: 'json',
-            response: function(request) {
-                this.responseText = query(request, testCase.config.model, {
-                    limit: testCase.limit,
-                    filterRequired: testCase.filterRequired
-                });
+            },
+            {
+                title: 'Filter required',
+                filterRequired: true,
+                config: {
+                    url: '/demo-data/filter-required',
+                    rows: 10,
+                    filter: true,
+                    filterStrategy: 'multiple',
+                    status: {
+                        available: 'Users found',
+                        empty: 'No user found! Please precise your search'
+                    },
+                    model: [
+                        {
+                            id: 'login',
+                            label: 'Login',
+                            filterable: true
+                        },
+                        {
+                            id: 'email',
+                            label: 'Email',
+                            filterable: true
+                        },
+                        {
+                            id: 'firstname',
+                            label: 'First Name',
+                            filterable: true
+                        },
+                        {
+                            id: 'lastname',
+                            label: 'Last Name',
+                            filterable: true
+                        },
+                        {
+                            id: 'phone',
+                            label: 'Phone',
+                            filterable: true
+                        },
+                        {
+                            id: 'country',
+                            label: 'country',
+                            filterable: true
+                        },
+                        {
+                            id: 'state',
+                            label: 'state',
+                            filterable: true
+                        },
+                        {
+                            id: 'city',
+                            label: 'City',
+                            filterable: true
+                        },
+                        {
+                            id: 'street',
+                            label: 'street'
+                        },
+                        {
+                            id: 'zipcode',
+                            label: 'Zip Code'
+                        }
+                    ]
+                }
+            },
+            {
+                title: 'Actions',
+                config: {
+                    url: '/demo-data/actions',
+                    rows: 10,
+                    actions: [
+                        {
+                            id: 'file',
+                            label: 'File',
+                            icon: 'item',
+                            action: function(id, row) {
+                                dialog({
+                                    message: "Use's file #" + id,
+                                    content: fileTpl(row),
+                                    buttons: 'ok',
+                                    autoRender: true,
+                                    autoDestroy: true
+                                });
+                            }
+                        },
+                        {
+                            id: 'remove',
+                            label: 'Remove',
+                            icon: 'bin',
+                            action: function(id) {
+                                dialog({
+                                    message: 'Deletion is not supported yet!',
+                                    content: 'That would affect user id #' + id,
+                                    buttons: 'ok',
+                                    autoRender: true,
+                                    autoDestroy: true
+                                });
+                            }
+                        }
+                    ],
+                    model: [
+                        {
+                            id: 'login',
+                            label: 'Login'
+                        },
+                        {
+                            id: 'email',
+                            label: 'Email'
+                        },
+                        {
+                            id: 'firstname',
+                            label: 'First Name'
+                        },
+                        {
+                            id: 'lastname',
+                            label: 'Last Name'
+                        },
+                        {
+                            id: 'phone',
+                            label: 'Phone'
+                        },
+                        {
+                            id: 'country',
+                            label: 'country'
+                        }
+                    ]
+                }
+            },
+            {
+                title: 'Tools',
+                config: {
+                    url: '/demo-data/tools',
+                    rows: 10,
+                    selectable: true,
+                    tools: [
+                        {
+                            id: 'tool',
+                            label: 'Tool',
+                            icon: 'settings',
+                            action: function() {
+                                dialog({
+                                    message: 'It is a wonderful tool!',
+                                    buttons: 'ok',
+                                    autoRender: true,
+                                    autoDestroy: true
+                                });
+                            }
+                        },
+                        {
+                            id: 'massAction',
+                            label: 'Mass Action',
+                            icon: 'play',
+                            massAction: true,
+                            action: function(selection) {
+                                dialog({
+                                    message: 'This action will affect users [' + selection.join(', ') + ']',
+                                    buttons: 'ok',
+                                    autoRender: true,
+                                    autoDestroy: true
+                                });
+                            }
+                        }
+                    ],
+                    actions: [
+                        {
+                            id: 'file',
+                            label: 'File',
+                            icon: 'item',
+                            action: function(id, row) {
+                                dialog({
+                                    message: "Use's file #" + id,
+                                    content: fileTpl(row),
+                                    buttons: 'ok',
+                                    autoRender: true,
+                                    autoDestroy: true
+                                });
+                            }
+                        },
+                        {
+                            id: 'remove',
+                            label: 'Remove',
+                            icon: 'bin',
+                            action: function(id) {
+                                dialog({
+                                    message: 'Deletion is not supported yet!',
+                                    content: 'That would affect user id #' + id,
+                                    buttons: 'ok',
+                                    autoRender: true,
+                                    autoDestroy: true
+                                });
+                            }
+                        }
+                    ],
+                    model: [
+                        {
+                            id: 'login',
+                            label: 'Login'
+                        },
+                        {
+                            id: 'email',
+                            label: 'Email'
+                        },
+                        {
+                            id: 'firstname',
+                            label: 'First Name'
+                        },
+                        {
+                            id: 'lastname',
+                            label: 'Last Name'
+                        },
+                        {
+                            id: 'phone',
+                            label: 'Phone'
+                        },
+                        {
+                            id: 'country',
+                            label: 'country'
+                        }
+                    ]
+                }
+            },
+            {
+                title: 'All',
+                config: {
+                    url: '/demo-data/all',
+                    rows: 10,
+                    filter: true,
+                    filterStrategy: 'multiple',
+                    rowSelection: true,
+                    selectable: true,
+                    paginationStrategyTop: 'simple',
+                    paginationStrategyBottom: 'pages',
+                    status: {
+                        available: 'Users found',
+                        empty: 'No user found!'
+                    },
+                    tools: [
+                        {
+                            id: 'tool',
+                            label: 'Tool',
+                            icon: 'settings',
+                            action: function() {
+                                dialog({
+                                    message: 'It is a wonderful tool!',
+                                    buttons: 'ok',
+                                    autoRender: true,
+                                    autoDestroy: true
+                                });
+                            }
+                        },
+                        {
+                            id: 'massAction',
+                            label: 'Mass Action',
+                            icon: 'play',
+                            massAction: true,
+                            action: function(selection) {
+                                dialog({
+                                    message: 'This action will affect users [' + selection.join(', ') + ']',
+                                    buttons: 'ok',
+                                    autoRender: true,
+                                    autoDestroy: true
+                                });
+                            }
+                        }
+                    ],
+                    actions: [
+                        {
+                            id: 'file',
+                            label: 'File',
+                            icon: 'item',
+                            action: function(id, row) {
+                                dialog({
+                                    message: "Use's file #" + id,
+                                    content: fileTpl(row),
+                                    buttons: 'ok',
+                                    autoRender: true,
+                                    autoDestroy: true
+                                });
+                            }
+                        },
+                        {
+                            id: 'remove',
+                            label: 'Remove',
+                            icon: 'bin',
+                            action: function(id) {
+                                dialog({
+                                    message: 'Deletion is not supported yet!',
+                                    content: 'That would affect user id #' + id,
+                                    buttons: 'ok',
+                                    autoRender: true,
+                                    autoDestroy: true
+                                });
+                            }
+                        }
+                    ],
+                    model: [
+                        {
+                            id: 'login',
+                            label: 'Login',
+                            sortable: true,
+                            filterable: true
+                        },
+                        {
+                            id: 'email',
+                            label: 'Email',
+                            sortable: true,
+                            filterable: true
+                        },
+                        {
+                            id: 'firstname',
+                            label: 'First Name',
+                            sortable: true,
+                            filterable: true
+                        },
+                        {
+                            id: 'lastname',
+                            label: 'Last Name',
+                            sortable: true,
+                            filterable: true
+                        },
+                        {
+                            id: 'phone',
+                            label: 'Phone',
+                            sortable: true,
+                            filterable: true
+                        },
+                        {
+                            id: 'country',
+                            label: 'country',
+                            sortable: true,
+                            filterable: true
+                        }
+                    ]
+                }
             }
-        });
+        ])
+        .test('configured with ', function(testCase, assert) {
+            var $feature = $(
+                featureTpl({
+                    title: testCase.title,
+                    config: JSON.stringify(testCase.config, null, 2)
+                })
+            ).appendTo($container);
+            var ready = assert.async();
 
-        $feature.find('.widget')
-            .on('create.datatable', function() {
-                assert.ok(true, 'Datatable is created');
-                ready();
-            })
-            .on('query.datatable', function(e, ajaxConfig) {
-                var queryData = {
-                    method: ajaxConfig.type,
-                    url: ajaxConfig.url
-                };
-                if (ajaxConfig.type === 'GET') {
-                    queryData.url = queryData.url + (queryData.url.indexOf('?') > -1 ? '&' : '?') + $.param(ajaxConfig.data);
-                } else {
-                    queryData.params = JSON.stringify(ajaxConfig.data);
+            assert.expect(1);
+
+            $.mockjax({
+                url: testCase.config.url,
+                dataType: 'json',
+                response: function(request) {
+                    this.responseText = query(request, testCase.config.model, {
+                        limit: testCase.limit,
+                        filterRequired: testCase.filterRequired
+                    });
                 }
-                $feature.find('.query').html(queryTpl(queryData));
-            })
-            .datatable(testCase.config);
-    });
+            });
+
+            $feature
+                .find('.widget')
+                .on('create.datatable', function() {
+                    assert.ok(true, 'Datatable is created');
+                    ready();
+                })
+                .on('query.datatable', function(e, ajaxConfig) {
+                    var queryData = {
+                        method: ajaxConfig.type,
+                        url: ajaxConfig.url
+                    };
+                    if (ajaxConfig.type === 'GET') {
+                        queryData.url =
+                            queryData.url + (queryData.url.indexOf('?') > -1 ? '&' : '?') + $.param(ajaxConfig.data);
+                    } else {
+                        queryData.params = JSON.stringify(ajaxConfig.data);
+                    }
+                    $feature.find('.query').html(queryTpl(queryData));
+                })
+                .datatable(testCase.config);
+        });
 });

@@ -25,8 +25,7 @@ define([
     'jquery',
     'ui/resource/list',
     'json!test/ui/resource/list/nodes.json',
-    'css!ui/resource/css/selector',
-    
+    'css!ui/resource/css/selector'
 ], function($, resourceListFactory, nodesData) {
     'use strict';
 

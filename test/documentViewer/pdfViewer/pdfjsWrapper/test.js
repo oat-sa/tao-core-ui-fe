@@ -22,8 +22,7 @@ define([
     'jquery',
     'core/eventifier',
     'pdfjs-dist/build/pdf',
-    'ui/documentViewer/providers/pdfViewer/pdfjs/wrapper',
-    
+    'ui/documentViewer/providers/pdfViewer/pdfjs/wrapper'
 ], function($, eventifier, pdfjs, wrapperFactory) {
     'use strict';
 
