@@ -110,7 +110,7 @@ define(['ui/dialog/confirm'], function(dialogConfirm) {
             'The dialogConfirm box displays the message'
         );
 
-        assert.equal(modal.getDom().find('button').length, 2, 'The dialogConfirm box displays 2 buttons');
+        assert.equal(modal.getDom().find('button').length, 3, 'The dialogConfirm box displays 2 buttons');
         assert.equal(
             modal.getDom().find('button[data-control="ok"]').length,
             1,

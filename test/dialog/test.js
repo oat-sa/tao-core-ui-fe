@@ -453,7 +453,7 @@ define(['jquery', 'lodash', 'ui/dialog'], function($, _, dialog) {
             );
 
             modal
-                .on('create.modal', function() {
+                .on('create.dialog', function() {
                     modal.getDom().click();
                     buttons.forEach(function(button) {
                         assert.equal(
@@ -505,7 +505,7 @@ define(['jquery', 'lodash', 'ui/dialog'], function($, _, dialog) {
 
         assert.expect(4);
 
-        modal.on('create.modal', function() {
+        modal.on('create.dialog', function() {
             assert.equal($(renderTo + ' .modal').length, 1, 'The modal element is created');
             assert.equal($(renderTo + ' .message').text(), message, 'The modal message is correct');
 

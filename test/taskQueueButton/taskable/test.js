@@ -16,13 +16,12 @@
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
  */
 define([
-    'jquery',
     'lodash',
     'ui/component',
     'ui/taskQueue/taskQueueModel',
     'ui/taskQueueButton/taskable',
     'css!ui/resource/css/selector'
-], function($, _, componentFactory, taskQueueModelFactory, makeTaskable) {
+], function(_, componentFactory, taskQueueModelFactory, makeTaskable) {
     'use strict';
 
     QUnit.module('API');

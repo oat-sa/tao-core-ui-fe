@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2017-2019 (original work) Open Assessment Technologies SA ;
  */
 
 /**
@@ -72,6 +72,7 @@ export default function selectableFactory(component, config) {
 
         /**
          * Get a given node
+         * @param {String} uri - the key
          * @returns {Object?} the node
          */
         getNode: function getNode(uri) {
@@ -80,7 +81,7 @@ export default function selectableFactory(component, config) {
 
         /**
          * Set the selectable nodes
-         * @param {Object[]} nodes
+         * @param {Object[]} newNodes
          */
         setNodes: function setNodes(newNodes) {
             if (_.isArray(newNodes)) {
@@ -183,10 +184,13 @@ export default function selectableFactory(component, config) {
          * Apply the selection to the given URIs.
          * @param {String[]} uris - the list of URIs to select
          * @param {Boolean} [only=false] - if true the selection is done "only" on the given URIs (unselect previous)
+         * @param {Boolean} [onlyVisible=true] - if true the selection was done "only" for visible nodes.
+         * @param {Boolean} [withChildren=false] - if true, all loaded children of selected node(s) get selected
          * @returns {selectable} chains
          * @fires selectable#change
          */
-        select: function select(uris, only) {
+        select: function select(uris, only, onlyVisible, withChildren) {
+            var self = this;
             var $component;
             var currentConfig = getConfig();
 
@@ -224,10 +228,43 @@ export default function selectableFactory(component, config) {
 
                             selection[uri] = nodes[uri];
                         }
+                        if (withChildren && self.is('multiple')) {
+                            // add children to selection object
+                            $node
+                                .find('[data-uri]')
+                                .each(function(i, child) {
+                                    $(child).addClass(selectedClass);
+                                })
+                                .map(function() {
+                                    return $(this).data('uri');
+                                })
+                                .each(function(i, childUri) {
+                                    selection[childUri] = nodes[childUri];
+                                });
+                        }
                     });
-                this.trigger('change', selection);
+                this.trigger('change', selection, onlyVisible);
             }
             return this;
+        },
+
+        /**
+         * Select only all visible nodes.
+         * @returns {Object[]} nodes
+         */
+        selectVisible: function selectVisible() {
+            var $component = this.getElement();
+            var $elements = $component.find('[data-uri]').filter(function() {
+                return $(this).parents('.closed').length === 0;
+            });
+
+            this.select(
+                _.map($elements, function(element) {
+                    return $(element).data('uri');
+                }),
+                false,
+                true
+            );
         },
 
         /**
@@ -256,12 +293,23 @@ export default function selectableFactory(component, config) {
 
                             selection = _.omit(selection, uri);
                         }
+                        // always unselect children
+                        $node
+                            .find('[data-uri]')
+                            .each(function(i, child) {
+                                $(child).removeClass(selectedClass);
+                            })
+                            .map(function() {
+                                return $(this).data('uri');
+                            })
+                            .each(function(i, childUri) {
+                                selection = _.omit(selection, childUri);
+                            });
                     });
                 this.trigger('change', selection);
             }
             return this;
         },
-
         /**
          * Select all nodes.
          * @returns {selectable} chains
