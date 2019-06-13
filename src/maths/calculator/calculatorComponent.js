@@ -19,7 +19,6 @@
  * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
  */
 import _ from 'lodash';
-import nsHelper from 'util/namespace';
 import dynamicComponent from 'ui/dynamicComponent';
 import calculatorBoardFactory from 'ui/maths/calculator/core/board';
 import pluginsLoader from 'ui/maths/calculator/pluginsLoader';
