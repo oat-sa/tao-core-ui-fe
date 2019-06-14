@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Ui Test - Media Editor Component</title>
+        <script type="text/javascript" src="/environment/require.js"></script>
+        <script type="text/javascript">
+            require(['/environment/config.js'], function() {
+                require(['qunitEnv'], function() {
+                    require(['test/ui/mediaEditor/mediaEditorComponent/test'], function() {
+                        QUnit.start();
+                    });
+                });
+            });
+        </script>
+        <style>
+            .demo-container .control-container,
+            .demo-container .tools-container {
+                background-color: white;
+                max-width: 185px;
+            }
+
+            .demo-container .editable-container {
+                max-width: 800px;
+                border: grey 2px solid;
+                position: relative;
+                margin: auto;
+                background-color: #0b77b7;
+            }
+
+            html img {
+                height: initial;
+                max-width: initial;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="qunit"></div>
+        <div id="qunit-fixture"></div>
+        <div class="demo-container">
+            <div class="tools-container"></div>
+            <div class="control-container">
+                <div class="editable-container">
+                    <img src="/test/mediaEditor/sample/space.jpg" class="picture" />
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

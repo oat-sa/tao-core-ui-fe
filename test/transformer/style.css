@@ -1,0 +1,38 @@
+#qunit-fixture {
+    position: static;
+}
+
+#container {
+    width: 100px;
+    height: 100px;
+}
+
+.pre-translate {
+    -ms-transform: translate(100px, 100px);
+    -webkit-transform: translate(100px, 100px);
+    transform: translate(100px, 100px);
+}
+
+.pre-rotate {
+    -ms-transform: rotate(20deg);
+    -webkit-transform: rotate(20deg);
+    transform: rotate(20deg);
+}
+
+.pre-skew {
+    -ms-transform: skew(20deg);
+    -webkit-transform: skew(20deg);
+    transform: skew(20deg);
+}
+
+.pre-scale {
+    -ms-transform: scale(1.5, 1.5);
+    -webkit-transform: scale(1.5, 1.5);
+    transform: scale(1.5, 1.5);
+}
+
+.pre-transform {
+    -ms-transform: translateX(72px) translateY(50px) rotate(20deg) skew(20deg) scaleX(1.5) scaleY(1.5);
+    -webkit-transform: translateX(72px) translateY(50px) rotate(20deg) skew(20deg) scaleX(1.5) scaleY(1.5);
+    transform: translateX(72px) translateY(50px) rotate(20deg) skew(20deg) scaleX(1.5) scaleY(1.5);
+}

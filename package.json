@@ -1,0 +1,77 @@
+{
+    "name": "@oat-sa/tao-core-ui",
+    "version": "0.1.1",
+    "displayName": "TAO Core UI",
+    "description": "UI libraries of TAO",
+    "scripts": {
+        "test:keepAlive": "node ./build/webserver.js",
+        "test": "node ./build/testrunner.js",
+        "build": "rollup --config ./build/rollup.config.js",
+        "buildScss": "node ./build/scss.js",
+        "lint": "eslint test",
+        "prepare": "npm run buildScss && npm run build"
+    },
+    "keywords": [
+        "tao",
+        "ui",
+        "core",
+        "fe",
+        "frontend"
+    ],
+    "files": [
+        "dist/",
+        "src/",
+        "scss"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/oat-sa/tao-core-ui-fe.git"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "license": "GPL-2.0",
+    "devDependencies": {
+        "@csstools/postcss-sass": "^4.0.0",
+        "@oat-sa/browserslist-config-tao": "^0.1.0",
+        "@oat-sa/expr-eval": "^1.3.0",
+        "@oat-sa/tao-core-libs": "^0.1.0",
+        "@oat-sa/tao-core-sdk": "^0.3.0",
+        "async": "^0.2.10",
+        "autoprefixer": "^9.5.1",
+        "decimal.js": "^10.1.1",
+        "devbridge-autocomplete": "^1.2.20",
+        "dompurify": "^1.0.10",
+        "flatpickr": "4.5.7",
+        "fs-extra": "^8.0.1",
+        "gamp": "^0.2.1",
+        "glob": "^7.1.4",
+        "handlebars": "1.3.0",
+        "http-server": "^0.11.1",
+        "interactjs": "1.2.8",
+        "jquery": "1.9.1",
+        "jquery-mockjax": "^2.5.0",
+        "lodash": "2.4.1",
+        "moment": "2.11.1",
+        "moo": "^0.5.0",
+        "node-qunit-puppeteer": "^1.0.12",
+        "popper.js": "^1.14.5",
+        "postcss": "^7.0.16",
+        "postcss-scss": "^2.0.0",
+        "promise-limit": "^2.7.0",
+        "qunit": "^2.9.2",
+        "require-css": "^0.1.10",
+        "requirejs-plugins": "^1.0.2",
+        "rollup": "^1.12.1",
+        "rollup-plugin-alias": "^1.5.1",
+        "rollup-plugin-handlebars-plus": "^0.2.4",
+        "rollup-plugin-node-resolve": "^5.0.0",
+        "select2": "^3.5.1",
+        "text": "github:requirejs/text#2.0.16",
+        "tooltip.js": "^1.3.1"
+    },
+    "dependencies": {},
+    "browserslist": [
+        "extends @oat-sa/browserslist-config-tao"
+    ]
+}

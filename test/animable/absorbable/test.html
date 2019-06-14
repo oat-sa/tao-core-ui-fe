@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Component - Absorbable</title>
+        <script type="text/javascript" src="/environment/require.js"></script>
+        <script type="text/javascript">
+            require(['/environment/config.js'], function() {
+                require(['qunitEnv'], function() {
+                    require(['test/ui/animable/absorbable/test'], function() {
+                        QUnit.start();
+                    });
+                });
+            });
+        </script>
+        <style>
+            #visual {
+                padding: 40px 100px;
+            }
+            .target {
+                display: inline-block;
+                background: #2b81af;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                margin: 100px;
+            }
+            .absorb {
+                display: inline-block;
+                background: #d2e0e6;
+                width: 200px;
+                height: 200px;
+                margin-left: 400px;
+            }
+            .controls {
+                vertical-align: top;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="qunit"></div>
+        <div id="qunit-fixture"></div>
+        <div id="visual">
+            <div class="controls">
+                <input class="count" value="1" type="number" />
+                <button class="btn-info small trigger">absorb</button>
+            </div>
+            <div class="target"></div>
+            <div class="absorb"></div>
+        </div>
+    </body>
+</html>

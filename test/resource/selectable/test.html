@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Component - Selectable</title>
+        <script type="text/javascript" src="/environment/require.js"></script>
+        <script type="text/javascript">
+            require(['/environment/config.js'], function() {
+                require(['qunitEnv'], function() {
+                    require(['test/ui/resource/selectable/test'], function() {
+                        QUnit.start();
+                    });
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <div id="qunit"></div>
+        <div id="qunit-fixture">
+            <ul class="component">
+                <li data-uri="item-1"></li>
+                <li data-uri="item-2"></li>
+                <li data-uri="item-3"></li>
+                <li data-uri="class-1">
+                    <ul>
+                        <li data-uri="child-1"></li>
+                        <li data-uri="child-2"></li>
+                        <li data-uri="child-3"></li>
+                    </ul>
+                </li>
+            <ul>
+        </div>
+    </body>
+</html>

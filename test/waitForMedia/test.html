@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Ui Test - Wait For Media UI Component</title>
+        <script type="text/javascript" src="/environment/require.js"></script>
+        <script type="text/javascript">
+            require(['/environment/config.js'], function() {
+                require(['qunitEnv'], function() {
+                    require(['test/ui/waitForMedia/test'], function() {
+                        QUnit.config.reorder = false;
+                        QUnit.start();
+                    });
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <div id="qunit"></div>
+        <div id="qunit-fixture">
+            <div id="div1">
+                <p>
+                    <img />
+                    <img src="" />
+                    <img src="/test/waitForMedia/img/oat-header-logo-X.png" />
+                    <img src="/test/waitForMedia/img/oat-header-logo.png" />
+                    <img src="http://placehold.it/350x150" />
+                </p>
+            </div>
+            <div id="div2">
+                <p>No media</p>
+            </div>
+        </div>
+    </body>
+</html>
