@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2015 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2015-2019 (original work) Open Assessment Technologies SA ;
  */
 /**
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
@@ -25,14 +25,19 @@ import dialog from 'ui/dialog';
  * Displays an alert message
  * @param {String} message - The displayed message
  * @param {Function} action - An action called when the alert is closed
+ * @param {Function} onCreateDialog - An action called when dialog created
  * @returns {dialog} - Returns the dialog instance
  */
-export default function dialogAlert(message, action) {
+export default function dialogAlert(message, action, onCreateDialog) {
     var dlg = dialog({
         message: message,
         buttons: 'ok',
-        autoRender: true,
-        autoDestroy: true
+        autoDestroy: true,
+        autoRender: true
+    }).on('create.dialog', function() {
+        if (onCreateDialog) {
+            onCreateDialog();
+        }
     });
 
     if (_.isFunction(action)) {

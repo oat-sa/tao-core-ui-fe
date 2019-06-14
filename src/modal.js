@@ -100,9 +100,11 @@ var modal = {
 
             //Initialize the close button for the modal dialog
             if ($('.' + options.modalCloseClass, $modal).length === 0 && !options.disableClosing) {
-                $('<div class="' + options.modalCloseClass + '"><span class="icon-close"></span></div>').appendTo(
-                    $modal
-                );
+                $(
+                    '<button id="modal-close-btn" class="' +
+                        options.modalCloseClass +
+                        '"><span class="icon-close"></span></button>'
+                ).appendTo($modal);
             }
 
             if (!options.startClosed) {

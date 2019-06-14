@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2017-2019 (original work) Open Assessment Technologies SA ;
  */
 
 /**
@@ -42,7 +42,6 @@
 import $ from 'jquery';
 import _ from 'lodash';
 import __ from 'i18n';
-
 import component from 'ui/component';
 import hider from 'ui/hider';
 import classesSelectorFactory from 'ui/class/selector';
@@ -65,6 +64,12 @@ var selectionModes = {
     both: 'both'
 };
 
+var selectAllPolicies = {
+    all: 'all', // should select 100% of the nodes, but currently not implementable due to lazy loading
+    loaded: 'loaded', // selects all loaded nodes, whether visible or not
+    visible: 'visible' // selects only visible nodes
+};
+
 var defaultConfig = {
     type: __('resources'),
     noResultsText: _('No resources found'),
@@ -72,6 +77,7 @@ var defaultConfig = {
     icon: 'item',
     selectionMode: selectionModes.single,
     selectClass: false,
+    selectAllPolicy: selectAllPolicies.loaded,
     filters: false,
     showContext: true,
     showSelection: true,
@@ -100,7 +106,7 @@ var filterClasses = function filterClasses(resources) {
     return _(resources)
         .filter({ type: nodeTypes.class })
         .map(function(resource) {
-            var classNode = _.pick(resource, ['uri', 'label']);
+            var classNode = _.pick(resource, ['uri', 'label', 'state']);
 
             if (resource.children) {
                 classNode.children = filterClasses(resource.children);
@@ -118,7 +124,7 @@ var filterClasses = function filterClasses(resources) {
  * @param {String} config.classUri - the root Class URI
  * @param {Object|[]} [config.classes] - the classes hierarchy for the class selector
  * @param {Object[]} config.formats - the definition of the supported viewer/selector component
- * @param {Objet[]} [config.nodes] - the nodes to preload, the format is up to the formatComponent
+ * @param {Object[]} [config.nodes] - the nodes to preload, the format is up to the formatComponent
  * @param {String} [config.icon] - the icon class that represents a resource
  * @param {String} [config.type] - describes the resource type
  * @param {Boolean} [config.selectionMode] - multiple or single selection mode
@@ -321,7 +327,7 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
                 /**
                  * The selection mode has changed
                  * @event resourceSelector#selectionmodechange
-                 * @param {String} mode - the new selection mode
+                 * @param {String} newMode - the new selection mode
                  */
                 this.trigger('selectionmodechange', newMode);
             }
@@ -378,8 +384,8 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
                             }
                             self.trigger('update');
                         })
-                        .on('change', function(selected) {
-                            self.trigger('change', selected);
+                        .on('change', function(selected, onlyVisible) {
+                            self.trigger('change', selected, onlyVisible);
                         })
                         .on('error', function(err) {
                             self.trigger('error', err);
@@ -502,6 +508,7 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
          */
         select: function select(node) {
             var uri = _.isString(node) ? node : node.uri;
+
             if (this.hasNode(uri)) {
                 if (!this.is('multiple')) {
                     this.selectionComponent.clearSelection();
@@ -518,11 +525,12 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
          *
          * @param {Object|String} node - the node to select or directly the URI
          * @param {String} [node.uri]
-         * @param {Boolean} [fallback = true] - apply the fallback ?
+         * @param {Boolean} [fallback=true] - apply the fallback ?
          * @returns {resourceSelector} chains
          */
         selectDefaultNode: function selectDefaultNode(node, fallback) {
             var $resource;
+
             if (this.is('rendered')) {
                 if (this.hasNode(node)) {
                     this.select(node);
@@ -659,7 +667,9 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
                 $selectCtrl.on('change', function() {
                     if ($(this).prop('checked') === false) {
                         self.selectionComponent.clearSelection();
-                    } else {
+                    } else if (self.config.selectAllPolicy === selectAllPolicies.visible) {
+                        self.selectionComponent.selectVisible();
+                    } else if (self.config.selectAllPolicy === selectAllPolicies.loaded) {
                         self.selectionComponent.selectAll();
                     }
                 });
@@ -727,9 +737,9 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
                 self.query();
             });
         })
-        .on('change', function(selected) {
-            var nodesCount = _.size(this.selectionComponent.getNodes());
+        .on('change', function(selected, onlyVisible) {
             var selectedCount = _.size(selected);
+            var nodesCount = onlyVisible ? selectedCount : _.size(this.selectionComponent.getNodes());
 
             //the number selected at the bottom
             $selectNum.text(selectedCount);
@@ -738,7 +748,8 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
             if (selectedCount === 0) {
                 $selectCtrlLabel.attr('title', __('Select loaded %s', this.config.type));
                 $selectCtrl.prop('checked', false).prop('indeterminate', false);
-            } else if (selectedCount === nodesCount) {
+                // if all of the nodes are selected (or more in the closed subclasses)
+            } else if (selectedCount >= nodesCount) {
                 $selectCtrlLabel.attr('title', __('Clear selection'));
                 $selectCtrl.prop('checked', true).prop('indeterminate', false);
             } else {
@@ -755,6 +766,9 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
 
 //Exposes the selection modes
 resourceSelectorFactory.selectionModes = selectionModes;
+
+//Exposes the selectAllPolicies
+resourceSelectorFactory.selectAllPolicies = selectAllPolicies;
 
 //Exposes the node types
 resourceSelectorFactory.nodeTypes = nodeTypes;

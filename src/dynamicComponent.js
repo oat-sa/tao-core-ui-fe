@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2016 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2016-2019 (original work) Open Assessment Technologies SA ;
  */
 /**
  * @author Sam <sam@taotesting.com>
@@ -23,6 +23,7 @@ import _ from 'lodash';
 import interact from 'interact';
 import componentFactory from 'ui/component';
 import makeStackable from 'ui/component/stackable';
+import 'ui/transformer';
 import interactUtils from 'ui/interactUtils';
 import position from 'util/position';
 import uuid from 'lib/uuid';
@@ -30,7 +31,6 @@ import layoutTpl from 'ui/dynamicComponent/tpl/layout';
 import 'ui/dynamicComponent/css/dynamicComponent.css';
 
 var _defaults = {
-    title: '',
     resizable: true,
     draggable: true,
     width: 240,
@@ -44,7 +44,8 @@ var _defaults = {
     draggableContainer: 'parent',
     preserveAspectRatio: true,
     top: 0,
-    left: 0
+    left: 0,
+    proportionalResize: false
 };
 
 /**
@@ -194,6 +195,7 @@ var dynamicComponent = {
  * @param {Number} [defaults.top] - the initial position top absolute to the relative positioned container
  * @param {Number} [defaults.left] - the initial position left absolute to the relative positioned container
  * @param {Number} [defaults.stackingScope] - in which scope to stack the component
+ * @param {Boolean} [defaults.proportionalResize] - resize proportionally in both dimensions
  * @returns {component}
  */
 var dynComponentFactory = function dynComponentFactory(specs, defaults) {
@@ -214,6 +216,7 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
             var $content = $('.dynamic-component-content', $element);
             var $titleBar = $('.dynamic-component-title-bar', $element);
             var $contentOverlay = $('.dynamic-component-layer', $element);
+            var $resizeControll = $('.dynamic-component-resize-wrapper', $element);
             var pixelRatio = window.devicePixelRatio;
             var interactElement;
 
@@ -259,6 +262,8 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
                     }),
                     onmove: function(event) {
                         interactUtils.moveElement($element, event.dx, event.dy);
+                        self.setCoords();
+                        self.trigger('move', self.position);
                     },
                     onend: function() {
                         self.setCoords();
@@ -305,17 +310,36 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
                     preserveAspectRatio: config.preserveAspectRatio,
                     autoScroll: true,
                     restrict: getRestriction(),
-                    edges: { left: true, right: true, bottom: true, top: true },
+                    edges: {
+                        left: false,
+                        right: '.dynamic-component-resize-wrapper',
+                        bottom: '.dynamic-component-resize-wrapper',
+                        top: false
+                    },
                     onmove: _resizeItem
                 });
             }
 
             interactElement
-                .on('dragstart resizeinertiastart resizestart', function() {
+                .on('dragstart resizeinertiastart', function() {
                     $contentOverlay.addClass('dragging-active');
+                    $content.addClass('moving');
+                    $titleBar.addClass('moving');
                 })
-                .on('dragend resizeend', function() {
+                .on('dragend', function() {
                     $contentOverlay.removeClass('dragging-active');
+                    $content.removeClass('moving');
+                    $titleBar.removeClass('moving');
+                })
+                .on('resizestart', function() {
+                    $contentOverlay.addClass('dragging-active');
+                    $resizeControll.addClass('resizing');
+                    $content.addClass('sizing');
+                })
+                .on('resizeend', function() {
+                    $contentOverlay.removeClass('dragging-active');
+                    $resizeControll.removeClass('resizing');
+                    $content.removeClass('sizing');
                 });
 
             //interact sometimes doesn't trigger the start event if the move is quick and ends over an iframe...
@@ -352,52 +376,107 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
              * @param {Object} e - the interact event object
              */
             function _resizeItem(e) {
-                var width =
-                    e.rect.width < config.minWidth
-                        ? config.minWidth
-                        : e.rect.width > config.maxWidth
-                        ? config.maxWidth
-                        : e.rect.width;
-                var height =
-                    e.rect.height < config.minHeight
-                        ? config.minHeight
-                        : e.rect.height > config.maxHeight
-                        ? config.maxHeight
-                        : e.rect.height;
+                var width = e.rect.width;
+                var height = e.rect.height;
+                var $parent = config.draggableContainer || $element.parent();
+                var elementOffset = $element.offset();
+                var parentOffset = $parent.offset();
 
-                if (width <= config.smallWidthThreshold) {
-                    $element.addClass('small').removeClass('large');
-                } else if (width >= config.largeWidthThreshold) {
-                    $element.addClass('large').removeClass('small');
-                } else {
-                    $element.removeClass('small').removeClass('large');
-                }
+                // if proportional resize enabled calculate scale rate
+                // and apply it to width and height
 
-                interactUtils.moveElement(
-                    $element,
-                    width > config.minWidth && width < config.maxWidth ? e.deltaRect.left : 0,
-                    height > config.minHeight && height < config.maxHeight ? e.deltaRect.top : 0
-                );
+                var dimensions = calculateSize(width, height);
+                width = calculateOverlap(dimensions.width, elementOffset.left, parentOffset.left, $parent.width());
+                height = calculateOverlap(dimensions.height, elementOffset.top, parentOffset.top, $parent.height());
 
-                self.position.width = width;
-                self.position.height = height;
-                self.setCoords();
+                if (height !== null && width !== null) {
+                    if (width <= config.smallWidthThreshold) {
+                        $element.addClass('small').removeClass('large');
+                    } else if (width >= config.largeWidthThreshold) {
+                        $element.addClass('large').removeClass('small');
+                    } else {
+                        $element.removeClass('small').removeClass('large');
+                    }
 
-                $element.css({
-                    width: width + 'px',
-                    height: height + 'px'
-                });
+                    interactUtils.moveElement(
+                        $element,
+                        width > config.minWidth && width < config.maxWidth ? e.deltaRect.left : 0,
+                        height > config.minHeight && height < config.maxHeight ? e.deltaRect.top : 0
+                    );
 
-                _.defer(function() {
-                    self.position.contentWidth = $titleBar.width();
-                    self.position.contentHeight = $element.height() - $titleBar.outerHeight();
-                    $content.css({
-                        width: self.position.contentWidth + 'px',
-                        height: self.position.contentHeight + 'px'
+                    self.position.width = width;
+                    self.position.height = height;
+                    self.setCoords();
+
+                    $element.css({
+                        width: width + 'px',
+                        height: height + 'px'
                     });
 
-                    self.trigger('resize', self.position);
-                });
+                    _.defer(function() {
+                        self.position.contentWidth = $titleBar.width();
+                        self.position.contentHeight = $element.height() - $titleBar.outerHeight();
+                        $content.css({
+                            width: self.position.contentWidth + 'px',
+                            height: self.position.contentHeight + 'px'
+                        });
+
+                        self.trigger('resize', self.position);
+                    });
+                }
+            }
+
+            /**
+             * check if given side of dynamic component is overlapping the container and calculate size of that side
+             * @param {Number} side - side value of the component to check and calculate, cold be height or width
+             * @param {Number} elOffset - offset value towards child to parent container
+             * @param {Number} parentOffset - offset value towards parent container to its ancestor
+             * @returns {Number|null} - new width or height values for the side of the component or null if there is no overlap between it and container
+             */
+            function calculateOverlap(side, elOffset, parentOffset, parentValue) {
+                var result = side;
+                var fullSizeSide = elOffset + side;
+                var fullSizeParent = parentOffset + parentValue;
+                if (fullSizeSide > fullSizeParent) {
+                    if (config.proportionalResize) {
+                        result = null;
+                    } else {
+                        result -= fullSizeSide - fullSizeParent;
+                    }
+                }
+                return result;
+            }
+
+            /**
+             * calculates size of the dynamic component compared to  configured max/min values and scale rate coefficient applied
+             * @param {Number} width - width of the component at the moment of resizing
+             * @param {Number} height -  height of the component at the moment of resizing
+             * @returns {width,height} - object with adjusted weight and height
+             */
+            function calculateSize(width, height) {
+                var scaleRate;
+                if (config.proportionalResize) {
+                    scaleRate = Math.max(width / config.minWidth, height / config.minHeight);
+                    width = config.minWidth * scaleRate;
+                    height = config.minHeight * scaleRate;
+                }
+
+                if (width < config.minWidth) {
+                    width = config.minWidth;
+                } else if (width > config.maxWidth) {
+                    width = config.maxWidth;
+                }
+
+                if (height < config.minHeight) {
+                    height = config.minHeight;
+                } else if (height > config.maxHeight) {
+                    height = config.maxHeight;
+                }
+
+                return {
+                    width: width,
+                    height: height
+                };
             }
         })
         .on('destroy', function() {
