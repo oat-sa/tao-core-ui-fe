@@ -321,6 +321,7 @@ function widgetFactory(container, config) {
         .on('init', function onWidgetInit() {
             this.setDefaultValidators();
 
+            // auto render on init (defer the call to give a chance to the init event to be completed before)
             _.defer(() => this.render(container));
         })
         .on('render', function onWidgetRender() {
