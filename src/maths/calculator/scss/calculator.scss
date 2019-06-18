@@ -1,5 +1,5 @@
 /* Style for the calculator component */
-@import "inc/bootstrap";
+@import 'inc/bootstrap';
 
 /* font size mixin specific to calculator to use em instead of rem unit */
 @function calc-em-size($em) {
@@ -21,15 +21,15 @@
     $calculatorKeyboardSwitchTxt: $textColor;
     $calculatorKeyboardSwitchSelectedBg: $uiClickableHoverBg;
     $calculatorKeyboardSwitchSelectedTxt: $textHighlight;
-    $calculatorKeyboardSwitchBorder: whiten($textColor, .5);
+    $calculatorKeyboardSwitchBorder: whiten($textColor, 0.5);
     $calculatorKeyboardTxt: $textColor;
     $calculatorScreenBg: $uiGeneralContentBg;
     $calculatorScreenTxt: $textColor;
     $calculatorScreenBorder: $info;
     $calculatorScreenSpecialTxt: $uiClickableHoverBg;
-    $calculatorScreenSpecialBg: whiten($uiClickableHoverBg, .9);
+    $calculatorScreenSpecialBg: whiten($uiClickableHoverBg, 0.9);
     $calculatorHistoryBorder: $uiGeneralContentBorder;
-    $calculatorHistoryTxt: whiten($textColor, .2);
+    $calculatorHistoryTxt: whiten($textColor, 0.2);
 
     $calculatorFontSizeBtnPrimary: 1.7;
     $calculatorFontSizeBtnSecondary: 1.3;
@@ -37,9 +37,9 @@
     $calculatorFontSizeBtnSvg: 1;
     $calculatorFontSizeExpression: 1.3;
     $calculatorFontSizeHistory: 1;
-    $calculatorLineHeightExpression: calc-em-size($calculatorFontSizeExpression + .3);
-    $calculatorLineHeightHistory: calc-em-size($calculatorFontSizeHistory + .3);
-    $calculatorTermSpace: calc-em-size(.2);
+    $calculatorLineHeightExpression: calc-em-size($calculatorFontSizeExpression + 0.3);
+    $calculatorLineHeightHistory: calc-em-size($calculatorFontSizeHistory + 0.3);
+    $calculatorTermSpace: calc-em-size(0.2);
     $calculatorButtonSize: calc-em-size(3.2);
     $calculatorSwitchSize: calc-em-size(3.2);
     $calculatorButtonPadding: 2px;
@@ -56,17 +56,19 @@
     @include vendor-prefix(flex-direction, column, property, (-ms-, -webkit-, ''));
     @include vendor-prefix(align-content, stretch, property, (-ms-, -webkit-, ''));
 
-    sup, sub {
+    sup,
+    sub {
         font-size: 0.75em;
     }
     sup {
-        top: -.5em;
+        top: -0.5em;
     }
     sub {
-        bottom: -.5em;
+        bottom: -0.5em;
     }
 
-    .screen, .input {
+    .screen,
+    .input {
         position: relative;
         @include vendor-prefix(flex, 0 0 auto, property, (-ms-, -webkit-, ''));
     }
@@ -76,6 +78,7 @@
     }
 
     .keyboard {
+        padding: 0 20px 20px;
         position: relative;
         @include vendor-prefix(display, flex, value, (-ms-, -webkit-, ''));
         @include vendor-prefix(flex, 1 1, property, (-ms-, -webkit-, ''));
@@ -134,7 +137,7 @@
 
             &:not(.switch) {
                 &:before {
-                    content: " ";
+                    content: ' ';
                     border-radius: 50%;
                     display: inline-block;
                     position: absolute;
@@ -162,9 +165,8 @@
                     border-bottom: 1px solid;
                     height: auto;
                     width: 100%;
-                    padding: $calculatorSwitchPadding .5em;
+                    padding: $calculatorSwitchPadding 0.5em;
                     @include calc-font-size($calculatorFontSizeBtnSwitch);
-
                 }
 
                 &.first {
@@ -183,7 +185,7 @@
                 }
 
                 &:before {
-                    content: " ";
+                    content: ' ';
                     border-radius: 2px;
                     display: inline-block;
                     position: absolute;
@@ -235,7 +237,7 @@
 
     &.degree {
         .calculator-keyboard {
-            button.switch[data-command="degree"] {
+            button.switch[data-command='degree'] {
                 &:before {
                     background: $calculatorKeyboardSwitchSelectedBg;
                 }
@@ -247,7 +249,7 @@
     }
     &.radian {
         .calculator-keyboard {
-            button.switch[data-command="radian"] {
+            button.switch[data-command='radian'] {
                 &:before {
                     background: $calculatorKeyboardSwitchSelectedBg;
                 }
@@ -283,14 +285,15 @@
 
             .history-line {
                 .history-expression {
-                    &, .term {
+                    &,
+                    .term {
                         font-weight: lighter;
                     }
                     text-align: left;
                 }
                 .history-result {
                     &:before {
-                        content: "=";
+                        content: '=';
                         display: inline-block;
                         font-weight: lighter;
                         padding-right: $calculatorTermSpace;
@@ -310,18 +313,18 @@
         .term {
             padding: 0;
 
-            &.term-operator:not([data-token="POW"]):not([data-token="FAC"]):not([data-token="NEG"]) {
+            &.term-operator:not([data-token='POW']):not([data-token='FAC']):not([data-token='NEG']) {
                 padding: 0 $calculatorTermSpace;
             }
-            &.term-operator[data-token="FAC"],
-            &.term-operator[data-token="NEG"] {
+            &.term-operator[data-token='FAC'],
+            &.term-operator[data-token='NEG'] {
                 margin-left: -$calculatorTermSpace / 2;
                 margin-right: -$calculatorTermSpace / 2;
             }
-            &.term-operator[data-token="POS"] {
+            &.term-operator[data-token='POS'] {
                 display: none;
             }
-            &.term-function:not([data-token="SQRT"]):not([data-token="CBRT"]) {
+            &.term-function:not([data-token='SQRT']):not([data-token='CBRT']) {
                 padding-right: $calculatorTermSpace;
             }
             &.term-operand {
@@ -338,12 +341,13 @@
                 font-weight: bold;
                 color: $calculatorScreenSpecialTxt;
             }
-            &.term-variable[data-token="ANS"] {
+            &.term-variable[data-token='ANS'] {
                 background: $calculatorScreenSpecialBg;
                 padding: 0;
                 margin: 0 #{$calculatorTermSpace * 2};
                 position: relative;
-                &::before, &::after {
+                &::before,
+                &::after {
                     background: $calculatorScreenSpecialBg;
                     content: '';
                     border-radius: 50%;

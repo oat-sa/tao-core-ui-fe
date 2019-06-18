@@ -13,14 +13,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2018 Open Assessment Technologies SA ;
+ * Copyright (c) 2018-2019 Open Assessment Technologies SA ;
  */
 /**
  * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
  */
 import _ from 'lodash';
-import __ from 'i18n';
-
 import dynamicComponent from 'ui/dynamicComponent';
 import calculatorBoardFactory from 'ui/maths/calculator/core/board';
 import pluginsLoader from 'ui/maths/calculator/pluginsLoader';
@@ -31,12 +29,11 @@ import 'ui/maths/calculator/css/calculator.css';
  * @type {Object}
  */
 var defaultConfig = {
-    title: __('Calculator'),
     preserveAspectRatio: false,
     width: 240,
     height: 360,
-    minWidth: 150,
-    minHeight: 220,
+    minWidth: 190,
+    minHeight: 240,
     alternativeTemplate: null
 };
 

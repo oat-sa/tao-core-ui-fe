@@ -416,8 +416,6 @@ define(['ui/datetime/picker'], function(dateTimePicker) {
 
             assert.expect(1);
 
-            // debugger;
-
             dateTimePicker(container, data.config).on('render', function() {
                 assert.equal(this.getFormat(), data.format, 'The format is correct');
                 done();

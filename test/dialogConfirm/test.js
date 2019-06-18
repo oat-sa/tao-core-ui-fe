@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2015 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2015-2019 (original work) Open Assessment Technologies SA ;
  */
 /**
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
@@ -110,7 +110,7 @@ define(['ui/dialog/confirm'], function(dialogConfirm) {
             'The dialogConfirm box displays the message'
         );
 
-        assert.equal(modal.getDom().find('button').length, 2, 'The dialogConfirm box displays 2 buttons');
+        assert.equal(modal.getDom().find('button').length, 3, 'The dialogConfirm box displays 2 buttons');
         assert.equal(
             modal.getDom().find('button[data-control="ok"]').length,
             1,

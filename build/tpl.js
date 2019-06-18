@@ -34,7 +34,7 @@ import __ from 'i18n';
 import _ from 'lodash';
 import DOMPurify from 'lib/dompurify/purify';
 
-export default hb => {
+export default function(hb) {
     //register a i18n helper
     hb.registerHelper('__', function(key) {
         return __(key);
@@ -123,4 +123,4 @@ export default hb => {
             return options.fn(this);
         }
     });
-};
+}
