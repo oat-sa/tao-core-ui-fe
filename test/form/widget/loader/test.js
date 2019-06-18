@@ -63,6 +63,7 @@ define([
         {title: 'DEFAULT'},
         {title: 'TEXTBOX'},
         {title: 'TEXTAREA'},
+        {title: 'HIDDEN'},
         {title: 'HIDDENBOX'},
         {title: 'RADIOBOX'},
         {title: 'COMBOBOX'},
