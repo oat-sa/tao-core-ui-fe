@@ -56,6 +56,16 @@ define([
     });
 
     QUnit.cases.init([
+        {title: 'registerProvider'},
+        {title: 'getProvider'},
+        {title: 'getAvailableProviders'},
+        {title: 'clearProviders'}
+    ]).test('provider registry API ', function (data, assert) {
+        assert.expect(1);
+        assert.equal(typeof widgetFactory[data.title], 'function', 'The factory exposes a "' + data.title + '" function');
+    });
+
+    QUnit.cases.init([
         {title: 'init'},
         {title: 'destroy'},
         {title: 'render'},
