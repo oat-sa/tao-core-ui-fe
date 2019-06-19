@@ -48,7 +48,13 @@ const inputs = glob.sync(path.join(srcDir, '**', '*.js'));
 /**
  * Define all modules as external, so rollup won't bundle them together.
  */
-const localExternals = inputs.map(input => `ui/${path.relative(srcDir, input).replace(/\.js$/, '')}`);
+const localExternals = inputs.map(
+    input =>
+        `ui/${path
+            .relative(srcDir, input)
+            .replace(/\\/g, '/')
+            .replace(/\.js$/, '')}`
+);
 
 export default inputs.map(input => {
     const name = path.relative(srcDir, input).replace(/\.js$/, '');
