@@ -102,9 +102,8 @@ define([
         {title: 'setValidator'},
         {title: 'setDefaultValidators'},
         {title: 'reset'},
-        {title: 'serialize'},
+        {title: 'serializeValue'},
         {title: 'validate'},
-        {title: 'notify'},
         {title: 'getWidgetElement'}
     ]).test('component API ', function (data, assert) {
         var instance = widgetFactory('#fixture-api', {widget: 'text', uri: 'foo'})
@@ -940,9 +939,9 @@ define([
             });
     });
 
-    QUnit.test('serialize', function (assert) {
+    QUnit.test('serialize value', function (assert) {
         var ready = assert.async();
-        var $container = $('#fixture-serialize');
+        var $container = $('#fixture-serialize-value');
         var instance;
 
         assert.expect(9);
@@ -960,9 +959,9 @@ define([
                 assert.equal($container.find('.form-widget .widget-field').length, 1, 'The component contains an area for the field');
                 assert.equal($container.find('.form-widget .widget-field input').attr('name'), 'foo', 'The component contains the expected field');
 
-                assert.deepEqual(instance.serialize(), {name: 'foo', value: ''}, 'Empty value');
+                assert.deepEqual(instance.serializeValue(), {name: 'foo', value: ''}, 'Empty value');
                 instance.setValue('top');
-                assert.deepEqual(instance.serialize(), {name: 'foo', value: 'top'}, 'New value');
+                assert.deepEqual(instance.serializeValue(), {name: 'foo', value: 'top'}, 'New value');
 
                 instance.destroy();
             })
@@ -979,19 +978,19 @@ define([
             });
     });
 
-    QUnit.test('serialize from provider', function (assert) {
+    QUnit.test('serialize value from provider', function (assert) {
         var ready = assert.async();
-        var $container = $('#fixture-serialize');
+        var $container = $('#fixture-serialize-value');
         var instance;
 
         assert.expect(12);
 
-        widgetFactory.registerProvider('serialize', {
+        widgetFactory.registerProvider('serializeValue', {
             init: function init() {
                 assert.ok(true, 'The provider init() method is called');
             },
-            serialize: function serialize() {
-                assert.ok(true, 'The provider serialize() method is called');
+            serializeValue: function serializeValue() {
+                assert.ok(true, 'The provider serializeValue() method is called');
                 return {
                     name: this.getUri(),
                     value: this.getValue()
@@ -1001,7 +1000,7 @@ define([
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
-        instance = widgetFactory($container, {widget: 'serialize', uri: 'foo'})
+        instance = widgetFactory($container, {widget: 'serializeValue', uri: 'foo'})
             .on('init', function () {
                 assert.equal(this, instance, 'The instance has been initialized');
             })
@@ -1012,9 +1011,9 @@ define([
                 assert.equal($container.find('.form-widget .widget-field').length, 1, 'The component contains an area for the field');
                 assert.equal($container.find('.form-widget .widget-field input').attr('name'), 'foo', 'The component contains the expected field');
 
-                assert.deepEqual(instance.serialize(), {name: 'foo', value: ''}, 'Empty value');
+                assert.deepEqual(instance.serializeValue(), {name: 'foo', value: ''}, 'Empty value');
                 instance.setValue('top');
-                assert.deepEqual(instance.serialize(), {name: 'foo', value: 'top'}, 'New value');
+                assert.deepEqual(instance.serializeValue(), {name: 'foo', value: 'top'}, 'New value');
 
                 instance.destroy();
             })
