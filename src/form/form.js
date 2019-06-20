@@ -500,10 +500,10 @@ function formFactory(container, config) {
          * Serializes form values to an array of name/value objects
          * @returns {widgetValue[]}
          */
-        serialize() {
+        serializeValues() {
             const values = [];
             for (let widget of widgets.values()) {
-                values.push(widget.serialize());
+                values.push(widget.serializeValue());
             }
             return values;
         },
@@ -549,7 +549,7 @@ function formFactory(container, config) {
                      * @event submit
                      * @param {widgetValue[]} values
                      */
-                    this.trigger('submit', this.serialize());
+                    this.trigger('submit', this.serializeValues());
                 })
                 .catch(reason => {
                     /**
