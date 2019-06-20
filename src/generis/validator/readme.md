@@ -1,4 +1,5 @@
 ### ui/generis/validator/validator (is a ui/component)
+**deprecated**: Please use `ui/form/validator/validator` and `ui/form/validator/renderer` instead.
 ```
 /**
  * Examples
