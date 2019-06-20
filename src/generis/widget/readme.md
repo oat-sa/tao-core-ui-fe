@@ -1,5 +1,5 @@
 ### ui-generis-widget-label (is a ui/component)
-
+**deprecated**: Please use `ui/form/widget/widget` instead.
 ```
 /**
  * Examples
