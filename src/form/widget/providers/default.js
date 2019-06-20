@@ -74,7 +74,7 @@ const defaultWidgetProvider = {
      * Serializes the value of the widget
      * @returns {widgetValue}
      */
-    serialize() {
+    serializeValue() {
         return {
             name: this.getUri(),
             value: this.getValue()
