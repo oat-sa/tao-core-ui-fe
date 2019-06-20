@@ -98,9 +98,8 @@ define([
         {title: 'getValue'},
         {title: 'setValue'},
         {title: 'reset'},
-        {title: 'serialize'},
+        {title: 'serializeValue'},
         {title: 'validate'},
-        {title: 'notify'},
         {title: 'getWidgetElement'}
     ]).test('component API ', function (data, assert) {
         var instance = widgetFactory('#fixture-api', {widget: 'hidden', uri: 'foo'})
@@ -575,9 +574,9 @@ define([
             });
     });
 
-    QUnit.test('serialize', function (assert) {
+    QUnit.test('serialize value', function (assert) {
         var ready = assert.async();
-        var $container = $('#fixture-serialize');
+        var $container = $('#fixture-serialize-value');
         var instance;
 
         assert.expect(7);
@@ -593,9 +592,9 @@ define([
                 assert.equal($container.children().is('input[type="hidden"]'), true, 'The container contains the expected element');
                 assert.equal($container.find('input[type="hidden"]').attr('name'), 'foo', 'The component contains the expected field');
 
-                assert.deepEqual(instance.serialize(), {name: 'foo', value: ''}, 'Empty value');
+                assert.deepEqual(instance.serializeValue(), {name: 'foo', value: ''}, 'Empty value');
                 instance.setValue('top');
-                assert.deepEqual(instance.serialize(), {name: 'foo', value: 'top'}, 'New value');
+                assert.deepEqual(instance.serializeValue(), {name: 'foo', value: 'top'}, 'New value');
 
                 instance.destroy();
             })
