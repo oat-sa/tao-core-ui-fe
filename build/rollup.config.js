@@ -112,7 +112,7 @@ export default inputs.map(input => {
             {
                 name: 'datetime_picker_helper',
                 generateBundle(options, bundle) {
-                    if (options.name.indexOf('datetime/picker') !== -1) {
+                    if (options.name.match(/datetime[\/\\]picker/)) {
                         bundle['picker.js'].code = bundle['picker.js'].code.replace(
                             /flatpickrLocalization\.hasOwnProperty\('default'\)/,
                             false
