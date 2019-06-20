@@ -540,7 +540,9 @@ function formFactory(container, config) {
         /**
          * Submits the form
          * @returns {form}
-         * @fires submit
+         * @fires submit in case of successful validation
+         * @fires invalid in case of failed validation
+         * @fires error when an error is raised
          */
         submit() {
             this.validate()
@@ -557,6 +559,14 @@ function formFactory(container, config) {
                      * @param {Object} reason
                      */
                     this.trigger('invalid', reason);
+
+                    if (reason instanceof Error) {
+                        /**
+                         * @event error
+                         * @param {Error} err
+                         */
+                        this.trigger('error', reason);
+                    }
                 });
 
             return this;
