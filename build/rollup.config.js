@@ -48,7 +48,13 @@ const inputs = glob.sync(path.join(srcDir, '**', '*.js'));
 /**
  * Define all modules as external, so rollup won't bundle them together.
  */
-const localExternals = inputs.map(input => `ui/${path.relative(srcDir, input).replace(/\.js$/, '')}`);
+const localExternals = inputs.map(
+    input =>
+        `ui/${path
+            .relative(srcDir, input)
+            .replace(/\\/g, '/')
+            .replace(/\.js$/, '')}`
+);
 
 export default inputs.map(input => {
     const name = path.relative(srcDir, input).replace(/\.js$/, '');
@@ -106,7 +112,7 @@ export default inputs.map(input => {
             {
                 name: 'datetime_picker_helper',
                 generateBundle(options, bundle) {
-                    if (options.name.indexOf('datetime/picker') !== -1) {
+                    if (options.name.match(/datetime[\/\\]picker/)) {
                         bundle['picker.js'].code = bundle['picker.js'].code.replace(
                             /flatpickrLocalization\.hasOwnProperty\('default'\)/,
                             false
