@@ -175,6 +175,20 @@ function widgetFactory(container, config) {
     };
 
     /**
+     * Triggers the change event
+     * @returns {widgetForm}
+     * @fires change
+     */
+    const notifyChange = () => {
+        /**
+         * @event change
+         * @param {String|String[]} value
+         * @param {String} uri
+         */
+        widget.trigger('change', widget.getValue(), widget.getUri());
+    };
+
+    /**
      * @typedef {component} widgetForm
      */
     const widgetApi = {
@@ -203,7 +217,7 @@ function widgetFactory(container, config) {
         setValue(value) {
             this.getConfig().value = value;
             delegate('setValue', value);
-            this.notify();
+            notifyChange();
 
             return this;
         },
@@ -268,8 +282,8 @@ function widgetFactory(container, config) {
          * Serializes the value of the widget
          * @returns {widgetValue}
          */
-        serialize() {
-            return delegate('serialize');
+        serializeValue() {
+            return delegate('serializeValue');
         },
 
         /**
@@ -287,21 +301,6 @@ function widgetFactory(container, config) {
                     setInvalidState(true, err);
                     return Promise.reject(err);
                 });
-        },
-
-        /**
-         * Triggers the change event
-         * @returns {widgetForm}
-         * @fires change
-         */
-        notify() {
-            /**
-             * @event change
-             * @param {String|String[]} value
-             * @param {String} uri
-             */
-            this.trigger('change', this.getValue(), this.getUri());
-            return this;
         },
 
         /**
@@ -332,7 +331,7 @@ function widgetFactory(container, config) {
                 const value = this.getValue();
                 if (value !== this.getConfig().value) {
                     this.getConfig().value = value;
-                    this.notify();
+                    notifyChange();
                 }
             });
 
