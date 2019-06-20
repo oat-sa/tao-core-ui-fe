@@ -23,6 +23,7 @@ import handlebarsPlugin from 'rollup-plugin-handlebars-plus';
 import cssResolve from './css-resolve';
 import externalAlias from './external-alias';
 import resolve from 'rollup-plugin-node-resolve';
+import babel from 'rollup-plugin-babel';
 
 const { srcDir, outputDir, aliases } = require('./path');
 const Handlebars = require('handlebars');
@@ -113,7 +114,16 @@ export default inputs.map(input => {
                         );
                     }
                 }
-            }
+            },
+            babel({
+                presets: [[
+                    '@babel/env', {
+                        targets: 'extends @oat-sa/browserslist-config-tao',
+                        useBuiltIns: false
+                    }
+                ]]
+            })
         ]
     };
 });
+
