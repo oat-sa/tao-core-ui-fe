@@ -483,16 +483,16 @@ define([
     QUnit.cases.init([{
         title: 'default',
         expected: {
-            formAction: '#',
-            formMethod: 'get',
+            formAction: '',
+            formMethod: '',
             ranges: {}
         }
     }, {
         title: 'empty',
         config: {},
         expected: {
-            formAction: '#',
-            formMethod: 'get',
+            formAction: '',
+            formMethod: '',
             ranges: {}
         }
     }, {
