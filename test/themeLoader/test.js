@@ -274,9 +274,9 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function(_, $, themeLoader) {
                         );
                         ready();
                     }, 250);
-                }, 50);
-            }, 50);
-        }, 50);
+                }, 100);
+            }, 100);
+        }, 100);
     });
 
     QUnit.test('reload and change', function(assert) {
