@@ -77,7 +77,7 @@ const widgetCheckBoxProvider = {
     },
 
     /**
-     * Gets the value of the widget
+     * Gets the value of the widget, which will be either an empty array or a list of URI from the range
      * @returns {String[]}
      */
     getValue() {
@@ -96,7 +96,7 @@ const widgetCheckBoxProvider = {
     },
 
     /**
-     * Sets the value of the widget
+     * Sets the value of the widget, which can be either an empty array or a list of URI from the range
      * @param {String[]} value
      */
     setValue(value) {
