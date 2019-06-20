@@ -1,4 +1,5 @@
 ### ui/generis/form (is a ui/component)
+**deprecated**: Please use `ui/form/simpleForm` instead.
 ```
 /**
  * Examples
