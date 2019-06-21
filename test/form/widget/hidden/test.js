@@ -23,22 +23,25 @@ define([
     'jquery',
     'lodash',
     'ui/form/widget/widget',
-    'ui/form/widget/providers/textBox'
+    'ui/form/widget/providers/textBox',
+    'ui/form/widget/providers/hidden'
 ], function (
     $,
     _,
     widgetFactory,
-    widgetTextBoxProvider
+    widgetTextBoxProvider,
+    widgetHiddenProvider
 ) {
     'use strict';
 
     widgetFactory.registerProvider('text', widgetTextBoxProvider);
+    widgetFactory.registerProvider('hidden', widgetHiddenProvider);
 
     QUnit.module('Factory');
 
     QUnit.test('module', function (assert) {
         function getInstance() {
-            return widgetFactory('#fixture-api', {widget: 'text', uri: 'foo'})
+            return widgetFactory('#fixture-api', {widget: 'hidden', uri: 'foo'})
                 .on('ready', function () {
                     this.destroy();
                 });
@@ -68,7 +71,7 @@ define([
         {title: 'setTemplate'},
         {title: 'getConfig'}
     ]).test('inherited API ', function (data, assert) {
-        var instance = widgetFactory('#fixture-api', {widget: 'text', uri: 'foo'})
+        var instance = widgetFactory('#fixture-api', {widget: 'hidden', uri: 'foo'})
             .on('ready', function () {
                 this.destroy();
             });
@@ -82,7 +85,7 @@ define([
         {title: 'trigger'},
         {title: 'spread'}
     ]).test('event API ', function (data, assert) {
-        var instance = widgetFactory('#fixture-api', {widget: 'text', uri: 'foo'})
+        var instance = widgetFactory('#fixture-api', {widget: 'hidden', uri: 'foo'})
             .on('ready', function () {
                 this.destroy();
             });
@@ -99,7 +102,7 @@ define([
         {title: 'validate'},
         {title: 'getWidgetElement'}
     ]).test('component API ', function (data, assert) {
-        var instance = widgetFactory('#fixture-api', {widget: 'text', uri: 'foo'})
+        var instance = widgetFactory('#fixture-api', {widget: 'hidden', uri: 'foo'})
             .on('ready', function () {
                 this.destroy();
             });
@@ -117,12 +120,12 @@ define([
     }, {
         title: 'missing uri',
         config: {
-            widget: 'text'
+            widget: 'hidden'
         }
     }, {
         title: 'empty uri',
         config: {
-            widget: 'text',
+            widget: 'hidden',
             uri: ''
         }
     }, {
@@ -149,7 +152,7 @@ define([
     QUnit.test('init default', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-init');
-        var instance = widgetFactory($container, {widget: 'text', uri: 'foo'});
+        var instance = widgetFactory($container, {widget: 'hidden', uri: 'foo'});
 
         assert.expect(1);
 
@@ -177,14 +180,14 @@ define([
         var ready = assert.async();
         var $container = $('#fixture-render');
         var config = {
-            widget: 'text',
+            widget: 'hidden',
             uri: 'foo',
             label: 'Foo',
             value: 10
         };
         var instance;
 
-        assert.expect(11);
+        assert.expect(6);
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
@@ -194,14 +197,9 @@ define([
             })
             .on('ready', function () {
                 assert.equal($container.children().length, 1, 'The container contains an element');
-                assert.equal($container.children().is('.form-widget'), true, 'The container contains the expected element');
-                assert.equal($container.children().is('.text-box'), true, 'The widget type is set');
-                assert.ok(instance.is('text-box'), 'The widget type is reflected');
-                assert.equal($container.find('.form-widget .widget-label').length, 1, 'The component contains an area for the label');
-                assert.equal($container.find('.form-widget .widget-field').length, 1, 'The component contains an area for the field');
-                assert.equal($container.find('.form-widget .widget-label label').text().trim(), config.label, 'The component contains the expected label');
-                assert.equal($container.find('.form-widget .widget-field input').attr('name'), config.uri, 'The component contains the expected field');
-                assert.equal($container.find('.form-widget .widget-field input').val(), config.value, 'The component contains the expected value');
+                assert.equal($container.children().is('input[type="hidden"]'), true, 'The container contains the expected element');
+                assert.equal($container.find('input[type="hidden"]').attr('name'), config.uri, 'The component contains the expected field');
+                assert.equal($container.find('input[type="hidden"]').val(), config.value, 'The component contains the expected value');
 
                 this.destroy();
             })
@@ -222,14 +220,14 @@ define([
         var ready = assert.async();
         var $container = $('#fixture-show');
         var config = {
-            widget: 'text',
+            widget: 'hidden',
             uri: 'foo',
             label: 'Foo',
             value: 10
         };
         var instance;
 
-        assert.expect(23);
+        assert.expect(8);
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
@@ -239,31 +237,16 @@ define([
             })
             .on('ready', function () {
                 assert.equal($container.children().length, 1, 'The container contains an element');
-                assert.equal($container.children().is('.form-widget'), true, 'The container contains the expected element');
-                assert.equal($container.find('.form-widget .widget-label').length, 1, 'The component contains an area for the label');
-                assert.equal($container.find('.form-widget .widget-field').length, 1, 'The component contains an area for the field');
-                assert.equal($container.find('.form-widget .widget-label label').text().trim(), config.label, 'The component contains the expected label');
-                assert.equal($container.find('.form-widget .widget-field input').attr('name'), config.uri, 'The component contains the expected field');
+                assert.equal($container.children().is('input[type="hidden"]'), true, 'The container contains the expected element');
+                assert.equal($container.find('input[type="hidden"]').attr('name'), config.uri, 'The component contains the expected field');
 
-                assert.equal($container.find('.form-widget:visible').length, 1, 'The component is visible');
-                assert.equal($container.find('.form-widget .widget-label:visible').length, 1, 'The label area is visible');
-                assert.equal($container.find('.form-widget .widget-field:visible').length, 1, 'The field area is visible');
-                assert.equal($container.find('.form-widget .widget-label label:visible').length, 1, 'The label is visible');
-                assert.equal($container.find('.form-widget .widget-field input:visible').length, 1, 'The field is visible');
+                assert.equal($container.find('input[type="hidden"]:visible').length, 0, 'The component is not visible');
 
                 instance.hide();
-                assert.equal($container.find('.form-widget:visible').length, 0, 'The component is hidden');
-                assert.equal($container.find('.form-widget .widget-label:visible').length, 0, 'The label area is hidden');
-                assert.equal($container.find('.form-widget .widget-field:visible').length, 0, 'The field area is hidden');
-                assert.equal($container.find('.form-widget .widget-label label:visible').length, 0, 'The label is hidden');
-                assert.equal($container.find('.form-widget .widget-field input:visible').length, 0, 'The field is hidden');
+                assert.equal($container.find('input[type="hidden"]:visible').length, 0, 'The component is hidden');
 
                 instance.show();
-                assert.equal($container.find('.form-widget:visible').length, 1, 'The component is visible again');
-                assert.equal($container.find('.form-widget .widget-label:visible').length, 1, 'The label area is visible again');
-                assert.equal($container.find('.form-widget .widget-field:visible').length, 1, 'The field area is visible again');
-                assert.equal($container.find('.form-widget .widget-label label:visible').length, 1, 'The label is visible again');
-                assert.equal($container.find('.form-widget .widget-field input:visible').length, 1, 'The field is visible again');
+                assert.equal($container.find('input[type="hidden"]:visible').length, 0, 'The component is still not visible');
 
                 instance.destroy();
             })
@@ -284,14 +267,14 @@ define([
         var ready = assert.async();
         var $container = $('#fixture-enable');
         var config = {
-            widget: 'text',
+            widget: 'hidden',
             uri: 'foo',
             label: 'Foo',
             value: 10
         };
         var instance;
 
-        assert.expect(11);
+        assert.expect(8);
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
@@ -303,20 +286,17 @@ define([
                 Promise.resolve()
                     .then(function () {
                         assert.equal($container.children().length, 1, 'The container contains an element');
-                        assert.equal($container.children().is('.form-widget'), true, 'The container contains the expected element');
-                        assert.equal($container.find('.form-widget .widget-label').length, 1, 'The component contains an area for the label');
-                        assert.equal($container.find('.form-widget .widget-field').length, 1, 'The component contains an area for the field');
-                        assert.equal($container.find('.form-widget .widget-label label').text().trim(), config.label, 'The component contains the expected label');
-                        assert.equal($container.find('.form-widget .widget-field input').attr('name'), config.uri, 'The component contains the expected field');
+                        assert.equal($container.children().is('input[type="hidden"]'), true, 'The container contains the expected element');
+                        assert.equal($container.find('input[type="hidden"]').attr('name'), config.uri, 'The component contains the expected field');
 
-                        assert.equal($container.find('.form-widget .widget-field input:enabled').length, 1, 'The field is enabled');
+                        assert.equal($container.find('input[type="hidden"]:enabled').length, 1, 'The field is enabled');
                     })
                     .then(function () {
                         return new Promise(function (resolve) {
                             instance
                                 .off('.test')
                                 .after('disable.test', function () {
-                                    assert.equal($container.find('.form-widget .widget-field input:enabled').length, 0, 'The field is disabled');
+                                    assert.equal($container.find('input[type="hidden"]:enabled').length, 0, 'The field is disabled');
                                     resolve();
                                 })
                                 .disable();
@@ -327,7 +307,7 @@ define([
                             instance
                                 .off('.test')
                                 .after('enable.test', function () {
-                                    assert.equal($container.find('.form-widget .widget-field input:enabled').length, 1, 'The field is enabled again');
+                                    assert.equal($container.find('input[type="hidden"]:enabled').length, 1, 'The field is enabled again');
                                     resolve();
                                 })
                                 .enable();
@@ -368,7 +348,7 @@ define([
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
-        instance = widgetFactory($container, {widget: 'text', uri: 'foo'})
+        instance = widgetFactory($container, {widget: 'hidden', uri: 'foo'})
             .on('init', function () {
                 assert.equal(this, instance, 'The instance has been initialized');
             })
@@ -396,7 +376,7 @@ define([
         var ready = assert.async();
         var $container = $('#fixture-properties');
         var config = {
-            widget: 'text',
+            widget: 'hidden',
             uri: 'foo',
             value: 'bar'
         };
@@ -433,11 +413,11 @@ define([
         var $container = $('#fixture-change');
         var instance;
 
-        assert.expect(15);
+        assert.expect(13);
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
-        instance = widgetFactory($container, {widget: 'text', uri: 'foo'})
+        instance = widgetFactory($container, {widget: 'hidden', uri: 'foo'})
             .on('init', function () {
                 assert.equal(this, instance, 'The instance has been initialized');
             })
@@ -445,10 +425,8 @@ define([
                 Promise.resolve()
                     .then(function () {
                         assert.equal($container.children().length, 1, 'The container contains an element');
-                        assert.equal($container.children().is('.form-widget'), true, 'The container contains the expected element');
-                        assert.equal($container.find('.form-widget .widget-label').length, 1, 'The component contains an area for the label');
-                        assert.equal($container.find('.form-widget .widget-field').length, 1, 'The component contains an area for the field');
-                        assert.equal($container.find('.form-widget .widget-field input').attr('name'), 'foo', 'The component contains the expected field');
+                        assert.equal($container.children().is('input[type="hidden"]'), true, 'The container contains the expected element');
+                        assert.equal($container.find('input[type="hidden"]').attr('name'), 'foo', 'The component contains the expected field');
                         assert.equal(instance.getValue(), '', 'Empty value');
 
                         return new Promise(function (resolve) {
@@ -473,7 +451,7 @@ define([
                                     resolve();
                                 });
 
-                            $container.find('.form-widget .widget-field input').val('top').change();
+                            $container.find('input[type="hidden"]').val('top').change();
                         });
                     })
                     .then(function () {
@@ -491,7 +469,7 @@ define([
                                 resolve();
                             }, 200);
 
-                            $container.find('.form-widget .widget-field input').change();
+                            $container.find('input[type="hidden"]').change();
                         });
                     })
                     .then(function () {
@@ -509,7 +487,7 @@ define([
                                 resolve();
                             }, 200);
 
-                            $container.find('.form-widget .widget-field input').blur();
+                            $container.find('input[type="hidden"]').blur();
                         });
                     })
                     .catch(function (err) {
@@ -543,11 +521,11 @@ define([
         var $container = $('#fixture-value');
         var instance;
 
-        assert.expect(10);
+        assert.expect(8);
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
-        instance = widgetFactory($container, {widget: 'text', uri: 'foo', value: 'bar'})
+        instance = widgetFactory($container, {widget: 'hidden', uri: 'foo', value: 'bar'})
             .on('init', function () {
                 assert.equal(this, instance, 'The instance has been initialized');
             })
@@ -555,10 +533,8 @@ define([
                 Promise.resolve()
                     .then(function () {
                         assert.equal($container.children().length, 1, 'The container contains an element');
-                        assert.equal($container.children().is('.form-widget'), true, 'The container contains the expected element');
-                        assert.equal($container.find('.form-widget .widget-label').length, 1, 'The component contains an area for the label');
-                        assert.equal($container.find('.form-widget .widget-field').length, 1, 'The component contains an area for the field');
-                        assert.equal($container.find('.form-widget .widget-field input').attr('name'), 'foo', 'The component contains the expected field');
+                        assert.equal($container.children().is('input[type="hidden"]'), true, 'The container contains the expected element');
+                        assert.equal($container.find('input[type="hidden"]').attr('name'), 'foo', 'The component contains the expected field');
                         assert.equal(instance.getValue(), 'bar', 'Init value');
 
                         return new Promise(function (resolve) {
@@ -603,20 +579,18 @@ define([
         var $container = $('#fixture-serialize-value');
         var instance;
 
-        assert.expect(9);
+        assert.expect(7);
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
-        instance = widgetFactory($container, {widget: 'text', uri: 'foo'})
+        instance = widgetFactory($container, {widget: 'hidden', uri: 'foo'})
             .on('init', function () {
                 assert.equal(this, instance, 'The instance has been initialized');
             })
             .on('ready', function () {
                 assert.equal($container.children().length, 1, 'The container contains an element');
-                assert.equal($container.children().is('.form-widget'), true, 'The container contains the expected element');
-                assert.equal($container.find('.form-widget .widget-label').length, 1, 'The component contains an area for the label');
-                assert.equal($container.find('.form-widget .widget-field').length, 1, 'The component contains an area for the field');
-                assert.equal($container.find('.form-widget .widget-field input').attr('name'), 'foo', 'The component contains the expected field');
+                assert.equal($container.children().is('input[type="hidden"]'), true, 'The container contains the expected element');
+                assert.equal($container.find('input[type="hidden"]').attr('name'), 'foo', 'The component contains the expected field');
 
                 assert.deepEqual(instance.serializeValue(), {name: 'foo', value: ''}, 'Empty value');
                 instance.setValue('top');
@@ -642,20 +616,18 @@ define([
         var $container = $('#fixture-validate');
         var instance;
 
-        assert.expect(9);
+        assert.expect(7);
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
-        instance = widgetFactory($container, {widget: 'text', uri: 'foo'})
+        instance = widgetFactory($container, {widget: 'hidden', uri: 'foo'})
             .on('init', function () {
                 assert.equal(this, instance, 'The instance has been initialized');
             })
             .on('ready', function () {
                 assert.equal($container.children().length, 1, 'The container contains an element');
-                assert.equal($container.children().is('.form-widget'), true, 'The container contains the expected element');
-                assert.equal($container.find('.form-widget .widget-label').length, 1, 'The component contains an area for the label');
-                assert.equal($container.find('.form-widget .widget-field').length, 1, 'The component contains an area for the field');
-                assert.equal($container.find('.form-widget .widget-field input').attr('name'), 'foo', 'The component contains the expected field');
+                assert.equal($container.children().is('input[type="hidden"]'), true, 'The container contains the expected element');
+                assert.equal($container.find('input[type="hidden"]').attr('name'), 'foo', 'The component contains the expected field');
 
                 instance.validate()
                     .then(function () {
@@ -708,11 +680,11 @@ define([
         var $container = $('#fixture-reset');
         var instance;
 
-        assert.expect(11);
+        assert.expect(9);
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
-        instance = widgetFactory($container, {widget: 'text', uri: 'foo', value: 'bar'})
+        instance = widgetFactory($container, {widget: 'hidden', uri: 'foo', value: 'bar'})
             .on('init', function () {
                 assert.equal(this, instance, 'The instance has been initialized');
             })
@@ -720,10 +692,8 @@ define([
                 Promise.resolve()
                     .then(function () {
                         assert.equal($container.children().length, 1, 'The container contains an element');
-                        assert.equal($container.children().is('.form-widget'), true, 'The container contains the expected element');
-                        assert.equal($container.find('.form-widget .widget-label').length, 1, 'The component contains an area for the label');
-                        assert.equal($container.find('.form-widget .widget-field').length, 1, 'The component contains an area for the field');
-                        assert.equal($container.find('.form-widget .widget-field input').attr('name'), 'foo', 'The component contains the expected field');
+                        assert.equal($container.children().is('input[type="hidden"]'), true, 'The container contains the expected element');
+                        assert.equal($container.find('input[type="hidden"]').attr('name'), 'foo', 'The component contains the expected field');
                         assert.equal(instance.getValue(), 'bar', 'Init value');
 
                         return new Promise(function (resolve) {
@@ -772,34 +742,47 @@ define([
         var ready = assert.async();
         var $container = $('#visual-test .test');
         var $outputChange = $('#visual-test .change-output');
-        var instance = widgetFactory($container, {
+        var visible = widgetFactory($container, {
             widget: 'text',
-            uri: 'foo',
+            uri: 'visibleFoo',
             value: 'bar',
-            label: 'Test'
+            label: 'Visible field'
+        });
+        var hidden = widgetFactory($container, {
+            widget: 'hidden',
+            uri: 'hiddenFoo',
+            value: ''
         });
 
-        assert.expect(3);
+        assert.expect(2);
 
         assert.equal($container.children().length, 0, 'The container is empty');
-
-        instance
-            .on('init', function () {
-                assert.equal(this, instance, 'The instance has been initialized');
+        Promise.all([
+            new Promise(function(resolve) {
+                visible
+                    .on('ready', resolve)
+                    .on('change', function (value, uri) {
+                        $outputChange.val('value of [' + uri + '] changed to "' + value + '"\n' + $outputChange.val());
+                        hidden.setValue(`hidden ${value}`);
+                    });
+            }),
+            new Promise(function(resolve) {
+                hidden
+                    .on('ready', resolve)
+                    .on('change', function (value, uri) {
+                        $outputChange.val('value of [' + uri + '] changed to "' + value + '"\n' + $outputChange.val());
+                    });
             })
-            .on('ready', function () {
-                assert.equal($container.children().length, 1, 'The container contains an element');
-                ready();
-            })
-            .on('change', function (value, uri) {
-                $outputChange.val('value of [' + uri + '] changed to "' + value + '"\n' + $outputChange.val());
-            })
-            .on('error', function (err) {
+        ])
+            .catch(function(err) {
                 assert.ok(false, 'The operation should not fail!');
                 assert.pushResult({
                     result: false,
                     message: err
                 });
+            })
+            .then(function() {
+                assert.equal($container.children().length, 2, 'The container contains an element');
                 ready();
             });
     });

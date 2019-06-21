@@ -23,6 +23,7 @@ import widgetFactory from 'ui/form/widget/widget';
 import widgetDefinitions from 'ui/form/widget/definitions';
 import widgetCheckBoxProvider from 'ui/form/widget/providers/checkBox';
 import widgetComboBoxProvider from 'ui/form/widget/providers/comboBox';
+import widgetHiddenProvider from 'ui/form/widget/providers/hidden';
 import widgetHiddenBoxProvider from 'ui/form/widget/providers/hiddenBox';
 import widgetRadioBoxProvider from 'ui/form/widget/providers/radioBox';
 import widgetTextAreaProvider from 'ui/form/widget/providers/textArea';
@@ -30,6 +31,7 @@ import widgetTextBoxProvider from 'ui/form/widget/providers/textBox';
 
 widgetFactory.registerProvider(widgetDefinitions.CHECKBOX, widgetCheckBoxProvider);
 widgetFactory.registerProvider(widgetDefinitions.COMBOBOX, widgetComboBoxProvider);
+widgetFactory.registerProvider(widgetDefinitions.HIDDEN, widgetHiddenProvider);
 widgetFactory.registerProvider(widgetDefinitions.HIDDENBOX, widgetHiddenBoxProvider);
 widgetFactory.registerProvider(widgetDefinitions.RADIOBOX, widgetRadioBoxProvider);
 widgetFactory.registerProvider(widgetDefinitions.TEXTAREA, widgetTextAreaProvider);
