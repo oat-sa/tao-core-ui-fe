@@ -175,10 +175,7 @@ function validatorFactory(config) {
          * @returns {validationRule|null}
          */
         getValidation(id) {
-            if (validations.has(id)) {
-                return validations.get(id);
-            }
-            return null;
+            return validations.get(id) || null;
         },
 
         /**
@@ -199,9 +196,7 @@ function validatorFactory(config) {
          * @returns {validator}
          */
         removeValidation(id) {
-            if (validations.has(id)) {
-                validations.delete(id);
-            }
+            validations.delete(id);
             return this;
         },
 
