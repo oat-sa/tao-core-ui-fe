@@ -27,6 +27,7 @@
 const widgetDefinitions = {
     TEXTBOX: 'http://www.tao.lu/datatypes/WidgetDefinitions.rdf#TextBox',
     TEXTAREA: 'http://www.tao.lu/datatypes/WidgetDefinitions.rdf#TextArea',
+    HIDDEN: 'http://www.tao.lu/datatypes/WidgetDefinitions.rdf#Hidden',
     HIDDENBOX: 'http://www.tao.lu/datatypes/WidgetDefinitions.rdf#HiddenBox',
     RADIOBOX: 'http://www.tao.lu/datatypes/WidgetDefinitions.rdf#RadioBox',
     COMBOBOX: 'http://www.tao.lu/datatypes/WidgetDefinitions.rdf#ComboBox',
