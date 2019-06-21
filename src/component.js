@@ -30,10 +30,10 @@ var _slice = [].slice;
  * Handles the resize of the component regarding the config set
  */
 function delegatedResize() {
-    var width = this.config.width;
-    var height = this.config.height;
-    var $container = this.getContainer();
-    var $element = this.getElement();
+    let width = this.config.width;
+    let height = this.config.height;
+    const $container = this.getContainer();
+    const $element = this.getElement();
 
     if ($container) {
         if ('auto' === width) {
@@ -46,10 +46,10 @@ function delegatedResize() {
 
     if ($element) {
         if (_.isNumber(width)) {
-            $element.css({ width: width + 'px' });
+            $element.css({ width: `${width}px` });
         }
         if (_.isNumber(height)) {
-            $element.css({ height: height + 'px' });
+            $element.css({ height: `${height}px` });
         }
     }
 

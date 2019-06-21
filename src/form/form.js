@@ -33,8 +33,8 @@ import 'ui/form/css/form.css';
 /**
  * @typedef {Object} formConfig Defines the config entries available to setup a form
  * @property {String} [title] - An optional title for the form (default none)
- * @property {String} [formAction] - The url the form is targeting (default '#')
- * @property {String} [formMethod] - The HTTP method the form should use (default 'get')
+ * @property {String} [formAction] - The url the form is targeting (default '')
+ * @property {String} [formMethod] - The HTTP method the form should use (default '')
  * @property {widgetConfig[]} [widgets] - The list of widgets to set in the form (default none)
  * @property {buttonConfig[]} [buttons] - The list of buttons to set in the form (default none)
  * @property {Object} [values] - Initial values for the widgets
@@ -46,8 +46,8 @@ import 'ui/form/css/form.css';
  * @type {formConfig}
  */
 const defaults = {
-    formAction: '#',
-    formMethod: 'get'
+    formAction: '',
+    formMethod: ''
 };
 
 /**
@@ -166,8 +166,8 @@ function validateDefinition(component, definition, key) {
  * @param {HTMLElement|String} container
  * @param {formConfig} config
  * @param {String} [config.title] - An optional title for the form (default none)
- * @param {String} [config.formAction] - The url the form is targeting (default '#')
- * @param {String} [config.formMethod] - The HTTP method the form should use (default 'get')
+ * @param {String} [config.formAction] - The url the form is targeting (default '')
+ * @param {String} [config.formMethod] - The HTTP method the form should use (default '')
  * @param {widgetConfig[]} [config.widgets] - The list of widgets to set in the form (default none)
  * @param {buttonConfig[]} [config.buttons] - The list of buttons to set in the form (default none)
  * @param {Object} [config.values] - Initial values for the widgets
@@ -500,10 +500,10 @@ function formFactory(container, config) {
          * Serializes form values to an array of name/value objects
          * @returns {widgetValue[]}
          */
-        serialize() {
+        serializeValues() {
             const values = [];
             for (let widget of widgets.values()) {
-                values.push(widget.serialize());
+                values.push(widget.serializeValue());
             }
             return values;
         },
@@ -540,7 +540,9 @@ function formFactory(container, config) {
         /**
          * Submits the form
          * @returns {form}
-         * @fires submit
+         * @fires submit in case of successful validation
+         * @fires invalid in case of failed validation
+         * @fires error when an error is raised
          */
         submit() {
             this.validate()
@@ -549,7 +551,7 @@ function formFactory(container, config) {
                      * @event submit
                      * @param {widgetValue[]} values
                      */
-                    this.trigger('submit', this.serialize());
+                    this.trigger('submit', this.serializeValues());
                 })
                 .catch(reason => {
                     /**
@@ -557,6 +559,14 @@ function formFactory(container, config) {
                      * @param {Object} reason
                      */
                     this.trigger('invalid', reason);
+
+                    if (reason instanceof Error) {
+                        /**
+                         * @event error
+                         * @param {Error} err
+                         */
+                        this.trigger('error', reason);
+                    }
                 });
 
             return this;

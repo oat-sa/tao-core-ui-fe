@@ -118,7 +118,7 @@ define([
         {title: 'setValue'},
         {title: 'getValues'},
         {title: 'setValues'},
-        {title: 'serialize'},
+        {title: 'serializeValues'},
         {title: 'validate'},
         {title: 'submit'},
         {title: 'reset'}
@@ -483,16 +483,16 @@ define([
     QUnit.cases.init([{
         title: 'default',
         expected: {
-            formAction: '#',
-            formMethod: 'get',
+            formAction: '',
+            formMethod: '',
             ranges: {}
         }
     }, {
         title: 'empty',
         config: {},
         expected: {
-            formAction: '#',
-            formMethod: 'get',
+            formAction: '',
+            formMethod: '',
             ranges: {}
         }
     }, {
@@ -1697,9 +1697,9 @@ define([
             });
     });
 
-    QUnit.test('serialize', function (assert) {
+    QUnit.test('serialize values', function (assert) {
         var ready = assert.async();
-        var $container = $('#fixture-serialize');
+        var $container = $('#fixture-serialize-values');
         var instance;
 
         assert.expect(20);
@@ -1718,7 +1718,7 @@ define([
                         assert.equal($container.find('.form-component fieldset').length, 1, 'The component contains an area for the form widgets');
                         assert.equal($container.find('.form-component .form-actions').length, 1, 'The component contains an area for the buttons');
                         assert.equal($container.find('.form-component fieldset').children().length, 0, 'The component does not contains any form widgets');
-                        assert.deepEqual(instance.serialize(), [], 'There is no values');
+                        assert.deepEqual(instance.serializeValues(), [], 'There is no values');
                         assert.equal(instance.getValue('foo'), '', 'The widget foo is unknown and has no value');
 
                         return instance.setWidgets([{
@@ -1735,7 +1735,7 @@ define([
                         assert.equal($container.find('.form-component fieldset').children().length, 2, 'The component now contains 2 form widgets');
                         assert.equal($container.find('.form-component fieldset [name="text"]').length, 1, 'The component contains the widget text');
                         assert.equal($container.find('.form-component fieldset [name="foo"]').length, 1, 'The component contains the widget foo');
-                        assert.deepEqual(instance.serialize(), [{
+                        assert.deepEqual(instance.serializeValues(), [{
                             name: 'text',
                             value: ''
                         }, {
@@ -1745,7 +1745,7 @@ define([
 
                         instance.setValue('text', 'test');
                         assert.equal(instance.getValue('text'), 'test', 'The text widget is filled');
-                        assert.deepEqual(instance.serialize(), [{
+                        assert.deepEqual(instance.serializeValues(), [{
                             name: 'text',
                             value: 'test'
                         }, {
@@ -1757,7 +1757,7 @@ define([
                     })
                     .then(function () {
                         assert.equal(instance.getValue('foo'), 'top', 'The foo widget is filled');
-                        assert.deepEqual(instance.serialize(), [{
+                        assert.deepEqual(instance.serializeValues(), [{
                             name: 'text',
                             value: 'test'
                         }, {
@@ -1773,7 +1773,7 @@ define([
                     .then(function () {
                         assert.equal(instance.getValue('text'), 'top', 'The text widget is filled');
                         assert.equal(instance.getValue('foo'), 'bar', 'The foo widget is filled');
-                        assert.deepEqual(instance.serialize(), [{
+                        assert.deepEqual(instance.serializeValues(), [{
                             name: 'text',
                             value: 'top'
                         }, {
