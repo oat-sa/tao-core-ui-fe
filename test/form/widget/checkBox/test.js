@@ -93,6 +93,7 @@ define([
     QUnit.cases.init([
         {title: 'getUri'},
         {title: 'getValue'},
+        {title: 'getRawValue'},
         {title: 'setValue'},
         {title: 'reset'},
         {title: 'serializeValue'},
@@ -418,13 +419,14 @@ define([
         };
         var instance;
 
-        assert.expect(5);
+        assert.expect(6);
 
         instance = widgetFactory($container, config)
             .on('init', function () {
                 assert.equal(this, instance, 'The instance has been initialized');
                 assert.equal(this.getUri(), config.uri, 'The expected uri is returned');
                 assert.equal(this.getValue(), config.value, 'The expected value is returned');
+                assert.equal(this.getRawValue(), config.value, 'The expected raw value is returned');
                 assert.equal(this.getWidgetElement(), null, 'There is no form element yet');
             })
             .on('ready', function () {
@@ -458,7 +460,7 @@ define([
         };
         var instance;
 
-        assert.expect(14);
+        assert.expect(16);
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
@@ -476,6 +478,7 @@ define([
                         assert.equal($container.find('.form-widget .widget-field [name="yes"]').length, 1, 'The component contains the yes field');
                         assert.equal($container.find('.form-widget .widget-field [name="no"]').length, 1, 'The component contains the no field');
                         assert.equal(instance.getValue(), '', 'Empty value');
+                        assert.equal(instance.getRawValue(), '', 'Empty raw value');
 
                         return new Promise(function (resolve) {
                             instance
@@ -491,6 +494,7 @@ define([
                     .then(function () {
                         return new Promise(function (resolve) {
                             assert.deepEqual(instance.getValue(), ['yes'], 'The value is set');
+                            assert.deepEqual(instance.getRawValue(), ['yes'], 'The raw value is set');
                             instance
                                 .off('.test')
                                 .on('change.test', function (value, uri) {
@@ -543,7 +547,7 @@ define([
         };
         var instance;
 
-        assert.expect(11);
+        assert.expect(13);
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
@@ -561,6 +565,7 @@ define([
                         assert.equal($container.find('.form-widget .widget-field [name="yes"]').length, 1, 'The component contains the yes field');
                         assert.equal($container.find('.form-widget .widget-field [name="no"]').length, 1, 'The component contains the no field');
                         assert.deepEqual(instance.getValue(), ['yes'], 'Init value');
+                        assert.deepEqual(instance.getRawValue(), ['yes'], 'Init raw value');
 
                         return new Promise(function (resolve) {
                             instance
@@ -568,6 +573,7 @@ define([
                                 .on('change.test', function (value, uri) {
                                     assert.equal(uri, 'foo', 'The change event has been triggered');
                                     assert.deepEqual(value, ['no'], 'The expected value is there');
+                                    assert.deepEqual(this.getRawValue(), value, 'The expected raw value is there');
                                     resolve();
                                 })
                                 .setValue(['no']);
@@ -735,7 +741,7 @@ define([
         };
         var instance;
 
-        assert.expect(12);
+        assert.expect(14);
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
@@ -753,6 +759,7 @@ define([
                         assert.equal($container.find('.form-widget .widget-field [name="yes"]').length, 1, 'The component contains the yes field');
                         assert.equal($container.find('.form-widget .widget-field [name="no"]').length, 1, 'The component contains the no field');
                         assert.deepEqual(instance.getValue(), ['no'], 'Init value');
+                        assert.deepEqual(instance.getRawValue(), ['no'], 'Init raw value');
 
                         return new Promise(function (resolve) {
                             instance
@@ -767,6 +774,7 @@ define([
                     })
                     .then(function () {
                         assert.deepEqual(instance.getValue(), [], 'The value has been reset');
+                        assert.deepEqual(instance.getRawValue(), [], 'The raw value has been reset');
                     })
                     .catch(function (err) {
                         assert.ok(false, 'The operation should not fail!');

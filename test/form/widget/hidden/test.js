@@ -96,6 +96,7 @@ define([
     QUnit.cases.init([
         {title: 'getUri'},
         {title: 'getValue'},
+        {title: 'getRawValue'},
         {title: 'setValue'},
         {title: 'reset'},
         {title: 'serializeValue'},
@@ -382,13 +383,14 @@ define([
         };
         var instance;
 
-        assert.expect(5);
+        assert.expect(6);
 
         instance = widgetFactory($container, config)
             .on('init', function () {
                 assert.equal(this, instance, 'The instance has been initialized');
                 assert.equal(this.getUri(), config.uri, 'The expected uri is returned');
                 assert.equal(this.getValue(), config.value, 'The expected value is returned');
+                assert.equal(this.getRawValue(), config.value, 'The expected raw value is returned');
                 assert.equal(this.getWidgetElement(), null, 'There is no form element yet');
             })
             .on('ready', function () {
@@ -413,7 +415,7 @@ define([
         var $container = $('#fixture-change');
         var instance;
 
-        assert.expect(13);
+        assert.expect(15);
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
@@ -428,6 +430,7 @@ define([
                         assert.equal($container.children().is('input[type="hidden"]'), true, 'The container contains the expected element');
                         assert.equal($container.find('input[type="hidden"]').attr('name'), 'foo', 'The component contains the expected field');
                         assert.equal(instance.getValue(), '', 'Empty value');
+                        assert.equal(instance.getRawValue(), '', 'Empty raw value');
 
                         return new Promise(function (resolve) {
                             instance
@@ -443,6 +446,7 @@ define([
                     .then(function () {
                         return new Promise(function (resolve) {
                             assert.equal(instance.getValue(), 'test', 'The value is set');
+                            assert.equal(instance.getRawValue(), 'test', 'The raw value is set');
                             instance
                                 .off('.test')
                                 .on('change.test', function (value, uri) {
@@ -521,7 +525,7 @@ define([
         var $container = $('#fixture-value');
         var instance;
 
-        assert.expect(8);
+        assert.expect(10);
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
@@ -536,6 +540,7 @@ define([
                         assert.equal($container.children().is('input[type="hidden"]'), true, 'The container contains the expected element');
                         assert.equal($container.find('input[type="hidden"]').attr('name'), 'foo', 'The component contains the expected field');
                         assert.equal(instance.getValue(), 'bar', 'Init value');
+                        assert.equal(instance.getRawValue(), 'bar', 'Init raw value');
 
                         return new Promise(function (resolve) {
                             instance
@@ -543,6 +548,7 @@ define([
                                 .on('change.test', function (value, uri) {
                                     assert.equal(uri, 'foo', 'The change event has been triggered');
                                     assert.equal(value, 'test', 'The expected value is there');
+                                    assert.equal(this.getRawValue(), value, 'The expected raw value is there');
                                     resolve();
                                 })
                                 .setValue('test');
@@ -680,7 +686,7 @@ define([
         var $container = $('#fixture-reset');
         var instance;
 
-        assert.expect(9);
+        assert.expect(11);
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
@@ -695,6 +701,7 @@ define([
                         assert.equal($container.children().is('input[type="hidden"]'), true, 'The container contains the expected element');
                         assert.equal($container.find('input[type="hidden"]').attr('name'), 'foo', 'The component contains the expected field');
                         assert.equal(instance.getValue(), 'bar', 'Init value');
+                        assert.equal(instance.getRawValue(), 'bar', 'Init raw value');
 
                         return new Promise(function (resolve) {
                             instance
@@ -709,6 +716,7 @@ define([
                     })
                     .then(function () {
                         assert.equal(instance.getValue(), '', 'The value has been reset');
+                        assert.equal(instance.getRawValue(), '', 'The raw value has been reset');
                     })
                     .catch(function (err) {
                         assert.ok(false, 'The operation should not fail!');

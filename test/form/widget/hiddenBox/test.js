@@ -93,6 +93,7 @@ define([
     QUnit.cases.init([
         {title: 'getUri'},
         {title: 'getValue'},
+        {title: 'getRawValue'},
         {title: 'setValue'},
         {title: 'reset'},
         {title: 'serializeValue'},
@@ -398,16 +399,17 @@ define([
         };
         var instance;
 
-        assert.expect(5);
+        assert.expect(6);
 
         instance = widgetFactory($container, config)
             .on('init', function () {
                 assert.equal(this, instance, 'The instance has been initialized');
                 assert.equal(this.getUri(), config.uri, 'The expected uri is returned');
-                assert.deepEqual(this.getValue(), {
+                assert.deepEqual(this.getValue(), '', 'The expected value is returned');
+                assert.deepEqual(this.getRawValue(), {
                     confirmation: '',
                     value: ''
-                }, 'The expected value is returned');
+                }, 'The expected raw value is returned');
                 assert.equal(this.getWidgetElement(), null, 'There is no form element yet');
             })
             .on('ready', function () {
@@ -436,7 +438,7 @@ define([
         };
         var instance;
 
-        assert.expect(14);
+        assert.expect(18);
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
@@ -453,20 +455,22 @@ define([
                         assert.equal($container.find('.form-widget .widget-field').length, 2, 'The component contains an area for the field');
                         assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '"]').length, 1, 'The component contains the main field');
                         assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '_confirmation"]').length, 1, 'The component contains the confirmation field');
-                        assert.deepEqual(instance.getValue(), {
+                        assert.deepEqual(instance.getValue(), '', 'Empty value');
+                        assert.deepEqual(instance.getRawValue(), {
                             confirmation: '',
                             value: ''
-                        }, 'Empty value');
+                        }, 'Empty raw value');
 
                         return new Promise(function (resolve) {
                             instance
                                 .off('.test')
                                 .on('change.test', function (value, uri) {
                                     assert.equal(uri, 'foo', 'The change event has been triggered');
-                                    assert.deepEqual(value, {
+                                    assert.deepEqual(value, 'yes', 'The expected value is there');
+                                    assert.deepEqual(this.getRawValue(), {
                                         confirmation: 'yes',
                                         value: 'yes'
-                                    }, 'The expected value is there');
+                                    }, 'The expected raw value is there');
                                     resolve();
                                 })
                                 .setValue('yes');
@@ -474,18 +478,20 @@ define([
                     })
                     .then(function () {
                         return new Promise(function (resolve) {
-                            assert.deepEqual(instance.getValue(), {
+                            assert.deepEqual(instance.getValue(), 'yes', 'The value is set');
+                            assert.deepEqual(instance.getRawValue(), {
                                 confirmation: 'yes',
                                 value: 'yes'
-                            }, 'The value is set');
+                            }, 'The raw value is set');
                             instance
                                 .off('.test')
                                 .on('change.test', function (value, uri) {
                                     assert.equal(uri, 'foo', 'The change event has been triggered');
-                                    assert.deepEqual(value, {
+                                    assert.deepEqual(value, 'no', 'The expected value is there');
+                                    assert.deepEqual(this.getRawValue(), {
                                         confirmation: 'yes',
                                         value: 'no'
-                                    }, 'The expected value is there');
+                                    }, 'The expected raw value is there');
                                     resolve();
                                 });
 
@@ -528,7 +534,7 @@ define([
         };
         var instance;
 
-        assert.expect(11);
+        assert.expect(13);
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
@@ -545,20 +551,22 @@ define([
                         assert.equal($container.find('.form-widget .widget-field').length, 2, 'The component contains an area for the field');
                         assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '"]').length, 1, 'The component contains the main field');
                         assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '_confirmation"]').length, 1, 'The component contains the confirmation field');
-                        assert.deepEqual(instance.getValue(), {
+                        assert.deepEqual(instance.getValue(), '', 'Init value');
+                        assert.deepEqual(instance.getRawValue(), {
                             confirmation: '',
                             value: ''
-                        }, 'Init value');
+                        }, 'Init raw value');
 
                         return new Promise(function (resolve) {
                             instance
                                 .off('.test')
                                 .on('change.test', function (value, uri) {
                                     assert.equal(uri, 'foo', 'The change event has been triggered');
-                                    assert.deepEqual(value, {
+                                    assert.deepEqual(value, 'yes', 'The expected value is there');
+                                    assert.deepEqual(this.getRawValue(), {
                                         confirmation: 'yes',
                                         value: 'yes'
-                                    }, 'The expected value is there');
+                                    }, 'The expected raw value is there');
                                     resolve();
                                 })
                                 .setValue('yes');
@@ -711,7 +719,7 @@ define([
         };
         var instance;
 
-        assert.expect(12);
+        assert.expect(15);
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
@@ -729,17 +737,19 @@ define([
                         assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '"]').length, 1, 'The component contains the main field');
                         assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '_confirmation"]').length, 1, 'The component contains the confirmation field');
                         instance.setValue('yes');
-                        assert.deepEqual(instance.getValue(), {
+                        assert.deepEqual(instance.getValue(), 'yes', 'Init value');
+                        assert.deepEqual(instance.getRawValue(), {
                             confirmation: 'yes',
                             value: 'yes'
-                        }, 'Init value');
+                        }, 'Init raw value');
 
                         return new Promise(function (resolve) {
                             instance
                                 .off('.test')
                                 .on('change.test', function (value, uri) {
                                     assert.equal(uri, 'foo', 'The change event has been triggered');
-                                    assert.deepEqual(value, {
+                                    assert.deepEqual(value, '', 'The expected value is there');
+                                    assert.deepEqual(this.getRawValue(), {
                                         confirmation: '',
                                         value: ''
                                     }, 'The expected value is there');
@@ -749,10 +759,11 @@ define([
                         });
                     })
                     .then(function () {
-                        assert.deepEqual(instance.getValue(), {
+                        assert.deepEqual(instance.getValue(), '', 'The value has been reset');
+                        assert.deepEqual(instance.getRawValue(), {
                             confirmation: '',
                             value: ''
-                        }, 'The value has been reset');
+                        }, 'The raw value has been reset');
                     })
                     .catch(function (err) {
                         assert.ok(false, 'The operation should not fail!');

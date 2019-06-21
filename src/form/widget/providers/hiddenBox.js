@@ -86,16 +86,29 @@ const widgetHiddenBoxProvider = {
 
     /**
      * Gets the value of the widget
-     * @returns {Object}
+     * @returns {String}
      */
     getValue() {
+        let value = this.getConfig().value;
+
+        if (this.is('rendered')) {
+            value = this.getElement().find(`[name="${this.getUri()}"]`).val();
+        }
+
+        return value;
+    },
+
+    /**
+     * Gets the raw value of the widget
+     * @returns {*}
+     */
+    getRawValue() {
         const value = {
-            value: this.getConfig().value,
+            value: this.getValue(),
             confirmation: this.getConfig().confirmation.value
         };
 
         if (this.is('rendered')) {
-            value.value = this.getElement().find(`[name="${this.getUri()}"]`).val();
             value.confirmation = this.getElement().find(`[name="${this.getConfig().confirmation.uri}"]`).val();
         }
 
@@ -107,24 +120,18 @@ const widgetHiddenBoxProvider = {
      * @param {String} value
      */
     setValue(value) {
-        this.getConfig().value = value;
-        this.getConfig().confirmation.value = value;
-
         if (this.is('rendered')) {
-            this.getElement().find(`[name="${this.getUri()}"]`).val(value);
-            this.getElement().find(`[name="${this.getConfig().confirmation.uri}"]`).val(value);
-        }
-    },
+            const $input = this.getElement().find(`[name="${this.getUri()}"]`);
+            const $confirmation = this.getElement().find(`[name="${this.getConfig().confirmation.uri}"]`);
 
-    /**
-     * Serializes the value of the widget
-     * @returns {widgetValue}
-     */
-    serializeValue() {
-        return {
-            name: this.getUri(),
-            value: this.getValue().value
-        };
+            if ($input.val() === $confirmation.val()) {
+                this.getConfig().confirmation.value = value;
+                $confirmation.val(value);
+            }
+            $input.val(value);
+        } else {
+            this.getConfig().confirmation.value = value;
+        }
     },
 
     /**
