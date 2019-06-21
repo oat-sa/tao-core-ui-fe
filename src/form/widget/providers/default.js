@@ -39,6 +39,14 @@ const defaultWidgetProvider = {
     },
 
     /**
+     * Gets the raw value of the widget
+     * @returns {*}
+     */
+    getRawValue() {
+        return this.getValue();
+    },
+
+    /**
      * Sets the value of the widget
      * @param {String} value
      */

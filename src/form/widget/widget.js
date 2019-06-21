@@ -209,6 +209,14 @@ function widgetFactory(container, config) {
         },
 
         /**
+         * Gets the raw value of the widget
+         * @returns {*}
+         */
+        getRawValue() {
+            return delegate('getRawValue');
+        },
+
+        /**
          * Sets the value of the widget
          * @param {String|String[]} value
          * @returns {widgetForm}
@@ -292,7 +300,7 @@ function widgetFactory(container, config) {
          */
         validate() {
             return this.getValidator()
-                .validate(this.getValue())
+                .validate(this.getRawValue())
                 .then(res => {
                     setInvalidState(false);
                     return res;
