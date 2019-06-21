@@ -30,6 +30,7 @@ Handlebars.registerPartial('ui-generis-widget-label', ptl);
  * @param {Object} [options.validator]
  * @param {Object} [spec]
  * @returns {ui/component}
+ * @deprecated replaced by `ui/form/widget/widget`
  */
 function factory(options, spec) {
     var widget;

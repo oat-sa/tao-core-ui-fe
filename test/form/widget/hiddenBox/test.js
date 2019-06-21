@@ -806,7 +806,7 @@ define([
             })
             .on('change', function (value, uri) {
                 this.validate();
-                $outputChange.val('value of [' + uri + '] changed to "' + value + '"\n' + $outputChange.val());
+                $outputChange.val('value of [' + uri + '] changed to "' + JSON.stringify(value) + '"\n' + $outputChange.val());
             })
             .on('error', function (err) {
                 assert.ok(false, 'The operation should not fail!');

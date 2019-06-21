@@ -29,7 +29,7 @@ import validatorRendererFactory from 'ui/form/validator/renderer';
 import defaultProvider from 'ui/form/widget/providers/default';
 import widgetTpl from 'ui/form/widget/tpl/widget';
 import labelTpl from 'ui/form/widget/tpl/label';
-import  'ui/form/widget/css/widget.css';
+import 'ui/form/widget/css/widget.css';
 
 /**
  * @typedef {Object} widgetConfig Defines the config entries available to setup a form widget
@@ -320,6 +320,7 @@ function widgetFactory(container, config) {
         .on('init', function onWidgetInit() {
             this.setDefaultValidators();
 
+            // auto render on init (defer the call to give a chance to the init event to be completed before)
             _.defer(() => this.render(container));
         })
         .on('render', function onWidgetRender() {
