@@ -2,12 +2,12 @@
 <html>
 <head>
     <meta charset="utf-8"/>
-    <title>Ui Test - Form Widget Factory</title>
+    <title>Ui Test - Form Component</title>
     <script type="text/javascript" src="/environment/require.js"></script>
     <script type="text/javascript">
         require(['/environment/config.js'], function () {
             require(['qunitEnv'], function () {
-                require(['test/ui/form/widget/widget/test'], function () {
+                require(['test/ui/form/form/test'], function () {
                     QUnit.start();
                 });
             });
@@ -45,17 +45,30 @@
 <div id="qunit"></div>
 <div id="qunit-fixture">
     <div id="fixture-api"></div>
-    <div id="fixture-error"></div>
     <div id="fixture-init"></div>
     <div id="fixture-render"></div>
+    <div id="fixture-render-error"></div>
     <div id="fixture-show"></div>
     <div id="fixture-enable"></div>
     <div id="fixture-destroy"></div>
     <div id="fixture-properties"></div>
+    <div id="fixture-title"></div>
+    <div id="fixture-widget-error"></div>
+    <div id="fixture-widget-add-before"></div>
+    <div id="fixture-widget-add-after"></div>
+    <div id="fixture-widget-set-before"></div>
+    <div id="fixture-widget-set-after"></div>
+    <div id="fixture-button-error"></div>
+    <div id="fixture-button-add-before"></div>
+    <div id="fixture-button-add-after"></div>
+    <div id="fixture-button-set-before"></div>
+    <div id="fixture-button-set-after"></div>
+    <div id="fixture-button-click"></div>
     <div id="fixture-change"></div>
-    <div id="fixture-value"></div>
-    <div id="fixture-serialize-value"></div>
+    <div id="fixture-values"></div>
+    <div id="fixture-serialize-values"></div>
     <div id="fixture-validate"></div>
+    <div id="fixture-submit"></div>
     <div id="fixture-reset"></div>
 </div>
 <div id="visual-test">
@@ -64,6 +77,10 @@
         <label>
             <span>Changes:</span>
             <textarea class="change-output"></textarea>
+        </label>
+        <label>
+            <span>Submit:</span>
+            <textarea class="submit-output"></textarea>
         </label>
     </div>
 </div>

@@ -95,9 +95,8 @@ define([
         {title: 'getValue'},
         {title: 'setValue'},
         {title: 'reset'},
-        {title: 'serialize'},
+        {title: 'serializeValue'},
         {title: 'validate'},
-        {title: 'notify'},
         {title: 'getWidgetElement'}
     ]).test('component API ', function (data, assert) {
         var instance = widgetFactory('#fixture-api', {widget: 'hidden', uri: 'foo'})
@@ -591,9 +590,9 @@ define([
             });
     });
 
-    QUnit.test('serialize', function (assert) {
+    QUnit.test('serialize value', function (assert) {
         var ready = assert.async();
-        var $container = $('#fixture-serialize');
+        var $container = $('#fixture-serialize-value');
         var config = {
             widget: 'hidden',
             uri: 'foo'
@@ -616,9 +615,9 @@ define([
                 assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '"]').length, 1, 'The component contains the main field');
                 assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '_confirmation"]').length, 1, 'The component contains the confirmation field');
 
-                assert.deepEqual(instance.serialize(), {name: 'foo', value: ''}, 'Empty value');
+                assert.deepEqual(instance.serializeValue(), {name: 'foo', value: ''}, 'Empty value');
                 instance.setValue('yes');
-                assert.deepEqual(instance.serialize(), {name: 'foo', value: 'yes'}, 'New value');
+                assert.deepEqual(instance.serializeValue(), {name: 'foo', value: 'yes'}, 'New value');
 
                 instance.destroy();
             })
@@ -807,7 +806,7 @@ define([
             })
             .on('change', function (value, uri) {
                 this.validate();
-                $outputChange.val('value of [' + uri + '] changed to "' + value + '"\n' + $outputChange.val());
+                $outputChange.val('value of [' + uri + '] changed to "' + JSON.stringify(value) + '"\n' + $outputChange.val());
             })
             .on('error', function (err) {
                 assert.ok(false, 'The operation should not fail!');
