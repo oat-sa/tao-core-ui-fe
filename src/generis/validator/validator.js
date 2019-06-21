@@ -26,6 +26,7 @@ import 'ui/generis/validator/css/validator.css';
  * The factory
  * @param {Object[]} [options.validations]
  * @return {ui/component}
+ * @deprecated replaced by `ui/form/validator/validator` and `ui/form/validator/renderer`
  */
 function factory(options) {
     var validator;

@@ -29,7 +29,7 @@ import validatorRendererFactory from 'ui/form/validator/renderer';
 import defaultProvider from 'ui/form/widget/providers/default';
 import widgetTpl from 'ui/form/widget/tpl/widget';
 import labelTpl from 'ui/form/widget/tpl/label';
-import  'ui/form/widget/css/widget.css';
+import 'ui/form/widget/css/widget.css';
 
 /**
  * @typedef {Object} widgetConfig Defines the config entries available to setup a form widget
@@ -175,6 +175,20 @@ function widgetFactory(container, config) {
     };
 
     /**
+     * Triggers the change event
+     * @returns {widgetForm}
+     * @fires change
+     */
+    const notifyChange = () => {
+        /**
+         * @event change
+         * @param {String|String[]} value
+         * @param {String} uri
+         */
+        widget.trigger('change', widget.getValue(), widget.getUri());
+    };
+
+    /**
      * @typedef {component} widgetForm
      */
     const widgetApi = {
@@ -203,7 +217,7 @@ function widgetFactory(container, config) {
         setValue(value) {
             this.getConfig().value = value;
             delegate('setValue', value);
-            this.notify();
+            notifyChange();
 
             return this;
         },
@@ -268,8 +282,8 @@ function widgetFactory(container, config) {
          * Serializes the value of the widget
          * @returns {widgetValue}
          */
-        serialize() {
-            return delegate('serialize');
+        serializeValue() {
+            return delegate('serializeValue');
         },
 
         /**
@@ -290,21 +304,6 @@ function widgetFactory(container, config) {
         },
 
         /**
-         * Triggers the change event
-         * @returns {widgetForm}
-         * @fires change
-         */
-        notify() {
-            /**
-             * @event change
-             * @param {String|String[]} value
-             * @param {String} uri
-             */
-            this.trigger('change', this.getValue(), this.getUri());
-            return this;
-        },
-
-        /**
          * Gets access to the actual form element
          * @returns {jQuery|null}
          */
@@ -321,6 +320,7 @@ function widgetFactory(container, config) {
         .on('init', function onWidgetInit() {
             this.setDefaultValidators();
 
+            // auto render on init (defer the call to give a chance to the init event to be completed before)
             _.defer(() => this.render(container));
         })
         .on('render', function onWidgetRender() {
@@ -332,7 +332,7 @@ function widgetFactory(container, config) {
                 const value = this.getValue();
                 if (value !== this.getConfig().value) {
                     this.getConfig().value = value;
-                    this.notify();
+                    notifyChange();
                 }
             });
 

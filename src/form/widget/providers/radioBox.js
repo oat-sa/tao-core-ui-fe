@@ -52,7 +52,7 @@ const widgetRadioBoxProvider = {
     },
 
     /**
-     * Gets the value of the widget
+     * Gets the value of the widget, which will be either an empty string or an URI from the range.
      * @returns {String}
      */
     getValue() {
@@ -60,7 +60,7 @@ const widgetRadioBoxProvider = {
 
         if (this.is('rendered')) {
             value = this.getElement()
-                .find(`.option input[name="${this.getUri()}"]:checked`)
+                .find(`.option input:checked`)
                 .val() || '';
         }
 
@@ -68,7 +68,7 @@ const widgetRadioBoxProvider = {
     },
 
     /**
-     * Sets the value of the widget
+     * Sets the value of the widget, which can be either an empty string or an URI from the range.
      * @param {String} value
      */
     setValue(value) {
