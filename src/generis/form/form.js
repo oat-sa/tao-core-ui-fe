@@ -34,6 +34,7 @@ import 'ui/generis/form/css/form.css';
  * @param {String} [config.form.method = 'get']
  * @param {String} [config.submit.text = 'Save']
  * @param {String} [config.title = 'Generis Form']
+ * @deprecated replaced by `ui/form/simpleForm`
  */
 function factory(options, config) {
     var form;
