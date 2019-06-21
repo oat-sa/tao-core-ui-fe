@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Test - CheckBox Widget</title>
+    <script type="text/javascript" src="/environment/require.js"></script>
+    <script type="text/javascript">
+        require(['/environment/config.js'], function () {
+            require(['qunitEnv'], function () {
+                require(['test/ui/form/widget/checkBox/test'], function () {
+                    QUnit.start();
+                });
+            });
+        });
+    </script>
+    <style>
+        #visual-test {
+            background: #EEE;
+            position: relative;
+            display: flex;
+            margin: 10px;
+            padding: 10px;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        #visual-test .output {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #visual-test .output span {
+            display: inline-block;
+            width: 10rem;
+        }
+
+        #visual-test .output textarea {
+            display: inline-block;
+            min-width: 500px;
+            min-height: 10rem;
+        }
+    </style>
+</head>
+<body>
+<div id="qunit"></div>
+<div id="qunit-fixture">
+    <div id="fixture-api"></div>
+    <div id="fixture-error"></div>
+    <div id="fixture-init"></div>
+    <div id="fixture-render"></div>
+    <div id="fixture-show"></div>
+    <div id="fixture-enable"></div>
+    <div id="fixture-destroy"></div>
+    <div id="fixture-properties"></div>
+    <div id="fixture-change"></div>
+    <div id="fixture-value"></div>
+    <div id="fixture-serialize-value"></div>
+    <div id="fixture-validate"></div>
+    <div id="fixture-reset"></div>
+</div>
+<div id="visual-test">
+    <div class="test"></div>
+    <div class="output">
+        <label>
+            <span>Changes:</span>
+            <textarea class="change-output"></textarea>
+        </label>
+    </div>
+</div>
+</body>
+</html>
