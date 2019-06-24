@@ -93,9 +93,9 @@ define([
     QUnit.cases.init([
         {title: 'getUri'},
         {title: 'getValue'},
+        {title: 'getRawValue'},
         {title: 'setValue'},
         {title: 'reset'},
-        {title: 'serializeValue'},
         {title: 'validate'},
         {title: 'getWidgetElement'}
     ]).test('component API ', function (data, assert) {
@@ -402,13 +402,14 @@ define([
         };
         var instance;
 
-        assert.expect(5);
+        assert.expect(6);
 
         instance = widgetFactory($container, config)
             .on('init', function () {
                 assert.equal(this, instance, 'The instance has been initialized');
                 assert.equal(this.getUri(), config.uri, 'The expected uri is returned');
                 assert.equal(this.getValue(), config.value, 'The expected value is returned');
+                assert.equal(this.getRawValue(), config.value, 'The expected value is returned');
                 assert.equal(this.getWidgetElement(), null, 'There is no form element yet');
             })
             .on('ready', function () {
@@ -433,7 +434,7 @@ define([
         var $container = $('#fixture-change');
         var instance;
 
-        assert.expect(15);
+        assert.expect(17);
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
@@ -450,6 +451,7 @@ define([
                         assert.equal($container.find('.form-widget .widget-field').length, 1, 'The component contains an area for the field');
                         assert.equal($container.find('.form-widget .widget-field input').attr('name'), 'foo', 'The component contains the expected field');
                         assert.equal(instance.getValue(), '', 'Empty value');
+                        assert.equal(instance.getRawValue(), '', 'Empty raw value');
 
                         return new Promise(function (resolve) {
                             instance
@@ -465,6 +467,7 @@ define([
                     .then(function () {
                         return new Promise(function (resolve) {
                             assert.equal(instance.getValue(), 'test', 'The value is set');
+                            assert.equal(instance.getRawValue(), 'test', 'The raw value is set');
                             instance
                                 .off('.test')
                                 .on('change.test', function (value, uri) {
@@ -543,7 +546,7 @@ define([
         var $container = $('#fixture-value');
         var instance;
 
-        assert.expect(10);
+        assert.expect(12);
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
@@ -560,6 +563,7 @@ define([
                         assert.equal($container.find('.form-widget .widget-field').length, 1, 'The component contains an area for the field');
                         assert.equal($container.find('.form-widget .widget-field input').attr('name'), 'foo', 'The component contains the expected field');
                         assert.equal(instance.getValue(), 'bar', 'Init value');
+                        assert.equal(instance.getRawValue(), 'bar', 'Init raw value');
 
                         return new Promise(function (resolve) {
                             instance
@@ -567,6 +571,7 @@ define([
                                 .on('change.test', function (value, uri) {
                                     assert.equal(uri, 'foo', 'The change event has been triggered');
                                     assert.equal(value, 'test', 'The expected value is there');
+                                    assert.equal(this.getRawValue(), value, 'The expected raw value is there');
                                     resolve();
                                 })
                                 .setValue('test');
@@ -584,45 +589,6 @@ define([
                             .off('.test')
                             .destroy();
                     });
-            })
-            .on('destroy', function () {
-                ready();
-            })
-            .on('error', function (err) {
-                assert.ok(false, 'The operation should not fail!');
-                assert.pushResult({
-                    result: false,
-                    message: err
-                });
-                ready();
-            });
-    });
-
-    QUnit.test('serialize value', function (assert) {
-        var ready = assert.async();
-        var $container = $('#fixture-serialize-value');
-        var instance;
-
-        assert.expect(9);
-
-        assert.equal($container.children().length, 0, 'The container is empty');
-
-        instance = widgetFactory($container, {widget: 'text', uri: 'foo'})
-            .on('init', function () {
-                assert.equal(this, instance, 'The instance has been initialized');
-            })
-            .on('ready', function () {
-                assert.equal($container.children().length, 1, 'The container contains an element');
-                assert.equal($container.children().is('.form-widget'), true, 'The container contains the expected element');
-                assert.equal($container.find('.form-widget .widget-label').length, 1, 'The component contains an area for the label');
-                assert.equal($container.find('.form-widget .widget-field').length, 1, 'The component contains an area for the field');
-                assert.equal($container.find('.form-widget .widget-field input').attr('name'), 'foo', 'The component contains the expected field');
-
-                assert.deepEqual(instance.serializeValue(), {name: 'foo', value: ''}, 'Empty value');
-                instance.setValue('top');
-                assert.deepEqual(instance.serializeValue(), {name: 'foo', value: 'top'}, 'New value');
-
-                instance.destroy();
             })
             .on('destroy', function () {
                 ready();
@@ -708,7 +674,7 @@ define([
         var $container = $('#fixture-reset');
         var instance;
 
-        assert.expect(11);
+        assert.expect(13);
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
@@ -725,6 +691,7 @@ define([
                         assert.equal($container.find('.form-widget .widget-field').length, 1, 'The component contains an area for the field');
                         assert.equal($container.find('.form-widget .widget-field input').attr('name'), 'foo', 'The component contains the expected field');
                         assert.equal(instance.getValue(), 'bar', 'Init value');
+                        assert.equal(instance.getRawValue(), 'bar', 'Init raw value');
 
                         return new Promise(function (resolve) {
                             instance
@@ -739,6 +706,7 @@ define([
                     })
                     .then(function () {
                         assert.equal(instance.getValue(), '', 'The value has been reset');
+                        assert.equal(instance.getRawValue(), '', 'The raw value has been reset');
                     })
                     .catch(function (err) {
                         assert.ok(false, 'The operation should not fail!');

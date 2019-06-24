@@ -39,6 +39,14 @@ const defaultWidgetProvider = {
     },
 
     /**
+     * Gets the raw value of the widget
+     * @returns {*}
+     */
+    getRawValue() {
+        return this.getValue();
+    },
+
+    /**
      * Sets the value of the widget
      * @param {String} value
      */
@@ -68,17 +76,6 @@ const defaultWidgetProvider = {
      */
     reset() {
         this.setValue('');
-    },
-
-    /**
-     * Serializes the value of the widget
-     * @returns {widgetValue}
-     */
-    serializeValue() {
-        return {
-            name: this.getUri(),
-            value: this.getValue()
-        };
     },
 
     /**

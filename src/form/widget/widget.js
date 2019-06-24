@@ -53,12 +53,6 @@ import 'ui/form/widget/css/widget.css';
  */
 
 /**
- * @typedef {Object} widgetValue Defines the value serialized from a widget
- * @property {String} name - The identifier of the widget
- * @property {String} value - The value of the widget
- */
-
-/**
  * Some default config
  * @type {widgetConfig}
  */
@@ -209,6 +203,14 @@ function widgetFactory(container, config) {
         },
 
         /**
+         * Gets the raw value of the widget
+         * @returns {*}
+         */
+        getRawValue() {
+            return delegate('getRawValue');
+        },
+
+        /**
          * Sets the value of the widget
          * @param {String|String[]} value
          * @returns {widgetForm}
@@ -279,20 +281,12 @@ function widgetFactory(container, config) {
         },
 
         /**
-         * Serializes the value of the widget
-         * @returns {widgetValue}
-         */
-        serializeValue() {
-            return delegate('serializeValue');
-        },
-
-        /**
          * Validates the widget
          * @returns {Promise}
          */
         validate() {
             return this.getValidator()
-                .validate(this.getValue())
+                .validate(this.getRawValue())
                 .then(res => {
                     setInvalidState(false);
                     return res;

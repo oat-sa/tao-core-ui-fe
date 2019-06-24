@@ -107,12 +107,12 @@ define([
     QUnit.cases.init([
         {title: 'getUri'},
         {title: 'getValue'},
+        {title: 'getRawValue'},
         {title: 'setValue'},
         {title: 'getValidator'},
         {title: 'setValidator'},
         {title: 'setDefaultValidators'},
         {title: 'reset'},
-        {title: 'serializeValue'},
         {title: 'validate'},
         {title: 'getWidgetElement'}
     ]).test('component API ', function (data, assert) {
@@ -158,7 +158,7 @@ define([
 
         assert.expect(1);
 
-        assert.throws(function() {
+        assert.throws(function () {
             widgetFactory($container, data.config);
         }, 'The factory should raise an error');
     });
@@ -350,7 +350,7 @@ define([
                 assert.ok(true, 'The provider init() method is called');
                 assert.equal(typeof this.is, 'function', 'The lexical scope is the widget');
 
-                this.on('render', function() {
+                this.on('render', function () {
                     assert.ok(true, 'The listener has been called');
                 });
             }
@@ -407,7 +407,7 @@ define([
                 assert.ok(true, 'The provider init() method is called');
                 assert.equal(typeof this.is, 'function', 'The lexical scope is the widget');
 
-                this.on('render', function() {
+                this.on('render', function () {
                     assert.ok(true, 'The listener has been called');
                 });
             }
@@ -463,7 +463,7 @@ define([
                 assert.ok(true, 'The provider init() method is called');
                 assert.equal(typeof this.is, 'function', 'The lexical scope is the widget');
 
-                this.on('render', function() {
+                this.on('render', function () {
                     assert.ok(true, 'The listener has been called');
                 });
             },
@@ -817,7 +817,7 @@ define([
                                     resolve();
                                 });
 
-                            _.delay(function() {
+                            _.delay(function () {
                                 instance.off('.test');
                                 assert.ok(true, 'The change event has not been triggered');
                                 resolve();
@@ -835,7 +835,7 @@ define([
                                     resolve();
                                 });
 
-                            _.delay(function() {
+                            _.delay(function () {
                                 instance.off('.test');
                                 assert.ok(true, 'The change event has not been triggered');
                                 resolve();
@@ -876,12 +876,19 @@ define([
         var instance;
         var providerValue;
 
-        assert.expect(16);
+        assert.expect(21);
 
         widgetFactory.registerProvider('values', {
             init: function init(config) {
                 assert.ok(true, 'The provider init() method is called');
                 providerValue = config.value;
+            },
+            getRawValue: function getRawValue() {
+                assert.ok(true, 'The provider getRawValue() method is called');
+                return {
+                    value: providerValue,
+                    type: typeof providerValue
+                };
             },
             getValue: function getValue() {
                 assert.ok(true, 'The provider getValue() method is called');
@@ -908,6 +915,7 @@ define([
                         assert.equal($container.find('.form-widget .widget-field').length, 1, 'The component contains an area for the field');
                         assert.equal($container.find('.form-widget .widget-field input').attr('name'), 'foo', 'The component contains the expected field');
                         assert.equal(instance.getValue(), 'bar', 'Init value');
+                        assert.deepEqual(instance.getRawValue(), {type: 'string', value: 'bar'}, 'Init raw value');
 
                         return new Promise(function (resolve) {
                             instance
@@ -921,7 +929,9 @@ define([
                         });
                     })
                     .then(function () {
-                        assert.equal(providerValue, instance.getValue(), 'The value has been changed');
+                        assert.equal(providerValue, 'test', 'The value has been changed');
+                        assert.deepEqual(instance.getValue(), 'test', 'New value');
+                        assert.deepEqual(instance.getRawValue(), {type: 'string', value: 'test'}, 'New raw value');
                     })
                     .catch(function (err) {
                         assert.ok(false, 'The operation should not fail!');
@@ -935,97 +945,6 @@ define([
                             .off('.test')
                             .destroy();
                     });
-            })
-            .on('destroy', function () {
-                ready();
-            })
-            .on('error', function (err) {
-                assert.ok(false, 'The operation should not fail!');
-                assert.pushResult({
-                    result: false,
-                    message: err
-                });
-                ready();
-            });
-    });
-
-    QUnit.test('serialize value', function (assert) {
-        var ready = assert.async();
-        var $container = $('#fixture-serialize-value');
-        var instance;
-
-        assert.expect(9);
-
-        assert.equal($container.children().length, 0, 'The container is empty');
-
-        instance = widgetFactory($container, {widget: 'text', uri: 'foo'})
-            .on('init', function () {
-                assert.equal(this, instance, 'The instance has been initialized');
-            })
-            .on('ready', function () {
-                assert.equal($container.children().length, 1, 'The container contains an element');
-                assert.equal($container.children().is('.form-widget'), true, 'The container contains the expected element');
-                assert.equal($container.find('.form-widget .widget-label').length, 1, 'The component contains an area for the label');
-                assert.equal($container.find('.form-widget .widget-field').length, 1, 'The component contains an area for the field');
-                assert.equal($container.find('.form-widget .widget-field input').attr('name'), 'foo', 'The component contains the expected field');
-
-                assert.deepEqual(instance.serializeValue(), {name: 'foo', value: ''}, 'Empty value');
-                instance.setValue('top');
-                assert.deepEqual(instance.serializeValue(), {name: 'foo', value: 'top'}, 'New value');
-
-                instance.destroy();
-            })
-            .on('destroy', function () {
-                ready();
-            })
-            .on('error', function (err) {
-                assert.ok(false, 'The operation should not fail!');
-                assert.pushResult({
-                    result: false,
-                    message: err
-                });
-                ready();
-            });
-    });
-
-    QUnit.test('serialize value from provider', function (assert) {
-        var ready = assert.async();
-        var $container = $('#fixture-serialize-value');
-        var instance;
-
-        assert.expect(12);
-
-        widgetFactory.registerProvider('serializeValue', {
-            init: function init() {
-                assert.ok(true, 'The provider init() method is called');
-            },
-            serializeValue: function serializeValue() {
-                assert.ok(true, 'The provider serializeValue() method is called');
-                return {
-                    name: this.getUri(),
-                    value: this.getValue()
-                };
-            }
-        });
-
-        assert.equal($container.children().length, 0, 'The container is empty');
-
-        instance = widgetFactory($container, {widget: 'serializeValue', uri: 'foo'})
-            .on('init', function () {
-                assert.equal(this, instance, 'The instance has been initialized');
-            })
-            .on('ready', function () {
-                assert.equal($container.children().length, 1, 'The container contains an element');
-                assert.equal($container.children().is('.form-widget'), true, 'The container contains the expected element');
-                assert.equal($container.find('.form-widget .widget-label').length, 1, 'The component contains an area for the label');
-                assert.equal($container.find('.form-widget .widget-field').length, 1, 'The component contains an area for the field');
-                assert.equal($container.find('.form-widget .widget-field input').attr('name'), 'foo', 'The component contains the expected field');
-
-                assert.deepEqual(instance.serializeValue(), {name: 'foo', value: ''}, 'Empty value');
-                instance.setValue('top');
-                assert.deepEqual(instance.serializeValue(), {name: 'foo', value: 'top'}, 'New value');
-
-                instance.destroy();
             })
             .on('destroy', function () {
                 ready();
@@ -1100,7 +1019,7 @@ define([
                 assert.ok(true, 'The provider setDefaultValidators() method is called');
                 this.setValidator({
                     id: 'required',
-                    predicate: function() {
+                    predicate: function () {
                         return false;
                     }
                 });
@@ -1176,7 +1095,7 @@ define([
                     .then(function () {
                         instance.setValidator({
                             id: 'required2',
-                            predicate: function() {
+                            predicate: function () {
                                 return false;
                             }
                         });
@@ -1252,7 +1171,7 @@ define([
                     })
                     .then(function () {
                         instance.setValidator({
-                            validate: function() {
+                            validate: function () {
                                 return Promise.reject(false);
                             }
                         });
@@ -1466,9 +1385,9 @@ define([
             })
             .on('change', function (value, uri) {
                 this.validate()
-                    .catch(function() {
+                    .catch(function () {
                     })
-                    .then(function() {
+                    .then(function () {
                         $outputChange.val('value of [' + uri + '] changed to "' + value + '"\n' + $outputChange.val());
                     });
             })
