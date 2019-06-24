@@ -513,9 +513,8 @@ export default function dateTimePickerFactory(container, options) {
                      * @event dateTimePicker#change
                      * @param {String} value - the date/time value
                      */
+                    self.trigger('change', value);
                 }
-
-                self.trigger('change', value);
             });
 
             value = this.controls.input.value;
