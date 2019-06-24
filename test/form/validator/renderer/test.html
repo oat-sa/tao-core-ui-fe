@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Ui Test - Form Validator Renderer</title>
+    <script type="text/javascript" src="/environment/require.js"></script>
+    <script type="text/javascript">
+        require(['/environment/config.js'], function () {
+            require(['qunitEnv'], function () {
+                require(['test/ui/form/validator/renderer/test'], function () {
+                    QUnit.start();
+                });
+            });
+        });
+    </script>
+    <style>
+        #visual-test {
+            background: #EEE;
+            position: relative;
+            display: flex;
+            margin: 10px;
+            padding: 10px;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+<div id="qunit"></div>
+<div id="qunit-fixture">
+    <div id="fixture-api"></div>
+    <div id="fixture-init"></div>
+    <div id="fixture-render"></div>
+    <div id="fixture-show"></div>
+    <div id="fixture-destroy"></div>
+    <div id="fixture-messages"></div>
+</div>
+<div id="visual-test"></div>
+</body>
+</html>
