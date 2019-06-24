@@ -53,12 +53,6 @@ import 'ui/form/widget/css/widget.css';
  */
 
 /**
- * @typedef {Object} widgetValue Defines the value serialized from a widget
- * @property {String} name - The identifier of the widget
- * @property {String} value - The value of the widget
- */
-
-/**
  * Some default config
  * @type {widgetConfig}
  */
@@ -284,14 +278,6 @@ function widgetFactory(container, config) {
             delegate('reset');
             setInvalidState(false);
             return this;
-        },
-
-        /**
-         * Serializes the value of the widget
-         * @returns {widgetValue}
-         */
-        serializeValue() {
-            return delegate('serializeValue');
         },
 
         /**

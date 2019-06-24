@@ -96,7 +96,6 @@ define([
         {title: 'getRawValue'},
         {title: 'setValue'},
         {title: 'reset'},
-        {title: 'serializeValue'},
         {title: 'validate'},
         {title: 'getWidgetElement'}
     ]).test('component API ', function (data, assert) {
@@ -592,55 +591,6 @@ define([
                             .off('.test')
                             .destroy();
                     });
-            })
-            .on('destroy', function () {
-                ready();
-            })
-            .on('error', function (err) {
-                assert.ok(false, 'The operation should not fail!');
-                assert.pushResult({
-                    result: false,
-                    message: err
-                });
-                ready();
-            });
-    });
-
-    QUnit.test('serialize value', function (assert) {
-        var ready = assert.async();
-        var $container = $('#fixture-serialize-value');
-        var config = {
-            widget: 'rb',
-            uri: 'foo',
-            range: [{
-                uri: 'yes'
-            }, {
-                uri: 'no'
-            }]
-        };
-        var instance;
-
-        assert.expect(10);
-
-        assert.equal($container.children().length, 0, 'The container is empty');
-
-        instance = widgetFactory($container, config)
-            .on('init', function () {
-                assert.equal(this, instance, 'The instance has been initialized');
-            })
-            .on('ready', function () {
-                assert.equal($container.children().length, 1, 'The container contains an element');
-                assert.equal($container.children().is('.form-widget'), true, 'The container contains the expected element');
-                assert.equal($container.find('.form-widget .widget-label').length, 1, 'The component contains an area for the label');
-                assert.equal($container.find('.form-widget .widget-field').length, 1, 'The component contains an area for the field');
-                assert.equal($container.find('.form-widget .widget-field [value="yes"]').length, 1, 'The component contains the yes field');
-                assert.equal($container.find('.form-widget .widget-field [value="no"]').length, 1, 'The component contains the no field');
-
-                assert.deepEqual(instance.serializeValue(), {name: 'foo', value: ''}, 'Empty value');
-                instance.setValue('yes');
-                assert.deepEqual(instance.serializeValue(), {name: 'foo', value: 'yes'}, 'New value');
-
-                instance.destroy();
             })
             .on('destroy', function () {
                 ready();

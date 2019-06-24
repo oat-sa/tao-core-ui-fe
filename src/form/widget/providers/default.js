@@ -79,17 +79,6 @@ const defaultWidgetProvider = {
     },
 
     /**
-     * Serializes the value of the widget
-     * @returns {widgetValue}
-     */
-    serializeValue() {
-        return {
-            name: this.getUri(),
-            value: this.getValue()
-        };
-    },
-
-    /**
      * Gets access to the actual form element
      * @returns {jQuery}
      */

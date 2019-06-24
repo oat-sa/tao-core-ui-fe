@@ -99,7 +99,6 @@ define([
         {title: 'getRawValue'},
         {title: 'setValue'},
         {title: 'reset'},
-        {title: 'serializeValue'},
         {title: 'validate'},
         {title: 'getWidgetElement'}
     ]).test('component API ', function (data, assert) {
@@ -566,43 +565,6 @@ define([
                             .off('.test')
                             .destroy();
                     });
-            })
-            .on('destroy', function () {
-                ready();
-            })
-            .on('error', function (err) {
-                assert.ok(false, 'The operation should not fail!');
-                assert.pushResult({
-                    result: false,
-                    message: err
-                });
-                ready();
-            });
-    });
-
-    QUnit.test('serialize value', function (assert) {
-        var ready = assert.async();
-        var $container = $('#fixture-serialize-value');
-        var instance;
-
-        assert.expect(7);
-
-        assert.equal($container.children().length, 0, 'The container is empty');
-
-        instance = widgetFactory($container, {widget: 'hidden', uri: 'foo'})
-            .on('init', function () {
-                assert.equal(this, instance, 'The instance has been initialized');
-            })
-            .on('ready', function () {
-                assert.equal($container.children().length, 1, 'The container contains an element');
-                assert.equal($container.children().is('input[type="hidden"]'), true, 'The container contains the expected element');
-                assert.equal($container.find('input[type="hidden"]').attr('name'), 'foo', 'The component contains the expected field');
-
-                assert.deepEqual(instance.serializeValue(), {name: 'foo', value: ''}, 'Empty value');
-                instance.setValue('top');
-                assert.deepEqual(instance.serializeValue(), {name: 'foo', value: 'top'}, 'New value');
-
-                instance.destroy();
             })
             .on('destroy', function () {
                 ready();

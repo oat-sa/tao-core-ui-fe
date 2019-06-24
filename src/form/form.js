@@ -42,6 +42,12 @@ import 'ui/form/css/form.css';
  */
 
 /**
+ * @typedef {Object} widgetValue Defines the value serialized from a widget
+ * @property {String} name - The identifier of the widget
+ * @property {String} value - The value of the widget
+ */
+
+/**
  * Some default config
  * @type {formConfig}
  */
@@ -503,7 +509,10 @@ function formFactory(container, config) {
         serializeValues() {
             const values = [];
             for (let widget of widgets.values()) {
-                values.push(widget.serializeValue());
+                values.push({
+                    name: widget.getUri(),
+                    value: widget.getValue()
+                });
             }
             return values;
         },
