@@ -45,6 +45,7 @@ define([
         {title: 'HIDDENBOX'},
         {title: 'RADIOBOX'},
         {title: 'COMBOBOX'},
+        {title: 'STATEWIDGET'},
         {title: 'CHECKBOX'}
     ]).test('constant ', function (data, assert) {
         assert.expect(1);

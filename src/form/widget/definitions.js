@@ -31,6 +31,7 @@ const widgetDefinitions = {
     HIDDENBOX: 'http://www.tao.lu/datatypes/WidgetDefinitions.rdf#HiddenBox',
     RADIOBOX: 'http://www.tao.lu/datatypes/WidgetDefinitions.rdf#RadioBox',
     COMBOBOX: 'http://www.tao.lu/datatypes/WidgetDefinitions.rdf#ComboBox',
+    STATEWIDGET: 'http://www.tao.lu/datatypes/WidgetDefinitions.rdf#StateWidget',
     CHECKBOX: 'http://www.tao.lu/datatypes/WidgetDefinitions.rdf#CheckBox'
 
     /* @todo implement the remaining form widgets */
