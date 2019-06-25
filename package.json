@@ -7,6 +7,7 @@
         "test:keepAlive": "node ./build/webserver.js",
         "test": "node ./build/testrunner.js",
         "build": "rollup --config ./build/rollup.config.js",
+        "build:watch": "rollup --config ./build/rollup.config.js --watch",
         "buildScss": "node ./build/scss.js",
         "lint": "eslint test",
         "prepare": "npm run buildScss && npm run build"
@@ -37,7 +38,7 @@
         "@oat-sa/browserslist-config-tao": "^0.1.0",
         "@oat-sa/expr-eval": "^1.3.0",
         "@oat-sa/tao-core-libs": "^0.1.0",
-        "@oat-sa/tao-core-sdk": "^0.3.3",
+        "@oat-sa/tao-core-sdk": "^0.4.1",
         "async": "^0.2.10",
         "autoprefixer": "^9.5.1",
         "decimal.js": "^10.1.1",

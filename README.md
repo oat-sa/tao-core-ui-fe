@@ -13,5 +13,6 @@ Available scripts in the project:
   - `HOST` (optional environment variable, default: 127.0.0.1): Test server listen host
   - `PORT` (optional environment variable, default: 8082): Test server listen port
 - `npm run build`: build for production into `dist` directory
+- `npm run build:watch`: build for production into `dist` directory and watch for changes
 - `npm run buildScss`: build `scss` files to `css` files
 - `npm run lint`: check syntax of code

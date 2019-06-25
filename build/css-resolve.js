@@ -80,6 +80,7 @@ export default () => ({
         if (/\.css$/.test(source) && importer) {
             const file = resolveAlias(source);
             copyCss(file);
+            this.addWatchFile(file);
             return {
                 id: `css!${source}`,
                 external: true,
@@ -87,5 +88,8 @@ export default () => ({
             };
         }
         return null; // other ids should be handled as usually
+    },
+    watchChange(source) {
+        copyCss(source);
     }
 });
