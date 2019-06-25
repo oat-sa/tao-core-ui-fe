@@ -130,6 +130,11 @@ export default function filtersFactory($container, config) {
                         title: this.config.title,
                     })
                         .on('ready', () => {
+                            /**
+                             * Notifies the update is done
+                             * @event filter#update
+                             * @param {Object} data - the filtering data
+                             */
                             this.trigger('update', data);
                         })
                         .on('submit reset', () => {
