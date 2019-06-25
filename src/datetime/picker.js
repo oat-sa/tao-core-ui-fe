@@ -503,7 +503,7 @@ export default function dateTimePickerFactory(container, options) {
 
                 if (value && _.isString(newValue) && _.isEmpty(newValue)) {
                     //if someone remove the value from the field
-                    //it's considered a propert clean (resets everything)
+                    //it's considered a property clean (resets everything)
                     self.clear();
                 } else if (value !== newValue) {
                     value = newValue;

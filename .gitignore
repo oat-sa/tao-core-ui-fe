@@ -63,3 +63,6 @@ typings/
 /node_modules
 /dist
 css/
+
+# phpstorm files
+.idea/
