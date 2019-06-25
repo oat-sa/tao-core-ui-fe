@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2017-2019 (original work) Open Assessment Technologies SA ;
  */
 
 /**
@@ -132,7 +132,7 @@ define([
             data: propertiesData,
             title: 'Foo',
             applyLabel: 'Bar'
-        }).on('render', function() {
+        }).on('update', function() {
             var $element = this.getElement();
 
             assert.equal($('.filters', $container).length, 1, 'The component has been inserted');
@@ -148,17 +148,17 @@ define([
                 'The component contains the lang field'
             );
 
-            assert.equal($('h2', $element).length, 1, 'The component contains a title');
+            assert.equal($('.form-title', $element).length, 1, 'The component contains a title');
             assert.equal(
-                $('h2', $element)
+                $('.form-title', $element)
                     .text()
                     .trim(),
                 'Foo',
                 'The component has the correct title'
             );
-            assert.equal($('.toolbar :submit', $element).length, 1, 'The component contains the apply button');
+            assert.equal($('.form-actions [data-control="submit"]', $element).length, 1, 'The component contains the apply button');
             assert.equal(
-                $('.toolbar :submit', $element)
+                $('.form-actions [data-control="submit"]', $element)
                     .text()
                     .trim(),
                 'Bar',
@@ -180,10 +180,10 @@ define([
         filtersFactory($container, {
             classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
             data: propertiesData
-        }).on('render', function() {
+        }).on('update', function() {
             var $element = this.getElement();
             var $label = $('[name="' + labelUri + '"]', $element);
-            var $apply = $('.toolbar :submit', $element);
+            var $apply = $('.form-actions [data-control="submit"]', $element);
             var values;
 
             assert.equal($label.length, 1, 'The component has the label field');
@@ -222,7 +222,7 @@ define([
         filtersFactory($container, {
             classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
             data: propertiesData
-        }).on('render', function() {
+        }).on('update', function() {
             var $element = this.getElement();
             var $label = $('[name="' + labelUri + '"]', $element);
             var values;
