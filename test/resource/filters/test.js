@@ -132,7 +132,7 @@ define([
             data: propertiesData,
             title: 'Foo',
             applyLabel: 'Bar'
-        }).on('update', function() {
+        }).on('ready', function() {
             var $element = this.getElement();
 
             assert.equal($('.filters', $container).length, 1, 'The component has been inserted');
@@ -180,7 +180,7 @@ define([
         filtersFactory($container, {
             classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
             data: propertiesData
-        }).on('update', function() {
+        }).on('ready', function() {
             var $element = this.getElement();
             var $label = $('[name="' + labelUri + '"]', $element);
             var $apply = $('.form-actions [data-control="submit"]', $element);
@@ -222,7 +222,7 @@ define([
         filtersFactory($container, {
             classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
             data: propertiesData
-        }).on('update', function() {
+        }).on('ready', function() {
             var $element = this.getElement();
             var $label = $('[name="' + labelUri + '"]', $element);
             var values;

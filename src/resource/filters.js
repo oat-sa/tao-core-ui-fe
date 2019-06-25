@@ -44,7 +44,8 @@ const supportedWidgets = [
 
 const defaultConfig = {
     title: __('Search by properties'),
-    applyLabel: __('Apply')
+    applyLabel: __('Apply'),
+    timeout: 30000,
 };
 
 /**
@@ -58,7 +59,9 @@ const defaultConfig = {
  * @param {Object} config.data.ranges - the property ranges
  * @param {String} [config.title] - the form title
  * @param {String} [config.applyLabel] - the label of the apply button
+ * @param {String} [config.timeout] - the timeout applied on the form rendering
  * @returns {filter} the component
+ * @fires filter#ready once the form filter is rendered and ready
  */
 export default function filtersFactory($container, config) {
     /**
@@ -120,13 +123,12 @@ export default function filtersFactory($container, config) {
                     this.getElement().empty();
 
                     this.form = formFactory(this.getElement(), {
-                            widgets: _.filter(data.properties, property => _.contains(supportedWidgets, property.widget)),
-                            values: data.ranges,
-                            reset: true,
-                            submitText: this.config.applyLabel,
-                            title: this.config.title,
-                        }
-                    )
+                        widgets: _.filter(data.properties, property => _.contains(supportedWidgets, property.widget)),
+                        ranges: data.ranges,
+                        reset: true,
+                        submitText: this.config.applyLabel,
+                        title: this.config.title,
+                    })
                         .on('ready', () => {
                             this.trigger('update', data);
                         })
@@ -191,9 +193,34 @@ export default function filtersFactory($container, config) {
             this.render($container);
         })
         .on('render', function() {
-            if (this.config.data) {
-                this.update(this.config.data);
-            }
+            Promise.race([
+                new Promise(resolve => {
+                    if (this.config.data) {
+                        this
+                            .on('update.ready', () => {
+                                this.off('update.ready');
+                                resolve();
+                            })
+                            .update(this.config.data);
+                    } else {
+                        resolve();
+                    }
+                }),
+                new Promise((resolve, reject) => {
+                    window.setTimeout(() => reject(new Error('The form filter takes too long to render!')), this.getConfig().timeout);
+                })
+            ])
+                /**
+                 * Notifies the filter encountered an error
+                 * @event filter#error
+                 */
+                .catch(err => this.trigger('error', err))
+
+                /**
+                 * Notifies the filter is ready
+                 * @event filter#ready
+                 */
+                .then(() => this.trigger('ready'));
         });
 
     //always defer the initialization to let consumers listen for init and render events.
