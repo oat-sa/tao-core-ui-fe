@@ -34,6 +34,8 @@ define(['jquery', 'lodash', 'ui/bulkActionPopup', 'ui/cascadingComboBox', 'lib/s
             renderTo: $container,
             actionName: 'Resume Test Session',
             resourceType: 'test taker',
+            message: 'Warning! You will resume session',
+            icon: 'warning',
             categoriesSelector: cascadingComboBox({
                 categoriesDefinitions: [
                     {
@@ -175,6 +177,8 @@ define(['jquery', 'lodash', 'ui/bulkActionPopup', 'ui/cascadingComboBox', 'lib/s
         assert.equal($element.find('.applicables li').length, 12, 'allowed resources are displayed');
         assert.equal($element.find('.no-applicables li').length, 4, 'denied resources are displayed');
         assert.equal($element.children('.reason').length, 1, 'the reason box is displayed');
+        assert.equal($element.children('.message').length, 1, 'the message box is displayed');
+        assert.equal($element.find('.icon-warning').length, 1, 'the icon is displayed');
     });
 
     QUnit.test('render (without reason)', function(assert) {
