@@ -57,6 +57,15 @@
         </div>
     </div>
     {{/if}}
+
+    {{#if message}}
+        <div class="message">
+            {{#if icon}}
+                <span class="icon icon-{{icon}}"></span>
+            {{/if}}
+            {{message}}
+        </div>
+    {{/if}}
     
     <div class="actions">
         <button class="btn btn-info small done">{{__ "OK"}}</button>

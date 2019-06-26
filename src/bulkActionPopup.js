@@ -34,7 +34,7 @@ import 'ui/bulkActionPopup/css/bulkActionPopup.css';
  * @type {String}
  * @private
  */
-var _ns = 'bulk-action-popup';
+const _ns = 'bulk-action-popup';
 
 /**
  * Builds an instance of the bulkActionPopup component
@@ -49,28 +49,29 @@ var _ns = 'bulk-action-popup';
  * @param {Function} [config.categoriesSelector] - callback renderer for categories
  * @param {Array} config.allowedResources - list of allowed resources to be displayed
  * @param {Array} [config.deniedResources] - list of denied resources to be displayed
+ * @param {String} config.message - message or warning (will be shown at the bottom of the popup)
+ * @param {String} config.icon - icon from the TAO font (will be shown before the message)
  * @returns {bulkActionPopup}
  */
 export default function bulkActionPopupFactory(config) {
     //private object to hold the state of edition
-    var state = {
+    const state = {
         reasons: null,
         comment: ''
     };
 
-    var instance = component({
+    const instance = component({
         /**
          * Validates the dialog, and closes it (action performed when hitting the Ok button)
          * @returns {Boolean} Returns `true` if the dialog has been successively validated (and closed)
          */
         validate: function validate() {
-            var $element = this.getElement();
-            var $error;
+            const $element = this.getElement();
 
             if ($element) {
                 $('.feedback-error', $element).remove();
                 if (!checkRequiredFields($element)) {
-                    $error = $('<div class="feedback-error small"></div>').text(__('All fields are required'));
+                    const $error = $('<div class="feedback-error small"></div>').text(__('All fields are required'));
                     $element.find('.actions').prepend($error);
                     return false;
                 }
@@ -122,9 +123,8 @@ export default function bulkActionPopupFactory(config) {
 
         // renders the component
         .on('render', function() {
-            var self = this;
-            var $element = this.getElement();
-            var $reason;
+            const self = this;
+            const $element = this.getElement();
 
             initModal({
                 disableEscape: true,
@@ -132,7 +132,7 @@ export default function bulkActionPopupFactory(config) {
             });
 
             if (_.isObject(this.config.categoriesSelector)) {
-                $reason = $element.find('.reason').children('.categories');
+                const $reason = $element.find('.reason').children('.categories');
                 this.config.categoriesSelector.render($reason);
             }
 
@@ -232,7 +232,7 @@ export default function bulkActionPopupFactory(config) {
      * Sets a keyboard navigator on the dialog to take care of TAB navigation
      */
     function initNavigator() {
-        var $element = instance.getElement();
+        const $element = instance.getElement();
 
         instance.navigator = keyNavigator({
             id: _ns,
@@ -270,7 +270,7 @@ export default function bulkActionPopupFactory(config) {
             resourceCount: config.allowedResources.length,
             single: config.allowedResources.length === 1,
             singleDenied: config.deniedResources && config.deniedResources.length === 1,
-            resourceTypes: config.resourceType + 's'
+            resourceTypes: `${config.resourceType}s`
         })
     );
 }
