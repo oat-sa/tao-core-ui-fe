@@ -219,6 +219,11 @@ ul.listbox {
     button.modal-close {
         color: $textColor !important;
         background-color: transparent;
+        padding: 0;
+        height: 20px;
+        .icon-close {
+            padding: 0;
+        }
     }
 
     .modal-body{
