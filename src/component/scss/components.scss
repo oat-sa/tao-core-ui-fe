@@ -208,10 +208,17 @@ ul.listbox {
         cursor: pointer;
         font-weight: bold;
         color: $textColor;
-        @include font-size(20);
         &:hover{
             opacity: 0.6;
         }
+        .icon-close {
+            @include font-size(20);
+        }
+    }
+    // rewrite rules from _buttons.scss
+    button.modal-close {
+        color: $textColor !important;
+        background-color: transparent;
     }
 
     .modal-body{
