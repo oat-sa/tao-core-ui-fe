@@ -65,7 +65,7 @@ export default function bulkActionPopupFactory(config) {
          * Validates the dialog, and closes it (action performed when hitting the Ok button)
          * @returns {Boolean} Returns `true` if the dialog has been successively validated (and closed)
          */
-        validate: function validate() {
+        validate() {
             const $element = this.getElement();
 
             if ($element) {
@@ -85,7 +85,7 @@ export default function bulkActionPopupFactory(config) {
         /**
          * Cancels and closes the dialog
          */
-        cancel: function cancel() {
+        cancel() {
             this.trigger('cancel');
             this.destroy();
         }
@@ -123,7 +123,6 @@ export default function bulkActionPopupFactory(config) {
 
         // renders the component
         .on('render', function() {
-            const self = this;
             const $element = this.getElement();
 
             initModal({
@@ -137,25 +136,25 @@ export default function bulkActionPopupFactory(config) {
             }
 
             $element
-                .on(namespaceHelper.namespaceAll('selected.cascading-combobox', _ns), function(e, reasons) {
+                .on(namespaceHelper.namespaceAll('selected.cascading-combobox', _ns), (e, reasons) => {
                     state.reasons = reasons;
-                    if (self.config.allowShortcuts) {
+                    if (this.config.allowShortcuts) {
                         // ensure the keyboard navigation is taking care of the possible new fields
                         initNavigator();
                     }
-                    self.trigger('change', state);
+                    this.trigger('change', state);
                 })
-                .on(namespaceHelper.namespaceAll('change', _ns), 'textarea', function() {
-                    state.comment = $(this).val();
-                    self.trigger('change', state);
+                .on(namespaceHelper.namespaceAll('change', _ns), 'textarea', (e) => {
+                    state.comment = $(e.currentTarget).val();
+                    this.trigger('change', state);
                 })
-                .on(namespaceHelper.namespaceAll('click', _ns), '.actions .done', function(e) {
+                .on(namespaceHelper.namespaceAll('click', _ns), '.actions .done', (e) => {
                     e.preventDefault();
-                    self.trigger('action-ok');
+                    this.trigger('action-ok');
                 })
-                .on(namespaceHelper.namespaceAll('click', _ns), '.actions .cancel', function(e) {
+                .on(namespaceHelper.namespaceAll('click', _ns), '.actions .cancel', (e) => {
                     e.preventDefault();
-                    self.trigger('action-cancel');
+                    this.trigger('action-cancel');
                 });
 
             if (this.config.allowShortcuts) {
@@ -172,8 +171,8 @@ export default function bulkActionPopupFactory(config) {
                     // prevents the TAB key to be used to move outside the dialog box, but handles navigation
                     .add(
                         namespaceHelper.namespaceAll('Tab', _ns, true),
-                        function() {
-                            self.navigator.next();
+                        () => {
+                            this.navigator.next();
                         },
                         {
                             avoidInput: false
@@ -181,8 +180,8 @@ export default function bulkActionPopupFactory(config) {
                     )
                     .add(
                         namespaceHelper.namespaceAll('Shift+Tab', _ns, true),
-                        function() {
-                            self.navigator.previous();
+                        () => {
+                            this.navigator.previous();
                         },
                         {
                             avoidInput: false
