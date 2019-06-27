@@ -602,6 +602,7 @@ define(['jquery', 'lodash', 'ui/bulkActionPopup', 'ui/cascadingComboBox', 'lib/s
                                 ]
                             },
                             {
+                                id: 'optionA3',
                                 label: 'option A-3'
                             }
                         ]
