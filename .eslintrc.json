@@ -3,8 +3,7 @@
       "browser" : true,
       "es6" : true,
       "qunit" : true,
-      "node" : true,
-      "amd": true
+      "node" : true
     },
     "globals" : {
       "ENVIRONMENT" : true
