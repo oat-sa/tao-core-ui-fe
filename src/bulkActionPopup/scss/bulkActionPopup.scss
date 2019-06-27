@@ -53,8 +53,8 @@
     }
 
     .message{
-        @include flex-container();
-        @include vendor-prefix(align-items, center, property);
+        display: flex;
+        align-items: center;
         .icon{
             float: left;
             font-size: 40px;
