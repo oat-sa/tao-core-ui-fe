@@ -25,6 +25,7 @@
 
 import _ from 'lodash';
 import __ from 'i18n';
+import promiseTimeout from 'core/promiseTimeout';
 import component from 'ui/component';
 import formFactory from 'ui/form/simpleForm';
 import widgetDefinitions from 'ui/form/widget/definitions';
@@ -103,7 +104,7 @@ export default function filtersFactory($container, config) {
 
             /**
              * Reset the filter form
-             * @return {filter} chains
+             * @return {Promise}
              */
             reset() {
                 return this.update(this.config.data);
@@ -114,39 +115,43 @@ export default function filtersFactory($container, config) {
              * @param {Object} data - the filtering data
              * @param {Object} data.properties - the list of properties used to filter
              * @param {Object} data.ranges - the property ranges
-             * @return {filter} chains
+             * @return {Promise}
              * @fires filter#update once the form filter is updated and ready
              * @fires filter#change when the user wants to apply the filter
              */
             update(data) {
                 if (this.is('rendered')) {
-                    this.getElement().empty();
+                    return new Promise(resolve => {
+                        this.getElement().empty();
 
-                    this.form = formFactory(this.getElement(), {
-                        widgets: _.filter(data.properties, property => _.contains(supportedWidgets, property.widget)),
-                        ranges: data.ranges,
-                        reset: true,
-                        submitText: this.config.applyLabel,
-                        title: this.config.title,
-                    })
-                        .on('ready', () => {
-                            /**
-                             * Notifies the update is done
-                             * @event filter#update
-                             * @param {Object} data - the filtering data
-                             */
-                            this.trigger('update', data);
+                        this.form = formFactory(this.getElement(), {
+                            widgets: _.filter(data.properties, property => _.contains(supportedWidgets, property.widget)),
+                            ranges: data.ranges,
+                            reset: true,
+                            submitText: this.config.applyLabel,
+                            title: this.config.title,
                         })
-                        .on('submit reset', () => {
-                            /**
-                             * Apply the filter values
-                             * @event filter#change
-                             * @param {Object} values - the filter values
-                             */
-                            this.trigger('change', this.form.getValues());
-                        });
+                            .on('ready', () => {
+                                /**
+                                 * Notifies the update is done
+                                 * @event filter#update
+                                 * @param {Object} data - the filtering data
+                                 */
+                                this.trigger('update', data);
+                                resolve();
+                            })
+                            .on('submit reset', () => {
+                                /**
+                                 * Apply the filter values
+                                 * @event filter#change
+                                 * @param {Object} values - the filter values
+                                 */
+                                this.trigger('change', this.form.getValues());
+                            });
+                    });
+                } else {
+                    return Promise.resolve();
                 }
-                return this;
             },
 
             /**
@@ -198,23 +203,16 @@ export default function filtersFactory($container, config) {
             this.render($container);
         })
         .on('render', function() {
-            Promise.race([
-                new Promise(resolve => {
-                    if (this.config.data) {
-                        this
-                            .on('update.ready', () => {
-                                this.off('update.ready');
-                                resolve();
-                            })
-                            .update(this.config.data);
-                    } else {
-                        resolve();
-                    }
-                }),
-                new Promise((resolve, reject) => {
-                    window.setTimeout(() => reject(new Error('The form filter takes too long to render!')), this.getConfig().timeout);
-                })
-            ])
+            let renderPromise;
+            if (this.config.data) {
+                renderPromise = this.update(this.config.data);
+            } else {
+                renderPromise = Promise.resolve();
+            }
+            promiseTimeout(renderPromise, {
+                message: 'The form filter takes too long to render!',
+                timeout: this.getConfig().timeout
+            })
                 /**
                  * Notifies the filter encountered an error
                  * @event filter#error
