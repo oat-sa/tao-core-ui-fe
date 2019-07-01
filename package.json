@@ -1,6 +1,6 @@
 {
     "name": "@oat-sa/tao-core-ui",
-    "version": "0.16.4",
+    "version": "0.17.0",
     "displayName": "TAO Core UI",
     "description": "UI libraries of TAO",
     "scripts": {
@@ -9,7 +9,7 @@
         "build": "rollup --config ./build/rollup.config.js",
         "build:watch": "rollup --config ./build/rollup.config.js --watch",
         "buildScss": "node ./build/scss.js",
-        "lint": "eslint test",
+        "lint": "eslint test src",
         "prepare": "npm run buildScss && npm run build"
     },
     "keywords": [
