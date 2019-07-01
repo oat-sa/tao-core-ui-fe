@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2017-2019 (original work) Open Assessment Technologies SA ;
  */
 
 /**
@@ -25,26 +25,28 @@
 
 import _ from 'lodash';
 import __ from 'i18n';
+import promiseTimeout from 'core/promiseTimeout';
 import component from 'ui/component';
-import generisFormFactory from 'ui/generis/form/form';
+import formFactory from 'ui/form/simpleForm';
+import widgetDefinitions from 'ui/form/widget/definitions';
 import filtersTpl from 'ui/resource/tpl/filters';
 
 /**
  * The list of supported properties
- *
- * FIXME add radio as soon as supported
  */
-var supportedWidgets = [
-    'http://www.tao.lu/datatypes/WidgetDefinitions.rdf#TextBox',
-    'http://www.tao.lu/datatypes/WidgetDefinitions.rdf#CheckBox',
-    'http://www.tao.lu/datatypes/WidgetDefinitions.rdf#ComboBox',
-    'http://www.tao.lu/datatypes/WidgetDefinitions.rdf#TextArea',
-    'http://www.tao.lu/datatypes/WidgetDefinitions.rdf#StateWidget'
+const supportedWidgets = [
+    widgetDefinitions.TEXTBOX,
+    widgetDefinitions.CHECKBOX,
+    widgetDefinitions.RADIOBOX,
+    widgetDefinitions.COMBOBOX,
+    widgetDefinitions.TEXTAREA,
+    widgetDefinitions.STATEWIDGET,
 ];
 
-var defaultConfig = {
+const defaultConfig = {
     title: __('Search by properties'),
-    applyLabel: __('Apply')
+    applyLabel: __('Apply'),
+    timeout: 30000,
 };
 
 /**
@@ -58,21 +60,27 @@ var defaultConfig = {
  * @param {Object} config.data.ranges - the property ranges
  * @param {String} [config.title] - the form title
  * @param {String} [config.applyLabel] - the label of the apply button
+ * @param {String} [config.timeout] - the timeout applied on the form rendering
  * @returns {filter} the component
+ * @fires filter#ready once the form filter is rendered and ready
  */
 export default function filtersFactory($container, config) {
     /**
      * @typedef {ui/component}
      */
-    var filters = component(
+    const filters = component(
         {
             /**
              * Get the filter values
-             * @returns {Object[]} the form values
+             * @returns {Object} the form values
              */
-            getValues: function getValues() {
+            getValues() {
                 if (this.is('rendered') && this.form) {
-                    return this.form.getValues();
+                    const values = this.form.getValues();
+                    if (_.every(values, value => value === "")) {
+                        return {};
+                    }
+                    return values;
                 }
                 return null;
             },
@@ -83,12 +91,11 @@ export default function filtersFactory($container, config) {
              * @param {String|String[]} value - the field value
              * @return {filter} chains
              */
-            setValue: function setValue(uri, value) {
-                var widget;
+            setValue(uri, value) {
                 if (this.is('rendered') && this.form) {
-                    widget = this.form.getWidget(uri);
+                    const widget = this.form.getWidget(uri);
                     if (widget) {
-                        widget.set(value);
+                        widget.setValue(value);
                     }
                 }
 
@@ -97,9 +104,9 @@ export default function filtersFactory($container, config) {
 
             /**
              * Reset the filter form
-             * @return {filter} chains
+             * @return {Promise}
              */
-            reset: function reset() {
+            reset() {
                 return this.update(this.config.data);
             },
 
@@ -108,63 +115,65 @@ export default function filtersFactory($container, config) {
              * @param {Object} data - the filtering data
              * @param {Object} data.properties - the list of properties used to filter
              * @param {Object} data.ranges - the property ranges
-             * @return {filter} chains
+             * @return {Promise}
+             * @fires filter#update once the form filter is updated and ready
              * @fires filter#change when the user wants to apply the filter
              */
-            update: function update(data) {
-                var self = this;
-                var properties;
+            update(data) {
                 if (this.is('rendered')) {
-                    this.getElement().empty();
+                    return new Promise(resolve => {
+                        this.getElement().empty();
 
-                    properties = _.filter(data.properties, function(property) {
-                        return _.contains(supportedWidgets, property.widget);
-                    });
-
-                    this.form = generisFormFactory(
-                        {
-                            properties: properties,
-                            values: data.ranges
-                        },
-                        {
+                        this.form = formFactory(this.getElement(), {
+                            widgets: _.filter(data.properties, property => _.contains(supportedWidgets, property.widget)),
+                            ranges: data.ranges,
+                            reset: true,
                             submitText: this.config.applyLabel,
-                            title: this.config.title
-                        }
-                    )
-                        .on('submit reset', function() {
-                            /**
-                             * Apply the filter values
-                             * @event filter#change
-                             * @param {Object} values - the filter values
-                             */
-                            self.trigger('change', this.getValues());
+                            title: this.config.title,
                         })
-                        .render(this.getElement());
+                            .on('ready', () => {
+                                /**
+                                 * Notifies the update is done
+                                 * @event filter#update
+                                 * @param {Object} data - the filtering data
+                                 */
+                                this.trigger('update', data);
+                                resolve();
+                            })
+                            .on('submit reset', () => {
+                                /**
+                                 * Apply the filter values
+                                 * @event filter#change
+                                 * @param {Object} values - the filter values
+                                 */
+                                this.trigger('change', this.form.getValues());
+                            });
+                    });
+                } else {
+                    return Promise.resolve();
                 }
-                return this;
             },
 
             /**
              * Get a text that represents the actual query
              * @returns {String} the query
              */
-            getTextualQuery: function getTextualQuery() {
-                var self = this;
-                var result;
+            getTextualQuery() {
+                let result;
                 if (this.is('rendered')) {
                     result = _.reduce(
                         this.form.getValues(),
-                        function(acc, value, uri) {
-                            var widget = self.form.getWidget(uri);
-                            var displayValue;
+                        (acc, value, uri) => {
+                            const widget = this.form.getWidget(uri);
+                            let displayValue;
                             if (widget) {
                                 if (!_.isEmpty(acc)) {
                                     acc += __(' AND ');
                                 }
-                                acc += widget.config.label + __(' is ');
-                                if (widget.config.range) {
-                                    displayValue = _.map(_.isArray(value) ? value : [value], function(val) {
-                                        var selectedValue = _.find(widget.config.range, { uri: val });
+                                acc += widget.getConfig().label + __(' is ');
+                                if (widget.getConfig().range) {
+                                    displayValue = _.map(_.isArray(value) ? value : [value], val => {
+                                        const selectedValue = _.find(widget.getConfig().range, {uri: val});
                                         return selectedValue && selectedValue.label;
                                     });
                                 } else {
@@ -194,15 +203,31 @@ export default function filtersFactory($container, config) {
             this.render($container);
         })
         .on('render', function() {
+            let renderPromise;
             if (this.config.data) {
-                this.update(this.config.data);
+                renderPromise = this.update(this.config.data);
+            } else {
+                renderPromise = Promise.resolve();
             }
+            promiseTimeout(renderPromise, {
+                message: 'The form filter takes too long to render!',
+                timeout: this.getConfig().timeout
+            })
+                /**
+                 * Notifies the filter encountered an error
+                 * @event filter#error
+                 */
+                .catch(err => this.trigger('error', err))
+
+                /**
+                 * Notifies the filter is ready
+                 * @event filter#ready
+                 */
+                .then(() => this.trigger('ready'));
         });
 
     //always defer the initialization to let consumers listen for init and render events.
-    _.defer(function() {
-        filters.init(config);
-    });
+    _.defer(() => filters.init(config));
 
     return filters;
 }

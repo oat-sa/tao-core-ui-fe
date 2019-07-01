@@ -67,6 +67,7 @@ define([
         {title: 'HIDDENBOX'},
         {title: 'RADIOBOX'},
         {title: 'COMBOBOX'},
+        {title: 'STATEWIDGET'},
         {title: 'CHECKBOX'}
     ]).test('constant ', function (data, assert) {
         const widget = widgetDefinitions[data.title];

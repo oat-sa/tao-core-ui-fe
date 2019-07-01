@@ -31,6 +31,7 @@ import widgetTextBoxProvider from 'ui/form/widget/providers/textBox';
 
 widgetFactory.registerProvider(widgetDefinitions.CHECKBOX, widgetCheckBoxProvider);
 widgetFactory.registerProvider(widgetDefinitions.COMBOBOX, widgetComboBoxProvider);
+widgetFactory.registerProvider(widgetDefinitions.STATEWIDGET, widgetComboBoxProvider);
 widgetFactory.registerProvider(widgetDefinitions.HIDDEN, widgetHiddenProvider);
 widgetFactory.registerProvider(widgetDefinitions.HIDDENBOX, widgetHiddenBoxProvider);
 widgetFactory.registerProvider(widgetDefinitions.RADIOBOX, widgetRadioBoxProvider);
