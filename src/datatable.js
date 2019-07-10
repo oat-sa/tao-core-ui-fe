@@ -190,6 +190,8 @@ var dataTable = {
      */
     _refresh: function($elt, data) {
         // TODO: refresh only rows with data, not all component
+
+        loadingBar.start();
         if (data) {
             this._render($elt, data);
         } else {
@@ -210,8 +212,6 @@ var dataTable = {
         var options = $elt.data(dataNs);
         var parameters;
         var ajaxConfig;
-
-        loadingBar.start();
 
         if (!$filter) {
             $filter = $('.filter', $elt);
@@ -246,7 +246,6 @@ var dataTable = {
         $.ajax(ajaxConfig)
             .done(function(response) {
                 self._render($elt, response);
-                loadingBar.stop();
             })
             .fail(function(response, option, err) {
                 var requestErr = httpErrorParser.parse(response, option, err);
@@ -256,7 +255,6 @@ var dataTable = {
                 $elt.trigger('error.' + ns, [requestErr]);
 
                 self._render($elt, {});
-                loadingBar.stop();
             });
     },
 
@@ -624,6 +622,8 @@ var dataTable = {
                 self._setRows($elt, val);
             });
         }
+
+        loadingBar.stop();
 
         /**
          * @event dataTable#load.dataTable
