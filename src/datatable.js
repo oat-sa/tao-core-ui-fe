@@ -190,8 +190,6 @@ var dataTable = {
      */
     _refresh: function($elt, data) {
         // TODO: refresh only rows with data, not all component
-
-        loadingBar.start();
         if (data) {
             this._render($elt, data);
         } else {
@@ -213,6 +211,8 @@ var dataTable = {
         var parameters;
         var ajaxConfig;
 
+        loadingBar.start();
+        
         if (!$filter) {
             $filter = $('.filter', $elt);
         }
