@@ -85,15 +85,7 @@
                                     {{#if id}}
                                         {{#with ../../../../this}}
                                             {{#unless ../hidden}}
-                                                {{#if ../../disabled}}
-                                                    {{#with ../../../this}}
-                                <button class="btn-info small {{id}}"{{#if title}} title="{{title}}"{{/if}} disabled="disabled">{{#if icon}}<span class="icon-{{icon}}"></span> {{/if}}{{#if label}} {{label}}{{/if}}</button>
-                                                    {{/with}}
-                                                {{else}}
-                                                    {{#with ../../../this}}
-                                <button class="btn-info small {{id}}"{{#if title}} title="{{title}}"{{/if}}>{{#if icon}}<span class="icon-{{icon}}"></span> {{/if}}{{#if label}} {{label}}{{/if}}</button>
-                                                    {{/with}}
-                                                {{/if}}
+                                <button class="btn-info small {{../../id}}"{{#if ../../title}} title="{{../../../title}}"{{/if}}{{#if ../../disabled}} disabled="disabled"{{/if}}>{{#if ../../icon}}<span class="icon-{{../../../icon}}"></span>{{/if}} {{../../label}}</button>
                                             {{/unless}}
                                         {{/with}}
                                     {{else}}
@@ -108,21 +100,13 @@
 
                         {{/each}}
 
-                        {{#if ../options.actions}}
+                        {{#with ../options.actions}}
                         <td class="actions">
-                            {{#each ../../options.actions}}
+                            {{#each this}}
                                 {{#if id}}
-                                    {{#with ../../this}}
+                                    {{#with ../../../this}}
                                         {{#unless ../hidden}}
-                                            {{#if ../../disabled}}
-                                                {{#with ../../../this}}
-                            <button class="btn-info small {{id}}"{{#if title}} title="{{title}}"{{/if}} disabled="disabled">{{#if icon}}<span class="icon-{{icon}}"></span> {{/if}}{{#if label}} {{label}}{{/if}}</button>
-                                                {{/with}}
-                                            {{else}}
-                                                {{#with ../../../this}}
-                            <button class="btn-info small {{id}}"{{#if title}} title="{{title}}"{{/if}}>{{#if icon}}<span class="icon-{{icon}}"></span> {{/if}}{{#if label}} {{label}}{{/if}}</button>
-                                                {{/with}}
-                                            {{/if}}
+                            <button class="btn-info small {{../../id}}"{{#if ../../title}} title="{{../../../title}}"{{/if}}{{#if ../../disabled}} disabled="disabled"{{/if}}>{{#if ../../icon}}<span class="icon-{{../../../icon}}"></span>{{/if}} {{../../label}}</button>
                                         {{/unless}}
                                     {{/with}}
                                 {{else}}
@@ -130,7 +114,7 @@
                                 {{/if}}
                             {{/each}}
                         </td>
-                        {{/if}}
+                        {{/with}}
                     </tr>
                 {{/each}}
             </tbody>
