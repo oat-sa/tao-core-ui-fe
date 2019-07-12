@@ -212,7 +212,7 @@ var dataTable = {
         var ajaxConfig;
 
         loadingBar.start();
-        
+
         if (!$filter) {
             $filter = $('.filter', $elt);
         }
