@@ -838,7 +838,7 @@ define([
                             icon: 'item',
                             action: function(id, row) {
                                 dialog({
-                                    message: "Use's file #" + id,
+                                    message: "User's file #" + id,
                                     content: fileTpl(row),
                                     buttons: 'ok',
                                     autoRender: true,
@@ -910,10 +910,6 @@ define([
                             label: 'Login'
                         },
                         {
-                            id: 'login',
-                            label: 'Login'
-                        },
-                        {
                             id: 'email',
                             label: 'Email'
                         },
@@ -942,10 +938,6 @@ define([
                     url: '/demo-data/actions',
                     rows: 10,
                     model: [
-                        {
-                            id: 'login',
-                            label: 'Login'
-                        },
                         {
                             id: 'login',
                             label: 'Login'
@@ -981,7 +973,7 @@ define([
                                     icon: 'item',
                                     action: function(id, row) {
                                         dialog({
-                                            message: "Use's file #" + id,
+                                            message: "User's file #" + id,
                                             content: fileTpl(row),
                                             buttons: 'ok',
                                             autoRender: true,
@@ -1093,7 +1085,7 @@ define([
                             icon: 'item',
                             action: function(id, row) {
                                 dialog({
-                                    message: "Use's file #" + id,
+                                    message: "User's file #" + id,
                                     content: fileTpl(row),
                                     buttons: 'ok',
                                     autoRender: true,
@@ -1195,7 +1187,7 @@ define([
                             icon: 'item',
                             action: function(id, row) {
                                 dialog({
-                                    message: "Use's file #" + id,
+                                    message: "User's file #" + id,
                                     content: fileTpl(row),
                                     buttons: 'ok',
                                     autoRender: true,
