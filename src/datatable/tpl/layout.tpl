@@ -11,7 +11,10 @@
         {{#with options.status}}
         <h2>
             <span class="empty-list hidden">{{#if empty}}{{empty}}{{else}}{{../../options.labels.empty}}{{/if}}</span>
-            <span class="available-list hidden"><span class="text">{{#if available}}{{available}}{{else}}{{../../options.labels.available}}{{/if}}</span>: <span class="count">{{count}}</span></span>
+            <span class="available-list hidden">
+                <span class="text">{{#if available}}{{available}}{{else}}{{../../options.labels.available}}{{/if}}</span>:
+                <span class="count">{{count}}</span>
+            </span>
             <span class="loading">{{#if loading}}{{loading}}{{else}}{{../../options.labels.loading}}{{/if}}...</span>
         </h2>
         {{/with}}
@@ -24,8 +27,10 @@
     {{#if options.tools}}
     <aside class="action-bar clearfix">
         {{#each options.tools}}
-            <button class="btn-info small tool-{{#if id}}{{id}}{{else}}{{@key}}{{/if}}{{#if massAction}} invisible{{/if}}"{{#if title}} title="{{title}}"{{/if}}>
-                <span class="icon-{{#if icon}}{{icon}}{{else}}{{#if id}}{{id}}{{else}}{{@key}}{{/if}}{{/if}}"></span> {{#if label}}{{label}}{{else}}{{#unless id}}{{@key}}{{/unless}}{{/if}}
+            <button class="btn-info small tool-{{#if id}}{{id}}{{else}}{{@key}}{{/if}}{{#if massAction}} invisible{{/if}}"
+                {{#if title}} title="{{title}}"{{/if}}>
+                <span class="icon-{{#if icon}}{{icon}}{{else}}{{#if id}}{{id}}{{else}}{{@key}}{{/if}}{{/if}}"></span>
+                {{#if label}}{{label}}{{else}}{{#unless id}}{{@key}}{{/unless}}{{/if}}
             </button>
         {{/each}}
     </aside>
@@ -53,7 +58,13 @@
                     {{/if}}
                     {{#each options.model}}
                     <th{{#if type}} class="actions"{{/if}}>
-                        <div {{#if sortable}} class="sortable" data-sort-by="{{id}}" {{#if sorttype}}data-sort-type="{{sorttype}}"{{/if}} tabindex="0"{{/if}}>{{label}}</div>
+                        <div
+                            {{#if sortable}}
+                                class="sortable"
+                                data-sort-by="{{id}}"
+                                {{#if sorttype}}data-sort-type="{{sorttype}}"{{/if}}
+                                tabindex="0"
+                            {{/if}}>{{label}}</div>
                         {{#if filterable}}
                         <aside data-column="{{id}}" class="filter column
                             {{#if customFilter}} customInput" >
@@ -85,19 +96,20 @@
                                     {{#if id}}
                                         {{#with ../../../../this}}
                                             {{#unless ../hidden}}
-                                                {{#if ../../disabled}}
-                                                    {{#with ../../../this}}
-                                <button class="btn-info small {{id}}"{{#if title}} title="{{title}}"{{/if}} disabled="disabled">{{#if icon}}<span class="icon-{{icon}}"></span> {{/if}}{{#if label}} {{label}}{{/if}}</button>
-                                                    {{/with}}
-                                                {{else}}
-                                                    {{#with ../../../this}}
-                                <button class="btn-info small {{id}}"{{#if title}} title="{{title}}"{{/if}}>{{#if icon}}<span class="icon-{{icon}}"></span> {{/if}}{{#if label}} {{label}}{{/if}}</button>
-                                                    {{/with}}
-                                                {{/if}}
+                                <button class="btn-info small {{../../id}}"
+                                    {{#if ../../title}} title="{{../../../title}}"{{/if}}
+                                    {{#if ../../disabled}} disabled="disabled"{{/if}}>
+                                    {{#if ../../icon}}<span class="icon-{{../../../icon}}"></span>{{/if}}
+                                    {{../../label}}
+                                </button>
                                             {{/unless}}
                                         {{/with}}
                                     {{else}}
-                                <button class="btn-info small {{@key}}"{{#if title}} title="{{title}}"{{/if}}>{{#if icon}}<span class="icon-{{icon}}"></span> {{/if}}{{#if label}} {{label}}{{/if}}</button>
+                                <button class="btn-info small {{@key}}"
+                                    {{#if title}} title="{{title}}"{{/if}}>
+                                    {{#if icon}}<span class="icon-{{icon}}"></span> {{/if}}
+                                    {{label}}
+                                </button>
                                     {{/if}}
 
                                 {{/each}}
@@ -108,21 +120,18 @@
 
                         {{/each}}
 
-                        {{#if ../options.actions}}
+                        {{#with ../options.actions}}
                         <td class="actions">
-                            {{#each ../../options.actions}}
+                            {{#each this}}
                                 {{#if id}}
-                                    {{#with ../../this}}
+                                    {{#with ../../../this}}
                                         {{#unless ../hidden}}
-                                            {{#if ../../disabled}}
-                                                {{#with ../../../this}}
-                            <button class="btn-info small {{id}}"{{#if title}} title="{{title}}"{{/if}} disabled="disabled">{{#if icon}}<span class="icon-{{icon}}"></span> {{/if}}{{#if label}} {{label}}{{/if}}</button>
-                                                {{/with}}
-                                            {{else}}
-                                                {{#with ../../../this}}
-                            <button class="btn-info small {{id}}"{{#if title}} title="{{title}}"{{/if}}>{{#if icon}}<span class="icon-{{icon}}"></span> {{/if}}{{#if label}} {{label}}{{/if}}</button>
-                                                {{/with}}
-                                            {{/if}}
+                            <button class="btn-info small {{../../id}}"
+                                {{#if ../../title}} title="{{../../../title}}"{{/if}}
+                                {{#if ../../disabled}} disabled="disabled"{{/if}}>
+                                {{#if ../../icon}}<span class="icon-{{../../../icon}}"></span>{{/if}}
+                                {{../../label}}
+                            </button>
                                         {{/unless}}
                                     {{/with}}
                                 {{else}}
@@ -130,7 +139,7 @@
                                 {{/if}}
                             {{/each}}
                         </td>
-                        {{/if}}
+                        {{/with}}
                     </tr>
                 {{/each}}
             </tbody>
