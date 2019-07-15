@@ -838,7 +838,7 @@ define([
                             icon: 'item',
                             action: function(id, row) {
                                 dialog({
-                                    message: "Use's file #" + id,
+                                    message: "User's file #" + id,
                                     content: fileTpl(row),
                                     buttons: 'ok',
                                     autoRender: true,
@@ -848,11 +848,54 @@ define([
                         },
                         {
                             id: 'remove',
-                            label: 'Remove',
+                            label: function() {
+                                if (this.login && this.login.length) {
+                                    return 'Delete account';
+                                }
+                                return 'Remove user';
+                            },
                             icon: 'bin',
+                            action: function(id, row) {
+                                var dialogConfig = {
+                                    message: 'Deletion is not supported yet!',
+                                    content: 'That would affect user id #' + id,
+                                    buttons: 'ok',
+                                    autoRender: true,
+                                    autoDestroy: true
+                                };
+                                if (row.login && row.login.length) {
+                                    dialogConfig.message = 'Account deletion is not supported yet!';
+                                }
+                                dialog(dialogConfig);
+                            }
+                        },
+                        {
+                            id: 'connect',
+                            label: 'Connect',
+                            icon: 'user',
+                            hidden: function() {
+                                return !this.login || !this.login.length;
+                            },
                             action: function(id) {
                                 dialog({
-                                    message: 'Deletion is not supported yet!',
+                                    message: 'Connection is not supported yet!',
+                                    content: 'That would affect user id #' + id,
+                                    buttons: 'ok',
+                                    autoRender: true,
+                                    autoDestroy: true
+                                });
+                            }
+                        },
+                        {
+                            id: 'create',
+                            label: 'Create account',
+                            icon: 'user',
+                            hidden: function() {
+                                return this.login && this.login.length;
+                            },
+                            action: function(id) {
+                                dialog({
+                                    message: 'Account creation is not supported yet!',
                                     content: 'That would affect user id #' + id,
                                     buttons: 'ok',
                                     autoRender: true,
@@ -885,6 +928,117 @@ define([
                         {
                             id: 'country',
                             label: 'country'
+                        }
+                    ]
+                }
+            },
+            {
+                title: 'Actions type',
+                config: {
+                    url: '/demo-data/actions',
+                    rows: 10,
+                    model: [
+                        {
+                            id: 'login',
+                            label: 'Login'
+                        },
+                        {
+                            id: 'email',
+                            label: 'Email'
+                        },
+                        {
+                            id: 'firstname',
+                            label: 'First Name'
+                        },
+                        {
+                            id: 'lastname',
+                            label: 'Last Name'
+                        },
+                        {
+                            id: 'phone',
+                            label: 'Phone'
+                        },
+                        {
+                            id: 'country',
+                            label: 'country'
+                        },
+                        {
+                            id: 'context',
+                            label: 'Context',
+                            type: 'actions',
+                            actions: [
+                                {
+                                    id: 'file',
+                                    label: 'File',
+                                    icon: 'item',
+                                    action: function(id, row) {
+                                        dialog({
+                                            message: "User's file #" + id,
+                                            content: fileTpl(row),
+                                            buttons: 'ok',
+                                            autoRender: true,
+                                            autoDestroy: true
+                                        });
+                                    }
+                                },
+                                {
+                                    id: 'remove',
+                                    label: function() {
+                                        if (this.login && this.login.length) {
+                                            return 'Delete account';
+                                        }
+                                        return 'Remove user';
+                                    },
+                                    icon: 'bin',
+                                    action: function(id, row) {
+                                        var dialogConfig = {
+                                            message: 'Deletion is not supported yet!',
+                                            content: 'That would affect user id #' + id,
+                                            buttons: 'ok',
+                                            autoRender: true,
+                                            autoDestroy: true
+                                        };
+                                        if (row.login && row.login.length) {
+                                            dialogConfig.message = 'Account deletion is not supported yet!';
+                                        }
+                                        dialog(dialogConfig);
+                                    }
+                                },
+                                {
+                                    id: 'connect',
+                                    label: 'Connect',
+                                    icon: 'user',
+                                    hidden: function() {
+                                        return !this.login || !this.login.length;
+                                    },
+                                    action: function(id) {
+                                        dialog({
+                                            message: 'Connection is not supported yet!',
+                                            content: 'That would affect user id #' + id,
+                                            buttons: 'ok',
+                                            autoRender: true,
+                                            autoDestroy: true
+                                        });
+                                    }
+                                },
+                                {
+                                    id: 'create',
+                                    label: 'Create account',
+                                    icon: 'user',
+                                    hidden: function() {
+                                        return this.login && this.login.length;
+                                    },
+                                    action: function(id) {
+                                        dialog({
+                                            message: 'Account creation is not supported yet!',
+                                            content: 'That would affect user id #' + id,
+                                            buttons: 'ok',
+                                            autoRender: true,
+                                            autoDestroy: true
+                                        });
+                                    }
+                                }
+                            ]
                         }
                     ]
                 }
@@ -931,7 +1085,7 @@ define([
                             icon: 'item',
                             action: function(id, row) {
                                 dialog({
-                                    message: "Use's file #" + id,
+                                    message: "User's file #" + id,
                                     content: fileTpl(row),
                                     buttons: 'ok',
                                     autoRender: true,
@@ -1033,7 +1187,7 @@ define([
                             icon: 'item',
                             action: function(id, row) {
                                 dialog({
-                                    message: "Use's file #" + id,
+                                    message: "User's file #" + id,
                                     content: fileTpl(row),
                                     buttons: 'ok',
                                     autoRender: true,
