@@ -18,9 +18,19 @@
     font-style: normal;
     text-align: center;
     height: 35px;
+    &.btn-secondary {
+        background-color: $uiGeneralContentBg;
+        border: 1px solid whiten($uiClickableActiveBg, .1);
+        color: whiten($uiClickableActiveBg, .1) !important;
+        text-shadow: none;
+        line-height: 2.3;
+    }
     &.small {
         line-height: 1.8;
         height: 25px;
+        &.btn-secondary {
+            line-height: 1.5;
+        }
         [class^="icon-"], [class*=" icon-"] {
             @include font-size(13);
         }
@@ -45,20 +55,44 @@
     &.btn-info {
         background-color: whiten($info, .1);
         text-shadow: 1px 1px 0 blacken($info, .2);
+        &.btn-secondary {
+            color: whiten($info, .1) !important;
+            border-color: whiten($info, .1);
+            background-color: $uiGeneralContentBg;
+            text-shadow: none;
+        }
     }
     &.btn-error {
         background-color: whiten($error, .1);
         text-shadow: 1px 1px 0 blacken($error, .2);
+        &.btn-secondary {
+            color: whiten($error, .1) !important;
+            border-color: whiten($error, .1);
+            background-color: $uiGeneralContentBg;
+            text-shadow: none;
+        }
     }
 
     &.btn-success {
         background-color: whiten($success, .1);
         text-shadow: 1px 1px 0 blacken($success, .2);
+        &.btn-secondary {
+            color: whiten($success, .1) !important;
+            border-color: whiten($success, .1);
+            background-color: $uiGeneralContentBg;
+            text-shadow: none;
+        }
     }
 
     &.btn-warning {
         background-color: whiten($warning, .1);
         text-shadow: 1px 1px 0 blacken($warning, .2);
+        &.btn-secondary {
+            color: whiten($warning, .1) !important;
+            border-color: whiten($warning, .1);
+            background-color: $uiGeneralContentBg;
+            text-shadow: none;
+        }
     }
 }
 
