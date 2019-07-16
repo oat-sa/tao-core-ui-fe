@@ -549,8 +549,10 @@ label {
     [class^="btn-"], [class*=" btn-"],
     button, input[type="submit"], input[type="reset"] {
         &.btn-success {
-            background-color: whiten($info, .1);
-            text-shadow: 1px 1px 0 blacken($info, .2);
+            @include generic-btn-primary(white(), $info);
+            &.btn-secondary {
+                @include generic-btn-secondary($info, $uiGeneralContentBg);
+            }
         }
     }
 

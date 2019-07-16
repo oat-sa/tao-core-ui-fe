@@ -287,4 +287,57 @@ define(['ui/dateRange/dateRange'], function(dateRangeFactory) {
                 done();
             });
     });
+
+    QUnit.module('Visual');
+
+    QUnit.test('Visual test', function (assert) {
+        var ready = assert.async();
+        var $container = $('#visual-test .test');
+        var $outputChange = $('#visual-test .change-output');
+        var instance = dateRangeFactory($container, {
+            startPicker: {
+                setup: 'date',
+                field: {
+                    name: 'periodStart',
+                    value: '2019-04-05'
+                }
+            },
+            endPicker: {
+                setup: 'date',
+                field: {
+                    name: 'periodEnd'
+                }
+            }
+        });
+
+        assert.expect(3);
+
+        assert.equal($container.children().length, 0, 'The container is empty');
+
+        instance
+            .on('init', function () {
+                assert.equal(this, instance, 'The instance has been initialized');
+            })
+            .on('ready', function () {
+                assert.equal($container.children().length, 1, 'The container contains an element');
+                ready();
+            })
+            .on('reset', function () {
+                $outputChange.val('reset');
+            })
+            .on('submit', function (start, end) {
+                $outputChange.val('Submitted values:\n- start: ' + start + '\n- end: ' + end);
+            })
+            .on('change', function (name, value) {
+                $outputChange.val('value of [' + name + '] changed to "' + value + '"\n' + $outputChange.val());
+            })
+            .on('error', function (err) {
+                assert.ok(false, 'The operation should not fail!');
+                assert.pushResult({
+                    result: false,
+                    message: err
+                });
+                ready();
+            });
+    });
 });

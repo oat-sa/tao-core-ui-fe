@@ -13,9 +13,45 @@
                 });
             });
         </script>
+        <style>
+            #visual-test {
+                background: #EEE;
+                position: relative;
+                display: flex;
+                margin: 10px;
+                padding: 10px;
+                flex-direction: row;
+                justify-content: space-between;
+            }
+
+            #visual-test .output {
+                display: flex;
+                flex-direction: column;
+            }
+
+            #visual-test .output span {
+                display: inline-block;
+                width: 10rem;
+            }
+
+            #visual-test .output textarea {
+                display: inline-block;
+                min-width: 500px;
+                min-height: 10rem;
+            }
+        </style>
     </head>
     <body>
         <div id="qunit"></div>
         <div id="qunit-fixture"></div>
+        <div id="visual-test">
+            <div class="test"></div>
+            <div class="output">
+                <label>
+                    <span>Changes:</span>
+                    <textarea class="change-output"></textarea>
+                </label>
+            </div>
+        </div>
     </body>
 </html>
