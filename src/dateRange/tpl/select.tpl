@@ -11,7 +11,7 @@
     </button>
     {{/if}}
     {{#if resetButton.enable}}
-    <button class="small" data-control="reset" title="{{resetButton.title}}">
+    <button class="small btn-info btn-secondary" data-control="reset" title="{{resetButton.title}}">
         <span class="icon icon-{{resetButton.icon}}"></span> {{resetButton.label}}
     </button>
     {{/if}}
