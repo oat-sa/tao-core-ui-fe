@@ -468,10 +468,11 @@ define(['jquery', 'lodash', 'ui/button', 'tpl!test/ui/button/click'], function($
         var showDuration = 2000;
         var occurrence = 0;
 
-        function createInstance(id, label, type, delay) {
+        function createInstance(id, label, type, cls, delay) {
             return button({
                 id: id,
                 type: type,
+                cls: cls,
                 label: label
             })
                 .on('render', function() {
@@ -503,12 +504,18 @@ define(['jquery', 'lodash', 'ui/button', 'tpl!test/ui/button/click'], function($
                 });
         }
 
-        assert.expect(5);
+        assert.expect(11);
 
-        createInstance('button-1', 'Button 1', 'info', showDuration);
-        createInstance('button-2', 'Button 2', 'warning', showDuration);
-        createInstance('button-3', 'Button 3', 'error', showDuration);
-        createInstance('button-4', 'Button 4', 'neutral', showDuration);
-        createAsyncInstance('async-button', 'Async Button', 'success', showDuration * 2);
+        createInstance('button-1', 'Button 1', 'info', '', showDuration);
+        createInstance('button-2', 'Button 2', 'warning', '', showDuration);
+        createInstance('button-3', 'Button 3', 'error', '', showDuration);
+        createInstance('button-4', 'Button 4', 'neutral', '', showDuration);
+        createInstance('button-5', 'Button 5', 'success', '', showDuration);
+        createInstance('button-secondary-1', 'Button 1', 'info', 'btn-secondary', showDuration);
+        createInstance('button-secondary-2', 'Button 2', 'warning', 'btn-secondary', showDuration);
+        createInstance('button-secondary-3', 'Button 3', 'error', 'btn-secondary', showDuration);
+        createInstance('button-secondary-4', 'Button 4', 'neutral', 'btn-secondary', showDuration);
+        createInstance('button-secondary-5', 'Button 5', 'success', 'btn-secondary', showDuration);
+        createAsyncInstance('async-button', 'Async Button', 'success', '', showDuration * 2);
     });
 });
