@@ -1,8 +1,20 @@
+@mixin generic-btn-primary($color, $background) {
+    color: $color;
+    background-color: whiten($background, .1);
+    text-shadow: 1px 1px 0 blacken($background, .2);
+}
+
+@mixin generic-btn-secondary($color, $background) {
+    color: whiten($color, .1);
+    border: 1px solid whiten($color, .1);
+    background-color: $background;
+    text-shadow: none;
+}
+
 %generic-btn-code {
     @include border-radius(3);
     font-size: 14px !important;
     font-size: 1.4rem !important;
-    color: white();
     cursor: pointer;
     text-decoration: none !important;
     vertical-align: middle;
@@ -12,17 +24,13 @@
     display: inline-block;
     line-height: 2.5;
     padding: 0 15px;
-    background-color: whiten($uiClickableActiveBg, .1);
-    text-shadow: 1px 1px 0 blacken($uiClickableActiveBg, .2);
     font-weight: normal;
     font-style: normal;
     text-align: center;
     height: 35px;
+    @include generic-btn-primary(white(), $uiClickableActiveBg);
     &.btn-secondary {
-        background-color: $uiGeneralContentBg;
-        border: 1px solid whiten($uiClickableActiveBg, .1);
-        color: whiten($uiClickableActiveBg, .1);
-        text-shadow: none;
+        @include generic-btn-secondary($uiClickableActiveBg, $uiGeneralContentBg);
         line-height: 2.3;
     }
     &.small {
@@ -53,45 +61,29 @@
         opacity: .85;
     }
     &.btn-info {
-        background-color: whiten($info, .1);
-        text-shadow: 1px 1px 0 blacken($info, .2);
+        @include generic-btn-primary(white(), $info);
         &.btn-secondary {
-            color: whiten($info, .1);
-            border-color: whiten($info, .1);
-            background-color: $uiGeneralContentBg;
-            text-shadow: none;
+            @include generic-btn-secondary($info, $uiGeneralContentBg);
         }
     }
     &.btn-error {
-        background-color: whiten($error, .1);
-        text-shadow: 1px 1px 0 blacken($error, .2);
+        @include generic-btn-primary(white(), $error);
         &.btn-secondary {
-            color: whiten($error, .1);
-            border-color: whiten($error, .1);
-            background-color: $uiGeneralContentBg;
-            text-shadow: none;
+            @include generic-btn-secondary($error, $uiGeneralContentBg);
         }
     }
 
     &.btn-success {
-        background-color: whiten($success, .1);
-        text-shadow: 1px 1px 0 blacken($success, .2);
+        @include generic-btn-primary(white(), $success);
         &.btn-secondary {
-            color: whiten($success, .1);
-            border-color: whiten($success, .1);
-            background-color: $uiGeneralContentBg;
-            text-shadow: none;
+            @include generic-btn-secondary($success, $uiGeneralContentBg);
         }
     }
 
     &.btn-warning {
-        background-color: whiten($warning, .1);
-        text-shadow: 1px 1px 0 blacken($warning, .2);
+        @include generic-btn-primary(white(), $warning);
         &.btn-secondary {
-            color: whiten($warning, .1);
-            border-color: whiten($warning, .1);
-            background-color: $uiGeneralContentBg;
-            text-shadow: none;
+            @include generic-btn-secondary($warning, $uiGeneralContentBg);
         }
     }
 }
