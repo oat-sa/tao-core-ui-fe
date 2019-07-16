@@ -2,7 +2,7 @@
     @include border-radius(3);
     font-size: 14px !important;
     font-size: 1.4rem !important;
-    color: white() !important;
+    color: white();
     cursor: pointer;
     text-decoration: none !important;
     vertical-align: middle;
@@ -21,7 +21,7 @@
     &.btn-secondary {
         background-color: $uiGeneralContentBg;
         border: 1px solid whiten($uiClickableActiveBg, .1);
-        color: whiten($uiClickableActiveBg, .1) !important;
+        color: whiten($uiClickableActiveBg, .1);
         text-shadow: none;
         line-height: 2.3;
     }
@@ -56,7 +56,7 @@
         background-color: whiten($info, .1);
         text-shadow: 1px 1px 0 blacken($info, .2);
         &.btn-secondary {
-            color: whiten($info, .1) !important;
+            color: whiten($info, .1);
             border-color: whiten($info, .1);
             background-color: $uiGeneralContentBg;
             text-shadow: none;
@@ -66,7 +66,7 @@
         background-color: whiten($error, .1);
         text-shadow: 1px 1px 0 blacken($error, .2);
         &.btn-secondary {
-            color: whiten($error, .1) !important;
+            color: whiten($error, .1);
             border-color: whiten($error, .1);
             background-color: $uiGeneralContentBg;
             text-shadow: none;
@@ -77,7 +77,7 @@
         background-color: whiten($success, .1);
         text-shadow: 1px 1px 0 blacken($success, .2);
         &.btn-secondary {
-            color: whiten($success, .1) !important;
+            color: whiten($success, .1);
             border-color: whiten($success, .1);
             background-color: $uiGeneralContentBg;
             text-shadow: none;
@@ -88,7 +88,7 @@
         background-color: whiten($warning, .1);
         text-shadow: 1px 1px 0 blacken($warning, .2);
         &.btn-secondary {
-            color: whiten($warning, .1) !important;
+            color: whiten($warning, .1);
             border-color: whiten($warning, .1);
             background-color: $uiGeneralContentBg;
             text-shadow: none;
@@ -104,11 +104,14 @@ button, input[type="submit"], input[type="reset"] {
 
 /* todo move to main ? */
 .disabled, button[disabled] {
+    // !important is required here to overwrite any other inherited rule no matter the specificity,
+    // as the disabled style must be consistent all across the stylesheet
     background-color: whiten($websiteBorder, .3) !important;
     text-shadow: 1px 1px 0 white(.8) !important;
     cursor: not-allowed !important;
     opacity: .55 !important;
     color: #000 !important;
+    border: none !important;
 }
 
 // jquery ui
