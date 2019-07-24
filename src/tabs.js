@@ -18,6 +18,19 @@
 /**
  * @author Martin Nicholson <martin@taotesting.com>
  */
+/**
+ * @example
+ * var instance = tabs({
+ *   renderTo: $container,
+ *   tabs: [
+ *     { label: 'TAO Local', name: 'local-delivery' },
+ *     { label: 'TAO Remote', name: 'remote-delivery' },
+ *     { label: 'LTI-based', name: 'lti-delivery' }
+ *   ],
+ *   activeTabIndex: 1
+ * });
+ *
+ */
 import $ from 'jquery';
 import _ from 'lodash';
 import component from 'ui/component';
@@ -39,21 +52,9 @@ const tabsDefaults = {
 };
 
 /**
- * Shows one panel, hides the rest
- * The data panels can be located anywhere in the DOM
- * You could even have multiple targets toggled by one tab
- * @param {String} name - human-readable identifier
- * @param {String} attr - the data attribute suffix used to connect tabs to panels
- */
-const showDataPanel = function(name, attr) {
-    $(`[data-${attr}]`).addClass('hidden');
-    $(`[data-${attr}="${attr}-${name}"]`).removeClass('hidden');
-};
-
-/**
  * In-memory data
  */
-let tabs = []; // NECESSARY? config.tabs ok?
+let tabs = [];
 
 /**
  * API of the tabs component
@@ -143,7 +144,7 @@ const tabsApi = {
 
         // toggle targets
         if (this.config.showHideTargets) {
-            showDataPanel(tabs[index].name, this.config.targetDataAttr);
+            this.showDataPanel(tabs[index].name);
         }
 
         // call its onClick
@@ -153,6 +154,25 @@ const tabsApi = {
 
         this.trigger(`activate-tab.${ns}`, index);
         return this;
+    },
+
+    /**
+     * Shows one panel, hides the rest
+     * The data panels are not tied to any template and can be located anywhere in the DOM
+     * @param {String} name - human-readable identifier
+     * @fires show-panel
+     */
+    showDataPanel(name) {
+        const attr = this.config.targetDataAttr;
+
+        if (!name || name.length === 0) {
+            return;
+        }
+        $(`[data-${attr}]`).addClass('hidden');
+        var $temp = $(`[data-${attr}="${attr}-${name}"]`);
+        $temp.removeClass('hidden');
+
+        this.trigger(`show-panel.${ns}`, name);
     }
 };
 
