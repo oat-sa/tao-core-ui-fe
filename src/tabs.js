@@ -42,12 +42,12 @@ const tabsDefaults = {
  * Shows one panel, hides the rest
  * The data panels can be located anywhere in the DOM
  * You could even have multiple targets toggled by one tab
- * @param {String} id - human-readable identifier
+ * @param {String} name - human-readable identifier
  * @param {String} attr - the data attribute suffix used to connect tabs to panels
  */
-const showDataPanel = function(id, attr) {
+const showDataPanel = function(name, attr) {
     $(`[data-${attr}]`).addClass('hidden');
-    $(`[data-${attr}="${attr}-${id}"]`).removeClass('hidden');
+    $(`[data-${attr}="${attr}-${name}"]`).removeClass('hidden');
 };
 
 /**
@@ -71,6 +71,14 @@ const tabsApi = {
     },
 
     /**
+     * Retrieve internal tabs array
+     * @returns {Array} tabs list
+     */
+    getTabs() {
+        return tabs;
+    },
+
+    /**
      * Wires up the onClick functions of the received tabs
      * @returns {tabs} instance
      */
@@ -79,43 +87,63 @@ const tabsApi = {
         const attr = this.config.targetDataAttr;
 
         for (let tab of tabs) {
-            $tabBar.find(`[data-controlled-${attr}="${attr}-${tab.id}"]`)
+            $tabBar.find(`[data-controlled-${attr}="${attr}-${tab.name}"]`)
                 .off('click')
                 .on('click', () => {
-                    this.activateTab(tab.id);
+                    this.activateTabByName(tab.name);
                 });
         }
         return this;
+    },
+
+
+    /**
+     * Activates a single tab by its name
+     * (pass-through method to activateTabByIndex)
+     * @param {String} name - human-readable identifier
+     * @param {Boolean} [callOnClick=true] - if false, skips the onClick call
+     * @returns {tabs} instance
+     * @throws {TypeError} on invalid name param
+     */
+    activateTabByName(name, callOnClick = true) {
+        const index = tabs.findIndex(t => t.name === name);
+        if (index === -1) {
+            throw new TypeError(`No tab exists with the name: ${name}`);
+        }
+        else {
+            return this.activateTabByIndex(index, callOnClick);
+        }
     },
 
     /**
      * Activates a single tab (deactivating others)
      * Triggers the automatic showing & hiding of target panels
      * Triggers onClick functions of the tabs
-     * @param {String} id - human-readable identifier
+     * @param {Number} index - zero-based
      * @param {Boolean} [callOnClick=true] - if false, skips the onClick call
      * @returns {tabs} instance
      * @fires activate-tab
+     * @throws {TypeError} on invalid index param
      */
-    activateTab(id, callOnClick = true) {
+    activateTabByIndex(index, callOnClick = true) {
         const $tabBar = this.getElement();
         const attr = this.config.targetDataAttr;
-        const index = tabs.findIndex(t => t.id === id);
-        if (index < 0) {
-            return;
+
+        if (!_.isNumber(index) || index < 0 || index >= tabs.length) {
+            throw new TypeError(`No tab exists at index: ${index}`);
         }
 
         // set/unset active
-        for (let i of Object.keys(tabs)) {
-            tabs[i].active = false;
+        for (let j of Object.keys(tabs)) {
+            tabs[j].active = false;
             $tabBar.find('.tab').removeClass('active');
         }
         tabs[index].active = true;
-        $tabBar.find(`.tab[data-controlled-${attr}=${attr}-${id}]`).addClass('active');
+        $tabBar.find(`.tab[data-controlled-${attr}=${attr}-${tabs[index].name}]`).addClass('active');
 
         // toggle targets
         if (this.config.showHideTargets) {
-            showDataPanel(tabs[index].id, this.config.targetDataAttr);
+            showDataPanel(tabs[index].name, this.config.targetDataAttr);
         }
 
         // call its onClick
@@ -148,7 +176,7 @@ const tabsFactory = function(config) {
         .on('render', function() {
             this.connectTabs();
             if (_.isNumber(this.config.activeTabIndex)) {
-                this.activateTab(this.config.activeTabIndex, false);
+                this.activateTabByIndex(this.config.activeTabIndex, false);
             }
         })
         .init(config);
