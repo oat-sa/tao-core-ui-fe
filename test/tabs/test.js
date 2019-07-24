@@ -28,6 +28,8 @@ define([
     QUnit.module('tabs');
 
     QUnit.test('module', function(assert) {
+        assert.expect(3);
+
         assert.equal(typeof tabsFactory, 'function', 'The tabs module exposes a function');
         assert.equal(typeof tabsFactory(), 'object', 'The tabs factory produces an object');
         assert.notStrictEqual(
@@ -63,6 +65,7 @@ define([
 
     QUnit.cases.init(testTabsApi).test('instance API ', function(data, assert) {
         var instance = tabsFactory();
+        assert.expect(1);
         assert.equal(
             typeof instance[data.name],
             'function',
@@ -75,6 +78,8 @@ define([
         var config = {
         };
         var instance = tabsFactory(config);
+
+        assert.expect(1);
 
         assert.equal(instance.is('rendered'), false, 'The tabs instance must not be rendered');
 
@@ -92,6 +97,8 @@ define([
         };
         var instance = tabsFactory(config);
         var $tabsDom = $('.tab-group', $qunitFixture);
+
+        assert.expect(10);
 
         assert.equal(instance.is('rendered'), true, 'The tabs instance must be rendered');
         assert.equal($tabsDom.length, 1, '1 .tab-group was rendered');
@@ -115,8 +122,12 @@ define([
             { label: 'set2' }
         ];
         var instance = tabsFactory(config);
-        instance.setTabs(tabs);
+        var ret = instance.setTabs(tabs);
+
+        assert.expect(2);
+
         assert.deepEqual(instance.getTabs(), tabs, 'The tabs were set internally');
+        assert.deepEqual(ret, instance, 'setTabs() returns the same instance');
 
         instance.destroy();
     });
@@ -155,9 +166,10 @@ define([
         var instance = tabsFactory(config);
         var $tabsDom = $('.tab-group', $qunitFixture);
 
-        assert.expect(6);
+        assert.expect(7);
 
-        instance.activateTabByName('tab2');
+        var ret = instance.activateTabByName('tab2');
+        assert.deepEqual(ret, instance, 'activateTabByName() returns the same instance');
         assert.equal($('.tab.active', $tabsDom).length, 1, 'Only 1 tab is active');
         assert.equal($('.tab.active button', $tabsDom).html(), 'second', 'second tab is active');
 
