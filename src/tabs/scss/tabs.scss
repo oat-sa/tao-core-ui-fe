@@ -1,0 +1,49 @@
+@import "inc/bootstrap";
+
+/** Styles for a group of buttons to be glued together into a tabs-like bar
+ *  Intended use:
+ *  <ul class="tab-group">
+ *    <li>
+ *      <button>
+ */
+.tab-group {
+    list-style: none;
+    @include simple-border($websiteBorder);
+    @include border-radius(4);
+    padding: 1px;
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+
+    .tab {
+        background-color: transparent !important; // override components.scss
+        padding: 0 !important; // override non-zero padding from components.scss
+
+        button {
+            @include border-radius(0);
+            padding: 0 15px;
+            background-color: white;
+            color: $textColor !important; // override button text color from basic.scss
+            text-shadow: none;
+        }
+
+        &:first-of-type button {
+            @include border-radius-left(4);
+        }
+        &:last-of-type button {
+            @include border-radius-right(4);
+        }
+        &.active button {
+            background-color: $info;
+            transition: background-color .4s ease-out;
+            color: white !important; // override button text color from basic.scss
+        }
+        &:hover button,
+        button:focus {
+            background-color: $uiSelectableHoverBg !important; // override local styles
+        }
+        &.active:hover button {
+            background-color: $uiSelectableSelectedHoverBg;
+        }
+    }
+}
