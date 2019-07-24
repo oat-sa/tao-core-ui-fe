@@ -1,3 +1,3 @@
-<div data-panel="panel-{{id}}">
+<div data-panel="panel-{{name}}">
     {{ content }}
 </div>
