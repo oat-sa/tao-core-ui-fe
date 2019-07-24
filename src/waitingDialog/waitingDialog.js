@@ -89,7 +89,7 @@ export default function waitingDialogFactory(config) {
                 if (!this.is('waiting')) {
                     this.setState('waiting', true);
 
-                    $content.text(this.config.waitContent);
+                    $content.html(this.config.waitContent);
 
                     $button
                         .prop('disabled', true)
@@ -125,7 +125,7 @@ export default function waitingDialogFactory(config) {
                 if (this.is('waiting')) {
                     this.setState('waiting', false);
 
-                    $content.text(this.config.proceedContent);
+                    $content.html(this.config.proceedContent);
 
                     $button
                         .removeProp('disabled')
