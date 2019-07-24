@@ -22,20 +22,22 @@ define([
     'jquery',
     'lodash',
     'ui/tabs'
-], function($, _, tabs) {
+], function($, _, tabsFactory) {
     'use strict';
 
     QUnit.module('tabs');
 
     QUnit.test('module', function(assert) {
-        assert.equal(typeof tabs, 'function', 'The tabs module exposes a function');
-        assert.equal(typeof tabs(), 'object', 'The tabs factory produces an object');
+        assert.equal(typeof tabsFactory, 'function', 'The tabs module exposes a function');
+        assert.equal(typeof tabsFactory(), 'object', 'The tabs factory produces an object');
         assert.notStrictEqual(
-            tabs(),
-            tabs(),
+            tabsFactory(),
+            tabsFactory(),
             'The tabs factory provides a different object on each call'
         );
     });
+
+    var $qunitFixture = $('#qunit-fixture');
 
     var testTabsApi = [
         { name: 'init' },
@@ -51,11 +53,16 @@ define([
         { name: 'getContainer' },
         { name: 'getTemplate' },
         { name: 'setTemplate' },
-        { name: 'setTabs' }
+        { name: 'setTabs' },
+        { name: 'getTabs' },
+        { name: 'connectTabs' },
+        { name: 'activateTabByName' },
+        { name: 'activateTabByIndex' },
+        { name: 'showDataPanel' }
     ];
 
     QUnit.cases.init(testTabsApi).test('instance API ', function(data, assert) {
-        var instance = tabs();
+        var instance = tabsFactory();
         assert.equal(
             typeof instance[data.name],
             'function',
@@ -66,32 +73,245 @@ define([
 
     QUnit.test('init', function(assert) {
         var config = {
-            nothing: undefined,
-            dummy: null,
-            title: 'My Title',
-            textEmpty: 'Nothing to list',
-            textNumber: 'Number',
-            textLoading: 'Please wait'
         };
-        var instance = tabs(config);
+        var instance = tabsFactory(config);
 
         assert.equal(instance.is('rendered'), false, 'The tabs instance must not be rendered');
 
         instance.destroy();
     });
 
-    QUnit.test('visual', function(assert) {
-        var $container = $('#fixture-1 nav');
+    QUnit.test('rendering', function(assert) {
         var config = {
-            renderTo: $container,
+            renderTo: $qunitFixture,
             tabs: [
-                { label: 'TAO Local', id: 'tao-local', onClick: () => console.log('1st') },
-                { label: 'TAO Remote', id: 'tao-remote', onClick: () => console.log('2nd') },
-                { label: 'LTI-based', id: 'lti-based', onClick: () => console.log('3rd') }
+                { label: 'first', name: 'tab1' },
+                { label: 'second', name: 'tab2' },
+                { label: 'third', name: 'tab3' },
+            ]
+        };
+        var instance = tabsFactory(config);
+        var $tabsDom = $('.tab-group', $qunitFixture);
+
+        assert.equal(instance.is('rendered'), true, 'The tabs instance must be rendered');
+        assert.equal($tabsDom.length, 1, '1 .tab-group was rendered');
+        assert.equal($tabsDom.find('li.tab').length, 3, '3 <li>s were rendered');
+        assert.equal($tabsDom.find('li.tab button').length, 3, '3 <button>s were rendered');
+        assert.equal($tabsDom.find('li.tab button').eq(0).html(), 'first', '<button> text as defined');
+        assert.equal($tabsDom.find('li.tab button').eq(1).html(), 'second', '<button> text as defined');
+        assert.equal($tabsDom.find('li.tab button').eq(2).html(), 'third', '<button> text as defined');
+        assert.ok($tabsDom.find('li.tab').eq(0).hasClass('active'), 'First tab is activated');
+        assert.notOk($tabsDom.find('li.tab').eq(1).hasClass('active'), 'Second tab is deactivated');
+        assert.notOk($tabsDom.find('li.tab').eq(2).hasClass('active'), 'Third tab is deactivated');
+
+        instance.destroy();
+    });
+
+    QUnit.test('setTabs', function(assert) {
+        var config = {
+        };
+        var tabs = [
+            { label: 'set1' },
+            { label: 'set2' }
+        ];
+        var instance = tabsFactory(config);
+        instance.setTabs(tabs);
+        assert.deepEqual(instance.getTabs(), tabs, 'The tabs were set internally');
+
+        instance.destroy();
+    });
+
+    QUnit.test('connectTabs', function(assert) {
+        var config = {
+            renderTo: $qunitFixture,
+            tabs: [
+                { label: 'tabToConnect', name: '' }
+            ]
+        };
+        var instance = tabsFactory(config);
+        var $firstBtn = $('.tab-group button:first-of-type', $qunitFixture);
+
+        assert.expect(2);
+
+        instance.on('activate-tab.*', function(value) {
+            assert.ok(true, 'An activate-tab event was fired upon clicking');
+            assert.strictEqual(value, 0, 'The param passed with the event matches the tab index');
+        });
+
+        $firstBtn.trigger('click');
+
+        instance.destroy();
+    });
+
+    QUnit.test('activateTabByName', function(assert) {
+        var config = {
+            renderTo: $qunitFixture,
+            tabs: [
+                { label: 'first', name: 'tab1' },
+                { label: 'second', name: 'tab2' },
+                { label: 'third', name: 'tab3' },
+            ]
+        };
+        var instance = tabsFactory(config);
+        var $tabsDom = $('.tab-group', $qunitFixture);
+
+        assert.expect(6);
+
+        instance.activateTabByName('tab2');
+        assert.equal($('.tab.active', $tabsDom).length, 1, 'Only 1 tab is active');
+        assert.equal($('.tab.active button', $tabsDom).html(), 'second', 'second tab is active');
+
+        instance.activateTabByName('tab3');
+        assert.equal($('.tab.active', $tabsDom).length, 1, 'Only 1 tab is active');
+        assert.equal($('.tab.active button', $tabsDom).html(), 'third', 'third tab is active');
+
+        instance.activateTabByName('tab1');
+        assert.equal($('.tab.active', $tabsDom).length, 1, 'Only 1 tab is active');
+        assert.equal($('.tab.active button', $tabsDom).html(), 'first', 'first tab is active');
+
+        instance.destroy();
+    });
+
+    QUnit.test('onClick callback (call=true)', function(assert) {
+        var config = {
+            renderTo: $qunitFixture,
+            tabs: [
+                {
+                    label: 'first',
+                    name: 'tab1',
+                    onClick: function() {
+                        assert.ok(true, 'The passed onClick callback was called');
+                    }
+                }
+            ]
+        };
+        var instance = tabsFactory(config);
+
+        assert.expect(1);
+
+        instance.activateTabByName('tab1'); // call
+
+        instance.destroy();
+    });
+
+    QUnit.test('onClick callback (call=false)', function(assert) {
+        var config = {
+            renderTo: $qunitFixture,
+            tabs: [
+                {
+                    label: 'first',
+                    name: 'tab1',
+                    onClick: function() {
+                        assert.ok(false, 'The passed onClick callback was called');
+                    }
+                }
+            ]
+        };
+        var instance = tabsFactory(config);
+
+        assert.expect(1);
+
+        instance.activateTabByName('tab1', false); // no call
+        assert.ok(true, 'Test ran without triggering onClick callback');
+
+        instance.destroy();
+    });
+
+    QUnit.test('activeTabIndex param', function(assert) {
+        var config = {
+            renderTo: $qunitFixture,
+            tabs: [
+                { label: 'first', name: 'tab1' },
+                { label: 'second', name: 'tab2' }
+            ],
+            activeTabIndex: 1
+        };
+        var instance = tabsFactory(config);
+        var $tabsDom = $('.tab-group', $qunitFixture);
+
+        assert.expect(2);
+
+        assert.equal($('.tab.active', $tabsDom).length, 1, 'Only 1 tab is active');
+        assert.equal($('.tab.active button', $tabsDom).html(), 'second', 'second tab is active');
+
+        instance.destroy();
+    });
+
+    QUnit.test('showHideTargets param (true)', function(assert) {
+        var $qunitFixture2 =  $('#qunit-fixture2');
+        var config = {
+            renderTo: $('nav', $qunitFixture2),
+            tabs: [
+                { label: 'first', name: 'tab1' },
+                { label: 'second', name: 'tab2' }
+            ],
+            showHideTargets: true
+        };
+        var instance = tabsFactory(config);
+
+        var $secondBtn = $('.tab-group button', $qunitFixture2).eq(1);
+        var $firstPanel = $('[data-panel="panel-tab1"]', $qunitFixture2);
+        var $secondPanel = $('[data-panel="panel-tab2"]', $qunitFixture2);
+
+        instance.on('show-panel.*', function(name) {
+            assert.ok(true, 'The show-panel event fired');
+            assert.equal(name, 'tab2', 'The event was fired with a value matching the tab name');
+        });
+
+        assert.expect(7);
+
+        assert.equal(instance.is('rendered'), true, 'The tabs instance must be rendered');
+        assert.notOk($firstPanel.hasClass("hidden"), 'Panel 1 is visible');
+        assert.ok($secondPanel.hasClass("hidden"), 'Panel 2 is hidden');
+
+        $secondBtn.trigger('click');
+        // panels toggled
+        assert.ok($firstPanel.hasClass("hidden"), 'Panel 1 is hidden');
+        assert.notOk($secondPanel.hasClass("hidden"), 'Panel 2 is visible');
+
+        instance.destroy();
+    });
+
+    QUnit.test('showHideTargets param (false)', function(assert) {
+        var config = {
+            renderTo: $qunitFixture,
+            tabs: [
+                { label: 'first', name: 'tab1' },
+                { label: 'second', name: 'tab2' }
+            ],
+            showHideTargets: false
+        };
+        var instance = tabsFactory(config);
+        var $secondBtn = $('.tab-group button', $qunitFixture).eq(1);
+        var $firstPanel = $('<div data-panel="panel-tab1">Panel 1</div>');
+        var $secondPanel = $('<div data-panel="panel-tab2">Panel 2</div>');
+
+        assert.expect(2);
+
+        $firstPanel.appendTo($qunitFixture);
+        $secondPanel.appendTo($qunitFixture);
+
+        $secondBtn.trigger('click');
+
+        // panels not toggled
+        assert.notOk($firstPanel.hasClass("hidden"), 'Panel 1 is visible');
+        assert.notOk($secondPanel.hasClass("hidden"), 'Panel 2 is visible');
+
+        instance.destroy();
+    });
+
+    QUnit.test('visual', function(assert) {
+        var config = {
+            renderTo: $('#visual-fixture nav'),
+            tabs: [
+                { label: 'TAO Local', name: 'tao-local', onClick: () => console.log('visual 1st cb') },
+                { label: 'TAO Remote', name: 'tao-remote', onClick: () => console.log('visual 2nd cb') },
+                { label: 'LTI-based', name: 'lti-based', onClick: () => console.log('visual 3rd cb') }
             ]
         };
 
-        tabs(config);
+        var instance = tabsFactory(config);
+
         assert.ok(true, 'visual test ran');
     });
 

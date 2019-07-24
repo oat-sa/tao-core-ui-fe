@@ -4,8 +4,11 @@
         <meta charset="utf-8" />
         <title>Ui Test - Tabs</title>
         <style>
-                #fixture-1 {
+                #visual-fixture {
                     padding: 50px;
+                }
+                #visual-fixture input {
+                    margin: 25px 0;
                 }
         </style>
         <script type="text/javascript" src="/environment/require.js"></script>
@@ -22,8 +25,13 @@
     <body>
         <div id="qunit"></div>
         <div id="qunit-fixture"></div>
-        <div id="fixture-1">
-            <input type="text" class="focus-tester" />
+        <div id="qunit-fixture2">
+            <nav></nav>
+            <div data-panel="panel-tab1">Panel 1</div>
+            <div data-panel="panel-tab2">Panel 2</div>
+        </div>
+        <div id="visual-fixture">
+            <input type="text" placeholder="I'm for testing focus" />
             <nav></nav>
             <div class="panels">
                 <div data-panel="panel-tao-local">
@@ -36,7 +44,7 @@
                     LTI-based
                 </div>
             </div>
-            <input type="text" class="focus-tester" />
+            <input type="text" placeholder="I'm for testing focus" />
         </div>
     </body>
 </html>
