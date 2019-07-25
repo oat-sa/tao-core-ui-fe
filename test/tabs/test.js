@@ -121,13 +121,23 @@ define([
             { label: 'set1' },
             { label: 'set2' }
         ];
+        var notTabs = { name: 'tab' };
+
         var instance = tabsFactory(config);
         var ret = instance.setTabs(tabs);
 
-        assert.expect(2);
+        assert.expect(3);
 
         assert.deepEqual(instance.getTabs(), tabs, 'The tabs were set internally');
         assert.deepEqual(ret, instance, 'setTabs() returns the same instance');
+
+        assert.throws(
+            function() {
+                instance.setTabs(notTabs);
+            },
+            TypeError,
+            'setTabs throws TypeError if non-array type passed'
+        );
 
         instance.destroy();
     });
@@ -166,7 +176,7 @@ define([
         var instance = tabsFactory(config);
         var $tabsDom = $('.tab-group', $qunitFixture);
 
-        assert.expect(7);
+        assert.expect(8);
 
         var ret = instance.activateTabByName('tab2');
         assert.deepEqual(ret, instance, 'activateTabByName() returns the same instance');
@@ -180,6 +190,52 @@ define([
         instance.activateTabByName('tab1');
         assert.equal($('.tab.active', $tabsDom).length, 1, 'Only 1 tab is active');
         assert.equal($('.tab.active button', $tabsDom).html(), 'first', 'first tab is active');
+
+        assert.throws(
+            function() {
+                instance.activateTabByName('hello');
+            },
+            TypeError,
+            'activateTabByName throws TypeError if name is not found'
+        );
+
+        instance.destroy();
+    });
+
+    QUnit.test('activateTabByIndex', function(assert) {
+        var config = {
+            renderTo: $qunitFixture,
+            tabs: [
+                { label: 'first', name: 'tab1' },
+                { label: 'second', name: 'tab2' },
+                { label: 'third', name: 'tab3' },
+            ]
+        };
+        var instance = tabsFactory(config);
+        var $tabsDom = $('.tab-group', $qunitFixture);
+
+        assert.expect(8);
+
+        var ret = instance.activateTabByIndex(1);
+        assert.deepEqual(ret, instance, 'activateTabByIndex() returns the same instance');
+        assert.equal($('.tab.active', $tabsDom).length, 1, 'Only 1 tab is active');
+        assert.equal($('.tab.active button', $tabsDom).html(), 'second', 'second tab is active');
+
+        instance.activateTabByIndex(2);
+        assert.equal($('.tab.active', $tabsDom).length, 1, 'Only 1 tab is active');
+        assert.equal($('.tab.active button', $tabsDom).html(), 'third', 'third tab is active');
+
+        instance.activateTabByIndex(0);
+        assert.equal($('.tab.active', $tabsDom).length, 1, 'Only 1 tab is active');
+        assert.equal($('.tab.active button', $tabsDom).html(), 'first', 'first tab is active');
+
+        assert.throws(
+            function() {
+                instance.activateTabByIndex(4);
+            },
+            TypeError,
+            'activateTabByIndex throws TypeError if index is not valid'
+        );
 
         instance.destroy();
     });
@@ -318,7 +374,7 @@ define([
             tabs: [
                 { label: 'TAO Local', name: 'tao-local', onClick: () => console.log('visual 1st cb') },
                 { label: 'TAO Remote', name: 'tao-remote', onClick: () => console.log('visual 2nd cb') },
-                { label: 'LTI-based', name: 'lti-based', onClick: () => console.log('visual 3rd cb') }
+                { label: 'LTI-based', name: 'lti-based', onClick: () => console.log('visual 3rd cb'), disabled: true }
             ]
         };
 
