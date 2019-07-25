@@ -25,7 +25,7 @@
  *   tabs: [
  *     { label: 'TAO Local', name: 'local-delivery' },
  *     { label: 'TAO Remote', name: 'remote-delivery' },
- *     { label: 'LTI-based', name: 'lti-delivery' }
+ *     { label: 'LTI-based', name: 'lti-delivery', disabled: true }
  *   ],
  *   activeTabIndex: 1
  * });
@@ -65,9 +65,13 @@ const tabsApi = {
      * Set new values for the tabs
      * @param {Array} newTabs
      * @returns {tabs} instance
+     * @throws {TypeError} on non-Array tabs
      */
     setTabs(newTabs) {
-        tabs = newTabs;
+        if (!_.isArray(newTabs)) {
+            throw new TypeError('The provided tabs are not a valid array');
+        }
+        tabs = [...newTabs];
         return this;
     },
 

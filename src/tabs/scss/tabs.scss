@@ -26,7 +26,7 @@
                 background-color: $uiSelectableHoverBg;
             }
             &:focus {
-                outline: 1px dotted #444;
+                outline: 1px dotted $info;
                 outline-offset: -2px;
             }
         }
