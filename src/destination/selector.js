@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2018 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2018-2019 (original work) Open Assessment Technologies SA ;
  */
 
 /**
@@ -69,6 +69,16 @@ export default function destinationSelectorFactory($container, config) {
                 if (this.resourceSelector) {
                     this.resourceSelector.update(results, params);
                 }
+            },
+
+            /**
+             * Updates task creation data object on the global config
+             * @param {String} prop - property to set
+             * @param {String} key - value of the property to set
+             * @return {void}
+             */
+            updateTaskCreationData: (prop, key) => {
+                config.taskCreationData[prop] = key;
             }
         },
         defaultConfig
