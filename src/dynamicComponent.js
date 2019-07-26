@@ -20,7 +20,7 @@
  */
 import $ from 'jquery';
 import _ from 'lodash';
-import interact from 'interact';
+import interact from 'interactjs'
 import componentFactory from 'ui/component';
 import makeStackable from 'ui/component/stackable';
 import 'ui/transformer';
