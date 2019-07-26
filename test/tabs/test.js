@@ -60,7 +60,8 @@ define([
         { name: 'connectTabs' },
         { name: 'activateTabByName' },
         { name: 'activateTabByIndex' },
-        { name: 'showTabContent' }
+        { name: 'showTabContent' },
+        { name: 'getActiveTab' }
     ];
 
     QUnit.cases.init(testTabsApi).test('instance API ', function(data, assert) {
@@ -234,6 +235,34 @@ define([
             TypeError,
             'activateTabByIndex throws TypeError if index is not valid'
         );
+
+        instance.destroy();
+    });
+
+    QUnit.test('getActiveTab', function(assert) {
+        var config = {
+            renderTo: $qunitFixture,
+            tabs: [
+                { label: 'set1', name: 'first' },
+                { label: 'set2', name: 'second' }
+            ]
+        };
+
+        var instance = tabsFactory(config);
+        var active;
+
+        assert.expect(5);
+
+        active = instance.getActiveTab();
+        assert.equal(typeof active, 'object', 'getActiveTab returns an object');
+        assert.equal(active.name, 'first', 'returned name is correct');
+        assert.equal(active.index, 0, 'returned index is 0');
+
+        instance.activateTabByIndex(1);
+
+        active = instance.getActiveTab();
+        assert.equal(active.name, 'second', 'returned name is correct');
+        assert.equal(active.index, 1, 'returned index is 1');
 
         instance.destroy();
     });

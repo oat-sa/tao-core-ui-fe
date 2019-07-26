@@ -20,7 +20,7 @@
  */
 /**
  * @example
- * var instance = tabs({
+ * const instance = tabs({
  *   renderTo: $container,
  *   tabs: [
  *     { label: 'TAO Local', name: 'local-delivery' },
@@ -169,6 +169,21 @@ const tabsApi = {
         $(`[data-tab-content="${name}"]`).removeClass('hidden');
 
         this.trigger(`show-tab-content.${ns}`, name);
+    },
+
+    /**
+     * Gets the current active tab (if any)
+     * @returns {Object|null} name and index of tab
+     */
+    getActiveTab() {
+        const activeIndex = tabs.findIndex(t => t.active === true);
+        if (activeIndex === -1) {
+            return null;
+        }
+        return {
+            name: tabs[activeIndex].name,
+            index: activeIndex
+        };
     }
 };
 
