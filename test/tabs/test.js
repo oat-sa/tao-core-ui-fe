@@ -16,7 +16,7 @@
  * Copyright (c) 2019 (original work) Open Assessment Technologies SA ;
  */
 /**
- * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
+ * @author Martin Nicholson <martin@taotesting.com>
  */
 define([
     'jquery',
@@ -75,8 +75,7 @@ define([
     });
 
     QUnit.test('init', function(assert) {
-        var config = {
-        };
+        var config = {};
         var instance = tabsFactory(config);
 
         assert.expect(1);
@@ -115,8 +114,7 @@ define([
     });
 
     QUnit.test('setTabs', function(assert) {
-        var config = {
-        };
+        var config = {};
         var tabs = [
             { label: 'set1' },
             { label: 'set2' }

@@ -32,7 +32,6 @@
  *
  */
 import $ from 'jquery';
-import _ from 'lodash';
 import component from 'ui/component';
 import tabsTpl from 'ui/tabs/tpl/tabs';
 import 'ui/tabs/css/tabs.css';
@@ -68,7 +67,7 @@ const tabsApi = {
      * @throws {TypeError} on non-Array tabs
      */
     setTabs(newTabs) {
-        if (!_.isArray(newTabs)) {
+        if (!Array.isArray(newTabs)) {
             throw new TypeError('The provided tabs are not a valid array');
         }
         tabs = [...newTabs];
@@ -89,10 +88,10 @@ const tabsApi = {
      */
     connectTabs() {
         const $tabBar = this.getElement();
-        const attr = this.config.targetDataAttr;
+        const targetDataAttr = this.config.targetDataAttr;
 
         for (let tab of tabs) {
-            $tabBar.find(`[data-controlled-${attr}="${attr}-${tab.name}"]`)
+            $tabBar.find(`[data-controlled-${targetDataAttr}="${targetDataAttr}-${tab.name}"]`)
                 .off('click')
                 .on('click', () => {
                     this.activateTabByName(tab.name);
@@ -132,9 +131,9 @@ const tabsApi = {
      */
     activateTabByIndex(index, callOnClick = true) {
         const $tabBar = this.getElement();
-        const attr = this.config.targetDataAttr;
+        const targetDataAttr = this.config.targetDataAttr;
 
-        if (!_.isNumber(index) || index < 0 || index >= tabs.length) {
+        if (typeof index !== 'number' || index < 0 || index >= tabs.length) {
             throw new TypeError(`No tab exists at index: ${index}`);
         }
 
@@ -144,7 +143,7 @@ const tabsApi = {
             $tabBar.find('.tab').removeClass('active');
         }
         tabs[index].active = true;
-        $tabBar.find(`.tab[data-controlled-${attr}=${attr}-${tabs[index].name}]`).addClass('active');
+        $tabBar.find(`.tab[data-controlled-${targetDataAttr}=${targetDataAttr}-${tabs[index].name}]`).addClass('active');
 
         // toggle targets
         if (this.config.showHideTargets) {
@@ -152,7 +151,7 @@ const tabsApi = {
         }
 
         // call its onClick
-        if (callOnClick && _.isFunction(tabs[index].onClick)) {
+        if (callOnClick && typeof tabs[index].onClick === 'function') {
             tabs[index].onClick.call();
         }
 
@@ -167,14 +166,13 @@ const tabsApi = {
      * @fires show-panel
      */
     showDataPanel(name) {
-        const attr = this.config.targetDataAttr;
+        const targetDataAttr = this.config.targetDataAttr;
 
         if (!name || name.length === 0) {
             return;
         }
-        $(`[data-${attr}]`).addClass('hidden');
-        var $temp = $(`[data-${attr}="${attr}-${name}"]`);
-        $temp.removeClass('hidden');
+        $(`[data-${targetDataAttr}]`).addClass('hidden');
+        $(`[data-${targetDataAttr}="${targetDataAttr}-${name}"]`).removeClass('hidden');
 
         this.trigger(`show-panel.${ns}`, name);
     }
@@ -199,7 +197,7 @@ const tabsFactory = function(config) {
         })
         .on('render', function() {
             this.connectTabs();
-            if (_.isNumber(this.config.activeTabIndex)) {
+            if (typeof this.config.activeTabIndex === 'number') {
                 this.activateTabByIndex(this.config.activeTabIndex, false);
             }
         })
