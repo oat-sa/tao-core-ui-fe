@@ -41,13 +41,11 @@ const ns = 'tabs';
 /**
  * Default config
  * @param {Integer} activeTabIndex - the index of the tab to start on
- * @param {Boolean} showHideTargets - if true, no need to wire up tabs to panels, it's automatic
- * @param {String} targetDataAttr - the data attribute suffix used to connect tabs to panels
+ * @param {Boolean} showHideTargets - if true, no need to wire up tabs to content, it's automatic
  */
 const tabsDefaults = {
     activeTabIndex: 0,
-    showHideTargets: true,
-    targetDataAttr: 'panel'
+    showHideTargets: true
 };
 
 /**
@@ -88,10 +86,9 @@ const tabsApi = {
      */
     connectTabs() {
         const $tabBar = this.getElement();
-        const targetDataAttr = this.config.targetDataAttr;
 
         for (let tab of tabs) {
-            $tabBar.find(`[data-controlled-${targetDataAttr}="${targetDataAttr}-${tab.name}"]`)
+            $tabBar.find(`[data-tab-name="${tab.name}"]`)
                 .off('click')
                 .on('click', () => {
                     this.activateTabByName(tab.name);
@@ -121,7 +118,7 @@ const tabsApi = {
 
     /**
      * Activates a single tab (deactivating others)
-     * Triggers the automatic showing & hiding of target panels
+     * Triggers the automatic showing & hiding of target tab-contents
      * Triggers onClick functions of the tabs
      * @param {Number} index - zero-based
      * @param {Boolean} [callOnClick=true] - if false, skips the onClick call
@@ -131,7 +128,6 @@ const tabsApi = {
      */
     activateTabByIndex(index, callOnClick = true) {
         const $tabBar = this.getElement();
-        const targetDataAttr = this.config.targetDataAttr;
 
         if (typeof index !== 'number' || index < 0 || index >= tabs.length) {
             throw new TypeError(`No tab exists at index: ${index}`);
@@ -143,11 +139,11 @@ const tabsApi = {
             $tabBar.find('.tab').removeClass('active');
         }
         tabs[index].active = true;
-        $tabBar.find(`.tab[data-controlled-${targetDataAttr}=${targetDataAttr}-${tabs[index].name}]`).addClass('active');
+        $tabBar.find(`.tab[data-tab-name="${tabs[index].name}"]`).addClass('active');
 
         // toggle targets
         if (this.config.showHideTargets) {
-            this.showDataPanel(tabs[index].name);
+            this.showTabContent(tabs[index].name);
         }
 
         // call its onClick
@@ -160,21 +156,19 @@ const tabsApi = {
     },
 
     /**
-     * Shows one panel, hides the rest
-     * The data panels are not tied to any template and can be located anywhere in the DOM
+     * Shows one tab content, hides the rest
+     * The tab content elements are not tied to any template and can be located anywhere in the DOM
      * @param {String} name - human-readable identifier
-     * @fires show-panel
+     * @fires show-tab-content
      */
-    showDataPanel(name) {
-        const targetDataAttr = this.config.targetDataAttr;
-
+    showTabContent(name) {
         if (!name || name.length === 0) {
             return;
         }
-        $(`[data-${targetDataAttr}]`).addClass('hidden');
-        $(`[data-${targetDataAttr}="${targetDataAttr}-${name}"]`).removeClass('hidden');
+        $(`[data-tab-content]`).addClass('hidden');
+        $(`[data-tab-content="${name}"]`).removeClass('hidden');
 
-        this.trigger(`show-panel.${ns}`, name);
+        this.trigger(`show-tab-content.${ns}`, name);
     }
 };
 
