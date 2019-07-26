@@ -20,7 +20,7 @@
             @include border-radius(0);
             padding: 0 15px;
             background-color: white;
-            color: $textColor !important; // override button text color from basic.scss
+            color: $textColor;
             text-shadow: none;
             &:hover {
                 background-color: $uiSelectableHoverBg;
@@ -40,7 +40,7 @@
             button {
                 background-color: $info;
                 transition: background-color .4s ease-out;
-                color: white !important; // override button text color from basic.scss
+                color: white;
                 &:hover {
                     background-color: whiten($info, 0.2);
                 }
