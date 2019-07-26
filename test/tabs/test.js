@@ -60,7 +60,7 @@ define([
         { name: 'connectTabs' },
         { name: 'activateTabByName' },
         { name: 'activateTabByIndex' },
-        { name: 'showDataPanel' }
+        { name: 'showTabContent' }
     ];
 
     QUnit.cases.init(testTabsApi).test('instance API ', function(data, assert) {
@@ -304,64 +304,32 @@ define([
     });
 
     QUnit.test('showHideTargets param (true)', function(assert) {
-        var $qunitFixture2 =  $('#qunit-fixture2');
+        // Set up content fixture first
+        var $nav = $('<nav>').appendTo($qunitFixture);
+        var $firstPanel = $('<div data-tab-content="tab1">Panel 1</div>').appendTo($qunitFixture);
+        var $secondPanel = $('<div data-tab-content="tab2">Panel 2</div>').appendTo($qunitFixture);
+
         var config = {
-            renderTo: $('nav', $qunitFixture2),
+            renderTo: $nav,
             tabs: [
                 { label: 'first', name: 'tab1' },
                 { label: 'second', name: 'tab2' }
             ],
+            activeTabIndex: 0,
             showHideTargets: true
         };
+
         var instance = tabsFactory(config);
 
-        var $secondBtn = $('.tab-group button', $qunitFixture2).eq(1);
-        var $firstPanel = $('[data-panel="panel-tab1"]', $qunitFixture2);
-        var $secondPanel = $('[data-panel="panel-tab2"]', $qunitFixture2);
-
-        instance.on('show-panel.*', function(name) {
-            assert.ok(true, 'The show-panel event fired');
-            assert.equal(name, 'tab2', 'The event was fired with a value matching the tab name');
-        });
-
-        assert.expect(7);
-
-        assert.equal(instance.is('rendered'), true, 'The tabs instance must be rendered');
-        assert.notOk($firstPanel.hasClass("hidden"), 'Panel 1 is visible');
-        assert.ok($secondPanel.hasClass("hidden"), 'Panel 2 is hidden');
-
-        $secondBtn.trigger('click');
-        // panels toggled
-        assert.ok($firstPanel.hasClass("hidden"), 'Panel 1 is hidden');
-        assert.notOk($secondPanel.hasClass("hidden"), 'Panel 2 is visible');
-
-        instance.destroy();
-    });
-
-    QUnit.test('showHideTargets param (false)', function(assert) {
-        var config = {
-            renderTo: $qunitFixture,
-            tabs: [
-                { label: 'first', name: 'tab1' },
-                { label: 'second', name: 'tab2' }
-            ],
-            showHideTargets: false
-        };
-        var instance = tabsFactory(config);
-        var $secondBtn = $('.tab-group button', $qunitFixture).eq(1);
-        var $firstPanel = $('<div data-panel="panel-tab1">Panel 1</div>');
-        var $secondPanel = $('<div data-panel="panel-tab2">Panel 2</div>');
+        var $tab2 = $('[data-tab-name="tab2"]', $nav);
 
         assert.expect(2);
 
-        $firstPanel.appendTo($qunitFixture);
-        $secondPanel.appendTo($qunitFixture);
-
-        $secondBtn.trigger('click');
-
-        // panels not toggled
-        assert.notOk($firstPanel.hasClass("hidden"), 'Panel 1 is visible');
-        assert.notOk($secondPanel.hasClass("hidden"), 'Panel 2 is visible');
+        instance.on('show-tab-content.*', function(name) {
+            assert.ok(true, 'The show-tab-content event fired');
+            assert.equal(name, 'tab2', 'The event was fired with a value matching the tab name');
+        });
+        $tab2.trigger('click');
 
         instance.destroy();
     });
