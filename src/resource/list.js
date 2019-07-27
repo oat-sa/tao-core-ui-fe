@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2017-2019 (original work) Open Assessment Technologies SA ;
  */
 
 /**
@@ -100,7 +100,7 @@ export default function resourceListFactory($container, config) {
                     var self = this;
 
                     if (this.is('rendered')) {
-                        $list.append(
+                        $list.html(
                             _.reduce(
                                 resources.nodes,
                                 function(acc, node) {
