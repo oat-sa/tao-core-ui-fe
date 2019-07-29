@@ -26,7 +26,7 @@
  * @author Christophe Noël <christophe@taotesting.com>
  */
 import _ from 'lodash';
-import interact from 'interact';
+import interact from 'interactjs';
 import makePlaceable from 'ui/component/placeable';
 
 /**
@@ -49,6 +49,7 @@ export default function makeDraggable(component, config) {
                 $element = this.getElement(),
                 element = $element[0],
                 rootNode = document.querySelector('html');
+            $element.css('touch-action', 'none');
 
             if (!this.config.dragRestriction) {
                 this.config.dragRestriction = this.getContainer()[0];
