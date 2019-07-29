@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Ui Test - Tabs</title>
+        <style>
+                #visual-fixture {
+                    padding: 50px;
+                }
+                #visual-fixture input {
+                    margin: 25px 0;
+                }
+        </style>
+        <script type="text/javascript" src="/environment/require.js"></script>
+        <script type="text/javascript">
+            require(['/environment/config.js'], function() {
+                require(['qunitEnv'], function() {
+                    require(['test/ui/tabs/test'], function() {
+                        QUnit.start();
+                    });
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <div id="qunit"></div>
+        <div id="qunit-fixture"></div>
+        <div id="visual-fixture">
+            <input type="text" placeholder="I'm for testing focus" />
+            <nav></nav>
+            <div>
+                <div data-tab-content="tao-local">
+                    TAO Local
+                </div>
+                <div data-tab-content="tao-remote">
+                    TAO Remote
+                </div>
+                <div data-tab-content="lti-based">
+                    LTI-based
+                </div>
+            </div>
+            <input type="text" placeholder="I'm for testing focus" />
+        </div>
+    </body>
+</html>
