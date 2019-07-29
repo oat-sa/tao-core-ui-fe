@@ -72,14 +72,18 @@ interactHelper = {
     tapOn: function tapOn(element, cb, delay) {
         var domElement,
             eventOptions = {
-                bubbles: true
+                pointerId: 1,
+                bubbles: true, 
+                cancelable: true, 
+                pointerType: "touch",
+                width: 100,
+                height: 100,
+                isPrimary: true
             };
         if (element) {
             domElement = element instanceof $ ? element.get(0) : element;
-
-            triggerMouseEvent(domElement, 'mousedown', eventOptions);
-            triggerMouseEvent(domElement, 'mouseup', eventOptions);
-
+            domElement.dispatchEvent(new PointerEvent('pointerdown', eventOptions));
+            domElement.dispatchEvent(new PointerEvent('pointerup', eventOptions));
             if (cb) {
                 _.delay(cb, delay || 0);
             }
