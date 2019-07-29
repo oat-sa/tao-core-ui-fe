@@ -76,8 +76,9 @@ export default function destinationSelectorFactory($container, config) {
              * @param {String} url - url of the task creation
              */
             updateTaskCreationUrl: function updateTaskCreationUrl(url) {
-                if (this.taskCreationButton && this.taskCreationButton.config) {
+                if (this.config && this.taskCreationButton && this.taskCreationButton.config) {
                     this.taskCreationButton.config.taskCreationUrl = url;
+                    this.config.taskCreationUrl = url;
                 }
             }
         },
@@ -177,7 +178,7 @@ export default function destinationSelectorFactory($container, config) {
                     self.taskCreationButton.enable();
 
                     //append the selected class URI to the task creation data
-                    if (_.isPlainObject(button.config.taskCreationData)) {
+                    if (_.isPlainObject(self.button.config.taskCreationData)) {
                         self.taskCreationButton.config.taskCreationData.classUri = getSelectedUri();
                     }
                 } else {
