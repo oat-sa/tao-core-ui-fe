@@ -160,7 +160,7 @@ define([
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
-        assert.expect(3);
+        assert.expect(4);
 
         resourceListFactory($container, {
             classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
@@ -175,9 +175,11 @@ define([
 
                 this.update(nodesData, params);
             })
-            .on('update', function() {
-                assert.equal($('li', this.getElement()).length, 25, 'The list has been updated');
-
+            .on('update', function(params) {
+                assert.equal($('li', this.getElement()).length, 25, 'The list has been updated with the proper amount of nodes');
+            })
+            .on('render', function(params) {
+                this.update(nodesData, params);
                 ready();
             });
     });
