@@ -178,7 +178,7 @@ export default function destinationSelectorFactory($container, config) {
                     self.taskCreationButton.enable();
 
                     //append the selected class URI to the task creation data
-                    if (_.isPlainObject(self.button.config.taskCreationData)) {
+                    if (_.isPlainObject(self.taskCreationButton.config.taskCreationData)) {
                         self.taskCreationButton.config.taskCreationData.classUri = getSelectedUri();
                     }
                 } else {
