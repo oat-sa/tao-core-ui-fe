@@ -87,6 +87,46 @@ define(['jquery', 'ui/destination/selector', 'json!test/ui/destination/selector/
         );
     });
 
+    QUnit.module('Methods');
+
+
+    QUnit.test('taskCreationUrl', function(assert) {
+        var ready = assert.async();
+        var $container = $('#qunit-fixture');
+        var newTaskCreationUrl = 'https://tao.com/taoDeliveryRdf/newPublish/newpublish';
+
+        assert.expect(3);
+
+        destinationSelectorFactory($container, {
+            taskCreationUrl: 'https://tao.com/taoDeliveryRdf/Publish/publish'
+        })
+            .on('init', function() {
+                assert.equal(
+                    this.config.taskCreationUrl,
+                    'https://tao.com/taoDeliveryRdf/Publish/publish',
+                    'Default task creation url has been set'
+                );
+                
+                this.updateTaskCreationUrl(newTaskCreationUrl);
+
+                assert.equal(
+                    this.config.taskCreationUrl,
+                    newTaskCreationUrl,
+                    'Task creation url has been updated on global config'
+                );
+                assert.equal(
+                    this.taskCreationButton.config.taskCreationUrl,
+                    newTaskCreationUrl,
+                    'Task creation url has been updated on task creation button'
+                );
+
+                this.destroy();
+            })
+            .on('destroy', function() {
+                ready();
+            });
+    });
+
     QUnit.module('Behavior');
 
     QUnit.test('Lifecycle', function(assert) {
