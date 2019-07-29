@@ -89,7 +89,6 @@ define(['jquery', 'ui/destination/selector', 'json!test/ui/destination/selector/
 
     QUnit.module('Methods');
 
-
     QUnit.test('taskCreationUrl', function(assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
