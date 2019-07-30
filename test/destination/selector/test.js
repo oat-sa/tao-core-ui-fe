@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2017-2019 (original work) Open Assessment Technologies SA ;
  */
 
 /**
@@ -54,7 +54,9 @@ define(['jquery', 'ui/destination/selector', 'json!test/ui/destination/selector/
             { title: 'getContainer' },
             { title: 'getElement' },
             { title: 'getTemplate' },
-            { title: 'setTemplate' }
+            { title: 'setTemplate' },
+            { title: 'update' },
+            { title: 'updateTaskCreationUrl' }
         ])
         .test('Component API ', function(data, assert) {
             var instance = destinationSelectorFactory();
@@ -83,6 +85,45 @@ define(['jquery', 'ui/destination/selector', 'json!test/ui/destination/selector/
             'function',
             'The destinationSelector exposes the method "' + data.title
         );
+    });
+
+    QUnit.module('Methods');
+
+    QUnit.test('taskCreationUrl', function(assert) {
+        var ready = assert.async();
+        var $container = $('#qunit-fixture');
+        var newTaskCreationUrl = 'https://tao.com/taoDeliveryRdf/newPublish/newpublish';
+
+        assert.expect(3);
+
+        destinationSelectorFactory($container, {
+            taskCreationUrl: 'https://tao.com/taoDeliveryRdf/Publish/publish'
+        })
+            .on('init', function() {
+                assert.equal(
+                    this.config.taskCreationUrl,
+                    'https://tao.com/taoDeliveryRdf/Publish/publish',
+                    'Default task creation url has been set'
+                );
+                
+                this.updateTaskCreationUrl(newTaskCreationUrl);
+
+                assert.equal(
+                    this.config.taskCreationUrl,
+                    newTaskCreationUrl,
+                    'Task creation url has been updated on global config'
+                );
+                assert.equal(
+                    this.taskCreationButton.config.taskCreationUrl,
+                    newTaskCreationUrl,
+                    'Task creation url has been updated on task creation button'
+                );
+
+                this.destroy();
+            })
+            .on('destroy', function() {
+                ready();
+            });
     });
 
     QUnit.module('Behavior');
