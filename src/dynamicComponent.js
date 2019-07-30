@@ -20,7 +20,7 @@
  */
 import $ from 'jquery';
 import _ from 'lodash';
-import interact from 'interact';
+import interact from 'interactjs'
 import componentFactory from 'ui/component';
 import makeStackable from 'ui/component/stackable';
 import 'ui/transformer';
@@ -219,6 +219,9 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
             var $resizeControll = $('.dynamic-component-resize-wrapper', $element);
             var pixelRatio = window.devicePixelRatio;
             var interactElement;
+
+            //prevent parent machine OS to handle its touch gestures on this particular element
+            $element.css('touch-action', 'none');
 
             //keeps moving/resizing positions data
             self.position = {
