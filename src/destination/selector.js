@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2018 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2018-2019 (original work) Open Assessment Technologies SA ;
  */
 
 /**
@@ -69,6 +69,17 @@ export default function destinationSelectorFactory($container, config) {
                 if (this.resourceSelector) {
                     this.resourceSelector.update(results, params);
                 }
+            },
+
+            /**
+             * Updates the url on taskCreationButton
+             * @param {String} url - url of the task creation
+             */
+            updateTaskCreationUrl: function updateTaskCreationUrl(url) {
+                if (this.config && this.taskCreationButton && this.taskCreationButton.config) {
+                    this.taskCreationButton.config.taskCreationUrl = url;
+                    this.config.taskCreationUrl = url;
+                }
             }
         },
         defaultConfig
@@ -78,8 +89,7 @@ export default function destinationSelectorFactory($container, config) {
             this.render($container);
         })
         .on('render', function() {
-            var button,
-                self = this;
+            var self = this;
             var $component = this.getElement();
 
             /**
@@ -99,7 +109,7 @@ export default function destinationSelectorFactory($container, config) {
             };
 
             if (this.config.taskQueue) {
-                button = taskCreationButtonFactory({
+                this.taskCreationButton = taskCreationButtonFactory({
                     type: 'info',
                     icon: this.config.icon,
                     label: this.config.actionName,
@@ -110,14 +120,14 @@ export default function destinationSelectorFactory($container, config) {
                     taskReportContainer: $container
                 })
                     .on('finished', function(result) {
-                        self.trigger('finished', result, button);
+                        self.trigger('finished', result, self.taskCreationButton);
                         this.reset(); //reset the button
                     })
                     .on('continue', function() {
                         self.trigger('continue');
                     });
             } else {
-                button = loadingButtonFactory({
+                this.taskCreationButton = loadingButtonFactory({
                     type: 'info',
                     icon: this.config.icon,
                     label: this.config.actionName,
@@ -125,7 +135,7 @@ export default function destinationSelectorFactory($container, config) {
                 });
             }
 
-            button
+            this.taskCreationButton
                 .on('started', function() {
                     function triggerAction() {
                         /**
@@ -137,7 +147,7 @@ export default function destinationSelectorFactory($container, config) {
 
                     if (self.config.confirm) {
                         confirmDialog(self.config.confirm, triggerAction, function() {
-                            button.terminate().reset();
+                            self.taskCreationButton.terminate().reset();
                         });
                     } else {
                         triggerAction();
@@ -165,14 +175,14 @@ export default function destinationSelectorFactory($container, config) {
             //enable disable the action button
             this.resourceSelector.on('change', function(selected) {
                 if (selected && _.size(selected) > 0) {
-                    button.enable();
+                    self.taskCreationButton.enable();
 
                     //append the selected class URI to the task creation data
-                    if (_.isPlainObject(button.config.taskCreationData)) {
-                        button.config.taskCreationData.classUri = getSelectedUri();
+                    if (_.isPlainObject(self.taskCreationButton.config.taskCreationData)) {
+                        self.taskCreationButton.config.taskCreationData.classUri = getSelectedUri();
                     }
                 } else {
-                    button.disable();
+                    self.taskCreationButton.disable();
                 }
             });
         });
