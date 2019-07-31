@@ -1,0 +1,5 @@
+{
+    "verbose": 2,
+    "api-mock": true,
+    "coverage-instrument-spec": ""
+}

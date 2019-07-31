@@ -16,80 +16,71 @@
  * Copyright (c) 2019 (original work) Open Assessment Technologies SA ;
  */
 
-requirejs.config({
-    baseUrl: '/',
-    paths: {
-        css: '/node_modules/require-css/css',
-        json: '/node_modules/requirejs-plugins/src/json',
-        text: '/node_modules/text/text',
+define(['/node_modules/@oat-sa/tao-core-libs/dist/pathdefinition.js'], function(libPathDefinition) {
+    requirejs.config({
+        baseUrl: '/',
+        paths: Object.assign(
+            {},
+            {
+                css: '/node_modules/require-css/css',
+                json: '/node_modules/requirejs-plugins/src/json',
+                text: '/node_modules/text/text',
 
-        /* TEST related */
-        'qunit-parameterize': '/environment/qunit2-parameterize',
-        qunit: '/node_modules/qunit/qunit',
-        'test/ui': '/test',
+                /* TEST related */
+                'qunit-parameterize': '/environment/qunit2-parameterize',
+                qunit: '/node_modules/qunit/qunit',
+                'test/ui': '/test',
 
-        ui: '/dist',
-        core: '/node_modules/@oat-sa/tao-core-sdk/dist/core',
-        util: '/node_modules/@oat-sa/tao-core-sdk/dist/util',
-        jquery: '/node_modules/jquery/jquery',
-        lodash: '/node_modules/lodash/lodash',
-        moment: '/node_modules/moment/min/moment-with-locales',
-        handlebars: '/node_modules/handlebars/dist/handlebars.amd',
+                ui: '/dist',
+                core: '/node_modules/@oat-sa/tao-core-sdk/dist/core',
+                util: '/node_modules/@oat-sa/tao-core-sdk/dist/util',
 
-        /* LIBS */
-        tpl: '/lib/tpl',
-        'jquery.autocomplete': '/node_modules/devbridge-autocomplete/dist/jquery.autocomplete',
-        'jquery.mockjax': '/node_modules/jquery-mockjax/dist/jquery.mockjax',
-        'jquery.fileDownload': '/lib/jquery.fileDownload',
-        'lib/popper/tooltip': '/node_modules/tooltip.js/dist/umd/tooltip',
-        popper: '/node_modules/popper.js/dist/umd/popper',
-        select2: '/node_modules/select2/select2',
-        interact: '/node_modules/interactjs/dist/interact',
-        'lib/dompurify/purify': '/node_modules/dompurify/dist/purify',
-        'lib/gamp/gamp': '/node_modules/gamp/src/gamp',
-        'lib/flatpickr': '/node_modules/flatpickr/dist',
-        'lib/moo/moo': '/node_modules/moo/moo',
-        'lib/decimal/decimal': '/node_modules/decimal.js/decimal',
-        'lib/expr-eval/expr-eval': '/node_modules/@oat-sa/expr-eval/dist/bundle',
-        iframeNotifier: '/lib/iframeNotifier',
-        async: '/node_modules/async/lib/async',
-        nouislider: '/lib/sliders/jquery.nouislider',
-        helpers: '/lib/helpers',
-        lib: '/lib',
-        /* LIBS END */
+                /* LIBS */
+                'jquery.autocomplete': '/node_modules/devbridge-autocomplete/dist/jquery.autocomplete',
+                'jquery.mockjax': '/node_modules/jquery-mockjax/dist/jquery.mockjax',
+                'jquery.fileDownload': '/lib/jquery.fileDownload',
+                'lib/flatpickr': '/node_modules/flatpickr/dist',
+                'lib/moo/moo': '/node_modules/moo/moo',
+                helpers: '/lib/helpers',
+                /* LIBS END */
 
-        basicStyle: '/css',
+                basicStyle: '/css',
 
-        'ui/tooltip/default': '/src/tooltip/default'
-    },
-    shim: {
-        'qunit-parameterize': {
-            deps: ['qunit/qunit']
+                'lib/simulator': '/lib/simulator',
+
+                'ui/tooltip/default': '/src/tooltip/default'
+            },
+            libPathDefinition
+        ),
+        shim: {
+            'qunit-parameterize': {
+                deps: ['qunit/qunit']
+            },
+            'lib/flatpickr/l10n/index': {
+                deps: ['lib/flatpickr/flatpickr']
+            }
         },
-        'lib/flatpickr/l10n/index': {
-            deps: ['lib/flatpickr/flatpickr']
-        }
-    },
-    waitSeconds: 15
+        waitSeconds: 15
+    });
+
+    define('qunitLibs', ['qunit/qunit', 'css!qunit/qunit.css', 'css!basicStyle/basic.css']);
+    define('qunitEnv', ['qunitLibs', 'qunit-parameterize'], function() {
+        requirejs.config({ nodeIdCompat: true });
+    });
+
+    define('context', ['module'], function(module) {
+        return module.config();
+    });
+
+    define('i18n', [], () => text => text);
+
+    /**
+     * Mock layout modules for tests
+     */
+    define('layout/loading-bar', [], () => ({
+        start: () => {},
+        stop: () => {}
+    }));
+
+    define('layout/logout-event', [], () => () => {});
 });
-
-define('qunitLibs', ['qunit/qunit', 'css!qunit/qunit.css', 'css!basicStyle/basic.css']);
-define('qunitEnv', ['qunitLibs', 'qunit-parameterize'], function() {
-    requirejs.config({ nodeIdCompat: true });
-});
-
-define('context', ['module'], function(module) {
-    return module.config();
-});
-
-define('i18n', [], () => text => text);
-
-/**
- * Mock layout modules for tests
- */
-define('layout/loading-bar', [], () => ({
-    start: () => {},
-    stop: () => {}
-}));
-
-define('layout/logout-event', [], () => () => {});

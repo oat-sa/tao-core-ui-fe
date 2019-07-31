@@ -24,6 +24,7 @@ import cssResolve from './css-resolve';
 import externalAlias from './external-alias';
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
+import istanbul from 'rollup-plugin-istanbul';
 import babel from 'rollup-plugin-babel';
 
 const { srcDir, outputDir, aliases } = require('./path');
@@ -123,14 +124,17 @@ export default inputs.map(input => {
                     }
                 }
             },
+            ...(process.env.COVERAGE ? [istanbul()] : []),
             babel({
-                presets: [[
-                    '@babel/env', {
-                        useBuiltIns: false
-                    }
-                ]]
+                presets: [
+                    [
+                        '@babel/env',
+                        {
+                            useBuiltIns: false
+                        }
+                    ]
+                ]
             })
         ]
     };
 });
-
