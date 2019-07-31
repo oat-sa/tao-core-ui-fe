@@ -463,7 +463,7 @@ var _youtubeManager = {
     injectApi: function injectApi() {
         var self = this;
         if (!self.isApiReady()) {
-            require(['https://www.youtube.com/iframe_api'], function() {
+            window.require(['https://www.youtube.com/iframe_api'], function() {
                 var check = function() {
                     if (!self.isApiReady()) {
                         setTimeout(check, 100);
