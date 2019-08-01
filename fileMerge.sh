@@ -1,1 +1,0 @@
-npx amdtoes6 ui_should/$1.js > src/$1.js && rm ui_should/$1.js
