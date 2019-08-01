@@ -21,11 +21,11 @@ import glob from 'glob';
 import alias from 'rollup-plugin-alias';
 import handlebarsPlugin from 'rollup-plugin-handlebars-plus';
 import cssResolve from './css-resolve';
-import externalAlias from './external-alias';
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import istanbul from 'rollup-plugin-istanbul';
 import babel from 'rollup-plugin-babel';
+import wildcardExternal from '@oat-sa/rollup-plugin-wildcard-external';
 
 const { srcDir, outputDir, aliases } = require('./path');
 const Handlebars = require('handlebars');
@@ -91,7 +91,7 @@ export default inputs.map(input => {
         ],
         plugins: [
             cssResolve(),
-            externalAlias(['core', 'lib', 'util', 'layout']),
+            wildcardExternal(['core/**', 'lib/**', 'util/**', 'layout/**']),
             alias({
                 resolve: ['.js', '.json', '.tpl'],
                 ...aliases
