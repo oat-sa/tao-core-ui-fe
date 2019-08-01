@@ -124,7 +124,9 @@ export default inputs.map(input => {
                     }
                 }
             },
-            ...(process.env.COVERAGE ? [istanbul()] : []),
+            ...(process.env.COVERAGE ? [istanbul({
+                exclude: 'build/tpl.js'
+            })] : []),
             babel({
                 presets: [
                     [
