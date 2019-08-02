@@ -58,6 +58,9 @@ define(['/node_modules/@oat-sa/tao-core-libs/dist/pathdefinition.js'], function(
             },
             'lib/flatpickr/l10n/index': {
                 deps: ['lib/flatpickr/flatpickr']
+            },
+            select2 : {
+                deps: ['jquery']
             }
         },
         waitSeconds: 15
