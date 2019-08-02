@@ -27,7 +27,7 @@
  * @author Christophe Noël <christophe@taotesting.com>
  */
 import _ from 'lodash';
-import interact from 'interactjs';
+import interact from 'interact';
 import makePlaceable from 'ui/component/placeable';
 
 var defaultConfig = {
@@ -162,8 +162,6 @@ export default function makeResizable(component, config) {
             var self = this,
                 $element = this.getElement(),
                 element = $element[0];
-
-            $element.css('touch-action', 'none');
 
             if (!this.config.resizeRestriction) {
                 this.config.resizeRestriction = this.getContainer()[0];
