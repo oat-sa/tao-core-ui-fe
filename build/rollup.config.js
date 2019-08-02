@@ -23,7 +23,6 @@ import handlebarsPlugin from 'rollup-plugin-handlebars-plus';
 import cssResolve from './css-resolve';
 import externalAlias from './external-alias';
 import resolve from 'rollup-plugin-node-resolve';
-import commonjs from 'rollup-plugin-commonjs';
 import babel from 'rollup-plugin-babel';
 
 const { srcDir, outputDir, aliases } = require('./path');
@@ -96,7 +95,6 @@ export default inputs.map(input => {
                 ...aliases
             }),
             resolve(),
-            commonjs(),
             handlebarsPlugin({
                 handlebars: {
                     id: 'handlebars',
