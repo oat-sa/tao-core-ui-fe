@@ -22,7 +22,7 @@
  */
 import $ from 'jquery';
 import _ from 'lodash';
-import interact from 'interactjs';
+import interact from 'interact';
 import triggerMouseEvent from 'core/mouseEvent';
 
 var interactHelper, simulateDrop;
@@ -72,18 +72,14 @@ interactHelper = {
     tapOn: function tapOn(element, cb, delay) {
         var domElement,
             eventOptions = {
-                pointerId: 1,
-                bubbles: true, 
-                cancelable: true, 
-                pointerType: "touch",
-                width: 100,
-                height: 100,
-                isPrimary: true
+                bubbles: true
             };
         if (element) {
             domElement = element instanceof $ ? element.get(0) : element;
-            domElement.dispatchEvent(new PointerEvent('pointerdown', eventOptions));
-            domElement.dispatchEvent(new PointerEvent('pointerup', eventOptions));
+
+            triggerMouseEvent(domElement, 'mousedown', eventOptions);
+            triggerMouseEvent(domElement, 'mouseup', eventOptions);
+
             if (cb) {
                 _.delay(cb, delay || 0);
             }

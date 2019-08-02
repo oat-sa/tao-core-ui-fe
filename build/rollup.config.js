@@ -22,7 +22,6 @@ import alias from 'rollup-plugin-alias';
 import handlebarsPlugin from 'rollup-plugin-handlebars-plus';
 import cssResolve from './css-resolve';
 import resolve from 'rollup-plugin-node-resolve';
-import commonjs from 'rollup-plugin-commonjs';
 import istanbul from 'rollup-plugin-istanbul';
 import babel from 'rollup-plugin-babel';
 import wildcardExternal from '@oat-sa/rollup-plugin-wildcard-external';
@@ -97,7 +96,6 @@ export default inputs.map(input => {
                 ...aliases
             }),
             resolve(),
-            commonjs(),
             handlebarsPlugin({
                 handlebars: {
                     id: 'handlebars',
