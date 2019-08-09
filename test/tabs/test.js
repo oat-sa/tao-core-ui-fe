@@ -20,9 +20,8 @@
  */
 define([
     'jquery',
-    'lodash',
     'ui/tabs'
-], function ($, _, tabsFactory) {
+], function ($, tabsFactory) {
     'use strict';
 
     function getInstance(fixture, config) {
