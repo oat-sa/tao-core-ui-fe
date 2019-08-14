@@ -14,11 +14,11 @@ define(['jquery', 'lodash', 'interact', 'ui/interactUtils', 'core/mouseEvent'], 
         assert.expect(3);
 
         var button = document.getElementById('button');
-        button.addEventListener('mousedown', function mousedown() {
-            assert.ok(true, 'mousedown has been fired');
+        button.addEventListener('pointerdown', function pointerdown() {
+            assert.ok(true, 'pointerdown has been fired');
         });
-        button.addEventListener('mouseup', function mouseup() {
-            assert.ok(true, 'mouseup has been fired');
+        button.addEventListener('pointerup', function pointerup() {
+            assert.ok(true, 'pointerup has been fired');
         });
 
         interactUtils.tapOn(button, function() {
@@ -51,11 +51,11 @@ define(['jquery', 'lodash', 'interact', 'ui/interactUtils', 'core/mouseEvent'], 
         var button = document.getElementById('button'),
             $button = $('#button');
 
-        button.addEventListener('mousedown', function mousedown() {
-            assert.ok(true, 'mousedown has been fired');
+        button.addEventListener('pointerdown', function pointerdown() {
+            assert.ok(true, 'pointerdown has been fired');
         });
-        button.addEventListener('mouseup', function mouseup() {
-            assert.ok(true, 'mouseup has been fired');
+        button.addEventListener('pointerup', function pointerup() {
+            assert.ok(true, 'pointerup has been fired');
         });
 
         interactUtils.tapOn($button, function() {
