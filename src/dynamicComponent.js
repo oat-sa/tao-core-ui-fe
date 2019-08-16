@@ -280,12 +280,6 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
                     interaction.start(
                         {
                             name: 'drag',
-                            edges: {
-                                top: handle.dataset.top,
-                                left: handle.dataset.left,
-                                bottom: handle.dataset.bottom,
-                                right: handle.dataset.right
-                            }
                         },
                         interactElement,
                         $element[0]
