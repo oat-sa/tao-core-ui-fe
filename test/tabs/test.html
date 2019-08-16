@@ -4,12 +4,35 @@
         <meta charset="utf-8" />
         <title>Ui Test - Tabs</title>
         <style>
-                #visual-fixture {
-                    padding: 50px;
-                }
-                #visual-fixture input {
-                    margin: 25px 0;
-                }
+            #visual-fixture {
+                padding: 50px;
+            }
+            #visual-fixture input {
+                margin: 25px 0;
+            }
+            #visual-fixture .output {
+                border: 1px solid #eee;
+                background: #ddd;
+                position: relative;
+                margin: 10px 2px;
+                padding: 2px;
+                line-height: 40px;
+            }
+            #visual-fixture .output:after {
+                content: 'Event';
+                position: absolute;
+                left: 0;
+                top: 0;
+                font-size: 10px;
+                line-height: 12px;
+                color: #888;
+            }
+            #visual-fixture .panels {
+                position: relative;
+                background: #eee;
+                margin: 10px 0;
+                padding: 10px;
+            }
         </style>
         <script type="text/javascript" src="/environment/require.js"></script>
         <script type="text/javascript">
@@ -24,11 +47,38 @@
     </head>
     <body>
         <div id="qunit"></div>
-        <div id="qunit-fixture"></div>
+        <div id="qunit-fixture">
+            <div id="fixture-api"></div>
+            <div id="fixture-init"></div>
+            <div id="fixture-render"></div>
+            <div id="fixture-single"></div>
+            <div id="fixture-hide"></div>
+            <div id="fixture-disable"></div>
+            <div id="fixture-destroy"></div>
+            <div id="fixture-error"></div>
+            <div id="fixture-settabs"></div>
+            <div id="fixture-activate"></div>
+            <div id="fixture-panel-selector">
+                <div class="panel" data-tab-content="tabA">tab A</div>
+                <div class="panel" data-tab-content="tabB">tab B</div>
+                <div class="panel" data-tab-content="tabC">tab C</div>
+                <div class="panel" data-tab-content="tabD">tab D</div>
+                <div class="panel" data-tab-content="tabE">tab E</div>
+            </div>
+            <div id="fixture-panel-true">
+                <div class="panel" data-tab-content="tabA">tab A</div>
+                <div class="panel" data-tab-content="tabB">tab B</div>
+                <div class="panel" data-tab-content="tabC">tab C</div>
+                <div class="panel" data-tab-content="tabD">tab D</div>
+                <div class="panel" data-tab-content="tabE">tab E</div>
+            </div>
+            <div id="fixture-click"></div>
+        </div>
         <div id="visual-fixture">
+            <div class="output"></div>
             <input type="text" placeholder="I'm for testing focus" />
             <nav></nav>
-            <div>
+            <div class="panels">
                 <div data-tab-content="tao-local">
                     TAO Local
                 </div>
