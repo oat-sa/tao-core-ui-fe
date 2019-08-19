@@ -220,6 +220,8 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
             var pixelRatio = window.devicePixelRatio;
             var interactElement;
 
+            //prevent parent machine OS to handle its touch gestures on this particular element
+            $element.css('touch-action', 'none');
             //keeps moving/resizing positions data
             self.position = {
                 x: this.config.left,
@@ -278,12 +280,6 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
                     interaction.start(
                         {
                             name: 'drag',
-                            edges: {
-                                top: handle.dataset.top,
-                                left: handle.dataset.left,
-                                bottom: handle.dataset.bottom,
-                                right: handle.dataset.right
-                            }
                         },
                         interactElement,
                         $element[0]

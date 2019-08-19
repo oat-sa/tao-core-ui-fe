@@ -50,6 +50,8 @@ export default function makeDraggable(component, config) {
                 element = $element[0],
                 rootNode = document.querySelector('html');
 
+            $element.css('touch-action', 'none');
+
             if (!this.config.dragRestriction) {
                 this.config.dragRestriction = this.getContainer()[0];
             }
