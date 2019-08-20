@@ -48,7 +48,7 @@ var _validatePattern = function _validatePattern(value, callback, options) {
 var validators = {
     numeric: {
         name: 'numeric',
-        message: __('must be numeric'),
+        message: __('The value of this field must be numeric'),
         options: {},
         validate: function(value, callback) {
             var parsedValue = parseFloat(value),
