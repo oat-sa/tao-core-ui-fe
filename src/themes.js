@@ -40,13 +40,19 @@ export default {
      * @returns {Object}
      */
     getConfig: function getConfig() {
-        var initialConfig;
-
+        // set theme config from module.config() if it is not defined
         if (!themesConfig) {
-            initialConfig = module.config();
-            themesConfig = _.cloneDeep(initialConfig);
+            this.setConfig(module.config());
         }
         return themesConfig;
+    },
+
+    /**
+     * Set themes config
+     * @param {Object} config Themes config
+     */
+    setConfig(config) {
+        themesConfig = _.cloneDeep(config);
     },
 
     /**
