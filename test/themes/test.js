@@ -210,4 +210,11 @@ define(['lodash', 'ui/themes'], function(_, themesHandler) {
         assert.deepEqual(themesHandler.getCurrentThemeData('items'), config[itemsNs1], 'returns items_ns1 themes');
         assert.deepEqual(themesHandler.getCurrentThemeData(), config[itemsNs1], 'returns items_ns1 themes');
     });
+
+    QUnit.test('setConfig', function(assert) {
+        assert.expect(1);
+
+        themesHandler.setConfig(config);
+        assert.deepEqual(themesHandler.getConfig(), config, 'getConfig return with previously set config');
+    });
 });
