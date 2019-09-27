@@ -57,7 +57,8 @@ var defaults = {
         enable: true,
         label: __('Reset'),
         title: __('Reset the range values'),
-        icon: 'reset'
+        icon: 'reset',
+        style: 'small btn-info'
     },
     applyButton: {
         enable: true,
