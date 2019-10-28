@@ -23,7 +23,7 @@
 import $ from 'jquery';
 import _ from 'lodash';
 import interact from 'interact';
-import triggerMouseEvent from 'core/mouseEvent';
+import 'core/mouseEvent';
 
 var interactHelper, simulateDrop;
 
