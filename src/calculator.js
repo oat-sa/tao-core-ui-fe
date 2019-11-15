@@ -129,8 +129,9 @@ function adjustFontSize($text, fontRatio, fontSize) {
  */
 function calculatorFactory(config) {
     config = _.defaults(config || {}, _defaults);
+    var calculatorComponent;
 
-    return dynamicComponent(calculator)
+    calculatorComponent = dynamicComponent(calculator)
         .on('rendercontent', function($content) {
             var $input,
                 self = this,
@@ -175,8 +176,13 @@ function calculatorFactory(config) {
             if (this.calc) {
                 this.calc.remove();
             }
-        })
-        .init(config);
+        });
+
+        _.defer(function() {
+            calculatorComponent.init(config);
+        });
+
+    return calculatorComponent;
 }
 
 export default calculatorFactory;
