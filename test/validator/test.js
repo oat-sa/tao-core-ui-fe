@@ -1,4 +1,4 @@
-define(['lodash', 'jquery', 'ui/validator'], function(_, $, FormValidator) {
+define(['lodash', 'jquery', 'ui/validator'], function(_, $) {
     'use strict';
 
     QUnit.test('validate', function(assert) {
@@ -7,11 +7,13 @@ define(['lodash', 'jquery', 'ui/validator'], function(_, $, FormValidator) {
         $('#field_1').validator();
         $('#field_2').validator();
         $('#field_3').validator();
+        $('#field_4').validator();
 
         assert.equal($('#field_0').data('validator-instance').rules[0].name, 'notEmpty');
         assert.equal($('#field_1').data('validator-instance').rules[0].name, 'notEmpty');
         assert.equal($('#field_2').data('validator-instance').rules[0].name, 'notEmpty');
         assert.equal($('#field_3').data('validator-instance').rules[0].name, 'numeric');
+        assert.equal($('#field_4').data('validator-instance').rules[0].name, 'integer');
 
         assert.equal($('#field_0').data('validator-instance').rules[1].name, 'pattern');
         assert.equal($('#field_1').data('validator-instance').rules[1].name, 'pattern');
