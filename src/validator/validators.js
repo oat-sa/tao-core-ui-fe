@@ -83,7 +83,8 @@ var validators = {
         message: __('The value of this field must be an integer'),
         options: {},
         validate: function(value, callback) {
-            var r = typeof value === 'number' && isFinite(value) && Math.floor(value) === value;
+            const parsedValue = parseInt(value, 10);
+            var r = value === parsedValue.toString() && isFinite(parsedValue) && Math.floor(parsedValue) === parsedValue;
             if (typeof callback === 'function') {
                 callback.call(null, r);
             }
