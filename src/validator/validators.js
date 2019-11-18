@@ -78,6 +78,17 @@ var validators = {
             }
         }
     },
+    integer: {
+        name: 'integer',
+        message: __('The value of this field must be an integer'),
+        options: {},
+        validate: function(value, callback) {
+            var r = typeof value === 'number' && isFinite(value) && Math.floor(value) === value;
+            if (typeof callback === 'function') {
+                callback.call(null, r);
+            }
+        }
+    },
     notEmpty: {
         name: 'notEmpty',
         message: __('this is required'),
