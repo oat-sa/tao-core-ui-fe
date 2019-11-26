@@ -130,6 +130,14 @@ var navigableGroupElementFactory = function navigableGroupElementFactory(keyNavi
         focus: function focus() {
             keyNavigator.focus(this);
             return this;
+        },
+
+        /**
+         * Set focus on the navigable element
+         * @returns {navigableGroupElement}
+         */
+        getKeyNavigator: function getKeyNavigator() {
+            return keyNavigator;
         }
     });
 };
