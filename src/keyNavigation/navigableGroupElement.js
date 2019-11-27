@@ -133,8 +133,8 @@ var navigableGroupElementFactory = function navigableGroupElementFactory(keyNavi
         },
 
         /**
-         * Set focus on the navigable element
-         * @returns {navigableGroupElement}
+         * Return an instance of keyNavigator
+         * @returns {keyNavigator} keyNavigator
          */
         getKeyNavigator: function getKeyNavigator() {
             return keyNavigator;
