@@ -283,6 +283,7 @@ var dataTable = {
         var amount;
         var transforms;
         var model = [];
+        var renderEmptyText;
 
         var join = function join(input) {
             return typeof input !== 'object' ? input : input.join(', ');
@@ -342,8 +343,9 @@ var dataTable = {
         }
 
         options.model = model;
+        renderEmptyText = options.emptyText && (!!options.filterquery || !!options.filtercolumns);
         // Call the rendering
-        $rendering = $(layout({ options: options, dataset: dataset }));
+        $rendering = $(layout({ options: options, dataset: dataset, renderEmptyText: renderEmptyText }));
 
         // the readonly property contains an associative array where keys are the ids of the items (lines)
         // the value can be a boolean (true for disable buttons, false to enable)

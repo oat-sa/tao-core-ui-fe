@@ -145,7 +145,7 @@
             </tbody>
         </table>
         {{#unless dataset.data}}
-            {{#if options.emptyText}}
+            {{#if renderEmptyText}}
                 <div class="empty">
                     {{ options.emptyText }}
                 </div>
