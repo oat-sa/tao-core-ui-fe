@@ -343,7 +343,7 @@ var dataTable = {
         }
 
         options.model = model;
-        renderEmptyText = options.emptyText && (!!options.filterquery || !!options.filtercolumns);
+        renderEmptyText = !!(options.emptyText && (options.filterquery || options.filtercolumns && _.size(options.filtercolumns)));
         // Call the rendering
         $rendering = $(layout({ options: options, dataset: dataset, renderEmptyText: renderEmptyText }));
 
