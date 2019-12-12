@@ -44,7 +44,7 @@
         "@oat-sa/rollup-plugin-wildcard-external": "^0.1.0",
         "@oat-sa/tao-core-libs": "oat-sa/tao-core-libs-fe#breaking/TDR-10_upgrade-jquery",
         "@oat-sa/tao-core-sdk": "oat-sa/tao-core-sdk-fe#breaking/TDR-10_upgrade-jquery",
-        "@oat-sa/tao-qunit-testrunner": "^0.1.3",
+        "@oat-sa/tao-qunit-testrunner": "^1.0.3",
         "async": "^0.2.10",
         "autoprefixer": "^9.5.1",
         "decimal.js": "10.1.1",
