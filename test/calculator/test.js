@@ -13,9 +13,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2016 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2016-2019 (original work) Open Assessment Technologies SA ;
  */
-define(['jquery', 'lodash', 'ui/calculator'], ($, _, calculator) => {
+define([
+    'jquery',
+    'lodash',
+    'ui/calculator',
+    'tpl!test/ui/calculator/alt-template'
+], function ($, _, calculator, alternativeTemplate) {
     'use strict';
 
     QUnit.module('Calculator');
@@ -129,44 +134,42 @@ define(['jquery', 'lodash', 'ui/calculator'], ($, _, calculator) => {
             backgroundColor: '#ccc'
         });
 
-        require(['tpl!test/ui/calculator/alt-template'], (alternativeTemplate) => {
-            const config = {
-                renderTo: $container,
-                replace: true,
-                alternativeTemplate: alternativeTemplate
-            };
+        const config = {
+            renderTo: $container,
+            replace: true,
+            alternativeTemplate: alternativeTemplate
+        };
 
-            calculator(config)
-                .after('init', () => {
-                    assert.equal(
-                        $container.find('.dynamic-component-container .calcContainer').length,
-                        1,
-                        'calculator container ok'
-                    );
-                    assert.equal(
-                        $container.find('.dynamic-component-container .calcContainer .calcDisplay').length,
-                        1,
-                        'calculator display ok'
-                    );
-                    assert.equal(
-                        $container.find('.dynamic-component-container .calcContainer .calcFunction').length,
-                        8,
-                        'calculator function button ok'
-                    );
-                    assert.equal(
-                        $container.find('.dynamic-component-container .calcContainer .calcClear').length,
-                        3,
-                        'calculator clear button ok'
-                    );
-                    assert.equal(
-                        $container.find('.dynamic-component-container .calcContainer .calcDigit').length,
-                        10,
-                        'calculator digit button ok'
-                    );
+        calculator(config)
+            .after('init', () => {
+                assert.equal(
+                    $container.find('.dynamic-component-container .calcContainer').length,
+                    1,
+                    'calculator container ok'
+                );
+                assert.equal(
+                    $container.find('.dynamic-component-container .calcContainer .calcDisplay').length,
+                    1,
+                    'calculator display ok'
+                );
+                assert.equal(
+                    $container.find('.dynamic-component-container .calcContainer .calcFunction').length,
+                    8,
+                    'calculator function button ok'
+                );
+                assert.equal(
+                    $container.find('.dynamic-component-container .calcContainer .calcClear').length,
+                    3,
+                    'calculator clear button ok'
+                );
+                assert.equal(
+                    $container.find('.dynamic-component-container .calcContainer .calcDigit').length,
+                    10,
+                    'calculator digit button ok'
+                );
 
-                    ready();
-                });
-        });
+                ready();
+            });
     });
 
     QUnit.test('press', (assert) => {
