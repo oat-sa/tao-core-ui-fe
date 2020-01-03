@@ -32,6 +32,9 @@ module.exports = {
     testOutputDir: path.resolve(rootPath, 'test'),
     aliases: {
         ui: srcDir,
-        build: path.resolve(rootPath, 'build')
+        build: path.resolve(rootPath, 'build'),
+        // Hardcoded paths to partial Handlebars templates (prevents unresolved template dependencies)
+        'ui-generis-widget-label.tpl': path.resolve(srcDir, 'generis/widget/widget.tpl'),
+        'ui-form-widget-label.tpl': path.resolve(srcDir, 'form/widget/tpl/label.tpl')
     }
 };

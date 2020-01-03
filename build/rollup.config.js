@@ -29,22 +29,6 @@ import wildcardExternal from '@oat-sa/rollup-plugin-wildcard-external';
 const { srcDir, outputDir, aliases } = require('./path');
 const Handlebars = require('handlebars');
 
-/**
- * Support of handlebars 1.3.0
- * TODO remove once migrated to hbs >= 3.0.0
- */
-// const originalVisitor = Handlebars.Visitor;
-// Handlebars.Visitor = function() {
-//     return originalVisitor.call(this);
-// };
-// Handlebars.Visitor.prototype = Object.create(originalVisitor.prototype);
-// Handlebars.Visitor.prototype.accept = function() {
-//     try {
-//         originalVisitor.prototype.accept.apply(this, arguments);
-//     } catch (e) {}
-// };
-/* --------------------------------------------------------- */
-
 const inputs = glob.sync(path.join(srcDir, '**', '*.js'));
 
 /**
