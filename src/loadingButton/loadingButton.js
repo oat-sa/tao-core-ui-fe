@@ -92,7 +92,7 @@ export default function loadingButtonFactory(config) {
     return component(buttonApi)
         .setTemplate(buttonTpl)
         .on('enable', function() {
-            this.getElement().removeProp('disabled');
+            this.getElement().prop('disabled', false);
         })
         .on('disable', function() {
             this.getElement().prop('disabled', true);
