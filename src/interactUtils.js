@@ -94,8 +94,10 @@ interactHelper = {
                 firstEvent = new PointerEvent('pointerdown', eventOptions);
                 secondEvent = new PointerEvent('pointerup', eventOptions);
             }
-            domElement.dispatchEvent(firstEvent);
-            domElement.dispatchEvent(secondEvent);
+            if (domElement) {
+                domElement.dispatchEvent(firstEvent);
+                domElement.dispatchEvent(secondEvent);
+            }
 
             if (cb) {
                 _.delay(cb, delay || 0);
