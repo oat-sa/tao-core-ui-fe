@@ -89,6 +89,8 @@ export default inputs.map(input => {
                     module: Handlebars
                 },
                 helpers: ['build/tpl.js'],
+                isPartial : () => true,
+                partialRoot: srcDir,
                 templateExtension: '.tpl'
             }),
             /**
