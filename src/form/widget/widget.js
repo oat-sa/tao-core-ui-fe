@@ -364,7 +364,7 @@ function widgetFactory(container, config) {
 }
 
 // expose a partial that can be used by every form widget to inject the label markup
-Handlebars.registerPartial('ui-form-widget-label', labelTpl);
+Handlebars.registerPartial('ui/form/widget/tpl/label', labelTpl);
 
 // the widgetFactory is also a providers registry
 providerRegistry(widgetFactory);
