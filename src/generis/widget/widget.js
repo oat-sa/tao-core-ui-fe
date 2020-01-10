@@ -24,7 +24,7 @@ import Handlebars from 'handlebars';
 import ptl from 'ui/generis/widget/widget.tpl';
 import 'ui/generis/widget/css/widget.css';
 
-Handlebars.registerPartial('ui-generis-widget-label', ptl);
+Handlebars.registerPartial('ui/generis/widget/widget', ptl);
 /**
  * The factory
  * @param {Object} [options.validator]

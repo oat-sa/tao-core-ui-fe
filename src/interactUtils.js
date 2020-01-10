@@ -74,8 +74,8 @@ interactHelper = {
             eventOptions = {
                 bubbles: true,
                 pointerId: 1,
-                bubbles: true, 
-                cancelable: true, 
+                bubbles: true,
+                cancelable: true,
                 pointerType: "touch",
                 width: 100,
                 height: 100,
@@ -84,9 +84,10 @@ interactHelper = {
         if (element) {
             domElement = element instanceof $ ? element.get(0) : element;
 
-            domElement.dispatchEvent(new PointerEvent('pointerdown', eventOptions));
-            domElement.dispatchEvent(new PointerEvent('pointerup', eventOptions));
-
+            if (domElement) {
+                domElement.dispatchEvent(new PointerEvent('pointerdown', eventOptions));
+                domElement.dispatchEvent(new PointerEvent('pointerup', eventOptions));
+            }
             if (cb) {
                 _.delay(cb, delay || 0);
             }
