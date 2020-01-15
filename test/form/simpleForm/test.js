@@ -195,6 +195,19 @@ define([
             reset: false
         }
     }, {
+        title: 'no submit',
+        config: {
+            widgets: [{
+                widget: 'text',
+                uri: 'text',
+                label: 'Text'
+            }],
+            values: {
+                text: 'foo 2'
+            },
+            submit: false
+        }
+    }, {
         title: 'default widget',
         config: {
             widgets: [{
@@ -220,9 +233,15 @@ define([
         }].concat(data.config && data.config.buttons || []);
         var instance;
 
-        if (data.config && data.config.reset === false) {
-            buttons.shift();
+        if (data.config) {
+            if (data.config.submit === false) {
+                buttons.pop();
+            }
+            if (data.config.reset === false) {
+                buttons.shift();
+            }
         }
+
         assert.expect(9 + _.size(widgets) + _.size(buttons));
 
         assert.equal($container.children().length, 0, 'The container is empty');
