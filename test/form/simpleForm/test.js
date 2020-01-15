@@ -208,6 +208,20 @@ define([
             submit: false
         }
     }, {
+        title: 'no action',
+        config: {
+            widgets: [{
+                widget: 'text',
+                uri: 'text',
+                label: 'Text'
+            }],
+            values: {
+                text: 'foo 2'
+            },
+            submit: false,
+            reset: false
+        }
+    }, {
         title: 'default widget',
         config: {
             widgets: [{
