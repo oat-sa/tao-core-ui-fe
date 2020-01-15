@@ -235,7 +235,7 @@ var uploader = {
                                 e.preventDefault();
                                 self._upload($elt, options.files);
                             })
-                            .removeProp('disabled');
+                            .prop('disabled', false);
                     }
 
                     if (options.read) {
@@ -248,7 +248,7 @@ var uploader = {
                             e.preventDefault();
                             self._reset($elt);
                         })
-                        .removeProp('disabled');
+                        .prop('disabled', false);
                 });
 
                 /**

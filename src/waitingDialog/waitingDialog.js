@@ -100,7 +100,7 @@ export default function waitingDialogFactory(config) {
                         .removeClass('hidden');
 
                     if (config.showSecondary) {
-                        $secondaryButton.removeProp('disabled');
+                        $secondaryButton.prop('disabled', false);
                         $secondaryButton.removeClass('hidden');
                         if (this.config.buttonSeparatorText) {
                             $betweenButtonsText.removeClass('hidden');
@@ -128,7 +128,7 @@ export default function waitingDialogFactory(config) {
                     $content.html(this.config.proceedContent);
 
                     $button
-                        .removeProp('disabled')
+                        .prop('disabled', false)
                         .find('.label')
                         .text(this.config.proceedButtonText)
                         .end()
