@@ -29,6 +29,7 @@ import formFactory from 'ui/form/form';
  * @property {String} [submitIcon] - The icon of the submit button
  * @property {String} [resetText] - The caption of the reset button
  * @property {String} [resetIcon] - The icon of the reset button
+ * @property {Boolean} [submit] - Activate the submit button
  * @property {Boolean} [reset] - Activate the reset button
  */
 
@@ -41,6 +42,7 @@ const defaultConfig = {
     submitIcon: 'save',
     resetText: __('Reset'),
     resetIcon: 'reset',
+    submit: true,
     reset: true
 };
 
@@ -77,6 +79,7 @@ const defaultConfig = {
  * @param {String} [config.submitIcon] - The icon of the submit button
  * @param {String} [config.resetText] - The caption of the reset button
  * @param {String} [config.resetIcon] - The icon of the reset button
+ * @param {Boolean} [config.submit] - Activate the submit button
  * @param {Boolean} [config.reset] - Activate the reset button
  * @param {String} [config.title] - An optional title for the form (default none)
  * @param {String} [config.formAction] - The url the form is targeting (default '#')
@@ -101,12 +104,14 @@ function simpleFormFactory(container, config) {
         });
     }
 
-    config.buttons.push({
-        type: 'info',
-        id: 'submit',
-        label: config.submitText,
-        icon: config.submitIcon
-    });
+    if (config.submit) {
+        config.buttons.push({
+            type: 'info',
+            id: 'submit',
+            label: config.submitText,
+            icon: config.submitIcon
+        });
+    }
 
     return formFactory(container, config)
         .on('button-submit', function onButtonSubmit() {
