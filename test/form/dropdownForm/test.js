@@ -498,6 +498,87 @@ define([
             });
     });
 
+    QUnit.cases.init([{
+        title: 'default',
+        expected: ['submit']
+    }, {
+        title: 'add buttons',
+        config: {
+            widgets: [{
+                widget: 'text',
+                uri: 'title',
+                label: 'Title'
+            }],
+            buttons: [{
+                id: 'foo',
+                label: ' Foo'
+            }]
+        },
+        expected: ['submit', 'foo']
+    }, {
+        title: 'replace buttons',
+        config: {
+            widgets: [{
+                widget: 'text',
+                uri: 'title',
+                label: 'Title'
+            }],
+            buttons: [{
+                id: 'foo',
+                label: ' Foo'
+            }],
+            submit: false
+        },
+        expected: ['foo']
+    }]).test('buttons', function (data, assert) {
+        var ready = assert.async();
+        var $container = $('#fixture-buttons');
+        var instance;
+        var submitAllowed = !data.config || data.config.submit !== false;
+
+        assert.expect(8 + _.size(data.config && data.config.widgets) + _.size(data.expected));
+
+        assert.equal($container.children().length, 0, 'The container is empty');
+
+        instance = dropdownFormFactory($container, data.config);
+
+        instance
+            .on('init', function () {
+                assert.equal(this, instance, 'The instance has been initialized');
+            })
+            .on('ready', function () {
+                assert.equal($container.children().length, 1, 'The container contains an element');
+                assert.equal($container.children().is('.dropdown-form'), true, 'The container contains the expected element');
+                assert.equal($container.find('.dropdown-form [data-control="trigger"]').length, 1, 'The component contains the trigger button');
+                assert.equal($container.find('.dropdown-form fieldset').length, 1, 'The component contains a place for the widgets');
+
+                data.expected.forEach(function(id) {
+                    assert.equal($container.find('.dropdown-form [data-control="' + id + '"]').length, 1, 'The component contains the button ' + id);
+                });
+
+                assert.equal($container.find('.dropdown-form [data-control="submit"]').length, submitAllowed ? 1 : 0, 'The submit button is set as expected');
+
+                assert.equal($container.find('.dropdown-form fieldset').children().length, _.size(data.config && data.config.widgets), 'The initial widgets are rendered');
+
+                _.forEach(data.config && data.config.widgets, function(widget) {
+                    assert.equal($container.find('.dropdown-form fieldset [name="' + widget.uri + '"]').first().length, 1, 'The widget ' + widget.uri + ' has been rendered');
+                });
+
+                instance.destroy();
+            })
+            .on('destroy', function () {
+                ready();
+            })
+            .on('error', function (err) {
+                assert.ok(false, 'The operation should not fail!');
+                assert.pushResult({
+                    result: false,
+                    message: err
+                });
+                ready();
+            });
+    });
+
     QUnit.test('values', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-values');
