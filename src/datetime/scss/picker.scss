@@ -179,4 +179,9 @@ $picker-field-height: 37px;
             }
         }
     }
+
+    > input.flatpickr-input.flatpickr-input.flatpickr-input {
+        padding: 4px;
+        min-width: 130px;
+    }
 }
