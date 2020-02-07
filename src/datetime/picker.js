@@ -111,19 +111,18 @@ var supportedConstraints = ['minDate', 'maxDate', 'enable', 'disable'];
  * @param {String} locale
  * @returns {Boolean}
  */
-var hasTranslationsForLocale = function(locale) {
-    return _.isObject(flatpickrLocalization.default[locale]);
-};
+const hasTranslationsForLocale = locale => _.isObject(flatpickrLocalization.default[locale]);
 
 /**
  * Detects document language
  * @returns {String | undefined}
  */
-var getDefaultLocale = function getDefaultLocale() {
-    var documentLang = window.document.documentElement.getAttribute('lang');
+const getDefaultLocale = () => {
+    const documentLang = window.document.documentElement.getAttribute('lang');
+    const documentLocale = documentLang && documentLang.split('-')[0];
 
-    if (documentLang && hasTranslationsForLocale(documentLang.split('-')[0])) {
-        return documentLang;
+    if (documentLocale && hasTranslationsForLocale(documentLocale)) {
+        return documentLocale;
     }
 };
 
