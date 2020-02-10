@@ -107,13 +107,33 @@ var setups = {
 var supportedConstraints = ['minDate', 'maxDate', 'enable', 'disable'];
 
 /**
+ * Checks translation existing for given locale
+ * @param {String} locale
+ * @returns {Boolean}
+ */
+const hasTranslationsForLocale = locale => _.isObject(flatpickrLocalization.default[locale]);
+
+/**
+ * Detects document language
+ * @returns {String | undefined}
+ */
+const getDefaultLocale = () => {
+    const documentLang = window.document.documentElement.getAttribute('lang');
+    const documentLocale = documentLang && documentLang.split('-')[0];
+
+    if (documentLocale && hasTranslationsForLocale(documentLocale)) {
+        return documentLocale;
+    }
+};
+
+/**
  * The default configuration
  * @see dateTimePickerFactory
  */
 var defaultConfig = {
     setup: 'date',
     controlButtons: false,
-    locale: false,
+    locale: getDefaultLocale(),
     useLocalizedFormat: false,
     constraints: {}
 };
@@ -334,7 +354,7 @@ export default function dateTimePickerFactory(container, options) {
             var setup = setups[this.config.setup] || setups.datetime;
 
             //map the locale from the options to the picker locale
-            if (this.config.locale && _.isObject(flatpickrLocalization.default[this.config.locale])) {
+            if (this.config.locale && hasTranslationsForLocale(this.config.locale)) {
                 locale = this.config.locale;
             }
 

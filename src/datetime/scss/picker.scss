@@ -75,6 +75,7 @@ $picker-field-height: 37px;
                     }
                 }
                 .cur-year {
+                    padding: 0 0 0 0.5ch;
                     height: $picker-field-height;
                 }
             }
@@ -177,5 +178,10 @@ $picker-field-height: 37px;
                 height: $picker-field-height;
             }
         }
+    }
+
+    > input.flatpickr-input.flatpickr-input.flatpickr-input {
+        padding: 4px;
+        min-width: 130px;
     }
 }
