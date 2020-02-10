@@ -5,13 +5,13 @@
         {{#if single}}
     <div class="single" data-resource="{{allowedResources.0.id}}">
         <p>
-            {{__ "The action will be applied to"}} {{resourceType}} <span class="resource-label">{{allowedResources.0.label}}</span>
+            {{__ "The action will be applied to"}} {{__ resourceType}} <span class="resource-label">{{allowedResources.0.label}}</span>
         </p>
     </div>
         {{else}}
     <div class="multiple">
         <p>
-            {{__ "The action will be applied to the following"}} <span class="resource-count">{{resourceCount}}</span> {{resourceTypes}}:
+            {{__ "The action will be applied to the following"}} <span class="resource-count">{{resourceCount}}</span> {{__ resourceTypes}}:
         </p>
         <ul class="plain applicables">
             {{#each allowedResources}}
@@ -28,12 +28,12 @@
         {{#if singleDenied}}
     <div class="single" data-resource="{{deniedResources.0.id}}">
         <p>
-            {{__ "The action will not be applied to "}} {{resourceType}} <span class="resource-label">{{deniedResources.0.label}}</span>
+            {{__ "The action will not be applied to "}} {{__ resourceType}} <span class="resource-label">{{deniedResources.0.label}}</span>
         </p>
     </div>
         {{else}}
     <p>
-        {{__ "The action will not be applied to the following"}} {{resourceTypes}}:
+        {{__ "The action will not be applied to the following"}} {{__ resourceTypes}}:
     </p>
     <ul class="plain no-applicables">
             {{#each deniedResources}}
