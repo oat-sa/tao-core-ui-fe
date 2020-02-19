@@ -1,9 +1,7 @@
-<div id="{{id}}" class="feedback feedback-{{level}} {{#if popup}}popup{{/if}}"
-     role="dialog" aria-describedby="{{dompurify msg}}" >
+<div id="{{id}}" class="feedback feedback-{{level}} {{#if popup}}popup{{/if}}" role="alert" >
     <span class="icon-{{level}}"></span>
-    <div aria-live="{{dompurify msg}}">
+    <div aria-live="assertive" aria-label="{{{dompurify msg}}}">
         {{{dompurify msg}}}
     </div>
-    <button title="{{__ 'Close message'}}" class="icon-close" data-close=":parent .feedback"
-            aria-label="{{__ 'Close message'}}"></button>
+    <span title="{{__ 'Close message'}}" class="icon-close" data-close=":parent .feedback" role="button" tabindex="0"></span>
 </div>
