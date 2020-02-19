@@ -37,6 +37,7 @@ import selectable from 'ui/resource/selectable';
 import hider from 'ui/hider';
 import listTpl from 'ui/resource/tpl/list';
 import listNodeTpl from 'ui/resource/tpl/listNode';
+import DOMPurify from 'dompurify'
 
 var defaultConfig = {
     multiple: true
@@ -105,6 +106,7 @@ export default function resourceListFactory($container, config) {
                                 resources.nodes,
                                 function(acc, node) {
                                     node.icon = self.config.icon;
+                                    node.label = DOMPurify.sanitize(node.label);
                                     acc += listNodeTpl(node);
                                     return acc;
                                 },
