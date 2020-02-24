@@ -1,9 +1,9 @@
 {{#equal type 'class'}}
 <li data-uri="{{uri}}" class="class{{#if selectable}} selectable{{/if}} {{state}}" data-count="{{count}}" {{#if accessMode}}data-access="{{accessMode}}"{{/if}}>
-    <a href="#" title="{{label}}">
+    <a href="#" title="{{{label}}}">
         <span class="class-toggler clickable" tabindex="0"></span>
         <span class="icon-folder"></span>
-        {{label}}
+        {{{label}}}
         <span class="selector clickable" tabindex="0"></span>
     </a>
     <ul>
@@ -19,9 +19,9 @@
 
 {{#equal type 'instance'}}
 <li data-uri="{{uri}}" class="instance{{#if selectable}} selectable{{/if}} {{state}}"  {{#if accessMode}}data-access="{{accessMode}}"{{/if}}>
-    <a href="#" title="{{label}}">
+    <a href="#" title="{{{label}}}">
         <span class="icon-{{icon}}"></span>
-        {{label}}
+        {{{label}}}
         <span class="selector clickable" tabindex="0"></span>
     </a>
 </li>
