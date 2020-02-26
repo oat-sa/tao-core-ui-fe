@@ -38,6 +38,7 @@ import selectable from 'ui/resource/selectable';
 import hider from 'ui/hider';
 import treeTpl from 'ui/resource/tpl/tree';
 import treeNodeTpl from 'ui/resource/tpl/treeNode';
+import DOMPurify from 'dompurify'
 
 //yes indent isn't handle by css
 var indentStep = 15;
@@ -169,6 +170,7 @@ export default function resourceTreeFactory($container, config) {
 
                     function reduceNode(acc, node) {
                         node.selectable = false;
+                        node.label = DOMPurify.sanitize(node.label);
 
                         //filter already added nodes or classes when loading "more"
                         if (
