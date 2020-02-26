@@ -56,6 +56,10 @@ $picker-field-height: 37px;
             width: inherit;
         }
 
+        .flatpickr-weekday {
+            text-transform: capitalize;
+        }
+
         .numInputWrapper {
             height: $picker-field-height;
         }
@@ -68,6 +72,7 @@ $picker-field-height: 37px;
                 height: $picker-field-height;
                 line-height: $picker-field-height;
                 .cur-month {
+                    text-transform: capitalize;
                     margin: 0 0.5ch;
 
                     & :hover {
