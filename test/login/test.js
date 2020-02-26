@@ -22,19 +22,27 @@
 define(['jquery', 'ui/login/login'], function($, loginFactory) {
     'use strict';
 
-    var passwordRevealConfig = {
+    const passwordRevealConfig = {
         enablePasswordReveal: true,
         disableAutocomplete: false
     };
 
-    var disableAutocompleteConfig = {
+    const disableAutocompleteConfig = {
         enablePasswordReveal: false,
         disableAutocomplete: true
     };
 
-    var bothOptionsConfig = {
+    const bothOptionsConfig = {
         enablePasswordReveal: true,
         disableAutocomplete: true
+    };
+
+    const disableAutofocusConfig = {
+        disableAutofocus: true,
+    };
+
+    const enableAutofocusConfig = {
+        disableAutofocus: false,
     };
 
     QUnit.module('API');
@@ -184,7 +192,7 @@ define(['jquery', 'ui/login/login'], function($, loginFactory) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
-        assert.expect(6);
+        assert.expect(8);
 
         assert.equal($('.login-component', $container).length, 0, 'No resource tree in the container');
 
@@ -214,6 +222,18 @@ define(['jquery', 'ui/login/login'], function($, loginFactory) {
                 $('input[type=password]', $element).attr('autocomplete'),
                 'off',
                 'The component has autocomplete disabled for password field'
+            );
+
+            assert.equal(
+                $('.loginForm:not(.fakeForm) label', $container).length,
+                0,
+                'The component remover labels from real form'
+            );
+
+            assert.equal(
+                $('.loginForm.fakeForm label', $container).length,
+                2,
+                'The component keeps labels in fake form'
             );
 
             ready();
@@ -275,4 +295,33 @@ define(['jquery', 'ui/login/login'], function($, loginFactory) {
             ready();
         });
     });
+
+    QUnit.test('Autofocus disabled', (assert) => {
+        const ready = assert.async();
+        const $container = $('#qunit-fixture');
+
+        assert.expect(2);
+
+        loginFactory($container, enableAutofocusConfig).after('render', function() {
+            const $element = this.getElement();
+
+            assert.equal(
+                $('input[type=text]', $element).attr('autofocus'),
+                'autofocus',
+                'Autofocus is enabled'
+            );
+
+            loginFactory($container, disableAutofocusConfig).after('render', function() {
+                const $elementWitoutAutofocus = this.getElement();
+
+                assert.equal(
+                    $('input[type=text]', $elementWitoutAutofocus).attr('autofocus'),
+                    undefined,
+                    'Autofocus is disabled'
+                );
+
+                ready();
+            });
+        });
+  });
 });

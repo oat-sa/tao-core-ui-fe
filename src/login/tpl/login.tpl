@@ -7,7 +7,7 @@
         <div>
             <label class="form_desc" for="login">
                 {{__ "Login"}}
-            </label><input type="text" name="login" id="login" autofocus="autofocus"{{#if disableAutocomplete}} autocomplete="off"{{/if}}>
+            </label><input type="text" name="login" id="login" {{#unless disableAutofocus}}autofocus="autofocus"{{/unless}} {{#if disableAutocomplete}} autocomplete="off"{{/if}}>
             {{#if fieldMessages.login}}
                 <div class="form-error">
                     {{fieldMessages.login}}
