@@ -176,7 +176,7 @@ export default function loginFactory($container, config) {
                 $pwdInput.focus();
             };
 
-            var hide = function hide() {
+            var hide = function hide(moveFocus) {
                 $hideIcon.hide();
                 $viewIcon.show();
 
@@ -184,6 +184,10 @@ export default function loginFactory($container, config) {
                 $pwdInput.autocomplete = self.isAutocompleteDisabled() ? 'off' : 'on';
 
                 window.removeEventListener('mousedown', autoHide);
+
+                if (moveFocus) {
+                    $pwdInput.focus();
+                }
             };
 
             $form = this.getForm();
@@ -199,7 +203,7 @@ export default function loginFactory($container, config) {
                 if ($pwdInput.type === 'password') {
                     show();
                 } else {
-                    hide();
+                    hide(true);
                 }
             });
 
@@ -208,7 +212,7 @@ export default function loginFactory($container, config) {
                     if ($pwdInput.type === 'password') {
                         show();
                     } else {
-                        hide();
+                        hide(true);
                     }
                 }
             });
