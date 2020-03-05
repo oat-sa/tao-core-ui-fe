@@ -7,7 +7,7 @@
         <div>
             <label class="form_desc" for="login">
                 {{__ "Login"}}
-            </label><input type="text" name="login" id="login" {{#unless disableAutofocus}}autofocus="autofocus"{{/unless}} {{#if disableAutocomplete}} autocomplete="off"{{/if}}>
+            </label><input type="text" name="login" id="login" {{#unless disableAutofocus}}autofocus="autofocus"{{/unless}} {{#if disableAutocomplete}} autocomplete="off"{{/if}} aria-required="true">
             {{#if fieldMessages.login}}
                 <div class="form-error">
                     {{fieldMessages.login}}
@@ -17,7 +17,7 @@
         <div>
             <label class="form_desc" for="password">
                 {{__ "Password"}}
-            </label><input type="password" name="password" id="password"{{#if disableAutocomplete}} autocomplete="off"{{/if}}>
+            </label><input type="password" name="password" id="password"{{#if disableAutocomplete}} autocomplete="off"{{/if}} aria-required="true">
             {{#if fieldMessages.password}}
                 <div class="form-error">
                     {{fieldMessages.login}}
