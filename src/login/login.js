@@ -198,10 +198,8 @@ export default function loginFactory($container, config) {
             $inputToggle.on('click', function() {
                 if ($pwdInput.type === 'password') {
                     show();
-                    $inputToggle.attr('aria-checked', 'true');
                 } else {
                     hide();
-                    $inputToggle.attr('aria-checked', 'false');
                 }
             });
 
@@ -209,10 +207,8 @@ export default function loginFactory($container, config) {
                 if (e.key === ' ') {
                     if ($pwdInput.type === 'password') {
                         show();
-                        $inputToggle.attr('aria-checked', 'true');
                     } else {
                         hide();
-                        $inputToggle.attr('aria-checked', 'false');
                     }
                 }
             });
