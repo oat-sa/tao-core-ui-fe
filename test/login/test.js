@@ -22,19 +22,27 @@
 define(['jquery', 'ui/login/login'], function($, loginFactory) {
     'use strict';
 
-    var passwordRevealConfig = {
+    const passwordRevealConfig = {
         enablePasswordReveal: true,
         disableAutocomplete: false
     };
 
-    var disableAutocompleteConfig = {
+    const disableAutocompleteConfig = {
         enablePasswordReveal: false,
         disableAutocomplete: true
     };
 
-    var bothOptionsConfig = {
+    const bothOptionsConfig = {
         enablePasswordReveal: true,
         disableAutocomplete: true
+    };
+
+    const disableAutofocusConfig = {
+        disableAutofocus: true,
+    };
+
+    const enableAutofocusConfig = {
+        disableAutofocus: false,
     };
 
     QUnit.module('API');
@@ -150,7 +158,7 @@ define(['jquery', 'ui/login/login'], function($, loginFactory) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
-        assert.expect(6);
+        assert.expect(7);
 
         assert.equal($('.login-component', $container).length, 0, 'No resource tree in the container');
 
@@ -166,9 +174,14 @@ define(['jquery', 'ui/login/login'], function($, loginFactory) {
                 'The component has the password reveal button'
             );
             assert.equal(
-                $('.viewable-hiddenbox-toggle', $element).attr('tabindex'),
+                $('.icon-preview', $element).attr('tabindex'),
                 0,
-                'Password reveal button can be accessed from keyboard'
+                'Show password button can be accessed from keyboard'
+            );
+            assert.equal(
+                $('.icon-eye-slash', $element).attr('tabindex'),
+                0,
+                'Hide password button can be accessed from keyboard'
             );
             assert.equal(
                 $('.viewable-hiddenbox-toggle span.icon-preview', $element).is(':visible'),
@@ -184,7 +197,7 @@ define(['jquery', 'ui/login/login'], function($, loginFactory) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
-        assert.expect(6);
+        assert.expect(8);
 
         assert.equal($('.login-component', $container).length, 0, 'No resource tree in the container');
 
@@ -216,6 +229,18 @@ define(['jquery', 'ui/login/login'], function($, loginFactory) {
                 'The component has autocomplete disabled for password field'
             );
 
+            assert.equal(
+                $('.loginForm:not(.fakeForm) label', $container).length,
+                0,
+                'The component remover labels from real form'
+            );
+
+            assert.equal(
+                $('.loginForm.fakeForm label', $container).length,
+                2,
+                'The component keeps labels in fake form'
+            );
+
             ready();
         });
     });
@@ -224,7 +249,7 @@ define(['jquery', 'ui/login/login'], function($, loginFactory) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
-        assert.expect(9);
+        assert.expect(10);
 
         assert.equal($('.login-component', $container).length, 0, 'No resource tree in the container');
 
@@ -262,9 +287,14 @@ define(['jquery', 'ui/login/login'], function($, loginFactory) {
                 'The component has the password reveal button'
             );
             assert.equal(
-                $('.viewable-hiddenbox-toggle', $container).attr('tabindex'),
+                $('.icon-preview', $container).attr('tabindex'),
                 0,
-                'Password reveal button can be accessed from keyboard'
+                'Show password button can be accessed from keyboard'
+            );
+            assert.equal(
+                $('.icon-eye-slash', $container).attr('tabindex'),
+                0,
+                'Hide password button can be accessed from keyboard'
             );
             assert.equal(
                 $('.viewable-hiddenbox-toggle span.icon-preview', $container).is(':visible'),
@@ -275,4 +305,33 @@ define(['jquery', 'ui/login/login'], function($, loginFactory) {
             ready();
         });
     });
+
+    QUnit.test('Autofocus disabled', (assert) => {
+        const ready = assert.async();
+        const $container = $('#qunit-fixture');
+
+        assert.expect(2);
+
+        loginFactory($container, enableAutofocusConfig).after('render', function() {
+            const $element = this.getElement();
+
+            assert.equal(
+                $('input[type=text]', $element).attr('autofocus'),
+                'autofocus',
+                'Autofocus is enabled'
+            );
+
+            loginFactory($container, disableAutofocusConfig).after('render', function() {
+                const $elementWitoutAutofocus = this.getElement();
+
+                assert.equal(
+                    $('input[type=text]', $elementWitoutAutofocus).attr('autofocus'),
+                    undefined,
+                    'Autofocus is disabled'
+                );
+
+                ready();
+            });
+        });
+  });
 });

@@ -32,6 +32,7 @@ import pwdRevealTpl from 'ui/login/tpl/passwordReveal';
 var _defaultConfig = {
     disableAutocomplete: false,
     enablePasswordReveal: false,
+    disableAutofocus: false,
     message: {
         error: '',
         info: null
@@ -48,6 +49,7 @@ var _defaultConfig = {
  * @param {Object} config - the component config
  * @param {Object} [config.disableAutocomplete] - depending on this setting autocomplete would be disabled or enabled (and fakeForm rendered)
  * @param {Object} [config.enablePasswordReveal] - depending on this setting password reveal would be disabled or enabled for the password field
+ * @param {Object} [config.disableAutofocus] - depending on this setting autofocus attribute will be added to login filed
  * @param {Object} [config.fieldMessages] - field validation messages
  * @param {String} [config.name] - the component name (used by the element)
  * @param {String} [config.url] - the url to send login form to.
@@ -96,7 +98,10 @@ export default function loginFactory($container, config) {
          * @returns {jQuery} jQuery element
          */
         createFakeForm: function createFakeForm() {
-            var $fakeFormDom = this.getElement().clone();
+            const $element = this.getElement()
+            const $fakeFormDom = $element.clone();
+
+            $element.find('label').remove();
 
             return $fakeFormDom.html(fakeFormTpl({ form: $fakeFormDom.find('form').html() }));
         },
@@ -171,7 +176,7 @@ export default function loginFactory($container, config) {
                 $pwdInput.focus();
             };
 
-            var hide = function hide() {
+            var hide = function hide(moveFocus) {
                 $hideIcon.hide();
                 $viewIcon.show();
 
@@ -179,6 +184,10 @@ export default function loginFactory($container, config) {
                 $pwdInput.autocomplete = self.isAutocompleteDisabled() ? 'off' : 'on';
 
                 window.removeEventListener('mousedown', autoHide);
+
+                if (moveFocus) {
+                    $pwdInput.focus();
+                }
             };
 
             $form = this.getForm();
@@ -194,7 +203,7 @@ export default function loginFactory($container, config) {
                 if ($pwdInput.type === 'password') {
                     show();
                 } else {
-                    hide();
+                    hide(true);
                 }
             });
 
@@ -203,7 +212,7 @@ export default function loginFactory($container, config) {
                     if ($pwdInput.type === 'password') {
                         show();
                     } else {
-                        hide();
+                        hide(true);
                     }
                 }
             });
