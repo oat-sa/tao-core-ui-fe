@@ -307,7 +307,7 @@ var autocompleter = {
                 self.on(name.substr(2), value);
             } else {
                 // not a component option, forward it to the plugin instance
-                options[name] = value;
+                pluginOptions[name] = value;
             }
         });
 
