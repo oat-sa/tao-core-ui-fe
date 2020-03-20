@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2017 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2017-2020 (original work) Open Assessment Technologies SA;
  *
  */
 
@@ -25,21 +25,20 @@ import $ from 'jquery';
 import _ from 'lodash';
 import eventifier from 'core/eventifier';
 
-var _ns = '.navigable-group-element';
+const eventNS = '.navigable-group-element';
 
 /**
  * From an instance of keyNavigator, create a navigable element compatible with ui/KeyNavigator/navigator
  * @param {keyNavigator} keyNavigator
  * @returns {navigableGroupElement}
  */
-var navigableGroupElementFactory = function navigableGroupElementFactory(keyNavigator) {
-    var $group;
+export default function navigableGroupElementFactory(keyNavigator) {
 
     if (!keyNavigator) {
         throw new TypeError('the navigation group does not exist');
     }
 
-    $group = keyNavigator.getGroup();
+    const $group = keyNavigator.getGroup();
     if (!$group.length || !$.contains(document, $group[0])) {
         throw new TypeError('the group dom element does not exist');
     }
@@ -52,14 +51,12 @@ var navigableGroupElementFactory = function navigableGroupElementFactory(keyNavi
          * Init the navigableGroupElement instance
          * @returns {navigableGroupElement}
          */
-        init: function init() {
+        init() {
             //add the focusin and focus out class for group highlighting
             $group
-                .on('focusin' + _ns, function() {
-                    $group.addClass('focusin');
-                })
-                .on('focusout' + _ns, function() {
-                    _.defer(function() {
+                .on(`focusin${eventNS}`, () => $group.addClass('focusin'))
+                .on(`focusout${eventNS}`, () => {
+                    _.defer(() => {
                         if (!document.activeElement || !$.contains($group.get(0), document.activeElement)) {
                             $group.removeClass('focusin');
                         }
@@ -73,8 +70,8 @@ var navigableGroupElementFactory = function navigableGroupElementFactory(keyNavi
          * Destroy the navigableGroupElement instance
          * @returns {navigableGroupElement}
          */
-        destroy: function destroy() {
-            $group.removeClass('focusin').off(_ns);
+        destroy() {
+            $group.removeClass('focusin').off(eventNS);
 
             return this;
         },
@@ -83,7 +80,7 @@ var navigableGroupElementFactory = function navigableGroupElementFactory(keyNavi
          * Get the dom element
          * @returns {JQuery}
          */
-        getElement: function getElement() {
+        getElement() {
             return $group;
         },
 
@@ -91,43 +88,29 @@ var navigableGroupElementFactory = function navigableGroupElementFactory(keyNavi
          * Check if the navigable element is visible
          * @returns {boolean}
          */
-        isVisible: function isVisible() {
-            var hasVisibleNavigable = false;
-            if (!$group.is(':visible')) {
-                return false;
+        isVisible() {
+            if ($group.is(':visible')) {
+                return keyNavigator.getNavigables().some(nav => nav.isVisible());
             }
-            _.forEach(keyNavigator.getNavigables(), function(nav) {
-                if (nav.isVisible()) {
-                    hasVisibleNavigable = true;
-                    return false;
-                }
-            });
-            return hasVisibleNavigable;
+            return false;
         },
 
         /**
          * Check if the navigable element is not disabled
-         * @returns {boolean}
+         * @returns {Boolean}
          */
-        isEnabled: function isEnabled() {
-            var hasEnabledNavigable = false;
-            if ($group.is(':disabled')) {
-                return false;
+        isEnabled() {
+            if (!$group.is(':disabled')) {
+                return keyNavigator.getNavigables().some(nav => nav.isEnabled());
             }
-            _.forEach(keyNavigator.getNavigables(), function(nav) {
-                if (nav.isEnabled()) {
-                    hasEnabledNavigable = true;
-                    return false;
-                }
-            });
-            return hasEnabledNavigable;
+            return false;
         },
 
         /**
          * Set focus on the navigable element
          * @returns {navigableGroupElement}
          */
-        focus: function focus() {
+        focus() {
             keyNavigator.focus(this);
             return this;
         },
@@ -136,7 +119,7 @@ var navigableGroupElementFactory = function navigableGroupElementFactory(keyNavi
          * Return an instance of keyNavigator
          * @returns {keyNavigator} keyNavigator
          */
-        getKeyNavigator: function getKeyNavigator() {
+        getKeyNavigator() {
             return keyNavigator;
         }
     });
@@ -147,12 +130,9 @@ var navigableGroupElementFactory = function navigableGroupElementFactory(keyNavi
  * @param {Array} keyNavigators - the array of navigators to be transformed into an array or navigableGroupElement
  * @returns {Array}
  */
-navigableGroupElementFactory.createFromNavigators = function createFromNavigators(keyNavigators) {
-    var list = [];
-    _.each(keyNavigators, function(keyNavigator) {
-        list.push(navigableGroupElementFactory(keyNavigator));
-    });
-    return list;
+navigableGroupElementFactory.createFromNavigators = keyNavigators => {
+    if (Array.isArray(keyNavigators)) {
+        return keyNavigators.map(navigableGroupElementFactory);
+    }
+    return [];
 };
-
-export default navigableGroupElementFactory;
