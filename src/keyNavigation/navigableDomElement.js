@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2017 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2017-2020 (original work) Open Assessment Technologies SA;
  *
  */
 
@@ -25,10 +25,10 @@ import eventifier from 'core/eventifier';
 
 /**
  * From a dom element, create a navigable element compatible with ui/KeyNavigator/navigator
- * @param {JQuery} $element
+ * @param {jQuery} $element
  * @returns {navigableDomElement}
  */
-var navigableDomElement = function navigableDomElement($element) {
+export default function navigableDomElement($element) {
     $element = $($element);
 
     /**
@@ -39,7 +39,7 @@ var navigableDomElement = function navigableDomElement($element) {
          * Init the navigableDomElement instance
          * @returns {navigableDomElement}
          */
-        init: function init() {
+        init() {
             if (!$element.length) {
                 throw new TypeError('dom element does not exist');
             }
@@ -52,16 +52,16 @@ var navigableDomElement = function navigableDomElement($element) {
          * Destroy the navigableDomElement instance
          * @returns {navigableDomElement}
          */
-        destroy: function destroy() {
+        destroy() {
             $element.removeClass('key-navigation-highlight');
             return this;
         },
 
         /**
          * Get the dom element
-         * @returns {JQuery}
+         * @returns {jQuery}
          */
-        getElement: function getElement() {
+        getElement() {
             return $element;
         },
 
@@ -69,7 +69,7 @@ var navigableDomElement = function navigableDomElement($element) {
          * Check if the navigable element is visible
          * @returns {boolean}
          */
-        isVisible: function isVisible() {
+        isVisible() {
             return $element.is(':visible');
         },
 
@@ -77,7 +77,7 @@ var navigableDomElement = function navigableDomElement($element) {
          * Check if the navigable element is not disabled
          * @returns {boolean}
          */
-        isEnabled: function isEnabled() {
+        isEnabled() {
             return !$element.is(':disabled');
         },
 
@@ -85,7 +85,7 @@ var navigableDomElement = function navigableDomElement($element) {
          * Set focus on the navigable element
          * @returns {navigableGroupElement}
          */
-        focus: function focus() {
+        focus() {
             $element.focus();
             return this;
         }
@@ -93,16 +93,12 @@ var navigableDomElement = function navigableDomElement($element) {
 };
 
 /**
- * From a JQuery container, returns an array of navigableDomElement
- * @param {JQuery} $elements
+ * From a jQuery container, returns an array of navigableDomElement
+ * @param {jQuery} $elements
  * @returns {Array}
  */
-navigableDomElement.createFromDoms = function createFromDoms($elements) {
-    var list = [];
-    $elements.each(function() {
-        list.push(navigableDomElement($(this)));
-    });
+navigableDomElement.createFromDoms = $elements => {
+    const list = [];
+    $elements.each((i, element) => list.push(navigableDomElement(element)));
     return list;
 };
-
-export default navigableDomElement;
