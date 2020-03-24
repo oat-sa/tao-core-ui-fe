@@ -23,13 +23,16 @@
 import $ from 'jquery';
 import eventifier from 'core/eventifier';
 
+const navigableCls = 'key-navigation-highlight';
+
 /**
  * From a dom element, create a navigable element compatible with ui/KeyNavigator/navigator
- * @param {jQuery} $element
+ * @param {String|Element|jQuery} element
  * @returns {navigableDomElement}
  */
-export default function navigableDomElement($element) {
-    $element = $($element);
+export default function navigableDomElement(element) {
+    const $element = $(element);
+    let initialTabIndex = null;
 
     /**
      * @typedef navigableDomElement
@@ -43,8 +46,14 @@ export default function navigableDomElement($element) {
             if (!$element.length) {
                 throw new TypeError('dom element does not exist');
             }
-            $element.attr('tabindex', -1); //add simply a tabindex to enable focusing, this tabindex is not actually used in tabbing order
-            $element.addClass('key-navigation-highlight');
+
+            initialTabIndex = $element.attr('tabindex');
+
+            // add a tabindex to enable focusing, this tabindex is not actually used in tabbing order
+            $element
+                .addClass(navigableCls)
+                .attr('tabindex', -1);
+
             return this;
         },
 
@@ -53,7 +62,14 @@ export default function navigableDomElement($element) {
          * @returns {navigableDomElement}
          */
         destroy() {
-            $element.removeClass('key-navigation-highlight');
+            $element.removeClass(navigableCls);
+
+            if (initialTabIndex || initialTabIndex === 0) {
+                $element.attr('tabindex', initialTabIndex);
+            } else {
+                $element.removeAttr('tabindex');
+            }
+
             return this;
         },
 
@@ -87,6 +103,7 @@ export default function navigableDomElement($element) {
          */
         focus() {
             $element.focus();
+
             return this;
         }
     });
@@ -99,6 +116,12 @@ export default function navigableDomElement($element) {
  */
 navigableDomElement.createFromDoms = $elements => {
     const list = [];
-    $elements.each((i, element) => list.push(navigableDomElement(element)));
+
+    if ($elements && $elements instanceof $) {
+        $elements.each(
+            (i, element) => list.push(navigableDomElement(element))
+        );
+    }
+
     return list;
 };
