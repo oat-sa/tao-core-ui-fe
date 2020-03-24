@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Test - Key Navigation - Navigable Group Element</title>
+        <script type="text/javascript" src="/environment/require.js"></script>
+        <script type="text/javascript">
+            require(['/environment/config.js'], function() {
+                require(['qunitEnv'], function() {
+                    require(['test/ui/keyNavigation/navigableGroupElement/test'], function() {
+                        QUnit.config.reorder = false;
+                        QUnit.start();
+                    });
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <div id="qunit"></div>
+        <div id="qunit-fixture">
+            <button class="test-element test-disabled">Foo 1</button>
+            <span class="test-element">Foo 2</span>
+            <ul>
+                <li class="test-element">Foo 3</li>
+            </ul>
+            <a class="test-element">Foo 4</a>
+            <input class="test-element test-disabled" type="text" />
+        </div>
+    </body>
+</html>

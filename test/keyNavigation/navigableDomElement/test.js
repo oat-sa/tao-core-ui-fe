@@ -51,7 +51,6 @@ define([
         assert.equal(typeof instance[data.title], 'function', 'The navigator exposes a "' + data.title + '" function');
     });
 
-
     QUnit.test('init parameter / getElement', function (assert) {
         var expected = document.querySelector(fixtureSelector);
         var instance;
