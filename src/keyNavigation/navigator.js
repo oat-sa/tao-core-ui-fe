@@ -59,22 +59,26 @@ const defaults = {
 };
 
 /**
+ * The list of mandatory methods a navigable element must expose.
+ * @type {String[]}
+ */
+const navigableApi = [
+    'init',
+    'destroy',
+    'getElement',
+    'isVisible',
+    'isEnabled',
+    'isFocused',
+    'focus'
+];
+
+/**
  * Check if the object is argument is a valid navigable element
  *
- * @param {Object} navElement
+ * @param {Object} navigable
  * @returns {boolean}
  */
-function isNavigableElement(navElement) {
-    return (
-        navElement &&
-        _.isFunction(navElement.init) &&
-        _.isFunction(navElement.destroy) &&
-        _.isFunction(navElement.getElement) &&
-        _.isFunction(navElement.isVisible) &&
-        _.isFunction(navElement.isEnabled) &&
-        _.isFunction(navElement.focus)
-    );
-}
+const isNavigableElement = navigable => navigable && navigableApi.every(n => 'function' === typeof navigable[n]);
 
 /**
  * Create a keyNavigator
