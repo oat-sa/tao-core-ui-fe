@@ -54,10 +54,14 @@ export default function navigableGroupElementFactory(keyNavigator) {
         init() {
             //add the focusin and focus out class for group highlighting
             $group
-                .on(`focusin${eventNS}`, () => $group.addClass('focusin'))
+                .on(`focusin${eventNS}`, () => {
+                    if (this.isFocused()) {
+                        $group.addClass('focusin');
+                    }
+                })
                 .on(`focusout${eventNS}`, () => {
                     _.defer(() => {
-                        if (!document.activeElement || !$.contains($group.get(0), document.activeElement)) {
+                        if (!this.isFocused()) {
                             $group.removeClass('focusin');
                         }
                     });
@@ -85,7 +89,7 @@ export default function navigableGroupElementFactory(keyNavigator) {
         },
 
         /**
-         * Check if the navigable element is visible
+         * Check if the group and at least one navigable element is visible
          * @returns {boolean}
          */
         isVisible() {
@@ -96,12 +100,23 @@ export default function navigableGroupElementFactory(keyNavigator) {
         },
 
         /**
-         * Check if the navigable element is not disabled
+         * Check if the group and at least one navigable element is enabled
          * @returns {Boolean}
          */
         isEnabled() {
             if (!$group.is(':disabled')) {
                 return keyNavigator.getNavigables().some(nav => nav.isEnabled());
+            }
+            return false;
+        },
+
+        /**
+         * Check if at least one navigable element is focused
+         * @returns {Boolean}
+         */
+        isFocused() {
+            if (document.activeElement) {
+                return keyNavigator.getNavigables().some(nav => nav.isFocused());
             }
             return false;
         },
