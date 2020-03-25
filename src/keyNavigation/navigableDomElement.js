@@ -83,7 +83,7 @@ export default function navigableDomElement(element) {
 
         /**
          * Check if the navigable element is visible
-         * @returns {boolean}
+         * @returns {Boolean}
          */
         isVisible() {
             return $element.is(':visible');
@@ -91,10 +91,19 @@ export default function navigableDomElement(element) {
 
         /**
          * Check if the navigable element is not disabled
-         * @returns {boolean}
+         * @returns {Boolean}
          */
         isEnabled() {
             return !$element.is(':disabled');
+        },
+
+        /**
+         * Check if the navigable element is focused
+         * @returns {Boolean}
+         */
+        isFocused() {
+            const el = $element.get(0);
+            return document.activeElement && (el === document.activeElement || $.contains(el, document.activeElement));
         },
 
         /**

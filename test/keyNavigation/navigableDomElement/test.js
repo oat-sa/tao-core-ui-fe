@@ -44,6 +44,7 @@ define([
         {title: 'getElement'},
         {title: 'isVisible'},
         {title: 'isEnabled'},
+        {title: 'isFocused'},
         {title: 'focus'}
     ]).test('api ', function (data, assert) {
         var instance = navigableDomElement();
@@ -122,21 +123,34 @@ define([
         assert.equal(instance.isEnabled(), false, 'The element is disabled');
     });
 
-    QUnit.test('focus', function (assert) {
+    QUnit.test('focus / isFocused', function (assert) {
         var fixture = document.querySelector(fixtureSelector);
+        var inner = fixture.querySelector('.inner-element');
         var instance = navigableDomElement(fixture);
 
-        assert.expect(3);
+        assert.expect(9);
 
         if (document.activeElement) {
             document.activeElement.blur();
         }
 
         assert.equal(document.activeElement, document.body, 'No element in focus');
+        assert.equal(instance.isFocused(), false, 'The element is not focused');
 
         assert.equal(instance.focus(), instance, 'The focus method is fluent');
 
         assert.equal(document.activeElement, instance.getElement().get(0), 'The element got the focus');
+        assert.equal(instance.isFocused(), true, 'The element is focused');
+
+        document.activeElement.blur();
+
+        assert.equal(document.activeElement, document.body, 'No element in focus');
+        assert.equal(instance.isFocused(), false, 'The element is not focused');
+
+        inner.focus();
+
+        assert.equal(document.activeElement, inner, 'The inner element got the focus');
+        assert.equal(instance.isFocused(), true, 'The element is focused');
     });
 
     QUnit.test('createFromDoms', function (assert) {
