@@ -44,17 +44,24 @@ define([
         {title: 'on'},
         {title: 'off'},
         {title: 'trigger'},
+        {title: 'spread'}
+    ]).test('event API ', function (data, assert) {
+        var knavigator = keyNavigator();
+        assert.expect(1);
+        assert.equal(typeof knavigator[data.title], 'function', 'The navigator exposes a "' + data.title + '" function');
+    });
+
+    QUnit.cases.init([
         {title: 'getId'},
         {title: 'getGroup'},
         {title: 'next'},
         {title: 'previous'},
         {title: 'activate'},
-        {title: 'goto'},
         {title: 'focus'},
         {title: 'focusPosition'},
         {title: 'destroy'},
         {title: 'blur'}
-    ]).test('component method ', function (data, assert) {
+    ]).test('component API ', function (data, assert) {
         var knavigator = keyNavigator();
         assert.expect(1);
         assert.equal(typeof knavigator[data.title], 'function', 'The navigator exposes a "' + data.title + '" function');
@@ -98,7 +105,6 @@ define([
 
         knavigator = keyNavigator({
             id: 'bottom-toolbar',
-            replace: true,
             group: $container,
             elements: navigables,
             defaultPosition: navigables.length - 1
@@ -400,7 +406,6 @@ define([
         var $container = $('#qunit-fixture .inputable');
         var domNavigable = keyNavigator({
             id: 'A',
-            replace: true,
             elements: navigableDomElement.createFromDoms($container.find('input')),
             group: $container
         });
@@ -425,7 +430,6 @@ define([
         var $container = $('#qunit-fixture .inputable');
         var domNavigable = keyNavigator({
             id: 'A',
-            replace: true,
             elements: navigableDomElement.createFromDoms($container.find('input')),
             group: $container
         });
@@ -453,19 +457,16 @@ define([
         var navigableAreas = [
             keyNavigator({
                 id: 'A',
-                replace: true,
                 elements: navigableDomElement.createFromDoms($container.find('[data-id=A]')),
                 group: $container.find('[data-id=A]')
             }),
             keyNavigator({
                 id: 'B',
-                replace: true,
                 elements: navigableDomElement.createFromDoms($container.find('[data-id=B]')),
                 group: $container.find('[data-id=B]')
             }),
             keyNavigator({
                 id: 'C',
-                replace: true,
                 elements: navigableDomElement.createFromDoms($container.find('[data-id=C]')),
                 group: $container.find('[data-id=C]')
             })

@@ -27,7 +27,6 @@
  * const navigables = domNavigableElement.createFromDoms($buttons);
  * keyNavigator({
  *       id : 'navigation-toolbar',
- *       replace : true,
  *       group : $navigationBar,
  *       elements : navigables,
  *       defaultPosition : 0
@@ -46,14 +45,11 @@ import _ from 'lodash';
 import eventifier from 'core/eventifier';
 import shortcutRegistry from 'util/shortcut/registry';
 
-const navigationGroups = {};
-
 const eventNS = '.ui-key-navigator';
 
 const defaults = {
     defaultPosition: 0,
     keepState: false,
-    replace: false,
     loop: false,
     propagateTab: true
 };
@@ -89,7 +85,6 @@ const isNavigableElement = navigable => navigable && navigableApi.every(n => 'fu
  * @param {jQuery} [config.group] - the container the group of elements belong to
  * @param {Number|Function} [config.defaultPosition=0] - the default position the group should set the focus on (could be a function to compute the position)
  * @param {Boolean} [config.keepState=false] - define if the position should be saved in memory after the group blurs and re-focuses
- * @param {Boolean} [config.replace=false] - define if the navigation group can be reinitialized, hence replacing the existing one
  * @param {Boolean} [config.loop=false] - define if the navigation should loop after reaching the last or the first element
  * @returns {keyNavigator}
  */
@@ -171,14 +166,6 @@ export default function keyNavigatorFactory(config) {
         }
         return -1;
     };
-
-    if (navigationGroups[id]) {
-        if (config.replace) {
-            navigationGroups[id].destroy();
-        } else {
-            throw new TypeError('the navigation group id is already in use : ' + id);
-        }
-    }
 
     _.forEach(navigables, navigable => {
         //check if it is a valid navigable element
@@ -310,26 +297,6 @@ export default function keyNavigatorFactory(config) {
         },
 
         /**
-         * Go to another navigation group, defined by its id
-         *
-         * @param {String} groupId
-         * @returns {keyNavigator}
-         * @fires error is the target group does not exists
-         */
-        goto(groupId) {
-            if (navigationGroups[groupId]) {
-                navigationGroups[groupId].focus();
-            } else {
-                /**
-                 * @event error
-                 * @param {Error} error
-                 */
-                this.trigger('error', new Error('goto an unknown navigation group'));
-            }
-            return this;
-        },
-
-        /**
          * Focus the cursor position in memory is keepState is activated, or the default position otherwise
          * @param {keyNavigator} [originNavigator] -  optionally indicates where the previous focus is on
          * @returns {keyNavigator}
@@ -414,7 +381,6 @@ export default function keyNavigatorFactory(config) {
                 }
             });
 
-            delete navigationGroups[id];
             return this;
         },
 
@@ -517,16 +483,5 @@ export default function keyNavigatorFactory(config) {
             });
     });
 
-    //store the navigator for external reference
-    navigationGroups[id] = keyNavigator;
-
     return keyNavigator;
 };
-
-/**
- * Get a group navigation by its id
- *
- * @param {String} id
- * @returns {keyNavigator}
- */
-keyNavigatorFactory.get = id => navigationGroups[id];
