@@ -21,7 +21,6 @@
  * From a dom element, create a navigable element compatible with ui/KeyNavigator/navigator
  */
 import $ from 'jquery';
-import eventifier from 'core/eventifier';
 
 const navigableCls = 'key-navigation-highlight';
 
@@ -37,7 +36,7 @@ export default function navigableDomElement(element) {
     /**
      * @typedef navigableDomElement
      */
-    return eventifier({
+    return {
         /**
          * Init the navigableDomElement instance
          * @returns {navigableDomElement}
@@ -108,14 +107,14 @@ export default function navigableDomElement(element) {
 
         /**
          * Set focus on the navigable element
-         * @returns {navigableGroupElement}
+         * @returns {navigableDomElement}
          */
         focus() {
             $element.focus();
 
             return this;
         }
-    });
+    };
 };
 
 /**

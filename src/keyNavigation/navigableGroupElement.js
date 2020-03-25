@@ -23,7 +23,6 @@
  */
 import $ from 'jquery';
 import _ from 'lodash';
-import eventifier from 'core/eventifier';
 
 const eventNS = '.navigable-group-element';
 
@@ -46,7 +45,7 @@ export default function navigableGroupElementFactory(keyNavigator) {
     /**
      * @typedef navigableGroupElement
      */
-    return eventifier({
+    return {
         /**
          * Init the navigableGroupElement instance
          * @returns {navigableGroupElement}
@@ -137,7 +136,7 @@ export default function navigableGroupElementFactory(keyNavigator) {
         getKeyNavigator() {
             return keyNavigator;
         }
-    });
+    };
 };
 
 /**
