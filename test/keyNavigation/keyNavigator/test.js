@@ -25,7 +25,7 @@ define([
 ], function (
     $,
     _,
-    keyNavigator,
+    keyNavigatorFactory,
     navigableDomElement,
     navigableGroupElement
 ) {
@@ -34,10 +34,9 @@ define([
     QUnit.module('API');
 
     QUnit.test('factory', function (assert) {
-        var knavigator = keyNavigator();
-        assert.equal(typeof keyNavigator, 'function', 'The module exposes a function');
-        assert.equal(typeof knavigator, 'object', 'The factory creates an object');
-        assert.notDeepEqual(knavigator, keyNavigator(), 'The factory creates new objects');
+        assert.equal(typeof keyNavigatorFactory, 'function', 'The module exposes a function');
+        assert.equal(typeof keyNavigatorFactory(), 'object', 'The factory creates an object');
+        assert.notDeepEqual(keyNavigatorFactory(), keyNavigatorFactory(), 'The factory creates new objects');
     });
 
     QUnit.cases.init([
@@ -46,68 +45,75 @@ define([
         {title: 'trigger'},
         {title: 'spread'}
     ]).test('event API ', function (data, assert) {
-        var knavigator = keyNavigator();
+        var keyNavigator = keyNavigatorFactory();
         assert.expect(1);
-        assert.equal(typeof knavigator[data.title], 'function', 'The navigator exposes a "' + data.title + '" function');
+        assert.equal(typeof keyNavigator[data.title], 'function', 'The navigator exposes a "' + data.title + '" function');
     });
 
     QUnit.cases.init([
         {title: 'getId'},
         {title: 'getGroup'},
+        {title: 'getCursor'},
+        {title: 'getNavigables'},
+        {title: 'isFocused'},
+        {title: 'first'},
+        {title: 'last'},
         {title: 'next'},
         {title: 'previous'},
         {title: 'activate'},
+        {title: 'blur'},
         {title: 'focus'},
         {title: 'focusPosition'},
-        {title: 'destroy'},
-        {title: 'blur'}
+        {title: 'destroy'}
     ]).test('component API ', function (data, assert) {
-        var knavigator = keyNavigator();
+        var keyNavigator = keyNavigatorFactory();
         assert.expect(1);
-        assert.equal(typeof knavigator[data.title], 'function', 'The navigator exposes a "' + data.title + '" function');
+        assert.equal(typeof keyNavigator[data.title], 'function', 'The navigator exposes a "' + data.title + '" function');
     });
 
     QUnit.module('Dom navigable element');
 
     QUnit.test('activate', function (assert) {
         var ready = assert.async();
-        var knavigator;
+        var keyNavigator;
         var $container = $('#qunit-fixture .nav-1');
-        var $navigables = $container.find('.nav');
-        var navigables = navigableDomElement.createFromDoms($navigables);
+        var $elements = $container.find('.nav');
+        var elements = navigableDomElement.createFromDoms($elements);
 
-        assert.equal(navigables.length, 3, 'navigable element created');
+        assert.expect(6);
+        assert.equal(elements.length, 3, 'navigable element created');
 
-        knavigator = keyNavigator({
-            elements: navigables,
-            defaultPosition: navigables.length - 1
-        }).on('activate', function (cursor) {
-            ready();
-            assert.ok(true, 'activated');
-            assert.equal(cursor.position, 2, 'activated position is ok');
-            assert.ok(cursor.navigable.getElement() instanceof $, 'navigable element in cursor');
-            assert.equal(cursor.navigable.getElement().data('id'), 'C', 'navigable element in cursor is correct');
-        });
+        keyNavigator = keyNavigatorFactory({
+            elements: elements,
+            defaultPosition: elements.length - 1
+        })
+            .on('activate', function (cursor) {
+                assert.ok(true, 'activated');
+                assert.equal(cursor.position, 2, 'activated position is ok');
+                assert.ok(cursor.navigable.getElement() instanceof $, 'navigable element in cursor');
+                assert.equal(cursor.navigable.getElement().data('id'), 'C', 'navigable element in cursor is correct');
+                ready();
+            });
 
-        knavigator.focus();
+        keyNavigator.focus();
         assert.equal($(document.activeElement).data('id'), 'C', 'focus on last');
         $(document.activeElement).simulate('keydown', {keyCode: 13}); //Enter
     });
 
     QUnit.test('navigate with API', function (assert) {
         var ready = assert.async();
-        var knavigator;
+        var keyNavigator;
         var $container = $('#qunit-fixture .nav-1');
-        var $navigables = $container.find('.nav');
-        var navigables = navigableDomElement.createFromDoms($navigables);
+        var $elements = $container.find('.nav');
+        var elements = navigableDomElement.createFromDoms($elements);
 
-        assert.equal(navigables.length, 3, 'navigable element created');
+        assert.equal(elements.length, 3, 'navigable element created');
 
-        knavigator = keyNavigator({
+        keyNavigator = keyNavigatorFactory({
             id: 'bottom-toolbar',
             group: $container,
-            elements: navigables,
-            defaultPosition: navigables.length - 1
+            elements: elements,
+            defaultPosition: elements.length - 1
         })
             .on('right down', function () {
                 this.next();
@@ -123,33 +129,33 @@ define([
                 assert.equal(cursor.navigable.getElement().data('id'), 'A', 'navigable element in cursor is correct');
             });
 
-        knavigator.focus();
+        keyNavigator.focus();
         assert.equal($(document.activeElement).data('id'), 'C', 'default focus on last');
-        knavigator.next();
+        keyNavigator.next();
         assert.equal($(document.activeElement).data('id'), 'C', 'stay on last');
-        knavigator.previous();
+        keyNavigator.previous();
         assert.equal($(document.activeElement).data('id'), 'B', 'focus on second');
-        knavigator.previous();
+        keyNavigator.previous();
         assert.equal($(document.activeElement).data('id'), 'A', 'focus on first');
-        knavigator.previous();
+        keyNavigator.previous();
         assert.equal($(document.activeElement).data('id'), 'A', 'stay on first');
-        knavigator.activate();
+        keyNavigator.activate();
     });
 
     QUnit.test('navigate with keyboard', function (assert) {
         var ready = assert.async();
-        var knavigator;
+        var keyNavigator;
         var $container = $('#qunit-fixture .nav-1');
-        var $navigables = $container.find('.nav');
-        var navigables = navigableDomElement.createFromDoms($navigables);
+        var $elements = $container.find('.nav');
+        var elements = navigableDomElement.createFromDoms($elements);
 
         assert.expect(16);
 
-        assert.equal(navigables.length, 3, 'navigable element created');
+        assert.equal(elements.length, 3, 'navigable element created');
 
-        knavigator = keyNavigator({
-            elements: navigables,
-            defaultPosition: navigables.length - 1
+        keyNavigator = keyNavigatorFactory({
+            elements: elements,
+            defaultPosition: elements.length - 1
         })
             .on('right down', function () {
                 this.next();
@@ -167,7 +173,7 @@ define([
                 assert.equal(cursor.navigable.getElement().data('id'), 'B', 'navigable element in cursor is correct');
             });
 
-        knavigator.focus();
+        keyNavigator.focus();
         assert.equal($(document.activeElement).data('id'), 'C', 'default focus on last');
 
         $(document.activeElement).simulate('keydown', {keyCode: 40}); //Down
@@ -189,7 +195,7 @@ define([
     });
 
     QUnit.test('isFocused', function (assert) {
-        var knavigator;
+        var keyNavigator;
         var $container = $('#qunit-fixture .nav-1');
         var $navigables = $container.find('.nav');
         var navigables = navigableDomElement.createFromDoms($navigables);
@@ -198,29 +204,29 @@ define([
 
         assert.equal(navigables.length, 3, 'navigable element created');
 
-        knavigator = keyNavigator({elements: navigables});
+        keyNavigator = keyNavigatorFactory({elements: navigables});
 
-        assert.ok(!knavigator.isFocused(), 'the navigator is not on focus');
-        knavigator.focus();
-        assert.ok(knavigator.isFocused(), 'the knavigator is now on focus');
-        knavigator.blur();
-        assert.ok(!knavigator.isFocused(), 'the navigator is now blurred');
+        assert.ok(!keyNavigator.isFocused(), 'the navigator is not on focus');
+        keyNavigator.focus();
+        assert.ok(keyNavigator.isFocused(), 'the keyNavigator is now on focus');
+        keyNavigator.blur();
+        assert.ok(!keyNavigator.isFocused(), 'the navigator is now blurred');
     });
 
     QUnit.test('loop', function (assert) {
         var ready = assert.async();
-        var knavigator;
+        var keyNavigator;
         var $container = $('#qunit-fixture .nav-1');
-        var $navigables = $container.find('.nav');
-        var navigables = navigableDomElement.createFromDoms($navigables);
+        var $elements = $container.find('.nav');
+        var elements = navigableDomElement.createFromDoms($elements);
 
         assert.expect(10);
 
-        assert.equal(navigables.length, 3, 'navigable element created');
+        assert.equal(elements.length, 3, 'navigable element created');
 
-        knavigator = keyNavigator({
+        keyNavigator = keyNavigatorFactory({
             loop: true,
-            elements: navigables
+            elements: elements
         })
             .on('right down', function () {
                 this.next();
@@ -236,37 +242,37 @@ define([
                 assert.equal(cursor.navigable.getElement().data('id'), 'C', 'navigable element in cursor is correct');
             });
 
-        knavigator.focus();
+        keyNavigator.focus();
         assert.equal($(document.activeElement).data('id'), 'A', 'focus on first');
 
-        knavigator.next();
+        keyNavigator.next();
         assert.equal($(document.activeElement).data('id'), 'B', 'focus on second');
 
-        knavigator.next();
+        keyNavigator.next();
         assert.equal($(document.activeElement).data('id'), 'C', 'focus on last');
 
-        knavigator.next();
+        keyNavigator.next();
         assert.equal($(document.activeElement).data('id'), 'A', 'loop to first');
 
-        knavigator.previous();
+        keyNavigator.previous();
         assert.equal($(document.activeElement).data('id'), 'C', 'loop to last');
 
-        knavigator.activate();
+        keyNavigator.activate();
     });
 
     QUnit.test('keep state off', function (assert) {
         var ready = assert.async();
-        var knavigator;
+        var keyNavigator;
         var $container = $('#qunit-fixture .nav-1');
-        var $navigables = $container.find('.nav');
-        var navigables = navigableDomElement.createFromDoms($navigables);
+        var $elements = $container.find('.nav');
+        var elements = navigableDomElement.createFromDoms($elements);
 
         assert.expect(9);
 
-        assert.equal(navigables.length, 3, 'navigable element created');
+        assert.equal(elements.length, 3, 'navigable element created');
 
-        knavigator = keyNavigator({
-            elements: navigables
+        keyNavigator = keyNavigatorFactory({
+            elements: elements
         })
             .on('right down', function () {
                 this.next();
@@ -282,39 +288,39 @@ define([
                 assert.equal(cursor.navigable.getElement().data('id'), 'A', 'navigable element in cursor is correct');
             });
 
-        knavigator.focus();
+        keyNavigator.focus();
         assert.equal($(document.activeElement).data('id'), 'A', 'focus on first');
 
-        knavigator.next();
+        keyNavigator.next();
         assert.equal($(document.activeElement).data('id'), 'B', 'focus on second');
 
         $(document.activeElement).blur();
         assert.equal(document.activeElement, $('body').get(0), 'focus out');
 
-        knavigator.focus();
+        keyNavigator.focus();
         assert.equal(
             $(document.activeElement).data('id'),
             'A',
             'focus on a a navigator with keep state on should reset the cursor'
         );
 
-        knavigator.activate();
+        keyNavigator.activate();
     });
 
     QUnit.test('keep state on', function (assert) {
         var ready = assert.async();
-        var knavigator;
+        var keyNavigator;
         var $container = $('#qunit-fixture .nav-1');
-        var $navigables = $container.find('.nav');
-        var navigables = navigableDomElement.createFromDoms($navigables);
+        var $elements = $container.find('.nav');
+        var elements = navigableDomElement.createFromDoms($elements);
 
         assert.expect(9);
 
-        assert.equal(navigables.length, 3, 'navigable element created');
+        assert.equal(elements.length, 3, 'navigable element created');
 
-        knavigator = keyNavigator({
+        keyNavigator = keyNavigatorFactory({
             keepState: true,
-            elements: navigables
+            elements: elements
         })
             .on('right down', function () {
                 this.next();
@@ -330,40 +336,40 @@ define([
                 assert.equal(cursor.navigable.getElement().data('id'), 'B', 'navigable element in cursor is correct');
             });
 
-        knavigator.focus();
+        keyNavigator.focus();
         assert.equal($(document.activeElement).data('id'), 'A', 'focus on first');
 
-        knavigator.next();
+        keyNavigator.next();
         assert.equal($(document.activeElement).data('id'), 'B', 'focus on second');
 
         $(document.activeElement).blur();
         assert.equal(document.activeElement, $('body').get(0), 'focus out');
 
-        knavigator.focus();
+        keyNavigator.focus();
         assert.equal(
             $(document.activeElement).data('id'),
             'B',
             'focus on a a navigator with keep state on should restore the cursor in memory'
         );
 
-        knavigator.activate();
+        keyNavigator.activate();
     });
 
     QUnit.test('activate with space', function (assert) {
         var ready = assert.async();
-        var knavigator;
+        var keyNavigator;
         var $container = $('#qunit-fixture .nav-2');
-        var $navigables = $container.find('.nav');
-        var navigables = navigableDomElement.createFromDoms($navigables);
+        var $elements = $container.find('.nav');
+        var elements = navigableDomElement.createFromDoms($elements);
 
         var $textarea = $('textarea', $container);
         assert.expect(7);
 
-        assert.equal(navigables.length, 3, 'navigable element created');
+        assert.equal(elements.length, 3, 'navigable element created');
 
-        knavigator = keyNavigator({
+        var keyNavigator = keyNavigatorFactory({
             keepState: true,
-            elements: navigables
+            elements: elements
         })
             .on('right', function () {
                 this.next();
@@ -383,12 +389,12 @@ define([
                 $textarea.simulate('keyup', {keyCode: 32}); //Space
 
                 setTimeout(function () {
-                    knavigator.off('blur');
+                    keyNavigator.off('blur');
                     ready();
                 }, 100);
             });
 
-        knavigator.focus();
+        keyNavigator.focus();
         assert.equal($(document.activeElement).data('id'), 'A', 'focus on first');
 
         $(document.activeElement).simulate('keydown', {keyCode: 39}); //Right
@@ -404,12 +410,12 @@ define([
 
     QUnit.test('isVisible', function (assert) {
         var $container = $('#qunit-fixture .inputable');
-        var domNavigable = keyNavigator({
+        var keyNavigator = keyNavigatorFactory({
             id: 'A',
             elements: navigableDomElement.createFromDoms($container.find('input')),
             group: $container
         });
-        var groupNavigable = navigableGroupElement(domNavigable);
+        var groupNavigable = navigableGroupElement(keyNavigator);
 
         assert.ok(groupNavigable.isVisible(), 'group element is visible');
 
@@ -428,12 +434,12 @@ define([
 
     QUnit.test('isEnabled', function (assert) {
         var $container = $('#qunit-fixture .inputable');
-        var domNavigable = keyNavigator({
+        var keyNavigator = keyNavigatorFactory({
             id: 'A',
             elements: navigableDomElement.createFromDoms($container.find('input')),
             group: $container
         });
-        var groupNavigable = navigableGroupElement(domNavigable);
+        var groupNavigable = navigableGroupElement(keyNavigator);
 
         assert.ok(groupNavigable.isEnabled(), 'group element is enabled');
 
@@ -452,34 +458,34 @@ define([
 
     QUnit.test('navigate between navigable areas', function (assert) {
         var ready = assert.async();
-        var knavigator;
+        var keyNavigator;
         var $container = $('#qunit-fixture');
-        var navigableAreas = [
-            keyNavigator({
+        var keyNavigators = [
+            keyNavigatorFactory({
                 id: 'A',
                 elements: navigableDomElement.createFromDoms($container.find('[data-id=A]')),
                 group: $container.find('[data-id=A]')
             }),
-            keyNavigator({
+            keyNavigatorFactory({
                 id: 'B',
                 elements: navigableDomElement.createFromDoms($container.find('[data-id=B]')),
                 group: $container.find('[data-id=B]')
             }),
-            keyNavigator({
+            keyNavigatorFactory({
                 id: 'C',
                 elements: navigableDomElement.createFromDoms($container.find('[data-id=C]')),
                 group: $container.find('[data-id=C]')
             })
         ];
 
-        var navigables = navigableGroupElement.createFromNavigators(navigableAreas);
+        var elements = navigableGroupElement.createFromNavigators(keyNavigators);
 
         assert.expect(8);
 
-        assert.equal(navigables.length, 3, 'navigable element created');
+        assert.equal(elements.length, 3, 'navigable element created');
 
-        knavigator = keyNavigator({
-            elements: navigables
+        keyNavigator = keyNavigatorFactory({
+            elements: elements
         })
             .on('right down', function () {
                 this.next();
@@ -495,15 +501,15 @@ define([
                 assert.equal(cursor.navigable.getElement().data('id'), 'C', 'navigable element in cursor is correct');
             });
 
-        knavigator.focus();
+        keyNavigator.focus();
         assert.equal($(document.activeElement).data('id'), 'A', 'focus on first');
 
-        knavigator.next();
+        keyNavigator.next();
         assert.equal($(document.activeElement).data('id'), 'B', 'focus on second');
 
-        knavigator.next();
+        keyNavigator.next();
         assert.equal($(document.activeElement).data('id'), 'C', 'focus on last');
 
-        knavigator.activate();
+        keyNavigator.activate();
     });
 });

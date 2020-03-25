@@ -97,7 +97,7 @@ export default function keyNavigatorFactory(config) {
     config = _.defaults(config || {}, defaults);
 
     const id = config.id || _.uniqueId('navigator_');
-    const navigables = config.elements || [];
+    const navigableElements = config.elements || [];
     const $group = config.group && $(config.group).addClass('key-navigation-group').attr('data-navigation-id', id);
     if (config.group && !$group.length) {
         throw new TypeError('group element does not exist');
@@ -113,7 +113,7 @@ export default function keyNavigatorFactory(config) {
 
         if (document.activeElement) {
             // try to find the focused element within the known list of focusable elements
-            _.forEach(navigables, (navigable, index) => {
+            _.forEach(navigableElements, (navigable, index) => {
                 if (
                     navigable.isVisible() &&
                     navigable.isEnabled() &&
@@ -144,8 +144,8 @@ export default function keyNavigatorFactory(config) {
      * @returns {Number}
      */
     const getClosestPositionRight = fromPosition => {
-        for (let pos = fromPosition; pos < navigables.length; pos++) {
-            if (navigables[pos] && navigables[pos].isVisible() && navigables[pos].isEnabled()) {
+        for (let pos = fromPosition; pos < navigableElements.length; pos++) {
+            if (navigableElements[pos] && navigableElements[pos].isVisible() && navigableElements[pos].isEnabled()) {
                 return pos;
             }
         }
@@ -160,14 +160,14 @@ export default function keyNavigatorFactory(config) {
      */
     const getClosestPositionLeft = fromPosition => {
         for (let pos = fromPosition; pos >= 0; pos--) {
-            if (navigables[pos] && navigables[pos].isVisible() && navigables[pos].isEnabled()) {
+            if (navigableElements[pos] && navigableElements[pos].isVisible() && navigableElements[pos].isEnabled()) {
                 return pos;
             }
         }
         return -1;
     };
 
-    _.forEach(navigables, navigable => {
+    _.forEach(navigableElements, navigable => {
         //check if it is a valid navigable element
         navigable.init();
         //tad the dom element as it belongs this navigator, TODO make it an array
@@ -197,11 +197,46 @@ export default function keyNavigatorFactory(config) {
         },
 
         /**
+         * Return the current cursor of the navigator
+         * @returns {Object}
+         */
+        getCursor() {
+            //clone the return cursor to protect this private variable
+            return _.clone(_cursor);
+        },
+
+        /**
+         * Return the array of navigable objects composing the navigator
+         * @returns {Array}
+         */
+        getNavigables() {
+            return _.clone(navigableElements);
+        },
+
+        /**
          * Check if the navigator is on focus
          * @returns {Boolean}
          */
         isFocused() {
             return !!getCurrentCursor();
+        },
+
+        /**
+         * Set focus on the first available focusable element
+         * @returns {keyNavigator}
+         */
+        first() {
+            this.focusPosition(getClosestPositionRight(0));
+            return this;
+        },
+
+        /**
+         * Set focus on the last available focusable element
+         * @returns {keyNavigator}
+         */
+        last() {
+            this.focusPosition(getClosestPositionLeft(navigableElements.length - 1));
+            return this;
         },
 
         /**
@@ -256,7 +291,7 @@ export default function keyNavigatorFactory(config) {
                     this.focusPosition(pos);
                 } else if (config.loop) {
                     //loop allowed, so returns to the first element
-                    this.focusPosition(getClosestPositionLeft(navigables.length - 1));
+                    this.focusPosition(getClosestPositionLeft(navigableElements.length - 1));
                 } else {
                     /**
                      * reaching the end of the list
@@ -297,6 +332,18 @@ export default function keyNavigatorFactory(config) {
         },
 
         /**
+         * Blur the current cursor
+         * @returns {keyNavigator}
+         */
+        blur() {
+            const cursor = this.getCursor();
+            if (cursor && cursor.navigable) {
+                cursor.navigable.getElement().blur();
+            }
+            return this;
+        },
+
+        /**
          * Focus the cursor position in memory is keepState is activated, or the default position otherwise
          * @param {keyNavigator} [originNavigator] -  optionally indicates where the previous focus is on
          * @returns {keyNavigator}
@@ -306,7 +353,7 @@ export default function keyNavigatorFactory(config) {
             if (config.keepState && _cursor && _cursor.position >= 0) {
                 pos = _cursor.position;
             } else if (_.isFunction(config.defaultPosition)) {
-                pos = config.defaultPosition(navigables);
+                pos = config.defaultPosition(navigableElements);
                 if (pos < 0) {
                     pos = 0;
                 }
@@ -327,7 +374,7 @@ export default function keyNavigatorFactory(config) {
          * @fires focus on the new cursor
          */
         focusPosition(position, originNavigator= null) {
-            if (navigables[position]) {
+            if (navigableElements[position]) {
                 if (_cursor.navigable) {
                     /**
                      * @event blur
@@ -337,8 +384,8 @@ export default function keyNavigatorFactory(config) {
                     this.trigger('blur', this.getCursor(), originNavigator);
                 }
                 _cursor.position = position;
-                navigables[_cursor.position].focus();
-                _cursor.navigable = navigables[_cursor.position];
+                navigableElements[_cursor.position].focus();
+                _cursor.navigable = navigableElements[_cursor.position];
 
                 /**
                  * @event focus
@@ -351,70 +398,24 @@ export default function keyNavigatorFactory(config) {
         },
 
         /**
-         * Set focus on the first available focusable element
-         * @returns {keyNavigator}
-         */
-        first() {
-            this.focusPosition(getClosestPositionRight(0));
-            return this;
-        },
-
-        /**
-         * Set focus on the last available focusable element
-         * @returns {keyNavigator}
-         */
-        last() {
-            this.focusPosition(getClosestPositionLeft(navigables.length - 1));
-            return this;
-        },
-
-        /**
          * Destroy and cleanup
          * @returns {keyNavigator}
          */
         destroy() {
-            _.forEach(navigables, navigable => {
+            _.forEach(navigableElements, navigable => {
                 navigable.getElement().off(eventNS);
                 navigable.destroy();
                 if (navigable.shortcuts) {
                     navigable.shortcuts.clear();
+                    navigable.shortcuts = null;
                 }
             });
 
             return this;
-        },
-
-        /**
-         * Blur the current cursor
-         * @returns {keyNavigator}
-         */
-        blur() {
-            const cursor = this.getCursor();
-            if (cursor && cursor.navigable) {
-                cursor.navigable.getElement().blur();
-            }
-            return this;
-        },
-
-        /**
-         * Return the current cursor of the navigator
-         * @returns {Object}
-         */
-        getCursor() {
-            //clone the return cursor to protect this private variable
-            return _.clone(_cursor);
-        },
-
-        /**
-         * Return the array of navigable objects composing the navigator
-         * @returns {Array}
-         */
-        getNavigables() {
-            return _.clone(navigables);
         }
     });
 
-    _.forEach(navigables, navigable => {
+    _.forEach(navigableElements, navigable => {
         if (!isNavigableElement(navigable)) {
             throw new TypeError('not a valid navigable element');
         }
