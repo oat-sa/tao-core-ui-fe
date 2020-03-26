@@ -43,9 +43,7 @@
 import $ from 'jquery';
 import _ from 'lodash';
 import eventifier from 'core/eventifier';
-import shortcutRegistry from 'util/shortcut/registry';
-
-const eventNS = '.ui-key-navigator';
+import navigableDomElement from 'ui/keyNavigation/navigableDomElement';
 
 const defaults = {
     defaultPosition: 0,
@@ -53,28 +51,6 @@ const defaults = {
     loop: false,
     propagateTab: true
 };
-
-/**
- * The list of mandatory methods a navigable element must expose.
- * @type {String[]}
- */
-const navigableApi = [
-    'init',
-    'destroy',
-    'getElement',
-    'isVisible',
-    'isEnabled',
-    'isFocused',
-    'focus'
-];
-
-/**
- * Check if the object is argument is a valid navigable element
- *
- * @param {Object} navigable
- * @returns {boolean}
- */
-const isNavigableElement = navigable => navigable && navigableApi.every(n => 'function' === typeof navigable[n]);
 
 /**
  * Create a keyNavigator
@@ -117,10 +93,7 @@ export default function keyNavigatorFactory(config) {
                 if (
                     navigable.isVisible() &&
                     navigable.isEnabled() &&
-                    (document.activeElement === navigable.getElement().get(0) ||
-                        ((!$(document.activeElement).hasClass('key-navigation-highlight') ||
-                            $(document.activeElement).data('key-navigatior-id') !== id) &&
-                            $.contains(navigable.getElement().get(0), document.activeElement)))
+                    navigable.isFocused()
                 ) {
                     _cursor.position = index;
                     _cursor.navigable = navigable;
@@ -166,13 +139,6 @@ export default function keyNavigatorFactory(config) {
         }
         return -1;
     };
-
-    _.forEach(navigableElements, navigable => {
-        //check if it is a valid navigable element
-        navigable.init();
-        //tad the dom element as it belongs this navigator, TODO make it an array
-        navigable.getElement().data('key-navigatior-id', id);
-    });
 
     /**
      * The navigation group object
@@ -338,7 +304,7 @@ export default function keyNavigatorFactory(config) {
         blur() {
             const cursor = this.getCursor();
             if (cursor && cursor.navigable) {
-                cursor.navigable.getElement().blur();
+                cursor.navigable.blur();
             }
             return this;
         },
@@ -398,91 +364,52 @@ export default function keyNavigatorFactory(config) {
         },
 
         /**
+         * Setup the navigator
+         * @returns {keyNavigator}
+         */
+        init() {
+            _.forEach(navigableElements, navigable => {
+                if (!navigableDomElement.isNavigableElement(navigable)) {
+                    throw new TypeError('not a valid navigable element');
+                }
+
+                navigable
+                    .init({propagateTab: config.propagateTab})
+                    .off(`.${keyNavigator.getId()}`)
+                    .on(`key.${keyNavigator.getId()}`, (key, el) => keyNavigator.trigger('key', key, el))
+                    .on(`blur.${keyNavigator.getId()}`, () => {
+                        const cursor = keyNavigator.getCursor();
+                        if (cursor && cursor.navigable) {
+                            keyNavigator.trigger('blur', cursor);
+                        }
+                    });
+            });
+
+            return this;
+        },
+
+        /**
          * Destroy and cleanup
          * @returns {keyNavigator}
          */
         destroy() {
             _.forEach(navigableElements, navigable => {
-                navigable.getElement().off(eventNS);
-                navigable.destroy();
-                if (navigable.shortcuts) {
-                    navigable.shortcuts.clear();
-                    navigable.shortcuts = null;
-                }
+                navigable
+                    .off(`.${keyNavigator.getId}`)
+                    .destroy();
             });
 
             return this;
         }
     });
 
-    _.forEach(navigableElements, navigable => {
-        if (!isNavigableElement(navigable)) {
-            throw new TypeError('not a valid navigable element');
-        }
-
-        //init standard key bindings
-        navigable.shortcuts = shortcutRegistry(navigable.getElement())
-            .add(
-                'tab shift+tab',
-                (e, key) => keyNavigator.trigger(key, e.target),
-                {
-                    propagate: !!config.propagateTab,
-                    prevent: true
-                }
-            )
-            .add(
-                'enter',
-                e => {
-                    if (!$(e.target).is(':text,textarea')) {
-                        //prevent activating the element when typing a text
-                        e.preventDefault();
-                        keyNavigator.activate(e.target);
-                    }
-                },
-                {
-                    propagate: false
-                }
-            )
-            .add(
-                'up down left right',
-                (e, key) => {
-                    const $target = $(e.target);
-                    if (!$target.is(':text,textarea')) {
-                        if (!$target.is('img') && !$target.hasClass('key-navigation-scrollable')) {
-                            //prevent scrolling of parent element
-                            e.preventDefault();
-                        }
-                        keyNavigator.trigger(key, e.target);
-                    }
-                },
-                {
-                    propagate: false
-                }
-            );
-
-        navigable
-            .getElement()
-            //requires a keyup event to make unselecting radio button work with space bar
-            .on(`keyup${eventNS}`, function keyupSpace(e) {
-                const keyCode = e.keyCode ? e.keyCode : e.charCode;
-                if (keyCode === 32) {
-                    //if an inner element is an input we let the space work
-                    if (e.target !== this && $(e.target).is(':input')) {
-                        e.stopPropagation();
-                    } else {
-                        e.preventDefault();
-                        keyNavigator.activate(e.target);
-                    }
-                }
-            })
-            //listen to blurred navigable element
-            .on(`blur${eventNS}`, function blurCurrentCursor() {
-                const cursor = keyNavigator.getCursor();
-                if (cursor && cursor.navigable) {
-                    keyNavigator.trigger('blur', cursor);
-                }
-            });
-    });
-
-    return keyNavigator;
+    return keyNavigator
+        .init()
+        .on('key', (key, el) => {
+            if (key === 'space' || key === 'enter') {
+                keyNavigator.activate(el);
+            } else {
+                keyNavigator.trigger(key, el);
+            }
+        });
 };

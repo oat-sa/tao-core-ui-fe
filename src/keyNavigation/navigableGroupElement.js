@@ -23,6 +23,7 @@
  */
 import $ from 'jquery';
 import _ from 'lodash';
+import eventifier from 'core/eventifier';
 
 const eventNS = '.navigable-group-element';
 
@@ -45,7 +46,7 @@ export default function navigableGroupElementFactory(keyNavigator) {
     /**
      * @typedef navigableGroupElement
      */
-    return {
+    const navigableGroupElement =  eventifier({
         /**
          * Init the navigableGroupElement instance
          * @returns {navigableGroupElement}
@@ -58,10 +59,11 @@ export default function navigableGroupElementFactory(keyNavigator) {
                         $group.addClass('focusin');
                     }
                 })
-                .on(`focusout${eventNS}`, () => {
+                .on(`focusout${eventNS}`, e => {
                     _.defer(() => {
                         if (!this.isFocused()) {
                             $group.removeClass('focusin');
+                            navigableGroupElement.trigger('blur', e.target)
                         }
                     });
                 });
@@ -121,6 +123,15 @@ export default function navigableGroupElementFactory(keyNavigator) {
         },
 
         /**
+         * Remove focus from the navigable element
+         * @returns {navigableGroupElement}
+         */
+        blur() {
+            keyNavigator.blur(this);
+            return this;
+        },
+
+        /**
          * Set focus on the navigable element
          * @returns {navigableGroupElement}
          */
@@ -136,7 +147,11 @@ export default function navigableGroupElementFactory(keyNavigator) {
         getKeyNavigator() {
             return keyNavigator;
         }
-    };
+    });
+
+    keyNavigator.spread(navigableGroupElement, 'key');
+
+    return navigableGroupElement;
 };
 
 /**

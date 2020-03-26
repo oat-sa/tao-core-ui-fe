@@ -60,6 +60,7 @@ define([
         {title: 'isVisible'},
         {title: 'isEnabled'},
         {title: 'isFocused'},
+        {title: 'blur'},
         {title: 'focus'},
         {title: 'getKeyNavigator'}
     ]).test('api ', function (data, assert) {
@@ -362,36 +363,6 @@ define([
                 });
             })
             .then(ready);
-
-
-
-
-        //
-        //
-        // instance.focus();
-        //
-        // assert.equal(document.activeElement, $(fixtureGroup1).first().get(0), 'The first element got the focus');
-        // assert.equal(fixture.classList.contains('focusin'), true, 'The fixture got the focusin CSS class');
-        // assert.equal(instance.isFocused(), true, 'The group is focused');
-        //
-        // document.activeElement.blur();
-        //
-        // assert.equal(fixture.classList.contains('focusin'), false, 'The fixture loose the focusin CSS class');
-        // assert.equal(instance.isFocused(), false, 'The group is not focused');
-        //
-        // $(fixtureGroup1).last().focus();
-        //
-        // assert.equal(document.activeElement, $(fixtureGroup1).last().get(0), 'The last element of the group got the focus');
-        // assert.equal(fixture.classList.contains('focusin'), true, 'The fixture got the focusin CSS class');
-        // assert.equal(instance.isFocused(), true, 'The group is focused');
-        //
-        // $(fixtureGroup2).first().focus();
-        //
-        // assert.equal(document.activeElement, $(fixtureGroup2).first().get(0), 'The first element of another group got the focus');
-        // assert.equal(fixture.classList.contains('focusin'), false, 'The fixture loose the focusin CSS class');
-        // assert.equal(instance.isFocused(), false, 'The group is not focused');
-        //
-        // keyNavigator.destroy();
     });
 
     QUnit.test('createFromNavigators', function (assert) {
