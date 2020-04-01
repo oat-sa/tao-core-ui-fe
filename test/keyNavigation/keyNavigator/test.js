@@ -51,10 +51,14 @@ define([
     });
 
     QUnit.cases.init([
+        {title: 'init'},
+        {title: 'destroy'},
         {title: 'getId'},
         {title: 'getGroup'},
         {title: 'getCursor'},
         {title: 'getNavigables'},
+        {title: 'isVisible'},
+        {title: 'isEnabled'},
         {title: 'isFocused'},
         {title: 'first'},
         {title: 'last'},
@@ -63,8 +67,7 @@ define([
         {title: 'activate'},
         {title: 'blur'},
         {title: 'focus'},
-        {title: 'focusPosition'},
-        {title: 'destroy'}
+        {title: 'focusPosition'}
     ]).test('component API ', function (data, assert) {
         var keyNavigator = keyNavigatorFactory();
         assert.expect(1);

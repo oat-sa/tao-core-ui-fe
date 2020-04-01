@@ -89,7 +89,7 @@ export default function keyNavigatorFactory(config) {
 
         if (document.activeElement) {
             // try to find the focused element within the known list of focusable elements
-            _.forEach(navigableElements, (navigable, index) => {
+            navigableElements.forEach((navigable, index) => {
                 if (
                     navigable.isVisible() &&
                     navigable.isEnabled() &&
@@ -147,6 +147,45 @@ export default function keyNavigatorFactory(config) {
      */
     const keyNavigator = eventifier({
         /**
+         * Setup the navigator
+         * @returns {keyNavigator}
+         */
+        init() {
+            navigableElements.forEach(navigable => {
+                if (!navigableDomElement.isNavigableElement(navigable)) {
+                    throw new TypeError('not a valid navigable element');
+                }
+
+                navigable
+                    .init({propagateTab: config.propagateTab})
+                    .off(`.${keyNavigator.getId()}`)
+                    .on(`key.${keyNavigator.getId()}`, (key, el) => keyNavigator.trigger('key', key, el))
+                    .on(`blur.${keyNavigator.getId()}`, () => {
+                        const cursor = keyNavigator.getCursor();
+                        if (cursor && cursor.navigable) {
+                            keyNavigator.trigger('blur', cursor);
+                        }
+                    });
+            });
+
+            return this;
+        },
+
+        /**
+         * Destroy and cleanup
+         * @returns {keyNavigator}
+         */
+        destroy() {
+            navigableElements.forEach(navigable => {
+                navigable
+                    .off(`.${keyNavigator.getId}`)
+                    .destroy();
+            });
+
+            return this;
+        },
+
+        /**
          * Get the navigation group id
          * @returns {String}
          */
@@ -172,6 +211,30 @@ export default function keyNavigatorFactory(config) {
         },
 
         /**
+         * Return the current position in the navigator
+         * @returns {Number}
+         */
+        getCurrentPosition() {
+            const cursor = getCurrentCursor();
+            if (cursor) {
+                return cursor.position;
+            }
+            return -1;
+        },
+
+        /**
+         * Return the current navigable in the navigator
+         * @returns {Object}
+         */
+        getCurrentNavigable() {
+            const cursor = getCurrentCursor();
+            if (cursor) {
+                return cursor.navigable;
+            }
+            return null;
+        },
+
+        /**
          * Return the array of navigable objects composing the navigator
          * @returns {Array}
          */
@@ -180,11 +243,36 @@ export default function keyNavigatorFactory(config) {
         },
 
         /**
-         * Check if the navigator is on focus
+         * Check if the group and at least one navigable element is visible
+         * @returns {boolean}
+         */
+        isVisible() {
+            if (!$group || $group.is(':visible')) {
+                return navigableElements.some(nav => nav.isVisible());
+            }
+            return false;
+        },
+
+        /**
+         * Check if the group and at least one navigable element is enabled
+         * @returns {Boolean}
+         */
+        isEnabled() {
+            if (!$group || !$group.is(':disabled')) {
+                return navigableElements.some(nav => nav.isEnabled());
+            }
+            return false;
+        },
+
+        /**
+         * Check if at least one navigable element is focused
          * @returns {Boolean}
          */
         isFocused() {
-            return !!getCurrentCursor();
+            if (document.activeElement) {
+                return navigableElements.some(nav => nav.isFocused());
+            }
+            return false;
         },
 
         /**
@@ -213,10 +301,9 @@ export default function keyNavigatorFactory(config) {
          * @fires next when the cursor successfully moved to the next position
          */
         next() {
-            const cursor = getCurrentCursor();
-            let pos;
-            if (cursor) {
-                pos = getClosestPositionRight(cursor.position + 1);
+            let pos = this.getCurrentPosition();
+            if (pos > -1) {
+                pos = getClosestPositionRight(pos + 1);
                 if (pos >= 0) {
                     this.focusPosition(pos);
                 } else if (config.loop) {
@@ -249,10 +336,9 @@ export default function keyNavigatorFactory(config) {
          * @fires previous when the cursor successfully moved to the previous position
          */
         previous() {
-            const cursor = getCurrentCursor();
-            let pos;
-            if (cursor) {
-                pos = getClosestPositionLeft(cursor.position - 1);
+            let pos = this.getCurrentPosition();
+            if (pos > -1) {
+                pos = getClosestPositionLeft(pos - 1);
                 if (pos >= 0) {
                     this.focusPosition(pos);
                 } else if (config.loop) {
@@ -302,9 +388,9 @@ export default function keyNavigatorFactory(config) {
          * @returns {keyNavigator}
          */
         blur() {
-            const cursor = this.getCursor();
-            if (cursor && cursor.navigable) {
-                cursor.navigable.blur();
+            const navigable = this.getCurrentNavigable();
+            if (navigable) {
+                navigable.blur();
             }
             return this;
         },
@@ -349,6 +435,7 @@ export default function keyNavigatorFactory(config) {
                      */
                     this.trigger('blur', this.getCursor(), originNavigator);
                 }
+
                 _cursor.position = position;
                 navigableElements[_cursor.position].focus();
                 _cursor.navigable = navigableElements[_cursor.position];
@@ -360,45 +447,6 @@ export default function keyNavigatorFactory(config) {
                  */
                 this.trigger('focus', this.getCursor(), originNavigator);
             }
-            return this;
-        },
-
-        /**
-         * Setup the navigator
-         * @returns {keyNavigator}
-         */
-        init() {
-            _.forEach(navigableElements, navigable => {
-                if (!navigableDomElement.isNavigableElement(navigable)) {
-                    throw new TypeError('not a valid navigable element');
-                }
-
-                navigable
-                    .init({propagateTab: config.propagateTab})
-                    .off(`.${keyNavigator.getId()}`)
-                    .on(`key.${keyNavigator.getId()}`, (key, el) => keyNavigator.trigger('key', key, el))
-                    .on(`blur.${keyNavigator.getId()}`, () => {
-                        const cursor = keyNavigator.getCursor();
-                        if (cursor && cursor.navigable) {
-                            keyNavigator.trigger('blur', cursor);
-                        }
-                    });
-            });
-
-            return this;
-        },
-
-        /**
-         * Destroy and cleanup
-         * @returns {keyNavigator}
-         */
-        destroy() {
-            _.forEach(navigableElements, navigable => {
-                navigable
-                    .off(`.${keyNavigator.getId}`)
-                    .destroy();
-            });
-
             return this;
         }
     });
