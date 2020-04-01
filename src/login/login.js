@@ -203,7 +203,7 @@ export default function loginFactory($container, config) {
                 var $active = document.activeElement;
                 if (e.key === 'Enter') {
                     if ($active === $hideIcon[0]) {
-                        hide();
+                        hide(true);
                         e.stopPropagation();
                     }
                     if ($active === $viewIcon[0]) {
