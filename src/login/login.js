@@ -199,7 +199,7 @@ export default function loginFactory($container, config) {
 
             hide();
 
-            $form.on('keypress', function (e) {
+            $inputToggle.on('keypress', function(e) {
                 var $active = document.activeElement;
                 if (e.key === 'Enter') {
                     if ($active === $hideIcon[0]) {
@@ -213,7 +213,7 @@ export default function loginFactory($container, config) {
                 }
             });
 
-            $inputToggle.on('click', function () {
+            $inputToggle.on('click', function() {
                 if ($pwdInput.type === 'password') {
                     show();
                 } else {
@@ -221,7 +221,7 @@ export default function loginFactory($container, config) {
                 }
             });
 
-            $inputToggle.on('keyup', function (e) {
+            $inputToggle.on('keyup', function(e) {
                 if (e.key === ' ') {
                     if ($pwdInput.type === 'password') {
                         show();
@@ -242,7 +242,7 @@ export default function loginFactory($container, config) {
                 messages.error = __('All fields are required');
             }
 
-            _.forEach(messages, function (message, level) {
+            _.forEach(messages, function(message, level) {
                 if (message) {
                     feedback()
                         .message(level, message)
@@ -255,10 +255,10 @@ export default function loginFactory($container, config) {
 
     var loginComponent = component(api, _defaultConfig)
         .setTemplate(loginTpl)
-        .on('init', function () {
+        .on('init', function() {
             this.render($container);
         })
-        .on('render', function () {
+        .on('render', function() {
             var $fakeForm, $loginBtn;
             var $loginForm = this.getRealForm();
             var self = this;
@@ -269,7 +269,7 @@ export default function loginFactory($container, config) {
              */
             var submitForm = function submitForm() {
                 // if the fake form exists, copy all fields values into the real form
-                $fakeForm.find(':input').each(function () {
+                $fakeForm.find(':input').each(function() {
                     var $field = $(this);
                     $loginForm.find('input[name="' + $field.attr('name') + '"]').val($field.val());
                 });
@@ -295,23 +295,16 @@ export default function loginFactory($container, config) {
                 $fakeForm
                     .find('input[type="submit"], button[type="submit"]')
                     .off('click')
-                    .on('click', function (e) {
+                    .on('click', function(e) {
                         e.preventDefault();
                         submitForm();
                     });
 
                 // submit the form when the user hit the ENTER key inside the fake form
-                $fakeForm.on('keypress', function (e) {
+                $fakeForm.on('keypress', function(e) {
                     if (e.key === 'Enter') {
-                        var $viewIcon = $fakeForm.find('span.icon-preview')[0];
-                        var $hideIcon = $fakeForm.find('span.icon-eye-slash')[0];
-                        var $activeElem = document.activeElement;
-
-                        if ($activeElem !== $viewIcon &&
-                            $activeElem !== $hideIcon) {
-                            e.preventDefault();
-                            submitForm();
-                        }
+                         e.preventDefault();
+                         submitForm();
                     }
                 });
             }
@@ -330,7 +323,7 @@ export default function loginFactory($container, config) {
             this.displayMessages(this.getMessages());
         });
 
-    _.defer(function () {
+    _.defer(function() {
         loginComponent.init(config);
     });
     return loginComponent;
