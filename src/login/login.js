@@ -103,7 +103,7 @@ export default function loginFactory($container, config) {
 
             $element.find('label').remove();
 
-            return $fakeFormDom.html(fakeFormTpl({form: $fakeFormDom.find('form').html()}));
+            return $fakeFormDom.html(fakeFormTpl({ form: $fakeFormDom.find('form').html() }));
         },
 
         /**
@@ -141,7 +141,7 @@ export default function loginFactory($container, config) {
             $pwdInput = $form.find('input[type=password]');
             $pwdLabel = $form.find('label[for=' + $pwdInput.attr('name') + ']');
 
-            $pwdInput.replaceWith(pwdRevealTpl({elements: $pwdLabel[0].outerHTML + $pwdInput[0].outerHTML}));
+            $pwdInput.replaceWith(pwdRevealTpl({ elements: $pwdLabel[0].outerHTML + $pwdInput[0].outerHTML }));
 
             $pwdLabel.remove();
         },
@@ -303,8 +303,8 @@ export default function loginFactory($container, config) {
                 // submit the form when the user hit the ENTER key inside the fake form
                 $fakeForm.on('keypress', function(e) {
                     if (e.key === 'Enter') {
-                         e.preventDefault();
-                         submitForm();
+                        e.preventDefault();
+                        submitForm();
                     }
                 });
             }
