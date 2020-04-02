@@ -138,7 +138,7 @@ define([
 
         assert.throws(function () {
             keyNavigatorFactory({
-                group: $('<div />'),
+                group: $('<div><ul><li></li></ul></div>'),
                 elements: elements
             });
         }, 'The group must exist');

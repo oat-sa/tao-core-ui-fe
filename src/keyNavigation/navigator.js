@@ -77,7 +77,7 @@ export default function keyNavigatorFactory(config) {
     const id = config.id || _.uniqueId('navigator_');
     const navigableElements = config.elements || [];
     const $group = config.group && $(config.group).addClass('key-navigation-group').attr('data-navigation-id', id);
-    if (config.group && !$group.length) {
+    if (config.group && (!$group.length || !$.contains(document.body, $group.get(0)))) {
         throw new TypeError('group element does not exist');
     }
 
