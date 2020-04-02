@@ -21,6 +21,7 @@
  * From a dom element, create a navigable element compatible with ui/KeyNavigator/navigator
  */
 import $ from 'jquery';
+import _ from 'lodash';
 import eventifier from 'core/eventifier';
 import shortcutRegistry from 'util/shortcut/registry';
 
@@ -246,7 +247,7 @@ navigableDomElement.createFromDoms = $elements => {
         if ($elements instanceof $) {
             $elements.each((i, element) => addElement(element));
         } else {
-            $elements.forEach(addElement);
+            _.forEach($elements, addElement);
         }
     }
 
