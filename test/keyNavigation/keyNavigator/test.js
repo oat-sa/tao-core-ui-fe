@@ -31,6 +31,29 @@ define([
 ) {
     'use strict';
 
+    var testDelay = 2;
+
+    /**
+     * Capture an event, fail if it takes too much time to occur
+     * @param {eventifier} instance
+     * @param {String} event
+     * @returns {Promise<arguments>} When resolved, the promise returns the received arguments
+     */
+    function promiseEvent(instance, event) {
+        return new Promise(function (resolve, reject) {
+            var fail = window.setTimeout(function () {
+                reject();
+            }, 50);
+
+            instance
+                .off('.test')
+                .on(event + '.test', function () {
+                    window.clearTimeout(fail);
+                    resolve(arguments);
+                });
+        });
+    }
+
     QUnit.module('API');
 
     QUnit.test('factory', function (assert) {
@@ -54,7 +77,7 @@ define([
         {title: 'init'},
         {title: 'destroy'},
         {title: 'getId'},
-        {title: 'getGroup'},
+        {title: 'getElement'},
         {title: 'getCursor'},
         {title: 'getNavigables'},
         {title: 'isVisible'},
@@ -74,7 +97,345 @@ define([
         assert.equal(typeof keyNavigator[data.title], 'function', 'The navigator exposes a "' + data.title + '" function');
     });
 
-    QUnit.module('Dom navigable element');
+    QUnit.module('Behavior');
+
+    QUnit.test('init parameter / getElement / getNavigables', function (assert) {
+        var group = document.querySelector('#qunit-fixture .interleaved');
+        var elements = document.querySelectorAll('#qunit-fixture .interleaved .nav');
+        var navElements = navigableDomElement.createFromDoms(elements);
+        var instance = keyNavigatorFactory({
+            group: $(group),
+            elements: navElements
+        });
+
+        assert.expect(12 + elements.length * 2);
+
+        assert.ok(instance.getElement() instanceof $, 'The instance has a jQuery selection for the represented group');
+        assert.equal(instance.getElement().get(0), group, 'The instance has selected the right group');
+
+        assert.equal(typeof instance.getId(), 'string', 'The identifier is a string');
+        assert.notEqual(instance.getId(), '', 'The identifier is set');
+        assert.equal(instance.getId().substring(0, 10), 'navigator_', 'The identifier is set with the expected prefix');
+
+        assert.notEqual(keyNavigatorFactory().getId(), keyNavigatorFactory().getId(), 'Automatic ID are differents');
+        assert.equal(keyNavigatorFactory({id: 'foo'}).getId(), 'foo', 'Specific ID is taken into account');
+
+        assert.ok(instance.getNavigables() instanceof Array, 'The instance has a collection of navigable elements');
+        assert.equal(instance.getNavigables().length, elements.length, 'The instance has the expected number of navigable elements');
+        instance.getNavigables().forEach(function(navigable, i) {
+            assert.ok(navigableDomElement.isNavigableElement(navigable), 'This is a navigable element');
+            assert.equal(navigable.getElement().get(0), elements[i], 'The navigable relates to the expected element');
+        });
+
+        assert.equal(keyNavigatorFactory().getElement(), null, 'Group can be null');
+
+        assert.throws(function () {
+            keyNavigatorFactory({
+                group: $(),
+                elements: elements
+            });
+        }, 'The group must be valid');
+
+        assert.throws(function () {
+            keyNavigatorFactory({
+                group: $('<div />'),
+                elements: elements
+            });
+        }, 'The group must exist');
+
+        instance.destroy();
+    });
+
+    QUnit.test('init / destroy / focus', function (assert) {
+        var ready = assert.async();
+        var group = document.querySelector('#qunit-fixture .interleaved');
+        var elements = document.querySelectorAll('#qunit-fixture .interleaved .nav.group-1');
+        var elements2 = document.querySelectorAll('#qunit-fixture .interleaved .nav.group-2');
+        var first = elements[0];
+        var last = elements[elements.length - 1];
+        var navElements = navigableDomElement.createFromDoms(elements);
+        var instance = keyNavigatorFactory({
+            group: $(group),
+            elements: navElements
+        });
+        var instance2 = keyNavigatorFactory({
+           elements: navigableDomElement.createFromDoms(elements2)
+        });
+
+        assert.expect(21);
+
+        Promise
+            .resolve()
+            .then(function() {
+                return new Promise(function (resolve) {
+                    if (document.activeElement) {
+                        document.activeElement.blur();
+                    }
+
+                    assert.equal(document.activeElement, document.body, 'No element in focus');
+                    assert.equal(group.className, 'interleaved key-navigation-group', 'The fixture has the initial CSS class');
+                    assert.equal(instance.init(), instance, 'The init method is fluent');
+                    assert.equal(instance.focus(), instance, 'The focus method is fluent');
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, first, 'The first element got the focus');
+                    assert.equal(group.classList.contains('focusin'), true, 'The fixture got the focusin CSS class');
+
+                    document.activeElement.blur();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, document.body, 'No element in focus');
+                    assert.equal(group.classList.contains('focusin'), false, 'The fixture loose the focusin CSS class');
+
+                    assert.equal(instance.focus(), instance, 'The focus method is fluent');
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, first, 'The first element got the focus');
+                    assert.equal(group.classList.contains('focusin'), true, 'The fixture got the focusin CSS class');
+                    assert.equal(instance.isFocused(), true, 'The group is focused');
+
+                    elements2[0].focus();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, elements2[0], 'The first element of another group got the focus');
+                    assert.equal(group.classList.contains('focusin'), false, 'The fixture loose the focusin CSS class');
+                    assert.equal(instance.isFocused(), false, 'The group is not focused');
+
+                    last.focus();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, last, 'The last element of the group got the focus');
+                    assert.equal(group.classList.contains('focusin'), true, 'The fixture got the focusin CSS class');
+                    assert.equal(instance.isFocused(), true, 'The group is focused');
+
+                    assert.equal(instance.destroy(), instance, 'The destroy method is fluent');
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                assert.equal(document.activeElement, last, 'The element still has the focus');
+                assert.equal(group.classList.contains('focusin'), false, 'The fixture loose the focusin CSS class');
+
+                instance2.destroy();
+            })
+            .catch(function(err) {
+                assert.pushResult({
+                    result: false,
+                    message: err
+                });
+            })
+            .then(ready);
+    });
+
+    QUnit.test('isVisible', function (assert) {
+        var group = document.querySelector('#qunit-fixture .inputable');
+        var elements = document.querySelectorAll('#qunit-fixture .inputable input');
+        var navElements = navigableDomElement.createFromDoms(elements);
+        var instance = keyNavigatorFactory({
+            group: $(group),
+            elements: navElements
+        });
+
+        assert.expect(7);
+
+        assert.equal(instance.isVisible(), true, 'The group is visible');
+
+        $(group).hide();
+
+        assert.equal(instance.isVisible(), false, 'The group is not visible anymore');
+
+        $(group).show();
+
+        assert.equal(instance.isVisible(), true, 'The group is visible again');
+
+        $(elements[0]).hide();
+
+        assert.equal(instance.isVisible(), true, 'One element of the group is hidden but other are visible');
+
+        $(elements[1]).hide();
+
+        assert.equal(instance.isVisible(), true, 'One element of the group is still visible');
+
+        $(elements[2]).hide();
+
+        assert.equal(instance.isVisible(), false, 'All elements of the group are hidden');
+
+        $(elements[2]).show();
+
+        assert.equal(instance.isVisible(), true, 'One element of the group is visible again');
+
+        instance.destroy();
+    });
+
+    QUnit.test('isEnabled', function (assert) {
+        var group = document.querySelector('#qunit-fixture .inputable');
+        var elements = document.querySelectorAll('#qunit-fixture .inputable input');
+        var navElements = navigableDomElement.createFromDoms(elements);
+        var instance = keyNavigatorFactory({
+            group: $(group),
+            elements: navElements
+        });
+
+        assert.expect(5);
+
+        assert.equal(instance.isEnabled(), true, 'The group is enabled');
+
+        elements[0].setAttribute('disabled', 'disabled');
+
+        assert.equal(instance.isEnabled(), true, 'One element of the group is disabled but other are enabled');
+
+        elements[1].setAttribute('disabled', 'disabled');
+
+        assert.equal(instance.isEnabled(), true, 'One element of the group is still enabled');
+
+        elements[2].setAttribute('disabled', 'disabled');
+
+        assert.equal(instance.isEnabled(), false, 'All elements of the group are disabled');
+
+        elements[1].removeAttribute('disabled');
+
+        assert.equal(instance.isEnabled(), true, 'One element of the group is enabled again');
+
+        instance.destroy();
+    });
+
+    QUnit.test('isFocused', function (assert) {
+        var ready = assert.async();
+        var group = document.querySelector('#qunit-fixture .interleaved');
+        var elements = document.querySelectorAll('#qunit-fixture .interleaved .nav.group-1');
+        var elements2 = document.querySelectorAll('#qunit-fixture .interleaved .nav.group-2');
+        var first = elements[0];
+        var last = elements[elements.length - 1];
+        var navElements = navigableDomElement.createFromDoms(elements);
+        var instance = keyNavigatorFactory({
+            group: $(group),
+            elements: navElements
+        });
+        var instance2 = keyNavigatorFactory({
+            elements: navigableDomElement.createFromDoms(elements2)
+        });
+
+        assert.expect(23);
+
+        Promise
+            .resolve()
+            .then(function() {
+                return new Promise(function (resolve) {
+                    if (document.activeElement) {
+                        document.activeElement.blur();
+                    }
+
+                    assert.equal(document.activeElement, document.body, 'No element in focus');
+                    assert.equal(instance.isFocused(), false, 'The group is not focused');
+
+                    instance.init();
+                    instance.focus();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, first, 'The first element got the focus');
+                    assert.equal(group.classList.contains('focusin'), true, 'The fixture got the focusin CSS class');
+                    assert.equal(instance.isFocused(), true, 'The group is focused');
+
+                    document.activeElement.blur();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, document.body, 'No element in focus');
+                    assert.equal(group.classList.contains('focusin'), false, 'The fixture loose the focusin CSS class');
+                    assert.equal(instance.isFocused(), false, 'The group is not focused');
+
+                    elements2[0].focus();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, elements2[0], 'The first element of another group got the focus');
+                    assert.equal(group.classList.contains('focusin'), false, 'The fixture still doesn\'t have the focusin CSS class');
+                    assert.equal(instance.isFocused(), false, 'The group is not focused');
+
+                    instance.focus();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, first, 'The first element got the focus');
+                    assert.equal(group.classList.contains('focusin'), true, 'The fixture got the focusin CSS class');
+                    assert.equal(instance.isFocused(), true, 'The group is focused');
+
+                    elements2[0].focus();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, elements2[0], 'The first element of another group got the focus');
+                    assert.equal(group.classList.contains('focusin'), false, 'The fixture loose the focusin CSS class');
+                    assert.equal(instance.isFocused(), false, 'The group is not focused');
+
+                    last.focus();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, last, 'The last element of the group got the focus');
+                    assert.equal(group.classList.contains('focusin'), true, 'The fixture got the focusin CSS class');
+                    assert.equal(instance.isFocused(), true, 'The group is focused');
+
+                    instance.destroy();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                assert.equal(document.activeElement, last, 'The element still has the focus');
+                assert.equal(group.classList.contains('focusin'), false, 'The fixture loose the focusin CSS class');
+                assert.equal(instance.isFocused(), true, 'The group is focused');
+
+                instance2.destroy();
+            })
+            .catch(function(err) {
+                assert.pushResult({
+                    result: false,
+                    message: err
+                });
+            })
+            .then(ready);
+    });
 
     QUnit.test('activate', function (assert) {
         var ready = assert.async();
@@ -409,56 +770,6 @@ define([
         $(document.activeElement).simulate('keyup', {keyCode: 32}); //Space -> activate
     });
 
-    QUnit.module('Group navigable element');
-
-    QUnit.test('isVisible', function (assert) {
-        var $container = $('#qunit-fixture .inputable');
-        var keyNavigator = keyNavigatorFactory({
-            id: 'A',
-            elements: navigableDomElement.createFromDoms($container.find('input')),
-            group: $container
-        });
-        var groupNavigable = navigableGroupElement(keyNavigator);
-
-        assert.ok(groupNavigable.isVisible(), 'group element is visible');
-
-        $container.find('input[data-id=A]').hide();
-        assert.ok(groupNavigable.isVisible(), 'group element is still visible');
-
-        $container.find('input[data-id=B]').hide();
-        assert.ok(groupNavigable.isVisible(), 'group element is still visible');
-
-        $container.find('input[data-id=C]').hide();
-        assert.ok(!groupNavigable.isVisible(), 'group element is hidden');
-
-        $container.find('input[data-id=C]').show();
-        assert.ok(groupNavigable.isVisible(), 'group element is visible again');
-    });
-
-    QUnit.test('isEnabled', function (assert) {
-        var $container = $('#qunit-fixture .inputable');
-        var keyNavigator = keyNavigatorFactory({
-            id: 'A',
-            elements: navigableDomElement.createFromDoms($container.find('input')),
-            group: $container
-        });
-        var groupNavigable = navigableGroupElement(keyNavigator);
-
-        assert.ok(groupNavigable.isEnabled(), 'group element is enabled');
-
-        $container.find('input[data-id=A]').attr('disabled', 'disabled');
-        assert.ok(groupNavigable.isEnabled(), 'group element is still enabled');
-
-        $container.find('input[data-id=B]').attr('disabled', 'disabled');
-        assert.ok(groupNavigable.isEnabled(), 'group element is still enabled');
-
-        $container.find('input[data-id=C]').attr('disabled', 'disabled');
-        assert.ok(!groupNavigable.isEnabled(), 'group element is disabled');
-
-        $container.find('input[data-id=C]').removeAttr('disabled');
-        assert.ok(groupNavigable.isEnabled(), 'group element is enabled again');
-    });
-
     QUnit.test('navigate between navigable areas', function (assert) {
         var ready = assert.async();
         var keyNavigator;
@@ -481,14 +792,10 @@ define([
             })
         ];
 
-        var elements = navigableGroupElement.createFromNavigators(keyNavigators);
-
-        assert.expect(8);
-
-        assert.equal(elements.length, 3, 'navigable element created');
+        assert.expect(7);
 
         keyNavigator = keyNavigatorFactory({
-            elements: elements
+            elements: keyNavigators
         })
             .on('right down', function () {
                 this.next();

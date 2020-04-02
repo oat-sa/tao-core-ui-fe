@@ -38,7 +38,7 @@ export default function navigableGroupElementFactory(keyNavigator) {
         throw new TypeError('the navigation group does not exist');
     }
 
-    const $group = keyNavigator.getGroup();
+    const $group = keyNavigator.getElement();
     if (!$group.length || !$.contains(document, $group[0])) {
         throw new TypeError('the group dom element does not exist');
     }

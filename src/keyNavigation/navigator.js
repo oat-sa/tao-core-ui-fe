@@ -45,6 +45,8 @@ import _ from 'lodash';
 import eventifier from 'core/eventifier';
 import navigableDomElement from 'ui/keyNavigation/navigableDomElement';
 
+const eventNS = '.key-navigator';
+
 const defaults = {
     defaultPosition: 0,
     keepState: false,
@@ -151,6 +153,23 @@ export default function keyNavigatorFactory(config) {
          * @returns {keyNavigator}
          */
         init() {
+            if ($group) {
+                //add the focusin and focus out class for group highlighting
+                $group
+                    .on(`focusin${eventNS}`, () => {
+                        if (this.isFocused()) {
+                            $group.addClass('focusin');
+                        }
+                    })
+                    .on(`focusout${eventNS}`, e => {
+                        _.defer(() => {
+                            if (!this.isFocused()) {
+                                $group.removeClass('focusin');
+                            }
+                        });
+                    });
+            }
+
             navigableElements.forEach(navigable => {
                 if (!navigableDomElement.isNavigableElement(navigable)) {
                     throw new TypeError('not a valid navigable element');
@@ -176,6 +195,10 @@ export default function keyNavigatorFactory(config) {
          * @returns {keyNavigator}
          */
         destroy() {
+            if ($group) {
+                $group.removeClass('focusin').off(eventNS);
+            }
+
             navigableElements.forEach(navigable => {
                 navigable
                     .off(`.${keyNavigator.getId}`)
@@ -197,7 +220,7 @@ export default function keyNavigatorFactory(config) {
          * Get the defined group the navigator group belongs to
          * @returns {jQuery}
          */
-        getGroup() {
+        getElement() {
             return $group;
         },
 
