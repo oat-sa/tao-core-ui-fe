@@ -190,6 +190,14 @@ export default function loginFactory($container, config) {
                 }
             };
 
+            var togglePassword = function togglePassword() {
+                if ($pwdInput.type === 'password') {
+                    show();
+                } else {
+                    hide(true);
+                }
+            };
+
             $form = this.getForm();
 
             $pwdInput = $form.find('input[type=password]')[0];
@@ -199,36 +207,21 @@ export default function loginFactory($container, config) {
 
             hide();
 
-            $inputToggle.on('keypress', function(e) {
-                var $active = document.activeElement;
+            $inputToggle.on('keyup', function (e) {
+                if (e.key === ' ') {
+                    togglePassword();
+                }
+            });
+
+            $inputToggle.on('keypress', function (e) {
                 if (e.key === 'Enter') {
-                    if ($active === $hideIcon[0]) {
-                        hide(true);
-                        e.stopPropagation();
-                    }
-                    if ($active === $viewIcon[0]) {
-                        show();
-                        e.stopPropagation();
-                    }
+                    togglePassword();
+                    e.stopPropagation();
                 }
             });
 
             $inputToggle.on('click', function() {
-                if ($pwdInput.type === 'password') {
-                    show();
-                } else {
-                    hide(true);
-                }
-            });
-
-            $inputToggle.on('keyup', function(e) {
-                if (e.key === ' ') {
-                    if ($pwdInput.type === 'password') {
-                        show();
-                    } else {
-                        hide(true);
-                    }
-                }
+                togglePassword();
             });
         },
 
