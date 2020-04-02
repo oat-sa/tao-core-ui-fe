@@ -152,9 +152,9 @@ export default function loginFactory($container, config) {
         attachPasswordRevealEvents: function attachPasswordRevealEvents() {
             var $form, $pwdInput, $inputToggle, $viewIcon, $hideIcon;
 
-            var self = this;
+            const self = this;
 
-            var autoHide = function autoHide(event) {
+            const autoHide = function autoHide(event) {
                 if (
                     !event.target.isSameNode($pwdInput) &&
                     !event.target.isSameNode($hideIcon[0]) &&
@@ -164,7 +164,7 @@ export default function loginFactory($container, config) {
                 }
             };
 
-            var show = function show() {
+            const show = function show() {
                 $viewIcon.hide();
                 $hideIcon.show();
 
@@ -176,7 +176,7 @@ export default function loginFactory($container, config) {
                 $pwdInput.focus();
             };
 
-            var hide = function hide(moveFocus) {
+            const hide = function hide(moveFocus) {
                 $hideIcon.hide();
                 $viewIcon.show();
 
@@ -190,7 +190,7 @@ export default function loginFactory($container, config) {
                 }
             };
 
-            var togglePassword = function togglePassword() {
+            const togglePassword = function togglePassword() {
                 if ($pwdInput.type === 'password') {
                     show();
                 } else {
@@ -220,9 +220,7 @@ export default function loginFactory($container, config) {
                 }
             });
 
-            $inputToggle.on('click', function() {
-                togglePassword();
-            });
+            $inputToggle.on('click', togglePassword);
         },
 
         /**
