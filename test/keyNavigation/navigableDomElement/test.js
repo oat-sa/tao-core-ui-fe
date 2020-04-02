@@ -75,6 +75,7 @@ define([
     QUnit.cases.init([
         {title: 'init'},
         {title: 'destroy'},
+        {title: 'getType'},
         {title: 'getElement'},
         {title: 'isVisible'},
         {title: 'isEnabled'},
@@ -91,11 +92,12 @@ define([
         var expected = document.querySelector(fixtureSelector);
         var instance;
 
-        assert.expect(6);
+        assert.expect(7);
 
         instance = navigableDomElement(expected);
         assert.ok(instance.getElement() instanceof $, 'Element: The instance has a jQuery selection for the represented element');
         assert.equal(instance.getElement().get(0), expected, 'Element: The instance has selected the right element');
+        assert.equal(instance.getType(), 'element', 'This is a navigable element');
 
         instance = navigableDomElement(fixtureSelector);
         assert.ok(instance.getElement() instanceof $, 'CSS Selector: The instance has a jQuery selection for the represented element');

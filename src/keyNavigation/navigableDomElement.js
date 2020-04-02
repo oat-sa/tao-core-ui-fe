@@ -35,6 +35,7 @@ const eventNS = '.ui-key-navigator';
 const navigableApi = [
     'init',
     'destroy',
+    'getType',
     'getElement',
     'isVisible',
     'isEnabled',
@@ -177,6 +178,14 @@ export default function navigableDomElement(element) {
             shortcuts.clear();
 
             return this;
+        },
+
+        /**
+         * Gets the type of navigable element
+         * @returns {String}
+         */
+        getType() {
+            return 'element';
         },
 
         /**

@@ -173,8 +173,11 @@ export default function keyNavigatorFactory(config) {
                     throw new TypeError('not a valid navigable element');
                 }
 
+                if (navigable.getType() === 'element') {
+                    navigable.init({propagateTab: config.propagateTab});
+                }
+
                 navigable
-                    .init({propagateTab: config.propagateTab})
                     .off(`.${keyNavigator.getId()}`)
                     .on(`key.${keyNavigator.getId()}`, (key, el) => keyNavigator.trigger('key', key, el))
                     .on(`blur.${keyNavigator.getId()}`, () => {
@@ -200,9 +203,11 @@ export default function keyNavigatorFactory(config) {
             }
 
             navigableElements.forEach(navigable => {
-                navigable
-                    .off(`.${keyNavigator.getId}`)
-                    .destroy();
+                navigable.off(`.${keyNavigator.getId}`);
+
+                if (navigable.getType() === 'element') {
+                    navigable.destroy();
+                }
             });
 
             return this;
@@ -214,6 +219,14 @@ export default function keyNavigatorFactory(config) {
          */
         getId() {
             return id;
+        },
+
+        /**
+         * Gets the type of navigable element
+         * @returns {String}
+         */
+        getType() {
+            return 'navigator';
         },
 
         /**
@@ -420,10 +433,9 @@ export default function keyNavigatorFactory(config) {
 
         /**
          * Focus the cursor position in memory is keepState is activated, or the default position otherwise
-         * @param {keyNavigator} [originNavigator] -  optionally indicates where the previous focus is on
          * @returns {keyNavigator}
          */
-        focus(originNavigator) {
+        focus() {
             let pos;
             if (config.keepState && _cursor && _cursor.position >= 0) {
                 pos = _cursor.position;
@@ -435,7 +447,7 @@ export default function keyNavigatorFactory(config) {
             } else {
                 pos = config.defaultPosition;
             }
-            this.focusPosition(getClosestPositionRight(pos), originNavigator);
+            this.focusPosition(getClosestPositionRight(pos));
             return this;
         },
 
@@ -443,20 +455,18 @@ export default function keyNavigatorFactory(config) {
          * Focus to a position defined by its index
          *
          * @param {Number} position
-         * @param {Object} originNavigator
          * @returns {keyNavigator}
          * @fires blur on the previous cursor
          * @fires focus on the new cursor
          */
-        focusPosition(position, originNavigator= null) {
+        focusPosition(position) {
             if (navigableElements[position]) {
                 if (_cursor.navigable) {
                     /**
                      * @event blur
                      * @param {Object} cursor
-                     * @param {Object} originNavigator
                      */
-                    this.trigger('blur', this.getCursor(), originNavigator);
+                    this.trigger('blur', this.getCursor());
                 }
 
                 _cursor.position = position;
@@ -466,9 +476,8 @@ export default function keyNavigatorFactory(config) {
                 /**
                  * @event focus
                  * @param {Object} cursor
-                 * @param {Object} originNavigator
                  */
-                this.trigger('focus', this.getCursor(), originNavigator);
+                this.trigger('focus', this.getCursor());
             }
             return this;
         }

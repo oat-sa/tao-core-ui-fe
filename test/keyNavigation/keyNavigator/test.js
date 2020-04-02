@@ -77,6 +77,7 @@ define([
         {title: 'init'},
         {title: 'destroy'},
         {title: 'getId'},
+        {title: 'getType'},
         {title: 'getElement'},
         {title: 'getCursor'},
         {title: 'getNavigables'},
@@ -108,10 +109,11 @@ define([
             elements: navElements
         });
 
-        assert.expect(12 + elements.length * 2);
+        assert.expect(13 + elements.length * 2);
 
         assert.ok(instance.getElement() instanceof $, 'The instance has a jQuery selection for the represented group');
         assert.equal(instance.getElement().get(0), group, 'The instance has selected the right group');
+        assert.equal(instance.getType(), 'navigator', 'This a navigator instance');
 
         assert.equal(typeof instance.getId(), 'string', 'The identifier is a string');
         assert.notEqual(instance.getId(), '', 'The identifier is set');
