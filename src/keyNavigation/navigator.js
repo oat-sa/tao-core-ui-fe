@@ -45,8 +45,6 @@ import _ from 'lodash';
 import eventifier from 'core/eventifier';
 import navigableDomElement from 'ui/keyNavigation/navigableDomElement';
 
-const eventNS = '.key-navigator';
-
 const defaults = {
     defaultPosition: 0,
     keepState: false,
@@ -156,12 +154,12 @@ export default function keyNavigatorFactory(config) {
             if ($group) {
                 //add the focusin and focus out class for group highlighting
                 $group
-                    .on(`focusin${eventNS}`, () => {
+                    .on(`focusin.${keyNavigator.getId()}`, () => {
                         if (this.isFocused()) {
                             $group.addClass('focusin');
                         }
                     })
-                    .on(`focusout${eventNS}`, e => {
+                    .on(`focusout.${keyNavigator.getId()}`, e => {
                         _.defer(() => {
                             if (!this.isFocused()) {
                                 $group.removeClass('focusin');
@@ -196,7 +194,9 @@ export default function keyNavigatorFactory(config) {
          */
         destroy() {
             if ($group) {
-                $group.removeClass('focusin').off(eventNS);
+                $group
+                    .off(`.${keyNavigator.getId()}`)
+                    .removeClass('focusin');
             }
 
             navigableElements.forEach(navigable => {
