@@ -406,7 +406,6 @@ var dialog = {
      */
     _install: function _install() {
         var self = this,
-            $buttons,
             closeButton;
 
         if (!this.destroyed) {
@@ -422,16 +421,18 @@ var dialog = {
                         self.destroy();
                     }
                 });
-            $buttons = this.$buttons.find('button');
+            const $items = this.getDom()
+                .find('.navigable-modal-body')
+                .add(this.$buttons.find('button'));
             closeButton = $(_scope).find('#modal-close-btn')[0];
 
             if (closeButton) {
-                $buttons.push(closeButton);
+                $items.push(closeButton);
             }
 
             //creates the navigator to manage the key navigation
             this.navigator = keyNavigator({
-                elements: navigableDomElement.createFromDoms($buttons)
+                elements: navigableDomElement.createFromDoms($items)
             })
                 .on('right down', function() {
                     this.next();
@@ -439,8 +440,8 @@ var dialog = {
                 .on('left up', function() {
                     this.previous();
                 })
-                .on('tab', function() {
-                    if (this.getCursor().position === $buttons.length - 1) {
+                .on('tab', function(e) {
+                    if (this.getCursor().position === $items.length - 1) {
                         this.first();
                     } else {
                         this.next();

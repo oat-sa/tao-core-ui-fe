@@ -229,6 +229,12 @@ ul.listbox {
         }
     }
 
+    .modal-close:focus,
+    .navigable-modal-body:focus {
+        outline: 3px solid whiten($info, .85);
+        outline-offset: 3px;
+    }
+
     .modal-body{
         h4 {
             @include font-size(16);

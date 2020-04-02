@@ -16,6 +16,7 @@
  * Copyright (c) 2014 (original work) Open Assessment Technologies SA ;
  */
 import $ from 'jquery';
+import __ from 'i18n';
 import Pluginifier from 'core/pluginifier';
 import DataAttrHandler from 'core/dataattrhandler';
 
@@ -101,9 +102,14 @@ var modal = {
             //Initialize the close button for the modal dialog
             if ($('.' + options.modalCloseClass, $modal).length === 0 && !options.disableClosing) {
                 $(
-                    '<button id="modal-close-btn" class="' +
-                        options.modalCloseClass +
-                        '"><span class="icon-close"></span></button>'
+                    `<button
+                        id="modal-close-btn"
+                        class="${options.modalCloseClass}"
+                        title="${__('Close dialog')}"
+                        aria-label="${__('Close dialog')}"
+                    >
+                        <span class="icon-close"></span>
+                    </button>`
                 ).appendTo($modal);
             }
 
