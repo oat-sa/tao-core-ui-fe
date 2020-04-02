@@ -235,16 +235,19 @@ export default function navigableDomElement(element) {
 
 /**
  * From a jQuery container, returns an array of navigableDomElement
- * @param {jQuery} $elements
+ * @param {jQuery|Element[]} $elements
  * @returns {Array}
  */
 navigableDomElement.createFromDoms = $elements => {
     const list = [];
+    const addElement = element => list.push(navigableDomElement(element));
 
-    if ($elements && $elements instanceof $) {
-        $elements.each(
-            (i, element) => list.push(navigableDomElement(element))
-        );
+    if ($elements) {
+        if ($elements instanceof $) {
+            $elements.each((i, element) => addElement(element));
+        } else {
+            $elements.forEach(addElement);
+        }
     }
 
     return list;

@@ -510,19 +510,28 @@ define([
             .then(ready);
     });
 
-    QUnit.test('createFromDoms', function (assert) {
-        var $fixtures = $('#qunit-fixture [data-fixture]');
-        var instances = navigableDomElement.createFromDoms($fixtures);
+    QUnit.cases.init([
+        {
+            title: 'jQuery',
+            fixtures: $('#qunit-fixture [data-fixture]')
+        },
+        {
+            title: 'Elements',
+            fixtures: document.querySelectorAll('#qunit-fixture [data-fixture]')
+        }
+    ]).test('createFromDoms ', function (data, assert) {
+        var instances = navigableDomElement.createFromDoms(data.fixtures);
 
-        assert.expect(4 + $fixtures.length);
+        assert.expect(4 + data.fixtures.length);
 
         assert.deepEqual(navigableDomElement.createFromDoms(), [], 'No list, no instances');
         assert.deepEqual(navigableDomElement.createFromDoms([]), [], 'Empty list, no instances');
         assert.deepEqual(navigableDomElement.createFromDoms($()), [], 'Empty collection, no instances');
 
-        assert.equal(instances.length, $fixtures.length, 'The expected number of instances has been created');
-        $fixtures.each(function (i) {
-            assert.equal(instances[i].getElement().is(this), true, 'The instance relates to the expected element');
+        assert.equal(instances.length, data.fixtures.length, 'The expected number of instances has been created');
+
+        instances.forEach(function (instance, i) {
+            assert.equal(instance.getElement().is(data.fixtures[i]), true, 'The instance relates to the expected element');
         });
     });
 
