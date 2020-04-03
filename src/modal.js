@@ -106,7 +106,6 @@ var modal = {
                         id="modal-close-btn"
                         class="${options.modalCloseClass}"
                         title="${__('Close dialog')}"
-                        aria-label="${__('Close dialog')}"
                     >
                         <span class="icon-close"></span>
                     </button>`

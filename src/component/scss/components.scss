@@ -231,7 +231,7 @@ ul.listbox {
 
     .modal-close:focus,
     .navigable-modal-body:focus {
-        outline: 3px solid whiten($info, .85);
+        outline: 3px solid $actionLinkColor;
         outline-offset: 3px;
     }
 
@@ -249,7 +249,7 @@ ul.listbox {
             position: relative;
 
             //flat button
-            button{
+            button {
                 @include border-radius(2);
                 margin-left: 8px;
                 height: 36px;
@@ -259,6 +259,8 @@ ul.listbox {
                 background: none;
                 &:focus, &:hover{
                     background: whiten($info, .85);
+                    outline: 3px solid $actionLinkColor;
+                    outline-offset: 3px;
                 }
             }
         }
