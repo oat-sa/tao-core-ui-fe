@@ -80,7 +80,7 @@ define([
         {title: 'getCursor'},
         {title: 'getCurrentPosition'},
         {title: 'getCurrentNavigable'},
-        {title: 'getNavigables'},
+        {title: 'getNavigableElements'},
         {title: 'isVisible'},
         {title: 'isEnabled'},
         {title: 'isFocused'},
@@ -100,7 +100,7 @@ define([
 
     QUnit.module('Behavior');
 
-    QUnit.test('init parameter / getElement / getNavigables', function (assert) {
+    QUnit.test('init parameter / getElement / getNavigableElements', function (assert) {
         var group = document.querySelector('#qunit-fixture .interleaved');
         var elements = document.querySelectorAll('#qunit-fixture .interleaved .nav');
         var navElements = navigableDomElement.createFromDoms(elements);
@@ -122,9 +122,9 @@ define([
         assert.notEqual(keyNavigatorFactory().getId(), keyNavigatorFactory().getId(), 'Automatic ID are differents');
         assert.equal(keyNavigatorFactory({id: 'foo'}).getId(), 'foo', 'Specific ID is taken into account');
 
-        assert.ok(instance.getNavigables() instanceof Array, 'The instance has a collection of navigable elements');
-        assert.equal(instance.getNavigables().length, elements.length, 'The instance has the expected number of navigable elements');
-        instance.getNavigables().forEach(function(navigable, i) {
+        assert.ok(instance.getNavigableElements() instanceof Array, 'The instance has a collection of navigable elements');
+        assert.equal(instance.getNavigableElements().length, elements.length, 'The instance has the expected number of navigable elements');
+        instance.getNavigableElements().forEach(function(navigable, i) {
             assert.ok(navigableDomElement.isNavigableElement(navigable), 'This is a navigable element');
             assert.equal(navigable.getElement().get(0), elements[i], 'The navigable relates to the expected element');
         });
@@ -870,14 +870,14 @@ define([
     QUnit.test('isFocused', function (assert) {
         var keyNavigator;
         var $container = $('#qunit-fixture .nav-1');
-        var $navigables = $container.find('.nav');
-        var navigables = navigableDomElement.createFromDoms($navigables);
+        var $elements = $container.find('.nav');
+        var elements = navigableDomElement.createFromDoms($elements);
 
         assert.expect(4);
 
-        assert.equal(navigables.length, 3, 'navigable element created');
+        assert.equal(elements.length, 3, 'navigable element created');
 
-        keyNavigator = keyNavigatorFactory({elements: navigables});
+        keyNavigator = keyNavigatorFactory({elements: elements});
 
         assert.ok(!keyNavigator.isFocused(), 'the navigator is not on focus');
         keyNavigator.focus();

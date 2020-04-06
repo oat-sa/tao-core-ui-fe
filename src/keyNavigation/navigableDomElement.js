@@ -209,7 +209,7 @@ export default function navigableDomElement(element) {
         },
 
         /**
-         * Checks if the navigable element is not disabled
+         * Checks if the navigable element is enabled
          * @returns {Boolean}
          */
         isEnabled() {
@@ -226,7 +226,7 @@ export default function navigableDomElement(element) {
         },
 
         /**
-         * Removes focus from the navigable element
+         * Removes the focus from the navigable element
          * @returns {navigableDomElement}
          */
         blur() {
@@ -236,7 +236,7 @@ export default function navigableDomElement(element) {
         },
 
         /**
-         * Sets focus on the navigable element
+         * Sets the focus on the navigable element
          * @returns {navigableDomElement}
          */
         focus() {

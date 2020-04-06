@@ -388,7 +388,7 @@ var dialog = {
     focus: function focus(button) {
         var focusPosition = -1;
         if (button) {
-            focusPosition = _.findIndex(this.navigator.getNavigables(), function(navigable) {
+            focusPosition = _.findIndex(this.navigator.getNavigableElements(), function(navigable) {
                 return navigable.getElement().is('[data-control="' + button + '"]');
             });
         }

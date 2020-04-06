@@ -24,11 +24,11 @@
  * @example
  * const $navigationBar = $('#navigation-bar');
  * const $buttons = $navigationBar.find('li');
- * const navigables = domNavigableElement.createFromDoms($buttons);
+ * const navigableElements = domNavigableElement.createFromDoms($buttons);
  * keyNavigator({
  *       id : 'navigation-toolbar',
  *       group : $navigationBar,
- *       elements : navigables,
+ *       elements : navigableElements,
  *       defaultPosition : 0
  *   }).on('right down', function(){
  *       this.next();
@@ -65,21 +65,33 @@ const defaults = {
  * @returns {keyNavigator}
  */
 export default function keyNavigatorFactory(config) {
-    config = _.defaults(config || {}, defaults);
+    const navigatorConfig = Object.assign({}, defaults, config || {});
 
-    let lastPosition = -1;
-    const id = config.id || _.uniqueId('navigator_');
-    const navigableElements = config.elements || [];
-    const $group = config.group && $(config.group).addClass('key-navigation-group').attr('data-navigation-id', id);
-    if (config.group && (!$group.length || !$.contains(document.body, $group.get(0)))) {
+    const $group = navigatorConfig.group && $(navigatorConfig.group).addClass('key-navigation-group').attr('data-navigation-id', id);
+    if (navigatorConfig.group && (!$group.length || !$.contains(document.body, $group.get(0)))) {
         throw new TypeError('group element does not exist');
     }
 
+    const id = navigatorConfig.id || _.uniqueId('navigator_');
+    const navigableElements = navigatorConfig.elements || [];
+    let lastPosition = -1;
+
+    /**
+     * Checks if the navigable element is available
+     * @param {navigableDomElement} navigable
+     * @returns {Boolean}
+     */
     const isNavigableAvailable = navigable => navigable && navigable.isVisible() && navigable.isEnabled();
+
+    /**
+     * Checks if the navigable element is focused
+     * @param {navigableDomElement} navigable
+     * @returns {Boolean}
+     */
     const isNavigableFocused = navigable => isNavigableAvailable(navigable) && navigable.isFocused();
 
     /**
-     * Get the closest allowed position in the right
+     * Gets the closest allowed position to the right
      *
      * @param {Number} fromPosition - the starting position
      * @returns {Number}
@@ -94,7 +106,7 @@ export default function keyNavigatorFactory(config) {
     };
 
     /**
-     * Get the closest allowed position in the left
+     * Gets the closest allowed position to the left
      *
      * @param {Number} fromPosition - the starting position
      * @returns {Number}
@@ -115,19 +127,19 @@ export default function keyNavigatorFactory(config) {
      */
     const keyNavigator = eventifier({
         /**
-         * Setup the navigator
+         * Setups the navigator
          * @returns {keyNavigator}
          */
         init() {
             if ($group) {
                 //add the focusin and focus out class for group highlighting
                 $group
-                    .on(`focusin.${keyNavigator.getId()}`, () => {
+                    .on(`focusin.${this.getId()}`, () => {
                         if (this.isFocused()) {
                             $group.addClass('focusin');
                         }
                     })
-                    .on(`focusout.${keyNavigator.getId()}`, e => {
+                    .on(`focusout.${this.getId()}`, e => {
                         _.defer(() => {
                             if (!this.isFocused()) {
                                 $group.removeClass('focusin');
@@ -142,19 +154,19 @@ export default function keyNavigatorFactory(config) {
                 }
 
                 if (navigable.getType() === 'element') {
-                    navigable.init({propagateTab: config.propagateTab});
+                    navigable.init({propagateTab: navigatorConfig.propagateTab});
                 }
 
                 navigable
-                    .off(`.${keyNavigator.getId()}`)
-                    .on(`key.${keyNavigator.getId()}`, (key, el) => keyNavigator.trigger('key', key, el))
-                    .on(`focus.${keyNavigator.getId()}`, () => {
+                    .off(`.${this.getId()}`)
+                    .on(`key.${this.getId()}`, (key, el) => this.trigger('key', key, el))
+                    .on(`focus.${this.getId()}`, () => {
                         lastPosition = this.getCurrentPosition();
                     })
-                    .on(`blur.${keyNavigator.getId()}`, () => {
-                        const cursor = keyNavigator.getCursor();
-                        if (cursor && cursor.navigable) {
-                            keyNavigator.trigger('blur', cursor);
+                    .on(`blur.${this.getId()}`, () => {
+                        const cursor = this.getCursor();
+                        if (cursor.navigable) {
+                            this.trigger('blur', cursor);
                         }
                     });
             });
@@ -163,18 +175,18 @@ export default function keyNavigatorFactory(config) {
         },
 
         /**
-         * Destroy and cleanup
+         * Destroys and cleanup
          * @returns {keyNavigator}
          */
         destroy() {
             if ($group) {
                 $group
-                    .off(`.${keyNavigator.getId()}`)
+                    .off(`.${this.getId()}`)
                     .removeClass('focusin');
             }
 
             navigableElements.forEach(navigable => {
-                navigable.off(`.${keyNavigator.getId}`);
+                navigable.off(`.${this.getId}`);
 
                 if (navigable.getType() === 'element') {
                     navigable.destroy();
@@ -185,7 +197,7 @@ export default function keyNavigatorFactory(config) {
         },
 
         /**
-         * Get the navigation group id
+         * Gets the navigation group id
          * @returns {String}
          */
         getId() {
@@ -201,7 +213,7 @@ export default function keyNavigatorFactory(config) {
         },
 
         /**
-         * Get the defined group the navigator group belongs to
+         * Gets the defined group the navigator group belongs to
          * @returns {jQuery}
          */
         getElement() {
@@ -209,7 +221,7 @@ export default function keyNavigatorFactory(config) {
         },
 
         /**
-         * Return the current cursor of the navigator
+         * Returns the current cursor of the navigator
          * @returns {Object}
          */
         getCursor() {
@@ -219,19 +231,18 @@ export default function keyNavigatorFactory(config) {
         },
 
         /**
-         * Return the current position in the navigator
+         * Returns the current position in the navigator
          * @returns {Number}
          */
         getCurrentPosition() {
             if (document.activeElement) {
-                // try to find the focused element within the known list of focusable elements
                 return _.findIndex(navigableElements, isNavigableFocused);
             }
             return -1;
         },
 
         /**
-         * Return the current navigable in the navigator
+         * Returns the current navigable in the navigator
          * @returns {Object}
          */
         getCurrentNavigable() {
@@ -243,66 +254,70 @@ export default function keyNavigatorFactory(config) {
         },
 
         /**
-         * Return the array of navigable objects composing the navigator
+         * Returns the array of navigable objects composing the navigator
          * @returns {Array}
          */
-        getNavigables() {
-            return _.clone(navigableElements);
+        getNavigableElements() {
+            return navigableElements.slice();
         },
 
         /**
-         * Check if the group and at least one navigable element is visible
+         * Checks if the group and at least one navigable element is visible
          * @returns {boolean}
          */
         isVisible() {
             if (!$group || $group.is(':visible')) {
-                return navigableElements.some(nav => nav.isVisible());
+                return navigableElements.some(navigable => navigable.isVisible());
             }
             return false;
         },
 
         /**
-         * Check if the group and at least one navigable element is enabled
+         * Checks if the group and at least one navigable element is enabled
          * @returns {Boolean}
          */
         isEnabled() {
             if (!$group || !$group.is(':disabled')) {
-                return navigableElements.some(nav => nav.isEnabled());
+                return navigableElements.some(navigable => navigable.isEnabled());
             }
             return false;
         },
 
         /**
-         * Check if at least one navigable element is focused
+         * Checks if at least one navigable element is focused
          * @returns {Boolean}
          */
         isFocused() {
             if (document.activeElement) {
-                return navigableElements.some(nav => nav.isFocused());
+                return navigableElements.some(navigable => navigable.isFocused());
             }
             return false;
         },
 
         /**
-         * Set focus on the first available focusable element
+         * Sets the focus on the first available focusable element
          * @returns {keyNavigator}
          */
         first() {
-            this.focusPosition(getClosestPositionRight(0));
+            this.focusPosition(
+                getClosestPositionRight(0)
+            );
             return this;
         },
 
         /**
-         * Set focus on the last available focusable element
+         * Sets the focus on the last available focusable element
          * @returns {keyNavigator}
          */
         last() {
-            this.focusPosition(getClosestPositionLeft(navigableElements.length - 1));
+            this.focusPosition(
+                getClosestPositionLeft(navigableElements.length - 1)
+            );
             return this;
         },
 
         /**
-         * Move cursor to next position
+         * Moves the cursor to the next position
          *
          * @returns {keyNavigator}
          * @fires upperbound when we cannot move further
@@ -310,13 +325,12 @@ export default function keyNavigatorFactory(config) {
          */
         next() {
             let position = this.getCurrentPosition();
-            if (position > -1) {
+            if (position >= 0) {
                 position = getClosestPositionRight(position + 1);
                 if (position >= 0) {
                     this.focusPosition(position);
-                } else if (config.loop) {
-                    //loop allowed, so returns to the first element
-                    this.focusPosition(getClosestPositionRight(0));
+                } else if (navigatorConfig.loop) {
+                    this.first();
                 } else {
                     /**
                      * reaching the end of the list
@@ -331,16 +345,15 @@ export default function keyNavigatorFactory(config) {
                  * @event next
                  * @param {Object} cursor
                  */
-                this.trigger('next', cursor.navigable && cursor);
+                this.trigger('next', cursor);
             } else {
-                //no cursor, might be blurred, so attempt resuming navigation from cursor in memory
-                this.focusPosition(getClosestPositionRight(0));
+                this.first();
             }
             return this;
         },
 
         /**
-         * Move cursor to previous position
+         * Moves the cursor to the previous position
          *
          * @returns {keyNavigator}
          * @fires lowerbound when we cannot move lower
@@ -348,13 +361,12 @@ export default function keyNavigatorFactory(config) {
          */
         previous() {
             let position = this.getCurrentPosition();
-            if (position > -1) {
+            if (position >= 0) {
                 position = getClosestPositionLeft(position - 1);
                 if (position >= 0) {
                     this.focusPosition(position);
-                } else if (config.loop) {
-                    //loop allowed, so returns to the first element
-                    this.focusPosition(getClosestPositionLeft(navigableElements.length - 1));
+                } else if (navigatorConfig.loop) {
+                    this.last();
                 } else {
                     /**
                      * reaching the end of the list
@@ -369,16 +381,15 @@ export default function keyNavigatorFactory(config) {
                  * @event previous
                  * @param {Object} cursor
                  */
-                this.trigger('previous', cursor.navigable && cursor);
+                this.trigger('previous', cursor);
             } else {
-                //no cursor, might be blurred, so attempt resuming navigation from cursor in memory
-                this.focusPosition(getClosestPositionRight(0));
+                this.first();
             }
             return this;
         },
 
         /**
-         * Focus to a position defined by its index
+         * Activates the focused element, if any
          *
          * @param {Object} target
          * @returns {keyNavigator}
@@ -398,7 +409,7 @@ export default function keyNavigatorFactory(config) {
         },
 
         /**
-         * Blur the current cursor
+         * Blurs the focused element, if any
          * @returns {keyNavigator}
          */
         blur() {
@@ -410,24 +421,26 @@ export default function keyNavigatorFactory(config) {
         },
 
         /**
-         * Focus the cursor position in memory is keepState is activated, or the default position otherwise
+         * Sets the focus to the current element
          * @returns {keyNavigator}
          */
         focus() {
             let position;
-            if (config.keepState && lastPosition >= 0) {
+            if (navigatorConfig.keepState && lastPosition >= 0) {
                 position = lastPosition;
-            } else if (_.isFunction(config.defaultPosition)) {
-                position = Math.max(0, config.defaultPosition(navigableElements));
+            } else if (_.isFunction(navigatorConfig.defaultPosition)) {
+                position = Math.max(0, navigatorConfig.defaultPosition(navigableElements));
             } else {
-                position = config.defaultPosition;
+                position = navigatorConfig.defaultPosition;
             }
-            this.focusPosition(getClosestPositionRight(position));
+            this.focusPosition(
+                getClosestPositionRight(position)
+            );
             return this;
         },
 
         /**
-         * Focus to a position defined by its index
+         * Sets the focus to the element at the position
          *
          * @param {Number} position
          * @returns {keyNavigator}
