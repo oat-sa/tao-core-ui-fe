@@ -67,12 +67,12 @@ const defaults = {
 export default function keyNavigatorFactory(config) {
     const navigatorConfig = Object.assign({}, defaults, config || {});
 
+    const id = navigatorConfig.id || _.uniqueId('navigator_');
     const $group = navigatorConfig.group && $(navigatorConfig.group).addClass('key-navigation-group').attr('data-navigation-id', id);
     if (navigatorConfig.group && (!$group.length || !$.contains(document.body, $group.get(0)))) {
         throw new TypeError('group element does not exist');
     }
 
-    const id = navigatorConfig.id || _.uniqueId('navigator_');
     const navigableElements = navigatorConfig.elements || [];
     let lastPosition = -1;
 
@@ -139,7 +139,7 @@ export default function keyNavigatorFactory(config) {
                             $group.addClass('focusin');
                         }
                     })
-                    .on(`focusout.${this.getId()}`, e => {
+                    .on(`focusout.${this.getId()}`, () => {
                         _.defer(() => {
                             if (!this.isFocused()) {
                                 $group.removeClass('focusin');
