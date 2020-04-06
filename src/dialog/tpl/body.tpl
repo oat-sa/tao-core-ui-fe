@@ -1,16 +1,18 @@
-<div class="preview-modal-feedback modal {{class}}" role="dialog">
+<div
+    class="preview-modal-feedback modal {{class}}"
+    role="dialog"
+    class="navigable-modal-body"
+>
     <div class="modal-body clearfix">
-        <div class="navigable-modal-body" data-control="navigable-modal-body">
-            {{#if heading}}
-            <h4 class="strong">{{heading}}</h4>
-            {{/if}}
+        {{#if heading}}
+        <h4 class="strong">{{heading}}</h4>
+        {{/if}}
 
-            <p class="message">{{{message}}}</p>
+        <p class="message">{{{message}}}</p>
 
-            {{#if content}}
-            <div class="content">{{{content}}}</div>
-            {{/if}}
-        </div>
+        {{#if content}}
+        <div class="content">{{{content}}}</div>
+        {{/if}}
 
         <div class="buttons rgt"></div>
     </div>

@@ -230,7 +230,7 @@ ul.listbox {
     }
 
     .modal-close:focus,
-    .navigable-modal-body:focus {
+    &:focus {
         outline: 3px solid $actionLinkColor;
         outline-offset: 3px;
     }

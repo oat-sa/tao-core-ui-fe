@@ -422,7 +422,6 @@ var dialog = {
                     }
                 });
             const $items = this.getDom()
-                .find('.navigable-modal-body')
                 .add(this.$buttons.find('button'));
             closeButton = $(_scope).find('#modal-close-btn')[0];
 
@@ -432,7 +431,8 @@ var dialog = {
 
             //creates the navigator to manage the key navigation
             this.navigator = keyNavigator({
-                elements: navigableDomElement.createFromDoms($items)
+                elements: navigableDomElement.createFromDoms($items),
+                propagateTab: false
             })
                 .on('right down', function() {
                     this.next();
@@ -440,7 +440,7 @@ var dialog = {
                 .on('left up', function() {
                     this.previous();
                 })
-                .on('tab', function(e) {
+                .on('tab', function() {
                     if (this.getCursor().position === $items.length - 1) {
                         this.first();
                     } else {
