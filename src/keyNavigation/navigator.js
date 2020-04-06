@@ -65,13 +65,9 @@ const defaults = {
  * @returns {keyNavigator}
  */
 export default function keyNavigatorFactory(config) {
-    const _cursor = {
-        position: -1,
-        navigable: null
-    };
-
     config = _.defaults(config || {}, defaults);
 
+    let lastPosition = -1;
     const id = config.id || _.uniqueId('navigator_');
     const navigableElements = config.elements || [];
     const $group = config.group && $(config.group).addClass('key-navigation-group').attr('data-navigation-id', id);
@@ -79,36 +75,8 @@ export default function keyNavigatorFactory(config) {
         throw new TypeError('group element does not exist');
     }
 
-    /**
-     * Get the current focused element within the key navigation group
-     *
-     * @returns {Object} the cursor
-     */
-    const getCurrentCursor = () => {
-        let isFocused = false;
-
-        if (document.activeElement) {
-            // try to find the focused element within the known list of focusable elements
-            navigableElements.forEach((navigable, index) => {
-                if (
-                    navigable.isVisible() &&
-                    navigable.isEnabled() &&
-                    navigable.isFocused()
-                ) {
-                    _cursor.position = index;
-                    _cursor.navigable = navigable;
-                    isFocused = true;
-                    return false;
-                }
-            });
-        }
-
-        if (isFocused) {
-            return _cursor;
-        }
-
-        return null;
-    };
+    const isNavigableAvailable = navigable => navigable && navigable.isVisible() && navigable.isEnabled();
+    const isNavigableFocused = navigable => isNavigableAvailable(navigable) && navigable.isFocused();
 
     /**
      * Get the closest allowed position in the right
@@ -118,7 +86,7 @@ export default function keyNavigatorFactory(config) {
      */
     const getClosestPositionRight = fromPosition => {
         for (let pos = fromPosition; pos < navigableElements.length; pos++) {
-            if (navigableElements[pos] && navigableElements[pos].isVisible() && navigableElements[pos].isEnabled()) {
+            if (isNavigableAvailable(navigableElements[pos])) {
                 return pos;
             }
         }
@@ -133,7 +101,7 @@ export default function keyNavigatorFactory(config) {
      */
     const getClosestPositionLeft = fromPosition => {
         for (let pos = fromPosition; pos >= 0; pos--) {
-            if (navigableElements[pos] && navigableElements[pos].isVisible() && navigableElements[pos].isEnabled()) {
+            if (isNavigableAvailable(navigableElements[pos])) {
                 return pos;
             }
         }
@@ -180,6 +148,9 @@ export default function keyNavigatorFactory(config) {
                 navigable
                     .off(`.${keyNavigator.getId()}`)
                     .on(`key.${keyNavigator.getId()}`, (key, el) => keyNavigator.trigger('key', key, el))
+                    .on(`focus.${keyNavigator.getId()}`, () => {
+                        lastPosition = this.getCurrentPosition();
+                    })
                     .on(`blur.${keyNavigator.getId()}`, () => {
                         const cursor = keyNavigator.getCursor();
                         if (cursor && cursor.navigable) {
@@ -242,8 +213,9 @@ export default function keyNavigatorFactory(config) {
          * @returns {Object}
          */
         getCursor() {
-            //clone the return cursor to protect this private variable
-            return _.clone(_cursor);
+            const position = this.getCurrentPosition();
+            const navigable = position >= 0 ? navigableElements[position] : null;
+            return {position, navigable};
         },
 
         /**
@@ -251,9 +223,9 @@ export default function keyNavigatorFactory(config) {
          * @returns {Number}
          */
         getCurrentPosition() {
-            const cursor = getCurrentCursor();
-            if (cursor) {
-                return cursor.position;
+            if (document.activeElement) {
+                // try to find the focused element within the known list of focusable elements
+                return _.findIndex(navigableElements, isNavigableFocused);
             }
             return -1;
         },
@@ -263,9 +235,9 @@ export default function keyNavigatorFactory(config) {
          * @returns {Object}
          */
         getCurrentNavigable() {
-            const cursor = getCurrentCursor();
-            if (cursor) {
-                return cursor.navigable;
+            const position = this.getCurrentPosition();
+            if (position >= 0) {
+                return navigableElements[position];
             }
             return null;
         },
@@ -337,11 +309,11 @@ export default function keyNavigatorFactory(config) {
          * @fires next when the cursor successfully moved to the next position
          */
         next() {
-            let pos = this.getCurrentPosition();
-            if (pos > -1) {
-                pos = getClosestPositionRight(pos + 1);
-                if (pos >= 0) {
-                    this.focusPosition(pos);
+            let position = this.getCurrentPosition();
+            if (position > -1) {
+                position = getClosestPositionRight(position + 1);
+                if (position >= 0) {
+                    this.focusPosition(position);
                 } else if (config.loop) {
                     //loop allowed, so returns to the first element
                     this.focusPosition(getClosestPositionRight(0));
@@ -352,11 +324,14 @@ export default function keyNavigatorFactory(config) {
                      */
                     this.trigger('upperbound');
                 }
+
+                const cursor = this.getCursor();
+
                 /**
                  * @event next
                  * @param {Object} cursor
                  */
-                this.trigger('next', getCurrentCursor());
+                this.trigger('next', cursor.navigable && cursor);
             } else {
                 //no cursor, might be blurred, so attempt resuming navigation from cursor in memory
                 this.focusPosition(getClosestPositionRight(0));
@@ -372,11 +347,11 @@ export default function keyNavigatorFactory(config) {
          * @fires previous when the cursor successfully moved to the previous position
          */
         previous() {
-            let pos = this.getCurrentPosition();
-            if (pos > -1) {
-                pos = getClosestPositionLeft(pos - 1);
-                if (pos >= 0) {
-                    this.focusPosition(pos);
+            let position = this.getCurrentPosition();
+            if (position > -1) {
+                position = getClosestPositionLeft(position - 1);
+                if (position >= 0) {
+                    this.focusPosition(position);
                 } else if (config.loop) {
                     //loop allowed, so returns to the first element
                     this.focusPosition(getClosestPositionLeft(navigableElements.length - 1));
@@ -387,11 +362,14 @@ export default function keyNavigatorFactory(config) {
                      */
                     this.trigger('lowerbound');
                 }
+
+                const cursor = this.getCursor();
+
                 /**
                  * @event previous
                  * @param {Object} cursor
                  */
-                this.trigger('previous', getCurrentCursor());
+                this.trigger('previous', cursor.navigable && cursor);
             } else {
                 //no cursor, might be blurred, so attempt resuming navigation from cursor in memory
                 this.focusPosition(getClosestPositionRight(0));
@@ -407,8 +385,8 @@ export default function keyNavigatorFactory(config) {
          * @fires activate
          */
         activate(target) {
-            const cursor = getCurrentCursor();
-            if (cursor) {
+            const cursor = this.getCursor();
+            if (cursor.navigable) {
                 /**
                  * @event activate
                  * @param {Object} cursor
@@ -436,18 +414,15 @@ export default function keyNavigatorFactory(config) {
          * @returns {keyNavigator}
          */
         focus() {
-            let pos;
-            if (config.keepState && _cursor && _cursor.position >= 0) {
-                pos = _cursor.position;
+            let position;
+            if (config.keepState && lastPosition >= 0) {
+                position = lastPosition;
             } else if (_.isFunction(config.defaultPosition)) {
-                pos = config.defaultPosition(navigableElements);
-                if (pos < 0) {
-                    pos = 0;
-                }
+                position = Math.max(0, config.defaultPosition(navigableElements));
             } else {
-                pos = config.defaultPosition;
+                position = config.defaultPosition;
             }
-            this.focusPosition(getClosestPositionRight(pos));
+            this.focusPosition(getClosestPositionRight(position));
             return this;
         },
 
@@ -461,17 +436,17 @@ export default function keyNavigatorFactory(config) {
          */
         focusPosition(position) {
             if (navigableElements[position]) {
-                if (_cursor.navigable) {
+                const cursor = this.getCursor();
+                if (cursor.navigable) {
                     /**
                      * @event blur
                      * @param {Object} cursor
                      */
-                    this.trigger('blur', this.getCursor());
+                    this.trigger('blur', cursor);
                 }
 
-                _cursor.position = position;
-                navigableElements[_cursor.position].focus();
-                _cursor.navigable = navigableElements[_cursor.position];
+                lastPosition = position;
+                navigableElements[position].focus();
 
                 /**
                  * @event focus
