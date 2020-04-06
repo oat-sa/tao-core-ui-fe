@@ -80,6 +80,8 @@ define([
         {title: 'getType'},
         {title: 'getElement'},
         {title: 'getCursor'},
+        {title: 'getCurrentPosition'},
+        {title: 'getCurrentNavigable'},
         {title: 'getNavigables'},
         {title: 'isVisible'},
         {title: 'isEnabled'},
@@ -240,6 +242,313 @@ define([
                 assert.equal(group.classList.contains('focusin'), false, 'The fixture loose the focusin CSS class');
 
                 instance2.destroy();
+            })
+            .catch(function(err) {
+                assert.pushResult({
+                    result: false,
+                    message: err
+                });
+            })
+            .then(ready);
+    });
+
+    QUnit.test('getCursor', function (assert) {
+        var ready = assert.async();
+        var group = document.querySelector('#qunit-fixture .interleaved');
+        var elements = document.querySelectorAll('#qunit-fixture .interleaved .nav.group-1');
+        var elements2 = document.querySelectorAll('#qunit-fixture .interleaved .nav.group-2');
+        var navElements = navigableDomElement.createFromDoms(elements);
+        var instance = keyNavigatorFactory({
+            group: $(group),
+            elements: navElements
+        });
+
+        assert.expect(17);
+
+        Promise
+            .resolve()
+            .then(function() {
+                return new Promise(function (resolve) {
+                    if (document.activeElement) {
+                        document.activeElement.blur();
+                    }
+
+                    assert.equal(document.activeElement, document.body, 'No element in focus');
+                    assert.deepEqual(instance.getCursor(), {position: -1, navigable: null}, 'There is no current element yet');
+                    assert.notEqual(instance.getCursor(), instance.getCursor(), 'Different copies of the cursor are returned');
+
+                    instance.focus();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, elements[0], 'The first element got the focus');
+                    assert.deepEqual(instance.getCursor(), {position: 0, navigable: navElements[0]}, 'The current element is the first navigable');
+
+                    document.activeElement.blur();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, document.body, 'No element in focus');
+                    assert.deepEqual(instance.getCursor(), {position: -1, navigable: null}, 'There is no current element again');
+
+                    instance.focus();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, elements[0], 'The first element got the focus back');
+                    assert.deepEqual(instance.getCursor(), {position: 0, navigable: navElements[0]}, 'The current element is the first navigable');
+
+                    elements[1].focus();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, elements[1], 'The second element got the focus back');
+                    assert.deepEqual(instance.getCursor(), {position: 1, navigable: navElements[1]}, 'The current element is the second navigable');
+
+                    elements2[0].focus();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, elements2[0], 'The first element of another group got the focus');
+                    assert.deepEqual(instance.getCursor(), {position: -1, navigable: null}, 'There is no current element again');
+
+                    elements[elements.length - 1].focus();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, elements[elements.length - 1], 'The last element of the group got the focus');
+                    assert.deepEqual(instance.getCursor(), {position: elements.length - 1, navigable: navElements[navElements.length - 1]}, 'The current element is the last navigable');
+
+                    instance.destroy();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                assert.equal(document.activeElement, elements[elements.length - 1], 'The element still has the focus');
+                assert.deepEqual(instance.getCursor(), {position: elements.length - 1, navigable: navElements[navElements.length - 1]}, 'The current element is still the last navigable');
+            })
+            .catch(function(err) {
+                assert.pushResult({
+                    result: false,
+                    message: err
+                });
+            })
+            .then(ready);
+    });
+
+    QUnit.test('getCurrentPosition', function (assert) {
+        var ready = assert.async();
+        var group = document.querySelector('#qunit-fixture .interleaved');
+        var elements = document.querySelectorAll('#qunit-fixture .interleaved .nav.group-1');
+        var elements2 = document.querySelectorAll('#qunit-fixture .interleaved .nav.group-2');
+        var navElements = navigableDomElement.createFromDoms(elements);
+        var instance = keyNavigatorFactory({
+            group: $(group),
+            elements: navElements
+        });
+
+        assert.expect(16);
+
+        Promise
+            .resolve()
+            .then(function() {
+                return new Promise(function (resolve) {
+                    if (document.activeElement) {
+                        document.activeElement.blur();
+                    }
+
+                    assert.equal(document.activeElement, document.body, 'No element in focus');
+                    assert.equal(instance.getCurrentPosition(), -1, 'There is no current element yet');
+
+                    instance.focus();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, elements[0], 'The first element got the focus');
+                    assert.equal(instance.getCurrentPosition(), 0, 'The current element is the first navigable');
+
+                    document.activeElement.blur();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, document.body, 'No element in focus');
+                    assert.equal(instance.getCurrentPosition(), -1, 'There is no current element again');
+
+                    instance.focus();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, elements[0], 'The first element got the focus back');
+                    assert.equal(instance.getCurrentPosition(), 0, 'The current element is the first navigable');
+
+                    elements[1].focus();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, elements[1], 'The second element got the focus back');
+                    assert.equal(instance.getCurrentPosition(), 1, 'The current element is the second navigable');
+
+                    elements2[0].focus();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, elements2[0], 'The first element of another group got the focus');
+                    assert.equal(instance.getCurrentPosition(), -1, 'There is no current element again');
+
+                    elements[elements.length - 1].focus();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, elements[elements.length - 1], 'The last element of the group got the focus');
+                    assert.equal(instance.getCurrentPosition(), elements.length - 1, 'The current element is the last navigable');
+
+                    instance.destroy();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                assert.equal(document.activeElement, elements[elements.length - 1], 'The element still has the focus');
+                assert.equal(instance.getCurrentPosition(), elements.length - 1, 'The current element is still the last navigable');
+            })
+            .catch(function(err) {
+                assert.pushResult({
+                    result: false,
+                    message: err
+                });
+            })
+            .then(ready);
+    });
+
+    QUnit.test('getCurrentNavigable', function (assert) {
+        var ready = assert.async();
+        var group = document.querySelector('#qunit-fixture .interleaved');
+        var elements = document.querySelectorAll('#qunit-fixture .interleaved .nav.group-1');
+        var elements2 = document.querySelectorAll('#qunit-fixture .interleaved .nav.group-2');
+        var navElements = navigableDomElement.createFromDoms(elements);
+        var instance = keyNavigatorFactory({
+            group: $(group),
+            elements: navElements
+        });
+
+        assert.expect(16);
+
+        Promise
+            .resolve()
+            .then(function() {
+                return new Promise(function (resolve) {
+                    if (document.activeElement) {
+                        document.activeElement.blur();
+                    }
+
+                    assert.equal(document.activeElement, document.body, 'No element in focus');
+                    assert.equal(instance.getCurrentNavigable(), null, 'There is no current element yet');
+
+                    instance.focus();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, elements[0], 'The first element got the focus');
+                    assert.equal(instance.getCurrentNavigable(), navElements[0], 'The current element is the first navigable');
+
+                    document.activeElement.blur();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, document.body, 'No element in focus');
+                    assert.equal(instance.getCurrentNavigable(), null, 'There is no current element again');
+
+                    instance.focus();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, elements[0], 'The first element got the focus back');
+                    assert.equal(instance.getCurrentNavigable(), navElements[0], 'The current element is the first navigable');
+
+                    elements[1].focus();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, elements[1], 'The second element got the focus back');
+                    assert.equal(instance.getCurrentNavigable(), navElements[1], 'The current element is the second navigable');
+
+                    elements2[0].focus();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, elements2[0], 'The first element of another group got the focus');
+                    assert.equal(instance.getCurrentNavigable(), null, 'There is no current element again');
+
+                    elements[elements.length - 1].focus();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                return new Promise(function (resolve) {
+                    assert.equal(document.activeElement, elements[elements.length - 1], 'The last element of the group got the focus');
+                    assert.equal(instance.getCurrentNavigable(), navElements[navElements.length - 1], 'The current element is the last navigable');
+
+                    instance.destroy();
+
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function() {
+                assert.equal(document.activeElement, elements[elements.length - 1], 'The element still has the focus');
+                assert.equal(instance.getCurrentNavigable(), navElements[elements.length - 1], 'The current element is still the last navigable');
             })
             .catch(function(err) {
                 assert.pushResult({
@@ -667,7 +976,7 @@ define([
         assert.equal(
             $(document.activeElement).data('id'),
             'A',
-            'focus on a a navigator with keep state on should reset the cursor'
+            'focus on a navigator with keep state on should reset the cursor'
         );
 
         keyNavigator.activate();
@@ -715,7 +1024,7 @@ define([
         assert.equal(
             $(document.activeElement).data('id'),
             'B',
-            'focus on a a navigator with keep state on should restore the cursor in memory'
+            'focus on a navigator with keep state on should restore the cursor in memory'
         );
 
         keyNavigator.activate();
