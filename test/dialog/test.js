@@ -473,7 +473,6 @@ define(['jquery', 'lodash', 'ui/dialog'], function($, _, dialog) {
                     assert.equal(
                         modal
                             .getDom()
-                            .find('.navigable-modal-body')
                             .get(0),
                         document.activeElement,
                         'The modal body should be focused now'
