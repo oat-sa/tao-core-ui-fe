@@ -163,6 +163,7 @@ define([
     QUnit.test('focus / isFocused', function (assert) {
         var ready = assert.async();
         var fixture = document.querySelector(fixtureSelector);
+        var other = document.querySelector('#qunit-fixture .other-element');
         var inner = fixture.querySelector('.inner-element');
         var instance = navigableDomElement(fixture);
 
@@ -177,7 +178,7 @@ define([
                 });
         }
 
-        assert.expect(16);
+        assert.expect(28);
 
         Promise.resolve()
             .then(function () {
@@ -220,6 +221,34 @@ define([
                 assert.equal(instance.isFocused(), true, 'The element is focused');
 
                 instance.destroy();
+            })
+            .then(function () {
+                assert.equal(document.activeElement, document.body, 'No element in focus');
+                assert.equal(instance.isFocused(), false, 'The element is not focused anymore');
+            })
+            .then(function () {
+                var p = promiseFocus('focus', fixture);
+                instance.init();
+                instance.focus();
+                return p;
+            })
+            .then(function () {
+                var p = promiseFocus('blur', fixture);
+                assert.equal(document.activeElement, instance.getElement().get(0), 'The element got the focus');
+                assert.equal(instance.isFocused(), true, 'The element is focused');
+
+                other.focus();
+                return p;
+            })
+            .then(function () {
+                assert.equal(document.activeElement, other, 'Another element got the focus');
+                assert.equal(instance.isFocused(), false, 'The element is not focused');
+
+                instance.destroy();
+            })
+            .then(function () {
+                assert.equal(document.activeElement, other, 'The other element still has the focus');
+                assert.equal(instance.isFocused(), false, 'The element is not focused');
             })
             .catch(function (err) {
                 assert.pushResult({

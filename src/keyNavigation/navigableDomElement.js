@@ -177,6 +177,10 @@ export default function navigableDomElement(element) {
 
             shortcuts.clear();
 
+            if (this.isFocused()) {
+                document.activeElement.blur();
+            }
+
             return this;
         },
 

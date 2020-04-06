@@ -238,7 +238,7 @@ define([
                 });
             })
             .then(function() {
-                assert.equal(document.activeElement, last, 'The element still has the focus');
+                assert.equal(document.activeElement, document.body, 'No element in focus');
                 assert.equal(group.classList.contains('focusin'), false, 'The fixture loose the focusin CSS class');
 
                 instance2.destroy();
@@ -343,8 +343,8 @@ define([
                 });
             })
             .then(function() {
-                assert.equal(document.activeElement, elements[elements.length - 1], 'The element still has the focus');
-                assert.deepEqual(instance.getCursor(), {position: elements.length - 1, navigable: navElements[navElements.length - 1]}, 'The current element is still the last navigable');
+                assert.equal(document.activeElement, document.body, 'No element in focus');
+                assert.deepEqual(instance.getCursor(), {position: -1, navigable: null}, 'There is no current element now');
             })
             .catch(function(err) {
                 assert.pushResult({
@@ -445,8 +445,8 @@ define([
                 });
             })
             .then(function() {
-                assert.equal(document.activeElement, elements[elements.length - 1], 'The element still has the focus');
-                assert.equal(instance.getCurrentPosition(), elements.length - 1, 'The current element is still the last navigable');
+                assert.equal(document.activeElement, document.body, 'No element in focus');
+                assert.deepEqual(instance.getCurrentPosition(), -1, 'There is no current element now');
             })
             .catch(function(err) {
                 assert.pushResult({
@@ -547,8 +547,8 @@ define([
                 });
             })
             .then(function() {
-                assert.equal(document.activeElement, elements[elements.length - 1], 'The element still has the focus');
-                assert.equal(instance.getCurrentNavigable(), navElements[elements.length - 1], 'The current element is still the last navigable');
+                assert.equal(document.activeElement, document.body, 'No element in focus');
+                assert.deepEqual(instance.getCurrentNavigable(), null, 'There is no current element now');
             })
             .catch(function(err) {
                 assert.pushResult({
@@ -733,9 +733,9 @@ define([
                 });
             })
             .then(function() {
-                assert.equal(document.activeElement, last, 'The element still has the focus');
+                assert.equal(document.activeElement, document.body, 'No element in focus');
                 assert.equal(group.classList.contains('focusin'), false, 'The fixture loose the focusin CSS class');
-                assert.equal(instance.isFocused(), true, 'The group is focused');
+                assert.equal(instance.isFocused(), false, 'The group is not focused anymore');
 
                 instance2.destroy();
             })
