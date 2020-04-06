@@ -164,7 +164,6 @@ define([
         var ready = assert.async();
         var fixture = document.querySelector(fixtureSelector);
         var other = document.querySelector('#qunit-fixture .other-element');
-        var inner = fixture.querySelector('.inner-element');
         var instance = navigableDomElement(fixture);
 
         function promiseFocus(event, expectedEl) {
@@ -207,17 +206,17 @@ define([
                 return p;
             })
             .then(function () {
-                var p = promiseFocus('focus', inner);
+                var p = promiseFocus('focus', fixture);
 
                 assert.equal(document.activeElement, document.body, 'No element in focus');
                 assert.equal(instance.isFocused(), false, 'The element is not focused');
 
-                inner.focus();
+                fixture.focus();
 
                 return p;
             })
             .then(function () {
-                assert.equal(document.activeElement, inner, 'The inner element got the focus');
+                assert.equal(document.activeElement, fixture, 'The element got the focus');
                 assert.equal(instance.isFocused(), true, 'The element is focused');
 
                 instance.destroy();

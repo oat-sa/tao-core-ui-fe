@@ -88,14 +88,14 @@ export default function navigableDomElement(element) {
             $element
                 .addClass(navigableCls)
                 .attr('tabindex', -1)
-                .on(`focusin${eventNS}`, e => {
+                .on(`focus${eventNS}`, e => {
                     /**
                      * @event focus
                      * @param {Element} el
                      */
                     this.trigger('focus', e.target);
                 })
-                .on(`focusout${eventNS}`, e => {
+                .on(`blur${eventNS}`, e => {
                     /**
                      * @event blur
                      * @param {Element} el
@@ -222,7 +222,7 @@ export default function navigableDomElement(element) {
          */
         isFocused() {
             const el = $element.get(0);
-            return document.activeElement && (el === document.activeElement || $.contains(el, document.activeElement));
+            return document.activeElement && el === document.activeElement;
         },
 
         /**
