@@ -20,14 +20,12 @@ define([
     'lodash',
     'ui/keyNavigation/navigator',
     'ui/keyNavigation/navigableDomElement',
-    'ui/keyNavigation/navigableGroupElement',
     'lib/simulator/jquery.simulate'
 ], function (
     $,
     _,
     keyNavigatorFactory,
-    navigableDomElement,
-    navigableGroupElement
+    navigableDomElement
 ) {
     'use strict';
 
