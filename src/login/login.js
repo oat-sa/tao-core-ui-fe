@@ -152,9 +152,9 @@ export default function loginFactory($container, config) {
         attachPasswordRevealEvents: function attachPasswordRevealEvents() {
             var $form, $pwdInput, $inputToggle, $viewIcon, $hideIcon;
 
-            var self = this;
+            const self = this;
 
-            var autoHide = function autoHide(event) {
+            const autoHide = function autoHide(event) {
                 if (
                     !event.target.isSameNode($pwdInput) &&
                     !event.target.isSameNode($hideIcon[0]) &&
@@ -164,7 +164,7 @@ export default function loginFactory($container, config) {
                 }
             };
 
-            var show = function show() {
+            const show = function show() {
                 $viewIcon.hide();
                 $hideIcon.show();
 
@@ -176,7 +176,7 @@ export default function loginFactory($container, config) {
                 $pwdInput.focus();
             };
 
-            var hide = function hide(moveFocus) {
+            const hide = function hide(moveFocus) {
                 $hideIcon.hide();
                 $viewIcon.show();
 
@@ -190,6 +190,14 @@ export default function loginFactory($container, config) {
                 }
             };
 
+            const togglePassword = function togglePassword() {
+                if ($pwdInput.type === 'password') {
+                    show();
+                } else {
+                    hide(true);
+                }
+            };
+
             $form = this.getForm();
 
             $pwdInput = $form.find('input[type=password]')[0];
@@ -199,23 +207,20 @@ export default function loginFactory($container, config) {
 
             hide();
 
-            $inputToggle.on('click', function() {
-                if ($pwdInput.type === 'password') {
-                    show();
-                } else {
-                    hide(true);
+            $inputToggle.on('keyup', function (e) {
+                if (e.key === ' ') {
+                    togglePassword();
                 }
             });
 
-            $inputToggle.on('keyup', function(e) {
-                if (e.key === ' ') {
-                    if ($pwdInput.type === 'password') {
-                        show();
-                    } else {
-                        hide(true);
-                    }
+            $inputToggle.on('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    togglePassword();
+                    e.stopPropagation();
                 }
             });
+
+            $inputToggle.on('click', togglePassword);
         },
 
         /**
