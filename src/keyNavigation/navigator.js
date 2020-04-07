@@ -164,7 +164,7 @@ export default function keyNavigatorFactory(config) {
                         lastPosition = this.getCurrentPosition();
                     })
                     .on(`blur.${this.getId()}`, () => {
-                        const cursor = this.getCursor();
+                        const cursor = this.getCursorAt(lastPosition);
                         if (cursor.navigable) {
                             this.trigger('blur', cursor);
                         }
@@ -192,6 +192,8 @@ export default function keyNavigatorFactory(config) {
                     navigable.destroy();
                 }
             });
+
+            lastPosition = -1;
 
             return this;
         },
@@ -225,9 +227,60 @@ export default function keyNavigatorFactory(config) {
          * @returns {Object}
          */
         getCursor() {
-            const position = this.getCurrentPosition();
-            const navigable = position >= 0 ? navigableElements[position] : null;
-            return {position, navigable};
+            return this.getCursorAt(this.getCurrentPosition());
+        },
+
+        /**
+         * Gets a navigable at a given position
+         * @param {Number} position
+         * @returns {navigableDomElement}
+         */
+        getNavigableAt(position) {
+            if (position >= 0 && navigableElements[position]) {
+                return navigableElements[position];
+            }
+            return null;
+        },
+
+        /**
+         * Gets the cursor at a given position
+         * @param {Number} position
+         * @returns {Object}
+         */
+        getCursorAt(position) {
+            const navigable = this.getNavigableAt(position);
+            return {position: navigable ? position : -1, navigable};
+        },
+
+        /**
+         * Sets the focus to the element at the given position
+         *
+         * @param {Number} position
+         * @returns {keyNavigator}
+         * @fires blur on the previous cursor
+         * @fires focus on the new cursor
+         */
+        setCursorAt(position) {
+            if (navigableElements[position]) {
+                const cursor = this.getCursorAt(lastPosition);
+                if (cursor.navigable) {
+                    /**
+                     * @event blur
+                     * @param {Object} cursor
+                     */
+                    this.trigger('blur', cursor);
+                }
+
+                lastPosition = position;
+                navigableElements[position].focus();
+
+                /**
+                 * @event focus
+                 * @param {Object} cursor
+                 */
+                this.trigger('focus', this.getCursor());
+            }
+            return this;
         },
 
         /**
@@ -299,7 +352,7 @@ export default function keyNavigatorFactory(config) {
          * @returns {keyNavigator}
          */
         first() {
-            this.focusPosition(
+            this.setCursorAt(
                 getClosestPositionRight(0)
             );
             return this;
@@ -310,7 +363,7 @@ export default function keyNavigatorFactory(config) {
          * @returns {keyNavigator}
          */
         last() {
-            this.focusPosition(
+            this.setCursorAt(
                 getClosestPositionLeft(navigableElements.length - 1)
             );
             return this;
@@ -328,7 +381,7 @@ export default function keyNavigatorFactory(config) {
             if (position >= 0) {
                 position = getClosestPositionRight(position + 1);
                 if (position >= 0) {
-                    this.focusPosition(position);
+                    this.setCursorAt(position);
                 } else if (navigatorConfig.loop) {
                     this.first();
                 } else {
@@ -364,7 +417,7 @@ export default function keyNavigatorFactory(config) {
             if (position >= 0) {
                 position = getClosestPositionLeft(position - 1);
                 if (position >= 0) {
-                    this.focusPosition(position);
+                    this.setCursorAt(position);
                 } else if (navigatorConfig.loop) {
                     this.last();
                 } else {
@@ -413,9 +466,9 @@ export default function keyNavigatorFactory(config) {
          * @returns {keyNavigator}
          */
         blur() {
-            const navigable = this.getCurrentNavigable();
-            if (navigable) {
-                navigable.blur();
+            const cursor = this.getCursorAt(lastPosition);
+            if (cursor.navigable) {
+                cursor.navigable.blur();
             }
             return this;
         },
@@ -426,47 +479,16 @@ export default function keyNavigatorFactory(config) {
          */
         focus() {
             let position;
-            if (navigatorConfig.keepState && lastPosition >= 0) {
+            if (navigatorConfig.keepState && this.getNavigableAt(lastPosition)) {
                 position = lastPosition;
             } else if (_.isFunction(navigatorConfig.defaultPosition)) {
                 position = Math.max(0, navigatorConfig.defaultPosition(navigableElements));
             } else {
                 position = navigatorConfig.defaultPosition;
             }
-            this.focusPosition(
+            this.setCursorAt(
                 getClosestPositionRight(position)
             );
-            return this;
-        },
-
-        /**
-         * Sets the focus to the element at the position
-         *
-         * @param {Number} position
-         * @returns {keyNavigator}
-         * @fires blur on the previous cursor
-         * @fires focus on the new cursor
-         */
-        focusPosition(position) {
-            if (navigableElements[position]) {
-                const cursor = this.getCursor();
-                if (cursor.navigable) {
-                    /**
-                     * @event blur
-                     * @param {Object} cursor
-                     */
-                    this.trigger('blur', cursor);
-                }
-
-                lastPosition = position;
-                navigableElements[position].focus();
-
-                /**
-                 * @event focus
-                 * @param {Object} cursor
-                 */
-                this.trigger('focus', this.getCursor());
-            }
             return this;
         }
     });

@@ -78,6 +78,9 @@ define([
         {title: 'getType'},
         {title: 'getElement'},
         {title: 'getCursor'},
+        {title: 'getNavigableAt'},
+        {title: 'getCursorAt'},
+        {title: 'setCursorAt'},
         {title: 'getCurrentPosition'},
         {title: 'getCurrentNavigable'},
         {title: 'getNavigableElements'},
@@ -90,8 +93,7 @@ define([
         {title: 'previous'},
         {title: 'activate'},
         {title: 'blur'},
-        {title: 'focus'},
-        {title: 'focusPosition'}
+        {title: 'focus'}
     ]).test('component API ', function (data, assert) {
         var keyNavigator = keyNavigatorFactory();
         assert.expect(1);
@@ -248,6 +250,48 @@ define([
                 });
             })
             .then(ready);
+    });
+
+    QUnit.test('getNavigableAt', function (assert) {
+        var group = document.querySelector('#qunit-fixture .interleaved');
+        var elements = document.querySelectorAll('#qunit-fixture .interleaved .nav.group-1');
+        var navElements = navigableDomElement.createFromDoms(elements);
+        var instance = keyNavigatorFactory({
+            group: $(group),
+            elements: navElements
+        });
+
+        assert.expect(6);
+
+        assert.equal(instance.getNavigableAt(), null, 'Undefined position');
+        assert.equal(instance.getNavigableAt(-1), null, 'Negative position');
+        assert.equal(instance.getNavigableAt(0), navElements[0], 'First position');
+        assert.equal(instance.getNavigableAt(1), navElements[1], 'Second position');
+        assert.equal(instance.getNavigableAt(2), navElements[2], 'Third position');
+        assert.equal(instance.getNavigableAt(10), null, 'Not existing position');
+
+        instance.destroy();
+    });
+
+    QUnit.test('getCursorAt', function (assert) {
+        var group = document.querySelector('#qunit-fixture .interleaved');
+        var elements = document.querySelectorAll('#qunit-fixture .interleaved .nav.group-1');
+        var navElements = navigableDomElement.createFromDoms(elements);
+        var instance = keyNavigatorFactory({
+            group: $(group),
+            elements: navElements
+        });
+
+        assert.expect(6);
+
+        assert.deepEqual(instance.getCursorAt(), {position: -1, navigable: null}, 'Undefined position');
+        assert.deepEqual(instance.getCursorAt(-1), {position: -1, navigable: null}, 'Negative position');
+        assert.deepEqual(instance.getCursorAt(0), {position: 0, navigable: navElements[0]}, 'First position');
+        assert.deepEqual(instance.getCursorAt(1), {position: 1, navigable: navElements[1]}, 'Second position');
+        assert.deepEqual(instance.getCursorAt(2), {position: 2, navigable: navElements[2]}, 'Third position');
+        assert.deepEqual(instance.getCursorAt(10), {position: -1, navigable: null}, 'Not existing position');
+
+        instance.destroy();
     });
 
     QUnit.test('getCursor', function (assert) {
@@ -1030,7 +1074,6 @@ define([
 
     QUnit.test('activate with space', function (assert) {
         var ready = assert.async();
-        var keyNavigator;
         var $container = $('#qunit-fixture .nav-2');
         var $elements = $container.find('.nav');
         var elements = navigableDomElement.createFromDoms($elements);

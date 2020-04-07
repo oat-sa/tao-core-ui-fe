@@ -386,14 +386,14 @@ var dialog = {
      *                            on the first navigable element.
      */
     focus: function focus(button) {
-        var focusPosition = -1;
+        var position = -1;
         if (button) {
-            focusPosition = _.findIndex(this.navigator.getNavigableElements(), function(navigable) {
+            position = _.findIndex(this.navigator.getNavigableElements(), function(navigable) {
                 return navigable.getElement().is('[data-control="' + button + '"]');
             });
         }
-        if (focusPosition >= 0) {
-            this.navigator.focusPosition(focusPosition);
+        if (position >= 0) {
+            this.navigator.setCursorAt(position);
         } else {
             this.navigator.focus();
         }
