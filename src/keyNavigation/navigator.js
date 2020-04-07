@@ -482,7 +482,7 @@ export default function keyNavigatorFactory(config) {
             if (navigatorConfig.keepState && this.getNavigableAt(lastPosition)) {
                 position = lastPosition;
             } else if (_.isFunction(navigatorConfig.defaultPosition)) {
-                position = Math.max(0, navigatorConfig.defaultPosition(navigableElements));
+                position = Math.max(0, navigatorConfig.defaultPosition(this.getNavigableElements()));
             } else {
                 position = navigatorConfig.defaultPosition;
             }
