@@ -1,7 +1,7 @@
 <div
     class="preview-modal-feedback modal {{class}}"
     role="dialog"
-    class="navigable-modal-body"
+    data-control="navigable-modal-body"
 >
     <div class="modal-body clearfix">
         {{#if heading}}
