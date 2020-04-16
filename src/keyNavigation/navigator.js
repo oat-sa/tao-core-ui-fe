@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2017 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2017-2020 (original work) Open Assessment Technologies SA;
  *
  */
 
@@ -22,14 +22,13 @@
  * Create a navigator group to enable keyboard navigation between elements
  *
  * @example
- * var $navigationBar = $('#navigation-bar');
- * var $buttons = $navigationBar.find('li');
- * var navigables = domNavigableElement.createFromDoms($buttons);
+ * const $navigationBar = $('#navigation-bar');
+ * const $buttons = $navigationBar.find('li');
+ * const navigableElements = domNavigableElement.createFromDoms($buttons);
  * keyNavigator({
  *       id : 'navigation-toolbar',
- *       replace : true,
  *       group : $navigationBar,
- *       elements : navigables,
+ *       elements : navigableElements,
  *       defaultPosition : 0
  *   }).on('right down', function(){
  *       this.next();
@@ -44,36 +43,13 @@
 import $ from 'jquery';
 import _ from 'lodash';
 import eventifier from 'core/eventifier';
-import shortcutRegistry from 'util/shortcut/registry';
+import navigableDomElement from 'ui/keyNavigation/navigableDomElement';
 
-var _navigationGroups = {};
-
-var _ns = '.ui-key-navigator';
-
-var _defaults = {
+const defaults = {
     defaultPosition: 0,
     keepState: false,
-    replace: false,
     loop: false,
     propagateTab: true
-};
-
-/**
- * Check if the object is argument is a valid navigable element
- *
- * @param {Object} navElement
- * @returns {boolean}
- */
-var isNavigableElement = function isNavigableElement(navElement) {
-    return (
-        navElement &&
-        _.isFunction(navElement.init) &&
-        _.isFunction(navElement.destroy) &&
-        _.isFunction(navElement.getElement) &&
-        _.isFunction(navElement.isVisible) &&
-        _.isFunction(navElement.isEnabled) &&
-        _.isFunction(navElement.focus)
-    );
 };
 
 /**
@@ -81,65 +57,48 @@ var isNavigableElement = function isNavigableElement(navElement) {
  *
  * @param config - the config
  * @param {String} config.id - global unique id to define this group
- * @param {JQuery} config.elements - the group of element to be keyboard-navigated
- * @param {JQuery} [config.group] - the container the group of elements belong to
+ * @param {jQuery} config.elements - the group of element to be keyboard-navigated
+ * @param {jQuery} [config.group] - the container the group of elements belong to
  * @param {Number|Function} [config.defaultPosition=0] - the default position the group should set the focus on (could be a function to compute the position)
  * @param {Boolean} [config.keepState=false] - define if the position should be saved in memory after the group blurs and re-focuses
- * @param {Boolean} [config.replace=false] - define if the navigation group can be reinitialized, hence replacing the existing one
  * @param {Boolean} [config.loop=false] - define if the navigation should loop after reaching the last or the first element
  * @returns {keyNavigator}
  */
-var keyNavigatorFactory = function keyNavigatorFactory(config) {
-    var id, navigables, keyNavigator, $group;
-    var _cursor = {
-        position: -1,
-        navigable: null
-    };
+export default function keyNavigatorFactory(config) {
+    const navigatorConfig = Object.assign({}, defaults, config || {});
+
+    const id = navigatorConfig.id || _.uniqueId('navigator_');
+    const $group = navigatorConfig.group && $(navigatorConfig.group).addClass('key-navigation-group').attr('data-navigation-id', id);
+    if (navigatorConfig.group && (!$group.length || !$.contains(document.body, $group.get(0)))) {
+        throw new TypeError('group element does not exist');
+    }
+
+    const navigableElements = navigatorConfig.elements || [];
+    let lastPosition = -1;
 
     /**
-     * Get the current focused element within the key navigation group
-     *
-     * @returns {Object} the cursor
+     * Checks if the navigable element is available
+     * @param {navigableDomElement} navigable
+     * @returns {Boolean}
      */
-    var getCurrentCursor = function getCurrentCursor() {
-        var isFocused = false;
-
-        if (document.activeElement) {
-            // try to find the focused element within the known list of focusable elements
-            _.forEach(navigables, function(navigable, index) {
-                if (
-                    navigable.isVisible() &&
-                    navigable.isEnabled() &&
-                    (document.activeElement === navigable.getElement().get(0) ||
-                        ((!$(document.activeElement).hasClass('key-navigation-highlight') ||
-                            $(document.activeElement).data('key-navigatior-id') !== id) &&
-                            $.contains(navigable.getElement().get(0), document.activeElement)))
-                ) {
-                    _cursor.position = index;
-                    _cursor.navigable = navigable;
-                    isFocused = true;
-                    return false;
-                }
-            });
-        }
-
-        if (isFocused) {
-            return _cursor;
-        }
-
-        return null;
-    };
+    const isNavigableAvailable = navigable => navigable && navigable.isVisible() && navigable.isEnabled();
 
     /**
-     * Get the closest allowed position in the right
+     * Checks if the navigable element is focused
+     * @param {navigableDomElement} navigable
+     * @returns {Boolean}
+     */
+    const isNavigableFocused = navigable => isNavigableAvailable(navigable) && navigable.isFocused();
+
+    /**
+     * Gets the closest allowed position to the right
      *
      * @param {Number} fromPosition - the starting position
      * @returns {Number}
      */
-    var getClosestPositionRight = function getClosestPositionRight(fromPosition) {
-        var pos;
-        for (pos = fromPosition; pos < navigables.length; pos++) {
-            if (navigables[pos] && navigables[pos].isVisible() && navigables[pos].isEnabled()) {
+    const getClosestPositionRight = fromPosition => {
+        for (let pos = fromPosition; pos < navigableElements.length; pos++) {
+            if (isNavigableAvailable(navigableElements[pos])) {
                 return pos;
             }
         }
@@ -147,364 +106,400 @@ var keyNavigatorFactory = function keyNavigatorFactory(config) {
     };
 
     /**
-     * Get the closest allowed position in the left
+     * Gets the closest allowed position to the left
      *
      * @param {Number} fromPosition - the starting position
      * @returns {Number}
      */
-    var getClosestPositionLeft = function getClosestPositionLeft(fromPosition) {
-        var pos;
-        for (pos = fromPosition; pos >= 0; pos--) {
-            if (navigables[pos] && navigables[pos].isVisible() && navigables[pos].isEnabled()) {
+    const getClosestPositionLeft = fromPosition => {
+        for (let pos = fromPosition; pos >= 0; pos--) {
+            if (isNavigableAvailable(navigableElements[pos])) {
                 return pos;
             }
         }
         return -1;
     };
-
-    config = _.defaults(config || {}, _defaults);
-
-    id = config.id || _.uniqueId('navigator_');
-    navigables = config.elements || [];
-
-    if (_navigationGroups[id]) {
-        if (config.replace) {
-            _navigationGroups[id].destroy();
-        } else {
-            throw new TypeError('the navigation group id is already in use : ' + id);
-        }
-    }
-
-    _.each(navigables, function(navigable) {
-        //check if it is a valid navigable element
-        navigable.init();
-        //tad the dom element as it belongs this navigator, TODO make it an array
-        navigable.getElement().data('key-navigatior-id', id);
-    });
-
-    if (config.group) {
-        $group = $(config.group);
-        if ($group.length) {
-            $group.addClass('key-navigation-group').attr('data-navigation-id', id);
-        } else {
-            throw new TypeError('group element does not exist');
-        }
-    }
 
     /**
      * The navigation group object
      *
      * @typedef keyNavigator
      */
-    keyNavigator = eventifier({
+    const keyNavigator = eventifier({
         /**
-         * Get the navigation group id
+         * Setups the navigator
+         * @returns {keyNavigator}
+         */
+        init() {
+            if ($group) {
+                //add the focusin and focus out class for group highlighting
+                $group
+                    .on(`focusin.${this.getId()}`, () => {
+                        if (this.isFocused()) {
+                            $group.addClass('focusin');
+                        }
+                    })
+                    .on(`focusout.${this.getId()}`, () => {
+                        _.defer(() => {
+                            if (!this.isFocused()) {
+                                $group.removeClass('focusin');
+                            }
+                        });
+                    });
+            }
+
+            navigableElements.forEach(navigable => {
+                if (!navigableDomElement.isNavigableElement(navigable)) {
+                    throw new TypeError('not a valid navigable element');
+                }
+
+                if (navigable.getType() === 'element') {
+                    navigable.init({propagateTab: navigatorConfig.propagateTab});
+                }
+
+                navigable
+                    .off(`.${this.getId()}`)
+                    .on(`key.${this.getId()}`, (key, el) => this.trigger('key', key, el))
+                    .on(`focus.${this.getId()}`, () => {
+                        lastPosition = this.getCurrentPosition();
+                    })
+                    .on(`blur.${this.getId()}`, () => {
+                        const cursor = this.getCursorAt(lastPosition);
+                        if (cursor.navigable) {
+                            this.trigger('blur', cursor);
+                        }
+                    });
+            });
+
+            return this;
+        },
+
+        /**
+         * Destroys and cleanup
+         * @returns {keyNavigator}
+         */
+        destroy() {
+            if ($group) {
+                $group
+                    .off(`.${this.getId()}`)
+                    .removeClass('focusin');
+            }
+
+            navigableElements.forEach(navigable => {
+                navigable.off(`.${this.getId}`);
+
+                if (navigable.getType() === 'element') {
+                    navigable.destroy();
+                }
+            });
+
+            lastPosition = -1;
+
+            return this;
+        },
+
+        /**
+         * Gets the navigation group id
          * @returns {String}
          */
-        getId: function getId() {
+        getId() {
             return id;
         },
 
         /**
-         * Get the defined group the navigator group belongs to
-         * @returns {JQuery}
+         * Gets the type of navigable element
+         * @returns {String}
          */
-        getGroup: function getGroup() {
+        getType() {
+            return 'navigator';
+        },
+
+        /**
+         * Gets the defined group the navigator group belongs to
+         * @returns {jQuery}
+         */
+        getElement() {
             return $group;
         },
 
         /**
-         * Check if the navigator is on focus
+         * Returns the current cursor of the navigator
+         * @returns {Object}
+         */
+        getCursor() {
+            return this.getCursorAt(this.getCurrentPosition());
+        },
+
+        /**
+         * Gets a navigable at a given position
+         * @param {Number} position
+         * @returns {navigableDomElement}
+         */
+        getNavigableAt(position) {
+            if (position >= 0 && navigableElements[position]) {
+                return navigableElements[position];
+            }
+            return null;
+        },
+
+        /**
+         * Gets the cursor at a given position
+         * @param {Number} position
+         * @returns {Object}
+         */
+        getCursorAt(position) {
+            const navigable = this.getNavigableAt(position);
+            return {position: navigable ? position : -1, navigable};
+        },
+
+        /**
+         * Sets the focus to the element at the given position
+         *
+         * @param {Number} position
+         * @returns {keyNavigator}
+         * @fires blur on the previous cursor
+         * @fires focus on the new cursor
+         */
+        setCursorAt(position) {
+            if (navigableElements[position]) {
+                const cursor = this.getCursorAt(lastPosition);
+                if (cursor.navigable) {
+                    /**
+                     * @event blur
+                     * @param {Object} cursor
+                     */
+                    this.trigger('blur', cursor);
+                }
+
+                lastPosition = position;
+                navigableElements[position].focus();
+
+                /**
+                 * @event focus
+                 * @param {Object} cursor
+                 */
+                this.trigger('focus', this.getCursor());
+            }
+            return this;
+        },
+
+        /**
+         * Returns the current position in the navigator
+         * @returns {Number}
+         */
+        getCurrentPosition() {
+            if (document.activeElement) {
+                return _.findIndex(navigableElements, isNavigableFocused);
+            }
+            return -1;
+        },
+
+        /**
+         * Returns the current navigable in the navigator
+         * @returns {Object}
+         */
+        getCurrentNavigable() {
+            const position = this.getCurrentPosition();
+            if (position >= 0) {
+                return navigableElements[position];
+            }
+            return null;
+        },
+
+        /**
+         * Returns the array of navigable objects composing the navigator
+         * @returns {Array}
+         */
+        getNavigableElements() {
+            return navigableElements.slice();
+        },
+
+        /**
+         * Checks if the group and at least one navigable element is visible
          * @returns {boolean}
          */
-        isFocused: function isFocused() {
-            return !!getCurrentCursor();
+        isVisible() {
+            if (!$group || $group.is(':visible')) {
+                return navigableElements.some(navigable => navigable.isVisible());
+            }
+            return false;
         },
 
         /**
-         * Move cursor to next position
+         * Checks if the group and at least one navigable element is enabled
+         * @returns {Boolean}
+         */
+        isEnabled() {
+            if (!$group || !$group.is(':disabled')) {
+                return navigableElements.some(navigable => navigable.isEnabled());
+            }
+            return false;
+        },
+
+        /**
+         * Checks if at least one navigable element is focused
+         * @returns {Boolean}
+         */
+        isFocused() {
+            if (document.activeElement) {
+                return navigableElements.some(navigable => navigable.isFocused());
+            }
+            return false;
+        },
+
+        /**
+         * Sets the focus on the first available focusable element
+         * @returns {keyNavigator}
+         */
+        first() {
+            this.setCursorAt(
+                getClosestPositionRight(0)
+            );
+            return this;
+        },
+
+        /**
+         * Sets the focus on the last available focusable element
+         * @returns {keyNavigator}
+         */
+        last() {
+            this.setCursorAt(
+                getClosestPositionLeft(navigableElements.length - 1)
+            );
+            return this;
+        },
+
+        /**
+         * Moves the cursor to the next position
          *
          * @returns {keyNavigator}
-         * @fires keyNavigator#upperbound when we cannot move further
-         * @fires keyNavigator#next when the cursor successfully moved to the next position
+         * @fires upperbound when we cannot move further
+         * @fires next when the cursor successfully moved to the next position
          */
-        next: function next() {
-            var cursor = getCurrentCursor();
-            var pos;
-            if (cursor) {
-                pos = getClosestPositionRight(cursor.position + 1);
-                if (pos >= 0) {
-                    this.focusPosition(pos);
-                } else if (config.loop) {
-                    //loop allowed, so returns to the first element
-                    this.focusPosition(getClosestPositionRight(0));
+        next() {
+            let position = this.getCurrentPosition();
+            if (position >= 0) {
+                position = getClosestPositionRight(position + 1);
+                if (position >= 0) {
+                    this.setCursorAt(position);
+                } else if (navigatorConfig.loop) {
+                    this.first();
                 } else {
-                    //reaching the end of the list
+                    /**
+                     * reaching the end of the list
+                     * @event upperbound
+                     */
                     this.trigger('upperbound');
                 }
-                this.trigger('next', getCurrentCursor());
+
+                const cursor = this.getCursor();
+
+                /**
+                 * @event next
+                 * @param {Object} cursor
+                 */
+                this.trigger('next', cursor);
             } else {
-                //no cursor, might be blurred, so attempt resuming navigation from cursor in memory
-                this.focusPosition(getClosestPositionRight(0));
+                this.first();
             }
             return this;
         },
 
         /**
-         * Move cursor to previous position
+         * Moves the cursor to the previous position
          *
          * @returns {keyNavigator}
-         * @fires keyNavigator#lowerbound when we cannot move lower
-         * @fires keyNavigator#previous when the cursor successfully moved to the previous position
+         * @fires lowerbound when we cannot move lower
+         * @fires previous when the cursor successfully moved to the previous position
          */
-        previous: function previous() {
-            var cursor = getCurrentCursor();
-            var pos;
-            if (cursor) {
-                pos = getClosestPositionLeft(cursor.position - 1);
-                if (pos >= 0) {
-                    this.focusPosition(pos);
-                } else if (config.loop) {
-                    //loop allowed, so returns to the first element
-                    this.focusPosition(getClosestPositionLeft(navigables.length - 1));
+        previous() {
+            let position = this.getCurrentPosition();
+            if (position >= 0) {
+                position = getClosestPositionLeft(position - 1);
+                if (position >= 0) {
+                    this.setCursorAt(position);
+                } else if (navigatorConfig.loop) {
+                    this.last();
                 } else {
-                    //reaching the end of the list
+                    /**
+                     * reaching the end of the list
+                     * @event lowerbound
+                     */
                     this.trigger('lowerbound');
                 }
-                this.trigger('previous', getCurrentCursor());
+
+                const cursor = this.getCursor();
+
+                /**
+                 * @event previous
+                 * @param {Object} cursor
+                 */
+                this.trigger('previous', cursor);
             } else {
-                //no cursor, might be blurred, so attempt resuming navigation from cursor in memory
-                this.focusPosition(getClosestPositionRight(0));
+                this.first();
             }
             return this;
         },
 
         /**
-         * Focus to a position defined by its index
+         * Activates the focused element, if any
          *
-         * @param {Integer} position
+         * @param {Object} target
          * @returns {keyNavigator}
-         * @fires keyNavigator#blur on the previous cursor
-         * @fires keyNavigator#focus on the new cursor
+         * @fires activate
          */
-        activate: function activate(target) {
-            var cursor = getCurrentCursor();
-            if (cursor) {
+        activate(target) {
+            const cursor = this.getCursor();
+            if (cursor.navigable) {
+                /**
+                 * @event activate
+                 * @param {Object} cursor
+                 * @param {Object} target
+                 */
                 this.trigger('activate', cursor, target);
             }
             return this;
         },
 
         /**
-         * Go to another navigation group, defined by its id
-         *
-         * @param {String} groupId
+         * Blurs the focused element, if any
          * @returns {keyNavigator}
-         * @fires keyNavigator#error is the target group does not exists
          */
-        goto: function goto(groupId) {
-            if (_navigationGroups[groupId]) {
-                _navigationGroups[groupId].focus();
+        blur() {
+            const cursor = this.getCursorAt(lastPosition);
+            if (cursor.navigable) {
+                cursor.navigable.blur();
+            }
+            return this;
+        },
+
+        /**
+         * Sets the focus to the current element
+         * @returns {keyNavigator}
+         */
+        focus() {
+            let position;
+            if (navigatorConfig.keepState && this.getNavigableAt(lastPosition)) {
+                position = lastPosition;
+            } else if (_.isFunction(navigatorConfig.defaultPosition)) {
+                position = Math.max(0, navigatorConfig.defaultPosition(this.getNavigableElements()));
             } else {
-                this.trigger('error', new Error('goto an unknown navigation group'));
+                position = navigatorConfig.defaultPosition;
             }
-            return this;
-        },
-
-        /**
-         * Focus the cursor position in memory is keepState is activated, or the default position otherwise
-         * @param {keyNavigator} [originNavigator] -  optionally indicates where the previous focus is on
-         * @returns {keyNavigator}
-         */
-        focus: function focus(originNavigator) {
-            var pos;
-            if (config.keepState && _cursor && _cursor.position >= 0) {
-                pos = _cursor.position;
-            } else if (_.isFunction(config.defaultPosition)) {
-                pos = config.defaultPosition(navigables);
-                if (pos < 0) {
-                    pos = 0;
-                }
-            } else {
-                pos = config.defaultPosition;
-            }
-            this.focusPosition(getClosestPositionRight(pos), originNavigator);
-            return this;
-        },
-
-        /**
-         * Focus to a position defined by its index
-         *
-         * @param {Integer} position
-         * @returns {keyNavigator}
-         * @fires blur on the previous cursor
-         * @fires focus on the new cursor
-         */
-        focusPosition: function focusPosition(position, originNavigator) {
-            if (navigables[position]) {
-                if (_cursor.navigable) {
-                    this.trigger('blur', this.getCursor(), originNavigator);
-                }
-                _cursor.position = position;
-                navigables[_cursor.position].focus();
-                _cursor.navigable = navigables[_cursor.position];
-                this.trigger('focus', this.getCursor(), originNavigator);
-            }
-            return this;
-        },
-
-        /**
-         * Set focus on the first available focusable element
-         * @returns {keyNavigator}
-         */
-        first: function first() {
-            this.focusPosition(getClosestPositionRight(0));
-            return this;
-        },
-
-        /**
-         * Set focus on the last available focusable element
-         * @returns {keyNavigator}
-         */
-        last: function last() {
-            this.focusPosition(getClosestPositionLeft(navigables.length - 1));
-            return this;
-        },
-
-        /**
-         * Destroy and cleanup
-         * @returns {keyNavigator}
-         */
-        destroy: function destroy() {
-            _.each(navigables, function(navigable) {
-                navigable.getElement().off(_ns);
-                navigable.destroy();
-                if (navigable.shortcuts) {
-                    navigable.shortcuts.clear();
-                }
-            });
-
-            delete _navigationGroups[id];
-            return this;
-        },
-
-        /**
-         * Blur the current cursor
-         * @returns {keyNavigator}
-         */
-        blur: function blur() {
-            var cursor = this.getCursor();
-            if (cursor && cursor.navigable) {
-                cursor.navigable.getElement().blur();
-            }
-            return this;
-        },
-
-        /**
-         * Return the current cursor of the navigator
-         * @returns {Object}
-         */
-        getCursor: function getCursor() {
-            //clone the return cursor to protect this private variable
-            return _.clone(_cursor);
-        },
-
-        /**
-         * Return the array of navigable objects composing the navigator
-         * @returns {Array}
-         */
-        getNavigables: function getNavigables() {
-            return _.clone(navigables);
-        }
-    });
-
-    _.each(navigables, function(navigable) {
-        if (!isNavigableElement(navigable)) {
-            throw new TypeError('not a valid navigable element');
-        }
-
-        //init standard key bindings
-        navigable.shortcuts = shortcutRegistry(navigable.getElement())
-            .add(
-                'tab shift+tab',
-                function(e, key) {
-                    keyNavigator.trigger(key, e.target);
-                },
-                {
-                    propagate: !!config.propagateTab,
-                    prevent: true
-                }
-            )
-            .add(
-                'enter',
-                function(e) {
-                    if (!$(e.target).is(':text,textarea')) {
-                        //prevent activating the element when typing a text
-                        e.preventDefault();
-                        keyNavigator.activate(e.target);
-                    }
-                },
-                {
-                    propagate: false
-                }
-            )
-            .add(
-                'up down left right',
-                function(e, key) {
-                    var $target = $(e.target);
-                    if (!$target.is(':text,textarea')) {
-                        if (!$target.is('img') && !$target.hasClass('key-navigation-scrollable')) {
-                            //prevent scrolling of parent element
-                            e.preventDefault();
-                        }
-                        keyNavigator.trigger(key, e.target);
-                    }
-                },
-                {
-                    propagate: false
-                }
+            this.setCursorAt(
+                getClosestPositionRight(position)
             );
-
-        navigable
-            .getElement()
-            //requires a keyup event to make unselecting radio button work with space bar
-            .on('keyup' + _ns, function keyupSpace(e) {
-                var keyCode = e.keyCode ? e.keyCode : e.charCode;
-                if (keyCode === 32) {
-                    //if an inner element is an input we let the space work
-                    if (e.target !== this && $(e.target).is(':input')) {
-                        e.stopPropagation();
-                    } else {
-                        e.preventDefault();
-                        keyNavigator.activate(e.target);
-                    }
-                }
-            })
-            //listen to blurred navigable element
-            .on('blur' + _ns, function blurCurrentCursor() {
-                var cursor = keyNavigator.getCursor();
-                if (cursor && cursor.navigable) {
-                    keyNavigator.trigger('blur', cursor);
-                }
-            });
+            return this;
+        }
     });
 
-    //store the navigator for external reference
-    _navigationGroups[id] = keyNavigator;
-
-    return keyNavigator;
+    return keyNavigator
+        .init()
+        .on('key', (key, el) => {
+            if (key === 'space' || key === 'enter') {
+                keyNavigator.activate(el);
+            } else {
+                keyNavigator.trigger(key, el);
+            }
+        });
 };
-
-/**
- * Get a group navigation by its id
- *
- * @param {String} id
- * @returns {keyNavigator}
- */
-keyNavigatorFactory.get = function get(id) {
-    if (_navigationGroups[id]) {
-        return _navigationGroups[id];
-    }
-};
-
-export default keyNavigatorFactory;
