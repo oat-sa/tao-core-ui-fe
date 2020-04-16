@@ -438,17 +438,19 @@ var dialog = {
                     this.next();
                 })
                 .on('left up', function() {
-                    this.previous();
+                    if (this.getCursor().position > 1) { // Skip container.
+                        this.previous();
+                    }
                 })
                 .on('tab', function() {
                     if (this.getCursor().position === $items.length - 1) {
-                        this.first();
+                        this.focusPosition(1);  // Skip container.
                     } else {
                         this.next();
                     }
                 })
                 .on('shift+tab', function() {
-                    if (this.getCursor().position === 0) {
+                    if (this.getCursor().position === 1) {  // Skip container.
                         this.last();
                     } else {
                         this.previous();
