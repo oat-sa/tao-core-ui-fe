@@ -235,7 +235,6 @@ export default function bulkActionPopupFactory(config) {
 
         instance.navigator = keyNavigator({
             id: _ns,
-            replace: true,
             loop: true,
             group: $element,
 

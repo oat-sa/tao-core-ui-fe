@@ -39,13 +39,13 @@ import 'ui/modal';
  * The scope of events names
  * @type {string}
  */
-var _scope = '.modal';
+const _scope = '.modal';
 
 /**
  * A list of predefined buttons
  * @type {Object}
  */
-var _definedButtons = {
+const _definedButtons = {
     ok: {
         id: 'ok',
         type: 'info',
@@ -79,7 +79,7 @@ var _definedButtons = {
  * The defaults fields values
  * @type {Object}
  */
-var _defaults = {
+const _defaults = {
     message: '',
     content: '',
     width: 500,
@@ -94,7 +94,7 @@ var _defaults = {
  * Define a dialog box
  * @type {Object}
  */
-var dialog = {
+const dialog = {
     /**
      * Initialise the dialog box.
      * @param {Object} options - A list of options.
@@ -121,17 +121,15 @@ var dialog = {
      * @param {Function} options.onXYZbtn - An event handler assigned to a particular button (XYZ).
      * @returns {dialog}
      */
-    init: function init(options) {
+    init(options) {
         // split options to events
-        var self = this;
-        var events = {};
-        var initOptions = _.omit(options || {}, function(value, key) {
-            var omit = false;
+        const events = {};
+        const initOptions = _.omit(options || {}, (value, key) => {
             if (key.length > 2 && 'on' === key.substr(0, 2)) {
                 events[key.substr(2)] = value;
-                omit = true;
+                return true;
             }
-            return omit;
+            return false;
         });
 
         // assign default values and options
@@ -148,11 +146,11 @@ var dialog = {
         this.setButtons(this.buttons);
 
         // install the events extracted from the options
-        _.forEach(events, function(callback, eventName) {
+        _.forEach(events, (callback, eventName) => {
             if (eventName.indexOf('.') < 0) {
                 eventName += _scope;
             }
-            self.on(eventName.toLowerCase(), callback);
+            this.on(eventName.toLowerCase(), callback);
         });
 
         if (this.autoRender) {
@@ -167,7 +165,7 @@ var dialog = {
      * @returns {dialog}
      * @fires dialog#destroy.modal
      */
-    destroy: function destroy() {
+    destroy() {
         if (!this.destroyed) {
             this._destroy();
 
@@ -192,9 +190,7 @@ var dialog = {
      * @param {Object|Array|String} buttons
      * @returns {dialog}
      */
-    setButtons: function setButtons(buttons) {
-        var self = this;
-
+    setButtons(buttons) {
         if (!this.destroyed) {
             if (!buttons) {
                 buttons = _defaults.buttons;
@@ -209,7 +205,7 @@ var dialog = {
 
             // bind the buttons with
             this.buttons = {};
-            _.forEach(buttons, function(btn) {
+            _.forEach(buttons, btn => {
                 if (_.isString(btn)) {
                     btn = btn.trim();
                     btn = _definedButtons[btn] || {
@@ -221,7 +217,7 @@ var dialog = {
                 if (!btn.type) {
                     btn.type = 'regular';
                 }
-                self.buttons[btn.id] = btn;
+                this.buttons[btn.id] = btn;
             });
 
             this.$buttons.html(buttonsTpl(this));
@@ -236,7 +232,7 @@ var dialog = {
      * @returns {dialog}
      * @fires modal#create.modal
      */
-    render: function render(to) {
+    render(to) {
         if (!this.destroyed) {
             $(to || this.renderTo).append(this.$html);
             this._install();
@@ -250,7 +246,7 @@ var dialog = {
      * @returns {dialog}
      * @fires modal#opened.modal
      */
-    show: function show() {
+    show() {
         if (!this.destroyed) {
             if (!this.rendered) {
                 this.render();
@@ -266,7 +262,7 @@ var dialog = {
      * @returns {dialog}
      * @fires modal#closed.modal
      */
-    hide: function hide() {
+    hide() {
         if (!this.destroyed && this.rendered) {
             this._close();
 
@@ -282,10 +278,9 @@ var dialog = {
      * @param {String} eventName
      * @returns {dialog}
      */
-    on: function on(eventName) {
-        var dom = this.$html;
-        if (dom) {
-            dom.on.apply(dom, arguments);
+    on(eventName) {
+        if (this.$html) {
+            this.$html.on.apply(this.$html, arguments);
         }
 
         return this;
@@ -296,10 +291,9 @@ var dialog = {
      * @param {String} eventName
      * @returns {dialog}
      */
-    off: function off(eventName) {
-        var dom = this.$html;
-        if (dom) {
-            dom.off.apply(dom, arguments);
+    off(eventName) {
+        if (this.$html) {
+            this.$html.off.apply(this.$html, arguments);
         }
 
         return this;
@@ -311,10 +305,8 @@ var dialog = {
      * @param {Array|Object} extraParameters
      * @returns {dialog}
      */
-    trigger: function trigger(eventName, extraParameters) {
-        var dom = this.$html;
-
-        if (dom) {
+    trigger(eventName, extraParameters) {
+        if (this.$html) {
             if (undefined === extraParameters) {
                 extraParameters = [];
             }
@@ -325,7 +317,7 @@ var dialog = {
             extraParameters = Array.prototype.slice.call(extraParameters);
             extraParameters.push(this);
 
-            dom.trigger(eventName, extraParameters);
+            this.$html.trigger(eventName, extraParameters);
         }
 
         return this;
@@ -335,7 +327,7 @@ var dialog = {
      * Gets the underlying DOM element
      * @returns {jQuery}
      */
-    getDom: function getDom() {
+    getDom() {
         return this.$html;
     },
 
@@ -345,10 +337,10 @@ var dialog = {
      * @param {Event} event
      * @private
      */
-    _onButtonClick: function _onButtonClick(event) {
-        var $btn = $(event.target).closest('button');
-        var id = $btn.data('control');
-        var btn = this.buttons[id];
+    _onButtonClick(event) {
+        const $btn = $(event.target).closest('button');
+        const id = $btn.data('control');
+        const btn = this.buttons[id];
 
         if (btn) {
             this._execute(btn);
@@ -361,7 +353,7 @@ var dialog = {
      * @private
      * @fires dialog#[button.id]btn.modal
      */
-    _execute: function _execute(btn) {
+    _execute(btn) {
         // call the optional callback
         if (btn.action) {
             btn.action.apply(this, [btn, this]);
@@ -385,15 +377,15 @@ var dialog = {
      * @param {String} [button] - The identifier of the button to focus. If none is provided, the focus will be put
      *                            on the first navigable element.
      */
-    focus: function focus(button) {
-        var focusPosition = -1;
+    focus(button) {
+        let position = -1;
         if (button) {
-            focusPosition = _.findIndex(this.navigator.getNavigables(), function(navigable) {
+            position = _.findIndex(this.navigator.getNavigableElements(), navigable => {
                 return navigable.getElement().is('[data-control="' + button + '"]');
             });
         }
-        if (focusPosition >= 0) {
-            this.navigator.focusPosition(focusPosition);
+        if (position >= 0) {
+            this.navigator.setCursorAt(position);
         } else {
             this.navigator.focus();
         }
@@ -404,10 +396,7 @@ var dialog = {
      * @private
      * #fires dialog#create.dialog
      */
-    _install: function _install() {
-        var self = this,
-            closeButton;
-
+    _install() {
         if (!this.destroyed) {
             this.$html
                 .modal({
@@ -416,14 +405,14 @@ var dialog = {
                     disableClosing: this.disableClosing,
                     disableEscape: this.disableEscape
                 })
-                .on('closed' + _scope, function() {
-                    if (self.autoDestroy) {
-                        self.destroy();
+                .on('closed' + _scope, () => {
+                    if (this.autoDestroy) {
+                        this.destroy();
                     }
                 });
             const $items = this.getDom()
                 .add(this.$buttons.find('button'));
-            closeButton = $(_scope).find('#modal-close-btn')[0];
+            const closeButton = $(_scope).find('#modal-close-btn')[0];
 
             if (closeButton) {
                 $items.push(closeButton);
@@ -459,15 +448,15 @@ var dialog = {
                 .on('activate', function(cursor) {
                     cursor.navigable.getElement().click();
                 });
-            self.navigator.first(); // Just focus the first element of the sequence
+            this.navigator.first();
             //added a global shortcut to enable setting focus on tab
-            this.globalShortcut = shortcutRegistry($('body')).add('tab shift+tab', function() {
-                if (!self.navigator.isFocused()) {
-                    self.navigator.focus();
+            this.globalShortcut = shortcutRegistry($('body')).add('tab shift+tab', () => {
+                if (!this.navigator.isFocused()) {
+                    this.navigator.focus();
                 }
             });
 
-            self.trigger('create.dialog');
+            this.trigger('create.dialog');
         }
     },
 
@@ -475,7 +464,7 @@ var dialog = {
      * Opens the dialog box
      * @private
      */
-    _open: function _open() {
+    _open() {
         this.$html.modal('open');
     },
 
@@ -483,7 +472,7 @@ var dialog = {
      * Closes the dialog box
      * @private
      */
-    _close: function _close() {
+    _close() {
         this.$html.modal('close');
     },
 
@@ -491,7 +480,7 @@ var dialog = {
      * Destroys the dialog box
      * @private
      */
-    _destroy: function _destroy() {
+    _destroy() {
         this.$html.modal('destroy');
         if (this.navigator) {
             this.navigator.destroy();
@@ -507,10 +496,8 @@ var dialog = {
  * @param {Object} options
  * @returns {dialog}
  */
-var dialogFactory = function dialogFactory(options) {
-    var instance = _.clone(dialog, true);
+export default function dialogFactory(options) {
+    const instance = Object.assign({}, dialog);
     instance.init(options);
     return instance;
 };
-
-export default dialogFactory;
