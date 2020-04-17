@@ -469,13 +469,13 @@ define(['jquery', 'lodash', 'ui/dialog'], function($, _, dialog) {
                     });
 
                     modal.focus();
+
                     assert.equal(
                         modal
                             .getDom()
-                            .find('button:eq(0)')
-                            .is(':focus'),
-                        1,
-                        'The first button should be focused now'
+                            .get(0),
+                        document.activeElement,
+                        'The modal body should be focused now'
                     );
 
                     modal.focus(data.focus);

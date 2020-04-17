@@ -1,4 +1,8 @@
-<div class="preview-modal-feedback modal {{class}}">
+<div
+    class="preview-modal-feedback modal {{class}}"
+    role="dialog"
+    data-control="navigable-modal-body"
+>
     <div class="modal-body clearfix">
         {{#if heading}}
         <h4 class="strong">{{heading}}</h4>

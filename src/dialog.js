@@ -410,32 +410,36 @@ const dialog = {
                         this.destroy();
                     }
                 });
-            const $buttons = this.$buttons.find('button');
+            const $items = this.getDom()
+                .add(this.$buttons.find('button'));
             const closeButton = $(_scope).find('#modal-close-btn')[0];
 
             if (closeButton) {
-                $buttons.push(closeButton);
+                $items.push(closeButton);
             }
 
             //creates the navigator to manage the key navigation
             this.navigator = keyNavigator({
-                elements: navigableDomElement.createFromDoms($buttons)
+                elements: navigableDomElement.createFromDoms($items),
+                propagateTab: false
             })
                 .on('right down', function() {
                     this.next();
                 })
                 .on('left up', function() {
-                    this.previous();
+                    if (this.getCursor().position > 1) { // Skip container.
+                        this.previous();
+                    }
                 })
                 .on('tab', function() {
-                    if (this.getCursor().position === $buttons.length - 1) {
-                        this.first();
+                    if (this.getCursor().position === $items.length - 1) {
+                        this.setCursorAt(1);  // Skip container.
                     } else {
                         this.next();
                     }
                 })
                 .on('shift+tab', function() {
-                    if (this.getCursor().position === 0) {
+                    if (this.getCursor().position === 1) {  // Skip container.
                         this.last();
                     } else {
                         this.previous();
@@ -444,7 +448,7 @@ const dialog = {
                 .on('activate', function(cursor) {
                     cursor.navigable.getElement().click();
                 });
-            this.navigator.last();
+            this.navigator.first();
             //added a global shortcut to enable setting focus on tab
             this.globalShortcut = shortcutRegistry($('body')).add('tab shift+tab', () => {
                 if (!this.navigator.isFocused()) {

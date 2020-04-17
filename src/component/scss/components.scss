@@ -203,6 +203,10 @@ ul.listbox {
     overflow-y: auto;
     max-width: 100vw;
     max-height: calc(100vh - 40px);
+
+    &:focus {
+        outline: none;
+    }
     
     .modal-close {
         position: absolute;
@@ -229,6 +233,11 @@ ul.listbox {
         }
     }
 
+    .modal-close:focus {
+        outline: 3px solid $actionLinkColor;
+        outline-offset: 3px;
+    }
+
     .modal-body{
         h4 {
             @include font-size(16);
@@ -243,7 +252,7 @@ ul.listbox {
             position: relative;
 
             //flat button
-            button{
+            button {
                 @include border-radius(2);
                 margin-left: 8px;
                 height: 36px;
@@ -253,6 +262,8 @@ ul.listbox {
                 background: none;
                 &:focus, &:hover{
                     background: whiten($info, .85);
+                    outline: 3px solid $actionLinkColor;
+                    outline-offset: 3px;
                 }
             }
         }
