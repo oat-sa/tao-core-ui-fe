@@ -433,7 +433,7 @@ const dialog = {
                 })
                 .on('tab', function() {
                     if (this.getCursor().position === $items.length - 1) {
-                        this.focusPosition(1);  // Skip container.
+                        this.setCursorAt(1);  // Skip container.
                     } else {
                         this.next();
                     }
