@@ -17,12 +17,12 @@
  */
 
 const path = require('path');
-const { rootPath } = require('./path');
+const { scssVendorDir, nodeModulesDir } = require('./path');
 
 module.exports = {
     plugins: [
         require('postcss-node-sass')({
-            includePaths: [path.resolve(rootPath, 'scss')]
+            includePaths: [scssVendorDir, path.resolve(nodeModulesDir, '@oat-sa/tao-core-libs/scss')]
         }),
         require('autoprefixer')
     ]
