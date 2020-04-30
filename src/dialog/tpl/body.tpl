@@ -4,16 +4,16 @@
     aria-modal="true"
     data-control="navigable-modal-body"
     {{#if heading}}
-        aria-labelledby="core/ui-dialog-heading"
+        aria-labelledby="core/ui-dialog-heading-{{dialogId}}"
     {{/if}}
-    aria-describedby="core/ui-dialog-message"
+    aria-describedby="core/ui-dialog-message-{{dialogId}}"
 >
     <div class="modal-body clearfix">
         {{#if heading}}
-        <h4 id="core/ui-dialog-heading" class="strong">{{heading}}</h4>
+        <h4 id="core/ui-dialog-heading-{{dialogId}}" class="strong">{{heading}}</h4>
         {{/if}}
 
-        <p id="core/ui-dialog-message" class="message">{{{message}}}</p>
+        <p id="core/ui-dialog-message-{{dialogId}}" class="message">{{{message}}}</p>
 
         {{#if content}}
         <div class="content">{{{content}}}</div>
