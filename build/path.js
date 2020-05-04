@@ -30,7 +30,6 @@ module.exports = {
     scssVendorDir: path.resolve(rootPath, 'scss'),
     outputDir: path.resolve(rootPath, 'dist'),
     testOutputDir: path.resolve(rootPath, 'test'),
-    nodeModulesDir: path.resolve(rootPath, 'node_modules'),
     aliases: {
         ui: srcDir,
         build: path.resolve(rootPath, 'build')
