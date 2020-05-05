@@ -136,6 +136,7 @@ const dialog = {
         _.defaults(this, initOptions, _defaults);
 
         // pre-render the dialog box
+        this.dialogId = _.uniqueId('dlg-');
         this.$html = $(bodyTpl(this));
         this.$buttons = this.$html.find('.buttons');
         this.rendered = false;
