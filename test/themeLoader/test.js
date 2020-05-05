@@ -128,7 +128,7 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function(_, $, themeLoader) {
                 );
                 ready();
             }, 250);
-        }, 50);
+        }, 100);
     });
 
     QUnit.test('preload', function(assert) {
@@ -161,7 +161,7 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function(_, $, themeLoader) {
             });
 
             ready();
-        }, 50);
+        }, 100);
     });
 
     QUnit.test('unload', function(assert) {
@@ -178,7 +178,7 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function(_, $, themeLoader) {
             var $styleSheets = $('link[data-type^="custom-theme"]');
             assert.ok($styleSheets.length > 0, 'The styleSheets have been inserted');
             assert.equal($styleSheets.length, 3, 'All styleSheets have been inserted');
-
+            
             assert.equal($container.css('background-color'), pink, 'The base style is loaded and computed');
             assert.equal($container.css('color'), blue, 'The theme style is loaded and computed');
 
@@ -194,8 +194,8 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function(_, $, themeLoader) {
                 assert.notEqual($container.css('color'), blue, 'The theme style is unloaded');
 
                 ready();
-            }, 10);
-        }, 50);
+            }, 100);
+        }, 100);
     });
 
     QUnit.test('change', function(assert) {
@@ -231,8 +231,8 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function(_, $, themeLoader) {
                     );
                     ready();
                 }, 250);
-            }, 50);
-        }, 50);
+            }, 100);
+        }, 100);
     });
 
     QUnit.test('change back to default', function(assert) {
@@ -330,9 +330,9 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function(_, $, themeLoader) {
                             );
                             ready();
                         }, 250);
-                    }, 50);
-                }, 50);
-            }, 50);
-        }, 50);
+                    }, 100);
+                }, 100);
+            }, 100);
+        }, 100);
     });
 });

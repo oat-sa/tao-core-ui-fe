@@ -81,18 +81,18 @@ define(['lodash', 'jquery', 'ui/pageStatus'], function(_, $, pageStatusFactory) 
                 );
 
             _.delay(function() {
-                popup.close();
-            }, 200);
+                popup && popup.close();
+            }, 600);
 
             setTimeout(function() {
                 ready();
-            }, 500);
+            }, 900);
         });
     } else {
         QUnit.test('popup status', function(assert) {
             var ready = assert.async();
             var popup = window.open(
-                '/tao/views/js/test/ui/pageStatus/blank.html',
+                '/test/pageStatus/blank.html',
                 'test',
                 'width=300,height=300,visible=none'
             );
@@ -144,19 +144,19 @@ define(['lodash', 'jquery', 'ui/pageStatus'], function(_, $, pageStatusFactory) 
 
             _.delay(function() {
                 secondPopup = window.open(
-                    '/tao/views/js/test/ui/pageStatus/blank.html',
+                    '/test/pageStatus/blank.html',
                     'test2',
                     'width=300,height=300'
                 );
                 _.delay(function() {
                     popup.close();
-                }, 200);
-            }, 100);
+                }, 300);
+            }, 600);
 
             setTimeout(function() {
                 secondPopup.close();
                 ready();
-            }, 400);
+            }, 1200);
         });
     }
 });
