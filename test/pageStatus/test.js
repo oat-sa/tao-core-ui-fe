@@ -82,11 +82,11 @@ define(['lodash', 'jquery', 'ui/pageStatus'], function(_, $, pageStatusFactory) 
 
             _.delay(function() {
                 popup && popup.close();
-            }, 600);
+            }, 200);
 
             setTimeout(function() {
                 ready();
-            }, 900);
+            }, 500);
         });
     } else {
         QUnit.test('popup status', function(assert) {
@@ -150,13 +150,13 @@ define(['lodash', 'jquery', 'ui/pageStatus'], function(_, $, pageStatusFactory) 
                 );
                 _.delay(function() {
                     popup.close();
-                }, 300);
-            }, 600);
+                }, 200);
+            }, 100);
 
             setTimeout(function() {
                 secondPopup.close();
                 ready();
-            }, 1200);
+            }, 400);
         });
     }
 });
