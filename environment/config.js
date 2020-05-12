@@ -46,6 +46,8 @@ define(['/node_modules/@oat-sa/tao-core-libs/dist/pathdefinition.js'], function(
 
                 basicStyle: '/css',
 
+                'lib/simulator': '/node_modules/@oat-sa/tao-core-shared-libs/lib/simulator',
+
                 'ui/tooltip/default': '/src/tooltip/default'
             },
             libPathDefinition
