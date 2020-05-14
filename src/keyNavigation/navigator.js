@@ -140,11 +140,9 @@ export default function keyNavigatorFactory(config) {
                         }
                     })
                     .on(`focusout.${this.getId()}`, () => {
-                        _.defer(() => {
-                            if (!this.isFocused()) {
-                                $group.removeClass('focusin');
-                            }
-                        });
+                        if (!this.isFocused()) {
+                            $group.removeClass('focusin');
+                        }
                     });
             }
 
