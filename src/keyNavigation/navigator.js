@@ -62,6 +62,7 @@ const defaults = {
  * @param {Number|Function} [config.defaultPosition=0] - the default position the group should set the focus on (could be a function to compute the position)
  * @param {Boolean} [config.keepState=false] - define if the position should be saved in memory after the group blurs and re-focuses
  * @param {Boolean} [config.loop=false] - define if the navigation should loop after reaching the last or the first element
+ * @param {Boolean} [config.propagateTab=true] - allows the key event to propagate when the Tab key is pressed.
  * @returns {keyNavigator}
  */
 export default function keyNavigatorFactory(config) {
