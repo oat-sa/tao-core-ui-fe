@@ -60,6 +60,13 @@ Special outer level classes used in this file:
   float: right;
 }
 
+@media (pointer:coarse) {
+  .cke .cke_toolbar .cke_button_off.cke_button_off:hover {
+    background: white !important;
+    color: $textColor !important;
+  }
+}
+
 /* The box that holds buttons. */
 .cke_toolgroup {
   float: left;
@@ -130,9 +137,9 @@ Special outer level classes used in this file:
 /* This class is applied to the button when it is "active" (pushed).
    This style indicates that the feature associated with the button is active
    i.e. currently writing in bold or when spell checking is enabled. */
-a.cke_button_on {
+.cke .cke_toolbar a.cke_button_on {
   background-color: $info;
-  color: $textHighlight !important;
+  color: $textHighlight;
   // text-shadow: 1px 1px 0 black(.2)
 }
 
@@ -288,9 +295,6 @@ a.cke_button_disabled:active {
 
   border: 1px solid #a6a6a6;
   border-bottom-color: #979797;
-
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
   border-radius: 3px;
 
   background: #fff;
