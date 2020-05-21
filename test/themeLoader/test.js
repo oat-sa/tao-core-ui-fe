@@ -178,7 +178,6 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function(_, $, themeLoader) {
             var $styleSheets = $('link[data-type^="custom-theme"]');
             assert.ok($styleSheets.length > 0, 'The styleSheets have been inserted');
             assert.equal($styleSheets.length, 3, 'All styleSheets have been inserted');
-
             assert.equal($container.css('background-color'), pink, 'The base style is loaded and computed');
             assert.equal($container.css('color'), blue, 'The theme style is loaded and computed');
 

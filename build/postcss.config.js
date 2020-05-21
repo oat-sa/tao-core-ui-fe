@@ -16,13 +16,12 @@
  * Copyright (c) 2019 (original work) Open Assessment Technologies SA ;
  */
 
-const path = require('path');
-const { rootPath } = require('./path');
+const { scssVendorDir } = require('./path');
 
 module.exports = {
     plugins: [
         require('postcss-node-sass')({
-            includePaths: [path.resolve(rootPath, 'scss')]
+            includePaths: [scssVendorDir]
         }),
         require('autoprefixer')
     ]
