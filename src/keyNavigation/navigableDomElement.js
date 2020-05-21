@@ -63,7 +63,7 @@ export default function navigableDomElement(element) {
     return eventifier({
         /**
          * Inits the navigableDomElement instance
-         * @param {Boolean} propagateTab
+         * @param {Boolean} propagateTab - allows the key event to propagate when the Tab key is pressed.
          * @returns {navigableDomElement}
          */
         init({propagateTab = false} = {}) {
