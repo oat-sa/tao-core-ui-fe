@@ -622,8 +622,7 @@ var ckConfigurator = (function() {
                 'highlight',
                 'mathJax',
                 'toolbar',
-                'positionedPlugins',
-                'removePlugins'
+                'positionedPlugins'
             ])
         );
 
