@@ -19,6 +19,7 @@
 import path from 'path';
 import glob from 'glob';
 import alias from 'rollup-plugin-alias';
+import clear from 'rollup-plugin-clear';
 import handlebarsPlugin from 'rollup-plugin-handlebars-plus';
 import cssResolve from './css-resolve';
 import resolve from 'rollup-plugin-node-resolve';
@@ -89,6 +90,10 @@ export default inputs.map(input => {
             ...localExternals
         ],
         plugins: [
+            clear({
+                targets: [outputDir],
+                watch: false
+            }),
             cssResolve(),
             wildcardExternal(['core/**', 'lib/**', 'util/**', 'layout/**']),
             alias({
