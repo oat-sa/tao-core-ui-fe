@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2015 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2015-2020 (original work) Open Assessment Technologies SA ;
  *
  */
 
@@ -85,6 +85,8 @@ var defaultOptions = {
  */
 var feedbackFactory = function feedbackFactory($container, config) {
     var feedback;
+    const codeEnter = 13;
+    const codeSpace = 32;
 
     if (!$container || !$container.length) {
         $container = $(defaultContainerSelector);
@@ -259,10 +261,18 @@ var feedbackFactory = function feedbackFactory($container, config) {
                 ? this.config.timeout[this.config.level]
                 : this.config.timeout;
 
-            $closer.off('click').on('click', function(e) {
-                e.preventDefault();
-                self.destroy();
-            });
+            $closer
+                .off('click')
+                .on('click', function(e) {
+                    e.preventDefault();
+                    self.destroy();
+                })
+                .off('keyup')
+                .on('keyup', function(e) {
+                    if ([codeEnter, codeSpace].includes(e.which)) {
+                        self.destroy();
+                    }
+                });
 
             if (_.isNumber(timeout) && timeout > 0) {
                 _.delay(function() {
