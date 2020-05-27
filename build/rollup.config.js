@@ -30,7 +30,7 @@ import wildcardExternal from '@oat-sa/rollup-plugin-wildcard-external';
 const { srcDir, outputDir, aliases } = require('./path');
 const Handlebars = require('handlebars');
 
-const isDev = process.env.NODE_ENV === 'development';
+const production = process.env.NODE_ENV === 'production';
 
 /**
  * Support of handlebars 1.3.0
@@ -70,7 +70,7 @@ export default inputs.map(input => {
         output: {
             dir: path.join(outputDir, dir),
             format: 'amd',
-            sourcemap: isDev,
+            sourcemap: !production,
             name
         },
         watch: {
