@@ -73,6 +73,9 @@ export default inputs.map(input => {
             sourcemap: isDev,
             name
         },
+        watch: {
+            clearScreen : false
+        },
         external: [
             'i18n',
             'lodash',
