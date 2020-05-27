@@ -263,14 +263,14 @@ var feedbackFactory = function feedbackFactory($container, config) {
 
             $closer
                 .off('click')
-                .on('click', function(e) {
+                .on('click', (e) => {
                     e.preventDefault();
-                    self.destroy();
+                    this.destroy();
                 })
                 .off('keyup')
-                .on('keyup', function(e) {
-                    if ([codeEnter, codeSpace].includes(e.which)) {
-                        self.destroy();
+                .on('keyup', (e) => {
+                    if ([codeEnter, codeSpace].indexOf(e.which) !== -1) {
+                        this.destroy();
                     }
                 });
 
