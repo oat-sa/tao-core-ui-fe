@@ -19,6 +19,7 @@
 import path from 'path';
 import glob from 'glob';
 import alias from 'rollup-plugin-alias';
+import clear from 'rollup-plugin-clear';
 import handlebarsPlugin from 'rollup-plugin-handlebars-plus';
 import cssResolve from './css-resolve';
 import resolve from 'rollup-plugin-node-resolve';
@@ -28,6 +29,8 @@ import wildcardExternal from '@oat-sa/rollup-plugin-wildcard-external';
 
 const { srcDir, outputDir, aliases } = require('./path');
 const Handlebars = require('handlebars');
+
+const production = process.env.NODE_ENV === 'production';
 
 /**
  * Support of handlebars 1.3.0
@@ -67,7 +70,11 @@ export default inputs.map(input => {
         output: {
             dir: path.join(outputDir, dir),
             format: 'amd',
+            sourcemap: !production,
             name
+        },
+        watch: {
+            clearScreen : false
         },
         external: [
             'i18n',
@@ -89,6 +96,10 @@ export default inputs.map(input => {
             ...localExternals
         ],
         plugins: [
+            clear({
+                targets: [outputDir],
+                watch: false
+            }),
             cssResolve(),
             wildcardExternal(['core/**', 'lib/**', 'util/**', 'layout/**']),
             alias({
