@@ -1174,4 +1174,116 @@ define([
 
         keyNavigator.activate();
     });
+
+    QUnit.test('position based on movement', function (assert) {
+        var keyNavigator;
+        var $container = $('#qunit-fixture');
+        var navigatorSelectors = ['.nav-1', '.nav-2', '.nav-3'];
+
+        function createNavigator(selector) {
+            var $group = $container.find(selector)
+            return keyNavigatorFactory({
+                elements: navigableDomElement.createFromDoms($group.find('[data-id]')),
+                group: $group
+            });
+        }
+
+        assert.expect(8);
+
+        keyNavigator = keyNavigatorFactory({
+            elements: navigatorSelectors.map(createNavigator),
+            group: $container
+        });
+
+        keyNavigator.focus();
+        assert.equal(document.activeElement, $container.find('.nav-1 [data-id=A]').get(0), 'focus on first group, first element');
+
+        keyNavigator.next();
+        assert.equal(document.activeElement, $container.find('.nav-2 [data-id=A]').get(0), 'focus on second group, first element');
+
+        keyNavigator.next();
+        assert.equal(document.activeElement, $container.find('.nav-3 [data-id=A]').get(0), 'focus on third group, first element');
+
+        keyNavigator.previous();
+        assert.equal(document.activeElement, $container.find('.nav-2 [data-id=C]').get(0), 'focus on second group, last element');
+
+        keyNavigator.previous();
+        assert.equal(document.activeElement, $container.find('.nav-1 [data-id=C]').get(0), 'focus on first group, last element');
+
+        keyNavigator.next();
+        assert.equal(document.activeElement, $container.find('.nav-2 [data-id=A]').get(0), 'focus on second group, first element');
+
+        keyNavigator.blur();
+        assert.notEqual(document.activeElement, $container.find('.nav-2 [data-id=A]').get(0), 'focus loss');
+
+        keyNavigator.focus();
+        assert.equal(document.activeElement, $container.find('.nav-1 [data-id=A]').get(0), 'focus on first group, first element');
+    });
+
+    QUnit.test('position based on movement and default', function (assert) {
+        var keyNavigator;
+        var $container = $('#qunit-fixture');
+        var navigators = [];
+        var expectedDirection = 1;
+
+        function createNavigator(selector) {
+            var $group = $container.find(selector)
+            var $elements = $group.find('[data-id]');
+            var elements = navigableDomElement.createFromDoms($elements);
+            return keyNavigatorFactory({
+                elements: elements,
+                group: $group,
+                defaultPosition: function(navigableElements, direction) {
+                    var position = -1;
+                    assert.deepEqual(navigableElements, elements, 'The list of focusable elements has been supplied');
+                    assert.equal(direction, expectedDirection, 'The expected movement direction has been given');
+                    $elements.each(function (index, input) {
+                        if (input.checked) {
+                            position = index;
+                        }
+                    });
+                    return position;
+                }
+            });
+        }
+
+        navigators.push(createNavigator('.nav-1'));
+        navigators.push(createNavigator('.nav-2'));
+        navigators.push(createNavigator('.nav-3'));
+
+        $container.find('.nav-3 input[data-id=B]').attr('checked', true);
+
+        assert.expect(22);
+
+        keyNavigator = keyNavigatorFactory({
+            elements: navigators,
+            group: $container
+        });
+
+        keyNavigator.focus();
+        assert.equal(document.activeElement, $container.find('.nav-1 [data-id=A]').get(0), 'focus on first group, first element');
+
+        keyNavigator.next();
+        assert.equal(document.activeElement, $container.find('.nav-2 [data-id=A]').get(0), 'focus on second group, first element');
+
+        keyNavigator.next();
+        assert.equal(document.activeElement, $container.find('.nav-3 [data-id=B]').get(0), 'focus on third group, checked element');
+
+        expectedDirection = -1;
+        keyNavigator.previous();
+        assert.equal(document.activeElement, $container.find('.nav-2 [data-id=C]').get(0), 'focus on second group, last element');
+
+        keyNavigator.previous();
+        assert.equal(document.activeElement, $container.find('.nav-1 [data-id=C]').get(0), 'focus on first group, last element');
+
+        expectedDirection = 1;
+        keyNavigator.next();
+        assert.equal(document.activeElement, $container.find('.nav-2 [data-id=A]').get(0), 'focus on second group, first element');
+
+        keyNavigator.blur();
+        assert.notEqual(document.activeElement, $container.find('.nav-2 [data-id=A]').get(0), 'focus loss');
+
+        keyNavigator.focus();
+        assert.equal(document.activeElement, $container.find('.nav-1 [data-id=A]').get(0), 'focus on first group, first element');
+    });
 });

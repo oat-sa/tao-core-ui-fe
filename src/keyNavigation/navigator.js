@@ -46,7 +46,7 @@ import eventifier from 'core/eventifier';
 import navigableDomElement from 'ui/keyNavigation/navigableDomElement';
 
 const defaults = {
-    defaultPosition: 0,
+    defaultPosition: -1,
     keepState: false,
     loop: false,
     propagateTab: true
@@ -270,8 +270,9 @@ export default function keyNavigatorFactory(config) {
                     this.trigger('blur', cursor);
                 }
 
+                const direction = position - lastPosition;
                 lastPosition = position;
-                navigableElements[position].focus();
+                navigableElements[position].focus(direction);
 
                 /**
                  * @event focus
@@ -474,17 +475,38 @@ export default function keyNavigatorFactory(config) {
 
         /**
          * Sets the focus to the current element
+         * @param {Number} [direction=1] - The direction that lead to this navigator.
+         *                                 This will condition which element to focus if there is no default.
+         *                                 A positive direction (or null) will lead to the first focusable element.
+         *                                 A negative direction will lead to the last focusable element.
          * @returns {keyNavigator}
          */
-        focus() {
-            let position;
+        focus(direction = 1) {
+            let position = -1;
+
+            // try to get the default position
             if (navigatorConfig.keepState && this.getNavigableAt(lastPosition)) {
                 position = lastPosition;
-            } else if (_.isFunction(navigatorConfig.defaultPosition)) {
-                position = Math.max(0, navigatorConfig.defaultPosition(this.getNavigableElements()));
             } else {
-                position = navigatorConfig.defaultPosition;
+                lastPosition = -1;
+                if ('undefined' !== typeof navigatorConfig.defaultPosition) {
+                    if (_.isFunction(navigatorConfig.defaultPosition)) {
+                        position = navigatorConfig.defaultPosition(this.getNavigableElements(), direction);
+                    } else {
+                        position = navigatorConfig.defaultPosition;
+                    }
+                }
             }
+
+            // select the default position with respect to the movement direction
+            if (position === -1) {
+                if (direction < 0) {
+                    position = getClosestPositionLeft(navigableElements.length - 1);
+                } else {
+                    position = 0;
+                }
+            }
+
             this.setCursorAt(
                 getClosestPositionRight(position)
             );
