@@ -465,20 +465,16 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
         /**
          * Add class to classSelector, no update of selectionComponent
          *
-         * @param {Object} node - the node to add
+         * @param {Object} node - the class node to add
          * @param {String} node.uri
          * @param {String} node.label
-         * @param {String} [node.type=class] - instance or class
          * @param {String} parentUri - where to append the new node
          * @returns {resourceSelector} chains
          */
-        addClass: function addClass(node, parentUri) {
+        addClassNode: function addClassNode(node, parentUri) {
             if (this.is('rendered') && node && node.uri && this.classSelector) {
                 if (!this.classSelector.hasNode(node.uri) && this.classSelector.hasNode(parentUri)) {
-                    if (!node.type) {
-                        node.type = nodeTypes.class;
-                    }
-                    //update the class selector
+                    //add node to the class selector
                     this.classSelector.addNode(node, parentUri);
                 }
             }
