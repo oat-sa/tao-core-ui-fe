@@ -24,6 +24,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 import interact from 'interact';
 import 'core/mouseEvent';
+import triggerCustomEvent from '@oat-sa/tao-core-sdk/src/core/customEvent';
 
 var interactHelper, simulateDrop;
 
@@ -74,8 +75,8 @@ interactHelper = {
             eventOptions = {
                 bubbles: true,
                 pointerId: 1,
-                bubbles: true, 
-                cancelable: true, 
+                bubbles: true,
+                cancelable: true,
                 pointerType: "touch",
                 width: 100,
                 height: 100,
@@ -84,8 +85,8 @@ interactHelper = {
         if (element) {
             domElement = element instanceof $ ? element.get(0) : element;
 
-            domElement.dispatchEvent(new PointerEvent('pointerdown', eventOptions));
-            domElement.dispatchEvent(new PointerEvent('pointerup', eventOptions));
+            triggerCustomEvent(domElement, 'pointerdown', new PointerEvent('pointerdown', eventOptions));
+            triggerCustomEvent(domElement, 'pointerup', new PointerEvent('pointerup', eventOptions));
 
             if (cb) {
                 _.delay(cb, delay || 0);
