@@ -75,9 +75,8 @@ interactHelper = {
             eventOptions = {
                 bubbles: true,
                 pointerId: 1,
-                bubbles: true,
                 cancelable: true,
-                pointerType: "touch",
+                pointerType: 'touch',
                 width: 100,
                 height: 100,
                 isPrimary: true
@@ -85,8 +84,8 @@ interactHelper = {
         if (element) {
             domElement = element instanceof $ ? element.get(0) : element;
 
-            triggerCustomEvent(domElement, 'pointerdown', new PointerEvent('pointerdown', eventOptions));
-            triggerCustomEvent(domElement, 'pointerup', new PointerEvent('pointerup', eventOptions));
+            triggerCustomEvent(domElement, 'CustomEvent', eventOptions);
+            triggerCustomEvent(domElement, 'CustomEvent', eventOptions);
 
             if (cb) {
                 _.delay(cb, delay || 0);
