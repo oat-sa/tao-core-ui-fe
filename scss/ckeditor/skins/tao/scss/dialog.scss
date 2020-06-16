@@ -49,6 +49,10 @@ Comments in this file will give more details about each of the above blocks.
   visibility: visible;
 }
 
+.cke_dialog_container {
+  background: transparent!important;
+}
+
 /* The inner boundary container. */
 .cke_dialog_body {
   z-index: 1;
