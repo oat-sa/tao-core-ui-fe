@@ -14,7 +14,7 @@ textarea {
     &:focus {
         outline: none;
     }
-    &:not(.error):focus {
+    &:not(.error):not(.select2-input):focus {
         @include focus-style;
     }
 }
@@ -539,7 +539,7 @@ label {
 
         }
         h3 {
-            margin: 0px 0px 12px;
+            margin: 0 0 12px;
         }
     }
 
