@@ -1,6 +1,6 @@
 {
     "name": "@oat-sa/tao-core-ui",
-    "version": "1.3.1",
+    "version": "1.4.0",
     "displayName": "TAO Core UI",
     "description": "UI libraries of TAO",
     "scripts": {
