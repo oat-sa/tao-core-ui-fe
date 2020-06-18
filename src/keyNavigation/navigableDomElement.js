@@ -132,7 +132,11 @@ export default function navigableDomElement(element) {
                     (e, key) => {
                         const $target = $(e.target);
                         if (!isInput($target)) {
-                            if (!$target.is('img') && !$target.hasClass('key-navigation-scrollable')) {
+                            if (!$target.is('img') &&
+                                !$target.hasClass('key-navigation-scrollable') &&
+                                !($target.hasClass('key-navigation-scrollable-up') && (key === 'up' || key === 'left')) &&
+                                !($target.hasClass('key-navigation-scrollable-down') && (key === 'down' || key === 'right'))
+                            ) {
                                 // prevent scrolling of parent element
                                 e.preventDefault();
                             }
