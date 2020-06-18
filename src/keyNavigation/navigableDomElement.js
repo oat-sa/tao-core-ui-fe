@@ -151,8 +151,10 @@ export default function navigableDomElement(element) {
                     'enter',
                     e => {
                         if (!isInput($(e.target))) {
-                            //prevent activating the element when typing a text
-                            e.preventDefault();
+                            if (!e.target.classList.contains('key-navigation-actionable')) {
+                                //prevent activating the element when typing a text
+                                e.preventDefault();
+                            }
                             keyboard('enter', e.target);
                         }
                     },
