@@ -262,14 +262,8 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
                     restrict: _.merge(getRestriction(), {
                         elementRect: { left: 0, right: 1, top: 0, bottom: 1 }
                     }),
-                    onmove: function(event) {
-                        interactUtils.moveElement($element, event.dx, event.dy);
-                        self.setCoords();
-                        self.trigger('move', self.position);
-                    },
-                    onend: function() {
-                        self.setCoords();
-                    }
+                    onmove: event => moveComponent(event.dx, event.dy),
+                    onend: () => this.setCoords()
                 });
 
                 //manually start interactjs draggable on the handle
@@ -312,7 +306,7 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
                         bottom: '.dynamic-component-resize-wrapper',
                         top: false
                     },
-                    onmove: _resizeItem
+                    onmove: e => resizeComponent(e.rect.width, e.rect.height, e.deltaRect.left, e.deltaRect.top),
                 });
             }
 
@@ -345,6 +339,42 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
                 }
             });
 
+            this.on('show', () => {
+                const viewport = (getParent())[0].getBoundingClientRect();
+                let {width, height} = this.position;
+                let x = 0;
+                let y = 0;
+                let resize = false;
+
+                if (width > viewport.width) {
+                    height = viewport.width * (this.position.height / this.position.width);
+                    width = viewport.width;
+                    resize = true;
+                    if (this.position.x) {
+                        x = -this.position.x;
+                    }
+                } else if (this.position.x + width > viewport.width) {
+                    x = -this.position.x;
+                }
+
+                if (height > viewport.height) {
+                    width = viewport.height * (this.position.width / this.position.height);
+                    height = viewport.height;
+                    resize = true;
+                    if (this.position.y) {
+                        y = -this.position.y;
+                    }
+                } else if (this.position.y + height > viewport.height) {
+                    y = -this.position.y;
+                }
+
+                if (resize) {
+                    resizeComponent(width, height, x, y);
+                } else if (x || y) {
+                    moveComponent(x, y);
+                }
+            });
+
             function getRestriction() {
                 var draggableContainer = getDraggableContainer();
                 if (!draggableContainer) {
@@ -367,14 +397,34 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
                 return draggableContainer;
             }
 
+            function getParent() {
+                const draggableContainer = getDraggableContainer();
+                if (!draggableContainer || draggableContainer === 'parent') {
+                    return $element.parent();
+                }
+                return $(draggableContainer);
+            }
+
+            /**
+             * Callback for on move event
+             * @param {Number} x
+             * @param {Number} y
+             */
+            function moveComponent(x, y) {
+                interactUtils.moveElement($element, x, y);
+                self.setCoords();
+                self.trigger('move', self.position);
+            }
+
             /**
              * Callback for on resize event
-             * @param {Object} e - the interact event object
+             * @param {Number} width
+             * @param {Number} height
+             * @param {Number} x
+             * @param {Number} y
              */
-            function _resizeItem(e) {
-                var width = e.rect.width;
-                var height = e.rect.height;
-                var $parent = config.draggableContainer || $element.parent();
+            function resizeComponent(width, height, x, y) {
+                const $parent = getParent();
                 var elementOffset = $element.offset();
                 var parentOffset = $parent.offset();
 
@@ -396,8 +446,8 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
 
                     interactUtils.moveElement(
                         $element,
-                        width > config.minWidth && width < config.maxWidth ? e.deltaRect.left : 0,
-                        height > config.minHeight && height < config.maxHeight ? e.deltaRect.top : 0
+                        width > config.minWidth && width < config.maxWidth ? x : 0,
+                        height > config.minHeight && height < config.maxHeight ? y : 0
                     );
 
                     self.position.width = width;
