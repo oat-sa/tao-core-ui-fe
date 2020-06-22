@@ -105,7 +105,7 @@ var defaultConfig = {
 var filterClasses = function filterClasses(resources) {
     return _(resources)
         .filter({ type: nodeTypes.class })
-        .map(function(resource) {
+        .map(function (resource) {
             var classNode = _.pick(resource, ['uri', 'label', 'state']);
 
             if (resource.children) {
@@ -134,7 +134,10 @@ var filterClasses = function filterClasses(resources) {
  * @param {Boolean} [config.showSelection = true] - show the selection bar (search, multi switch and select all)
  * @returns {resourceSelector} the component
  */
-var resourceSelectorFactory = function resourceSelectorFactory($container, config) {
+var resourceSelectorFactory = function resourceSelectorFactory(
+    $container,
+    config
+) {
     var $classContainer;
     var $resultArea;
     var $noResults;
@@ -283,8 +286,13 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
         changeFormat: function changeFormat(format) {
             var $viewFormat;
             if (this.is('rendered') && this.format !== format) {
-                $viewFormat = $viewFormats.filter('[data-view-format="' + format + '"]');
-                if ($viewFormat.length === 1 && !$viewFormat.hasClass('active')) {
+                $viewFormat = $viewFormats.filter(
+                    `[data-view-format="${format}"]`
+                );
+                if (
+                    $viewFormat.length === 1 &&
+                    !$viewFormat.hasClass('active')
+                ) {
                     $viewFormats.removeClass('active');
                     $viewFormat.addClass('active');
 
@@ -309,13 +317,20 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
          * @returns {resourceSelector} chains
          */
         changeSelectionMode: function changeSelectionMode(newMode) {
-            if (this.is('rendered') && this.config.selectionMode !== newMode && selectionModes[newMode]) {
+            if (
+                this.is('rendered') &&
+                this.config.selectionMode !== newMode &&
+                selectionModes[newMode]
+            ) {
                 if (this.config.multiple) {
                     this.clearSelection();
                 }
 
                 this.config.multiple = newMode === selectionModes.multiple;
-                this.selectionComponent.setState('multiple', this.config.multiple);
+                this.selectionComponent.setState(
+                    'multiple',
+                    this.config.multiple
+                );
                 this.setState('multiple', this.config.multiple);
 
                 if (this.config.multiple) {
@@ -350,11 +365,14 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
 
             if (this.is('rendered') && this.format) {
                 componentFactory =
-                    this.config.formats[this.format] && this.config.formats[this.format].componentFactory;
+                    this.config.formats[this.format] &&
+                    this.config.formats[this.format].componentFactory;
                 if (!_.isFunction(componentFactory)) {
                     return this.trigger(
                         'error',
-                        new TypeError('Unable to load the component for the format ' + this.format)
+                        new TypeError(
+                            `Unable to load the component for the format ${this.format}`
+                        )
                     );
                 }
 
@@ -375,19 +393,22 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
                             this.config
                         )
                     )
-                        .on('query', function(queryParams) {
+                        .on('query', function (queryParams) {
                             self.query(queryParams);
                         })
-                        .on('update', function() {
-                            if (_.size(this.getNodes()) === 0 && $('li', $resultArea).length === 0) {
+                        .on('update', function () {
+                            if (
+                                _.size(this.getNodes()) === 0 &&
+                                $('li', $resultArea).length === 0
+                            ) {
                                 hider.show($noResults);
                             }
                             self.trigger('update');
                         })
-                        .on('change', function(selected, onlyVisible) {
+                        .on('change', function (selected, onlyVisible) {
                             self.trigger('change', selected, onlyVisible);
                         })
-                        .on('error', function(err) {
+                        .on('error', function (err) {
                             self.trigger('error', err);
                         });
                 } else {
@@ -405,7 +426,11 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
          * @returns {resourceSelector} chains
          */
         updateFilters: function updateFilters(filterConfig) {
-            if (this.is('rendered') && filterConfig !== false && this.filtersComponent) {
+            if (
+                this.is('rendered') &&
+                filterConfig !== false &&
+                this.filtersComponent
+            ) {
                 this.filtersComponent.update(filterConfig);
             }
             return this;
@@ -422,7 +447,10 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
             var uri = _.isString(node) ? node : node.uri;
             if (this.hasNode(uri)) {
                 //update the class selector
-                if (this.getNodeType(node) === nodeTypes.class && this.classSelector) {
+                if (
+                    this.getNodeType(node) === nodeTypes.class &&
+                    this.classSelector
+                ) {
                     this.classSelector.removeNode(node);
                 }
 
@@ -442,7 +470,12 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
          * @returns {resourceSelector} chains
          */
         addNode: function addNode(node, parentUri) {
-            if (this.is('rendered') && node && node.uri && this.selectionComponent) {
+            if (
+                this.is('rendered') &&
+                node &&
+                node.uri &&
+                this.selectionComponent
+            ) {
                 if (!this.selectionComponent.hasNode(node.uri)) {
                     if (!node.type) {
                         node.type = nodeTypes.instance;
@@ -453,13 +486,39 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
                         classUri: parentUri || this.classUri,
                         format: this.format,
                         limit: this.config.limit,
-                        updateCount: node.type === nodeTypes.instance ? 1 : false
+                        updateCount:
+                            node.type === nodeTypes.instance ? 1 : false
                     });
 
                     //update the class selector
-                    if (this.getNodeType(node) === nodeTypes.class && this.classSelector) {
+                    if (
+                        this.getNodeType(node) === nodeTypes.class &&
+                        this.classSelector
+                    ) {
                         this.classSelector.addNode(node, parentUri);
                     }
+                }
+            }
+            return this;
+        },
+
+        /**
+         * Add class to classSelector, no update of selectionComponent
+         *
+         * @param {Object} node - the class node to add
+         * @param {String} node.uri
+         * @param {String} node.label
+         * @param {String} parentUri - where to append the new node
+         * @returns {resourceSelector} chains
+         */
+        addClassNode: function addClassNode(node, parentUri) {
+            if (this.is('rendered') && node && node.uri && this.classSelector) {
+                if (
+                    !this.classSelector.hasNode(node.uri) &&
+                    this.classSelector.hasNode(parentUri)
+                ) {
+                    //add node to the class selector
+                    this.classSelector.addNode(node, parentUri);
                 }
             }
             return this;
@@ -515,7 +574,9 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
                 }
                 this.selectionComponent.select(uri);
 
-                $('[data-uri="' + uri + '"]', $resultArea)[0].scrollIntoView({ behavior: 'smooth' });
+                $(`[data-uri="${uri}"]`, $resultArea)[0].scrollIntoView({
+                    behavior: 'smooth'
+                });
             }
             return this;
         },
@@ -535,9 +596,13 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
                 if (this.hasNode(node)) {
                     this.select(node);
                 } else if (fallback !== false) {
-                    $resource = this.getElement().find('.' + nodeTypes.instance);
+                    $resource = this.getElement().find(
+                        `.${nodeTypes.instance}`
+                    );
                     if (!$resource.length) {
-                        $resource = this.getElement().find('.' + nodeTypes.class);
+                        $resource = this.getElement().find(
+                            `.${nodeTypes.class}`
+                        );
                     }
                     if ($resource.length) {
                         this.select($resource.first().data('uri'));
@@ -559,7 +624,7 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
                 updateClasses: true
             };
             if (this.is('rendered')) {
-                this.on('update.refresh', function() {
+                this.on('update.refresh', function () {
                     this.off('update.refresh');
                     this.selectDefaultNode(node);
                 });
@@ -578,21 +643,25 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
      */
     var resourceSelector = component(resourceSelectorApi, defaultConfig)
         .setTemplate(selectorTpl)
-        .on('init', function() {
+        .on('init', function () {
             this.searchQuery = {};
             this.classUri = this.config.classUri;
-            this.format = this.config.format || _.findKey(this.config.formats, { active: true });
-            this.config.switchMode = this.config.selectionMode === selectionModes.both;
-            this.config.multiple = this.config.selectionMode === selectionModes.multiple;
+            this.format =
+                this.config.format ||
+                _.findKey(this.config.formats, { active: true });
+            this.config.switchMode =
+                this.config.selectionMode === selectionModes.both;
+            this.config.multiple =
+                this.config.selectionMode === selectionModes.multiple;
             this.setState('multiple', this.config.multiple);
 
             this.render($container);
         })
-        .on('render', function() {
+        .on('render', function () {
             var self = this;
 
             //we ensure the sub-components are rendered
-            return new Promise(function(resolve) {
+            return new Promise(function (resolve) {
                 var $component = self.getElement();
 
                 $classContainer = $('.class-context', $component);
@@ -610,16 +679,21 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
                 //the search field
                 $searchField.on(
                     'keyup',
-                    _.debounce(function(e) {
-                        var value = $(this)
-                            .val()
-                            .trim();
-                        if (value.length > 2 || value.length === 0 || e.which === 13) {
+                    _.debounce(function (e) {
+                        var value = $(this).val().trim();
+                        if (
+                            value.length > 2 ||
+                            value.length === 0 ||
+                            e.which === 13
+                        ) {
                             if (self.config.filters) {
                                 //reset the placeholder
                                 $(this)
                                     .attr('title', null)
-                                    .attr('placeholder', self.config.searchPlaceholder);
+                                    .attr(
+                                        'placeholder',
+                                        self.config.searchPlaceholder
+                                    );
                             }
                             self.empty()
                                 .changeFormat('list')
@@ -630,46 +704,51 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
                 );
 
                 //the format switcher
-                $viewFormats.on('click', function(e) {
+                $viewFormats.on('click', function (e) {
                     var $target = $(this);
                     var format = $target.data('view-format');
                     e.preventDefault();
 
-                    self.reset()
-                        .changeFormat(format)
-                        .query();
+                    self.reset().changeFormat(format).query();
                 });
 
                 //mode switcher (multiple/single)
                 if (self.config.selectionMode === selectionModes.both) {
                     //click the toggler
-                    $selectionToggle.on('click', function(e) {
+                    $selectionToggle.on('click', function (e) {
                         e.preventDefault();
                         self.changeSelectionMode(
-                            self.config.multiple ? selectionModes.single : selectionModes.multiple
+                            self.config.multiple
+                                ? selectionModes.single
+                                : selectionModes.multiple
                         );
                     });
 
                     //CTRL-Click
-                    $resultArea.on('mousedown', function(e) {
+                    $resultArea.on('mousedown', function (e) {
                         if (e.ctrlKey && !self.config.multiple) {
                             self.changeSelectionMode(selectionModes.multiple);
                         }
                     });
 
                     //switch back to sinlge
-                    $resultArea.on('click', function() {
+                    $resultArea.on('click', function () {
                         self.changeSelectionMode(selectionModes.single);
                     });
                 }
 
                 //the select all control
-                $selectCtrl.on('change', function() {
+                $selectCtrl.on('change', function () {
                     if ($(this).prop('checked') === false) {
                         self.selectionComponent.clearSelection();
-                    } else if (self.config.selectAllPolicy === selectAllPolicies.visible) {
+                    } else if (
+                        self.config.selectAllPolicy ===
+                        selectAllPolicies.visible
+                    ) {
                         self.selectionComponent.selectVisible();
-                    } else if (self.config.selectAllPolicy === selectAllPolicies.loaded) {
+                    } else if (
+                        self.config.selectAllPolicy === selectAllPolicies.loaded
+                    ) {
                         self.selectionComponent.selectAll();
                     }
                 });
@@ -679,7 +758,7 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
                     self.filtersComponent = filtersFactory($filterContainer, {
                         classUri: self.classUri,
                         data: self.config.filters
-                    }).on('change', function(values) {
+                    }).on('change', function (values) {
                         var textualQuery = this.getTextualQuery();
 
                         $searchField
@@ -695,7 +774,7 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
                         $filterContainer.addClass('folded');
                     });
 
-                    $filterToggle.on('click', function(e) {
+                    $filterToggle.on('click', function (e) {
                         var searchVal;
                         e.preventDefault();
 
@@ -703,7 +782,10 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
                             //if a value is in the search field, we add it to the label
                             searchVal = $searchField.val().trim();
                             if (!_.isEmpty(searchVal)) {
-                                self.filtersComponent.setValue(labelUri, searchVal);
+                                self.filtersComponent.setValue(
+                                    labelUri,
+                                    searchVal
+                                );
                             }
                             $filterContainer.removeClass('folded');
                         } else {
@@ -713,52 +795,65 @@ var resourceSelectorFactory = function resourceSelectorFactory($container, confi
                 }
 
                 //initialize the class selector
-                self.classSelector = classesSelectorFactory($classContainer, self.config);
-                self.classSelector.on('render', resolve).on('change', function(uri) {
-                    if (uri && uri !== self.classUri) {
-                        self.classUri = uri;
+                self.classSelector = classesSelectorFactory(
+                    $classContainer,
+                    self.config
+                );
+                self.classSelector
+                    .on('render', resolve)
+                    .on('change', function (uri) {
+                        if (uri && uri !== self.classUri) {
+                            self.classUri = uri;
 
-                        //close the filters
-                        if ($filterContainer.length) {
-                            $filterContainer.addClass('folded');
+                            //close the filters
+                            if ($filterContainer.length) {
+                                $filterContainer.addClass('folded');
+                            }
+
+                            /**
+                             * When the component's root class URI changes
+                             * @event resourceSelector#classchange
+                             * @param {String} classUri - the new class URI
+                             */
+                            self.trigger('classchange', uri);
+
+                            self.reset().query();
                         }
-
-                        /**
-                         * When the component's root class URI changes
-                         * @event resourceSelector#classchange
-                         * @param {String} classUri - the new class URI
-                         */
-                        self.trigger('classchange', uri);
-
-                        self.reset().query();
-                    }
-                });
+                    });
 
                 self.query();
             });
         })
-        .on('change', function(selected, onlyVisible) {
+        .on('change', function (selected, onlyVisible) {
             var selectedCount = _.size(selected);
-            var nodesCount = onlyVisible ? selectedCount : _.size(this.selectionComponent.getNodes());
+            var nodesCount = onlyVisible
+                ? selectedCount
+                : _.size(this.selectionComponent.getNodes());
 
             //the number selected at the bottom
             $selectNum.text(selectedCount);
 
             //update the state of the "Select All" checkbox
             if (selectedCount === 0) {
-                $selectCtrlLabel.attr('title', __('Select loaded %s', this.config.type));
+                $selectCtrlLabel.attr(
+                    'title',
+                    __('Select loaded %s', this.config.type)
+                );
                 $selectCtrl.prop('checked', false).prop('indeterminate', false);
                 // if all of the nodes are selected (or more in the closed subclasses)
             } else if (selectedCount >= nodesCount) {
                 $selectCtrlLabel.attr('title', __('Clear selection'));
                 $selectCtrl.prop('checked', true).prop('indeterminate', false);
             } else {
-                $selectCtrlLabel.attr('title', __('Select loaded %s', this.config.type));
+                $selectCtrlLabel.attr(
+                    'title',
+                    __('Select loaded %s', this.config.type)
+                );
                 $selectCtrl.prop('checked', false).prop('indeterminate', true);
             }
         });
 
-    _.defer(function() {
+    _.defer(function () {
         resourceSelector.init(config);
     });
     return resourceSelector;
