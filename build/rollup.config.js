@@ -18,16 +18,19 @@
 
 import path from 'path';
 import glob from 'glob';
-import alias from 'rollup-plugin-alias';
+import alias from '@rollup/plugin-alias';
+import clear from 'rollup-plugin-clear';
 import handlebarsPlugin from 'rollup-plugin-handlebars-plus';
 import cssResolve from './css-resolve';
-import resolve from 'rollup-plugin-node-resolve';
+import resolve from '@rollup/plugin-node-resolve';
 import istanbul from 'rollup-plugin-istanbul';
-import babel from 'rollup-plugin-babel';
+import babel from '@rollup/plugin-babel';
 import wildcardExternal from '@oat-sa/rollup-plugin-wildcard-external';
 
 const { srcDir, outputDir, aliases } = require('./path');
 const Handlebars = require('handlebars');
+
+const production = process.env.NODE_ENV === 'production';
 
 const inputs = glob.sync(path.join(srcDir, '**', '*.js'));
 
@@ -35,8 +38,7 @@ const inputs = glob.sync(path.join(srcDir, '**', '*.js'));
  * Define all modules as external, so rollup won't bundle them together.
  */
 const localExternals = inputs.map(
-    input =>
-        `ui/${path
+    input => `ui/${path
             .relative(srcDir, input)
             .replace(/\\/g, '/')
             .replace(/\.js$/, '')}`
@@ -51,7 +53,11 @@ export default inputs.map(input => {
         output: {
             dir: path.join(outputDir, dir),
             format: 'amd',
+            sourcemap: !production,
             name
+        },
+        watch: {
+            clearScreen : false
         },
         external: [
             'i18n',
@@ -73,13 +79,20 @@ export default inputs.map(input => {
             ...localExternals
         ],
         plugins: [
+            clear({
+                targets: [outputDir],
+                watch: false
+            }),
             cssResolve(),
             wildcardExternal(['core/**', 'lib/**', 'util/**', 'layout/**']),
-            alias({
-                resolve: ['.js', '.json', '.tpl'],
-                ...aliases
+            resolve({
+                extensions: ['.js', '.json', '.tpl']
             }),
-            resolve(),
+            alias({
+                entries : Object.assign({
+                    resolve: ['.js', '.json', '.tpl']
+                }, aliases)
+            }),
             handlebarsPlugin({
                 handlebars: {
                     id: 'handlebars',
@@ -117,7 +130,8 @@ export default inputs.map(input => {
                             useBuiltIns: false
                         }
                     ]
-                ]
+                ],
+                babelHelpers: 'bundled'
             })
         ]
     };

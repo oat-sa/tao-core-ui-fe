@@ -20,7 +20,7 @@ define(['jquery', 'ui/previewer'], function($, previewer) {
             ready();
         });
         $elt.previewer({
-            url: 'http://taotesting.com/sites/tao/themes/tao/img/tao_logo.png',
+            url: 'https://www.taotesting.com/wp-content/uploads/2019/04/video-poster-100x50.png',
             type: 'image/png'
         });
     });
@@ -30,7 +30,7 @@ define(['jquery', 'ui/previewer'], function($, previewer) {
         assert.expect(5);
 
         var options = {
-            url: 'http://taotesting.com/sites/tao/themes/tao/img/tao_logo.png',
+            url: 'https://www.taotesting.com/wp-content/uploads/2019/04/video-poster-100x50.png',
             mime: 'image/png',
             width: 50,
             height: 50
@@ -55,7 +55,7 @@ define(['jquery', 'ui/previewer'], function($, previewer) {
         assert.expect(5);
 
         var options = {
-            url: 'http://techslides.com/demos/sample-videos/small.mp4',
+            url: 'https://www.taotesting.com/wp-content/uploads/2019/04/tao-bg.mp4',
             mime: 'video/mp4'
         };
         var $fixture = $('body');

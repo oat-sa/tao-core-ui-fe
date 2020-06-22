@@ -2,12 +2,12 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <title>Test - Key Navigation</title>
+        <title>Test - Key Navigation - Key Navigator</title>
         <script type="text/javascript" src="/environment/require.js"></script>
         <script type="text/javascript">
             require(['/environment/config.js'], function() {
                 require(['qunitEnv'], function() {
-                    require(['test/ui/keyNavigation/test'], function() {
+                    require(['test/ui/keyNavigation/keyNavigator/test'], function() {
                         QUnit.config.reorder = false;
                         QUnit.start();
                     });
@@ -31,11 +31,20 @@
                     <div><textarea></textarea></div>
                 </div>
             </nav>
-            <div class="inputable">
-                <input type="text" data-id="A" />
-                <input type="text" data-id="B" />
-                <input type="text" data-id="C" />
+            <div class="nav-3 inputable">
+                <input type="checkbox" data-id="A" />
+                <input type="checkbox" data-id="B" />
+                <input type="checkbox" data-id="C" />
             </div>
+            <nav class="interleaved">
+                <button class="nav group-2">Foo 1</button>
+                <span class="nav group-1">Foo 2</span>
+                <ul>
+                    <li class="nav group-1">Foo 3</li>
+                </ul>
+                <a class="nav group-1">Foo 4</a>
+                <input class="nav group-2" type="text" />
+            </nav>
         </div>
     </body>
 </html>

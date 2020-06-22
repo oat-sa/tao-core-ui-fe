@@ -81,7 +81,7 @@ define(['lodash', 'jquery', 'ui/pageStatus'], function(_, $, pageStatusFactory) 
                 );
 
             _.delay(function() {
-                popup.close();
+                popup && popup.close();
             }, 200);
 
             setTimeout(function() {
@@ -92,7 +92,7 @@ define(['lodash', 'jquery', 'ui/pageStatus'], function(_, $, pageStatusFactory) 
         QUnit.test('popup status', function(assert) {
             var ready = assert.async();
             var popup = window.open(
-                '/tao/views/js/test/ui/pageStatus/blank.html',
+                '/test/pageStatus/blank.html',
                 'test',
                 'width=300,height=300,visible=none'
             );
@@ -144,7 +144,7 @@ define(['lodash', 'jquery', 'ui/pageStatus'], function(_, $, pageStatusFactory) 
 
             _.delay(function() {
                 secondPopup = window.open(
-                    '/tao/views/js/test/ui/pageStatus/blank.html',
+                    '/test/pageStatus/blank.html',
                     'test2',
                     'width=300,height=300'
                 );
