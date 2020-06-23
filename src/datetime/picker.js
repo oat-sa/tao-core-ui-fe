@@ -49,8 +49,6 @@ import dateTimePickerTpl from 'ui/datetime/tpl/picker';
 import 'lib/flatpickr/flatpickr.css';
 import 'ui/datetime/css/picker.css';
 
-console.log(flatpickrLocalization);
-
 /**
  * The supported formats
  */

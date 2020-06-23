@@ -104,21 +104,6 @@ export default inputs.map(input => {
                 helpers: ['build/tpl.js'],
                 templateExtension: '.tpl'
             }),
-            /**
-             * This is necessary, because datetime picker has name exports and export default as well.
-             * Rollup wants to keep only the default, but this plugin avoid it.
-             */
-            {
-                name: 'datetime_picker_helper',
-                generateBundle(options, bundle) {
-                    if (options.name.match(/datetime[\/\\]picker/)) {
-                        bundle['picker.js'].code = bundle['picker.js'].code.replace(
-                            /flatpickrLocalization\.hasOwnProperty\('default'\)/,
-                            false
-                        );
-                    }
-                }
-            },
             ...(process.env.COVERAGE ? [istanbul({
                 exclude: 'build/tpl.js'
             })] : []),
