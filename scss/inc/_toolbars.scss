@@ -28,6 +28,7 @@
     @extend .cke_button;
     height: 18px;
     padding: 4px 6px;
+    float: left;
     [class^="icon-"], [class*=" icon-"] {
         @extend .cke_button_icon;
     }
