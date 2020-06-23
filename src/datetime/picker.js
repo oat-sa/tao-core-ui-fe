@@ -49,6 +49,8 @@ import dateTimePickerTpl from 'ui/datetime/tpl/picker';
 import 'lib/flatpickr/flatpickr.css';
 import 'ui/datetime/css/picker.css';
 
+console.log(flatpickrLocalization);
+
 /**
  * The supported formats
  */
@@ -111,7 +113,7 @@ var supportedConstraints = ['minDate', 'maxDate', 'enable', 'disable'];
  * @param {String} locale
  * @returns {Boolean}
  */
-const hasTranslationsForLocale = locale => _.isObject(flatpickrLocalization.default[locale]);
+const hasTranslationsForLocale = locale => _.isObject(flatpickrLocalization[locale]);
 
 /**
  * Detects document language
