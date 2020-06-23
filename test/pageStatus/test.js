@@ -86,7 +86,7 @@ define(['lodash', 'jquery', 'ui/pageStatus'], function(_, $, pageStatusFactory) 
 
             setTimeout(function() {
                 ready();
-            }, 500);
+            }, 600);
         });
     } else {
         QUnit.test('popup status', function(assert) {
