@@ -46,6 +46,7 @@
         "@oat-sa/rollup-plugin-wildcard-external": "^0.1.0",
         "@oat-sa/tao-core-libs": "oat-sa/tao-core-libs-fe#breaking/TDR-10/upgrade-jquery-handlebars",
         "@oat-sa/tao-core-sdk": "oat-sa/tao-core-sdk-fe#breaking/TDR-10/upgrade-jquery-handlebars",
+        "@oat-sa/tao-core-shared-libs": "1.0.0",
         "@oat-sa/tao-qunit-testrunner": "^1.0.3",
         "@rollup/plugin-alias": "^3.1.1",
         "@rollup/plugin-babel": "^5.0.4",
