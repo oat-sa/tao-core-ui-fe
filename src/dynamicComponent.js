@@ -339,7 +339,8 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
                 }
             });
 
-            this.on('show', () => {
+            // use after event because the component is hidden during regular event
+            this.after('show', () => {
                 const viewport = (getParent())[0].getBoundingClientRect();
                 let {width, height} = this.position;
                 let x = 0;
@@ -347,9 +348,15 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
                 let resize = false;
 
                 if (width > viewport.width) {
-                    height = viewport.width * (this.position.height / this.position.width);
+                    // if proportional resize enabled calculate scale rate based on width
+                    // and apply it to height
+                    height = config.proportionalResize
+                      ? config.minHeight * (viewport.width / config.minWidth)
+                      : viewport.width * (this.position.height / this.position.width);
                     width = viewport.width;
+
                     resize = true;
+
                     if (this.position.x) {
                         x = -this.position.x;
                     }
@@ -358,9 +365,15 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
                 }
 
                 if (height > viewport.height) {
-                    width = viewport.height * (this.position.width / this.position.height);
                     height = viewport.height;
+                    // if proportional resize enabled calculate scale rate based on height
+                    // and apply it to width
+                    width = config.proportionalResize
+                        ? config.minWidth * (viewport.height / config.minHeight)
+                        : viewport.height * (this.position.width / this.position.height);
+
                     resize = true;
+
                     if (this.position.y) {
                         y = -this.position.y;
                     }
@@ -369,7 +382,7 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
                 }
 
                 if (resize) {
-                    resizeComponent(width, height, x, y);
+                    resizeComponent(width, height, x, y, true);
                 } else if (x || y) {
                     moveComponent(x, y);
                 }
@@ -422,18 +435,24 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
              * @param {Number} height
              * @param {Number} x
              * @param {Number} y
+             * @param {Boolean} updateElementOffset - force element to be moved to provided coords
              */
-            function resizeComponent(width, height, x, y) {
+            function resizeComponent(width, height, x = 0, y = 0, updateElementOffset = false) {
                 const $parent = getParent();
-                var elementOffset = $element.offset();
-                var parentOffset = $parent.offset();
+                let { left: elementOffsetLeft, top: elementOffsetTop } = $element.offset();
+                const parentOffset = $parent.offset();
+
+                if (updateElementOffset) {
+                    elementOffsetLeft += x;
+                    elementOffsetTop += y;
+                }
 
                 // if proportional resize enabled calculate scale rate
                 // and apply it to width and height
 
-                var dimensions = calculateSize(width, height);
-                width = calculateOverlap(dimensions.width, elementOffset.left, parentOffset.left, $parent.width());
-                height = calculateOverlap(dimensions.height, elementOffset.top, parentOffset.top, $parent.height());
+                const dimensions = calculateSize(width, height);
+                width = calculateOverlap(dimensions.width, elementOffsetLeft, parentOffset.left, $parent.width());
+                height = calculateOverlap(dimensions.height, elementOffsetTop, parentOffset.top, $parent.height());
 
                 if (height !== null && width !== null) {
                     if (width <= config.smallWidthThreshold) {
@@ -446,8 +465,8 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
 
                     interactUtils.moveElement(
                         $element,
-                        width > config.minWidth && width < config.maxWidth ? x : 0,
-                        height > config.minHeight && height < config.maxHeight ? y : 0
+                        (width > config.minWidth && width < config.maxWidth) || updateElementOffset ? x : 0,
+                        (height > config.minHeight && height < config.maxHeight) || updateElementOffset ? y : 0
                     );
 
                     self.position.width = width;
