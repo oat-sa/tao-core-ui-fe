@@ -279,7 +279,8 @@ export default function loginFactory($container, config) {
                 this.hide();
                 this.getElement()
                     .find('form')
-                    .attr('id', 'loginForm');
+                    .attr('id', 'loginForm')
+                    .attr('aria-hidden', 'true');
                 this.getContainer().prepend($fakeForm);
 
                 // submit the form when the user hit the submit button inside the fake form
