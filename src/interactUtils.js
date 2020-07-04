@@ -24,7 +24,6 @@ import $ from 'jquery';
 import _ from 'lodash';
 import interact from 'interact';
 import 'core/mouseEvent';
-import triggerCustomEvent from '@oat-sa/tao-core-sdk/src/core/customEvent';
 
 var interactHelper, simulateDrop;
 
