@@ -84,8 +84,19 @@ interactHelper = {
         if (element) {
             domElement = element instanceof $ ? element.get(0) : element;
 
-            triggerCustomEvent(domElement, 'CustomEvent', eventOptions);
-            triggerCustomEvent(domElement, 'CustomEvent', eventOptions);
+            var firstEvent;
+            var secondEvent;
+            if (navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') > 0) {
+                firstEvent = document.createEvent('HTMLEvents');
+                firstEvent.initEvent('pointerdown', false, true);
+                secondEvent = document.createEvent('HTMLEvents');
+                secondEvent.initEvent('pointerup', false, true);
+            } else {
+                firstEvent = new PointerEvent('pointerdown', eventOptions);
+                secondEvent = new PointerEvent('pointerup', eventOptions)
+            }
+            domElement.dispatchEvent(firstEvent);
+            domElement.dispatchEvent(secondEvent);
 
             if (cb) {
                 _.delay(cb, delay || 0);
