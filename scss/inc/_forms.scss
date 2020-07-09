@@ -342,7 +342,13 @@ input[type="password"].viewable-hiddenbox-input {
         }
     }
 
-    & + .form-error {
+    &.error {
+        .select2-choices {
+            border-color: $error;
+        }
+    }
+
+    + .form-error {
         color: $error;
         text-align: right;
     }
