@@ -342,7 +342,7 @@ input[type="password"].viewable-hiddenbox-input {
         }
     }
 
-    + .form-error {
+    & + .form-error {
         color: $error;
         text-align: right;
     }
