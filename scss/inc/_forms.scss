@@ -342,6 +342,14 @@ input[type="password"].viewable-hiddenbox-input {
         }
     }
 
+    &.error {
+        .select2-container {
+            > :first-child {
+                border-color: $error;
+            }
+        }
+    }
+
     + .form-error {
         color: $error;
         text-align: right;
