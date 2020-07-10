@@ -343,8 +343,10 @@ input[type="password"].viewable-hiddenbox-input {
     }
 
     &.error {
-        .select2-choices {
-            border-color: $error;
+        .select2-container {
+            > :first-child {
+                border-color: $error;
+            }
         }
     }
 
