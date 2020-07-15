@@ -60,7 +60,10 @@ export default function calculatorComponentFactory(config) {
 
     calculatorComponent = dynamicComponent(api, defaultConfig)
         .on('rendercontent', function($content) {
-            var self = this;
+            const self = this;
+            const initialWidth = self.getElement().width();
+            const initialHeight = self.getElement().height();
+
             return pluginsLoader(this.getConfig().loadedPlugins, this.getConfig().dynamicPlugins).then(function(
                 loadedPlugins
             ) {
@@ -68,8 +71,6 @@ export default function calculatorComponentFactory(config) {
                     calculator = calculatorBoardFactory($content, loadedPlugins, self.getConfig().calculator).on(
                         'ready',
                         function() {
-                            var initialWidth = self.getElement().width();
-                            var initialHeight = self.getElement().height();
                             var initialFontSize =
                                 parseInt(
                                     self
