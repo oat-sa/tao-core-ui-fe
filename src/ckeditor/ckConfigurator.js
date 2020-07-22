@@ -25,6 +25,15 @@ import 'ckeditor';
  */
 var originalConfig = _.cloneDeep(window.CKEDITOR.config);
 
+function getUserLanguage() {
+    var documentLang = window.document.documentElement.getAttribute('lang');
+    var documentLocale = documentLang && documentLang.split('-')[0];
+
+    return documentLocale;
+}
+
+var lang = getUserLanguage();
+
 var ckConfigurator = (function() {
     /**
      * Toolbar presets that you normally never would need to change, they can however be overridden with options.toolbar.
@@ -172,7 +181,7 @@ var ckConfigurator = (function() {
         floatSpaceDockedOffsetY: 0,
         forcePasteAsPlainText: true,
         skin: 'tao',
-        language: 'en',
+        language: lang,
         removePlugins: '',
         linkShowAdvancedTab: false,
         justifyClasses: ['txt-lft', 'txt-ctr', 'txt-rgt', 'txt-jty'],
