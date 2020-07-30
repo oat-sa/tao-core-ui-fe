@@ -88,7 +88,8 @@
                         {{#if ../options.selectable}}
                         <td class="checkboxes"><input type="checkbox" name="cb[{{id}}]" value="1" /></td>
                         {{/if}}
-
+{{! IMPORTANT:START IF YOU'RE GOING TO MAKE CHANGES TO THIS SECTION, 
+    PLEASE UPDATE shallowUpdate METHOD ACCORDINGLY}}
                         {{#each ../options.model}}
                             {{#if type}}
                             <td class="actions {{id}}">
@@ -119,7 +120,8 @@
                             {{/if}}
 
                         {{/each}}
-
+{{! IMPORTANT:END IF YOU'RE GOING TO MAKE CHANGES TO THIS SECTION, 
+    PLEASE UPDATE shallowUpdate METHOD ACCORDINGLY}}
                         {{#with ../options.actions}}
                         <td class="actions">
                             {{#each this}}
