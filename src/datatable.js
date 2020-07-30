@@ -84,10 +84,48 @@ var enablePaginations = function enablePaginations(paginations) {
     }
 };
 
+/**
+ *  Helper for reading actions value in context
+ *
+ * @param {String} property
+ * @param {Object} action
+ * @param {Object} context
+ */
 const getPropertyValue = (property, action, context) => {
     const key = action[property];
 
     return _.isFunction(key) ? key.apply(context) : key;
+};
+
+/**
+ * Update the data table status in the header
+ *
+ * @param {Object} options
+ * @param {jQueryElement} $container
+ * @param {Object} dataset
+ */
+const updateHeaderStatus = (options, $container, dataset) => {
+    if (!options.status) {
+        return;
+    }
+
+    const $statusEmpty = $container.find('.empty-list');
+    const $statusAvailable = $container.find('.available-list');
+    const $statusCount = $statusAvailable.find('.count');
+
+    $container.find('.loading').addClass(hiddenCls);
+
+    // when the status is enabled, the response must contain the total amount of records
+    const amount = dataset.amount || dataset.length;
+
+    if (amount) {
+        $statusCount.text(amount);
+        $statusAvailable.removeClass(hiddenCls);
+        $statusEmpty.addClass(hiddenCls);
+    } else {
+        $statusEmpty.removeClass(hiddenCls);
+        $statusAvailable.addClass(hiddenCls);
+    }
 };
 
 /**
@@ -146,14 +184,15 @@ var dataTable = {
      * @param {Object} options.labels - list of labels in datatable interface, that can be overridden by incoming options
      * @param {String} options.emptyText - text that will be shown when no data found for showing in the grid.
      * @param {Boolean} options.pageSizeSelector - flag that indicates if control for changing page size should be displayed
+     * @param {Boolean} options.atomicUpdate - allowed to keep the datatable state to be able on "render" event, compare with new state and atomically update the table cells.
      * @param {Object} [data] - inject predefined data to avoid the first query.
      * @fires dataTable#create.datatable
      * @returns {jQueryElement} for chaining
      */
-    init: function(options, data) {
+    init: function (options, data) {
         options = _.defaults(options, defaults);
 
-        return this.each(function() {
+        return this.each(function () {
             var $elt = $(this);
             var currentOptions = $elt.data(dataNs);
 
@@ -290,7 +329,6 @@ var dataTable = {
         var $checkboxes;
         var $massActionBtns = $();
         var $rows;
-        var amount;
         var transforms;
         var model = [];
 
@@ -333,7 +371,7 @@ var dataTable = {
             }
         });
 
-        model.sort(function(a, b) {
+        model.sort(function (a, b) {
             return a.order - b.order;
         });
 
@@ -354,13 +392,14 @@ var dataTable = {
         options.model = model;
 
         if (options.atomicUpdate) {
-            const skipForceUpdate = this.shallowUpdate($elt, dataset, options);
+            const skipForceUpdate = this._shallowUpdate($elt, dataset, options);
 
             if (skipForceUpdate) {
+                updateHeaderStatus(options, $elt, dataset);
                 loadingBar.stop();
                 $elt.trigger('load.' + ns, [dataset]);
                 return;
-            }    
+            }
         }
 
         // Call the rendering
@@ -388,7 +427,6 @@ var dataTable = {
         });
 
         var attachActionListeners = function attachActionListeners(actions) {
-            console.log('old attachActionListeners', actions);
             // Attach a listener to every action button created
             _.forEach(actions, function (action, name) {
                 var css;
@@ -401,8 +439,6 @@ var dataTable = {
                 css = '.' + name;
 
                 $rendering.off('click', css).on('click', css, function (e) {
-                    console.log('OLD action');
-
                     var $btn = $(this);
                     e.preventDefault();
                     if (!$btn.hasClass('disabled')) {
@@ -509,12 +545,10 @@ var dataTable = {
             $('table.datatable', $rendering).addClass('hoverable');
             $rendering.on('click', 'tbody td', function (e) {
                 // exclude from processing columns with actions
-                console.log('Click on td!!!');
                 if ($(e.target).hasClass('checkboxes') || $(e.target).hasClass('actions')) {
                     return false;
                 }
 
-                // TODO: COULD BE WRONG @dresha
                 var currentRow = $(this).parent();
 
                 $rows.removeClass('selected');
@@ -611,24 +645,8 @@ var dataTable = {
         $sortElement.addClass('sorted').addClass('sorted_' + options.sortorder);
 
         // Update the status
-        if (options.status) {
-            $statusEmpty = $rendering.find('.empty-list');
-            $statusAvailable = $rendering.find('.available-list');
-            $statusCount = $statusAvailable.find('.count');
 
-            $rendering.find('.loading').addClass(hiddenCls);
-
-            // when the status is enabled, the response must contain the total amount of records
-            amount = dataset.amount || dataset.length;
-            if (amount) {
-                $statusCount.text(amount);
-                $statusAvailable.removeClass(hiddenCls);
-                $statusEmpty.addClass(hiddenCls);
-            } else {
-                $statusEmpty.removeClass(hiddenCls);
-                $statusAvailable.addClass(hiddenCls);
-            }
-        }
+        updateHeaderStatus(options, $rendering, dataset);
 
         $elt.html($rendering);
 
