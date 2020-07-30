@@ -28,12 +28,14 @@ import loggerFactory from 'core/logger';
 import httpErrorParser from 'util/httpErrorParser';
 import pageSizeSelector from 'ui/pageSizeSelector';
 import 'ui/datatable/css/datatable.css';
+import DOMPurify from 'lib/dompurify/purify';
 
 var ns = 'datatable';
 
 var dataNs = 'ui.' + ns;
 
 var defaults = {
+    atomicUpdate: false,
     start: 0,
     rows: 25,
     page: 1,
@@ -80,6 +82,12 @@ var enablePaginations = function enablePaginations(paginations) {
             pagination.enable();
         });
     }
+};
+
+const getPropertyValue = (property, action, context) => {
+    const key = action[property];
+
+    return _.isFunction(key) ? key.apply(context) : key;
 };
 
 /**
@@ -149,6 +157,9 @@ var dataTable = {
             var $elt = $(this);
             var currentOptions = $elt.data(dataNs);
 
+            if (options.atomicUpdate) {
+                $elt.data(`${dataNs}state`, data);
+            }
             // implement encapsulated pages for the datatable
             $elt.paginations = [];
 
@@ -189,7 +200,6 @@ var dataTable = {
      * @param {Object} [data] - Data to render immediately, prevents the query to be made.
      */
     _refresh: function($elt, data) {
-        // TODO: refresh only rows with data, not all component
         if (data) {
             this._render($elt, data);
         } else {
@@ -342,6 +352,17 @@ var dataTable = {
         }
 
         options.model = model;
+
+        if (options.atomicUpdate) {
+            const skipForceUpdate = this.shallowUpdate($elt, dataset, options);
+
+            if (skipForceUpdate) {
+                loadingBar.stop();
+                $elt.trigger('load.' + ns, [dataset]);
+                return;
+            }    
+        }
+
         // Call the rendering
         $rendering = $(layout({ options: options, dataset: dataset }));
 
@@ -352,7 +373,7 @@ var dataTable = {
         //  id1 : {'view':true, 'delete':false},
         //  id2 : true
         //}
-        _.forEach(dataset.readonly, function(values, id) {
+        _.forEach(dataset.readonly, function (values, id) {
             if (values === true) {
                 $('[data-item-identifier="' + id + '"] button', $rendering).addClass('disabled');
             } else if (values && typeof values === 'object') {
@@ -366,19 +387,22 @@ var dataTable = {
             }
         });
 
-        var attachActionListeners = function(actions) {
+        var attachActionListeners = function attachActionListeners(actions) {
+            console.log('old attachActionListeners', actions);
             // Attach a listener to every action button created
-            _.forEach(actions, function(action, name) {
+            _.forEach(actions, function (action, name) {
                 var css;
 
                 if (!_.isFunction(action)) {
                     name = action.id || name;
-                    action = action.action || function() {};
+                    action = action.action || function () {};
                 }
 
                 css = '.' + name;
 
-                $rendering.off('click', css).on('click', css, function(e) {
+                $rendering.off('click', css).on('click', css, function (e) {
+                    console.log('OLD action');
+
                     var $btn = $(this);
                     e.preventDefault();
                     if (!$btn.hasClass('disabled')) {
@@ -396,7 +420,7 @@ var dataTable = {
         // Attach listeners to model.type = action
         if (_.some(options.model, 'type')) {
             var types = _.where(options.model, 'type');
-            _.forEach(types, function(field) {
+            _.forEach(types, function (field) {
                 if (field.type === 'actions' && field.actions) {
                     attachActionListeners(field.actions);
                 }
@@ -404,14 +428,14 @@ var dataTable = {
         }
 
         // Attach a listener to every tool button created
-        _.forEach(options.tools, function(action, name) {
+        _.forEach(options.tools, function (action, name) {
             var massAction = true;
             var css;
 
             if (!_.isFunction(action)) {
                 name = action.id || name;
                 massAction = action.massAction;
-                action = action.action || function() {};
+                action = action.action || function () {};
             }
 
             css = '.tool-' + name;
@@ -419,7 +443,7 @@ var dataTable = {
                 $massActionBtns = $massActionBtns.add($rendering.find(css));
             }
 
-            $rendering.off('click', css).on('click', css, function(e) {
+            $rendering.off('click', css).on('click', css, function (e) {
                 var $btn = $(this);
                 e.preventDefault();
                 if (!$btn.hasClass('disabled')) {
@@ -429,7 +453,7 @@ var dataTable = {
         });
 
         // bind listeners to events
-        _.forEach(options.listeners, function(callback, event) {
+        _.forEach(options.listeners, function (callback, event) {
             var ev = [event, ns].join('.');
             $elt.off(ev).on(ev, callback);
         });
@@ -440,16 +464,16 @@ var dataTable = {
                 activePage: dataset.page,
                 totalPages: dataset.total
             })
-                .on('change', function() {
+                .on('change', function () {
                     self._setPage($elt, this.getActivePage());
                 })
-                .on('prev', function() {
+                .on('prev', function () {
                     /**
                      * @event dataTable#backward.dataTable
                      */
                     $elt.trigger('backward.' + ns);
                 })
-                .on('next', function() {
+                .on('next', function () {
                     /**
                      * @event dataTable#forward.dataTable
                      */
@@ -483,12 +507,14 @@ var dataTable = {
 
         if (options.rowSelection) {
             $('table.datatable', $rendering).addClass('hoverable');
-            $rendering.on('click', 'tbody td', function(e) {
+            $rendering.on('click', 'tbody td', function (e) {
                 // exclude from processing columns with actions
+                console.log('Click on td!!!');
                 if ($(e.target).hasClass('checkboxes') || $(e.target).hasClass('actions')) {
                     return false;
                 }
 
+                // TODO: COULD BE WRONG @dresha
                 var currentRow = $(this).parent();
 
                 $rows.removeClass('selected');
@@ -498,7 +524,7 @@ var dataTable = {
             });
         }
 
-        $sortBy.on('click keyup', function(e) {
+        $sortBy.on('click keyup', function (e) {
             var column, type;
             if (e.type === 'keyup' && e.keyCode !== 13) {
                 return;
@@ -513,24 +539,24 @@ var dataTable = {
         // Add the filter behavior
         if (options.filter) {
             self._getFilterStrategy($elt).render($rendering, options);
-            _.forEach($('.filter', $rendering), function(filter) {
+            _.forEach($('.filter', $rendering), function (filter) {
                 var $filter = $(filter);
                 var $filterBtn = $('button', $filter);
                 var $filterInput = $('select, input', $filter);
 
                 if ($filterInput.is('select')) {
-                    $filterInput.on('change', function() {
+                    $filterInput.on('change', function () {
                         self._filter($elt, $filter);
                     });
                 } else {
                     // clicking the button trigger the request
-                    $filterBtn.off('click').on('click', function(e) {
+                    $filterBtn.off('click').on('click', function (e) {
                         e.preventDefault();
                         self._filter($elt, $filter);
                     });
 
                     // or press ENTER
-                    $filterInput.off('keypress').on('keypress', function(e) {
+                    $filterInput.off('keypress').on('keypress', function (e) {
                         if (e.which === 13) {
                             e.preventDefault();
                             self._filter($elt, $filter);
@@ -541,7 +567,7 @@ var dataTable = {
         }
 
         // check/uncheck all checkboxes
-        $checkAll.click(function() {
+        $checkAll.click(function () {
             if (this.checked) {
                 $checkAll.prop('checked', true);
                 $checkboxes.prop('checked', true);
@@ -561,7 +587,7 @@ var dataTable = {
         });
 
         // when check/uncheck a box, toggle the check/uncheck all
-        $checkboxes.click(function() {
+        $checkboxes.click(function () {
             var $checked = $checkboxes.filter(':checked');
             if ($checked.length === $checkboxes.length) {
                 $checkAll.prop('checked', true);
@@ -618,7 +644,7 @@ var dataTable = {
             pageSizeSelector({
                 renderTo: $('.toolbox-container', $rendering),
                 defaultSize: options.rows
-            }).on('change', function(val) {
+            }).on('change', function (val) {
                 self._setRows($elt, val);
             });
         }
@@ -700,7 +726,7 @@ var dataTable = {
      * @param {String} sortType - type of sorting, numeric or string
      * @fires dataTable#sort.datatable
      */
-    _sort: function($elt, sortBy, asc, sortType) {
+    _sort: function ($elt, sortBy, asc, sortType) {
         var options = this._sortOptions($elt, sortBy, asc, sortType);
 
         /**
@@ -712,6 +738,116 @@ var dataTable = {
         $elt.trigger('sort.' + ns, [options.sortby, options.sortorder, options.sorttype]);
 
         this._query($elt);
+    },
+
+    /**
+     * Compared current and next number of row and identifiers order of rows.
+     *
+     * @param {dataset} currentState
+     * @param {dataset} nextState
+     * @returns {Boolean}
+     */
+    _canApplyShallowUpdate(currentState, nextState) {
+        const isStatesHasData = _.has(currentState, 'data') && _.has(nextState, 'data');
+
+        if (!isStatesHasData) {
+            return false;
+        }
+
+        const currentData = currentState.data;
+        const nextData = nextState.data;
+
+        if (currentData.length !== nextData.length) {
+            return false;
+        }
+
+        return _.isEqual(
+            currentData.map(data => data.id),
+            nextData.map(data => data.id)
+        );
+    },
+
+    /**
+     * Check possibility of atomic update data in datatable.
+     *
+     * @param {jQueryElement} $container Data table container element
+     * @param {Object} nextState Data to be set to the data table
+     * @param {Object} options Data table options
+     * @returns {Boolean} Return true when data in table can be atomically updated
+     */
+    _shallowUpdate($container, nextState, options) {
+        const currentState = $container.data(`${dataNs}state`);
+
+        // Always update data state
+        $container.data(`${dataNs}state`, nextState);
+
+        if (!this._canApplyShallowUpdate(currentState, nextState)) {
+            return;
+        }
+
+        nextState.data.forEach((nextData, index) => {
+            const $row = $container.find(`tr[data-item-identifier="${nextData.id}"]`);
+
+            options.model.forEach(model => {
+                const cellId = model.id;
+
+                if (model.type) {
+                    const $actionCell = $row.find(`td.actions.${cellId}`);
+
+                    $actionCell.html('');
+
+                    model.actions.forEach(action => {
+                        const actionId = action.id;
+
+                        if (actionId) {
+                            const hidden = getPropertyValue('hidden', action, nextData);
+                            const title = getPropertyValue('title', action, nextData);
+                            const disabled = getPropertyValue('disabled', action, nextData);
+                            const icon = getPropertyValue('icon', action, nextData);
+                            const label = getPropertyValue('label', action, nextData);
+
+                            if (!hidden) {
+                                const $actionButton = $('<button>', {
+                                    class: `btn-info small ${actionId}`,
+                                    html: `${icon ? `<span class="icon-${icon}"></span>` : ''}${label || ''}`
+                                });
+
+                                if (title) {
+                                    $actionButton.attr('title', title);
+                                }
+
+                                if (disabled) {
+                                    $actionButton.attr('disabled', 'disabled');
+                                }
+
+                                $actionCell.append('\n').append($actionButton);
+                            }
+                        } else {
+                            const title = getPropertyValue('title', action, nextData);
+                            const icon = getPropertyValue('icon', action, nextData);
+                            const label = getPropertyValue('label', action, nextData);
+
+                            const $actionButton = $('<button>', {
+                                class: `btn-info small ${actionId}`,
+                                html: `${icon ? `<span class="icon-${icon}"></span>` : ''}${label || ''}`
+                            });
+
+                            if (title) {
+                                $actionButton.attr('title', title);
+                            }
+
+                            $actionCell.append('\n').append($actionButton);
+                        }
+                    });
+                } else {
+                    const nextContent = nextData[cellId];
+
+                    $row.find(`td.${cellId}`).html(DOMPurify.sanitize(nextContent));
+                }
+            });
+        });
+
+        return true;
     },
 
     /**
@@ -770,11 +906,19 @@ var dataTable = {
         return selection;
     },
 
+    _highlightRows($elt, rowIds) {
+        $elt.find('[data-item-identifier]').removeClass('highlight');
+
+        rowIds.forEach(rowId => {
+            this._addRowClass($elt, rowId, 'highlight');
+        });
+    },
     /**
      * Highlight the row with identifier
      *
      * @param $elt
      * @param rowId
+     * @deprecated Use highlightRows instead
      */
     _highlightRow: function($elt, rowId) {
         this._addRowClass($elt, rowId, 'highlight');
@@ -844,5 +988,15 @@ var dataTable = {
 };
 
 Pluginifier.register(ns, dataTable, {
-    expose: ['refresh', 'sort', 'filter', 'selection', 'render', 'highlightRow', 'addRowClass', 'removeRowClass']
+    expose: [
+        'refresh',
+        'sort',
+        'filter',
+        'selection',
+        'render',
+        'highlightRow',
+        'highlightRows',
+        'addRowClass',
+        'removeRowClass'
+    ]
 });
