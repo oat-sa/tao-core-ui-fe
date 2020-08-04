@@ -196,8 +196,8 @@ var dataTable = {
             var $elt = $(this);
             var currentOptions = $elt.data(dataNs);
 
-            if (options.atomicUpdate) {
-                $elt.data(`${dataNs}state`, data);
+            if (options.atomicUpdate && data) {
+                $elt.data(`${dataNs}state`,  data.data);
             }
             // implement encapsulated pages for the datatable
             $elt.paginations = [];
@@ -220,9 +220,7 @@ var dataTable = {
                 }
             } else {
                 // update existing options
-                if (options) {
-                    $elt.data(dataNs, _.merge(currentOptions, options));
-                }
+                $elt.data(dataNs, _.merge(currentOptions, options));
 
                 dataTable._refresh($elt, data);
             }
@@ -316,13 +314,10 @@ var dataTable = {
      * @fires dataTable#beforeload.datatable
      * @fires dataTable#load.datatable
      */
-    _render: function($elt, dataset) {
+    _render($elt, dataset = {}) {
         var self = this;
         var options = _.cloneDeep($elt.data(dataNs));
         var $rendering;
-        var $statusEmpty;
-        var $statusAvailable;
-        var $statusCount;
         var $sortBy;
         var $sortElement;
         var $checkAll;
@@ -332,18 +327,12 @@ var dataTable = {
         var transforms;
         var model = [];
 
-        var join = function join(input) {
-            return typeof input !== 'object' ? input : input.join(', ');
-        };
-
-        dataset = dataset || {};
-
         /**
          * @event dataTable#beforeload.datatable
          * @param {Object} dataset - The data set object used to render the table
          */
         $elt.trigger('beforeload.' + ns, [_.cloneDeep(dataset)]);
-
+        
         // overrides column options
         _.forEach(options.model, function(field, key) {
             if (!options.filter) {
@@ -358,9 +347,6 @@ var dataTable = {
                 field.filterable = { placeholder: __('Filter') };
             }
 
-            if (field.transform) {
-                field.transform = _.isFunction(field.transform) ? field.transform : join;
-            }
 
             if (typeof field.visible === 'undefined') {
                 model.push(field);
@@ -380,11 +366,13 @@ var dataTable = {
         }
 
         // process data by model rules
-        if (_.some(options.model, 'transform')) {
-            transforms = _.where(options.model, 'transform');
-            _.forEach(dataset.data, function(row, index) {
-                _.forEach(transforms, function(field) {
-                    row[field.id] = field.transform(row[field.id], row, field, index, dataset.data);
+        if (_.some(model, 'transform')) {
+            transforms = _.where(model, 'transform');
+            _.forEach(dataset.data, (row, index) => {
+                _.forEach(transforms, (field) => {
+                    if(_.isFunction(field.transform)){
+                        row[field.id] = field.transform(row[field.id], row, field, index, dataset.data);
+                    }
                 });
             });
         }
@@ -928,7 +916,7 @@ var dataTable = {
         $elt.find('[data-item-identifier]').removeClass('highlight');
 
         rowIds.forEach(rowId => {
-            this._addRowClass($elt, rowId, 'highlight');
+            this._highlightRow($elt, rowId);
         });
     },
     /**
@@ -981,7 +969,7 @@ var dataTable = {
      * @param rows
      * @fires dataTable#setpage.datatable
      */
-    _setRows: function _setPage($elt, rows) {
+    _setRows($elt, rows) {
         var options = $elt.data(dataNs);
 
         if (options.rows !== rows) {
