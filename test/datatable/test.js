@@ -1399,6 +1399,89 @@ define([
         });
     });
 
+    QUnit.cases.init([
+        {
+            updateSortOptions: {
+                sortBy: 'id', 
+                asc: true, 
+                sortType: ''
+            },
+            expectedOptions: {
+                sortBy: 'id', 
+                sortOrder: 'asc', 
+                sortType: ''
+            },
+            message: 'Sort direction is set to true'
+        },
+        {
+            updateSortOptions: {
+                sortBy: 'id', 
+                asc: false, 
+                sortType: ''
+            },
+            expectedOptions: {
+                sortBy: 'id', 
+                sortOrder: 'desc', 
+                sortType: ''
+            },
+            message: 'Sort direction is set to false'
+        },  
+        {
+            initSortOptions: {
+                sortorder: 'asd',
+                sortby: 'id'
+            },
+            updateSortOptions: {
+                sortBy: 'id', 
+                asc: undefined,
+                sortType: 'id'
+            },
+            expectedOptions: {
+                sortBy: 'id', 
+                sortOrder: 'desc',
+                sortType: 'id'
+            },
+            message: 'Sort order is changed from "asc" to "desc"'
+        },
+        {
+            initSortOptions: {
+                sortorder: 'desc',
+            },
+            updateSortOptions: {
+                sortBy: 'name', 
+                asc: undefined,
+                sortType: 'asc'
+            },
+            expectedOptions: {
+                sortBy: 'name', 
+                sortOrder: 'asc',
+                sortType: 'asc'
+            },
+            message: 'First time sort by "name"'
+        }
+    ]).test('Sort options', (cases, assert) => {
+        const done = assert.async();
+        const $container = $('#container-1');
+
+        $container.on('create.datatable', function() {
+            const { sortBy, asc, sortType } = cases.updateSortOptions;
+            
+            $container.datatable('sort', sortBy, asc, sortType);
+        })
+        .one('sort.datatable', function(e, sortBy, sortOrder, sortType) {
+            assert.propEqual({ sortBy, sortOrder, sortType }, cases.expectedOptions, cases.message);
+            done();
+        })
+        .datatable(Object.assign({
+            url: '/test/datatable/data.json',
+            'model': [ {
+                id: 'name',
+                label: 'Name',
+                sortable: true
+            }]
+        }, cases.initSortOptions));
+    });
+
     QUnit.test('Sortable headers', function(assert) {
         var ready = assert.async();
         var $container = $('#container-1');
@@ -1426,7 +1509,8 @@ define([
             assert.ok(!$emailHead.data('sort-by'), 'The sort by data does not exist');
             assert.ok(!$emailHead.data('sort-type'), 'The sort type does not exist');
 
-        }).on('sort.datatable', function(e, sortby, sortorder, sorttype) {
+        })
+        .on('sort.datatable', function(e, sortby, sortorder, sorttype) {
 
             assert.equal(sortby, 'login', 'The sort by data passed via event');
             assert.notEqual(sortorder, undefined, 'The sort order passed via event');
