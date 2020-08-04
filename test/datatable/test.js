@@ -71,6 +71,46 @@ define([
         });
     });
 
+    QUnit.test('Tool buttons', (assert) => {
+        const done = assert.async();
+        const $container = $('#container-1');
+
+        $container.on('create.datatable', function() {
+            $('.tool-test', $container).trigger('click');
+            $('.tool-disabled', $container).addClass('disabled').trigger('click');
+
+            assert.verifySteps(['Tool button is clicked']);
+            done();
+        });
+
+        $container.datatable({
+            url: '/test/datatable/data.json',
+            model: [{
+                    id: 'login',
+                    label: 'Login',
+                    sortable: true
+                }, {
+                    id: 'name',
+                    label: 'Name',
+                    sortable: true
+            }],
+            tools: [{
+                id: 'test',
+                label: 'tool button',
+                action(){
+                    assert.step('Tool button is clicked')
+                }
+                },
+                {
+                    id: 'disabled',
+                    label: 'disabled tool button',
+                    action(){
+                        assert.step('Disabled tool button is clicked')
+                    }
+            }]
+        });
+    });
+
     QUnit.test('Options', function(assert) {
         var ready = assert.async();
         assert.expect(5);
@@ -99,10 +139,7 @@ define([
             data = $elt.data('ui.datatable') || {};
             assert.equal(data.url, secondOptions.url, 'The url option must be updated');
             assert.deepEqual(data.tools, secondOptions.tools, 'The tools options must be added');
-           
-            // TODO: Create test for tools buttons @dresha
-            $elt.find('.tool-test').trigger('click');
-
+            
             ready();
         });
         $elt.datatable(firstOptions);
