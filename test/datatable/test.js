@@ -155,6 +155,63 @@ define([
         $elt.datatable(firstOptions);
     });
 
+    QUnit.test('Option readonly', function(assert){
+        const done = assert.async();
+        const $container = $('#container-1');
+        assert.expect(3);
+
+        $container.on('create.datatable', function() {
+            assert.equal($('[data-item-identifier="1"] button.disabled', $container).length, 3, 'All action buttons are disabled for readonly="true"');
+            assert.ok($('[data-item-identifier="2"] button.disabled', $container).length === 1 && $('[data-item-identifier="2"] button.view', $container).hasClass('disabled'), 'Specific action button is disabled for readonly={ 2: { view: true}}');
+            assert.equal($('[data-item-identifier="3"] button.disabled', $container).length, 0, 'No action buttons are disabled');
+           
+            done();
+        });
+
+        $container.datatable({
+            url: '/test/datatable/data.json',
+            model: [{
+                id: 'name',
+                label: 'Name',
+            },{
+                id: 'activate',
+                type: 'actions',
+                actions: [{
+                    id: 'activate',
+                    label: 'Activate'
+                }, {
+                    id: 'view',
+                    label: 'View'
+                }, {
+                    id: 'delete',
+                    label: 'Delete'
+                }]
+            }],
+        }, {
+            data: [{
+                id: 1,
+                name: 'John',
+                email: 'john.smith@mail.com'
+            }, {
+                id: 2,
+                name: 'Jane',
+                email: 'jane.doe@mail.com'
+            }, {
+                id: 3,
+                name: 'Tom',
+                email: 'tom.doe@mail.com'
+            }],
+            readonly: {
+                1: true, 
+                2: { 
+                    'view': true, 
+                    'delete': false
+                },
+                3: false
+            },
+        });
+    });
+
     QUnit.test('Model loading using AJAX', function(assert) {
         var ready3 = assert.async();
         var ready2 = assert.async();
@@ -1550,6 +1607,8 @@ define([
         });
     });
 
+
+
     QUnit.cases.init([
         {
             initialData: {
@@ -1628,7 +1687,6 @@ define([
                 });
 
                 $container.datatable('refresh', {
-                    readonly: {1: true, 2: {'view':true, 'delete':false}},
                     data: [{
                         id: 1,
                         delivery: 1,
