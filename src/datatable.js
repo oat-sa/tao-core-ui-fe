@@ -324,7 +324,6 @@ var dataTable = {
         var $checkboxes;
         var $massActionBtns = $();
         var $rows;
-        var transforms;
         var model = [];
 
         /**
@@ -367,7 +366,8 @@ var dataTable = {
 
         // process data by model rules
         if (_.some(model, 'transform')) {
-            transforms = _.where(model, 'transform');
+            const transforms = _.where(model, 'transform');
+
             _.forEach(dataset.data, (row, index) => {
                 _.forEach(transforms, (field) => {
                     if(_.isFunction(field.transform)){
