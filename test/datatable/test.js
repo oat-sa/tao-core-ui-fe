@@ -74,10 +74,13 @@ define([
     QUnit.test('Tool buttons', (assert) => {
         const done = assert.async();
         const $container = $('#container-1');
+        assert.expect(3);
 
         $container.on('create.datatable', function() {
             $('.tool-test', $container).trigger('click');
             $('.tool-disabled', $container).addClass('disabled').trigger('click');
+            
+            assert.equal($('.tool-3', $container).length, 1, 'Tool without id should generate class as tool-${index}');
 
             assert.verifySteps(['Tool button is clicked']);
             done();
@@ -95,19 +98,26 @@ define([
                     sortable: true
             }],
             tools: [{
-                id: 'test',
-                label: 'tool button',
-                action(){
-                    assert.step('Tool button is clicked')
-                }
-                },
-                {
+                    id: 'test',
+                    label: 'tool button',
+                    action() {
+                        assert.step('Tool button is clicked')
+                    }
+                }, {
                     id: 'disabled',
                     label: 'disabled tool button',
-                    action(){
+                    action() {
                         assert.step('Disabled tool button is clicked')
                     }
-            }]
+                },
+                {
+                    id: 'without-action',
+                    label: 'Without action handler',
+                },
+                {
+                    label: 'Tool without id',
+                }
+            ]
         });
     });
 
@@ -139,7 +149,7 @@ define([
             data = $elt.data('ui.datatable') || {};
             assert.equal(data.url, secondOptions.url, 'The url option must be updated');
             assert.deepEqual(data.tools, secondOptions.tools, 'The tools options must be added');
-            
+
             ready();
         });
         $elt.datatable(firstOptions);
@@ -1682,10 +1692,6 @@ define([
                     icon: 'pause',
                     label: 'Pause me',
                     title: 'Press to pause process',
-                    action: function(id) {
-                        console.log('ACTION IS CALLED', id)
-                        assert.ok(true, 'In the pause action, id: ' + id);
-                    }
                 },
                 {
                     icon: 'play',

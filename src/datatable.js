@@ -452,25 +452,20 @@ var dataTable = {
         }
 
         // Attach a listener to every tool button created
-        _.forEach(options.tools, function (action, name) {
-            var massAction = true;
-            var css;
+        _.forEach(options.tools, function (tool, name) {
+            const isMassAction = tool.massAction;
+            const css = `.tool-${tool.id || name}`;
+            const action = tool.action;
 
-            if (!_.isFunction(action)) {
-                name = action.id || name;
-                massAction = action.massAction;
-                action = action.action || function () {};
-            }
-
-            css = '.tool-' + name;
-            if (massAction) {
+            if (isMassAction) {
                 $massActionBtns = $massActionBtns.add($rendering.find(css));
             }
 
             $rendering.off('click', css).on('click', css, function (e) {
-                var $btn = $(this);
                 e.preventDefault();
-                if (!$btn.hasClass('disabled')) {
+                const $btn = $(this);
+
+                if (!$btn.hasClass('disabled') && _.isFunction(action)) {
                     action.apply($btn, [self._selection($elt)]);
                 }
             });

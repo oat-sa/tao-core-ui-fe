@@ -27,7 +27,7 @@
     {{#if options.tools}}
     <aside class="action-bar clearfix">
         {{#each options.tools}}
-            <button class="btn-info small tool-{{#if id}}{{id}}{{else}}{{@key}}{{/if}}{{#if massAction}} invisible{{/if}}"
+            <button class="btn-info small tool-{{#if id}}{{id}}{{else}}{{@index}}{{/if}}{{#if massAction}} invisible{{/if}}"
                 {{#if title}} title="{{title}}"{{/if}}>
                 <span class="icon-{{#if icon}}{{icon}}{{else}}{{#if id}}{{id}}{{else}}{{@key}}{{/if}}{{/if}}"></span>
                 {{#if label}}{{label}}{{else}}{{#unless id}}{{@key}}{{/unless}}{{/if}}
