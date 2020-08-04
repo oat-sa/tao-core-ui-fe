@@ -265,6 +265,7 @@ define([
             $('[data-item-identifier="3"] button.run:eq(0)', $elt).trigger('click');
             $('[data-item-identifier="2"] button.pause:eq(1)', $elt).click();
             $('[data-item-identifier="2"] button.pause:eq(0)', $elt).click();
+            $('[data-item-identifier="1"] .administration button.disabled', $elt).trigger('click');
 
             ready();
         });
@@ -292,6 +293,7 @@ define([
                 $elt.datatable('refresh', largeDataset);
             });
         });
+
         $elt.datatable({
             url: '/test/datatable/data.json',
             'model': [{
@@ -359,8 +361,16 @@ define([
                     action: function() {
                         assert.ok(true, 'In the stop action');
                     }
+                }, {
+                    id: 'disabled',
+                    icon: 'disabled',
+                    label: 'Disabled',
+                    title: 'Press to disabled button',
+                    disabled: true,
+                    action: function() {
+                        assert.step('Action on disabled button is called');
+                    }
                 }]
-
             }]
         }, dataset);
     });
