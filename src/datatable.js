@@ -414,22 +414,21 @@ var dataTable = {
 
         var attachActionListeners = function attachActionListeners(actions) {
             // Attach a listener to every action button created
-            _.forEach(actions, function (action, name) {
-                var css;
-
-                if (!_.isFunction(action)) {
-                    name = action.id || name;
-                    action = action.action || function () {};
-                }
-
-                css = '.' + name;
+            _.forEach(actions, function (action) {
+                const css = `.${action.id}`
+                const handler = action.action;
 
                 $rendering.off('click', css).on('click', css, function (e) {
-                    var $btn = $(this);
                     e.preventDefault();
+
+                    const $btn = $(this);
+
                     if (!$btn.hasClass('disabled')) {
-                        var identifier = $btn.closest('[data-item-identifier]').data('item-identifier');
-                        action.apply($btn, [identifier, _.first(_.where(dataset.data, { id: identifier }))]);
+                        const identifier = $btn.closest('[data-item-identifier]').data('item-identifier');
+
+                        if (_.isFunction(handler)) {
+                            handler.apply($btn, [identifier, _.first(_.where(dataset.data, { id: identifier }))]);
+                        }
                     }
                 });
             });

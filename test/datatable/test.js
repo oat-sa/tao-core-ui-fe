@@ -483,7 +483,7 @@ define([
         var ready3 = assert.async();
         var ready2 = assert.async();
         var ready1 = assert.async(2);
-        assert.expect(13);
+        assert.expect(14);
 
         var $elt = $('#container-1');
         assert.ok($elt.length === 1, 'Test the fixture is available');
@@ -492,14 +492,17 @@ define([
 
         $elt.on('create.datatable', function() {
             assert.ok($elt.find('.datatable').length === 1, 'the layout has been inserted');
-            assert.equal($elt.find('.datatable thead th').length, 7, 'the table contains 7 heads elements');
-            assert.equal($elt.find('.datatable thead th:eq(6)').text(), 'Actions', 'the Actions label is created');
+            assert.equal($elt.find('.datatable thead th').length, 8, 'the table contains 8 heads elements');
+            assert.equal($elt.find('.datatable thead th:eq(7)').text(), 'Actions', 'the Actions label is created');
+            assert.equal($elt.find('.datatable thead th:eq(6) > div').html(), '', 'Column type "action" without actions');
 
             $('[data-item-identifier="1"] button.run:eq(0)', $elt).trigger('click');
             $('[data-item-identifier="3"] button.run:eq(0)', $elt).trigger('click');
             $('[data-item-identifier="2"] button.pause:eq(1)', $elt).click();
             $('[data-item-identifier="2"] button.pause:eq(0)', $elt).click();
-
+            $('[data-item-identifier="1"] button.disabled', $elt).trigger('click');
+            $('[data-item-identifier="1"] button.no-handles-provided', $elt).trigger('click');
+            
             ready();
         });
         $elt.on('query.datatable', function(event) {
@@ -551,7 +554,19 @@ define([
                 title: 'Press to stop process',
                 action: function() {
                     assert.ok(true, 'In the stop action');
+                },
+            }, {
+                id: 'disabled',
+                icon: 'disabled',
+                label: 'disabled',
+                title: 'disabled',
+                action: function() {
+                    assert.notOk(true, 'Is not clickable');
                 }
+            }, {
+                id: 'no-handles-provided',
+                icon: 'no-handles-provided',
+                label: 'no-handles-provided',
             }],
             'model': [{
                 id: 'login',
@@ -577,6 +592,9 @@ define([
                 id: 'guiLg',
                 label: 'Interface Language',
                 sortable: true
+            }, {
+                id: 'empty-actions',
+                type: 'action'
             }]
         }, dataset);
     });
