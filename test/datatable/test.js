@@ -79,7 +79,7 @@ define([
         $container.on('create.datatable', function() {
             $('.tool-test', $container).trigger('click');
             $('.tool-disabled', $container).addClass('disabled').trigger('click');
-            
+
             assert.equal($('.tool-3', $container).length, 1, 'Tool without id should generate class as tool-${index}');
 
             assert.verifySteps(['Tool button is clicked']);
@@ -1109,6 +1109,53 @@ define([
         });
     });
 
+    QUnit.cases.init([
+        {
+            paginationStrategyTop: 'none',
+            paginationStrategyBottom: 'none',
+            paginationTopChildrenLength: 0,
+            paginationBottomChildrenLength: 0
+        },
+        {
+            paginationStrategyTop: 'simple',
+            paginationStrategyBottom: 'simple',
+            paginationTopChildrenLength: 2,
+            paginationBottomChildrenLength: 2
+        },
+        {
+            paginationStrategyTop: 'pages',
+            paginationStrategyBottom: 'pages',
+            paginationTopChildrenLength: 2,
+            paginationBottomChildrenLength: 2
+        }
+    ])
+    .test('Pagination strategy', function(strategy, assert) {
+        const done = assert.async();
+        const $container = $('#container-1');
+        const {
+            paginationStrategyTop,
+            paginationStrategyBottom, 
+            paginationTopChildrenLength,
+            paginationBottomChildrenLength
+        } = strategy;
+
+        assert.expect(2);
+
+        $container.one('create.datatable', () => {
+            assert.equal( $('.datatable-pagination-top').children().length, paginationTopChildrenLength, 'Top pagination content is rendered')
+            assert.equal( $('.datatable-pagination-bottom').children().length, paginationBottomChildrenLength, 'Bottom pagination content is rendered')
+            done();
+        });
+
+        
+        $container.datatable({
+            url: '/test/datatable/largedata.json',
+            rows: 5,
+            paginationStrategyTop,
+            paginationStrategyBottom
+        });
+    })
+
     // TODO: Implement right conditions
     QUnit.test('Pagination', function(assert) {
         const ready = assert.async();
@@ -1139,7 +1186,7 @@ define([
             url: '/test/datatable/largedata.json',
             rowSelection: true,
             rows: 5,
-            paginationStrategyTop: 'simple',
+            paginationStrategyTop: 'none',
             paginationStrategyBottom: 'pages',
             model: [{
                 id: 'login',
