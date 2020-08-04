@@ -405,10 +405,8 @@ var dataTable = {
                 $('[data-item-identifier="' + id + '"] button', $rendering).addClass('disabled');
             } else if (values && typeof values === 'object') {
                 for (var action in values) {
-                    if (values.hasOwnProperty(action)) {
-                        if (values[action] === true) {
-                            $('[data-item-identifier="' + id + '"] button.' + action, $rendering).addClass('disabled');
-                        }
+                    if (values.hasOwnProperty(action) && values[action] === true) {
+                        $('[data-item-identifier="' + id + '"] button.' + action, $rendering).addClass('disabled');
                     }
                 }
             }
