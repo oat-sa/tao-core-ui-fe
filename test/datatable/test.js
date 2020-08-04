@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  * 
- * Copyright (c) 2019 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2019-2020 (original work) Open Assessment Technologies SA ;
  */
 
 define([
@@ -99,6 +99,10 @@ define([
             data = $elt.data('ui.datatable') || {};
             assert.equal(data.url, secondOptions.url, 'The url option must be updated');
             assert.deepEqual(data.tools, secondOptions.tools, 'The tools options must be added');
+           
+            // TODO: Create test for tools buttons @dresha
+            $elt.find('.tool-test').trigger('click');
+
             ready();
         });
         $elt.datatable(firstOptions);
@@ -534,6 +538,85 @@ define([
         });
     });
 
+    QUnit.test('Render empty table on failed ajax request', function(assert) {
+        var ready4 = assert.async();
+        var ready3 = assert.async(2);
+        var ready2 = assert.async(2);
+        var ready1 = assert.async();
+        assert.expect(14);
+
+        var renderCalled = false;
+        var $elt = $('#container-1');
+        assert.ok($elt.length === 1, 'Test the fixture is available');
+
+        var ready = assert.async();
+
+        $elt.on('create.datatable', function() {
+            assert.ok($elt.find('.datatable').length === 1, 'the layout has been inserted');
+            assert.ok($elt.find('.datatable thead th').length === 6, 'the table contains 6 heads elements');
+            assert.equal($elt.find('.datatable thead th:eq(0) div').text(), 'Login', 'the login label is created');
+            assert.equal($elt.find('.datatable thead th:eq(1) div').text(), 'Name', 'the name label is created');
+            assert.equal($elt.find('.datatable thead th:eq(0) div').data('sort-by'), 'login', 'the login col is sortable');
+            ready();
+        });
+
+        $elt.on('error.datatable', function(event, error) {
+            assert.equal(error.message, 'Not Found', 'Request is failed with an error message');
+            ready4();
+        });
+       
+
+        $elt.on('query.datatable', function(event, ajaxConfig) {
+            assert.equal(typeof ajaxConfig, 'object', 'the query event is triggered and provides an object');
+            assert.equal(typeof ajaxConfig.url, 'string', 'the query event provides an object containing the target url');
+            assert.equal(typeof ajaxConfig.data, 'object', 'the query event provides an object containing the request parameters');
+            ready1();
+        });
+        $elt.on('beforeload.datatable', function(event, response) {
+            assert.equal(typeof response, 'object', 'the beforeload event is triggered and provides the response data');
+            ready2();
+        });
+        $elt.on('load.datatable', function(event, response) {
+            assert.equal(typeof response, 'object', 'the load event is triggered and provides the response data');
+            ready3();
+
+            if (!renderCalled) {
+                renderCalled = true;
+                setTimeout(function() {
+                    $elt.datatable('render', response);
+                }, 1);
+            }
+        });
+        $elt.datatable({
+            url: 'broken-url',
+            'model': [{
+                id: 'login',
+                label: 'Login',
+                sortable: true
+            }, {
+                id: 'name',
+                label: 'Name',
+                sortable: true
+            }, {
+                id: 'email',
+                label: 'Email',
+                sortable: true
+            }, {
+                id: 'roles',
+                label: 'Roles',
+                sortable: false
+            }, {
+                id: 'dataLg',
+                label: 'Data Language',
+                sortable: true
+            }, {
+                id: 'guiLg',
+                label: 'Interface Language',
+                sortable: true
+            }]
+        });
+    });
+
     QUnit.test('Selection disabled', function(assert) {
         var ready = assert.async();
         assert.expect(4);
@@ -926,7 +1009,8 @@ define([
             transform: transform
         }, {
             id: 'email',
-            label: 'Email'
+            label: 'Email',
+            transform: true
         }];
         var dataset = [{
             id: 1,
@@ -965,6 +1049,77 @@ define([
             model: model
         }, {
             data: dataset
+        });
+    });
+
+    // TODO: Implement right conditions
+    QUnit.test('Pagination', function(assert) {
+        const ready = assert.async();
+        assert.expect(1);
+
+        const $container = $('#container-1');
+     
+        $container.on('create.datatable', function() {
+            const $initialActiveBtn = $container.find('.page.active');
+            const $nextActiveBtn = $initialActiveBtn.next();
+
+            $nextActiveBtn.trigger('click');
+           
+            // assert.notOk($initialActiveBtn.hasClass('active'), 'true')
+            // assert.ok($nextActiveBtn.hasClass('active'), 'true')
+
+            const $previousButton = $container.find('.previous');
+            const $nextButton = $container.find('.next');
+            
+            $previousButton.trigger('click');
+            $nextButton.trigger('click');
+
+            assert.ok(1 === 1, 'true')
+            ready()
+        });
+
+        $container.datatable({
+            url: '/test/datatable/largedata.json',
+            rowSelection: true,
+            rows: 5,
+            paginationStrategyTop: 'simple',
+            paginationStrategyBottom: 'pages',
+            model: [{
+                id: 'login',
+                label: 'Login',
+                sortable: true
+            }, {
+                id: 'name',
+                label: 'Name',
+                sortable: true
+            }, {
+                id: 'email',
+                label: 'Email',
+                sortable: true
+            }, {
+                id: 'roles',
+                label: 'Roles',
+                sortable: false
+            }, {
+                id: 'dataLg',
+                label: 'Data Language',
+                sortable: true
+            }, {
+                id: 'guiLg',
+                label: 'Interface Language',
+                sortable: true
+            }],
+            listeners: {
+                selected: function selectRow(e) {
+                    assert.ok(true, 'the handler was attached and caused');
+                },
+                sort: function() {
+                    $elt.on('load.datatable', function() {
+                        $elt.find('.datatable tbody tr:eq(1) td:eq(1)').trigger('click');
+                        ready();
+                    });
+                }
+            }
         });
     });
 
@@ -1029,7 +1184,7 @@ define([
         });
     });
 
-    QUnit.test('Beforeload event', function(assert) {
+    QUnit.test('Before load event', function(assert) {
         var ready = assert.async();
         assert.expect(5);
 
@@ -1120,6 +1275,7 @@ define([
         })
         .datatable({
             url: '/test/datatable/data.json',
+            sortby: false,
             'model': [{
                 id: 'login',
                 label: 'Login',
@@ -1289,4 +1445,472 @@ define([
             rows: 50,
         });
     });
+
+    QUnit.cases.init([
+        {
+            initialData: {
+                data: [{
+                    id: 1,
+                    delivery: 1,
+                    status: 'paused'
+                },
+                {
+                    id: 2,
+                    delivery: 2,
+                    status: 'awaiting'
+                },
+                {
+                    id: 3,
+                    delivery: 3,
+                    status: 'in progress'
+                }]
+            },
+            newData: {
+                data: [{
+                    id: 1,
+                    delivery: 1,
+                    status: 'awaiting'
+                },
+                {
+                    id: 2,
+                    delivery: 2,
+                    status: 'awaiting'
+                },
+                {
+                    id: 3,
+                    delivery: 3,
+                    status: 'awaiting'
+                }]
+            }
+        }
+    ]).test('Atomic update', function(param, assert){
+        const ready = assert.async();
+        const $container = $('#container-1');
+        const url = '/test/datatable/largedata.json';
+
+        assert.expect(5);
+
+        $container.one('create.datatable', function(){
+            const statusColumn1 = $container.find('.status').eq(0)
+
+            assert.equal(statusColumn1.text(), 'paused', 'The first delivery status is set');
+
+            $container.one('load.datatable', function(){
+                assert.equal(statusColumn1.text(), 'awaiting', 'The first delivery status is changed');
+                assert.equal(statusColumn1.get(0), $container.find('.status').get(0), 'The DOM elements for table cells is not changed');
+
+                $container.one('load.datatable', function(){
+                    const firstStatusRow = $container.find('.status').get(0);
+                    assert.notEqual(statusColumn1.get(0), firstStatusRow, 'Force update should be applied since number of rows is decreased');
+                    
+                    $container.one('load.datatable', function(){
+                        assert.notEqual(firstStatusRow, $container.find('.status').get(0), 'Force update should be applied since the order of rows is changed');
+                        ready();
+                    });
+    
+                    $container.datatable('refresh', {
+                        data: [
+                        {
+                            id: 2,
+                            delivery: 2,
+                            status: 'awaiting'
+                        },
+                        {
+                            id: 1,
+                            delivery: 1,
+                            status: 'awaiting'
+                        }]
+                    });
+                });
+
+                $container.datatable('refresh', {
+                    readonly: {1: true, 2: {'view':true, 'delete':false}},
+                    data: [{
+                        id: 1,
+                        delivery: 1,
+                        status: 'awaiting'
+                    },
+                    {
+                        id: 2,
+                        delivery: 2,
+                        status: 'awaiting'
+                    }]
+                });
+                
+                
+            });
+
+            $container.datatable('refresh', param.newData);
+        });
+
+        $container.datatable({
+            url : url,
+            model : [{
+                id: 'id',
+                label: 'delivery',
+                sortable: true,
+                visible: true
+            }, {
+                id: 'status',
+                label: 'status',
+                sortable: true,
+                visible: true
+            }],
+            atomicUpdate: true,
+            rows: 50,
+        },
+        param.initialData
+        );
+    });
+
+    // TODO: test action buttons @dresha
+    QUnit.test('Atomic update column with action buttons', function(assert){
+        const ready = assert.async();
+        const $container = $('#container-1');
+        const url = '/test/datatable/largedata.json';
+
+        //assert.expect(3);
+
+        $container.one('create.datatable', function(){
+            const statusColumn1 = $container.find('.status').eq(0)
+
+            
+            assert.equal(statusColumn1.text(), 'paused', 'The first delivery status is set');
+
+            $container.one('load.datatable', function(){
+                // assert.equal(statusColumn1.text(), 'awaiting', 'The first delivery status is changed');
+                // assert.equal(statusColumn1.get(0), $container.find('.status').get(0), 'The DOM elements for table cells is changed');
+                // ready();
+                ready();
+            });
+
+            $container.datatable('refresh', {data: [{
+                    id: 1,
+                    delivery: 1,
+                    status: 'paused',
+                    actions: [ {
+                        
+                        icon: 'pause',
+                        label: 'Pause me',
+                        title: 'Press to pause process',
+                        action: function(id) {
+                            assert.ok(true, 'In the pause action, id: ' + id);
+                        }
+                    }]
+                },
+                {
+                    id: 2,
+                    delivery: 2,
+                    status: 'awaiting'
+                },
+                {
+                    id: 3,
+                    delivery: 3,
+                    status: 'in progress'
+                }]});
+
+           
+        });
+
+        $container.datatable({
+            url : url,
+            atomicUpdate: true,
+            rows: 50,
+            model : [{
+                id: 'id',
+                label: 'delivery',
+                sortable: true,
+                visible: true
+            }, {
+                id: 'status',
+                label: 'status',
+                sortable: true,
+                visible: true
+            }, {
+                id: 'pauseCl',
+                label: 'Pause',
+                type: 'actions',
+                actions: [{
+                    id: 'pause',
+                    icon: 'pause',
+                    label: 'Pause me',
+                    title: 'Press to pause process',
+                    action: function(id) {
+                        console.log('ACTION IS CALLED', id)
+                        assert.ok(true, 'In the pause action, id: ' + id);
+                    }
+                },
+                {
+                    icon: 'play',
+                    label: 'Without id',
+                    disabled: true,
+                    action: function(id) {
+                        console.log('ACTION IS CALLED', id)
+                        assert.ok(true, 'In the pause action, id: ' + id);
+                    }
+                },
+                {
+                    title: 'Without id, label, icon',
+                    action: function(id) {
+                        console.log('ACTION IS CALLED', id)
+                        assert.ok(true, 'In the pause action, id: ' + id);
+                    }
+                },
+                {
+                    id: 'hidden',
+                    icon: 'hidden',
+                    label: 'hidden',
+                    hidden: true,
+                    action: function(id) {
+                        console.log('ACTION IS CALLED', id)
+                        assert.ok(true, 'In the pause action, id: ' + id);
+                    }
+                },
+                {
+                    id: 'hidden-without-label-and-icon',
+                    action: function(id) {
+                        console.log('ACTION IS CALLED', id)
+                        assert.ok(true, 'In the pause action, id: ' + id);
+                    }
+                },{
+                    id: 'disabled',
+                    icon: 'disabled',
+                    label: 'disabled',
+                    title: 'Disabled',
+                    disabled: true,
+                    action: function(id) {
+                        console.log('ACTION IS CALLED', id)
+                        assert.ok(true, 'In the pause action, id: ' + id);
+                    }
+                },
+                {
+                    id: 'disabled-without-title',
+                    icon: 'disabled',
+                    label: 'disabled',
+                    disabled: function(){return true},
+                    action: function(id) {
+                        console.log('ACTION IS CALLED', id)
+                        assert.ok(true, 'In the pause action, id: ' + id);
+                    }
+                }
+            ],
+            }]
+        },
+            {
+                id: 'administration',
+                label: 'Administration',
+                type: 'actions',
+                data: [{
+                    id: 1,
+                    delivery: 1,
+                    status: 'paused',
+                    actions: [ {
+                        id: 'pause',
+                        icon: 'pause',
+                        label: 'Pause me',
+                        title: 'Press to pause process',
+                        disabled: function(){return true},
+                        action: function(id) {
+                            assert.ok(true, 'In the pause action, id: ' + id);
+                        }
+                    }]
+                },
+                {
+                    id: 2,
+                    delivery: 2,
+                    status: 'awaiting'
+                },
+                {
+                    id: 3,
+                    delivery: 3,
+                    status: 'in progress'
+                }],
+                actions: [{
+                    id: 'run',
+                    icon: 'play',
+                    label: 'Play',
+                    title: 'Run action',
+                    action: function(id) {
+                        console.log('ACTION', 1)
+                        assert.ok(true, 'In the run action, id: ' + id);
+                    }
+                }, {
+                    id: 'pause',
+                    icon: 'pause',
+                    label: 'Pause me',
+                    disabled: true,
+                    action: function(id) {
+                        console.log('ACTION', 2)
+                        assert.ok(true, 'In the pause action, id: ' + id);
+                    }
+                }, {
+                    icon: 'stop',
+                    label: 'Stop',
+                    title: 'Press to stop process',
+                    action: function() {
+                        console.log('ACTION', 3)
+                        assert.ok(true, 'In the stop action');
+                    }
+                }]
+            }
+        );
+    });
+
+    QUnit.test('Plugin "highlightRows"', function(assert){
+        var ready = assert.async();
+        var $container = $('#container-1');
+        var url = '/test/datatable/largedata.json';
+
+        $container.one('create.datatable', function(){
+            const rowIdsToHightLight = ['1', '2'];
+            $container.datatable('highlightRows', rowIdsToHightLight);
+
+            assert.equal($container.find('tr.highlight').length, 2, 'The first delivery status is changed');
+            ready();
+        });
+
+        $container.datatable({
+            url : url,
+            'model' : [{
+                id: 'login',
+                label: 'Login',
+                sortable: true,
+                visible: true
+            }, {
+                id: 'name',
+                label: 'Name',
+                sortable: true,
+                visible: false
+            }, {
+                id: 'email',
+                label: 'Email',
+                sortable: false
+            }, {
+                id: 'roles',
+                label: 'Roles',
+                sortable: false,
+                visible: function () {
+                    return false;
+                }
+            }, {
+                id: 'guiLg',
+                label: 'Data Language',
+                sortable: false,
+                visible: function () {
+                    return true;
+                }
+            }],
+            pageSizeSelector: true,
+            rows: 50,
+        });
+    })
+
+    QUnit.test('Plugin "addRowClass"', function(assert){
+        const ready = assert.async();
+        const $container = $('#container-1');
+        const url = '/test/datatable/largedata.json';
+        assert.expect(2);
+
+        $container.one('create.datatable', function(){
+            const $firstRow = $container.find('tr[data-item-identifier="1"]');
+
+            $container.datatable('addRowClass', '1', 'fake-class');
+            $container.datatable('addRowClass', '1', 'fake-class');
+            $container.datatable('addRowClass', '1', 'fake-class');
+           
+            assert.equal($firstRow.hasClass('fake-class'), true, 'Class is removed from the given row');
+            assert.equal($firstRow.attr('class'), 'fake-class', 'Class is added once to the given row');
+
+            ready();
+        });
+
+        $container.datatable({
+            url : url,
+            'model' : [{
+                id: 'login',
+                label: 'Login',
+                sortable: true,
+                visible: true
+            }, {
+                id: 'name',
+                label: 'Name',
+                sortable: true,
+                visible: false
+            }, {
+                id: 'email',
+                label: 'Email',
+                sortable: false
+            }, {
+                id: 'roles',
+                label: 'Roles',
+                order: 10,
+                sortable: false,
+                visible: function () {
+                    return false;
+                }
+            }, {
+                id: 'guiLg',
+                label: 'Data Language',
+                sortable: false,
+                visible: function () {
+                    return true;
+                }
+            }],
+            pageSizeSelector: true,
+            rows: 50,
+        });
+    })
+
+    QUnit.test('Plugin "removeRowClass"', function(assert){
+        const ready = assert.async();
+        const $container = $('#container-1');
+        const url = '/test/datatable/largedata.json';
+        assert.expect(1);
+
+        $container.one('create.datatable', function(){
+            const $firstRow = $container.find('tr[data-item-identifier="1"]');
+
+            $firstRow.addClass('fake-class');
+            $container.datatable('removeRowClass', '1', 'fake-class');
+            $container.datatable('removeRowClass', '1', 'remove-no-existing-class');
+
+            assert.equal($firstRow.hasClass('fake-class'), false, 'Class is removed from given row');
+            ready();
+        });
+
+        $container.datatable({
+            url : url,
+            'model' : [{
+                id: 'login',
+                label: 'Login',
+                sortable: true,
+                visible: true
+            }, {
+                id: 'name',
+                label: 'Name',
+                sortable: true,
+                visible: false
+            }, {
+                id: 'email',
+                label: 'Email',
+                sortable: false
+            }, {
+                id: 'roles',
+                label: 'Roles',
+                sortable: false,
+                visible: function () {
+                    return false;
+                }
+            }, {
+                id: 'guiLg',
+                label: 'Data Language',
+                sortable: false,
+                visible: function () {
+                    return true;
+                }
+            }],
+            pageSizeSelector: true,
+            rows: 50,
+        });
+    })
 });
