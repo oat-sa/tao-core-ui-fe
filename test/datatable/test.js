@@ -867,8 +867,9 @@ define([
 
         $elt.on('create.datatable', function() {
             assert.ok($elt.find('.datatable').length === 1, 'the layout has been inserted');
-            assert.ok($elt.find('.datatable thead th').length === 6, 'the table contains 6 heads elements');
-
+            assert.ok($elt.find('.datatable thead th').length === 7, 'the table contains 7 heads elements');
+            
+            $('td.actions', $elt).trigger('click');
             $elt.find('.datatable tbody tr:eq(1) td:eq(1)').trigger('click');
         });
 
@@ -899,6 +900,18 @@ define([
                 id: 'guiLg',
                 label: 'Interface Language',
                 sortable: true
+            }, {
+                id: 'actions',
+                type: 'action',
+                actions: [
+                    {
+                        id: 'start',
+                        label: 'start',
+                        action: function(){
+                            assert.notOk(true, 'Action should be disabled');
+                        }
+                    }
+                ]
             }],
             listeners: {
                 selected: function() {
