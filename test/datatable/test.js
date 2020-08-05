@@ -868,7 +868,7 @@ define([
         $elt.on('create.datatable', function() {
             assert.ok($elt.find('.datatable').length === 1, 'the layout has been inserted');
             assert.ok($elt.find('.datatable thead th').length === 7, 'the table contains 7 heads elements');
-            
+
             $('td.actions', $elt).trigger('click');
             $elt.find('.datatable tbody tr:eq(1) td:eq(1)').trigger('click');
         });
@@ -930,7 +930,7 @@ define([
 
     QUnit.test('Default filtering enabled', function(assert) {
         var ready = assert.async();
-        assert.expect(8);
+        assert.expect(10);
 
         var $elt = $('#container-1');
         assert.ok($elt.length === 1, 'Test the fixture is available');
@@ -941,14 +941,25 @@ define([
             assert.ok($elt.find('.datatable thead th').length === 6, 'the table contains 6 heads elements');
             assert.ok($elt.find('.datatable-wrapper aside.filter').length, 'the filter is enabled');
 
-            $elt.find('.datatable-wrapper aside.filter input').val('abcdef');
-            $elt.find('.datatable-wrapper aside.filter button').trigger('click');
+            var $filterInput = $elt.find('.datatable-wrapper aside.filter input');
+            var eventKeyPressH = $.Event( "keypress", { which: 72 } );
+            var eventKeyPressEnter = $.Event( "keypress", { which: 13 });
+
+            $filterInput.val('abcdef');
+            $filterInput.trigger(eventKeyPressH);
+
+            assert.equal($filterInput.val(), 'abcdef', 'Filter inputs value is not changed on typing');
+            assert.ok($elt.find('.datatable-wrapper aside.filter').length, 'the filter is enabled');
+
+            $filterInput.trigger(eventKeyPressEnter);
+
             dom = $elt.find('tbody').get();
         });
 
         $elt.on('filter.datatable', function(event, options) {
             assert.equal(options.filterquery, 'abcdef', 'the filter set right search query');
             assert.deepEqual(options.filtercolumns, ['login', 'name'], 'the filter set right columns');
+
             $elt.on('load.datatable', function() {
                 assert.equal($elt.find('.datatable-wrapper aside.filter input').hasClass('focused'), true, 'the filter is focusable after refreshing');
                 assert.notEqual(dom, $elt.find('tbody').get(), 'content has been changed');
@@ -1331,6 +1342,8 @@ define([
 
             // Sort list
             // and here we had render once again
+            var eventPressKey = $.Event('keyup', { keyCode: 72 });
+            $elt.find('.datatable thead tr:nth-child(1) th:eq(0) div').trigger(eventPressKey);
             $elt.find('.datatable thead tr:nth-child(1) th:eq(0) div').click();
         });
 
