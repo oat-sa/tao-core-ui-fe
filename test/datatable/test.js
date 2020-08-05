@@ -858,6 +858,69 @@ define([
         });
     });
 
+    QUnit.test('Selection with massAction buttons', (assert) => {
+        const done = assert.async();
+        const $container = $('#container-1');
+
+        assert.expect(5);
+
+        $container.on('create.datatable', function() {
+            const $massActionButton = $('.tool-mass-action', $container);
+            const $selectAll = $('th.checkboxes input', $container);
+
+            assert.equal($massActionButton.length, 1, 'Mass action button is exist in tools');
+            assert.ok($massActionButton.hasClass('invisible'), 'Mass action button is invisible');
+            
+            $('td.checkboxes input', $container).first().trigger('click');
+            assert.notOk($massActionButton.hasClass('invisible'), 'Mass action button is visible once one row is selected');
+
+            $selectAll.trigger('click');
+            assert.notOk($massActionButton.hasClass('invisible'), 'Mass action button is visible when all rows are selected');
+            
+            $selectAll.trigger('click');
+            assert.ok($massActionButton.hasClass('invisible'), 'Mass action button is invisible when all rows are unselected');
+
+            done();
+        })
+        .datatable({
+            url: '/test/datatable/data.json',
+            selectable: true,
+            model: [{
+                id: 'login',
+                label: 'Login',
+                sortable: true
+            }, {
+                id: 'name',
+                label: 'Name',
+                sortable: true
+            }, {
+                id: 'email',
+                label: 'Email',
+                sortable: true
+            }, {
+                id: 'roles',
+                label: 'Roles',
+                sortable: false
+            }, {
+                id: 'dataLg',
+                label: 'Data Language',
+                sortable: true
+            }, {
+                id: 'guiLg',
+                label: 'Interface Language',
+                sortable: true
+            }],
+            tools: [{
+                id: 'mass-action',
+                label: 'Mass action',
+                massAction: true,
+                action: function() {
+                    assert.notOk(true, 'Is not clickable');
+                }
+            }]
+        });
+    });
+
     QUnit.test('Selectable rows', function(assert) {
         var ready = assert.async();
         assert.expect(10);
