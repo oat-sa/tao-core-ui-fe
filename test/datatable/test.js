@@ -21,9 +21,17 @@ define([
     'lodash',
     'json!test/ui/datatable/data.json',
     'json!test/ui/datatable/largedata.json',
-    'ui/datatable'
+    'ui/datatable',
+    'jquery.mockjax'
 ], function($, _, dataset, largeDataset) {
     'use strict';
+
+    $.mockjaxSettings.logger = null;
+    $.mockjaxSettings.responseTime = 1;
+
+    QUnit.testDone(function() {
+        $.mockjax.clear();
+    });
 
     QUnit.module('DataTable Test', {
         afterEach: function(assert) {
@@ -671,80 +679,55 @@ define([
     });
 
     QUnit.test('Render empty table on failed ajax request', function(assert) {
-        var ready4 = assert.async();
-        var ready3 = assert.async(2);
-        var ready2 = assert.async(2);
-        var ready1 = assert.async();
-        assert.expect(14);
+        const done = assert.async();
+        const $container = $('#container-1');
+        assert.expect(2);
 
-        var renderCalled = false;
-        var $elt = $('#container-1');
-        assert.ok($elt.length === 1, 'Test the fixture is available');
-
-        var ready = assert.async();
-
-        $elt.on('create.datatable', function() {
-            assert.ok($elt.find('.datatable').length === 1, 'the layout has been inserted');
-            assert.ok($elt.find('.datatable thead th').length === 6, 'the table contains 6 heads elements');
-            assert.equal($elt.find('.datatable thead th:eq(0) div').text(), 'Login', 'the login label is created');
-            assert.equal($elt.find('.datatable thead th:eq(1) div').text(), 'Name', 'the name label is created');
-            assert.equal($elt.find('.datatable thead th:eq(0) div').data('sort-by'), 'login', 'the login col is sortable');
-            ready();
+        $.mockjax(function() {
+            return {
+                status: 404,
+                statusText: 'Not Found',
+            }    
         });
 
-        $elt.on('error.datatable', function(event, error) {
+        $container.on('create.datatable', function() {
+            assert.ok($('.datatable', $container).length === 1, 'the layout has been inserted');
+        })
+        .on('error.datatable', function(event, error) {
             assert.equal(error.message, 'Not Found', 'Request is failed with an error message');
-            ready4();
-        });
-       
-
-        $elt.on('query.datatable', function(event, ajaxConfig) {
-            assert.equal(typeof ajaxConfig, 'object', 'the query event is triggered and provides an object');
-            assert.equal(typeof ajaxConfig.url, 'string', 'the query event provides an object containing the target url');
-            assert.equal(typeof ajaxConfig.data, 'object', 'the query event provides an object containing the request parameters');
-            ready1();
-        });
-        $elt.on('beforeload.datatable', function(event, response) {
-            assert.equal(typeof response, 'object', 'the beforeload event is triggered and provides the response data');
-            ready2();
-        });
-        $elt.on('load.datatable', function(event, response) {
-            assert.equal(typeof response, 'object', 'the load event is triggered and provides the response data');
-            ready3();
-
-            if (!renderCalled) {
-                renderCalled = true;
-                setTimeout(function() {
-                    $elt.datatable('render', response);
-                }, 1);
-            }
-        });
-        $elt.datatable({
-            url: 'broken-url',
-            'model': [{
+            done();
+        })
+        .datatable({
+            url: '/failed-request',
+            model: [{
                 id: 'login',
-                label: 'Login',
-                sortable: true
-            }, {
-                id: 'name',
-                label: 'Name',
-                sortable: true
-            }, {
-                id: 'email',
-                label: 'Email',
-                sortable: true
-            }, {
-                id: 'roles',
-                label: 'Roles',
-                sortable: false
-            }, {
-                id: 'dataLg',
-                label: 'Data Language',
-                sortable: true
-            }, {
-                id: 'guiLg',
-                label: 'Interface Language',
-                sortable: true
+                label: 'Login'
+            }]
+        });
+    });
+
+    QUnit.test('Render empty table on empty successful response', function(assert) {
+        const done = assert.async();
+        const $container = $('#container-1');
+        assert.expect(1);
+
+        $.mockjax(function() {
+            return {
+                status: 200,
+                statusText: 'OK',
+                responseText: undefined
+            }    
+        });
+
+        $container.on('create.datatable', function() {
+            assert.ok($('.datatable', $container).length === 1, 'the layout has been inserted');
+            done();
+        })
+        .datatable({
+            url: '/empty-response',
+            model: [{
+                id: 'login',
+                label: 'Login'
             }]
         });
     });
@@ -876,7 +859,7 @@ define([
 
             $selectAll.trigger('click');
             assert.notOk($massActionButton.hasClass('invisible'), 'Mass action button is visible when all rows are selected');
-            
+
             $selectAll.trigger('click');
             assert.ok($massActionButton.hasClass('invisible'), 'Mass action button is invisible when all rows are unselected');
 
