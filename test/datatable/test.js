@@ -1855,75 +1855,6 @@ define([
 
         $container.datatable({
             url : url,
-            model : [{
-                id: 'id',
-                label: 'delivery',
-                sortable: true,
-                visible: true
-            }, {
-                id: 'status',
-                label: 'status',
-                sortable: true,
-                visible: true
-            }],
-            atomicUpdate: true,
-            rows: 50,
-        },
-        param.initialData
-        );
-    });
-
-    // TODO: test action buttons @dresha
-    QUnit.test('Atomic update column with action buttons', function(assert){
-        const ready = assert.async();
-        const $container = $('#container-1');
-        const url = '/test/datatable/largedata.json';
-
-        //assert.expect(3);
-
-        $container.one('create.datatable', function(){
-            const statusColumn1 = $container.find('.status').eq(0)
-
-            
-            assert.equal(statusColumn1.text(), 'paused', 'The first delivery status is set');
-
-            $container.one('load.datatable', function(){
-                // assert.equal(statusColumn1.text(), 'awaiting', 'The first delivery status is changed');
-                // assert.equal(statusColumn1.get(0), $container.find('.status').get(0), 'The DOM elements for table cells is changed');
-                // ready();
-                ready();
-            });
-
-            $container.datatable('refresh', {data: [{
-                    id: 1,
-                    delivery: 1,
-                    status: 'paused',
-                    actions: [ {
-                        
-                        icon: 'pause',
-                        label: 'Pause me',
-                        title: 'Press to pause process',
-                        action: function(id) {
-                            assert.ok(true, 'In the pause action, id: ' + id);
-                        }
-                    }]
-                },
-                {
-                    id: 2,
-                    delivery: 2,
-                    status: 'awaiting'
-                },
-                {
-                    id: 3,
-                    delivery: 3,
-                    status: 'in progress'
-                }]});
-
-           
-        });
-
-        $container.datatable({
-            url : url,
             atomicUpdate: true,
             rows: 50,
             model : [{
@@ -1975,7 +1906,6 @@ define([
                 {
                     id: 'hidden-without-label-and-icon',
                     action: function(id) {
-                        console.log('ACTION IS CALLED', id)
                         assert.ok(true, 'In the pause action, id: ' + id);
                     }
                 },{
@@ -1985,7 +1915,6 @@ define([
                     title: 'Disabled',
                     disabled: true,
                     action: function(id) {
-                        console.log('ACTION IS CALLED', id)
                         assert.ok(true, 'In the pause action, id: ' + id);
                     }
                 },
@@ -1995,7 +1924,6 @@ define([
                     label: 'disabled',
                     disabled: function(){return true},
                     action: function(id) {
-                        console.log('ACTION IS CALLED', id)
                         assert.ok(true, 'In the pause action, id: ' + id);
                     }
                 }
