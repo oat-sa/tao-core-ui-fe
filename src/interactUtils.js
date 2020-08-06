@@ -71,12 +71,13 @@ interactHelper = {
      */
     tapOn: function tapOn(element, cb, delay) {
         var domElement,
+            firstEvent,
+            secondEvent,
             eventOptions = {
                 bubbles: true,
                 pointerId: 1,
-                bubbles: true, 
-                cancelable: true, 
-                pointerType: "touch",
+                cancelable: true,
+                pointerType: 'touch',
                 width: 100,
                 height: 100,
                 isPrimary: true
@@ -84,8 +85,17 @@ interactHelper = {
         if (element) {
             domElement = element instanceof $ ? element.get(0) : element;
 
-            domElement.dispatchEvent(new PointerEvent('pointerdown', eventOptions));
-            domElement.dispatchEvent(new PointerEvent('pointerup', eventOptions));
+            if (navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') > 0) {
+                firstEvent = document.createEvent('HTMLEvents');
+                firstEvent.initEvent('pointerdown', false, true);
+                secondEvent = document.createEvent('HTMLEvents');
+                secondEvent.initEvent('pointerup', false, true);
+            } else {
+                firstEvent = new PointerEvent('pointerdown', eventOptions);
+                secondEvent = new PointerEvent('pointerup', eventOptions);
+            }
+            domElement.dispatchEvent(firstEvent);
+            domElement.dispatchEvent(secondEvent);
 
             if (cb) {
                 _.delay(cb, delay || 0);
