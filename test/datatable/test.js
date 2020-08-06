@@ -1301,30 +1301,35 @@ define([
         });
     })
 
-    // TODO: Implement right conditions
     QUnit.test('Pagination', function(assert) {
-        const ready = assert.async();
-        assert.expect(1);
-
+        const done = assert.async();
         const $container = $('#container-1');
+        
+        assert.expect(4);
      
         $container.on('create.datatable', function() {
-            const $initialActiveBtn = $container.find('.page.active');
-            const $nextActiveBtn = $initialActiveBtn.next();
-
-            $nextActiveBtn.trigger('click');
-           
-            // assert.notOk($initialActiveBtn.hasClass('active'), 'true')
-            // assert.ok($nextActiveBtn.hasClass('active'), 'true')
-
+            const $pagesButtons = $container.find('.pages .page');
             const $previousButton = $container.find('.previous');
             const $nextButton = $container.find('.next');
+
+            assert.ok($pagesButtons.eq(0).hasClass('active'), 'The first page is active on table created');
+
+            $container.one('setpage.datatable', function() {
+                assert.ok($('.pages .page', $container).eq(2).hasClass('active'), 'The third page is active after click on pagination button');
+            });
             
+            $container.one('backward.datatable', function() {
+                assert.ok($('.pages .page', $container).eq(1).hasClass('active'), 'The first page is active after click on next button');
+            });
+
+            $container.one('forward.datatable', function() {
+                assert.ok($('.pages .page', $container).eq(2).hasClass('active'), 'The second page is active after click on previous button');
+                done();
+            });
+            
+            $pagesButtons.eq(2).trigger('click');
             $previousButton.trigger('click');
             $nextButton.trigger('click');
-
-            assert.ok(1 === 1, 'true')
-            ready()
         });
 
         $container.datatable({
@@ -1337,38 +1342,7 @@ define([
                 id: 'login',
                 label: 'Login',
                 sortable: true
-            }, {
-                id: 'name',
-                label: 'Name',
-                sortable: true
-            }, {
-                id: 'email',
-                label: 'Email',
-                sortable: true
-            }, {
-                id: 'roles',
-                label: 'Roles',
-                sortable: false
-            }, {
-                id: 'dataLg',
-                label: 'Data Language',
-                sortable: true
-            }, {
-                id: 'guiLg',
-                label: 'Interface Language',
-                sortable: true
-            }],
-            listeners: {
-                selected: function selectRow(e) {
-                    assert.ok(true, 'the handler was attached and caused');
-                },
-                sort: function() {
-                    $elt.on('load.datatable', function() {
-                        $elt.find('.datatable tbody tr:eq(1) td:eq(1)').trigger('click');
-                        ready();
-                    });
-                }
-            }
+            }]
         });
     });
 
