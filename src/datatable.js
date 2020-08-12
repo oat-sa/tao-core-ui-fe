@@ -400,7 +400,7 @@ const dataTable = {
             if (values === true) {
                 $('[data-item-identifier="' + id + '"] button', $rendering).addClass('disabled');
             } else if (values && typeof values === 'object') {
-                for (let action in values) {
+                for (const action in values) {
                     if (values.hasOwnProperty(action) && values[action] === true) {
                         $('[data-item-identifier="' + id + '"] button.' + action, $rendering).addClass('disabled');
                     }
