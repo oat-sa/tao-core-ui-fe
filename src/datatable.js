@@ -385,7 +385,7 @@ var dataTable = {
             if (skipForceUpdate) {
                 updateHeaderStatus(options, $elt, dataset);
                 loadingBar.stop();
-                $elt.trigger('load.' + ns, [dataset]);
+                $elt.trigger(`load.${ns}`, [dataset]);
                 return;
             }
         }
