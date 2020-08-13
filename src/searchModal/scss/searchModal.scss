@@ -1,12 +1,42 @@
 .search-modal {
-    h1 {
-        color: red;
+    height: 100%;
+    padding: 0px;
+    .navi-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 40px 20px 20px 20px;
+        .search-bar-container {
+            position: relative;
+            .icon-find {
+                position: absolute;
+                top: 5px;
+                left: 5px;
+            }
+            input {
+                width: 100%;
+                padding-left: 25px;
+            }
+        }
+        .buttons-container {
+            display: flex;
+            justify-content: space-around;
+            button {
+                width: 45%;
+            }
+            .btn-transparent {
+                background-color: transparent;
+                border: 1px solid black;
+                color: black;
+                text-shadow: none;
+            }
+        }
     }
 }
 
 .modal-close-left {
     position: absolute;
-    left: 12px;
+    left: 20px;
     top: 10px;
     cursor: pointer;
     font-weight: bold;
@@ -14,7 +44,6 @@
     background-color: transparent;
     padding: 0;
     height: 20px;
-
     .icon-close {
         font-size: 2rem
     }

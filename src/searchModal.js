@@ -41,15 +41,21 @@ export default function searchModalFactory(config) {
             modalCloseClass: 'modal-close-left'
         })
         .focus();
+        // FIXME - This is just to check view-controller communication
+        const testButton = $('.test-button', instance.getElement());
+        testButton.on('click', test);
+        // TODO - Manage the received request
     }
 
     function destroyModal() {
-        if (instance.getElement()) { // for some reason destroy is triggered twice, so withouth this condition it fails in the second one
-            instance.getElement()
-                .removeClass('modal')
-                .modal('destroy');
-            $('.modal-bg').remove();
-        }
+        instance.getElement()
+            .removeClass('modal')
+            .modal('destroy');
+        $('.modal-bg').remove();
+    }
+
+    function test() {
+        debugger;
     }
 
     return instance.init({renderTo:'body'});
