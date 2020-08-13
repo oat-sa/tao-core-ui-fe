@@ -297,7 +297,7 @@ var dataTable = {
             })
             .fail(function(response, option, err) {
                 var requestErr = httpErrorParser.parse(response, option, err);
-                // logger.error(requestErr.message);
+                logger.error(requestErr.message);
                 requestErr.code = response.status;
                 enablePaginations(this.paginations);
                 $elt.trigger('error.' + ns, [requestErr]);
