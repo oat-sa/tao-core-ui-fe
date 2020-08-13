@@ -31,11 +31,11 @@ import pageSizeSelector from 'ui/pageSizeSelector';
 import 'ui/datatable/css/datatable.css';
 import DOMPurify from 'lib/dompurify/purify';
 
-var ns = 'datatable';
+const ns = 'datatable';
 
-var dataNs = 'ui.' + ns;
+const dataNs = 'ui.' + ns;
 
-var defaults = {
+const defaults = {
     atomicUpdate: false,
     start: 0,
     rows: 25,
@@ -55,32 +55,34 @@ var defaults = {
     pageSizeSelector: false
 };
 
-var logger = loggerFactory('ui/datatable');
+const logger = loggerFactory('ui/datatable');
 
 /**
  * The CSS class used to hide an element
  * @type {String}
  */
-var hiddenCls = 'hidden';
+const hiddenCls = 'hidden';
 
 /**
  * Deactivate pagination's
+ * @param {Array} pagination
  */
-var disablePaginations = function disablePaginations(paginations) {
-    if (paginations && paginations.length) {
-        _.forEach(paginations, function(pagination) {
-            pagination.disable();
+const disablePagination = pagination => {
+    if (pagination && pagination.length) {
+        pagination.forEach(step => {
+            step.disable();
         });
     }
 };
 
 /**
  * Activate pagination's
+ * @param {Array} pagination
  */
-var enablePaginations = function enablePaginations(paginations) {
-    if (paginations && paginations.length) {
-        _.forEach(paginations, function(pagination) {
-            pagination.enable();
+const enablePagination = pagination => {
+    if (pagination && pagination.length) {
+        pagination.forEach(step => {
+            step.enable();
         });
     }
 };
@@ -156,7 +158,7 @@ const updateHeaderStatus = (options, $container, dataset) => {
  *
  * @exports ui/datatable
  */
-var dataTable = {
+const dataTable = {
     /**
      * Initialize the plugin.
      *
@@ -190,15 +192,15 @@ var dataTable = {
      * @fires dataTable#create.datatable
      * @returns {jQueryElement} for chaining
      */
-    init: function (options, data) {
+    init(options, data) {
         options = _.defaults(options, defaults);
 
         return this.each(function () {
-            var $elt = $(this);
-            var currentOptions = $elt.data(dataNs);
+            const $elt = $(this);
+            const currentOptions = $elt.data(dataNs);
 
             if (options.atomicUpdate && data) {
-                $elt.data(`${dataNs}state`,  data.data);
+                $elt.data(`${dataNs}state`, data.data);
             }
             // implement encapsulated pages for the datatable
             $elt.paginations = [];
@@ -207,7 +209,7 @@ var dataTable = {
                 //add data to the element
                 $elt.data(dataNs, options);
 
-                $elt.one('load.' + ns, function() {
+                $elt.one('load.' + ns, function () {
                     /**
                      * @event dataTable#create.datatable
                      */
@@ -237,7 +239,7 @@ var dataTable = {
      * @param {jQueryElement} $elt - plugin's element
      * @param {Object} [data] - Data to render immediately, prevents the query to be made.
      */
-    _refresh: function($elt, data) {
+    _refresh($elt, data) {
         if (data) {
             this._render($elt, data);
         } else {
@@ -253,24 +255,25 @@ var dataTable = {
      * @param $filter
      * @fires dataTable#query.datatable
      */
-    _query: function($elt, $filter) {
-        var self = this;
-        var options = $elt.data(dataNs);
-        var parameters;
-        var ajaxConfig;
+    _query($elt, $filter) {
+        const self = this;
+        let options = $elt.data(dataNs);
 
         loadingBar.start();
 
         if (!$filter) {
             $filter = $('.filter', $elt);
         }
+
         options = _.assign({}, options, this._getFilterStrategy($elt).getQueryData($elt, $filter, options));
-        parameters = _.merge(
+
+        const parameters = _.merge(
             {},
             _.pick(options, ['rows', 'page', 'sortby', 'sortorder', 'sorttype', 'filterquery', 'filtercolumns']),
             options.params || {}
         );
-        ajaxConfig = {
+
+        const ajaxConfig = {
             url: options.url,
             data: parameters,
             dataType: 'json',
@@ -278,7 +281,7 @@ var dataTable = {
         };
 
         // disable pagination to not press multiple on it
-        disablePaginations($elt.paginations);
+        disablePagination($elt.paginations);
 
         /**
          * @event dataTable#query.datatable
@@ -292,14 +295,14 @@ var dataTable = {
         }
 
         $.ajax(ajaxConfig)
-            .done(function(response) {
+            .done(function (response) {
                 self._render($elt, response);
             })
-            .fail(function(response, option, err) {
-                var requestErr = httpErrorParser.parse(response, option, err);
+            .fail(function (response, option, err) {
+                const requestErr = httpErrorParser.parse(response, option, err);
                 logger.error(requestErr.message);
                 requestErr.code = response.status;
-                enablePaginations(this.paginations);
+                enablePagination(this.paginations);
                 $elt.trigger('error.' + ns, [requestErr]);
 
                 self._render($elt, {});
@@ -316,25 +319,19 @@ var dataTable = {
      * @fires dataTable#load.datatable
      */
     _render($elt, dataset = {}) {
-        var self = this;
-        var options = _.cloneDeep($elt.data(dataNs));
-        var $rendering;
-        var $sortBy;
-        var $sortElement;
-        var $checkAll;
-        var $checkboxes;
-        var $massActionBtns = $();
-        var $rows;
-        var model = [];
+        const self = this;
+        let options = _.cloneDeep($elt.data(dataNs));
+        const model = [];
+        let $massActionBtns = $();
 
         /**
          * @event dataTable#beforeload.datatable
          * @param {Object} dataset - The data set object used to render the table
          */
         $elt.trigger('beforeload.' + ns, [_.cloneDeep(dataset)]);
-        
+
         // overrides column options
-        _.forEach(options.model, function(field, key) {
+        _.forEach(options.model, function (field, key) {
             if (!options.filter) {
                 field.filterable = false;
             }
@@ -346,7 +343,6 @@ var dataTable = {
             if (field.filterable && typeof field.filterable !== 'object') {
                 field.filterable = { placeholder: __('Filter') };
             }
-
 
             if (typeof field.visible === 'undefined') {
                 model.push(field);
@@ -370,8 +366,8 @@ var dataTable = {
             const transforms = _.where(model, 'transform');
 
             _.forEach(dataset.data, (row, index) => {
-                _.forEach(transforms, (field) => {
-                    if(_.isFunction(field.transform)){
+                _.forEach(transforms, field => {
+                    if (_.isFunction(field.transform)) {
                         row[field.id] = field.transform(row[field.id], row, field, index, dataset.data);
                     }
                 });
@@ -392,7 +388,7 @@ var dataTable = {
         }
 
         // Call the rendering
-        $rendering = $(layout({ options: options, dataset: dataset }));
+        const $rendering = $(layout({ options: options, dataset: dataset }));
 
         // the readonly property contains an associative array where keys are the ids of the items (lines)
         // the value can be a boolean (true for disable buttons, false to enable)
@@ -405,7 +401,7 @@ var dataTable = {
             if (values === true) {
                 $('[data-item-identifier="' + id + '"] button', $rendering).addClass('disabled');
             } else if (values && typeof values === 'object') {
-                for (var action in values) {
+                for (const action in values) {
                     if (values.hasOwnProperty(action) && values[action] === true) {
                         $(`[data-item-identifier="${id}"] button.${action}`, $rendering).addClass('disabled');
                     }
@@ -413,10 +409,10 @@ var dataTable = {
             }
         });
 
-        var attachActionListeners = function attachActionListeners(actions) {
+        const attachActionListeners = actions => {
             // Attach a listener to every action button created
             _.forEach(actions, function (action) {
-                const css = `.${action.id}`
+                const css = `.${action.id}`;
                 const handler = action.action;
 
                 $rendering.off('click', css).on('click', css, function (e) {
@@ -441,8 +437,8 @@ var dataTable = {
 
         // Attach listeners to model.type = action
         if (_.some(options.model, 'type')) {
-            var types = _.where(options.model, 'type');
-            _.forEach(types, function (field) {
+            const types = _.where(options.model, 'type');
+            _.forEach(types, field => {
                 if (field.type === 'actions' && field.actions) {
                     attachActionListeners(field.actions);
                 }
@@ -450,7 +446,7 @@ var dataTable = {
         }
 
         // Attach a listener to every tool button created
-        _.forEach(options.tools, function (tool, name) {
+        _.forEach(options.tools, (tool, name) => {
             const isMassAction = tool.massAction;
             const css = `.tool-${tool.id || name}`;
             const action = tool.action;
@@ -470,8 +466,8 @@ var dataTable = {
         });
 
         // bind listeners to events
-        _.forEach(options.listeners, function (callback, event) {
-            var ev = [event, ns].join('.');
+        _.forEach(options.listeners, (callback, event) => {
+            const ev = [event, ns].join('.');
             $elt.off(ev).on(ev, callback);
         });
 
@@ -500,6 +496,7 @@ var dataTable = {
         }
 
         $elt.paginations = [];
+
         if (options.paginationStrategyTop !== 'none') {
             // bind pagination component to the datatable
             $elt.paginations.push(
@@ -512,15 +509,14 @@ var dataTable = {
                 renderPagination($('.datatable-pagination-bottom', $rendering), options.paginationStrategyBottom)
             );
         }
-        disablePaginations($elt.paginations);
+        disablePagination($elt.paginations);
 
         // Now $rendering takes the place of $elt...
-        $rows = $rendering.find('tbody tr');
-
-        $sortBy = $rendering.find('th [data-sort-by]');
-        $sortElement = $rendering.find('[data-sort-by="' + options.sortby + '"]');
-        $checkAll = $rendering.find('th.checkboxes input');
-        $checkboxes = $rendering.find('td.checkboxes input');
+        const $rows = $rendering.find('tbody tr');
+        const $sortBy = $rendering.find('th [data-sort-by]');
+        const $sortElement = $rendering.find('[data-sort-by="' + options.sortby + '"]');
+        const $checkAll = $rendering.find('th.checkboxes input');
+        const $checkboxes = $rendering.find('td.checkboxes input');
 
         if (options.rowSelection) {
             $('table.datatable', $rendering).addClass('hoverable');
@@ -530,7 +526,7 @@ var dataTable = {
                     return false;
                 }
 
-                var currentRow = $(this).parent();
+                const currentRow = $(this).parent();
 
                 $rows.removeClass('selected');
                 currentRow.toggleClass('selected');
@@ -540,13 +536,12 @@ var dataTable = {
         }
 
         $sortBy.on('click keyup', function (e) {
-            var column, type;
             if (e.type === 'keyup' && e.keyCode !== 13) {
                 return;
             }
             e.preventDefault();
-            column = $(this).data('sort-by');
-            type = $(this).data('sort-type');
+            const column = $(this).data('sort-by');
+            const type = $(this).data('sort-type');
 
             self._sort($elt, column, undefined, type);
         });
@@ -555,9 +550,9 @@ var dataTable = {
         if (options.filter) {
             self._getFilterStrategy($elt).render($rendering, options);
             _.forEach($('.filter', $rendering), function (filter) {
-                var $filter = $(filter);
-                var $filterBtn = $('button', $filter);
-                var $filterInput = $('select, input', $filter);
+                const $filter = $(filter);
+                const $filterBtn = $('button', $filter);
+                const $filterInput = $('select, input', $filter);
 
                 if ($filterInput.is('select')) {
                     $filterInput.on('change', function () {
@@ -603,7 +598,8 @@ var dataTable = {
 
         // when check/uncheck a box, toggle the check/uncheck all
         $checkboxes.click(function () {
-            var $checked = $checkboxes.filter(':checked');
+            const $checked = $checkboxes.filter(':checked');
+
             if ($checked.length === $checkboxes.length) {
                 $checkAll.prop('checked', true);
             } else {
@@ -637,7 +633,7 @@ var dataTable = {
         }
 
         // restore pagination's after data loaded
-        enablePaginations($elt.paginations);
+        enablePagination($elt.paginations);
 
         if (options.pageSizeSelector) {
             pageSizeSelector({
@@ -664,8 +660,9 @@ var dataTable = {
      * @param page
      * @fires dataTable#setpage.datatable
      */
-    _setPage: function _setPage($elt, page) {
-        var options = $elt.data(dataNs);
+    _setPage($elt, page) {
+        const options = $elt.data(dataNs);
+
         if (options.page !== page) {
             // set new page value
             options.page = page;
@@ -692,9 +689,9 @@ var dataTable = {
      * @fires dataTable#sort.datatable
      * @private
      */
-    _filter: function _filter($elt, $filter) {
-        var options = $elt.data(dataNs);
-        var filtersData = this._getFilterStrategy($elt).getFiltersData($elt, $filter, options);
+    _filter($elt, $filter) {
+        const options = $elt.data(dataNs);
+        const filtersData = this._getFilterStrategy($elt).getFiltersData($elt, $filter, options);
         options.page = 1;
         $elt.data(dataNs, _.assign(options, filtersData));
 
@@ -708,8 +705,9 @@ var dataTable = {
         this._query($elt, $filter);
     },
 
-    _getFilterStrategy: function _getFilterStrategy($elt) {
-        var options = $elt.data(dataNs);
+    _getFilterStrategy($elt) {
+        const options = $elt.data(dataNs);
+
         return filterStrategyFactory(options);
     },
 
@@ -725,8 +723,8 @@ var dataTable = {
      * @param {String} sortType - type of sorting, numeric or string
      * @fires dataTable#sort.datatable
      */
-    _sort: function ($elt, sortBy, asc, sortType) {
-        var options = this._sortOptions($elt, sortBy, asc, sortType);
+    _sort($elt, sortBy, asc, sortType) {
+        const options = this._sortOptions($elt, sortBy, asc, sortType);
 
         /**
          * @event dataTable#sort.datatable
@@ -784,7 +782,7 @@ var dataTable = {
             return;
         }
 
-        // NOTE: The code above generate the table cell. With updating handlebars to the version > 2.*, please move it to the dedicated template to reuse it in layout.tpl as well 
+        // NOTE: The code above generate the table cell. With updating handlebars to the version > 2.*, please move it to the dedicated template to reuse it in layout.tpl as well
         nextState.data.forEach((nextData, index) => {
             const $row = $container.find(`tr[data-item-identifier="${nextData.id}"]`);
 
@@ -803,8 +801,8 @@ var dataTable = {
                         const disabled = getPropertyValue('disabled', action, nextData);
                         const icon = getPropertyValue('icon', action, nextData);
                         const label = getPropertyValue('label', action, nextData);
-                        const $actionButton = $(buttonTpl({id, icon, label, title, disabled}));
-                        
+                        const $actionButton = $(buttonTpl({ id, icon, label, title, disabled }));
+
                         if (!hidden) {
                             $actionCell.append('\n').append($actionButton);
                         }
@@ -830,8 +828,8 @@ var dataTable = {
      * @returns {Object} - returns the options
      * @private
      */
-    _sortOptions: function($elt, sortBy, asc, sortType) {
-        var options = $elt.data(dataNs);
+    _sortOptions($elt, sortBy, asc, sortType) {
+        const options = $elt.data(dataNs);
 
         if (typeof asc !== 'undefined') {
             if ('asc' !== asc && 'desc' !== asc) {
@@ -865,11 +863,11 @@ var dataTable = {
      * @param {jQueryElement} $elt - plugin's element
      * @returns {Array} - Returns an array of identifiers.
      */
-    _selection: function($elt) {
-        var $selected = $elt.find('[data-item-identifier]').has('td.checkboxes input:checked');
-        var selection = [];
+    _selection($elt) {
+        const $selected = $elt.find('[data-item-identifier]').has('td.checkboxes input:checked');
+        const selection = [];
 
-        $selected.each(function() {
+        $selected.each(function () {
             selection.push($(this).data('item-identifier'));
         });
 
@@ -890,7 +888,7 @@ var dataTable = {
      * @param rowId
      * @deprecated Use highlightRows instead
      */
-    _highlightRow: function($elt, rowId) {
+    _highlightRow($elt, rowId) {
         this._addRowClass($elt, rowId, 'highlight');
     },
 
@@ -902,8 +900,8 @@ var dataTable = {
      * @param className
      * @private
      */
-    _addRowClass: function($elt, rowId, className) {
-        var $row = $elt.find('[data-item-identifier="' + rowId + '"]');
+    _addRowClass($elt, rowId, className) {
+        const $row = $elt.find('[data-item-identifier="' + rowId + '"]');
 
         if (!$row.hasClass(className)) {
             $row.addClass(className);
@@ -918,8 +916,8 @@ var dataTable = {
      * @param className
      * @private
      */
-    _removeRowClass: function($elt, rowId, className) {
-        var $row = $elt.find('[data-item-identifier="' + rowId + '"]');
+    _removeRowClass($elt, rowId, className) {
+        const $row = $elt.find('[data-item-identifier="' + rowId + '"]');
 
         if ($row.hasClass(className)) {
             $row.removeClass(className);
@@ -934,7 +932,7 @@ var dataTable = {
      * @fires dataTable#setpage.datatable
      */
     _setRows($elt, rows) {
-        var options = $elt.data(dataNs);
+        const options = $elt.data(dataNs);
 
         if (options.rows !== rows) {
             // set new amount of items per page
