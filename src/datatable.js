@@ -21,6 +21,7 @@ import _ from 'lodash';
 import __ from 'i18n';
 import Pluginifier from 'core/pluginifier';
 import layout from 'ui/datatable/tpl/layout';
+import buttonTpl from 'ui/datatable/tpl/button';
 import filterStrategyFactory from 'ui/datatable/filterStrategy/filterStrategy';
 import paginationComponent from 'ui/pagination';
 import loadingBar from 'layout/loading-bar';
@@ -296,7 +297,7 @@ var dataTable = {
             })
             .fail(function(response, option, err) {
                 var requestErr = httpErrorParser.parse(response, option, err);
-                logger.error(requestErr.message);
+                // logger.error(requestErr.message);
                 requestErr.code = response.status;
                 enablePaginations(this.paginations);
                 $elt.trigger('error.' + ns, [requestErr]);
@@ -783,6 +784,7 @@ var dataTable = {
             return;
         }
 
+        // NOTE: The code above generate the table cell. With updating handlebars to the version > 2.*, please move it to the dedicated template to reuse it in layout.tpl as well 
         nextState.data.forEach((nextData, index) => {
             const $row = $container.find(`tr[data-item-identifier="${nextData.id}"]`);
 
@@ -795,45 +797,15 @@ var dataTable = {
                     $actionCell.html('');
 
                     model.actions.forEach(action => {
-                        const actionId = action.id;
-
-                        if (actionId) {
-                            const hidden = getPropertyValue('hidden', action, nextData);
-                            const title = getPropertyValue('title', action, nextData);
-                            const disabled = getPropertyValue('disabled', action, nextData);
-                            const icon = getPropertyValue('icon', action, nextData);
-                            const label = getPropertyValue('label', action, nextData);
-
-                            if (!hidden) {
-                                const $actionButton = $('<button>', {
-                                    class: `btn-info small ${actionId}`,
-                                    html: `${icon ? `<span class="icon-${icon}"></span>` : ''}${label || ''}`
-                                });
-
-                                if (title) {
-                                    $actionButton.attr('title', title);
-                                }
-
-                                if (disabled) {
-                                    $actionButton.attr('disabled', 'disabled');
-                                }
-
-                                $actionCell.append('\n').append($actionButton);
-                            }
-                        } else {
-                            const title = getPropertyValue('title', action, nextData);
-                            const icon = getPropertyValue('icon', action, nextData);
-                            const label = getPropertyValue('label', action, nextData);
-
-                            const $actionButton = $('<button>', {
-                                class: `btn-info small ${actionId}`,
-                                html: `${icon ? `<span class="icon-${icon}"></span>` : ''}${label || ''}`
-                            });
-
-                            if (title) {
-                                $actionButton.attr('title', title);
-                            }
-
+                        const id = action.id;
+                        const hidden = getPropertyValue('hidden', action, nextData);
+                        const title = getPropertyValue('title', action, nextData);
+                        const disabled = getPropertyValue('disabled', action, nextData);
+                        const icon = getPropertyValue('icon', action, nextData);
+                        const label = getPropertyValue('label', action, nextData);
+                        const $actionButton = $(buttonTpl({id, icon, label, title, disabled}));
+                        
+                        if (!hidden) {
                             $actionCell.append('\n').append($actionButton);
                         }
                     });
