@@ -92,9 +92,9 @@ var enablePaginations = function enablePaginations(paginations) {
  * @param {Object} context
  */
 const getPropertyValue = (property, action, context) => {
-    const key = action[property];
+    const value = action[property];
 
-    return _.isFunction(key) ? key.apply(context) : key;
+    return _.isFunction(value) ? value.apply(context) : value;
 };
 
 /**
