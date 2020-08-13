@@ -21,6 +21,7 @@ import _ from 'lodash';
 import __ from 'i18n';
 import Pluginifier from 'core/pluginifier';
 import layout from 'ui/datatable/tpl/layout';
+import buttonTpl from 'ui/datatable/tpl/button';
 import filterStrategyFactory from 'ui/datatable/filterStrategy/filterStrategy';
 import paginationComponent from 'ui/pagination';
 import loadingBar from 'layout/loading-bar';
@@ -94,9 +95,9 @@ const enablePagination = pagination => {
  * @param {Object} context
  */
 const getPropertyValue = (property, action, context) => {
-    const key = action[property];
+    const value = action[property];
 
-    return _.isFunction(key) ? key.apply(context) : key;
+    return _.isFunction(value) ? value.apply(context) : value;
 };
 
 /**
@@ -381,7 +382,7 @@ const dataTable = {
             if (skipForceUpdate) {
                 updateHeaderStatus(options, $elt, dataset);
                 loadingBar.stop();
-                $elt.trigger('load.' + ns, [dataset]);
+                $elt.trigger(`load.${ns}`, [dataset]);
                 return;
             }
         }
@@ -402,7 +403,7 @@ const dataTable = {
             } else if (values && typeof values === 'object') {
                 for (const action in values) {
                     if (values.hasOwnProperty(action) && values[action] === true) {
-                        $('[data-item-identifier="' + id + '"] button.' + action, $rendering).addClass('disabled');
+                        $(`[data-item-identifier="${id}"] button.${action}`, $rendering).addClass('disabled');
                     }
                 }
             }
@@ -781,6 +782,7 @@ const dataTable = {
             return;
         }
 
+        // NOTE: The code above generate the table cell. With updating handlebars to the version > 2.*, please move it to the dedicated template to reuse it in layout.tpl as well
         nextState.data.forEach((nextData, index) => {
             const $row = $container.find(`tr[data-item-identifier="${nextData.id}"]`);
 
@@ -793,45 +795,15 @@ const dataTable = {
                     $actionCell.html('');
 
                     model.actions.forEach(action => {
-                        const actionId = action.id;
+                        const id = action.id;
+                        const hidden = getPropertyValue('hidden', action, nextData);
+                        const title = getPropertyValue('title', action, nextData);
+                        const disabled = getPropertyValue('disabled', action, nextData);
+                        const icon = getPropertyValue('icon', action, nextData);
+                        const label = getPropertyValue('label', action, nextData);
+                        const $actionButton = $(buttonTpl({ id, icon, label, title, disabled }));
 
-                        if (actionId) {
-                            const hidden = getPropertyValue('hidden', action, nextData);
-                            const title = getPropertyValue('title', action, nextData);
-                            const disabled = getPropertyValue('disabled', action, nextData);
-                            const icon = getPropertyValue('icon', action, nextData);
-                            const label = getPropertyValue('label', action, nextData);
-
-                            if (!hidden) {
-                                const $actionButton = $('<button>', {
-                                    class: `btn-info small ${actionId}`,
-                                    html: `${icon ? `<span class="icon-${icon}"></span>` : ''}${label || ''}`
-                                });
-
-                                if (title) {
-                                    $actionButton.attr('title', title);
-                                }
-
-                                if (disabled) {
-                                    $actionButton.attr('disabled', 'disabled');
-                                }
-
-                                $actionCell.append('\n').append($actionButton);
-                            }
-                        } else {
-                            const title = getPropertyValue('title', action, nextData);
-                            const icon = getPropertyValue('icon', action, nextData);
-                            const label = getPropertyValue('label', action, nextData);
-
-                            const $actionButton = $('<button>', {
-                                class: `btn-info small ${actionId}`,
-                                html: `${icon ? `<span class="icon-${icon}"></span>` : ''}${label || ''}`
-                            });
-
-                            if (title) {
-                                $actionButton.attr('title', title);
-                            }
-
+                        if (!hidden) {
                             $actionCell.append('\n').append($actionButton);
                         }
                     });
