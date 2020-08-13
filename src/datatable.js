@@ -68,7 +68,7 @@ const hiddenCls = 'hidden';
  */
 const disablePagination = pagination => {
     if (pagination && pagination.length) {
-        _.forEach(pagination, step => {
+        pagination.forEach(step => {
             step.disable();
         });
     }
@@ -80,7 +80,7 @@ const disablePagination = pagination => {
  */
 const enablePagination = pagination => {
     if (pagination && pagination.length) {
-        _.forEach(pagination, step => {
+        pagination.forEach(step => {
             step.enable();
         });
     }
