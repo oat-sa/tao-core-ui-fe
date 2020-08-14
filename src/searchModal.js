@@ -16,17 +16,37 @@
  * Copyright (c) 2020 (original work) Open Assessment Technologies SA ;
  */
 import $ from 'jquery';
+import _ from 'lodash';
+import __ from 'i18n';
 import layoutTpl from 'ui/searchModal/tpl/layout';
 import 'ui/searchModal/css/searchModal.css';
 import component from 'ui/component';
 import 'ui/modal';
+import 'ui/datatable';
 
 export default function searchModalFactory(config) {
-    const instance = component().setTemplate(layoutTpl)
-        .on('render', () => renderModal())
-        .on('destroy', () => destroyModal());
+    const instance = component().setTemplate(layoutTpl);
+    let searchInput = null;
+    let searchButton = null;
+    let clearButton = null;
+    let running = false;
+    instance.on('render', () => renderModal());
+    instance.on('destroy', () => destroyModal());
 
     function renderModal() {
+        initModal();
+        initUiSelectors();
+        searchButton.trigger('click');
+    }
+
+    function destroyModal() {
+        instance.getElement()
+            .removeClass('modal')
+            .modal('destroy');
+        $('.modal-bg').remove();
+    }
+
+    function initModal() {
         instance
         .getElement()
         .addClass('modal')
@@ -41,21 +61,76 @@ export default function searchModalFactory(config) {
             modalCloseClass: 'modal-close-left'
         })
         .focus();
-        // FIXME - This is just to check view-controller communication
-        const testButton = $('.test-button', instance.getElement());
-        testButton.on('click', test);
-        // TODO - Manage the received request
     }
 
-    function destroyModal() {
-        instance.getElement()
-            .removeClass('modal')
-            .modal('destroy');
-        $('.modal-bg').remove();
+    function initUiSelectors() {
+        searchButton = $('.btn-search', instance.getElement());
+        clearButton = $('.btn-clear', instance.getElement());
+        searchInput = $('.search-bar-container input', instance.getElement());
+        searchButton.on('click', search);
+        clearButton.on('click', clear);
+        searchInput.val(config.query);
     }
 
-    function test() {
-        debugger;
+    function search() {
+        const query = searchInput.val();
+
+        //throttle and control to prevent sending too many requests
+        const searchHandler = _.throttle(function searchHandlerThrottled(query){
+            if(running === false){
+                running = true;
+                $.ajax({
+                    url : config.url,
+                    type : 'POST',
+                    data :  {query : query},
+                    dataType : 'json'
+                }).done(function(response){
+                    if(response && response.result && response.result === true){
+                        buildResponseTable(response);
+                    } else {
+                        // TODO - Manage no results
+                        // feedback().warning(__('No results found'));
+                    }
+                }).complete(function(){
+                    running = false;
+                });
+            }
+        }, 100);
+
+        searchHandler(query);
+    }
+
+    function buildResponseTable(data){
+        //update the section container
+        const $tableContainer = $('<div class="flex-container-full"></div>');
+        const section = $('.content-container', instance.getElement());
+        section.empty();
+        section.append($tableContainer);
+
+        //create datatable
+        $tableContainer.datatable({
+            url: data.url,
+            model : _.values(data.model),
+            actions : {
+                open : function openResource(id){
+                    config.events.trigger('refresh', {
+                        uri: id
+                    });
+                    destroyModal();
+                }
+            },
+            params : {
+                params : data.params,
+                filters: data.filters,
+                rows: 20
+            }
+        });
+    };
+
+    function clear() {
+        const section = $('.content-container', instance.getElement());
+        section.empty();
+        searchInput.val('');
     }
 
     return instance.init({renderTo:'body'});
