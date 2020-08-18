@@ -558,8 +558,7 @@ MediaSizer = {
             options.naturalWidth = options.naturalWidth || options.width || defaults.size;
             options.naturalHeight = options.naturalHeight || options.height || defaults.size;
 
-            options.hasSize =
-                options.width && options.height && _.isFinite(+options.width) && _.isFinite(+options.height);
+            options.hasSize = _.isFinite(+options.width) && _.isFinite(+options.height);
 
             // incomplete or conflicting configurations
             // no target provided, also no width and/or no height
