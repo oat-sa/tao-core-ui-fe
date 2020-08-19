@@ -553,7 +553,7 @@ MediaSizer = {
 
             // compatibility layer naturalWidth|Height vs. naturalHeight
             // internally width/height are used
-            options.width = options.width || options.naturalWidth || defaults.size;
+            options.width = options.width || options.naturalWidth || options.maxWidth || defaults.size;
             options.height = options.height || options.naturalHeight || defaults.size;
             options.naturalWidth = options.naturalWidth || options.width || defaults.size;
             options.naturalHeight = options.naturalHeight || options.height || defaults.size;
