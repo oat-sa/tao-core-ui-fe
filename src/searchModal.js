@@ -24,6 +24,13 @@ import component from 'ui/component';
 import 'ui/modal';
 import 'ui/datatable';
 
+/**
+ * Creates a search modal instance
+ * @param {object} config - search modal configuration
+ * @param {string} config.query - search query to be set and triggered on component creation
+ * @param {string} config.url - search endpoint
+ * @param {object} config.events - events hub
+ */
 export default function searchModalFactory(config) {
     const instance = component().setTemplate(layoutTpl);
     let searchInput = null;
@@ -33,12 +40,18 @@ export default function searchModalFactory(config) {
     instance.on('render', () => renderModal());
     instance.on('destroy', () => destroyModal());
 
+    /**
+     * Creates search modal, inits template selectors, and triggers initial search
+     */
     function renderModal() {
         initModal();
         initUiSelectors();
         searchButton.trigger('click');
     }
 
+    /**
+     * Removes search modal
+     */
     function destroyModal() {
         instance.getElement()
             .removeClass('modal')
@@ -46,6 +59,9 @@ export default function searchModalFactory(config) {
         $('.modal-bg').remove();
     }
 
+    /**
+     * Creates search modal
+     */
     function initModal() {
         instance
         .getElement()
@@ -57,12 +73,14 @@ export default function searchModalFactory(config) {
             disableEscape: true,
             width: $( window ).width(),
             minHeight: $( window ).height(),
-            top: 1, // can not be set to 0 because on modal.js:230 a 0 is a falsy value so default top of 40 px is applied
             modalCloseClass: 'modal-close-left'
         })
         .focus();
     }
 
+    /**
+     * Inits template selectors and sets initial search query on search input
+     */
     function initUiSelectors() {
         searchButton = $('.btn-search', instance.getElement());
         clearButton = $('.btn-clear', instance.getElement());
@@ -72,9 +90,15 @@ export default function searchModalFactory(config) {
         searchInput.val(config.query);
     }
 
+    /**
+     * Request search results and manages its results
+     */
     function search() {
         const query = searchInput.val();
-
+        if (query === '') {
+            clear();
+            return;
+        }
         //throttle and control to prevent sending too many requests
         const searchHandler = _.throttle(function searchHandlerThrottled(query){
             if(running === false){
@@ -100,6 +124,10 @@ export default function searchModalFactory(config) {
         searchHandler(query);
     }
 
+    /**
+     * Creates a datatable with search results
+     * @param {object} data - search query results
+     */
     function buildResponseTable(data){
         //update the section container
         const $tableContainer = $('<div class="flex-container-full"></div>');
@@ -111,6 +139,7 @@ export default function searchModalFactory(config) {
         $tableContainer.datatable({
             url: data.url,
             model : _.values(data.model),
+            emptyText: "No results were found.",
             actions : {
                 open : function openResource(id){
                     config.events.trigger('refresh', {
@@ -127,6 +156,9 @@ export default function searchModalFactory(config) {
         });
     };
 
+    /**
+     * Clear search results and search input
+     */
     function clear() {
         const section = $('.content-container', instance.getElement());
         section.empty();
