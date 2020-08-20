@@ -511,7 +511,7 @@ disabled look for disabled choices in the results dropdown
     user-select: none;
 
     background-color: blacken($uiClickableDefaultBg, .1);
-    
+
     &.partial {
         background-color: whiten($uiClickableDefaultBg, .6);
     }
@@ -588,7 +588,7 @@ disabled look for disabled choices in the results dropdown
     margin: 0 !important;
     padding: 0 !important;
     overflow: hidden !important;
-    position: absolute !important;
+    position: fixed !important;
     outline: 0 !important;
     left: 0px !important;
     top: 0px !important;
