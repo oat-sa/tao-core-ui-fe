@@ -411,9 +411,13 @@ const dataTable = {
 
         const attachActionListeners = actions => {
             // Attach a listener to every action button created
-            _.forEach(actions, function (action) {
-                const css = `.${action.id}`;
-                const handler = action.action;
+            _.forEach(actions, (action, name) => {
+                if (!_.isFunction(action)) {
+                    name = action.id || name;
+                    action = action.action || function () {};
+                }
+
+                const css = `.${name}`;
 
                 $rendering.off('click', css).on('click', css, function (e) {
                     e.preventDefault();
@@ -423,9 +427,14 @@ const dataTable = {
                     if (!$btn.hasClass('disabled')) {
                         const identifier = $btn.closest('[data-item-identifier]').data('item-identifier');
 
-                        if (_.isFunction(handler)) {
-                            handler.apply($btn, [identifier, _.first(_.where(dataset.data, { id: identifier }))]);
-                        }
+                        action.apply($btn, [
+                            identifier,
+                            _.first(
+                                _.where(dataset.data, {
+                                    id: identifier
+                                })
+                            )
+                        ]);
                     }
                 });
             });
@@ -446,10 +455,16 @@ const dataTable = {
         }
 
         // Attach a listener to every tool button created
-        _.forEach(options.tools, (tool, name) => {
-            const isMassAction = tool.massAction;
-            const css = `.tool-${tool.id || name}`;
-            const action = tool.action;
+        _.forEach(options.tools, (action, name) => {
+            let isMassAction = true;
+
+            if (!_.isFunction(action)) {
+                name = action.id || name;
+                isMassAction = action.massAction;
+                action = action.action || function () {};
+            }
+
+            const css = `.tool-${name}`;
 
             if (isMassAction) {
                 $massActionBtns = $massActionBtns.add($rendering.find(css));
@@ -457,9 +472,10 @@ const dataTable = {
 
             $rendering.off('click', css).on('click', css, function (e) {
                 e.preventDefault();
+
                 const $btn = $(this);
 
-                if (!$btn.hasClass('disabled') && _.isFunction(action)) {
+                if (!$btn.hasClass('disabled')) {
                     action.apply($btn, [self._selection($elt)]);
                 }
             });
