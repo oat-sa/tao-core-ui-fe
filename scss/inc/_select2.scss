@@ -25,7 +25,6 @@
 .select2-container {
 
     margin: 0;
-    position: relative;
     display: inline-block;
     /* inline-block for ie7 */
     zoom: 1;
@@ -53,7 +52,6 @@
     height: 26px;
     padding: 0 0 0 8px;
     overflow: hidden;
-    position: relative;
 
     @include simple-border();
     @include border-radius(1);
