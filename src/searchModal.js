@@ -132,20 +132,29 @@ export default function searchModalFactory(config) {
         //update the section container
         const $tableContainer = $('<div class="flex-container-full"></div>');
         const section = $('.content-container', instance.getElement());
+
         section.empty();
         section.append($tableContainer);
+        $tableContainer.on('load.datatable', searchResultsLoaded);
 
         //create datatable
         $tableContainer.datatable({
             url: data.url,
             model : _.values(data.model),
             emptyText: "No results were found.",
+            labels: {
+                actions: ''
+            },
             actions : {
-                open : function openResource(id){
-                    config.events.trigger('refresh', {
-                        uri: id
-                    });
-                    destroyModal();
+                open : {
+                    label: 'Go to item',
+                    id: 'go-to-item',
+                    action: function openResource(id){
+                        config.events.trigger('refresh', {
+                            uri: id
+                        });
+                        destroyModal();
+                    }
                 }
             },
             params : {
@@ -156,13 +165,37 @@ export default function searchModalFactory(config) {
         });
     };
 
+    function searchResultsLoaded(e, dataset) {
+        if (dataset.records === 0) {
+            clear(null, 'no-matches');
+        }
+    }
+
     /**
-     * Clear search results and search input
+     * Clear search results and search input. Instead of a datatable, a container with an explanation message is displayed
+     * @param {object} event - click event on clear button
+     * @param {string} reason - reason why datatable is not rendered, to display appropiate message
      */
-    function clear() {
+    function clear(event, reason = 'no-query') {
         const section = $('.content-container', instance.getElement());
         section.empty();
-        searchInput.val('');
+        let message = '';
+        let icon = '';
+
+        if (reason === 'no-query') {
+            message = 'Please define your search in the search panel.';
+            icon = 'icon-find';
+            searchInput.val('');
+        } else if (reason === 'no-matches') {
+            message = 'No item found. Please try other search criteria.';
+            icon = 'icon-info';
+        }
+
+        section.append(`
+        <div class='no-datatable-container'>
+            <span class="no-datatable-icon ${icon}"></span>
+            <p class="no-datatable-message">${message}</p>
+        </div>`);
     }
 
     return instance.init({renderTo:'body'});

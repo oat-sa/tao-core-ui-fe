@@ -32,8 +32,33 @@
             }
         }
     }
+    .content-container {
+        .no-datatable-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            .no-datatable-icon {
+                color: lightgray;
+                font-size: 3.5em;
+                margin-bottom: 30px;
+            }
+        }
+    }
 }
 
+// Overwritte some not customizable styles of datatable and pagination components
+.go-to-item {
+    background-color: transparent !important;
+    border: 1px solid black !important;
+    color: black !important;
+    text-shadow: none !important;
+    }
+
+.actions {
+    width: 12%;
+}
+
+// Custom class for close modal button, so it poisitioned on the top-left corner instead of top-right (default)
 .modal-close-left {
     position: absolute;
     left: 20px;
