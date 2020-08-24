@@ -16,7 +16,7 @@
  * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
  */
 define(['jquery', 'ui/searchModal'], function($, searchModalFactory) {
-    // npx qunit-testrunner search --keepalive
+
     QUnit.module('searchModal');
 
     QUnit.test('module', function(assert) {
@@ -24,23 +24,30 @@ define(['jquery', 'ui/searchModal'], function($, searchModalFactory) {
         assert.ok(typeof searchModalFactory === 'function', 'The module expose a function');
     });
 
-    QUnit.test('search component modal is correctly initialized', function(assert) {
-        var ready = assert.async();
-        assert.expect(4);
+    QUnit.test('search component modal is correctly rendered', function(assert) {
+        const ready = assert.async();
         const searchModal = searchModalFactory({
             query: 'mathematics',
             url: ''
         });
         const $container = $('.search-modal');
         const searchInput = $container.find('.search-bar-container input');
+        const clearButton = $('.btn-clear');
+        const closeButton = $('.modal-close-left');
+
+        assert.expect(6);
 
         assert.equal($container.length, 1, 'search component modal is created');
         assert.equal(searchInput.val(), 'mathematics', 'search input value is correctly set');
-        const clearButton = $('.btn-clear');
+
         clearButton.trigger('click');
         assert.equal(searchInput.val(), '', 'search input value is correctly cleaned');
+        assert.equal($container.find('.no-datatable-container .icon-find').length, 1, 'Correct message is displayed when click on clear button');
+
+        clearButton.trigger('click', 'no-matches');
+        assert.equal($container.find('.no-datatable-container .icon-info').length, 1, 'Correct message is displayed when no matches are found');
+
         setTimeout(function() {
-            const closeButton = $('.modal-close-left');
             closeButton.trigger('click');
             setTimeout(function() {
                 const $container = $('.search-modal');
