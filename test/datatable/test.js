@@ -607,6 +607,35 @@ define([
         }, dataset);
     });
 
+    QUnit.test('Render actions option from Object', function(assert) {
+        const done = assert.async();
+        const $container = $('#container-1');
+        
+        assert.expect(4);
+
+        $container.on('create.datatable', function() {
+            const $firstRowActions = $('[data-item-identifier="1"] .actions')
+            
+            assert.equal($firstRowActions.find('.edit, .delete').length, 2, 'Action buttons is rendered');
+            assert.equal($firstRowActions.find('.icon-edit, .icon-delete').length, 2, 'Action buttons has icons');
+           
+            $firstRowActions.find('.edit').trigger('click');
+            $firstRowActions.find('.delete').trigger('click');
+
+            done();
+        }).datatable({
+            url: '/test/datatable/data.json',
+            actions: {
+                edit: function() {
+                    assert.ok(true, 'Click on edit button is triggered the handler');
+                }, 
+                delete: function(){
+                    assert.ok(true, 'Click on delete button is triggered the handler');
+                }
+            }
+        }, dataset);
+    });
+
     QUnit.test('Data rendering', function(assert) {
         var ready3 = assert.async(2);
         var ready2 = assert.async(2);
