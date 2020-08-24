@@ -160,6 +160,52 @@ const updateHeaderStatus = (options, $container, dataset) => {
  */
 const dataTable = {
     /**
+     * Used for generating action button action button
+     * @typedef Action
+     * @type {Object}
+     * @property {String} id ID is added to the button class
+     * @property {String} [title] Button title
+     * @property {Boolean} [disabled] When present, button should be disabled
+     * @property {String} [icon] Generate button icon
+     * @property {Boolean} [hidden] When present, button is hidden
+     * @property {Function} [action] Handler on button click
+    */
+
+    /**
+     * Used for generating action button from Object
+     * @deprecated
+     * @typedef  {{
+     *  [key: Action.id & Action.icon & Action.title ]: Action.action,
+     * }} ActionsObject
+     * 
+     * @example
+     * {
+     *  actions: {
+     *    edit: editUser,
+     *    remove: removeUser,
+     *  }
+     * }
+     * 
+     * ! IMPORTANT USE INSTEAD:
+     * {
+     *   actions: [
+     *     {
+     *       id: "edit",
+     *       title: __("Edit"),
+     *       icon: "edit",
+     *       action: editUser
+     *     },
+     *     {
+     *       id: "edit",
+     *       title: __("Edit"),
+     *       icon: "edit",
+     *       action: editUser
+     *     }
+     *   ]
+     * }
+     */
+
+    /**
      * Initialize the plugin.
      *
      * Called the jQuery way once registered by the Pluginifier.
@@ -169,7 +215,7 @@ const dataTable = {
      * @param {Object} options - the plugin options.
      * @param {String} options.url - the URL of the service used to retrieve the resources.
      * @param {Object[]} options.model - the model definition.
-     * @param {Function} options.actions.xxx - the callback function for items xxx, with a single parameter representing the identifier of the items.
+     * @param {ActionsObject | Action[]} options.actions - Generates action buttons
      * @param {Function} options.listeners.xxx - the callback function for event xxx, parameters depends to event trigger call.
      * @param {Boolean} options.selectable - enables the selection of rows using checkboxes.
      * @param {Boolean} options.rowSelection - enables the selection of rows by clicking on them.
@@ -409,11 +455,19 @@ const dataTable = {
             }
         });
 
+        /**
+         * Attach handlers on the action buttons
+         * @param {ActionsObject | Action[]} actions
+         */
         const attachActionListeners = actions => {
             // Attach a listener to every action button created
-            _.forEach(actions, function (action) {
-                const css = `.${action.id}`;
-                const handler = action.action;
+            _.forEach(actions, (action, name) => {
+                if (!_.isFunction(action)) {
+                    name = action.id || name;
+                    action = action.action || function () {};
+                }
+
+                const css = `.${name}`;
 
                 $rendering.off('click', css).on('click', css, function (e) {
                     e.preventDefault();
@@ -423,9 +477,14 @@ const dataTable = {
                     if (!$btn.hasClass('disabled')) {
                         const identifier = $btn.closest('[data-item-identifier]').data('item-identifier');
 
-                        if (_.isFunction(handler)) {
-                            handler.apply($btn, [identifier, _.first(_.where(dataset.data, { id: identifier }))]);
-                        }
+                        action.apply($btn, [
+                            identifier,
+                            _.first(
+                                _.where(dataset.data, {
+                                    id: identifier
+                                })
+                            )
+                        ]);
                     }
                 });
             });
@@ -446,10 +505,16 @@ const dataTable = {
         }
 
         // Attach a listener to every tool button created
-        _.forEach(options.tools, (tool, name) => {
-            const isMassAction = tool.massAction;
-            const css = `.tool-${tool.id || name}`;
-            const action = tool.action;
+        _.forEach(options.tools, (action, name) => {
+            let isMassAction = true;
+
+            if (!_.isFunction(action)) {
+                name = action.id || name;
+                isMassAction = action.massAction;
+                action = action.action || function () {};
+            }
+
+            const css = `.tool-${name}`;
 
             if (isMassAction) {
                 $massActionBtns = $massActionBtns.add($rendering.find(css));
@@ -457,9 +522,10 @@ const dataTable = {
 
             $rendering.off('click', css).on('click', css, function (e) {
                 e.preventDefault();
+
                 const $btn = $(this);
 
-                if (!$btn.hasClass('disabled') && _.isFunction(action)) {
+                if (!$btn.hasClass('disabled')) {
                     action.apply($btn, [self._selection($elt)]);
                 }
             });
