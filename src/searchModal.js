@@ -53,9 +53,7 @@ export default function searchModalFactory(config) {
      * Removes search modal
      */
     function destroyModal() {
-        instance.getElement()
-            .removeClass('modal')
-            .modal('destroy');
+        instance.getElement().removeClass('modal').modal('destroy');
         $('.modal-bg').remove();
     }
 
@@ -64,18 +62,18 @@ export default function searchModalFactory(config) {
      */
     function initModal() {
         instance
-        .getElement()
-        .addClass('modal')
-        .on('closed.modal', function() {
-            instance.destroy();
-        })
-        .modal({
-            disableEscape: true,
-            width: $( window ).width(),
-            minHeight: $( window ).height(),
-            modalCloseClass: 'modal-close-left'
-        })
-        .focus();
+            .getElement()
+            .addClass('modal')
+            .on('closed.modal', function () {
+                instance.destroy();
+            })
+            .modal({
+                disableEscape: true,
+                width: $(window).width(),
+                minHeight: $(window).height(),
+                modalCloseClass: 'modal-close-left'
+            })
+            .focus();
     }
 
     /**
@@ -100,17 +98,19 @@ export default function searchModalFactory(config) {
             return;
         }
         //throttle and control to prevent sending too many requests
-        const searchHandler = _.throttle(function searchHandlerThrottled(query){
-            if(running === false){
+        const searchHandler = _.throttle(function searchHandlerThrottled(query) {
+            if (running === false) {
                 running = true;
                 $.ajax({
-                    url : config.url,
-                    type : 'POST',
-                    data :  {query : query},
-                    dataType : 'json'
-                }).done(buildSearchResultsDatatable).complete(function(){
-                    running = false;
-                });
+                    url: config.url,
+                    type: 'POST',
+                    data: { query: query },
+                    dataType: 'json'
+                })
+                    .done(buildSearchResultsDatatable)
+                    .complete(function () {
+                        running = false;
+                    });
             }
         }, 100);
 
@@ -121,7 +121,7 @@ export default function searchModalFactory(config) {
      * Creates a datatable with search results
      * @param {object} data - search query results
      */
-    function buildSearchResultsDatatable(data){
+    function buildSearchResultsDatatable(data) {
         //update the section container
         const $tableContainer = $('<div class="flex-container-full"></div>');
         const section = $('.content-container', instance.getElement());
@@ -133,30 +133,29 @@ export default function searchModalFactory(config) {
         //create datatable
         $tableContainer.datatable({
             url: data.url,
-            model : _.values(data.model),
-            emptyText: "No results were found.",
+            model: _.values(data.model),
             labels: {
                 actions: ''
             },
-            actions : {
-                open : {
-                    label: 'Go to item',
+            actions: [
+                {
                     id: 'go-to-item',
-                    action: function openResource(id){
+                    label: __('Go to item'),
+                    action: function openResource(id) {
                         config.events.trigger('refresh', {
                             uri: id
                         });
                         destroyModal();
                     }
                 }
-            },
-            params : {
-                params : data.params,
+            ],
+            params: {
+                params: data.params,
                 filters: data.filters,
                 rows: 20
             }
         });
-    };
+    }
 
     /**
      * Checks received dataset when search results are loaded and manages possible exceptions
@@ -190,7 +189,6 @@ export default function searchModalFactory(config) {
         if (reason === 'no-query') {
             message = 'Please define your search in the search panel.';
             icon = 'icon-find';
-
         } else if (reason === 'no-matches') {
             message = 'No item found. Please try other search criteria.';
             icon = 'icon-info';
@@ -203,5 +201,5 @@ export default function searchModalFactory(config) {
         </div>`);
     }
 
-    return instance.init({renderTo:'body'});
+    return instance.init({ renderTo: 'body' });
 }
