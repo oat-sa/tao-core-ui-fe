@@ -88,7 +88,6 @@ export default function searchModalFactory(config) {
      */
     function initSearchStore() {
         return store('search').then(function(store) {
-            debugger;
             searchStore = store;
         });
     }
@@ -109,7 +108,6 @@ export default function searchModalFactory(config) {
      * Request search results and manages its results
      */
     function search() {
-        debugger;
         const query = searchInput.val();
         searchStore.setItem('query', query);
         if (query === '') {

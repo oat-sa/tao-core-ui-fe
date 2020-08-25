@@ -30,26 +30,29 @@ define(['jquery', 'ui/searchModal'], function($, searchModalFactory) {
             query: 'mathematics',
             url: ''
         });
-        const $container = $('.search-modal');
-        const searchInput = $container.find('.search-bar-container input');
-        const clearButton = $('.btn-clear');
-        const closeButton = $('.modal-close-left');
-
-        assert.expect(5);
-
-        assert.equal($container.length, 1, 'search component modal is created');
-        assert.equal(searchInput.val(), 'mathematics', 'search input value is correctly set');
-
-        clearButton.trigger('click');
-        assert.equal(searchInput.val(), '', 'search input value is correctly cleaned');
-        assert.equal($container.find('.no-datatable-container .icon-find').length, 1, 'Correct message is displayed when click on clear button');
 
         setTimeout(function() {
-            closeButton.trigger('click');
+            const $container = $('.search-modal');
+            const searchInput = $container.find('.search-bar-container input');
+            const clearButton = $('.btn-clear');
+            const closeButton = $('.modal-close-left');
+
+            assert.expect(5);
+
+            assert.equal($container.length, 1, 'search component modal is created');
+            assert.equal(searchInput.val(), 'mathematics', 'search input value is correctly set');
+
+            clearButton.trigger('click');
+            assert.equal(searchInput.val(), '', 'search input value is correctly cleaned');
+            assert.equal($container.find('.no-datatable-container .icon-find').length, 1, 'Correct message is displayed when click on clear button');
+
             setTimeout(function() {
-                const $container = $('.search-modal');
-                assert.equal($container.length, 0, 'search component modal is destroyed');
-                ready();
+                closeButton.trigger('click');
+                setTimeout(function() {
+                    const $container = $('.search-modal');
+                    assert.equal($container.length, 0, 'search component modal is destroyed');
+                    ready();
+                }, 500);
             }, 500);
         }, 500);
     });
