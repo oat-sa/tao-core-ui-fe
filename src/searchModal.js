@@ -187,10 +187,10 @@ export default function searchModalFactory(config) {
         let icon = '';
 
         if (reason === 'no-query') {
-            message = 'Please define your search in the search panel.';
+            message = __('Please define your search in the search panel.');
             icon = 'icon-find';
         } else if (reason === 'no-matches') {
-            message = 'No item found. Please try other search criteria.';
+            message = __('No item found. Please try other search criteria.');
             icon = 'icon-info';
         }
 
