@@ -19,6 +19,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 import __ from 'i18n';
 import layoutTpl from 'ui/searchModal/tpl/layout';
+import infoMessageTpl from 'ui/searchModal/tpl/info-message';
 import 'ui/searchModal/css/searchModal.css';
 import component from 'ui/component';
 import 'ui/modal';
@@ -194,11 +195,8 @@ export default function searchModalFactory(config) {
             icon = 'icon-info';
         }
 
-        section.append(`
-        <div class='no-datatable-container'>
-            <span class="no-datatable-icon ${icon}"></span>
-            <p class="no-datatable-message">${message}</p>
-        </div>`);
+        const infoMessage = infoMessageTpl({ message, icon });
+        section.append(infoMessage);
     }
 
     return instance.init({ renderTo: 'body' });
