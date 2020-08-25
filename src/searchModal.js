@@ -108,14 +108,7 @@ export default function searchModalFactory(config) {
                     type : 'POST',
                     data :  {query : query},
                     dataType : 'json'
-                }).done(function(response){
-                    if(response && response.result && response.result === true){
-                        buildResponseTable(response);
-                    } else {
-                        // TODO - Manage no results
-                        // feedback().warning(__('No results found'));
-                    }
-                }).complete(function(){
+                }).done(buildSearchResultsDatatable).complete(function(){
                     running = false;
                 });
             }
@@ -128,7 +121,7 @@ export default function searchModalFactory(config) {
      * Creates a datatable with search results
      * @param {object} data - search query results
      */
-    function buildResponseTable(data){
+    function buildSearchResultsDatatable(data){
         //update the section container
         const $tableContainer = $('<div class="flex-container-full"></div>');
         const section = $('.content-container', instance.getElement());
@@ -165,18 +158,30 @@ export default function searchModalFactory(config) {
         });
     };
 
+    /**
+     * Checks received dataset when search results are loaded and manages possible exceptions
+     * @param {object} e - load.datatable event
+     * @param {object} dataset - datatable dataset
+     */
     function searchResultsLoaded(e, dataset) {
         if (dataset.records === 0) {
-            clear(null, 'no-matches');
+            replaceSearchResultsDatatableWithMessage('no-matches');
         }
     }
 
     /**
-     * Clear search results and search input. Instead of a datatable, a container with an explanation message is displayed
-     * @param {object} event - click event on clear button
+     * Clear search input and search results
+     */
+    function clear() {
+        searchInput.val('');
+        replaceSearchResultsDatatableWithMessage('no-query');
+    }
+
+    /**
+     * Removes datatable container and displays a message instead
      * @param {string} reason - reason why datatable is not rendered, to display appropiate message
      */
-    function clear(event, reason = 'no-query') {
+    function replaceSearchResultsDatatableWithMessage(reason) {
         const section = $('.content-container', instance.getElement());
         section.empty();
         let message = '';
@@ -185,7 +190,7 @@ export default function searchModalFactory(config) {
         if (reason === 'no-query') {
             message = 'Please define your search in the search panel.';
             icon = 'icon-find';
-            searchInput.val('');
+
         } else if (reason === 'no-matches') {
             message = 'No item found. Please try other search criteria.';
             icon = 'icon-info';

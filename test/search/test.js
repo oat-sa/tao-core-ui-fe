@@ -35,7 +35,7 @@ define(['jquery', 'ui/searchModal'], function($, searchModalFactory) {
         const clearButton = $('.btn-clear');
         const closeButton = $('.modal-close-left');
 
-        assert.expect(6);
+        assert.expect(5);
 
         assert.equal($container.length, 1, 'search component modal is created');
         assert.equal(searchInput.val(), 'mathematics', 'search input value is correctly set');
@@ -43,9 +43,6 @@ define(['jquery', 'ui/searchModal'], function($, searchModalFactory) {
         clearButton.trigger('click');
         assert.equal(searchInput.val(), '', 'search input value is correctly cleaned');
         assert.equal($container.find('.no-datatable-container .icon-find').length, 1, 'Correct message is displayed when click on clear button');
-
-        clearButton.trigger('click', 'no-matches');
-        assert.equal($container.find('.no-datatable-container .icon-info').length, 1, 'Correct message is displayed when no matches are found');
 
         setTimeout(function() {
             closeButton.trigger('click');
