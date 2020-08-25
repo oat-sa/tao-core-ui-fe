@@ -23,6 +23,7 @@ import 'ui/searchModal/css/searchModal.css';
 import component from 'ui/component';
 import 'ui/modal';
 import 'ui/datatable';
+import store from 'core/store';
 
 /**
  * Creates a search modal instance
@@ -37,16 +38,20 @@ export default function searchModalFactory(config) {
     let searchButton = null;
     let clearButton = null;
     let running = false;
+    let searchStore = null;
+
     instance.on('render', () => renderModal());
     instance.on('destroy', () => destroyModal());
 
     /**
-     * Creates search modal, inits template selectors, and triggers initial search
+     * Creates search modal, inits template selectors, inits search store, and once is created triggers initial search
      */
     function renderModal() {
         initModal();
         initUiSelectors();
-        searchButton.trigger('click');
+        initSearchStore().then(function(){
+            searchButton.trigger('click');
+        });
     }
 
     /**
@@ -79,6 +84,16 @@ export default function searchModalFactory(config) {
     }
 
     /**
+     * Loads search store so it is accessible in the component
+     */
+    function initSearchStore() {
+        return store('search').then(function(store) {
+            debugger;
+            searchStore = store;
+        });
+    }
+
+    /**
      * Inits template selectors and sets initial search query on search input
      */
     function initUiSelectors() {
@@ -94,7 +109,9 @@ export default function searchModalFactory(config) {
      * Request search results and manages its results
      */
     function search() {
+        debugger;
         const query = searchInput.val();
+        searchStore.setItem('query', query);
         if (query === '') {
             clear();
             return;
@@ -159,13 +176,16 @@ export default function searchModalFactory(config) {
     };
 
     /**
-     * Checks received dataset when search results are loaded and manages possible exceptions
+     * Saves search results on searchStore and manage possible exceptions
      * @param {object} e - load.datatable event
      * @param {object} dataset - datatable dataset
      */
     function searchResultsLoaded(e, dataset) {
         if (dataset.records === 0) {
+            searchStore.removeItem('results');
             replaceSearchResultsDatatableWithMessage('no-matches');
+        } else {
+            searchStore.setItem('results', dataset.data);
         }
     }
 
@@ -173,6 +193,8 @@ export default function searchModalFactory(config) {
      * Clear search input and search results
      */
     function clear() {
+        searchStore.removeItem('query');
+        searchStore.removeItem('results');
         searchInput.val('');
         replaceSearchResultsDatatableWithMessage('no-query');
     }
