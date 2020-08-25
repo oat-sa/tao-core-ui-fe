@@ -13,4 +13,4 @@
         <div class="content-container" style="padding:40px 20px">
         </div>
     </div>
-</div>{{__ "to"}}
+</div>
