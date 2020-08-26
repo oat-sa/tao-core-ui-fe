@@ -31,8 +31,15 @@ import 'ui/datatable';
  * @param {string} config.query - search query to be set and triggered on component creation
  * @param {string} config.url - search endpoint
  * @param {object} config.events - events hub
+ * @param {object} config.renderTo - dom element where component will be rendered
  */
 export default function searchModalFactory(config) {
+    const defaults = {
+        renderTo: 'body',
+        query: ''
+    };
+    _.defaults(config, defaults);
+
     const instance = component().setTemplate(layoutTpl);
     let searchInput = null;
     let searchButton = null;
@@ -199,5 +206,5 @@ export default function searchModalFactory(config) {
         section.append(infoMessage);
     }
 
-    return instance.init({ renderTo: 'body' });
+    return instance.init(config);
 }
