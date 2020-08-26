@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2015 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2015-2020 (original work) Open Assessment Technologies SA;
  */
 
 import $ from 'jquery';
@@ -21,6 +21,7 @@ import _ from 'lodash';
 import __ from 'i18n';
 import Pluginifier from 'core/pluginifier';
 import layout from 'ui/datatable/tpl/layout';
+import buttonTpl from 'ui/datatable/tpl/button';
 import filterStrategyFactory from 'ui/datatable/filterStrategy/filterStrategy';
 import paginationComponent from 'ui/pagination';
 import loadingBar from 'layout/loading-bar';
@@ -28,12 +29,14 @@ import loggerFactory from 'core/logger';
 import httpErrorParser from 'util/httpErrorParser';
 import pageSizeSelector from 'ui/pageSizeSelector';
 import 'ui/datatable/css/datatable.css';
+import DOMPurify from 'lib/dompurify/purify';
 
-var ns = 'datatable';
+const ns = 'datatable';
 
-var dataNs = 'ui.' + ns;
+const dataNs = 'ui.' + ns;
 
-var defaults = {
+const defaults = {
+    atomicUpdate: false,
     start: 0,
     rows: 25,
     page: 1,
@@ -52,33 +55,79 @@ var defaults = {
     pageSizeSelector: false
 };
 
-var logger = loggerFactory('ui/datatable');
+const logger = loggerFactory('ui/datatable');
 
 /**
  * The CSS class used to hide an element
  * @type {String}
  */
-var hiddenCls = 'hidden';
+const hiddenCls = 'hidden';
 
 /**
  * Deactivate pagination's
+ * @param {Array} pagination
  */
-var disablePaginations = function disablePaginations(paginations) {
-    if (paginations && paginations.length) {
-        _.forEach(paginations, function(pagination) {
-            pagination.disable();
+const disablePagination = pagination => {
+    if (pagination && pagination.length) {
+        pagination.forEach(step => {
+            step.disable();
         });
     }
 };
 
 /**
  * Activate pagination's
+ * @param {Array} pagination
  */
-var enablePaginations = function enablePaginations(paginations) {
-    if (paginations && paginations.length) {
-        _.forEach(paginations, function(pagination) {
-            pagination.enable();
+const enablePagination = pagination => {
+    if (pagination && pagination.length) {
+        pagination.forEach(step => {
+            step.enable();
         });
+    }
+};
+
+/**
+ *  Helper for reading actions value in context
+ *
+ * @param {String} property
+ * @param {Object} action
+ * @param {Object} context
+ */
+const getPropertyValue = (property, action, context) => {
+    const value = action[property];
+
+    return _.isFunction(value) ? value.apply(context) : value;
+};
+
+/**
+ * Update the data table status in the header
+ *
+ * @param {Object} options
+ * @param {jQueryElement} $container
+ * @param {Object} dataset
+ */
+const updateHeaderStatus = (options, $container, dataset) => {
+    if (!options.status) {
+        return;
+    }
+
+    const $statusEmpty = $container.find('.empty-list');
+    const $statusAvailable = $container.find('.available-list');
+    const $statusCount = $statusAvailable.find('.count');
+
+    $container.find('.loading').addClass(hiddenCls);
+
+    // when the status is enabled, the response must contain the total amount of records
+    const amount = dataset.amount || dataset.length;
+
+    if (amount) {
+        $statusCount.text(amount);
+        $statusAvailable.removeClass(hiddenCls);
+        $statusEmpty.addClass(hiddenCls);
+    } else {
+        $statusEmpty.removeClass(hiddenCls);
+        $statusAvailable.addClass(hiddenCls);
     }
 };
 
@@ -109,7 +158,53 @@ var enablePaginations = function enablePaginations(paginations) {
  *
  * @exports ui/datatable
  */
-var dataTable = {
+const dataTable = {
+    /**
+     * Used for generating action button action button
+     * @typedef Action
+     * @type {Object}
+     * @property {String} id ID is added to the button class
+     * @property {String} [title] Button title
+     * @property {Boolean} [disabled] When present, button should be disabled
+     * @property {String} [icon] Generate button icon
+     * @property {Boolean} [hidden] When present, button is hidden
+     * @property {Function} [action] Handler on button click
+    */
+
+    /**
+     * Used for generating action button from Object
+     * @deprecated
+     * @typedef  {{
+     *  [key: Action.id & Action.icon & Action.title ]: Action.action,
+     * }} ActionsObject
+     * 
+     * @example
+     * {
+     *  actions: {
+     *    edit: editUser,
+     *    remove: removeUser,
+     *  }
+     * }
+     * 
+     * ! IMPORTANT USE INSTEAD:
+     * {
+     *   actions: [
+     *     {
+     *       id: "edit",
+     *       title: __("Edit"),
+     *       icon: "edit",
+     *       action: editUser
+     *     },
+     *     {
+     *       id: "edit",
+     *       title: __("Edit"),
+     *       icon: "edit",
+     *       action: editUser
+     *     }
+     *   ]
+     * }
+     */
+
     /**
      * Initialize the plugin.
      *
@@ -120,7 +215,7 @@ var dataTable = {
      * @param {Object} options - the plugin options.
      * @param {String} options.url - the URL of the service used to retrieve the resources.
      * @param {Object[]} options.model - the model definition.
-     * @param {Function} options.actions.xxx - the callback function for items xxx, with a single parameter representing the identifier of the items.
+     * @param {ActionsObject | Action[]} options.actions - Generates action buttons
      * @param {Function} options.listeners.xxx - the callback function for event xxx, parameters depends to event trigger call.
      * @param {Boolean} options.selectable - enables the selection of rows using checkboxes.
      * @param {Boolean} options.rowSelection - enables the selection of rows by clicking on them.
@@ -138,17 +233,21 @@ var dataTable = {
      * @param {Object} options.labels - list of labels in datatable interface, that can be overridden by incoming options
      * @param {String} options.emptyText - text that will be shown when no data found for showing in the grid.
      * @param {Boolean} options.pageSizeSelector - flag that indicates if control for changing page size should be displayed
+     * @param {Boolean} options.atomicUpdate - allowed to keep the datatable state to be able on "render" event, compare with new state and atomically update the table cells.
      * @param {Object} [data] - inject predefined data to avoid the first query.
      * @fires dataTable#create.datatable
      * @returns {jQueryElement} for chaining
      */
-    init: function(options, data) {
+    init(options, data) {
         options = _.defaults(options, defaults);
 
-        return this.each(function() {
-            var $elt = $(this);
-            var currentOptions = $elt.data(dataNs);
+        return this.each(function () {
+            const $elt = $(this);
+            const currentOptions = $elt.data(dataNs);
 
+            if (options.atomicUpdate && data) {
+                $elt.data(`${dataNs}state`, data.data);
+            }
             // implement encapsulated pages for the datatable
             $elt.paginations = [];
 
@@ -156,7 +255,7 @@ var dataTable = {
                 //add data to the element
                 $elt.data(dataNs, options);
 
-                $elt.one('load.' + ns, function() {
+                $elt.one('load.' + ns, function () {
                     /**
                      * @event dataTable#create.datatable
                      */
@@ -170,9 +269,7 @@ var dataTable = {
                 }
             } else {
                 // update existing options
-                if (options) {
-                    $elt.data(dataNs, _.merge(currentOptions, options));
-                }
+                $elt.data(dataNs, _.merge(currentOptions, options));
 
                 dataTable._refresh($elt, data);
             }
@@ -188,8 +285,7 @@ var dataTable = {
      * @param {jQueryElement} $elt - plugin's element
      * @param {Object} [data] - Data to render immediately, prevents the query to be made.
      */
-    _refresh: function($elt, data) {
-        // TODO: refresh only rows with data, not all component
+    _refresh($elt, data) {
         if (data) {
             this._render($elt, data);
         } else {
@@ -205,24 +301,25 @@ var dataTable = {
      * @param $filter
      * @fires dataTable#query.datatable
      */
-    _query: function($elt, $filter) {
-        var self = this;
-        var options = $elt.data(dataNs);
-        var parameters;
-        var ajaxConfig;
+    _query($elt, $filter) {
+        const self = this;
+        let options = $elt.data(dataNs);
 
         loadingBar.start();
 
         if (!$filter) {
             $filter = $('.filter', $elt);
         }
+
         options = _.assign({}, options, this._getFilterStrategy($elt).getQueryData($elt, $filter, options));
-        parameters = _.merge(
+
+        const parameters = _.merge(
             {},
             _.pick(options, ['rows', 'page', 'sortby', 'sortorder', 'sorttype', 'filterquery', 'filtercolumns']),
             options.params || {}
         );
-        ajaxConfig = {
+
+        const ajaxConfig = {
             url: options.url,
             data: parameters,
             dataType: 'json',
@@ -230,7 +327,7 @@ var dataTable = {
         };
 
         // disable pagination to not press multiple on it
-        disablePaginations($elt.paginations);
+        disablePagination($elt.paginations);
 
         /**
          * @event dataTable#query.datatable
@@ -244,14 +341,14 @@ var dataTable = {
         }
 
         $.ajax(ajaxConfig)
-            .done(function(response) {
+            .done(function (response) {
                 self._render($elt, response);
             })
-            .fail(function(response, option, err) {
-                var requestErr = httpErrorParser.parse(response, option, err);
+            .fail(function (response, option, err) {
+                const requestErr = httpErrorParser.parse(response, option, err);
                 logger.error(requestErr.message);
                 requestErr.code = response.status;
-                enablePaginations(this.paginations);
+                enablePagination(this.paginations);
                 $elt.trigger('error.' + ns, [requestErr]);
 
                 self._render($elt, {});
@@ -267,28 +364,11 @@ var dataTable = {
      * @fires dataTable#beforeload.datatable
      * @fires dataTable#load.datatable
      */
-    _render: function($elt, dataset) {
-        var self = this;
-        var options = _.cloneDeep($elt.data(dataNs));
-        var $rendering;
-        var $statusEmpty;
-        var $statusAvailable;
-        var $statusCount;
-        var $sortBy;
-        var $sortElement;
-        var $checkAll;
-        var $checkboxes;
-        var $massActionBtns = $();
-        var $rows;
-        var amount;
-        var transforms;
-        var model = [];
-
-        var join = function join(input) {
-            return typeof input !== 'object' ? input : input.join(', ');
-        };
-
-        dataset = dataset || {};
+    _render($elt, dataset = {}) {
+        const self = this;
+        let options = _.cloneDeep($elt.data(dataNs));
+        const model = [];
+        let $massActionBtns = $();
 
         /**
          * @event dataTable#beforeload.datatable
@@ -297,7 +377,7 @@ var dataTable = {
         $elt.trigger('beforeload.' + ns, [_.cloneDeep(dataset)]);
 
         // overrides column options
-        _.forEach(options.model, function(field, key) {
+        _.forEach(options.model, function (field, key) {
             if (!options.filter) {
                 field.filterable = false;
             }
@@ -310,10 +390,6 @@ var dataTable = {
                 field.filterable = { placeholder: __('Filter') };
             }
 
-            if (field.transform) {
-                field.transform = _.isFunction(field.transform) ? field.transform : join;
-            }
-
             if (typeof field.visible === 'undefined') {
                 model.push(field);
             } else if (typeof field.visible === 'function' && field.visible()) {
@@ -323,7 +399,7 @@ var dataTable = {
             }
         });
 
-        model.sort(function(a, b) {
+        model.sort(function (a, b) {
             return a.order - b.order;
         });
 
@@ -332,18 +408,33 @@ var dataTable = {
         }
 
         // process data by model rules
-        if (_.some(options.model, 'transform')) {
-            transforms = _.where(options.model, 'transform');
-            _.forEach(dataset.data, function(row, index) {
-                _.forEach(transforms, function(field) {
-                    row[field.id] = field.transform(row[field.id], row, field, index, dataset.data);
+        if (_.some(model, 'transform')) {
+            const transforms = _.where(model, 'transform');
+
+            _.forEach(dataset.data, (row, index) => {
+                _.forEach(transforms, field => {
+                    if (_.isFunction(field.transform)) {
+                        row[field.id] = field.transform(row[field.id], row, field, index, dataset.data);
+                    }
                 });
             });
         }
 
         options.model = model;
+
+        if (options.atomicUpdate) {
+            const skipForceUpdate = this._shallowUpdate($elt, dataset, options);
+
+            if (skipForceUpdate) {
+                updateHeaderStatus(options, $elt, dataset);
+                loadingBar.stop();
+                $elt.trigger(`load.${ns}`, [dataset]);
+                return;
+            }
+        }
+
         // Call the rendering
-        $rendering = $(layout({ options: options, dataset: dataset }));
+        const $rendering = $(layout({ options: options, dataset: dataset }));
 
         // the readonly property contains an associative array where keys are the ids of the items (lines)
         // the value can be a boolean (true for disable buttons, false to enable)
@@ -352,38 +443,48 @@ var dataTable = {
         //  id1 : {'view':true, 'delete':false},
         //  id2 : true
         //}
-        _.forEach(dataset.readonly, function(values, id) {
+        _.forEach(dataset.readonly, function (values, id) {
             if (values === true) {
                 $('[data-item-identifier="' + id + '"] button', $rendering).addClass('disabled');
             } else if (values && typeof values === 'object') {
-                for (var action in values) {
-                    if (values.hasOwnProperty(action)) {
-                        if (values[action] === true) {
-                            $('[data-item-identifier="' + id + '"] button.' + action, $rendering).addClass('disabled');
-                        }
+                for (const action in values) {
+                    if (values.hasOwnProperty(action) && values[action] === true) {
+                        $(`[data-item-identifier="${id}"] button.${action}`, $rendering).addClass('disabled');
                     }
                 }
             }
         });
 
-        var attachActionListeners = function(actions) {
+        /**
+         * Attach handlers on the action buttons
+         * @param {ActionsObject | Action[]} actions
+         */
+        const attachActionListeners = actions => {
             // Attach a listener to every action button created
-            _.forEach(actions, function(action, name) {
-                var css;
-
+            _.forEach(actions, (action, name) => {
                 if (!_.isFunction(action)) {
                     name = action.id || name;
-                    action = action.action || function() {};
+                    action = action.action || function () {};
                 }
 
-                css = '.' + name;
+                const css = `.${name}`;
 
-                $rendering.off('click', css).on('click', css, function(e) {
-                    var $btn = $(this);
+                $rendering.off('click', css).on('click', css, function (e) {
                     e.preventDefault();
+
+                    const $btn = $(this);
+
                     if (!$btn.hasClass('disabled')) {
-                        var identifier = $btn.closest('[data-item-identifier]').data('item-identifier');
-                        action.apply($btn, [identifier, _.first(_.where(dataset.data, { id: identifier }))]);
+                        const identifier = $btn.closest('[data-item-identifier]').data('item-identifier');
+
+                        action.apply($btn, [
+                            identifier,
+                            _.first(
+                                _.where(dataset.data, {
+                                    id: identifier
+                                })
+                            )
+                        ]);
                     }
                 });
             });
@@ -395,8 +496,8 @@ var dataTable = {
 
         // Attach listeners to model.type = action
         if (_.some(options.model, 'type')) {
-            var types = _.where(options.model, 'type');
-            _.forEach(types, function(field) {
+            const types = _.where(options.model, 'type');
+            _.forEach(types, field => {
                 if (field.type === 'actions' && field.actions) {
                     attachActionListeners(field.actions);
                 }
@@ -404,24 +505,26 @@ var dataTable = {
         }
 
         // Attach a listener to every tool button created
-        _.forEach(options.tools, function(action, name) {
-            var massAction = true;
-            var css;
+        _.forEach(options.tools, (action, name) => {
+            let isMassAction = true;
 
             if (!_.isFunction(action)) {
                 name = action.id || name;
-                massAction = action.massAction;
-                action = action.action || function() {};
+                isMassAction = action.massAction;
+                action = action.action || function () {};
             }
 
-            css = '.tool-' + name;
-            if (massAction) {
+            const css = `.tool-${name}`;
+
+            if (isMassAction) {
                 $massActionBtns = $massActionBtns.add($rendering.find(css));
             }
 
-            $rendering.off('click', css).on('click', css, function(e) {
-                var $btn = $(this);
+            $rendering.off('click', css).on('click', css, function (e) {
                 e.preventDefault();
+
+                const $btn = $(this);
+
                 if (!$btn.hasClass('disabled')) {
                     action.apply($btn, [self._selection($elt)]);
                 }
@@ -429,8 +532,8 @@ var dataTable = {
         });
 
         // bind listeners to events
-        _.forEach(options.listeners, function(callback, event) {
-            var ev = [event, ns].join('.');
+        _.forEach(options.listeners, (callback, event) => {
+            const ev = [event, ns].join('.');
             $elt.off(ev).on(ev, callback);
         });
 
@@ -440,16 +543,16 @@ var dataTable = {
                 activePage: dataset.page,
                 totalPages: dataset.total
             })
-                .on('change', function() {
+                .on('change', function () {
                     self._setPage($elt, this.getActivePage());
                 })
-                .on('prev', function() {
+                .on('prev', function () {
                     /**
                      * @event dataTable#backward.dataTable
                      */
                     $elt.trigger('backward.' + ns);
                 })
-                .on('next', function() {
+                .on('next', function () {
                     /**
                      * @event dataTable#forward.dataTable
                      */
@@ -459,6 +562,7 @@ var dataTable = {
         }
 
         $elt.paginations = [];
+
         if (options.paginationStrategyTop !== 'none') {
             // bind pagination component to the datatable
             $elt.paginations.push(
@@ -471,25 +575,24 @@ var dataTable = {
                 renderPagination($('.datatable-pagination-bottom', $rendering), options.paginationStrategyBottom)
             );
         }
-        disablePaginations($elt.paginations);
+        disablePagination($elt.paginations);
 
         // Now $rendering takes the place of $elt...
-        $rows = $rendering.find('tbody tr');
-
-        $sortBy = $rendering.find('th [data-sort-by]');
-        $sortElement = $rendering.find('[data-sort-by="' + options.sortby + '"]');
-        $checkAll = $rendering.find('th.checkboxes input');
-        $checkboxes = $rendering.find('td.checkboxes input');
+        const $rows = $rendering.find('tbody tr');
+        const $sortBy = $rendering.find('th [data-sort-by]');
+        const $sortElement = $rendering.find('[data-sort-by="' + options.sortby + '"]');
+        const $checkAll = $rendering.find('th.checkboxes input');
+        const $checkboxes = $rendering.find('td.checkboxes input');
 
         if (options.rowSelection) {
             $('table.datatable', $rendering).addClass('hoverable');
-            $rendering.on('click', 'tbody td', function(e) {
+            $rendering.on('click', 'tbody td', function (e) {
                 // exclude from processing columns with actions
                 if ($(e.target).hasClass('checkboxes') || $(e.target).hasClass('actions')) {
                     return false;
                 }
 
-                var currentRow = $(this).parent();
+                const currentRow = $(this).parent();
 
                 $rows.removeClass('selected');
                 currentRow.toggleClass('selected');
@@ -498,14 +601,13 @@ var dataTable = {
             });
         }
 
-        $sortBy.on('click keyup', function(e) {
-            var column, type;
+        $sortBy.on('click keyup', function (e) {
             if (e.type === 'keyup' && e.keyCode !== 13) {
                 return;
             }
             e.preventDefault();
-            column = $(this).data('sort-by');
-            type = $(this).data('sort-type');
+            const column = $(this).data('sort-by');
+            const type = $(this).data('sort-type');
 
             self._sort($elt, column, undefined, type);
         });
@@ -513,24 +615,24 @@ var dataTable = {
         // Add the filter behavior
         if (options.filter) {
             self._getFilterStrategy($elt).render($rendering, options);
-            _.forEach($('.filter', $rendering), function(filter) {
-                var $filter = $(filter);
-                var $filterBtn = $('button', $filter);
-                var $filterInput = $('select, input', $filter);
+            _.forEach($('.filter', $rendering), function (filter) {
+                const $filter = $(filter);
+                const $filterBtn = $('button', $filter);
+                const $filterInput = $('select, input', $filter);
 
                 if ($filterInput.is('select')) {
-                    $filterInput.on('change', function() {
+                    $filterInput.on('change', function () {
                         self._filter($elt, $filter);
                     });
                 } else {
                     // clicking the button trigger the request
-                    $filterBtn.off('click').on('click', function(e) {
+                    $filterBtn.off('click').on('click', function (e) {
                         e.preventDefault();
                         self._filter($elt, $filter);
                     });
 
                     // or press ENTER
-                    $filterInput.off('keypress').on('keypress', function(e) {
+                    $filterInput.off('keypress').on('keypress', function (e) {
                         if (e.which === 13) {
                             e.preventDefault();
                             self._filter($elt, $filter);
@@ -541,7 +643,7 @@ var dataTable = {
         }
 
         // check/uncheck all checkboxes
-        $checkAll.click(function() {
+        $checkAll.click(function () {
             if (this.checked) {
                 $checkAll.prop('checked', true);
                 $checkboxes.prop('checked', true);
@@ -561,8 +663,9 @@ var dataTable = {
         });
 
         // when check/uncheck a box, toggle the check/uncheck all
-        $checkboxes.click(function() {
-            var $checked = $checkboxes.filter(':checked');
+        $checkboxes.click(function () {
+            const $checked = $checkboxes.filter(':checked');
+
             if ($checked.length === $checkboxes.length) {
                 $checkAll.prop('checked', true);
             } else {
@@ -585,24 +688,8 @@ var dataTable = {
         $sortElement.addClass('sorted').addClass('sorted_' + options.sortorder);
 
         // Update the status
-        if (options.status) {
-            $statusEmpty = $rendering.find('.empty-list');
-            $statusAvailable = $rendering.find('.available-list');
-            $statusCount = $statusAvailable.find('.count');
 
-            $rendering.find('.loading').addClass(hiddenCls);
-
-            // when the status is enabled, the response must contain the total amount of records
-            amount = dataset.amount || dataset.length;
-            if (amount) {
-                $statusCount.text(amount);
-                $statusAvailable.removeClass(hiddenCls);
-                $statusEmpty.addClass(hiddenCls);
-            } else {
-                $statusEmpty.removeClass(hiddenCls);
-                $statusAvailable.addClass(hiddenCls);
-            }
-        }
+        updateHeaderStatus(options, $rendering, dataset);
 
         $elt.html($rendering);
 
@@ -612,13 +699,13 @@ var dataTable = {
         }
 
         // restore pagination's after data loaded
-        enablePaginations($elt.paginations);
+        enablePagination($elt.paginations);
 
         if (options.pageSizeSelector) {
             pageSizeSelector({
                 renderTo: $('.toolbox-container', $rendering),
                 defaultSize: options.rows
-            }).on('change', function(val) {
+            }).on('change', function (val) {
                 self._setRows($elt, val);
             });
         }
@@ -639,8 +726,9 @@ var dataTable = {
      * @param page
      * @fires dataTable#setpage.datatable
      */
-    _setPage: function _setPage($elt, page) {
-        var options = $elt.data(dataNs);
+    _setPage($elt, page) {
+        const options = $elt.data(dataNs);
+
         if (options.page !== page) {
             // set new page value
             options.page = page;
@@ -667,9 +755,9 @@ var dataTable = {
      * @fires dataTable#sort.datatable
      * @private
      */
-    _filter: function _filter($elt, $filter) {
-        var options = $elt.data(dataNs);
-        var filtersData = this._getFilterStrategy($elt).getFiltersData($elt, $filter, options);
+    _filter($elt, $filter) {
+        const options = $elt.data(dataNs);
+        const filtersData = this._getFilterStrategy($elt).getFiltersData($elt, $filter, options);
         options.page = 1;
         $elt.data(dataNs, _.assign(options, filtersData));
 
@@ -683,8 +771,9 @@ var dataTable = {
         this._query($elt, $filter);
     },
 
-    _getFilterStrategy: function _getFilterStrategy($elt) {
-        var options = $elt.data(dataNs);
+    _getFilterStrategy($elt) {
+        const options = $elt.data(dataNs);
+
         return filterStrategyFactory(options);
     },
 
@@ -700,8 +789,8 @@ var dataTable = {
      * @param {String} sortType - type of sorting, numeric or string
      * @fires dataTable#sort.datatable
      */
-    _sort: function($elt, sortBy, asc, sortType) {
-        var options = this._sortOptions($elt, sortBy, asc, sortType);
+    _sort($elt, sortBy, asc, sortType) {
+        const options = this._sortOptions($elt, sortBy, asc, sortType);
 
         /**
          * @event dataTable#sort.datatable
@@ -715,6 +804,87 @@ var dataTable = {
     },
 
     /**
+     * Compared current and next number of row and identifiers order of rows.
+     *
+     * @param {dataset} currentState
+     * @param {dataset} nextState
+     * @returns {Boolean}
+     */
+    _canApplyShallowUpdate(currentState, nextState) {
+        const isStatesHasData = _.has(currentState, 'data') && _.has(nextState, 'data');
+
+        if (!isStatesHasData) {
+            return false;
+        }
+
+        const currentData = currentState.data;
+        const nextData = nextState.data;
+
+        if (currentData.length !== nextData.length) {
+            return false;
+        }
+
+        return _.isEqual(
+            currentData.map(data => data.id),
+            nextData.map(data => data.id)
+        );
+    },
+
+    /**
+     * Check possibility of atomic update data in datatable.
+     *
+     * @param {jQueryElement} $container Data table container element
+     * @param {Object} nextState Data to be set to the data table
+     * @param {Object} options Data table options
+     * @returns {Boolean} Return true when data in table can be atomically updated
+     */
+    _shallowUpdate($container, nextState, options) {
+        const currentState = $container.data(`${dataNs}state`);
+
+        // Always update data state
+        $container.data(`${dataNs}state`, nextState);
+
+        if (!this._canApplyShallowUpdate(currentState, nextState)) {
+            return;
+        }
+
+        // NOTE: The code above generate the table cell. With updating handlebars to the version > 2.*, please move it to the dedicated template to reuse it in layout.tpl as well
+        nextState.data.forEach((nextData, index) => {
+            const $row = $container.find(`tr[data-item-identifier="${nextData.id}"]`);
+
+            options.model.forEach(model => {
+                const cellId = model.id;
+
+                if (model.type) {
+                    const $actionCell = $row.find(`td.actions.${cellId}`);
+
+                    $actionCell.html('');
+
+                    model.actions.forEach(action => {
+                        const id = action.id;
+                        const hidden = getPropertyValue('hidden', action, nextData);
+                        const title = getPropertyValue('title', action, nextData);
+                        const disabled = getPropertyValue('disabled', action, nextData);
+                        const icon = getPropertyValue('icon', action, nextData);
+                        const label = getPropertyValue('label', action, nextData);
+                        const $actionButton = $(buttonTpl({ id, icon, label, title, disabled }));
+
+                        if (!hidden) {
+                            $actionCell.append('\n').append($actionButton);
+                        }
+                    });
+                } else {
+                    const nextContent = nextData[cellId];
+
+                    $row.find(`td.${cellId}`).html(DOMPurify.sanitize(nextContent));
+                }
+            });
+        });
+
+        return true;
+    },
+
+    /**
      * Set the sort options.
      *
      * @param {jQueryElement} $elt - plugin's element
@@ -724,8 +894,8 @@ var dataTable = {
      * @returns {Object} - returns the options
      * @private
      */
-    _sortOptions: function($elt, sortBy, asc, sortType) {
-        var options = $elt.data(dataNs);
+    _sortOptions($elt, sortBy, asc, sortType) {
+        const options = $elt.data(dataNs);
 
         if (typeof asc !== 'undefined') {
             if ('asc' !== asc && 'desc' !== asc) {
@@ -759,24 +929,32 @@ var dataTable = {
      * @param {jQueryElement} $elt - plugin's element
      * @returns {Array} - Returns an array of identifiers.
      */
-    _selection: function($elt) {
-        var $selected = $elt.find('[data-item-identifier]').has('td.checkboxes input:checked');
-        var selection = [];
+    _selection($elt) {
+        const $selected = $elt.find('[data-item-identifier]').has('td.checkboxes input:checked');
+        const selection = [];
 
-        $selected.each(function() {
+        $selected.each(function () {
             selection.push($(this).data('item-identifier'));
         });
 
         return selection;
     },
 
+    _highlightRows($elt, rowIds) {
+        $elt.find('[data-item-identifier]').removeClass('highlight');
+
+        rowIds.forEach(rowId => {
+            this._highlightRow($elt, rowId);
+        });
+    },
     /**
      * Highlight the row with identifier
      *
      * @param $elt
      * @param rowId
+     * @deprecated Use highlightRows instead
      */
-    _highlightRow: function($elt, rowId) {
+    _highlightRow($elt, rowId) {
         this._addRowClass($elt, rowId, 'highlight');
     },
 
@@ -788,8 +966,8 @@ var dataTable = {
      * @param className
      * @private
      */
-    _addRowClass: function($elt, rowId, className) {
-        var $row = $elt.find('[data-item-identifier="' + rowId + '"]');
+    _addRowClass($elt, rowId, className) {
+        const $row = $elt.find('[data-item-identifier="' + rowId + '"]');
 
         if (!$row.hasClass(className)) {
             $row.addClass(className);
@@ -804,8 +982,8 @@ var dataTable = {
      * @param className
      * @private
      */
-    _removeRowClass: function($elt, rowId, className) {
-        var $row = $elt.find('[data-item-identifier="' + rowId + '"]');
+    _removeRowClass($elt, rowId, className) {
+        const $row = $elt.find('[data-item-identifier="' + rowId + '"]');
 
         if ($row.hasClass(className)) {
             $row.removeClass(className);
@@ -819,8 +997,8 @@ var dataTable = {
      * @param rows
      * @fires dataTable#setpage.datatable
      */
-    _setRows: function _setPage($elt, rows) {
-        var options = $elt.data(dataNs);
+    _setRows($elt, rows) {
+        const options = $elt.data(dataNs);
 
         if (options.rows !== rows) {
             // set new amount of items per page
@@ -844,5 +1022,15 @@ var dataTable = {
 };
 
 Pluginifier.register(ns, dataTable, {
-    expose: ['refresh', 'sort', 'filter', 'selection', 'render', 'highlightRow', 'addRowClass', 'removeRowClass']
+    expose: [
+        'refresh',
+        'sort',
+        'filter',
+        'selection',
+        'render',
+        'highlightRow',
+        'highlightRows',
+        'addRowClass',
+        'removeRowClass'
+    ]
 });

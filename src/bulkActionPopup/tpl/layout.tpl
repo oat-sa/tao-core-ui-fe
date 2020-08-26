@@ -23,12 +23,14 @@
     </div>
         {{/if}}
     {{/if}}
-    
+
     {{#if deniedResources.length}}
         {{#if singleDenied}}
     <div class="single" data-resource="{{deniedResources.0.id}}">
         <p>
-            {{__ "The action will not be applied to "}} {{resourceType}} <span class="resource-label">{{deniedResources.0.label}}</span>
+            {{__ "The action will not be applied to "}} {{resourceType}}
+            <span class="resource-label">{{deniedResources.0.label}}</span>
+            <span class="reason">({{deniedResources.0.reason}})</span>
         </p>
     </div>
         {{else}}
@@ -45,7 +47,7 @@
     </ul>
         {{/if}}
     {{/if}}
-    
+
     {{#if reason}}
     <div class="reason">
         <p>
@@ -66,10 +68,10 @@
             {{message}}
         </div>
     {{/if}}
-    
+
     <div class="actions">
         <button class="btn btn-info small done">{{__ "OK"}}</button>
         <a href="#" class="btn cancel" title="{{__ "cancel the action"}}">{{__ "cancel"}}</a>
     </div>
-    
+
 </div>

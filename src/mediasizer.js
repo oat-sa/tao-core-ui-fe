@@ -53,7 +53,8 @@ var defaults = {
     responsive: true,
     showResponsiveToggle: true,
     showReset: true,
-    showSync: true
+    showSync: true,
+    size: 100
 };
 
 /**
@@ -552,13 +553,12 @@ MediaSizer = {
 
             // compatibility layer naturalWidth|Height vs. naturalHeight
             // internally width/height are used
-            options.width = options.width || options.naturalWidth;
-            options.height = options.height || options.naturalHeight;
-            options.naturalWidth = options.naturalWidth || options.width;
-            options.naturalHeight = options.naturalHeight || options.height;
+            options.width = options.width || options.naturalWidth || options.maxWidth || defaults.size;
+            options.height = options.height || options.naturalHeight || defaults.size;
+            options.naturalWidth = options.naturalWidth || options.width || defaults.size;
+            options.naturalHeight = options.naturalHeight || options.height || defaults.size;
 
-            options.hasSize =
-                options.width && options.height && _.isFinite(+options.width) && _.isFinite(+options.height);
+            options.hasSize = _.isFinite(+options.width) && _.isFinite(+options.height);
 
             // incomplete or conflicting configurations
             // no target provided, also no width and/or no height
