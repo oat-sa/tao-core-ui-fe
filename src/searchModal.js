@@ -38,8 +38,8 @@ export default function searchModalFactory(config) {
     let searchButton = null;
     let clearButton = null;
     let running = false;
-    instance.on('render', () => renderModal());
-    instance.on('destroy', () => destroyModal());
+    instance.on('render', renderModal);
+    instance.on('destroy', destroyModal);
 
     /**
      * Creates search modal, inits template selectors, and triggers initial search
