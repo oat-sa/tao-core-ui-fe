@@ -107,11 +107,11 @@ export default function searchModalFactory(config) {
      */
     function search() {
         const query = searchInput.val();
-        searchStore.setItem('query', query);
         if (query === '') {
             clear();
             return;
         }
+        searchStore.setItem('query', query).then(notifySearchStoreUpdate);
         //throttle and control to prevent sending too many requests
         const searchHandler = _.throttle(function searchHandlerThrottled(query) {
             if (running === false) {
@@ -179,10 +179,10 @@ export default function searchModalFactory(config) {
      */
     function searchResultsLoaded(e, dataset) {
         if (dataset.records === 0) {
-            searchStore.removeItem('results');
+            searchStore.removeItem('results').then(notifySearchStoreUpdate);
             replaceSearchResultsDatatableWithMessage('no-matches');
         } else {
-            searchStore.setItem('results', dataset.data);
+            searchStore.setItem('results', dataset.data).then(notifySearchStoreUpdate);
         }
     }
 
@@ -190,8 +190,8 @@ export default function searchModalFactory(config) {
      * Clear search input and search results
      */
     function clear() {
-        searchStore.removeItem('query');
-        searchStore.removeItem('results');
+        searchStore.removeItem('query').then(notifySearchStoreUpdate);
+        searchStore.removeItem('results').then(notifySearchStoreUpdate);
         searchInput.val('');
         replaceSearchResultsDatatableWithMessage('no-query');
     }
@@ -216,6 +216,10 @@ export default function searchModalFactory(config) {
 
         const infoMessage = infoMessageTpl({ message, icon });
         section.append(infoMessage);
+    }
+
+    function notifySearchStoreUpdate() {
+        instance.trigger('searchStoreUpdate');
     }
 
     return instance.init({ renderTo: 'body' });
