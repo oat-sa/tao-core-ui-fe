@@ -1,3 +1,5 @@
+@import 'inc/bootstrap';
+
 .search-modal {
     height: 100%;
     padding: 0px;
@@ -38,7 +40,7 @@
             flex-direction: column;
             align-items: center;
             .no-datatable-icon {
-                color: lightgray;
+                color: $lightBlueGrey;
                 font-size: 3.5em;
                 margin-bottom: 30px;
             }
@@ -52,7 +54,7 @@
     border: 1px solid black !important;
     color: black !important;
     text-shadow: none !important;
-    }
+}
 
 .actions {
     width: 12%;
@@ -65,11 +67,11 @@
     top: 10px;
     cursor: pointer;
     font-weight: bold;
-    color: #222 !important;
+    color: $textColor !important;
     background-color: transparent;
     padding: 0;
     height: 20px;
     .icon-close {
-        font-size: 2rem
+        font-size: 2rem;
     }
 }
