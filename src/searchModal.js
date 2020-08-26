@@ -109,7 +109,7 @@ export default function searchModalFactory(config) {
                     dataType: 'json'
                 })
                     .done(buildSearchResultsDatatable)
-                    .complete(function () {
+                    .always(function () {
                         running = false;
                     });
             }
