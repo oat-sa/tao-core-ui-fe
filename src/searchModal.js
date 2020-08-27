@@ -18,6 +18,7 @@
 import $ from 'jquery';
 import _ from 'lodash';
 import __ from 'i18n';
+import context from 'context';
 import layoutTpl from 'ui/searchModal/tpl/layout';
 import infoMessageTpl from 'ui/searchModal/tpl/info-message';
 import 'ui/searchModal/css/searchModal.css';
@@ -32,6 +33,7 @@ import store from 'core/store';
  * @param {string} config.query - search query to be set and triggered on component creation
  * @param {string} config.url - search endpoint
  * @param {object} config.events - events hub
+ * @param {boolean} config.updateResults - if datatable mast request results to endpoint, or use the stored results instead
  */
 export default function searchModalFactory(config) {
     const instance = component().setTemplate(layoutTpl);
@@ -111,7 +113,11 @@ export default function searchModalFactory(config) {
             clear();
             return;
         }
-        searchStore.setItem('query', query).then(notifySearchStoreUpdate);
+
+        searchStore
+            .setItem('query', query)
+            .then(() => searchStore.setItem('location', context.shownStructure).then(notifySearchStoreUpdate));
+
         //throttle and control to prevent sending too many requests
         const searchHandler = _.throttle(function searchHandlerThrottled(query) {
             if (running === false) {
@@ -134,9 +140,19 @@ export default function searchModalFactory(config) {
 
     /**
      * Creates a datatable with search results
-     * @param {object} data - search query results
+     * @param {object} data - search configuration including model and endpoint for datatable
+     * @param {object} storedSearchResults - search query results to be used on first datatable request
      */
     function buildSearchResultsDatatable(data) {
+        // If saved results will be used, recoger them from searchStore, append to data, and recursively recall
+        if (config.updateResults === false) {
+            searchStore.getItem('results').then(function (storedSearchResults) {
+                config.updateResults = true;
+                data.storedSearchResults = storedSearchResults;
+                buildSearchResultsDatatable(data);
+            });
+            return;
+        }
         //update the section container
         const $tableContainer = $('<div class="flex-container-full"></div>');
         const section = $('.content-container', instance.getElement());
@@ -146,30 +162,33 @@ export default function searchModalFactory(config) {
         $tableContainer.on('load.datatable', searchResultsLoaded);
 
         //create datatable
-        $tableContainer.datatable({
-            url: data.url,
-            model: _.values(data.model),
-            labels: {
-                actions: ''
-            },
-            actions: [
-                {
-                    id: 'go-to-item',
-                    label: __('Go to item'),
-                    action: function openResource(id) {
-                        config.events.trigger('refresh', {
-                            uri: id
-                        });
-                        destroyModal();
+        $tableContainer.datatable(
+            {
+                url: data.url,
+                model: _.values(data.model),
+                labels: {
+                    actions: ''
+                },
+                actions: [
+                    {
+                        id: 'go-to-item',
+                        label: __('Go to item'),
+                        action: function openResource(id) {
+                            config.events.trigger('refresh', {
+                                uri: id
+                            });
+                            destroyModal();
+                        }
                     }
+                ],
+                params: {
+                    params: data.params,
+                    filters: data.filters,
+                    rows: 20
                 }
-            ],
-            params: {
-                params: data.params,
-                filters: data.filters,
-                rows: 20
-            }
-        });
+            },
+            data.storedSearchResults
+        );
     }
 
     /**
@@ -182,7 +201,7 @@ export default function searchModalFactory(config) {
             searchStore.removeItem('results').then(notifySearchStoreUpdate);
             replaceSearchResultsDatatableWithMessage('no-matches');
         } else {
-            searchStore.setItem('results', dataset.data).then(notifySearchStoreUpdate);
+            searchStore.setItem('results', dataset).then(notifySearchStoreUpdate);
         }
     }
 
@@ -190,8 +209,7 @@ export default function searchModalFactory(config) {
      * Clear search input and search results
      */
     function clear() {
-        searchStore.removeItem('query').then(notifySearchStoreUpdate);
-        searchStore.removeItem('results').then(notifySearchStoreUpdate);
+        searchStore.clear().then(notifySearchStoreUpdate);
         searchInput.val('');
         replaceSearchResultsDatatableWithMessage('no-query');
     }
