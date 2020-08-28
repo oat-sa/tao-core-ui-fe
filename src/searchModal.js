@@ -28,22 +28,26 @@ import 'ui/datatable';
 import store from 'core/store';
 
 /**
- * Creates a search modal instance
- * @param {object} config - search modal configuration
- * @param {string} config.query - search query to be set and triggered on component creation
- * @param {string} config.url - search endpoint
+ * Creates a searchModal instance
+ *
+ * @param {object} config
+ * @param {object} config.renderTo - DOM element where component will be rendered to
+ * @param {string} config.query - search query to be set on component creation
+ * @param {boolean} config.searchOnInit - if init search must be triggered or not (stored results are used instead)
+ * @param {string} config.url - search endpoint to be set on datatable
  * @param {object} config.events - events hub
- * @param {boolean} config.updateResults - if datatable mast request results to endpoint, or use the stored results instead
+ * @returns {searchModal}
  */
 export default function searchModalFactory(config) {
-    const instance = component().setTemplate(layoutTpl);
+    // Private properties to be easily accessible by instance methods
     let searchInput = null;
     let searchButton = null;
     let clearButton = null;
     let running = false;
     let searchStore = null;
-    instance.on('render', renderModal);
-    instance.on('destroy', destroyModal);
+
+    // Create new component
+    const instance = component().setTemplate(layoutTpl).on('render', renderModal).on('destroy', destroyModal);
 
     /**
      * Creates search modal, inits template selectors, inits search store, and once is created triggers initial search
@@ -84,15 +88,6 @@ export default function searchModalFactory(config) {
     }
 
     /**
-     * Loads search store so it is accessible in the component
-     */
-    function initSearchStore() {
-        return store('search').then(function (store) {
-            searchStore = store;
-        });
-    }
-
-    /**
      * Inits template selectors and sets initial search query on search input
      */
     function initUiSelectors() {
@@ -105,21 +100,33 @@ export default function searchModalFactory(config) {
     }
 
     /**
+     * Loads search store so it is accessible in the component
+     */
+    function initSearchStore() {
+        return store('search').then(function (store) {
+            searchStore = store;
+        });
+    }
+
+    /**
      * Request search results and manages its results
      */
     function search() {
         const query = searchInput.val();
+
+        // if query is empty just clear datatable
         if (query === '') {
             clear();
             return;
         }
 
+        // set query string and context into searchStore and notify it
         searchStore
             .setItem('query', query)
-            .then(() => searchStore.setItem('location', context.shownStructure).then(notifySearchStoreUpdate));
+            .then(() => searchStore.setItem('context', context.shownStructure).then(notifySearchStoreUpdate));
 
         //throttle and control to prevent sending too many requests
-        const searchHandler = _.throttle(function searchHandlerThrottled(query) {
+        const searchHandler = _.throttle(query => {
             if (running === false) {
                 running = true;
                 $.ajax({
@@ -141,22 +148,21 @@ export default function searchModalFactory(config) {
     /**
      * Creates a datatable with search results
      * @param {object} data - search configuration including model and endpoint for datatable
-     * @param {object} storedSearchResults - search query results to be used on first datatable request
      */
     function buildSearchResultsDatatable(data) {
-        // If saved results will be used, recoger them from searchStore, append to data, and recursively recall
-        if (config.updateResults === false) {
-            searchStore.getItem('results').then(function (storedSearchResults) {
-                config.updateResults = true;
+        // If no search on init, get dataset from searchStore and recursively recall
+        if (config.searchOnInit === false) {
+            searchStore.getItem('results').then(storedSearchResults => {
+                config.searchOnInit = true;
                 data.storedSearchResults = storedSearchResults;
                 buildSearchResultsDatatable(data);
             });
             return;
         }
+
         //update the section container
         const $tableContainer = $('<div class="flex-container-full"></div>');
         const section = $('.content-container', instance.getElement());
-
         section.empty();
         section.append($tableContainer);
         $tableContainer.on('load.datatable', searchResultsLoaded);
@@ -192,7 +198,8 @@ export default function searchModalFactory(config) {
     }
 
     /**
-     * Saves search results on searchStore and manage possible exceptions
+     * Triggered on load.datatable event, it saves search results
+     * on searchStore and manages possible exceptions
      * @param {object} e - load.datatable event
      * @param {object} dataset - datatable dataset
      */
@@ -206,7 +213,7 @@ export default function searchModalFactory(config) {
     }
 
     /**
-     * Clear search input and search results
+     * Clear search input and search results from both, view and store
      */
     function clear() {
         searchStore.clear().then(notifySearchStoreUpdate);
@@ -236,9 +243,19 @@ export default function searchModalFactory(config) {
         section.append(infoMessage);
     }
 
+    /**
+     * Called on every internal store update, it triggers a searchStoreUpdate event so parent containers can react
+     */
     function notifySearchStoreUpdate() {
         instance.trigger('searchStoreUpdate');
     }
 
-    return instance.init({ renderTo: 'body' });
+    // return initialized instance of searchModal
+    return instance.init(
+        _.defaults(config, {
+            renderTo: 'body',
+            query: '',
+            searchOnInit: true
+        })
+    );
 }
