@@ -53,7 +53,7 @@
         "cross-env": "^7.0.2",
         "decimal.js": "10.1.1",
         "devbridge-autocomplete": "^1.2.20",
-        "dompurify": "^1.0.10",
+        "dompurify": "^2.0.3",
         "flatpickr": "4.5.7",
         "fs-extra": "^8.0.1",
         "gamp": "^0.2.1",
