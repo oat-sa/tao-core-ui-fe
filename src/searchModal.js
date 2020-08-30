@@ -28,6 +28,13 @@ import 'ui/datatable';
 import store from 'core/store';
 
 /**
+ * Namespace used in events and shortcuts
+ * @type {String}
+ * @private
+ */
+const _ns = 'search-modal';
+
+/**
  * Creates a searchModal instance
  *
  * @param {object} config
@@ -56,6 +63,7 @@ export default function searchModalFactory(config) {
         initModal();
         initUiSelectors();
         initSearchStore().then(function () {
+            instance.trigger(`${_ns}.init`);
             searchButton.trigger('click');
         });
     }
@@ -247,7 +255,7 @@ export default function searchModalFactory(config) {
      * Called on every internal store update, it triggers a searchStoreUpdate event so parent containers can react
      */
     function notifySearchStoreUpdate() {
-        instance.trigger('searchStoreUpdate');
+        instance.trigger(`${_ns}.store-updated`);
     }
 
     // return initialized instance of searchModal

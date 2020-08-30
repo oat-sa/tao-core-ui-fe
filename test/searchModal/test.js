@@ -17,65 +17,90 @@
  */
 define(['jquery', 'ui/searchModal'], function ($, searchModalFactory) {
     QUnit.module('searchModal');
-
     QUnit.test('module', function (assert) {
         assert.expect(1);
         assert.ok(typeof searchModalFactory === 'function', 'The module expose a function');
     });
 
-    QUnit.module('render');
-
-    QUnit.test('search component modal is correctly rendered', function (assert) {
+    QUnit.module('init');
+    QUnit.test('searchModal component is correctly initialized', function (assert) {
         const ready = assert.async();
-        const searchModal = searchModalFactory({
-            query: 'mathematics',
-            url: ''
+        const instance = searchModalFactory({
+            query: 'testing',
+            url: '',
+            renderTo: '#testable-container'
         });
 
-        setTimeout(function () {
+        instance.on('search-modal.init', function () {
+            const $container = $('.search-modal');
+            const searchInput = $container.find('.search-bar-container input');
+
+            assert.expect(2);
+            assert.equal($('#testable-container')[0], instance.getContainer()[0], 'searchModal component is created');
+            assert.equal(searchInput.val(), 'testing', 'search input value is correctly initialized');
+            instance.destroy();
+            ready();
+        });
+    });
+
+    QUnit.module('destroy');
+    QUnit.test('searchModal component is correctly destroyed', function (assert) {
+        const ready = assert.async();
+        const instance = searchModalFactory({
+            query: '',
+            url: '',
+            renderTo: '#testable-container'
+        });
+        $('body').one('opened.modal', function () {
+            const $container = $('.search-modal');
+            const closeButton = $container.find('.modal-close-left');
+            closeButton.trigger('click.modal');
+        });
+        $('body').one('closed.modal', function () {
+            assert.expect(1);
+            const $container = $('.search-modal');
+            assert.equal($container.length, 0, 'search component modal is destroyed');
+            ready();
+        });
+    });
+
+    QUnit.module('Buttons logic');
+    QUnit.test('searchModal buttons work as expected', function (assert) {
+        const ready = assert.async();
+        const instance = searchModalFactory({
+            query: 'testing',
+            url: '',
+            renderTo: '#testable-container'
+        });
+
+        instance.on('search-modal.init', function () {
             const $container = $('.search-modal');
             const searchInput = $container.find('.search-bar-container input');
             const clearButton = $('.btn-clear');
-            const closeButton = $('.modal-close-left');
 
-            assert.expect(5);
-
-            assert.equal($container.length, 1, 'search component modal is created');
-            assert.equal(searchInput.val(), 'mathematics', 'search input value is correctly set');
+            assert.expect(3);
+            assert.equal(searchInput.val(), 'testing', 'search input value is correctly initialized');
+            assert.equal($('#testable-container')[0], instance.getContainer()[0], 'searchModal component is created');
             clearButton.trigger('click');
             assert.equal(searchInput.val(), '', 'search input value is correctly cleaned');
-            assert.equal(
-                $container.find('.no-datatable-container .icon-find').length,
-                1,
-                'Correct message is displayed when click on clear button'
-            );
-
-            setTimeout(function () {
-                closeButton.trigger('click');
-                setTimeout(function () {
-                    const $container = $('.search-modal');
-                    assert.equal($container.length, 0, 'search component modal is destroyed');
-                    ready();
-                }, 500);
-            }, 500);
+            instance.destroy();
+            ready();
         });
     });
 
     QUnit.module('Visual');
-
     QUnit.test('Visual test', function (assert) {
         const ready = assert.async();
-
-        const searchModal = searchModalFactory({
-            url: ''
+        const instance = searchModalFactory({
+            query: '',
+            url: '',
+            renderTo: '#testable-container'
         });
-        assert.expect(1);
 
-        searchModal.on('render', function () {
-            assert.ok(true, 'The actionbar instance triggers event when it is destroyed');
+        assert.expect(1);
+        instance.on('search-modal.init', function () {
+            assert.ok(true, 'Visual test initialized');
             ready();
         });
-
-        searchModal.render();
     });
 });
