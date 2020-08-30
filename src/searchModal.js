@@ -238,7 +238,7 @@ export default function searchModalFactory(config) {
             );
         }
 
-        Promise.all(promises).then(instance.trigger(`${_ns}.store-updated`));
+        Promise.all(promises).then(() => instance.trigger(`${_ns}.store-updated`));
     }
 
     /**
