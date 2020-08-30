@@ -128,11 +128,6 @@ export default function searchModalFactory(config) {
             return;
         }
 
-        // set query string and context into searchStore and notify it
-        searchStore
-            .setItem('query', query)
-            .then(() => searchStore.setItem('context', context.shownStructure).then(notifySearchStoreUpdate));
-
         //throttle and control to prevent sending too many requests
         const searchHandler = _.throttle(query => {
             if (running === false) {
@@ -191,7 +186,7 @@ export default function searchModalFactory(config) {
                             config.events.trigger('refresh', {
                                 uri: id
                             });
-                            destroyModal();
+                            instance.destroy();
                         }
                     }
                 ],
@@ -206,27 +201,53 @@ export default function searchModalFactory(config) {
     }
 
     /**
-     * Triggered on load.datatable event, it saves search results
-     * on searchStore and manages possible exceptions
+     * Triggered on load.datatable event, it updates searchStore and manages possible exceptions
      * @param {object} e - load.datatable event
      * @param {object} dataset - datatable dataset
      */
     function searchResultsLoaded(e, dataset) {
         if (dataset.records === 0) {
-            searchStore.removeItem('results').then(notifySearchStoreUpdate);
             replaceSearchResultsDatatableWithMessage('no-matches');
-        } else {
-            searchStore.setItem('results', dataset).then(notifySearchStoreUpdate);
         }
+        instance.trigger(`${_ns}.datatable-loaded`);
+        updateSearchStore({
+            action: 'update',
+            dataset,
+            context: context.shownStructure,
+            query: searchInput.val()
+        });
+    }
+
+    /**
+     * Updates searchStore. If action is 'clear', searchStore is claread. If not, received
+     * data is assigned to searchStore. Once all actions have been done,
+     * search-modal.store-updated event is triggered
+     * @param {object} data - data to store
+     */
+    function updateSearchStore(data) {
+        const promises = [];
+        if (data.action === 'clear') {
+            promises.push(searchStore.clear());
+        } else if (data.action === 'update') {
+            promises.push(searchStore.setItem('query', data.query));
+            promises.push(searchStore.setItem('context', data.context));
+            promises.push(
+                data.dataset.records === 0
+                    ? searchStore.removeItem('results')
+                    : searchStore.setItem('results', data.dataset)
+            );
+        }
+
+        Promise.all(promises).then(instance.trigger(`${_ns}.store-updated`));
     }
 
     /**
      * Clear search input and search results from both, view and store
      */
     function clear() {
-        searchStore.clear().then(notifySearchStoreUpdate);
         searchInput.val('');
         replaceSearchResultsDatatableWithMessage('no-query');
+        updateSearchStore({ action: 'clear' });
     }
 
     /**
@@ -249,13 +270,6 @@ export default function searchModalFactory(config) {
 
         const infoMessage = infoMessageTpl({ message, icon });
         section.append(infoMessage);
-    }
-
-    /**
-     * Called on every internal store update, it triggers a searchStoreUpdate event so parent containers can react
-     */
-    function notifySearchStoreUpdate() {
-        instance.trigger(`${_ns}.store-updated`);
     }
 
     // return initialized instance of searchModal

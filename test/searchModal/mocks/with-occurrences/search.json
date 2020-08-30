@@ -1,0 +1,10 @@
+{
+    "url": "/test/searchModal/mocks/with-occurrences/dataset.json",
+    "model": {
+        "http://www.w3.org/2000/01/rdf-schema#label": {
+            "id": "http://www.w3.org/2000/01/rdf-schema#label",
+            "label": "Label",
+            "sortable": false
+        }
+    }
+}
