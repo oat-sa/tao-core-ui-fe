@@ -26,6 +26,9 @@ import component from 'ui/component';
 import 'ui/modal';
 import 'ui/datatable';
 import store from 'core/store';
+import resourceSelectorFactory from 'ui/resource/selector';
+import request from 'core/dataProvider/request';
+import urlUtil from 'util/url';
 
 /**
  * Namespace used in events and shortcuts
@@ -52,6 +55,7 @@ export default function searchModalFactory(config) {
     let clearButton = null;
     let running = false;
     let searchStore = null;
+    let resourceSelector = null;
 
     // Create new component
     const instance = component().setTemplate(layoutTpl).on('render', renderModal).on('destroy', destroyModal);
@@ -61,6 +65,7 @@ export default function searchModalFactory(config) {
      */
     function renderModal() {
         initModal();
+        initClassFilter();
         initUiSelectors();
         initSearchStore().then(function () {
             instance.trigger(`${_ns}.init`);
@@ -96,15 +101,72 @@ export default function searchModalFactory(config) {
     }
 
     /**
+     * Inits class filter selector
+     */
+    function initClassFilter() {
+        const classUri = config.events.getResourceContext().rootClassUri;
+        resourceSelector = resourceSelectorFactory($('.class-tree', instance.getElement()), {
+            //set up the inner resource selector
+            selectionMode: 'single',
+            selectClass: true,
+            classUri: classUri,
+            showContext: false,
+            showSelection: false
+        });
+
+        resourceSelector.on('query', function (params) {
+            params.classOnly = true;
+            // TODO - check if correct endpoint should be urlUtil.route('getAll', 'RestClass', 'tao')
+            const route = urlUtil.route('getAll', 'RestResource', 'tao');
+            request(route, params).then(response => {
+                const resources = response.resources;
+                resourceSelector.update(resources, params);
+            });
+        });
+
+        setResourceSelectorUIBehaviour();
+    }
+
+    /**
      * Inits template selectors and sets initial search query on search input
      */
     function initUiSelectors() {
         searchButton = $('.btn-search', instance.getElement());
         clearButton = $('.btn-clear', instance.getElement());
-        searchInput = $('.search-bar-container input', instance.getElement());
+        searchInput = $('.generic-search-input', instance.getElement());
         searchButton.on('click', search);
         clearButton.on('click', clear);
         searchInput.val(config.query);
+    }
+
+    /**
+     * Sets required listeners to properly manage resourceSelector visualization
+     */
+    function setResourceSelectorUIBehaviour() {
+        const classFilterInput = $('.class-filter', instance.getElement());
+        const classFilterContainer = $('.class-tree', instance.getElement());
+
+        // Clicking on searchModal will hide the resource selector
+        instance.getElement().on('mousedown', () => {
+            classFilterContainer.css('display', 'none');
+        });
+
+        /**
+         * clicking on class filter input will toggle resource selector,
+         * will preventDefault to avoid focus on input field,
+         * and will stopPropagation to prevent be closed
+         * by searchModal.mouseDown listener
+         */
+        classFilterInput.on('mousedown', e => {
+            e.preventDefault();
+            e.stopPropagation();
+            classFilterContainer.toggle();
+        });
+
+        // clicking on resource selector will stopPropagation to prevent be closed by searchModal.mouseDown listener
+        classFilterContainer.on('mousedown', e => {
+            e.stopPropagation();
+        });
     }
 
     /**

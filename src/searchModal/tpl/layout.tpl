@@ -1,9 +1,16 @@
 <div class="search-modal section-container">
     <div class="clear content-wrapper content-panel">
         <div class="navi-container">
-            <div class="search-bar-container">
-                <span class="icon-find"></span>
-                <input type="text" placeholder="{{__ "Search Item"}}">
+            <div class="filters-container">
+                <div class="filter-container">
+                    <span class="icon-find"></span>
+                    <input class="generic-search-input" type="text" placeholder="{{__ "Search Item"}}">
+                </div>
+                <div class="filter-container class-filter-container">
+                    <span class="icon-folder"></span>
+                    <input class="class-filter" type="text" placeholder="{{__ "Search Item"}}">
+                    <div class="class-tree"></div>
+                </div>
             </div>
             <div class="buttons-container">
                 <button class="btn-clear btn-transparent small">{{__ "Clear"}}</button>

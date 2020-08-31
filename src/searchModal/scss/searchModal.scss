@@ -228,9 +228,10 @@
         flex-direction: column;
         justify-content: space-between;
         padding: 40px 20px 20px 20px;
-        .search-bar-container {
+        .filter-container {
             position: relative;
-            .icon-find {
+            > .icon-find,
+            > .icon-folder {
                 position: absolute;
                 top: 5px;
                 left: 5px;
@@ -238,6 +239,22 @@
             input {
                 width: 100%;
                 padding-left: 25px;
+            }
+            .class-filter {
+                cursor: pointer;
+            }
+            .class-tree {
+                display: none;
+                position: absolute;
+                top: 27px;
+                left: 0px;
+                width: 275px;
+                font-size: 13.3px;
+
+                main {
+                    overflow-y: auto;
+                    border: 1px solid black;
+                }
             }
         }
         .buttons-container {
