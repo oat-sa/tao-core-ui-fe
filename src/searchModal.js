@@ -56,6 +56,8 @@ export default function searchModalFactory(config) {
     let running = false;
     let searchStore = null;
     let resourceSelector = null;
+    let classFilterInput = null;
+    let classFilterContainer = null;
 
     // Create new component
     const instance = component().setTemplate(layoutTpl).on('render', renderModal).on('destroy', destroyModal);
@@ -64,10 +66,12 @@ export default function searchModalFactory(config) {
      * Creates search modal, inits template selectors, inits search store, and once is created triggers initial search
      */
     function renderModal() {
+        const promises = [];
         initModal();
-        initClassFilter();
         initUiSelectors();
-        initSearchStore().then(function () {
+        promises.push(initClassFilter());
+        promises.push(initSearchStore());
+        Promise.all(promises).then(() => {
             instance.trigger(`${_ns}.init`);
             searchButton.trigger('click');
         });
@@ -104,27 +108,44 @@ export default function searchModalFactory(config) {
      * Inits class filter selector
      */
     function initClassFilter() {
-        const classUri = config.events.getResourceContext().rootClassUri;
-        resourceSelector = resourceSelectorFactory($('.class-tree', instance.getElement()), {
-            //set up the inner resource selector
-            selectionMode: 'single',
-            selectClass: true,
-            classUri: classUri,
-            showContext: false,
-            showSelection: false
-        });
-
-        resourceSelector.on('query', function (params) {
-            params.classOnly = true;
-            // TODO - check if correct endpoint should be urlUtil.route('getAll', 'RestClass', 'tao')
-            const route = urlUtil.route('getAll', 'RestResource', 'tao');
-            request(route, params).then(response => {
-                const resources = response.resources;
-                resourceSelector.update(resources, params);
+        return new Promise(function (resolve) {
+            const classUri = config.events.getResourceContext().rootClassUri; // TODO - Use the received one in factory
+            resourceSelector = resourceSelectorFactory($('.class-tree', instance.getElement()), {
+                //set up the inner resource selector
+                selectionMode: 'single',
+                selectClass: true,
+                classUri: classUri,
+                showContext: false,
+                showSelection: false
             });
-        });
 
-        setResourceSelectorUIBehaviour();
+            // when a class query is triggered, update selector options with received resources
+            resourceSelector.on('query', function (params) {
+                params.classOnly = true;
+                const route = urlUtil.route('getAll', 'RestResource', 'tao');
+                request(route, params).then(response => {
+                    resourceSelector.update(response.resources, params);
+                });
+            });
+
+            /*
+             * the first time selector opions are updated the root class is selected. Promise is
+             * resolved so init process continues only when class input value has been set
+             */
+            resourceSelector.on('update', function () {
+                resourceSelector.off('update');
+                resourceSelector.select(classUri);
+                resolve();
+            });
+
+            // then new class is selected, set its label into class filter input and hide filter container
+            resourceSelector.on('change', function (selectedValue) {
+                classFilterInput.val(_.map(selectedValue, 'label')[0]);
+                classFilterContainer.hide();
+            });
+
+            setResourceSelectorUIBehaviour();
+        });
     }
 
     /**
@@ -134,6 +155,8 @@ export default function searchModalFactory(config) {
         searchButton = $('.btn-search', instance.getElement());
         clearButton = $('.btn-clear', instance.getElement());
         searchInput = $('.generic-search-input', instance.getElement());
+        classFilterInput = $('.class-filter', instance.getElement());
+        classFilterContainer = $('.class-tree', instance.getElement());
         searchButton.on('click', search);
         clearButton.on('click', clear);
         searchInput.val(config.query);
@@ -143,12 +166,8 @@ export default function searchModalFactory(config) {
      * Sets required listeners to properly manage resourceSelector visualization
      */
     function setResourceSelectorUIBehaviour() {
-        const classFilterInput = $('.class-filter', instance.getElement());
-        const classFilterContainer = $('.class-tree', instance.getElement());
-
-        // Clicking on searchModal will hide the resource selector
         instance.getElement().on('mousedown', () => {
-            classFilterContainer.css('display', 'none');
+            classFilterContainer.hide();
         });
 
         /**
@@ -182,13 +201,14 @@ export default function searchModalFactory(config) {
      * Request search results and manages its results
      */
     function search() {
-        const query = searchInput.val();
-
         // if query is empty just clear datatable
-        if (query === '') {
+        if (searchInput.val() === '') {
             clear();
             return;
         }
+
+        // build complex query
+        const query = buildComplexQuery();
 
         //throttle and control to prevent sending too many requests
         const searchHandler = _.throttle(query => {
@@ -210,6 +230,15 @@ export default function searchModalFactory(config) {
         searchHandler(query);
     }
 
+    /**
+     * build final complex query appending every filter
+     */
+    function buildComplexQuery() {
+        const searchInputValue = searchInput.val();
+        const classFilterValue = classFilterInput.val();
+
+        return `class:${classFilterValue} AND ${searchInputValue}`;
+    }
     /**
      * Creates a datatable with search results
      * @param {object} data - search configuration including model and endpoint for datatable
@@ -308,6 +337,7 @@ export default function searchModalFactory(config) {
      */
     function clear() {
         searchInput.val('');
+        resourceSelector.select('http://www.tao.lu/Ontologies/TAOItem.rdf#Item'); // TODO - Use the received one on config
         replaceSearchResultsDatatableWithMessage('no-query');
         updateSearchStore({ action: 'clear' });
     }
