@@ -38,11 +38,11 @@ import store from 'core/store';
  * @returns {searchModal}
  */
 export default function searchModalFactory(config) {
-    config = _.defaults(config, {
+    const defaults = {
         renderTo: 'body',
         query: '',
         searchOnInit: true
-    });
+    };
 
     // Private properties to be easily accessible by instance methods
     let searchInput = null;
@@ -74,7 +74,10 @@ export default function searchModalFactory(config) {
     }
 
     // Creates new component
-    const instance = component({}, config).setTemplate(layoutTpl).on('render', renderModal).on('destroy', destroyModal);
+    const instance = component({}, defaults)
+        .setTemplate(layoutTpl)
+        .on('render', renderModal)
+        .on('destroy', destroyModal);
 
     /**
      * Creates search modal
@@ -296,5 +299,5 @@ export default function searchModalFactory(config) {
     }
 
     // return initialized instance of searchModal
-    return instance.init();
+    return instance.init(config);
 }
