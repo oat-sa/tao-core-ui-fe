@@ -295,6 +295,7 @@ export default function classesSelectorFactory($container, config) {
 
             $selected.on('click', function(e) {
                 e.preventDefault();
+                $selected.toggleClass('open');
                 $options.toggleClass('folded');
             });
 

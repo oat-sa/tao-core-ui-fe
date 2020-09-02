@@ -34,6 +34,12 @@
         }
     }
 
+    a.open {
+        &:after {
+            @include icon-up;
+        }
+    }
+
     .options {
 
         position: absolute;
