@@ -177,7 +177,7 @@ export default function searchModalFactory(config) {
                     })
                     .catch(e => {
                         instance.trigger('error', e);
-                        reject();
+                        reject(new Error('Error appending default dataset from searchStore to datatable'));
                     });
             } else {
                 resolve();
