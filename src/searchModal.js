@@ -31,13 +31,6 @@ import request from 'core/dataProvider/request';
 import urlUtil from 'util/url';
 
 /**
- * Namespace used in events and shortcuts
- * @type {String}
- * @private
- */
-const _ns = 'search-modal';
-
-/**
  * Creates a searchModal instance
  *
  * @param {object} config
@@ -45,10 +38,16 @@ const _ns = 'search-modal';
  * @param {string} config.query - search query to be set on component creation
  * @param {boolean} config.searchOnInit - if init search must be triggered or not (stored results are used instead)
  * @param {string} config.url - search endpoint to be set on datatable
- * @param {object} config.events - events hub
+ * @param {string} config.rootClassUri - Uri for the root class of current context, required to init the class filter
  * @returns {searchModal}
  */
 export default function searchModalFactory(config) {
+    config = _.defaults(config, {
+        renderTo: 'body',
+        query: '',
+        searchOnInit: true
+    });
+
     // Private properties to be easily accessible by instance methods
     let searchInput = null;
     let searchButton = null;
@@ -59,9 +58,6 @@ export default function searchModalFactory(config) {
     let classFilterInput = null;
     let classFilterContainer = null;
 
-    // Create new component
-    const instance = component().setTemplate(layoutTpl).on('render', renderModal).on('destroy', destroyModal);
-
     /**
      * Creates search modal, inits template selectors, inits search store, and once is created triggers initial search
      */
@@ -71,10 +67,12 @@ export default function searchModalFactory(config) {
         initUiSelectors();
         promises.push(initClassFilter());
         promises.push(initSearchStore());
-        Promise.all(promises).then(() => {
-            instance.trigger(`${_ns}.init`);
-            searchButton.trigger('click');
-        });
+        Promise.all(promises)
+            .then(() => {
+                instance.trigger('ready');
+                searchButton.trigger('click');
+            })
+            .catch(e => instance.trigger('error', e));
     }
 
     /**
@@ -84,6 +82,9 @@ export default function searchModalFactory(config) {
         instance.getElement().removeClass('modal').modal('destroy');
         $('.modal-bg').remove();
     }
+
+    // Creates new component
+    const instance = component({}, config).setTemplate(layoutTpl).on('render', renderModal).on('destroy', destroyModal);
 
     /**
      * Creates search modal
@@ -109,7 +110,7 @@ export default function searchModalFactory(config) {
      */
     function initClassFilter() {
         return new Promise(function (resolve) {
-            const classUri = config.events.getResourceContext().rootClassUri; // TODO - Use the received one in factory
+            const classUri = config.rootClassUri;
             resourceSelector = resourceSelectorFactory($('.class-tree', instance.getElement()), {
                 //set up the inner resource selector
                 selectionMode: 'single',
@@ -190,11 +191,14 @@ export default function searchModalFactory(config) {
 
     /**
      * Loads search store so it is accessible in the component
+     * @returns {Promise}
      */
     function initSearchStore() {
-        return store('search').then(function (store) {
-            searchStore = store;
-        });
+        return store('search')
+            .then(function (store) {
+                searchStore = store;
+            })
+            .catch(e => instance.trigger('error', e));
     }
 
     /**
@@ -220,7 +224,11 @@ export default function searchModalFactory(config) {
                     data: { query: query },
                     dataType: 'json'
                 })
-                    .done(buildSearchResultsDatatable)
+                    .done(data => {
+                        appendDefaultDatasetToDatatable(data)
+                            .then(() => buildSearchResultsDatatable(data))
+                            .catch(e => instance.trigger('error', e));
+                    })
                     .always(function () {
                         running = false;
                     });
@@ -239,21 +247,37 @@ export default function searchModalFactory(config) {
 
         return `class:${classFilterValue} AND ${searchInputValue}`;
     }
+    /*
+     * If search on init is not required, extends data with stored dataset
+     * @param {object} data - search configuration including model and endpoint for datatable
+     * @returns {Promise}
+     */
+    function appendDefaultDatasetToDatatable(data) {
+        return new Promise(function (resolve, reject) {
+            // If no search on init, get dataset from searchStore
+            if (config.searchOnInit === false) {
+                searchStore
+                    .getItem('results')
+                    .then(storedSearchResults => {
+                        config.searchOnInit = true;
+                        data.storedSearchResults = storedSearchResults;
+                        resolve();
+                    })
+                    .catch(e => {
+                        instance.trigger('error', e);
+                        reject(new Error('Error appending default dataset from searchStore to datatable'));
+                    });
+            } else {
+                resolve();
+            }
+        });
+    }
+
     /**
      * Creates a datatable with search results
      * @param {object} data - search configuration including model and endpoint for datatable
      */
     function buildSearchResultsDatatable(data) {
-        // If no search on init, get dataset from searchStore and recursively recall
-        if (config.searchOnInit === false) {
-            searchStore.getItem('results').then(storedSearchResults => {
-                config.searchOnInit = true;
-                data.storedSearchResults = storedSearchResults;
-                buildSearchResultsDatatable(data);
-            });
-            return;
-        }
-
         //update the section container
         const $tableContainer = $('<div class="flex-container-full"></div>');
         const section = $('.content-container', instance.getElement());
@@ -273,10 +297,8 @@ export default function searchModalFactory(config) {
                     {
                         id: 'go-to-item',
                         label: __('Go to item'),
-                        action: function openResource(id) {
-                            config.events.trigger('refresh', {
-                                uri: id
-                            });
+                        action: function openResource(uri) {
+                            instance.trigger('refresh', uri);
                             instance.destroy();
                         }
                     }
@@ -300,7 +322,7 @@ export default function searchModalFactory(config) {
         if (dataset.records === 0) {
             replaceSearchResultsDatatableWithMessage('no-matches');
         }
-        instance.trigger(`${_ns}.datatable-loaded`);
+        instance.trigger(`datatable-loaded`);
         updateSearchStore({
             action: 'update',
             dataset,
@@ -312,7 +334,7 @@ export default function searchModalFactory(config) {
     /**
      * Updates searchStore. If action is 'clear', searchStore is claread. If not, received
      * data is assigned to searchStore. Once all actions have been done,
-     * search-modal.store-updated event is triggered
+     * store-updated event is triggered
      * @param {object} data - data to store
      */
     function updateSearchStore(data) {
@@ -329,7 +351,9 @@ export default function searchModalFactory(config) {
             );
         }
 
-        Promise.all(promises).then(() => instance.trigger(`${_ns}.store-updated`));
+        Promise.all(promises)
+            .then(() => instance.trigger(`store-updated`))
+            .catch(e => instance.trigger('error', e));
     }
 
     /**
@@ -365,11 +389,5 @@ export default function searchModalFactory(config) {
     }
 
     // return initialized instance of searchModal
-    return instance.init(
-        _.defaults(config, {
-            renderTo: 'body',
-            query: '',
-            searchOnInit: true
-        })
-    );
+    return instance.init();
 }

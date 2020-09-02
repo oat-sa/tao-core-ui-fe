@@ -36,7 +36,7 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
                     searchOnInit: false
                 });
 
-                instance.on('search-modal.init', function () {
+                instance.on('ready', function () {
                     const $container = $('.search-modal');
                     const searchInput = $container.find('.search-bar-container input');
                     assert.equal(
@@ -47,7 +47,7 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
                     assert.equal(searchInput.val(), 'example', 'search input value is correctly initialized');
                 });
 
-                instance.on('search-modal.datatable-loaded', function () {
+                instance.on('datatable-loaded', function () {
                     const $datatable = $('table.datatable');
                     assert.equal($datatable.length, 1, 'datatable has been created');
                     assert.equal(
@@ -71,7 +71,7 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
         const ready = assert.async();
         assert.expect(4);
 
-        instance.on('search-modal.init', function () {
+        instance.on('ready', function () {
             const $container = $('.search-modal');
             const searchInput = $container.find('.search-bar-container input');
 
@@ -79,7 +79,7 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
             assert.equal(searchInput.val(), 'example', 'search input value is correctly initialized');
         });
 
-        instance.on('search-modal.datatable-loaded', function () {
+        instance.on('datatable-loaded', function () {
             const $datatable = $('table.datatable');
             assert.equal($datatable.length, 1, 'datatable has been created');
             assert.equal($datatable.find('tbody tr').length, 9, 'datatable display the correct number of matches');
@@ -122,7 +122,7 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
         const ready = assert.async();
         assert.expect(3);
 
-        instance.on('search-modal.datatable-loaded', function () {
+        instance.on('datatable-loaded', function () {
             const $datatable = $('table.datatable');
             assert.equal($datatable.length, 1, 'datatable has been created');
             assert.equal($datatable.find('tbody tr').length, 9, 'datatable display the correct number of matches');
@@ -143,7 +143,7 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
         const ready = assert.async();
         assert.expect(4);
 
-        instance.on('search-modal.datatable-loaded', function () {
+        instance.on('datatable-loaded', function () {
             const $container = $('.search-modal');
             const searchInput = $container.find('.search-bar-container input');
             const clearButton = $('.btn-clear');
@@ -172,7 +172,7 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
         const ready = assert.async();
         assert.expect(3);
 
-        instance.on('search-modal.init', function () {
+        instance.on('ready', function () {
             const $container = $('.search-modal');
             const searchInput = $container.find('.search-bar-container input');
             const searchButton = $('.btn-search');
@@ -182,7 +182,7 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
             searchButton.trigger('click');
         });
 
-        instance.on('search-modal.datatable-loaded', function () {
+        instance.on('datatable-loaded', function () {
             const $datatable = $('table.datatable');
             assert.equal($datatable.length, 1, 'datatable has been created');
             assert.equal($datatable.find('tbody tr').length, 9, 'datatable display the correct number of matches');
@@ -200,7 +200,7 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
         const ready = assert.async();
         assert.expect(3);
 
-        instance.on('search-modal.init', function () {
+        instance.on('ready', function () {
             const $container = $('.search-modal');
             const searchInput = $container.find('.search-bar-container input');
             const searchButton = $('.btn-search');
@@ -210,7 +210,7 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
             searchButton.trigger('click');
         });
 
-        instance.on('search-modal.datatable-loaded', function () {
+        instance.on('datatable-loaded', function () {
             const $datatable = $('table.datatable');
             const $resultContainer = $('.no-datatable-container');
 
@@ -233,7 +233,7 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
         assert.expect(5);
 
         // this is necessary because we want to listen
-        instance.on('search-modal.store-updated', function () {
+        instance.on('store-updated', function () {
             const $datatable = $('table.datatable');
             assert.equal($datatable.length, 1, 'datatable has been created');
             assert.equal($datatable.find('tbody tr').length, 9, 'datatable display the correct number of matches');
@@ -271,7 +271,7 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
         const ready = assert.async();
         assert.expect(1);
 
-        instance.on('search-modal.init', function () {
+        instance.on('ready', function () {
             assert.ok(true, 'Visual test initialized');
             ready();
         });
