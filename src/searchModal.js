@@ -38,8 +38,7 @@ import store from 'core/store';
  * @returns {searchModal}
  */
 export default function searchModalFactory(config) {
-    // default component values
-    const defaults = _.defaults(config, {
+    config = _.defaults(config, {
         renderTo: 'body',
         query: '',
         searchOnInit: true
@@ -75,10 +74,7 @@ export default function searchModalFactory(config) {
     }
 
     // Creates new component
-    const instance = component({}, defaults)
-        .setTemplate(layoutTpl)
-        .on('render', renderModal)
-        .on('destroy', destroyModal);
+    const instance = component({}, config).setTemplate(layoutTpl).on('render', renderModal).on('destroy', destroyModal);
 
     /**
      * Creates search modal
