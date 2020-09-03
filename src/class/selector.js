@@ -73,6 +73,13 @@ export default function classesSelectorFactory($container, config) {
         return _.reduce(classes, nodeToListItem, '');
     };
 
+    var isOutsideOfThisContainer = function isOutsideOfThisContainer(e) {
+        if (!$options[0].contains(e.target) && $selected[0] !== e.target && !$options[0].classList.contains('folded')) {
+            $selected.toggleClass('open');
+            $options.toggleClass('folded');
+        }
+    };
+
     /**
      * @typedef {classSelector} the component
      */
@@ -292,6 +299,7 @@ export default function classesSelectorFactory($container, config) {
             var $component = this.getElement();
             $selected = $('.selected', $component);
             $options = $('.options', $component);
+            window.addEventListener('click', isOutsideOfThisContainer);
 
             $selected.on('click', function(e) {
                 e.preventDefault();
@@ -309,6 +317,7 @@ export default function classesSelectorFactory($container, config) {
         })
         .on('destroy', function() {
             classList = {};
+            window.removeEventListener('click', isOutsideOfThisContainer);
         });
 
     _.defer(function() {
