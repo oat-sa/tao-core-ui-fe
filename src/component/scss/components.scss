@@ -45,10 +45,10 @@
 
 .undobox {
     display : block;
-    position : fixed;
+    position : fixed!important;
     top : 50px;
     left : 50%;
-    margin-left : -200px;
+    margin-left : -200px!important;
     width : 400px;
     z-index: 100005;
 }
