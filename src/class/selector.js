@@ -312,6 +312,7 @@ export default function classesSelectorFactory($container, config) {
 
                 self.setValue($(this).data('uri'));
 
+                $selected.toggleClass('open');
                 $options.toggleClass('folded');
             });
         })
