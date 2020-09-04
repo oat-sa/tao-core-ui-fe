@@ -213,13 +213,17 @@ define(['jquery', 'ui/class/selector', 'json!test/ui/class/selector/classes.json
 
             assert.ok(!$selected.hasClass('open'), 'The selected container is closed');
 
-            $('a.selected', $element).click();
+            $selected.click();
 
             assert.ok($selected.hasClass('open'), 'The selected container is opened');
 
-            $('a.selected', $element).click();
+            $selected.click();
             $('body', $element).click();
             assert.ok($options.hasClass('folded'), 'The option container is unfolded by clicking outside');
+
+            $selected.click();
+            $('ul:first-child > li:first-child > a', $element).click();
+            assert.ok(!$selected.hasClass('open'), 'The selected container is closed when click on item inside dropdown');
 
             ready();
         });
