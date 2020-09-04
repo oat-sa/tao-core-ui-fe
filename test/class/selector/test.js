@@ -202,7 +202,7 @@ define(['jquery', 'ui/class/selector', 'json!test/ui/class/selector/classes.json
 
         var $container = $('#qunit-fixture');
 
-        assert.expect(3);
+        assert.expect(4);
 
         classSelector($container, {
             classes: classes
