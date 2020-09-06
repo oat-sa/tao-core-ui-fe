@@ -29,13 +29,13 @@ import store from 'core/store';
 import resourceSelectorFactory from 'ui/resource/selector';
 import request from 'core/dataProvider/request';
 import urlUtil from 'util/url';
-
+// TODO - manage when rootClassUri is not received because current context is not covered by elastic search
 /**
  * Creates a searchModal instance
  *
  * @param {object} config
  * @param {object} config.renderTo - DOM element where component will be rendered to
- * @param {string} config.query - search query to be set on component creation
+ * @param {string} config.criterias - Search criterias to be set on component creation
  * @param {boolean} config.searchOnInit - if init search must be triggered or not (stored results are used instead)
  * @param {string} config.url - search endpoint to be set on datatable
  * @param {string} config.rootClassUri - Uri for the root class of current context, required to init the class filter
@@ -44,7 +44,7 @@ import urlUtil from 'util/url';
 export default function searchModalFactory(config) {
     const defaults = {
         renderTo: 'body',
-        query: '',
+        criterias: {},
         searchOnInit: true
     };
 
@@ -113,12 +113,14 @@ export default function searchModalFactory(config) {
      */
     function initClassFilter() {
         return new Promise(function (resolve) {
-            const classUri = config.rootClassUri;
+            const rootClassUri = config.rootClassUri;
+            const initialClassUri =
+                config.criterias && config.criterias.class ? config.criterias.class : config.rootClassUri;
             resourceSelector = resourceSelectorFactory($('.class-tree', instance.getElement()), {
                 //set up the inner resource selector
                 selectionMode: 'single',
                 selectClass: true,
-                classUri: classUri,
+                classUri: rootClassUri,
                 showContext: false,
                 showSelection: false
             });
@@ -138,7 +140,8 @@ export default function searchModalFactory(config) {
              */
             resourceSelector.on('update', function () {
                 resourceSelector.off('update');
-                resourceSelector.select(classUri);
+
+                resourceSelector.select(initialClassUri);
                 resolve();
             });
 
@@ -163,7 +166,7 @@ export default function searchModalFactory(config) {
         classFilterContainer = $('.class-tree', instance.getElement());
         searchButton.on('click', search);
         clearButton.on('click', clear);
-        searchInput.val(config.query);
+        searchInput.val(config.criterias && config.criterias.search ? config.criterias.search : '');
     }
 
     /**
@@ -330,7 +333,10 @@ export default function searchModalFactory(config) {
             action: 'update',
             dataset,
             context: context.shownStructure,
-            query: searchInput.val()
+            criterias: {
+                search: searchInput.val(),
+                class: _.map(resourceSelector.getSelection(), 'uri')[0]
+            }
         });
     }
 
@@ -345,7 +351,7 @@ export default function searchModalFactory(config) {
         if (data.action === 'clear') {
             promises.push(searchStore.clear());
         } else if (data.action === 'update') {
-            promises.push(searchStore.setItem('query', data.query));
+            promises.push(searchStore.setItem('criterias', data.criterias));
             promises.push(searchStore.setItem('context', data.context));
             promises.push(
                 data.dataset.records === 0
@@ -364,7 +370,7 @@ export default function searchModalFactory(config) {
      */
     function clear() {
         searchInput.val('');
-        resourceSelector.select('http://www.tao.lu/Ontologies/TAOItem.rdf#Item'); // TODO - Use the received one on config
+        resourceSelector.select(config.rootClassUri);
         replaceSearchResultsDatatableWithMessage('no-query');
         updateSearchStore({ action: 'clear' });
     }
