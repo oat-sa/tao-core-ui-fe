@@ -197,6 +197,38 @@ define(['jquery', 'ui/class/selector', 'json!test/ui/class/selector/classes.json
         });
     });
 
+    QUnit.test('folding clicking outside', function(assert) {
+        var ready = assert.async();
+
+        var $container = $('#qunit-fixture');
+
+        assert.expect(4);
+
+        classSelector($container, {
+            classes: classes
+        }).on('render', function() {
+            var $element = this.getElement();
+            var $options = $('.options', $element);
+            var $selected = $('a.selected', $element);
+
+            assert.ok(!$selected.hasClass('open'), 'The selected container is closed');
+
+            $selected.click();
+
+            assert.ok($selected.hasClass('open'), 'The selected container is opened');
+
+            $selected.click();
+            $('body').trigger("click");
+            assert.ok($options.hasClass('folded'), 'The option container is unfolded by clicking outside');
+
+            $selected.click();
+            $('ul:first-child > li:first-child > a', $element).click();
+            assert.ok(!$selected.hasClass('open'), 'The selected container is closed when click on item inside dropdown');
+
+            ready();
+        });
+    });
+
     QUnit.test('selection', function(assert) {
         var ready = assert.async();
 
