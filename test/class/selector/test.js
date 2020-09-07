@@ -218,7 +218,7 @@ define(['jquery', 'ui/class/selector', 'json!test/ui/class/selector/classes.json
             assert.ok($selected.hasClass('open'), 'The selected container is opened');
 
             $selected.click();
-            $('body', $element).click();
+            $('body').trigger("click");
             assert.ok($options.hasClass('folded'), 'The option container is unfolded by clicking outside');
 
             $selected.click();
