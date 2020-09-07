@@ -129,9 +129,11 @@ export default function searchModalFactory(config) {
             resourceSelector.on('query', function (params) {
                 params.classOnly = true;
                 const route = urlUtil.route('getAll', 'RestResource', 'tao');
-                request(route, params).then(response => {
-                    resourceSelector.update(response.resources, params);
-                });
+                request(route, params)
+                    .then(response => {
+                        resourceSelector.update(response.resources, params);
+                    })
+                    .catch(e => instance.trigger('error', e));
             });
 
             /*
