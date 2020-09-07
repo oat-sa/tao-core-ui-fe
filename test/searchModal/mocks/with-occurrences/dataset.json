@@ -1,0 +1,46 @@
+{
+    "data": [
+        {
+            "id": "https://tao.docker.localhost/ontologies/tao.rdf#i5f48e105be08844e7d7b605384c562c",
+            "http://www.w3.org/2000/01/rdf-schema#label": "Example_8_Geo 3"
+        },
+        {
+            "id": "https://tao.docker.localhost/ontologies/tao.rdf#i5f48e105718c244e85299956c0fbe44",
+            "http://www.w3.org/2000/01/rdf-schema#label": "Example_7_Geo 2"
+        },
+        {
+            "id": "https://tao.docker.localhost/ontologies/tao.rdf#i5f48e10523c6344be9899ba13aaa40b",
+            "http://www.w3.org/2000/01/rdf-schema#label": "Example_6_Geography"
+        },
+        {
+            "id": "https://tao.docker.localhost/ontologies/tao.rdf#i5f48e104c99fb44e842eb424d8e2cfe",
+            "http://www.w3.org/2000/01/rdf-schema#label": "Example_5_picasso"
+        },
+        {
+            "id": "https://tao.docker.localhost/ontologies/tao.rdf#i5f48e1047c3f044770cb9cddcde9fd8",
+            "http://www.w3.org/2000/01/rdf-schema#label": "Example_4_Appearance"
+        },
+        {
+            "id": "https://tao.docker.localhost/ontologies/tao.rdf#i5f48e1042a87e443b57482c2ed927c8",
+            "http://www.w3.org/2000/01/rdf-schema#label": "Example_3_Baudelaire"
+        },
+        {
+            "id": "https://tao.docker.localhost/ontologies/tao.rdf#i5f48e103c32b144a6be0cf4a640e0a4",
+            "http://www.w3.org/2000/01/rdf-schema#label": "example_2_Math"
+        },
+        {
+            "id": "https://tao.docker.localhost/ontologies/tao.rdf#i5f48e10370a44445642b4249664cd56",
+            "http://www.w3.org/2000/01/rdf-schema#label": "example_1_TAO"
+        },
+        {
+            "id": "https://tao.docker.localhost/ontologies/tao.rdf#i5f48e1031ff3e4486d4bd1f46de2c04",
+            "http://www.w3.org/2000/01/rdf-schema#label": "Example_0_Introduction"
+        }
+    ],
+    "readonly": [],
+    "success": true,
+    "page": 1,
+    "total": 1,
+    "totalCount": 9,
+    "records": 9
+}

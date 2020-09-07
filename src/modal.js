@@ -51,7 +51,7 @@ var modal = {
     /**
      * Initialize the modal dialog
      * @param {Object} [options] - plugin options
-     * @param {String} [options.modalClose = 'modal-close'] - the css class for the modal closer
+     * @param {String} [options.modalCloseClass = 'modal-close'] - the css class for the modal closer
      * @param {String} [options.modalOverlay = 'modal-bg'] - the css class for the modal overlay element
      * @param {Boolean} [options.disableClosing = false] - to disable the default closers
      * @param {Boolean} [options.disableEscape = false] - to disable the ability to escape close the dialog
