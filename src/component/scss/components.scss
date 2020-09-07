@@ -44,13 +44,18 @@
 }
 
 .undobox {
-    display : block;
-    position : fixed;
-    top : 50px;
-    left : 50%;
-    margin-left : -200px;
-    width : 400px;
+    border: 1px #266d9c solid;
+    display: block;
+    position: fixed;
+    top: 50px;
+    left: 50%;
+    margin-left: -200px;
+    width: 400px;
     z-index: 100005;
+    background-color: #cfdfe9;
+    padding: 20px 20px 20px 45px;
+    border-radius: 3px;
+    color: #222 !important;
 }
 
 .undobox > .icon-close {
