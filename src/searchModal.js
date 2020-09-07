@@ -71,7 +71,6 @@ export default function searchModalFactory(config) {
         promises.push(initSearchStore());
         Promise.all(promises)
             .then(() => {
-                debugger;
                 instance.trigger('ready');
                 searchButton.trigger('click');
             })
