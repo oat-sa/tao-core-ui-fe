@@ -15,29 +15,10 @@
  *
  * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
  */
-const classTree = [
-    {
-        label: 'Item',
-        type: 'class',
-        uri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
-        classUri: null,
-        signature: 'c875031e47982028c84ac8bd0cd62f7c55fd2e3504555535707728176c490540',
-        state: 'open',
-        count: 0,
-        children: [
-            {
-                label: 'QTI Interactions',
-                type: 'class',
-                uri: 'https://tao0.docker.localhost/ontologies/tao.rdf#i5f51f1d0bdd2b84f4c46880082e771',
-                classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
-                signature: '7aab1b9afa782de3071cb40d7453133c1f2ac0c82d7f295ce68e5fd1087cdb6f',
-                state: false,
-                count: 0
-            }
-        ]
-    }
-];
-define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], function ($, searchModalFactory, store) {
+
+define(['jquery', 'ui/searchModal', 'core/store', './mocks/mocks'], function ($, searchModalFactory, store) {
+    const classTree = mockedClassTree;
+
     QUnit.module('searchModal');
     QUnit.test('module', function (assert) {
         assert.expect(1);
@@ -68,7 +49,6 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
                         instance.getContainer()[0],
                         'searchModal component is created'
                     );
-                    debugger;
                     assert.equal(searchInput.val(), 'example', 'search input value is correctly initialized');
                 });
 
@@ -260,6 +240,37 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
         });
     });
 
+    QUnit.module('class filter');
+    QUnit.test('class filter workflow is correct', function (assert) {
+        const ready = assert.async();
+        assert.expect(3);
+        const instance = searchModalFactory({
+            criterias: { search: 'example' },
+            url: '/test/searchModal/mocks/with-occurrences/search.json',
+            renderTo: '#testable-container',
+            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
+            testMocks: { classTree }
+        });
+
+        instance.on('ready', function () {
+            const $container = $('.search-modal');
+            const classInput = $container.find('.class-filter');
+            const clearButton = $('.btn-clear');
+            const QtiInteractionsClassNode = $('.class-tree [title="QTI Interactions"]');
+
+            assert.equal(classInput.val(), 'Item', 'class input value is correctly initialized');
+
+            QtiInteractionsClassNode.trigger('click');
+            assert.equal(classInput.val(), 'QTI Interactions', 'class input value is correctly updated');
+
+            clearButton.trigger('click');
+            assert.equal(classInput.val(), 'Item', 'class input value is correctly reset');
+
+            instance.destroy();
+            ready();
+        });
+    });
+
     QUnit.module('searchStore');
     QUnit.test('searchStore saves all required information', function (assert) {
         const instance = searchModalFactory({
@@ -270,7 +281,7 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
             testMocks: { classTree }
         });
         const ready = assert.async();
-        assert.expect(5);
+        assert.expect(6);
 
         // this is necessary because we want to listen
         instance.on('store-updated', function () {
@@ -290,6 +301,11 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
                     assert.equal(criterias.search, 'query to be stored', 'query correctly stored');
                     assert.equal(results.totalCount, 9, 'results correctly stored');
                     assert.equal(context.key, 'context', 'context correctly stored');
+                    assert.equal(
+                        criterias.class,
+                        'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
+                        'class correctly stored'
+                    );
 
                     instance.destroy();
                     ready();
