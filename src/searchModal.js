@@ -39,13 +39,15 @@ import urlUtil from 'util/url';
  * @param {boolean} config.searchOnInit - if init search must be triggered or not (stored results are used instead)
  * @param {string} config.url - search endpoint to be set on datatable
  * @param {string} config.rootClassUri - Uri for the root class of current context, required to init the class filter
+ * @param {string} config.testMocks - mocks to be used for testing to avoid ajax requests
  * @returns {searchModal}
  */
 export default function searchModalFactory(config) {
     const defaults = {
         renderTo: 'body',
         criterias: {},
-        searchOnInit: true
+        searchOnInit: true,
+        testMocks: {}
     };
 
     // Private properties to be easily accessible by instance methods
@@ -69,6 +71,7 @@ export default function searchModalFactory(config) {
         promises.push(initSearchStore());
         Promise.all(promises)
             .then(() => {
+                debugger;
                 instance.trigger('ready');
                 searchButton.trigger('click');
             })
@@ -127,6 +130,10 @@ export default function searchModalFactory(config) {
 
             // when a class query is triggered, update selector options with received resources
             resourceSelector.on('query', function (params) {
+                if (config.testMocks.classTree) {
+                    resourceSelector.update(config.testMocks.classTree, params);
+                    return;
+                }
                 params.classOnly = true;
                 const route = urlUtil.route('getAll', 'RestResource', 'tao');
                 request(route, params)

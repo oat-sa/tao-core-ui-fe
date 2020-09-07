@@ -15,6 +15,28 @@
  *
  * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
  */
+const classTree = [
+    {
+        label: 'Item',
+        type: 'class',
+        uri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
+        classUri: null,
+        signature: 'c875031e47982028c84ac8bd0cd62f7c55fd2e3504555535707728176c490540',
+        state: 'open',
+        count: 0,
+        children: [
+            {
+                label: 'QTI Interactions',
+                type: 'class',
+                uri: 'https://tao0.docker.localhost/ontologies/tao.rdf#i5f51f1d0bdd2b84f4c46880082e771',
+                classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
+                signature: '7aab1b9afa782de3071cb40d7453133c1f2ac0c82d7f295ce68e5fd1087cdb6f',
+                state: false,
+                count: 0
+            }
+        ]
+    }
+];
 define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], function ($, searchModalFactory, store) {
     QUnit.module('searchModal');
     QUnit.test('module', function (assert) {
@@ -30,20 +52,23 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
         store('search').then(searchStore => {
             searchStore.setItem('results', mockedResults).then(() => {
                 const instance = searchModalFactory({
-                    query: 'example',
+                    criterias: { search: 'example' },
                     url: '/test/searchModal/mocks/with-occurrences/search.json',
                     renderTo: '#testable-container',
-                    searchOnInit: false
+                    searchOnInit: false,
+                    rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
+                    testMocks: { classTree }
                 });
 
                 instance.on('ready', function () {
                     const $container = $('.search-modal');
-                    const searchInput = $container.find('.search-bar-container input');
+                    const searchInput = $container.find('.generic-search-input');
                     assert.equal(
                         $('#testable-container')[0],
                         instance.getContainer()[0],
                         'searchModal component is created'
                     );
+                    debugger;
                     assert.equal(searchInput.val(), 'example', 'search input value is correctly initialized');
                 });
 
@@ -64,16 +89,18 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
     });
     QUnit.test('searchModal component is correctly initialized triggering initial search', function (assert) {
         const instance = searchModalFactory({
-            query: 'example',
+            criterias: { search: 'example' },
             url: '/test/searchModal/mocks/with-occurrences/search.json',
-            renderTo: '#testable-container'
+            renderTo: '#testable-container',
+            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
+            testMocks: { classTree }
         });
         const ready = assert.async();
         assert.expect(4);
 
         instance.on('ready', function () {
             const $container = $('.search-modal');
-            const searchInput = $container.find('.search-bar-container input');
+            const searchInput = $container.find('.generic-search-input');
 
             assert.equal($('#testable-container')[0], instance.getContainer()[0], 'searchModal component is created');
             assert.equal(searchInput.val(), 'example', 'search input value is correctly initialized');
@@ -92,9 +119,11 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
     QUnit.module('destroy');
     QUnit.test('searchModal component is correctly destroyed on close button click', function (assert) {
         const instance = searchModalFactory({
-            query: '',
+            criterias: { search: '' },
             url: '',
-            renderTo: '#testable-container'
+            renderTo: '#testable-container',
+            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
+            testMocks: { classTree }
         });
         const ready = assert.async();
         assert.expect(1);
@@ -112,9 +141,11 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
     });
     QUnit.test('searchModal component is correctly destroyed on resource selected', function (assert) {
         const instance = searchModalFactory({
-            query: 'example',
+            criterias: { search: 'example' },
             url: '/test/searchModal/mocks/with-occurrences/search.json',
             renderTo: '#testable-container',
+            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
+            testMocks: { classTree },
             events: {
                 trigger: () => console.log('user has been redirected to clicked resource')
             }
@@ -136,16 +167,19 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
     QUnit.module('clear button');
     QUnit.test('Clear button work as expected', function (assert) {
         const instance = searchModalFactory({
-            query: 'example',
+            criterias: { search: 'example' },
             url: '/test/searchModal/mocks/with-occurrences/search.json',
-            renderTo: '#testable-container'
+            renderTo: '#testable-container',
+            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
+            testMocks: { classTree }
         });
         const ready = assert.async();
         assert.expect(4);
 
         instance.on('datatable-loaded', function () {
+            debugger;
             const $container = $('.search-modal');
-            const searchInput = $container.find('.search-bar-container input');
+            const searchInput = $container.find('.generic-search-input');
             const clearButton = $('.btn-clear');
             const $datatable = $('table.datatable');
 
@@ -165,16 +199,18 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
     QUnit.module('search button');
     QUnit.test('Search button work as expected when there are occurrences', function (assert) {
         const instance = searchModalFactory({
-            query: '',
+            criterias: { search: '' },
             url: '/test/searchModal/mocks/with-occurrences/search.json',
-            renderTo: '#testable-container'
+            renderTo: '#testable-container',
+            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
+            testMocks: { classTree }
         });
         const ready = assert.async();
         assert.expect(3);
 
         instance.on('ready', function () {
             const $container = $('.search-modal');
-            const searchInput = $container.find('.search-bar-container input');
+            const searchInput = $container.find('.generic-search-input');
             const searchButton = $('.btn-search');
 
             searchInput.val('example');
@@ -193,16 +229,18 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
     });
     QUnit.test('Search button work as expected when results have no occurrences', function (assert) {
         const instance = searchModalFactory({
-            query: '',
+            criterias: { search: '' },
             url: '/test/searchModal/mocks/with-no-occurrences/search.json',
-            renderTo: '#testable-container'
+            renderTo: '#testable-container',
+            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
+            testMocks: { classTree }
         });
         const ready = assert.async();
         assert.expect(3);
 
         instance.on('ready', function () {
             const $container = $('.search-modal');
-            const searchInput = $container.find('.search-bar-container input');
+            const searchInput = $container.find('.generic-search-input');
             const searchButton = $('.btn-search');
 
             searchInput.val('example');
@@ -225,9 +263,11 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
     QUnit.module('searchStore');
     QUnit.test('searchStore saves all required information', function (assert) {
         const instance = searchModalFactory({
-            query: 'query to be stored',
+            criterias: { search: 'query to be stored' },
             url: '/test/searchModal/mocks/with-occurrences/search.json',
-            renderTo: '#testable-container'
+            renderTo: '#testable-container',
+            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
+            testMocks: { classTree }
         });
         const ready = assert.async();
         assert.expect(5);
@@ -239,15 +279,15 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
             assert.equal($datatable.find('tbody tr').length, 9, 'datatable display the correct number of matches');
             store('search').then(searchStore => {
                 const promises = [];
-                promises.push(searchStore.getItem('query'));
+                promises.push(searchStore.getItem('criterias'));
                 promises.push(searchStore.getItem('results'));
                 promises.push(searchStore.getItem('context'));
                 Promise.all(promises).then(function (resolutions) {
-                    const query = resolutions[0];
+                    const criterias = resolutions[0];
                     const results = resolutions[1];
                     const context = resolutions[2];
 
-                    assert.equal(query, 'query to be stored', 'query correctly stored');
+                    assert.equal(criterias.search, 'query to be stored', 'query correctly stored');
                     assert.equal(results.totalCount, 9, 'results correctly stored');
                     assert.equal(context.key, 'context', 'context correctly stored');
 
@@ -261,9 +301,11 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/searchStore'], functi
     QUnit.module('visual');
     QUnit.test('Visual test', function (assert) {
         const instance = searchModalFactory({
-            query: 'example',
+            criterias: { search: 'example' },
             url: '/test/searchModal/mocks/with-occurrences/search.json',
             renderTo: '#testable-container',
+            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
+            testMocks: { classTree },
             events: {
                 trigger: () => console.log('user has been redirected to clicked resource')
             }
