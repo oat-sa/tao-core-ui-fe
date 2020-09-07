@@ -157,7 +157,6 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/mocks'], function ($,
         assert.expect(4);
 
         instance.on('datatable-loaded', function () {
-            debugger;
             const $container = $('.search-modal');
             const searchInput = $container.find('.generic-search-input');
             const clearButton = $('.btn-clear');
@@ -270,6 +269,28 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/mocks'], function ($,
             ready();
         });
     });
+    QUnit.test('class filter is hidden on unknown context', function (assert) {
+        const ready = assert.async();
+        assert.expect(2);
+        const instance = searchModalFactory({
+            criterias: { search: 'example' },
+            url: '/test/searchModal/mocks/with-occurrences/search.json',
+            renderTo: '#testable-container',
+            rootClassUri: undefined,
+            testMocks: { classTree }
+        });
+
+        instance.on('ready', function () {
+            const $container = $('.search-modal');
+            const classInput = $container.find('.class-filter');
+
+            assert.equal(classInput.length, 0, 'class input is not rendered');
+            assert.equal(classInput.val(), undefined, 'class input value is correctly unset');
+
+            instance.destroy();
+            ready();
+        });
+    });
 
     QUnit.module('searchStore');
     QUnit.test('searchStore saves all required information', function (assert) {
@@ -283,7 +304,6 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/mocks'], function ($,
         const ready = assert.async();
         assert.expect(6);
 
-        // this is necessary because we want to listen
         instance.on('store-updated', function () {
             const $datatable = $('table.datatable');
             assert.equal($datatable.length, 1, 'datatable has been created');

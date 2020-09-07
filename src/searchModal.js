@@ -29,7 +29,6 @@ import store from 'core/store';
 import resourceSelectorFactory from 'ui/resource/selector';
 import request from 'core/dataProvider/request';
 import urlUtil from 'util/url';
-// TODO - manage when rootClassUri is not received because current context is not covered by elastic search
 /**
  * Creates a searchModal instance
  *
@@ -49,6 +48,12 @@ export default function searchModalFactory(config) {
         searchOnInit: true,
         testMocks: {}
     };
+    /*
+     * Not all context resources are indexed on DB so on those contexts
+     * BE does not support search by class, so we need to hide and
+     * disable this functionality.
+     */
+    const classFilterIsEnabled = config.rootClassUri !== undefined;
 
     // Private properties to be easily accessible by instance methods
     let searchInput = null;
@@ -67,7 +72,10 @@ export default function searchModalFactory(config) {
         const promises = [];
         initModal();
         initUiSelectors();
-        promises.push(initClassFilter());
+        // only init class filter if it is enabled in component
+        if (classFilterIsEnabled) {
+            promises.push(initClassFilter());
+        }
         promises.push(initSearchStore());
         Promise.all(promises)
             .then(() => {
@@ -157,7 +165,6 @@ export default function searchModalFactory(config) {
 
             // then new class is selected, set its label into class filter input and hide filter container
             resourceSelector.on('change', function (selectedValue) {
-                debugger;
                 classFilterInput.val(_.map(selectedValue, 'label')[0]);
                 classFilterContainer.hide();
             });
@@ -180,6 +187,10 @@ export default function searchModalFactory(config) {
         searchInput.val(
             instance.config.criterias && instance.config.criterias.search ? instance.config.criterias.search : ''
         );
+        // remove class filter if it is not enabled
+        if (classFilterIsEnabled === false) {
+            $('.class-filter-container', instance.getElement()).remove();
+        }
     }
 
     /**
@@ -262,9 +273,11 @@ export default function searchModalFactory(config) {
      */
     function buildComplexQuery() {
         const searchInputValue = searchInput.val();
-        const classFilterValue = classFilterInput.val();
-
-        return `class:${classFilterValue} AND ${searchInputValue}`;
+        if (classFilterIsEnabled) {
+            const classFilterValue = classFilterInput.val();
+            return `class:${classFilterValue} AND ${searchInputValue}`;
+        }
+        return `${searchInputValue}`;
     }
     /*
      * If search on init is not required, extends data with stored dataset
@@ -348,7 +361,7 @@ export default function searchModalFactory(config) {
             context: context.shownStructure,
             criterias: {
                 search: searchInput.val(),
-                class: _.map(resourceSelector.getSelection(), 'uri')[0]
+                class: classFilterIsEnabled ? _.map(resourceSelector.getSelection(), 'uri')[0] : undefined
             }
         });
     }
@@ -383,7 +396,9 @@ export default function searchModalFactory(config) {
      */
     function clear() {
         searchInput.val('');
-        resourceSelector.select(instance.config.rootClassUri);
+        if (classFilterIsEnabled) {
+            resourceSelector.select(instance.config.rootClassUri);
+        }
         replaceSearchResultsDatatableWithMessage('no-query');
         updateSearchStore({ action: 'clear' });
     }
