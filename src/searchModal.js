@@ -115,9 +115,11 @@ export default function searchModalFactory(config) {
      */
     function initClassFilter() {
         return new Promise(function (resolve) {
-            const rootClassUri = config.rootClassUri;
+            const rootClassUri = instance.config.rootClassUri;
             const initialClassUri =
-                config.criterias && config.criterias.class ? config.criterias.class : config.rootClassUri;
+                instance.config.criterias && instance.config.criterias.class
+                    ? instance.config.criterias.class
+                    : instance.config.rootClassUri;
             resourceSelector = resourceSelectorFactory($('.class-tree', instance.getElement()), {
                 //set up the inner resource selector
                 selectionMode: 'single',
@@ -129,8 +131,8 @@ export default function searchModalFactory(config) {
 
             // when a class query is triggered, update selector options with received resources
             resourceSelector.on('query', function (params) {
-                if (config.testMocks.classTree) {
-                    resourceSelector.update(config.testMocks.classTree, params);
+                if (instance.config.testMocks.classTree) {
+                    resourceSelector.update(instance.config.testMocks.classTree, params);
                     return;
                 }
                 params.classOnly = true;
@@ -155,6 +157,7 @@ export default function searchModalFactory(config) {
 
             // then new class is selected, set its label into class filter input and hide filter container
             resourceSelector.on('change', function (selectedValue) {
+                debugger;
                 classFilterInput.val(_.map(selectedValue, 'label')[0]);
                 classFilterContainer.hide();
             });
@@ -174,7 +177,9 @@ export default function searchModalFactory(config) {
         classFilterContainer = $('.class-tree', instance.getElement());
         searchButton.on('click', search);
         clearButton.on('click', clear);
-        searchInput.val(config.criterias && config.criterias.search ? config.criterias.search : '');
+        searchInput.val(
+            instance.config.criterias && instance.config.criterias.search ? instance.config.criterias.search : ''
+        );
     }
 
     /**
@@ -233,7 +238,7 @@ export default function searchModalFactory(config) {
             if (running === false) {
                 running = true;
                 $.ajax({
-                    url: config.url,
+                    url: instance.config.url,
                     type: 'POST',
                     data: { query: query },
                     dataType: 'json'
@@ -269,11 +274,11 @@ export default function searchModalFactory(config) {
     function appendDefaultDatasetToDatatable(data) {
         return new Promise(function (resolve, reject) {
             // If no search on init, get dataset from searchStore
-            if (config.searchOnInit === false) {
+            if (instance.config.searchOnInit === false) {
                 searchStore
                     .getItem('results')
                     .then(storedSearchResults => {
-                        config.searchOnInit = true;
+                        instance.config.searchOnInit = true;
                         data.storedSearchResults = storedSearchResults;
                         resolve();
                     })
@@ -378,7 +383,7 @@ export default function searchModalFactory(config) {
      */
     function clear() {
         searchInput.val('');
-        resourceSelector.select(config.rootClassUri);
+        resourceSelector.select(instance.config.rootClassUri);
         replaceSearchResultsDatatableWithMessage('no-query');
         updateSearchStore({ action: 'clear' });
     }
