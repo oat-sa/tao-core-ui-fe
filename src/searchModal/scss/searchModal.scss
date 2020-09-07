@@ -230,11 +230,17 @@
         padding: 40px 20px 20px 20px;
         .filter-container {
             position: relative;
+            margin-bottom: 10px;
             > .icon-find,
             > .icon-folder {
                 position: absolute;
                 top: 5px;
                 left: 5px;
+            }
+            .icon-down {
+                position: absolute;
+                top: 5px;
+                right: 5px;
             }
             input {
                 width: 100%;
@@ -256,6 +262,9 @@
                     border: 1px solid black;
                 }
             }
+        }
+        .class-filter-container {
+            cursor: pointer;
         }
         .buttons-container {
             display: flex;

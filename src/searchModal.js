@@ -62,8 +62,9 @@ export default function searchModalFactory(config) {
     let running = false;
     let searchStore = null;
     let resourceSelector = null;
-    let classFilterInput = null;
     let classFilterContainer = null;
+    let classFilterInput = null;
+    let classTreeContainer = null;
 
     /**
      * Creates search modal, inits template selectors, inits search store, and once is created triggers initial search
@@ -166,7 +167,7 @@ export default function searchModalFactory(config) {
             // then new class is selected, set its label into class filter input and hide filter container
             resourceSelector.on('change', function (selectedValue) {
                 classFilterInput.val(_.map(selectedValue, 'label')[0]);
-                classFilterContainer.hide();
+                classTreeContainer.hide();
             });
 
             setResourceSelectorUIBehaviour();
@@ -181,7 +182,8 @@ export default function searchModalFactory(config) {
         clearButton = $('.btn-clear', instance.getElement());
         searchInput = $('.generic-search-input', instance.getElement());
         classFilterInput = $('.class-filter', instance.getElement());
-        classFilterContainer = $('.class-tree', instance.getElement());
+        classTreeContainer = $('.class-tree', instance.getElement());
+        classFilterContainer = $('.class-filter-container', instance.getElement());
         searchButton.on('click', search);
         clearButton.on('click', clear);
         searchInput.val(
@@ -189,7 +191,7 @@ export default function searchModalFactory(config) {
         );
         // remove class filter if it is not enabled
         if (classFilterIsEnabled === false) {
-            $('.class-filter-container', instance.getElement()).remove();
+            classFilterContainer.remove();
         }
     }
 
@@ -198,7 +200,7 @@ export default function searchModalFactory(config) {
      */
     function setResourceSelectorUIBehaviour() {
         instance.getElement().on('mousedown', () => {
-            classFilterContainer.hide();
+            classTreeContainer.hide();
         });
 
         /**
@@ -207,14 +209,14 @@ export default function searchModalFactory(config) {
          * and will stopPropagation to prevent be closed
          * by searchModal.mouseDown listener
          */
-        classFilterInput.on('mousedown', e => {
+        classFilterContainer.on('mousedown', e => {
             e.preventDefault();
             e.stopPropagation();
-            classFilterContainer.toggle();
+            classTreeContainer.toggle();
         });
 
         // clicking on resource selector will stopPropagation to prevent be closed by searchModal.mouseDown listener
-        classFilterContainer.on('mousedown', e => {
+        classTreeContainer.on('mousedown', e => {
             e.stopPropagation();
         });
     }

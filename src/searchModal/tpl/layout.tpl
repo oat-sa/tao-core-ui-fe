@@ -8,6 +8,7 @@
                 </div>
                 <div class="filter-container class-filter-container">
                     <span class="icon-folder"></span>
+                    <span class="icon-down"></span>
                     <input class="class-filter" type="text" placeholder="{{__ "Search Item"}}">
                     <div class="class-tree"></div>
                 </div>
