@@ -1,4 +1,4 @@
-<div class="undobox feedback-info">
+<div class="undobox">
     <span class="icon-info"></span>
         {{undoMessage}}
         <a class="undo" href="#">{{__ "Undo"}}</a>
