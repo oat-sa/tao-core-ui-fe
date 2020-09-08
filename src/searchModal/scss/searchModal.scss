@@ -1,4 +1,11 @@
 @import 'inc/bootstrap';
+$classTreeVariables: (
+    top: 27px,
+    left: 0px,
+    width: 275px,
+    font-size: 1.2rem
+);
+
 .section-container {
     // some variations of flex children
     $flexCols: full, half, third, quarter;
@@ -252,10 +259,10 @@
             .class-tree {
                 display: none;
                 position: absolute;
-                top: 27px;
-                left: 0px;
-                width: 275px;
-                font-size: 13.3px;
+                top: map-get($classTreeVariables, top);
+                left: map-get($classTreeVariables, left);
+                width: map-get($classTreeVariables, width);
+                font-size: map-get($classTreeVariables, font-size);
 
                 main {
                     overflow-y: auto;

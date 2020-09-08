@@ -38,33 +38,26 @@ import urlUtil from 'util/url';
  * @param {boolean} config.searchOnInit - if init search must be triggered or not (stored results are used instead)
  * @param {string} config.url - search endpoint to be set on datatable
  * @param {string} config.rootClassUri - Uri for the root class of current context, required to init the class filter
- * @param {string} config.testMocks - mocks to be used for testing to avoid ajax requests
  * @returns {searchModal}
  */
 export default function searchModalFactory(config) {
     const defaults = {
         renderTo: 'body',
         criterias: {},
-        searchOnInit: true,
-        testMocks: {}
+        searchOnInit: true
     };
-    /*
-     * Not all context resources are indexed on DB so on those contexts
-     * BE does not support search by class, so we need to hide and
-     * disable this functionality.
-     */
-    const classFilterIsEnabled = config.rootClassUri !== undefined;
 
     // Private properties to be easily accessible by instance methods
-    let searchInput = null;
-    let searchButton = null;
-    let clearButton = null;
+    let $container = null;
+    let $searchInput = null;
+    let $searchButton = null;
+    let $clearButton = null;
     let running = false;
     let searchStore = null;
     let resourceSelector = null;
-    let classFilterContainer = null;
-    let classFilterInput = null;
-    let classTreeContainer = null;
+    let $classFilterContainer = null;
+    let $classFilterInput = null;
+    let $classTreeContainer = null;
 
     /**
      * Creates search modal, inits template selectors, inits search store, and once is created triggers initial search
@@ -73,15 +66,12 @@ export default function searchModalFactory(config) {
         const promises = [];
         initModal();
         initUiSelectors();
-        // only init class filter if it is enabled in component
-        if (classFilterIsEnabled) {
-            promises.push(initClassFilter());
-        }
+        promises.push(initClassFilter());
         promises.push(initSearchStore());
         Promise.all(promises)
             .then(() => {
                 instance.trigger('ready');
-                searchButton.trigger('click');
+                $searchButton.trigger('click');
             })
             .catch(e => instance.trigger('error', e));
     }
@@ -90,7 +80,7 @@ export default function searchModalFactory(config) {
      * Removes search modal
      */
     function destroyModal() {
-        instance.getElement().removeClass('modal').modal('destroy');
+        $container.removeClass('modal').modal('destroy');
         $('.modal-bg').remove();
     }
 
@@ -104,8 +94,8 @@ export default function searchModalFactory(config) {
      * Creates search modal
      */
     function initModal() {
-        instance
-            .getElement()
+        $container = instance.getElement();
+        $container
             .addClass('modal')
             .on('closed.modal', function () {
                 instance.destroy();
@@ -123,13 +113,13 @@ export default function searchModalFactory(config) {
      * Inits class filter selector
      */
     function initClassFilter() {
-        return new Promise(function (resolve) {
+        return new Promise(resolve => {
             const rootClassUri = instance.config.rootClassUri;
             const initialClassUri =
                 instance.config.criterias && instance.config.criterias.class
                     ? instance.config.criterias.class
                     : instance.config.rootClassUri;
-            resourceSelector = resourceSelectorFactory($('.class-tree', instance.getElement()), {
+            resourceSelector = resourceSelectorFactory($('.class-tree', $container), {
                 //set up the inner resource selector
                 selectionMode: 'single',
                 selectClass: true,
@@ -139,12 +129,8 @@ export default function searchModalFactory(config) {
             });
 
             // when a class query is triggered, update selector options with received resources
-            resourceSelector.on('query', function (params) {
-                if (instance.config.testMocks.classTree) {
-                    resourceSelector.update(instance.config.testMocks.classTree, params);
-                    return;
-                }
-                params.classOnly = true;
+            resourceSelector.on('query', params => {
+                // params.classOnly = true;
                 const route = urlUtil.route('getAll', 'RestResource', 'tao');
                 request(route, params)
                     .then(response => {
@@ -157,7 +143,7 @@ export default function searchModalFactory(config) {
              * the first time selector opions are updated the root class is selected. Promise is
              * resolved so init process continues only when class input value has been set
              */
-            resourceSelector.on('update', function () {
+            resourceSelector.on('update', () => {
                 resourceSelector.off('update');
 
                 resourceSelector.select(initialClassUri);
@@ -165,9 +151,9 @@ export default function searchModalFactory(config) {
             });
 
             // then new class is selected, set its label into class filter input and hide filter container
-            resourceSelector.on('change', function (selectedValue) {
-                classFilterInput.val(_.map(selectedValue, 'label')[0]);
-                classTreeContainer.hide();
+            resourceSelector.on('change', selectedValue => {
+                $classFilterInput.val(_.map(selectedValue, 'label')[0]);
+                $classTreeContainer.hide();
             });
 
             setResourceSelectorUIBehaviour();
@@ -178,29 +164,25 @@ export default function searchModalFactory(config) {
      * Inits template selectors and sets initial search query on search input
      */
     function initUiSelectors() {
-        searchButton = $('.btn-search', instance.getElement());
-        clearButton = $('.btn-clear', instance.getElement());
-        searchInput = $('.generic-search-input', instance.getElement());
-        classFilterInput = $('.class-filter', instance.getElement());
-        classTreeContainer = $('.class-tree', instance.getElement());
-        classFilterContainer = $('.class-filter-container', instance.getElement());
-        searchButton.on('click', search);
-        clearButton.on('click', clear);
-        searchInput.val(
+        $searchButton = $('.btn-search', $container);
+        $clearButton = $('.btn-clear', $container);
+        $searchInput = $('.generic-search-input', $container);
+        $classFilterInput = $('.class-filter', $container);
+        $classTreeContainer = $('.class-tree', $container);
+        $classFilterContainer = $('.class-filter-container', $container);
+        $searchButton.on('click', search);
+        $clearButton.on('click', clear);
+        $searchInput.val(
             instance.config.criterias && instance.config.criterias.search ? instance.config.criterias.search : ''
         );
-        // remove class filter if it is not enabled
-        if (classFilterIsEnabled === false) {
-            classFilterContainer.remove();
-        }
     }
 
     /**
      * Sets required listeners to properly manage resourceSelector visualization
      */
     function setResourceSelectorUIBehaviour() {
-        instance.getElement().on('mousedown', () => {
-            classTreeContainer.hide();
+        $container.on('mousedown', () => {
+            $classTreeContainer.hide();
         });
 
         /**
@@ -209,14 +191,14 @@ export default function searchModalFactory(config) {
          * and will stopPropagation to prevent be closed
          * by searchModal.mouseDown listener
          */
-        classFilterContainer.on('mousedown', e => {
+        $classFilterContainer.on('mousedown', e => {
             e.preventDefault();
             e.stopPropagation();
-            classTreeContainer.toggle();
+            $classTreeContainer.toggle();
         });
 
         // clicking on resource selector will stopPropagation to prevent be closed by searchModal.mouseDown listener
-        classTreeContainer.on('mousedown', e => {
+        $classTreeContainer.on('mousedown', e => {
             e.stopPropagation();
         });
     }
@@ -238,7 +220,7 @@ export default function searchModalFactory(config) {
      */
     function search() {
         // if query is empty just clear datatable
-        if (searchInput.val() === '') {
+        if ($searchInput.val() === '') {
             clear();
             return;
         }
@@ -274,12 +256,10 @@ export default function searchModalFactory(config) {
      * build final complex query appending every filter
      */
     function buildComplexQuery() {
-        const searchInputValue = searchInput.val();
-        if (classFilterIsEnabled) {
-            const classFilterValue = classFilterInput.val();
-            return `class:${classFilterValue} AND ${searchInputValue}`;
-        }
-        return `${searchInputValue}`;
+        const $searchInputValue = $searchInput.val();
+        const classFilterValue = $classFilterInput.val();
+
+        return `class:${classFilterValue} AND ${$searchInputValue}`;
     }
     /*
      * If search on init is not required, extends data with stored dataset
@@ -314,7 +294,7 @@ export default function searchModalFactory(config) {
     function buildSearchResultsDatatable(data) {
         //update the section container
         const $tableContainer = $('<div class="flex-container-full"></div>');
-        const section = $('.content-container', instance.getElement());
+        const section = $('.content-container', $container);
         section.empty();
         section.append($tableContainer);
         $tableContainer.on('load.datatable', searchResultsLoaded);
@@ -362,8 +342,8 @@ export default function searchModalFactory(config) {
             dataset,
             context: context.shownStructure,
             criterias: {
-                search: searchInput.val(),
-                class: classFilterIsEnabled ? _.map(resourceSelector.getSelection(), 'uri')[0] : undefined
+                search: $searchInput.val(),
+                class: _.map(resourceSelector.getSelection(), 'uri')[0]
             }
         });
     }
@@ -397,10 +377,8 @@ export default function searchModalFactory(config) {
      * Clear search input and search results from both, view and store
      */
     function clear() {
-        searchInput.val('');
-        if (classFilterIsEnabled) {
-            resourceSelector.select(instance.config.rootClassUri);
-        }
+        $searchInput.val('');
+        resourceSelector.select(instance.config.rootClassUri);
         replaceSearchResultsDatatableWithMessage('no-query');
         updateSearchStore({ action: 'clear' });
     }
@@ -410,7 +388,7 @@ export default function searchModalFactory(config) {
      * @param {string} reason - reason why datatable is not rendered, to display appropiate message
      */
     function replaceSearchResultsDatatableWithMessage(reason) {
-        const section = $('.content-container', instance.getElement());
+        const section = $('.content-container', $container);
         section.empty();
         let message = '';
         let icon = '';
