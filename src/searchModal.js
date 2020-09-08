@@ -116,7 +116,7 @@ export default function searchModalFactory(config) {
             const initialClassUri =
                 instance.config.criterias && instance.config.criterias.class
                     ? instance.config.criterias.class
-                    : instance.config.rootClassUri;
+                    : rootClassUri;
             resourceSelector = resourceSelectorFactory($('.class-tree', $container), {
                 //set up the inner resource selector
                 selectionMode: 'single',

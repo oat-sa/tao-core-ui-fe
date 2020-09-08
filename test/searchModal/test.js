@@ -41,7 +41,6 @@ define([
         assert.expect(4);
         // before creating component instance, manipulate searchStore to store a mocked dataset to check on datatable-loaded event
         store('search').then(searchStore => {
-            debugger;
             searchStore.setItem('results', mocks.mockedResults).then(() => {
                 const instance = searchModalFactory({
                     criterias: { search: 'example' },
