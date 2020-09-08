@@ -15,12 +15,20 @@
  *
  * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
  */
-define(['jquery', 'ui/searchModal', 'core/store', 'json!test/ui/searchModal/mocks/mocks.json'], function (
-    $,
-    searchModalFactory,
-    store,
-    mocks
-) {
+define([
+    'jquery',
+    'ui/searchModal',
+    'core/store',
+    'json!test/ui/searchModal/mocks/mocks.json',
+    'jquery.mockjax'
+], function ($, searchModalFactory, store, mocks) {
+    $.mockjaxSettings.responseTime = 1;
+    $.mockjax({
+        url: 'undefined/tao/RestResource/getAll',
+        dataType: 'json',
+        responseText: mocks.mockedClassTree
+    });
+
     QUnit.module('searchModal');
     QUnit.test('module', function (assert) {
         assert.expect(1);
