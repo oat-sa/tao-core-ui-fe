@@ -97,9 +97,7 @@ export default function searchModalFactory(config) {
         $container = instance.getElement();
         $container
             .addClass('modal')
-            .on('closed.modal', function () {
-                instance.destroy();
-            })
+            .on('closed.modal', () => instance.destroy())
             .modal({
                 disableEscape: true,
                 width: $(window).width(),
@@ -130,11 +128,11 @@ export default function searchModalFactory(config) {
 
             // when a class query is triggered, update selector options with received resources
             resourceSelector.on('query', params => {
-                // params.classOnly = true;
+                const classOnlyParams = { ...params, classOnly: true };
                 const route = urlUtil.route('getAll', 'RestResource', 'tao');
-                request(route, params)
+                request(route, classOnlyParams)
                     .then(response => {
-                        resourceSelector.update(response.resources, params);
+                        resourceSelector.update(response.resources, classOnlyParams);
                     })
                     .catch(e => instance.trigger('error', e));
             });
@@ -243,9 +241,7 @@ export default function searchModalFactory(config) {
                             .then(() => buildSearchResultsDatatable(data))
                             .catch(e => instance.trigger('error', e));
                     })
-                    .always(function () {
-                        running = false;
-                    });
+                    .always(() => (running = false));
             }
         }, 100);
 

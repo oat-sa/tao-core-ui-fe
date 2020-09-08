@@ -15,10 +15,12 @@
  *
  * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
  */
-
-define(['jquery', 'ui/searchModal', 'core/store', './mocks/mocks'], function ($, searchModalFactory, store) {
-    const classTree = mockedClassTree;
-
+define(['jquery', 'ui/searchModal', 'core/store', 'json!test/ui/searchModal/mocks/mocks.json'], function (
+    $,
+    searchModalFactory,
+    store,
+    mocks
+) {
     QUnit.module('searchModal');
     QUnit.test('module', function (assert) {
         assert.expect(1);
@@ -31,25 +33,25 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/mocks'], function ($,
         assert.expect(4);
         // before creating component instance, manipulate searchStore to store a mocked dataset to check on datatable-loaded event
         store('search').then(searchStore => {
-            searchStore.setItem('results', mockedResults).then(() => {
+            debugger;
+            searchStore.setItem('results', mocks.mockedResults).then(() => {
                 const instance = searchModalFactory({
                     criterias: { search: 'example' },
                     url: '/test/searchModal/mocks/with-occurrences/search.json',
                     renderTo: '#testable-container',
                     searchOnInit: false,
-                    rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
-                    testMocks: { classTree }
+                    rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
                 });
 
                 instance.on('ready', function () {
                     const $container = $('.search-modal');
-                    const searchInput = $container.find('.generic-search-input');
+                    const $searchInput = $container.find('.generic-search-input');
                     assert.equal(
                         $('#testable-container')[0],
                         instance.getContainer()[0],
                         'searchModal component is created'
                     );
-                    assert.equal(searchInput.val(), 'example', 'search input value is correctly initialized');
+                    assert.equal($searchInput.val(), 'example', 'search input value is correctly initialized');
                 });
 
                 instance.on('datatable-loaded', function () {
@@ -72,18 +74,17 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/mocks'], function ($,
             criterias: { search: 'example' },
             url: '/test/searchModal/mocks/with-occurrences/search.json',
             renderTo: '#testable-container',
-            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
-            testMocks: { classTree }
+            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
         });
         const ready = assert.async();
         assert.expect(4);
 
         instance.on('ready', function () {
             const $container = $('.search-modal');
-            const searchInput = $container.find('.generic-search-input');
+            const $searchInput = $container.find('.generic-search-input');
 
             assert.equal($('#testable-container')[0], instance.getContainer()[0], 'searchModal component is created');
-            assert.equal(searchInput.val(), 'example', 'search input value is correctly initialized');
+            assert.equal($searchInput.val(), 'example', 'search input value is correctly initialized');
         });
 
         instance.on('datatable-loaded', function () {
@@ -102,16 +103,15 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/mocks'], function ($,
             criterias: { search: '' },
             url: '',
             renderTo: '#testable-container',
-            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
-            testMocks: { classTree }
+            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
         });
         const ready = assert.async();
         assert.expect(1);
 
         $('body').one('opened.modal', function () {
             const $container = $('.search-modal');
-            const closeButton = $container.find('.modal-close-left');
-            closeButton.trigger('click.modal');
+            const $closeButton = $container.find('.modal-close-left');
+            $closeButton.trigger('click.modal');
         });
         $('body').one('closed.modal', function () {
             const $container = $('.search-modal');
@@ -125,7 +125,6 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/mocks'], function ($,
             url: '/test/searchModal/mocks/with-occurrences/search.json',
             renderTo: '#testable-container',
             rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
-            testMocks: { classTree },
             events: {
                 trigger: () => console.log('user has been redirected to clicked resource')
             }
@@ -150,24 +149,23 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/mocks'], function ($,
             criterias: { search: 'example' },
             url: '/test/searchModal/mocks/with-occurrences/search.json',
             renderTo: '#testable-container',
-            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
-            testMocks: { classTree }
+            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
         });
         const ready = assert.async();
         assert.expect(4);
 
         instance.on('datatable-loaded', function () {
             const $container = $('.search-modal');
-            const searchInput = $container.find('.generic-search-input');
-            const clearButton = $('.btn-clear');
+            const $searchInput = $container.find('.generic-search-input');
+            const $clearButton = $('.btn-clear');
             const $datatable = $('table.datatable');
 
-            assert.equal(searchInput.val(), 'example', 'search input value is correctly initialized');
+            assert.equal($searchInput.val(), 'example', 'search input value is correctly initialized');
             assert.equal($datatable.length, 1, 'datatable has been created');
 
-            clearButton.trigger('click');
+            $clearButton.trigger('click');
             const $resultContainer = $('.no-datatable-container');
-            assert.equal(searchInput.val(), '', 'search input value is correctly cleaned');
+            assert.equal($searchInput.val(), '', 'search input value is correctly cleaned');
             assert.equal($resultContainer.length, 1, 'info message is displayed');
 
             instance.destroy();
@@ -181,20 +179,19 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/mocks'], function ($,
             criterias: { search: '' },
             url: '/test/searchModal/mocks/with-occurrences/search.json',
             renderTo: '#testable-container',
-            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
-            testMocks: { classTree }
+            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
         });
         const ready = assert.async();
         assert.expect(3);
 
         instance.on('ready', function () {
             const $container = $('.search-modal');
-            const searchInput = $container.find('.generic-search-input');
-            const searchButton = $('.btn-search');
+            const $searchInput = $container.find('.generic-search-input');
+            const $searchButton = $('.btn-search');
 
-            searchInput.val('example');
-            assert.equal(searchInput.val(), 'example', 'search input value is correctly set');
-            searchButton.trigger('click');
+            $searchInput.val('example');
+            assert.equal($searchInput.val(), 'example', 'search input value is correctly set');
+            $searchButton.trigger('click');
         });
 
         instance.on('datatable-loaded', function () {
@@ -211,20 +208,19 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/mocks'], function ($,
             criterias: { search: '' },
             url: '/test/searchModal/mocks/with-no-occurrences/search.json',
             renderTo: '#testable-container',
-            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
-            testMocks: { classTree }
+            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
         });
         const ready = assert.async();
         assert.expect(3);
 
         instance.on('ready', function () {
             const $container = $('.search-modal');
-            const searchInput = $container.find('.generic-search-input');
-            const searchButton = $('.btn-search');
+            const $searchInput = $container.find('.generic-search-input');
+            const $searchButton = $('.btn-search');
 
-            searchInput.val('example');
-            assert.equal(searchInput.val(), 'example', 'search input value is correctly set');
-            searchButton.trigger('click');
+            $searchInput.val('example');
+            assert.equal($searchInput.val(), 'example', 'search input value is correctly set');
+            $searchButton.trigger('click');
         });
 
         instance.on('datatable-loaded', function () {
@@ -247,23 +243,22 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/mocks'], function ($,
             criterias: { search: 'example' },
             url: '/test/searchModal/mocks/with-occurrences/search.json',
             renderTo: '#testable-container',
-            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
-            testMocks: { classTree }
+            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
         });
 
         instance.on('ready', function () {
             const $container = $('.search-modal');
-            const classInput = $container.find('.class-filter');
-            const clearButton = $('.btn-clear');
-            const QtiInteractionsClassNode = $('.class-tree [title="QTI Interactions"]');
+            const $classInput = $container.find('.class-filter');
+            const $clearButton = $('.btn-clear');
+            const $qtiInteractionsClassNode = $('.class-tree [title="QTI Interactions"]');
 
-            assert.equal(classInput.val(), 'Item', 'class input value is correctly initialized');
+            assert.equal($classInput.val(), 'Item', 'class input value is correctly initialized');
 
-            QtiInteractionsClassNode.trigger('click');
-            assert.equal(classInput.val(), 'QTI Interactions', 'class input value is correctly updated');
+            $qtiInteractionsClassNode.trigger('click');
+            assert.equal($classInput.val(), 'QTI Interactions', 'class input value is correctly updated');
 
-            clearButton.trigger('click');
-            assert.equal(classInput.val(), 'Item', 'class input value is correctly reset');
+            $clearButton.trigger('click');
+            assert.equal($classInput.val(), 'Item', 'class input value is correctly reset');
 
             instance.destroy();
             ready();
@@ -276,8 +271,7 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/mocks'], function ($,
             criterias: { search: 'query to be stored' },
             url: '/test/searchModal/mocks/with-occurrences/search.json',
             renderTo: '#testable-container',
-            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
-            testMocks: { classTree }
+            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
         });
         const ready = assert.async();
         assert.expect(6);
@@ -319,7 +313,6 @@ define(['jquery', 'ui/searchModal', 'core/store', './mocks/mocks'], function ($,
             url: '/test/searchModal/mocks/with-occurrences/search.json',
             renderTo: '#testable-container',
             rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
-            testMocks: { classTree },
             events: {
                 trigger: () => console.log('user has been redirected to clicked resource')
             }
