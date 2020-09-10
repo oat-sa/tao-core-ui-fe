@@ -26,41 +26,52 @@ import component from 'ui/component';
 import 'ui/modal';
 import 'ui/datatable';
 import store from 'core/store';
-
+import resourceSelectorFactory from 'ui/resource/selector';
+import request from 'core/dataProvider/request';
+import urlUtil from 'util/url';
 /**
  * Creates a searchModal instance
  *
  * @param {object} config
  * @param {object} config.renderTo - DOM element where component will be rendered to
- * @param {string} config.query - search query to be set on component creation
+ * @param {string} config.criterias - Search criterias to be set on component creation
  * @param {boolean} config.searchOnInit - if init search must be triggered or not (stored results are used instead)
  * @param {string} config.url - search endpoint to be set on datatable
+ * @param {string} config.rootClassUri - Uri for the root class of current context, required to init the class filter
  * @returns {searchModal}
  */
 export default function searchModalFactory(config) {
     const defaults = {
         renderTo: 'body',
-        query: '',
+        criterias: {},
         searchOnInit: true
     };
 
     // Private properties to be easily accessible by instance methods
-    let searchInput = null;
-    let searchButton = null;
-    let clearButton = null;
+    let $container = null;
+    let $searchInput = null;
+    let $searchButton = null;
+    let $clearButton = null;
     let running = false;
     let searchStore = null;
+    let resourceSelector = null;
+    let $classFilterContainer = null;
+    let $classFilterInput = null;
+    let $classTreeContainer = null;
 
     /**
      * Creates search modal, inits template selectors, inits search store, and once is created triggers initial search
      */
     function renderModal() {
+        const promises = [];
         initModal();
         initUiSelectors();
-        initSearchStore()
+        promises.push(initClassFilter());
+        promises.push(initSearchStore());
+        Promise.all(promises)
             .then(() => {
                 instance.trigger('ready');
-                searchButton.trigger('click');
+                $searchButton.trigger('click');
             })
             .catch(e => instance.trigger('error', e));
     }
@@ -69,7 +80,7 @@ export default function searchModalFactory(config) {
      * Removes search modal
      */
     function destroyModal() {
-        instance.getElement().removeClass('modal').modal('destroy');
+        $container.removeClass('modal').modal('destroy');
         $('.modal-bg').remove();
     }
 
@@ -83,12 +94,10 @@ export default function searchModalFactory(config) {
      * Creates search modal
      */
     function initModal() {
-        instance
-            .getElement()
+        $container = instance.getElement();
+        $container
             .addClass('modal')
-            .on('closed.modal', function () {
-                instance.destroy();
-            })
+            .on('closed.modal', () => instance.destroy())
             .modal({
                 disableEscape: true,
                 width: $(window).width(),
@@ -99,15 +108,97 @@ export default function searchModalFactory(config) {
     }
 
     /**
+     * Inits class filter selector
+     */
+    function initClassFilter() {
+        return new Promise(resolve => {
+            const rootClassUri = instance.config.rootClassUri;
+            const initialClassUri =
+                instance.config.criterias && instance.config.criterias.class
+                    ? instance.config.criterias.class
+                    : rootClassUri;
+            resourceSelector = resourceSelectorFactory($('.class-tree', $container), {
+                //set up the inner resource selector
+                selectionMode: 'single',
+                selectClass: true,
+                classUri: rootClassUri,
+                showContext: false,
+                showSelection: false
+            });
+
+            // when a class query is triggered, update selector options with received resources
+            resourceSelector.on('query', params => {
+                const classOnlyParams = { ...params, classOnly: true };
+                const route = urlUtil.route('getAll', 'RestResource', 'tao');
+                request(route, classOnlyParams)
+                    .then(response => {
+                        resourceSelector.update(response.resources, classOnlyParams);
+                    })
+                    .catch(e => instance.trigger('error', e));
+            });
+
+            /*
+             * the first time selector opions are updated the root class is selected. Promise is
+             * resolved so init process continues only when class input value has been set
+             */
+            resourceSelector.on('update', () => {
+                resourceSelector.off('update');
+
+                resourceSelector.select(initialClassUri);
+                resolve();
+            });
+
+            // then new class is selected, set its label into class filter input and hide filter container
+            resourceSelector.on('change', selectedValue => {
+                $classFilterInput.val(_.map(selectedValue, 'label')[0]);
+                $classTreeContainer.hide();
+            });
+
+            setResourceSelectorUIBehaviour();
+        });
+    }
+
+    /**
      * Inits template selectors and sets initial search query on search input
      */
     function initUiSelectors() {
-        searchButton = $('.btn-search', instance.getElement());
-        clearButton = $('.btn-clear', instance.getElement());
-        searchInput = $('.search-bar-container input', instance.getElement());
-        searchButton.on('click', search);
-        clearButton.on('click', clear);
-        searchInput.val(config.query);
+        $searchButton = $('.btn-search', $container);
+        $clearButton = $('.btn-clear', $container);
+        $searchInput = $('.generic-search-input', $container);
+        $classFilterInput = $('.class-filter', $container);
+        $classTreeContainer = $('.class-tree', $container);
+        $classFilterContainer = $('.class-filter-container', $container);
+        $searchButton.on('click', search);
+        $clearButton.on('click', clear);
+        $searchInput.val(
+            instance.config.criterias && instance.config.criterias.search ? instance.config.criterias.search : ''
+        );
+    }
+
+    /**
+     * Sets required listeners to properly manage resourceSelector visualization
+     */
+    function setResourceSelectorUIBehaviour() {
+        $container.on('mousedown', () => {
+            $classTreeContainer.hide();
+        });
+
+        /**
+         * clicking on class filter input will toggle resource selector,
+         * will preventDefault to avoid focus on input field,
+         * and will stopPropagation to prevent be closed
+         * by searchModal.mouseDown listener
+         */
+        $classFilterContainer.on('mousedown', e => {
+            e.preventDefault();
+            e.stopPropagation();
+            $classTreeContainer.toggle();
+        });
+
+        // clicking on resource selector will stopPropagation to prevent be closed by searchModal.mouseDown listener
+        $classTreeContainer.on('mousedown', e => {
+            e.stopPropagation();
+        });
     }
 
     /**
@@ -126,20 +217,21 @@ export default function searchModalFactory(config) {
      * Request search results and manages its results
      */
     function search() {
-        const query = searchInput.val();
-
         // if query is empty just clear datatable
-        if (query === '') {
+        if ($searchInput.val() === '') {
             clear();
             return;
         }
+
+        // build complex query
+        const query = buildComplexQuery();
 
         //throttle and control to prevent sending too many requests
         const searchHandler = _.throttle(query => {
             if (running === false) {
                 running = true;
                 $.ajax({
-                    url: config.url,
+                    url: instance.config.url,
                     type: 'POST',
                     data: { query: query },
                     dataType: 'json'
@@ -149,9 +241,7 @@ export default function searchModalFactory(config) {
                             .then(() => buildSearchResultsDatatable(data))
                             .catch(e => instance.trigger('error', e));
                     })
-                    .always(function () {
-                        running = false;
-                    });
+                    .always(() => (running = false));
             }
         }, 100);
 
@@ -159,6 +249,15 @@ export default function searchModalFactory(config) {
     }
 
     /**
+     * build final complex query appending every filter
+     */
+    function buildComplexQuery() {
+        const $searchInputValue = $searchInput.val();
+        const classFilterValue = $classFilterInput.val();
+
+        return `class:${classFilterValue} AND ${$searchInputValue}`;
+    }
+    /*
      * If search on init is not required, extends data with stored dataset
      * @param {object} data - search configuration including model and endpoint for datatable
      * @returns {Promise}
@@ -166,11 +265,11 @@ export default function searchModalFactory(config) {
     function appendDefaultDatasetToDatatable(data) {
         return new Promise(function (resolve, reject) {
             // If no search on init, get dataset from searchStore
-            if (config.searchOnInit === false) {
+            if (instance.config.searchOnInit === false) {
                 searchStore
                     .getItem('results')
                     .then(storedSearchResults => {
-                        config.searchOnInit = true;
+                        instance.config.searchOnInit = true;
                         data.storedSearchResults = storedSearchResults;
                         resolve();
                     })
@@ -191,7 +290,7 @@ export default function searchModalFactory(config) {
     function buildSearchResultsDatatable(data) {
         //update the section container
         const $tableContainer = $('<div class="flex-container-full"></div>');
-        const section = $('.content-container', instance.getElement());
+        const section = $('.content-container', $container);
         section.empty();
         section.append($tableContainer);
         $tableContainer.on('load.datatable', searchResultsLoaded);
@@ -238,7 +337,10 @@ export default function searchModalFactory(config) {
             action: 'update',
             dataset,
             context: context.shownStructure,
-            query: searchInput.val()
+            criterias: {
+                search: $searchInput.val(),
+                class: _.map(resourceSelector.getSelection(), 'uri')[0]
+            }
         });
     }
 
@@ -253,7 +355,7 @@ export default function searchModalFactory(config) {
         if (data.action === 'clear') {
             promises.push(searchStore.clear());
         } else if (data.action === 'update') {
-            promises.push(searchStore.setItem('query', data.query));
+            promises.push(searchStore.setItem('criterias', data.criterias));
             promises.push(searchStore.setItem('context', data.context));
             promises.push(
                 data.dataset.records === 0
@@ -271,7 +373,8 @@ export default function searchModalFactory(config) {
      * Clear search input and search results from both, view and store
      */
     function clear() {
-        searchInput.val('');
+        $searchInput.val('');
+        resourceSelector.select(instance.config.rootClassUri);
         replaceSearchResultsDatatableWithMessage('no-query');
         updateSearchStore({ action: 'clear' });
     }
@@ -281,7 +384,7 @@ export default function searchModalFactory(config) {
      * @param {string} reason - reason why datatable is not rendered, to display appropiate message
      */
     function replaceSearchResultsDatatableWithMessage(reason) {
-        const section = $('.content-container', instance.getElement());
+        const section = $('.content-container', $container);
         section.empty();
         let message = '';
         let icon = '';
