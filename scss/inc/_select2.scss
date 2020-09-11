@@ -49,7 +49,7 @@
 }
 
 .select2-container .select2-choice {
-    display: block;
+    display: flex;
     height: 26px;
     padding: 0 0 0 8px;
     overflow: hidden;
@@ -80,7 +80,7 @@
 }
 
 .select2-container .select2-choice > .select2-chosen {
-    margin-right: 26px;
+    flex: 1;
     display: block;
     overflow: hidden;
 
@@ -175,13 +175,7 @@
 }
 
 .select2-container .select2-choice .select2-arrow {
-    display: inline-block;
     width: 18px;
-    height: 100%;
-    position: absolute;
-    right: 0;
-    top: 0;
-
     background-clip: padding-box;
 }
 
