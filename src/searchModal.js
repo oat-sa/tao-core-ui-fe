@@ -21,6 +21,7 @@ import __ from 'i18n';
 import context from 'context';
 import layoutTpl from 'ui/searchModal/tpl/layout';
 import infoMessageTpl from 'ui/searchModal/tpl/info-message';
+import textCriteriaTpl from 'ui/searchModal/tpl/text-criteria';
 import 'ui/searchModal/css/searchModal.css';
 import component from 'ui/component';
 import 'ui/modal';
@@ -58,6 +59,9 @@ export default function searchModalFactory(config) {
     let $classFilterContainer = null;
     let $classFilterInput = null;
     let $classTreeContainer = null;
+    let $addCriteriaInput = null;
+    let $criteriaSelect = null;
+    let $avancedSearcFiltersContainer = null;
 
     /**
      * Creates search modal, inits template selectors, inits search store, and once is created triggers initial search
@@ -148,15 +152,39 @@ export default function searchModalFactory(config) {
                 resolve();
             });
 
-            // then new class is selected, set its label into class filter input and hide filter container
+            // then new class is selected, set its label into class filter input and hide filter container, then request class properties
             resourceSelector.on('change', selectedValue => {
                 $classFilterInput.val(_.map(selectedValue, 'label')[0]);
                 $classTreeContainer.hide();
+                const availableCriterias = requestAvailableCriterias(selectedValue);
+                updateAvailableCriteriasList(availableCriterias);
             });
 
             setResourceSelectorUIBehaviour();
         });
     }
+
+    /**
+     * Request properties of selected class (and children) schemas and sets them to criterias selectors
+     * @param {object} selectedClass - class to retreieve its properties from
+     * @returns {array} - array of class properties
+     */
+    function requestAvailableCriterias(selectedClass) {
+        // TODO - Implement ajax request once is implemented on BE
+        return [
+            {
+                label: 'sssss',
+                type: 'RadioBox',
+                values: ['dsdsdsd']
+            }
+        ];
+    }
+
+    /**
+     * Updates the list of available criterias with the received one
+     * @param {array} availableCriterias - array of class properties
+     */
+    function updateAvailableCriteriasList(availableCriterias) {}
 
     /**
      * Inits template selectors and sets initial search query on search input
@@ -168,6 +196,26 @@ export default function searchModalFactory(config) {
         $classFilterInput = $('.class-filter', $container);
         $classTreeContainer = $('.class-tree', $container);
         $classFilterContainer = $('.class-filter-container', $container);
+        $addCriteriaInput = $('.add-criteria-container a', $container);
+        $criteriaSelect = $('.add-criteria-container select', $container);
+        $avancedSearcFiltersContainer = $('.advanced-search-filters-container', $container);
+        $addCriteriaInput.on('click', () => {
+            $criteriaSelect.toggle();
+        });
+
+        $criteriaSelect.on('change', () => {
+            const criteriaToAdd = $criteriaSelect.children('option:selected').val();
+            const criteriaTemplate = textCriteriaTpl({ criteriaToAdd });
+            $avancedSearcFiltersContainer.prepend(criteriaTemplate);
+            const criteriaContainer = $(`.${criteriaToAdd}-filter .icon-close`, $container);
+            criteriaContainer.on('click', function () {
+                debugger;
+                $(this).parent().remove();
+            });
+            $criteriaSelect.children('option:selected').remove();
+            $criteriaSelect.val('');
+            $criteriaSelect.toggle();
+        });
         $searchButton.on('click', search);
         $clearButton.on('click', clear);
         $searchInput.val(

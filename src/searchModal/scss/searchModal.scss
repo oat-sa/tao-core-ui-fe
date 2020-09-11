@@ -273,6 +273,30 @@ $classTreeVariables: (
         .class-filter-container {
             cursor: pointer;
         }
+        .advanced-search-filters-container {
+            margin-top: 30px;
+            .add-criteria-container {
+                .icon-add {
+                    font-size: 1.6rem;
+                }
+                a {
+                    text-decoration: none;
+                }
+            }
+            .filter-container {
+                margin-bottom: 30px;
+                input {
+                    padding-left: 4px;
+                }
+                .icon-close {
+                    position: absolute;
+                    right: 0;
+                    top: -2px;
+                    font-size: 2rem;
+                    cursor: pointer;
+                }
+            }
+        }
         .buttons-container {
             display: flex;
             justify-content: space-around;

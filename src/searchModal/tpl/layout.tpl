@@ -12,6 +12,19 @@
                     <input class="class-filter" type="text" placeholder="{{__ "Search Item"}}">
                     <div class="class-tree"></div>
                 </div>
+                <!-- TODO: This container must only be rendered if advanced search is enabled -->
+                <div class="advanced-search-filters-container">
+                    <div class="add-criteria-container">
+                        <a><span class="icon-add"></span> add criteria</a>
+                        <div class="criterias-tree"></div>
+                        <select name="select" style="width:100%; display:none">
+                            <option disabled selected value style="display:none" selected> -- select a criteria -- </option>
+                            <option value="description">description</option>
+                            <option value="difficulty">difficulty</option>
+                            <option value="course-code">course code</option>
+                        </select>
+                    </div>
+                </div>
             </div>
             <div class="buttons-container">
                 <button class="btn-clear btn-transparent small">{{__ "Clear"}}</button>
