@@ -30,6 +30,8 @@ import store from 'core/store';
 import resourceSelectorFactory from 'ui/resource/selector';
 import request from 'core/dataProvider/request';
 import urlUtil from 'util/url';
+import 'select2';
+
 /**
  * Creates a searchModal instance
  *
@@ -70,6 +72,7 @@ export default function searchModalFactory(config) {
         const promises = [];
         initModal();
         initUiSelectors();
+        initAddCriteriaSelector();
         promises.push(initClassFilter());
         promises.push(initSearchStore());
         Promise.all(promises)
@@ -156,6 +159,7 @@ export default function searchModalFactory(config) {
             resourceSelector.on('change', selectedValue => {
                 $classFilterInput.val(_.map(selectedValue, 'label')[0]);
                 $classTreeContainer.hide();
+                // TODO - once BE is implemented, this might be moved to select2 ajax constructor property and using minimumInputLength: 0
                 const availableCriterias = requestAvailableCriterias(selectedValue);
                 updateAvailableCriteriasList(availableCriterias);
             });
@@ -187,7 +191,7 @@ export default function searchModalFactory(config) {
     function updateAvailableCriteriasList(availableCriterias) {}
 
     /**
-     * Inits template selectors and sets initial search query on search input
+     * Inits template selectors, buttons behaviour, and sets initial search query on search input
      */
     function initUiSelectors() {
         $searchButton = $('.btn-search', $container);
@@ -199,28 +203,50 @@ export default function searchModalFactory(config) {
         $addCriteriaInput = $('.add-criteria-container a', $container);
         $criteriaSelect = $('.add-criteria-container select', $container);
         $avancedSearcFiltersContainer = $('.advanced-search-filters-container', $container);
-        $addCriteriaInput.on('click', () => {
-            $criteriaSelect.toggle();
-        });
 
-        $criteriaSelect.on('change', () => {
-            const criteriaToAdd = $criteriaSelect.children('option:selected').val();
-            const criteriaTemplate = textCriteriaTpl({ criteriaToAdd });
-            $avancedSearcFiltersContainer.prepend(criteriaTemplate);
-            const criteriaContainer = $(`.${criteriaToAdd}-filter .icon-close`, $container);
-            criteriaContainer.on('click', function () {
-                debugger;
-                $(this).parent().remove();
-            });
-            $criteriaSelect.children('option:selected').remove();
-            $criteriaSelect.val('');
-            $criteriaSelect.toggle();
-        });
         $searchButton.on('click', search);
         $clearButton.on('click', clear);
         $searchInput.val(
             instance.config.criterias && instance.config.criterias.search ? instance.config.criterias.search : ''
         );
+    }
+
+    /**
+     * Inits select2 on criteria select and its UX logic
+     */
+    function initAddCriteriaSelector() {
+        $criteriaSelect.select2({
+            containerCssClass: 'criteria-select2',
+            dropdownCssClass: 'criteria-dropdown-select2',
+            sortResults: results => _.sortBy(results, ['text'])
+        });
+
+        // open dropdown when user clicks on add criteria input
+        $addCriteriaInput.on('click', () => {
+            $criteriaSelect.select2('open');
+        });
+
+        // when a criteria is selected add it to criterias container, remove it from dropdown options and reset select
+        $criteriaSelect.on('change', () => {
+            const criteriaToAdd = $criteriaSelect.children('option:selected').val();
+            addNewCriteria(criteriaToAdd);
+            $criteriaSelect.children('option:selected').remove();
+            $criteriaSelect.select2('val', '');
+        });
+    }
+
+    /**
+     * Adds a new criteria to criterias container so it can be used on advanced search filtering
+     * @param {string} criteriaToAdd - new criteria to be added
+     */
+    function addNewCriteria(criteriaToAdd) {
+        const criteriaTemplate = textCriteriaTpl({ criteriaToAdd });
+        $avancedSearcFiltersContainer.prepend(criteriaTemplate);
+        const criteriaContainer = $(`.${criteriaToAdd}-filter .icon-close`, $container);
+        criteriaContainer.on('click', { criteriaToAdd }, function () {
+            // TODO - add the removed criteria again to the list of available criterias (e.data.criteriaToAdd)
+            $(this).parent().remove();
+        });
     }
 
     /**
@@ -425,6 +451,7 @@ export default function searchModalFactory(config) {
         resourceSelector.select(instance.config.rootClassUri);
         replaceSearchResultsDatatableWithMessage('no-query');
         updateSearchStore({ action: 'clear' });
+        // TODO - remove every existing criteria
     }
 
     /**

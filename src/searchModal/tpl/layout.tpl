@@ -16,9 +16,8 @@
                 <div class="advanced-search-filters-container">
                     <div class="add-criteria-container">
                         <a><span class="icon-add"></span> add criteria</a>
-                        <div class="criterias-tree"></div>
-                        <select name="select" style="width:100%; display:none">
-                            <option disabled selected value style="display:none" selected> -- select a criteria -- </option>
+                        <select name="criteria-select">
+                            <option></option>
                             <option value="description">description</option>
                             <option value="difficulty">difficulty</option>
                             <option value="course-code">course code</option>

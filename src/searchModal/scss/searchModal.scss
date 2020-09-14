@@ -272,15 +272,23 @@ $classTreeVariables: (
         }
         .class-filter-container {
             cursor: pointer;
+            z-index: 2;
         }
         .advanced-search-filters-container {
             margin-top: 30px;
             .add-criteria-container {
+                position: relative;
                 .icon-add {
                     font-size: 1.6rem;
                 }
                 a {
                     text-decoration: none;
+                }
+                .criteria-select2 {
+                    visibility: hidden;
+                    position: absolute;
+                    left: 0;
+                    width: 50% !important;
                 }
             }
             .filter-container {
@@ -325,6 +333,14 @@ $classTreeVariables: (
     }
 }
 
+// select2 appends dropdown options directly to body, so need a custom class to isolate custom styles
+.criteria-dropdown-select2 {
+    border: 1px solid black;
+    input {
+        min-width: initial;
+        background-image: initial;
+    }
+}
 // Overwritte some not customizable styles of datatable and pagination components
 .go-to-item {
     background-color: transparent !important;
