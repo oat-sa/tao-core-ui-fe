@@ -387,7 +387,7 @@ var uploader = {
         options.$uploadBtn.prop('disabled', true);
         options.$resetBtn.prop('disabled', true);
 
-        var importButton = options.$form[0].querySelector('button');
+        const importButton = options.$form[0].querySelector('button');
         if (importButton) {
             importButton.setAttribute('disabled', true);
         }
