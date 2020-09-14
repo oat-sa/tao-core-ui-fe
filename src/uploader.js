@@ -386,6 +386,7 @@ var uploader = {
 
         options.$uploadBtn.prop('disabled', true);
         options.$resetBtn.prop('disabled', true);
+        options.$form[0][9].setAttribute('disabled', true);
 
         if (options.$progressBar) {
             options.$progressBar
