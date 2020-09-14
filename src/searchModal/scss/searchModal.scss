@@ -288,7 +288,7 @@ $classTreeVariables: (
                     visibility: hidden;
                     position: absolute;
                     left: 0;
-                    width: 50% !important;
+                    width: 70% !important;
                 }
             }
             .filter-container {
@@ -335,7 +335,8 @@ $classTreeVariables: (
 
 // select2 appends dropdown options directly to body, so need a custom class to isolate custom styles
 .criteria-dropdown-select2 {
-    border: 1px solid black;
+    border: 1px solid $uiGeneralContentBorder;
+    box-shadow: $uiGeneralContentBorder 1px 1px 1px;
     input {
         min-width: initial;
         background-image: initial;
