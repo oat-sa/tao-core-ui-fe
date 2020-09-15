@@ -1,5 +1,5 @@
-<div class="filter-container {{criteriaToAdd}}-filter">
+<div class="filter-container {{criteriaData.label}}-filter">
     <span class="icon-close"></span>
-    <span>{{criteriaToAdd}}</span>
-    <input class="generic-search-input" type="text" placeholder="{{criteriaToAdd}}">
+    <span>{{criteriaData.label}}</span>
+    <input class="generic-search-input" type="text" placeholder="{{criteriaData.label}}">
 </div>

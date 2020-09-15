@@ -64,6 +64,7 @@ export default function searchModalFactory(config) {
     let $addCriteriaInput = null;
     let $criteriaSelect = null;
     let $advancedCriteriasContainer = null;
+    let criteriasState = {};
 
     /**
      * Creates search modal, inits template selectors, inits search store, and once is created triggers initial search
@@ -157,6 +158,14 @@ export default function searchModalFactory(config) {
 
             // then new class is selected, set its label into class filter input and hide filter container, then request class properties
             resourceSelector.on('change', selectedValue => {
+                /*
+                 * on searchModal init we set manually the selector to the provided config.rootClassUri. When a selector
+                 * is set manually Selector component execs @clearSelection which triggers a change event
+                 * with an empty object as param. We catch this undesired behaviour here
+                 */
+                if (_.isEmpty(selectedValue)) {
+                    return;
+                }
                 $classFilterInput.val(_.map(selectedValue, 'label')[0]);
                 $classTreeContainer.hide();
                 // TODO - once BE is implemented, this might be moved to select2 ajax constructor property and using minimumInputLength: 0
@@ -169,7 +178,7 @@ export default function searchModalFactory(config) {
     }
 
     /**
-     * Request properties of selected class (and children) schemas and sets them to criterias selectors
+     * Request properties of selected class (and children) schemas
      * @param {object} selectedClass - class to retreieve its properties from
      * @returns {array} - array of class properties
      */
@@ -177,9 +186,12 @@ export default function searchModalFactory(config) {
         // TODO - Implement ajax request once is implemented on BE
         return [
             {
-                label: 'sssss',
-                type: 'RadioBox',
-                values: ['dsdsdsd']
+                label: 'description0',
+                type: 'text'
+            },
+            {
+                label: 'description1',
+                type: 'text'
             }
         ];
     }
@@ -188,7 +200,20 @@ export default function searchModalFactory(config) {
      * Updates the list of available criterias with the received one
      * @param {array} availableCriterias - array of class properties
      */
-    function updateAvailableCriteriasList(availableCriterias) {}
+    function updateAvailableCriteriasList(availableCriterias) {
+        availableCriterias.forEach(criteria => {
+            // only append new option if it does not previously exist
+            debugger;
+            if (
+                criteriasState[criteria.label] === undefined &&
+                $criteriaSelect.find(`option[value=${criteria.label}]`).length === 0
+            ) {
+                criteriasState[criteria.label] = criteria;
+                const newOption = new Option(criteria.label, criteria.label, false, false);
+                $criteriaSelect.append(newOption);
+            }
+        });
+    }
 
     /**
      * Inits template selectors, buttons behaviour, and sets initial search query on search input
@@ -240,13 +265,20 @@ export default function searchModalFactory(config) {
      * @param {string} criteriaToAdd - new criteria to be added
      */
     function addNewCriteria(criteriaToAdd) {
-        const criteriaTemplate = textCriteriaTpl({ criteriaToAdd });
-        $advancedCriteriasContainer.prepend(criteriaTemplate);
-        const criteriaContainer = $(`.${criteriaToAdd}-filter .icon-close`, $container);
-        criteriaContainer.on('click', { criteriaToAdd }, function () {
-            // TODO - add the removed criteria again to the list of available criterias (e.data.criteriaToAdd)
-            $(this).parent().remove();
-        });
+        const criteriaData = criteriasState[criteriaToAdd];
+        if (criteriaData.type === 'text') {
+            const criteriaTemplate = textCriteriaTpl({ criteriaData });
+            $advancedCriteriasContainer.prepend(criteriaTemplate);
+            const criteriaContainer = $(`.${criteriaData.label}-filter .icon-close`, $container);
+            criteriaContainer.on('click', { criteriaData }, function () {
+                const criteriaData = arguments[0].data.criteriaData;
+                const newOption = new Option(criteriaData.label, criteriaData.label, false, false);
+                $criteriaSelect.append(newOption);
+                $(this).parent().remove();
+            });
+        } else {
+            // TODO
+        }
     }
 
     /**
@@ -444,14 +476,16 @@ export default function searchModalFactory(config) {
     }
 
     /**
-     * Clear search input and search results from both, view and store
+     * Clear search input, criterias and results from both, view and store
      */
     function clear() {
         $searchInput.val('');
+        criteriasState = {};
+        $criteriaSelect.find('option:not(:first-child)').remove();
         resourceSelector.select(instance.config.rootClassUri);
+        $advancedCriteriasContainer.empty();
         replaceSearchResultsDatatableWithMessage('no-query');
         updateSearchStore({ action: 'clear' });
-        // TODO - remove every existing criteria
     }
 
     /**

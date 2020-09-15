@@ -21,9 +21,6 @@
                         <a><span class="icon-add"></span> add criteria</a>
                         <select name="criteria-select">
                             <option></option>
-                            <option value="description">description</option>
-                            <option value="difficulty">difficulty</option>
-                            <option value="course-code">course code</option>
                         </select>
                     </div>
                 </div>
