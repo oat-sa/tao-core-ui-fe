@@ -234,7 +234,14 @@ $classTreeVariables: (
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        padding: 40px 20px 20px 20px;
+        padding: 40px 0px 20px 20px;
+        .basic-search-container {
+            padding-right: 20px;
+            .class-filter-container {
+                cursor: pointer;
+                z-index: 2;
+            }
+        }
         .filter-container {
             position: relative;
             margin-bottom: 10px;
@@ -270,13 +277,10 @@ $classTreeVariables: (
                 }
             }
         }
-        .class-filter-container {
-            cursor: pointer;
-            z-index: 2;
-        }
-        .advanced-search-filters-container {
+        .advanced-search-container {
             margin-top: 30px;
             .add-criteria-container {
+                padding-right: 20px;
                 position: relative;
                 .icon-add {
                     font-size: 1.6rem;
@@ -291,21 +295,39 @@ $classTreeVariables: (
                     width: 70% !important;
                 }
             }
-            .filter-container {
-                margin-bottom: 30px;
-                input {
-                    padding-left: 4px;
+            .advanced-criterias-container {
+                overflow-y: auto;
+                padding-right: 20px;
+                max-height: 75vh;
+                .filter-container {
+                    margin-bottom: 30px;
+                    input {
+                        padding-left: 4px;
+                    }
+                    .icon-close {
+                        position: absolute;
+                        right: 0;
+                        top: -2px;
+                        font-size: 2rem;
+                        cursor: pointer;
+                    }
                 }
-                .icon-close {
-                    position: absolute;
-                    right: 0;
-                    top: -2px;
-                    font-size: 2rem;
-                    cursor: pointer;
-                }
+            }
+            .advanced-criterias-container::-webkit-scrollbar {
+                // -webkit-appearance: none;
+                width: 10px;
+            }
+            .advanced-criterias-container::-webkit-scrollbar-thumb {
+                border-radius: 5px;
+                background-color: $grey;
+                border: 2px solid $textHighlight;
+            }
+            .advanced-criterias-container::-webkit-scrollbar-track {
+                background-color: $textHighlight;
             }
         }
         .buttons-container {
+            padding-right: 20px;
             display: flex;
             justify-content: space-around;
             button {

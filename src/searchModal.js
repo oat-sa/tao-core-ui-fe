@@ -63,7 +63,7 @@ export default function searchModalFactory(config) {
     let $classTreeContainer = null;
     let $addCriteriaInput = null;
     let $criteriaSelect = null;
-    let $avancedSearcFiltersContainer = null;
+    let $advancedCriteriasContainer = null;
 
     /**
      * Creates search modal, inits template selectors, inits search store, and once is created triggers initial search
@@ -202,7 +202,7 @@ export default function searchModalFactory(config) {
         $classFilterContainer = $('.class-filter-container', $container);
         $addCriteriaInput = $('.add-criteria-container a', $container);
         $criteriaSelect = $('.add-criteria-container select', $container);
-        $avancedSearcFiltersContainer = $('.advanced-search-filters-container', $container);
+        $advancedCriteriasContainer = $('.advanced-criterias-container', $container);
 
         $searchButton.on('click', search);
         $clearButton.on('click', clear);
@@ -241,7 +241,7 @@ export default function searchModalFactory(config) {
      */
     function addNewCriteria(criteriaToAdd) {
         const criteriaTemplate = textCriteriaTpl({ criteriaToAdd });
-        $avancedSearcFiltersContainer.prepend(criteriaTemplate);
+        $advancedCriteriasContainer.prepend(criteriaTemplate);
         const criteriaContainer = $(`.${criteriaToAdd}-filter .icon-close`, $container);
         criteriaContainer.on('click', { criteriaToAdd }, function () {
             // TODO - add the removed criteria again to the list of available criterias (e.data.criteriaToAdd)
