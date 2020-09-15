@@ -298,23 +298,25 @@ $classTreeVariables: (
             .advanced-criterias-container {
                 overflow-y: auto;
                 padding-right: 20px;
-                max-height: 75vh;
+                max-height: 72vh;
                 .filter-container {
                     margin-bottom: 30px;
                     input {
                         padding-left: 4px;
                     }
-                    .icon-close {
-                        position: absolute;
+                    .select2-search-choice-close {
                         right: 0;
-                        top: -2px;
-                        font-size: 2rem;
+                        top: 2px;
                         cursor: pointer;
                     }
                 }
+                &.scrollable {
+                    padding-right: 10px;
+                    border-top: 1px solid $uiGeneralContentBorder;
+                    border-bottom: 1px solid $uiGeneralContentBorder;
+                }
             }
             .advanced-criterias-container::-webkit-scrollbar {
-                // -webkit-appearance: none;
                 width: 10px;
             }
             .advanced-criterias-container::-webkit-scrollbar-thumb {

@@ -192,6 +192,66 @@ export default function searchModalFactory(config) {
             {
                 label: 'description1',
                 type: 'text'
+            },
+            {
+                label: 'description2',
+                type: 'text'
+            },
+            {
+                label: 'description3',
+                type: 'text'
+            },
+            {
+                label: 'description4',
+                type: 'text'
+            },
+            {
+                label: 'description5',
+                type: 'text'
+            },
+            {
+                label: 'description6',
+                type: 'text'
+            },
+            {
+                label: 'description7',
+                type: 'text'
+            },
+            {
+                label: 'description8',
+                type: 'text'
+            },
+            {
+                label: 'description9',
+                type: 'text'
+            },
+            {
+                label: 'description10',
+                type: 'text'
+            },
+            {
+                label: 'description11',
+                type: 'text'
+            },
+            {
+                label: 'description12',
+                type: 'text'
+            },
+            {
+                label: 'description13',
+                type: 'text'
+            },
+            {
+                label: 'description14',
+                type: 'text'
+            },
+            {
+                label: 'description15',
+                type: 'text'
+            },
+            {
+                label: 'description16',
+                type: 'text'
             }
         ];
     }
@@ -203,7 +263,6 @@ export default function searchModalFactory(config) {
     function updateAvailableCriteriasList(availableCriterias) {
         availableCriterias.forEach(criteria => {
             // only append new option if it does not previously exist
-            debugger;
             if (
                 criteriasState[criteria.label] === undefined &&
                 $criteriaSelect.find(`option[value=${criteria.label}]`).length === 0
@@ -249,6 +308,13 @@ export default function searchModalFactory(config) {
         // open dropdown when user clicks on add criteria input
         $addCriteriaInput.on('click', () => {
             $criteriaSelect.select2('open');
+            // if dropdown is opened above addCriteria input, top property is slightly decreased to avoid overlapping with addCriteria icon
+            if ($('.criteria-dropdown-select2').hasClass('select2-drop-above')) {
+                $('.criteria-dropdown-select2').css(
+                    'top',
+                    $('.criteria-dropdown-select2').css('top').split('px')[0] - 10 + 'px'
+                );
+            }
         });
 
         // when a criteria is selected add it to criterias container, remove it from dropdown options and reset select
@@ -269,15 +335,21 @@ export default function searchModalFactory(config) {
         if (criteriaData.type === 'text') {
             const criteriaTemplate = textCriteriaTpl({ criteriaData });
             $advancedCriteriasContainer.prepend(criteriaTemplate);
-            const criteriaContainer = $(`.${criteriaData.label}-filter .icon-close`, $container);
+            const criteriaContainer = $(`.${criteriaData.label}-filter .select2-search-choice-close`, $container);
             criteriaContainer.on('click', { criteriaData }, function () {
                 const criteriaData = arguments[0].data.criteriaData;
                 const newOption = new Option(criteriaData.label, criteriaData.label, false, false);
                 $criteriaSelect.append(newOption);
                 $(this).parent().remove();
+                if ($advancedCriteriasContainer.get(0).scrollHeight === $advancedCriteriasContainer.height()) {
+                    $advancedCriteriasContainer.removeClass('scrollable');
+                }
             });
         } else {
             // TODO
+        }
+        if ($advancedCriteriasContainer.get(0).scrollHeight > $advancedCriteriasContainer.height()) {
+            $advancedCriteriasContainer.addClass('scrollable');
         }
     }
 
@@ -482,6 +554,7 @@ export default function searchModalFactory(config) {
         $searchInput.val('');
         criteriasState = {};
         $criteriaSelect.find('option:not(:first-child)').remove();
+        $advancedCriteriasContainer.removeClass('scrollable');
         resourceSelector.select(instance.config.rootClassUri);
         $advancedCriteriasContainer.empty();
         replaceSearchResultsDatatableWithMessage('no-query');
