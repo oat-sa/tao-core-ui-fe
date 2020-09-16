@@ -22,6 +22,7 @@ import context from 'context';
 import layoutTpl from 'ui/searchModal/tpl/layout';
 import infoMessageTpl from 'ui/searchModal/tpl/info-message';
 import textCriteriaTpl from 'ui/searchModal/tpl/text-criteria';
+import invalidCriteriaWarningTpl from 'ui/searchModal/tpl/invalid-criteria-warning';
 import 'ui/searchModal/css/searchModal.css';
 import component from 'ui/component';
 import 'ui/modal';
@@ -179,81 +180,37 @@ export default function searchModalFactory(config) {
 
     /**
      * Request properties of selected class (and children) schemas
-     * @param {object} selectedClass - class to retreieve its properties from
+     * @param {object} selectedValue - class to retreieve its properties from
      * @returns {array} - array of class properties
      */
-    function requestAvailableCriterias(selectedClass) {
-        // TODO - Implement ajax request once is implemented on BE
-        return [
-            {
-                label: 'description0',
-                type: 'text'
-            },
-            {
-                label: 'description1',
-                type: 'text'
-            },
-            {
-                label: 'description2',
-                type: 'text'
-            },
-            {
-                label: 'description3',
-                type: 'text'
-            },
-            {
-                label: 'description4',
-                type: 'text'
-            },
-            {
-                label: 'description5',
-                type: 'text'
-            },
-            {
-                label: 'description6',
-                type: 'text'
-            },
-            {
-                label: 'description7',
-                type: 'text'
-            },
-            {
-                label: 'description8',
-                type: 'text'
-            },
-            {
-                label: 'description9',
-                type: 'text'
-            },
-            {
-                label: 'description10',
-                type: 'text'
-            },
-            {
-                label: 'description11',
-                type: 'text'
-            },
-            {
-                label: 'description12',
-                type: 'text'
-            },
-            {
-                label: 'description13',
-                type: 'text'
-            },
-            {
-                label: 'description14',
-                type: 'text'
-            },
-            {
-                label: 'description15',
-                type: 'text'
-            },
-            {
-                label: 'description16',
-                type: 'text'
-            }
-        ];
+    function requestAvailableCriterias(selectedValue) {
+        /**
+         * TODO - Implement ajax request once is implemented on BE. This conditional is
+         * just to check the logic of replacing/removing criterias on class change
+         */
+        if (_.map(selectedValue, 'label')[0] === 'Item') {
+            return [
+                {
+                    label: 'in-both',
+                    type: 'text'
+                },
+                {
+                    label: 'only-in-root',
+                    type: 'text'
+                }
+            ];
+        } else if (_.map(selectedValue, 'label')[0] === 'QTI Interactions') {
+            return [
+                {
+                    label: 'in-both',
+                    type: 'text'
+                },
+                {
+                    label: 'only-in-child',
+                    type: 'text'
+                }
+            ];
+        }
     }
 
     /**
@@ -261,17 +218,49 @@ export default function searchModalFactory(config) {
      * @param {array} availableCriterias - array of class properties
      */
     function updateAvailableCriteriasList(availableCriterias) {
+        // remove any invalid criteria container, if present
+        $('.invalid-criteria-warning-container').remove();
+        // clean store and options
+        criteriasState = {};
+        $criteriaSelect.find('option:not(:first-child)').remove();
+        // repopulate store and options
         availableCriterias.forEach(criteria => {
-            // only append new option if it does not previously exist
-            if (
-                criteriasState[criteria.label] === undefined &&
-                $criteriaSelect.find(`option[value=${criteria.label}]`).length === 0
-            ) {
-                criteriasState[criteria.label] = criteria;
-                const newOption = new Option(criteria.label, criteria.label, false, false);
-                $criteriaSelect.append(newOption);
+            criteriasState[criteria.label] = criteria;
+            const newOption = new Option(criteria.label, criteria.label, false, false);
+            $criteriaSelect.append(newOption);
+        });
+        // loop through already existing criterias and remove them if are not in the updated criterias option
+        const existingCriterias = $advancedCriteriasContainer
+            .find('.filter-container')
+            .get()
+            .map(filterContainer => {
+                return filterContainer.dataset.criteria;
+            });
+        // check if existing criteria is the new criteriaStore, and delete if not. If it is, leave it but remove the option from dropdown
+        const invalidCriteria = [];
+        existingCriterias.forEach(criteria => {
+            if (criteriasState[criteria] === undefined) {
+                $advancedCriteriasContainer.find(`.${criteria}-filter`).remove();
+                // todo - save criteria message to display warning
+                invalidCriteria.push(criteria);
+            } else {
+                $criteriaSelect.find(`option[value=${criteria}]`).remove();
             }
         });
+
+        // display warning message with the invalid criterias that have been removed
+        if (invalidCriteria.length > 0) {
+            // here invalidCriteriasWarning
+            const invalidCriteriaWarning = invalidCriteriaWarningTpl({ invalidCriteria });
+            $advancedCriteriasContainer.prepend(invalidCriteriaWarning);
+            debugger;
+            $('.invalid-criteria-warning-container .select2-search-choice-close', $advancedCriteriasContainer).on(
+                'click',
+                function () {
+                    $(this).parent().remove();
+                }
+            );
+        }
     }
 
     /**
@@ -356,8 +345,8 @@ export default function searchModalFactory(config) {
         if (criteriaData.type === 'text') {
             const criteriaTemplate = textCriteriaTpl({ criteriaData });
             $advancedCriteriasContainer.prepend(criteriaTemplate);
-            const criteriaContainer = $(`.${criteriaData.label}-filter .select2-search-choice-close`, $container);
-            criteriaContainer.on('click', { criteriaData }, function () {
+            const $criteriaContainer = $(`.${criteriaData.label}-filter .select2-search-choice-close`, $container);
+            $criteriaContainer.on('click', { criteriaData }, function () {
                 const criteriaData = arguments[0].data.criteriaData;
                 const newOption = new Option(criteriaData.label, criteriaData.label, false, false);
                 $criteriaSelect.append(newOption);
@@ -573,11 +562,9 @@ export default function searchModalFactory(config) {
      */
     function clear() {
         $searchInput.val('');
-        criteriasState = {};
-        $criteriaSelect.find('option:not(:first-child)').remove();
         $advancedCriteriasContainer.removeClass('scrollable');
-        resourceSelector.select(instance.config.rootClassUri);
         $advancedCriteriasContainer.empty();
+        resourceSelector.select(instance.config.rootClassUri);
         replaceSearchResultsDatatableWithMessage('no-query');
         updateSearchStore({ action: 'clear' });
     }

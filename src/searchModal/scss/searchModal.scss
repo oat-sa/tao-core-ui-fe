@@ -6,6 +6,9 @@ $classTreeVariables: (
     font-size: 1.2rem
 );
 
+$invalidCriteriaBackground: #cfdfe9;
+$invalidCriteriaBorder: #266d9c;
+
 .section-container {
     // some variations of flex children
     $flexCols: full, half, third, quarter;
@@ -309,6 +312,19 @@ $classTreeVariables: (
                         right: 0;
                         top: 2px;
                         cursor: pointer;
+                    }
+                }
+                .invalid-criteria-warning-container {
+                    background-color: $invalidCriteriaBackground;
+                    border: 1px solid $invalidCriteriaBorder;
+                    padding: 10px;
+                    p {
+                        margin-bottom: 0;
+                    }
+                    ul {
+                        list-style: none;
+                        font-weight: bolder;
+                        padding-left: 0;
                     }
                 }
                 &.scrollable {
