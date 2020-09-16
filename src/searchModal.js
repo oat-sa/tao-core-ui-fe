@@ -226,6 +226,8 @@ export default function searchModalFactory(config) {
         // repopulate store and options
         availableCriterias.forEach(criteria => {
             criteriasState[criteria.label] = criteria;
+            criteriasState[criteria.label].rendered = false;
+            criteriasState[criteria.label].value = undefined;
             const newOption = new Option(criteria.label, criteria.label, false, false);
             $criteriaSelect.append(newOption);
         });
@@ -244,6 +246,11 @@ export default function searchModalFactory(config) {
                 // todo - save criteria message to display warning
                 invalidCriteria.push(criteria);
             } else {
+                criteriasState[criteria].rendered = true;
+                criteriasState[criteria].value = $(
+                    `[data-criteria=${criteria}] input`,
+                    $advancedCriteriasContainer
+                ).val();
                 $criteriaSelect.find(`option[value=${criteria}]`).remove();
             }
         });
@@ -253,7 +260,6 @@ export default function searchModalFactory(config) {
             // here invalidCriteriasWarning
             const invalidCriteriaWarning = invalidCriteriaWarningTpl({ invalidCriteria });
             $advancedCriteriasContainer.prepend(invalidCriteriaWarning);
-            debugger;
             $('.invalid-criteria-warning-container .select2-search-choice-close', $advancedCriteriasContainer).on(
                 'click',
                 function () {
@@ -345,15 +351,23 @@ export default function searchModalFactory(config) {
         if (criteriaData.type === 'text') {
             const criteriaTemplate = textCriteriaTpl({ criteriaData });
             $advancedCriteriasContainer.prepend(criteriaTemplate);
-            const $criteriaContainer = $(`.${criteriaData.label}-filter .select2-search-choice-close`, $container);
-            $criteriaContainer.on('click', { criteriaData }, function () {
+            const $criteriaContainer = $(`.${criteriaData.label}-filter`, $container);
+            // manage closing criteria container
+            $('.select2-search-choice-close', $criteriaContainer).on('click', { criteriaData }, function () {
                 const criteriaData = arguments[0].data.criteriaData;
                 const newOption = new Option(criteriaData.label, criteriaData.label, false, false);
                 $criteriaSelect.append(newOption);
                 $(this).parent().remove();
+                criteriasState[criteriaData.label].rendered = false;
+                criteriasState[criteriaData.label].value = undefined;
                 if ($advancedCriteriasContainer.get(0).scrollHeight === $advancedCriteriasContainer.height()) {
                     $advancedCriteriasContainer.removeClass('scrollable');
                 }
+            });
+            // sync criteriaState with input value
+            $('input', $criteriaContainer).on('change', { criteriaData }, function () {
+                const criteriaData = arguments[0].data.criteriaData;
+                criteriasState[criteriaData.label].value = $(this).val();
             });
         } else {
             // TODO
@@ -361,6 +375,7 @@ export default function searchModalFactory(config) {
         if ($advancedCriteriasContainer.get(0).scrollHeight > $advancedCriteriasContainer.height()) {
             $advancedCriteriasContainer.addClass('scrollable');
         }
+        criteriasState[criteriaToAdd].rendered = true;
     }
 
     /**
@@ -440,10 +455,17 @@ export default function searchModalFactory(config) {
      * build final complex query appending every filter
      */
     function buildComplexQuery() {
-        const $searchInputValue = $searchInput.val();
-        const classFilterValue = $classFilterInput.val();
-
-        return `class:${classFilterValue} AND ${$searchInputValue}`;
+        const $searchInputValue = $searchInput.val().trim();
+        const classFilterValue = $classFilterInput.val().trim();
+        let query = `class:${classFilterValue} AND ${$searchInputValue}`;
+        console.dir(criteriasState);
+        const advancedSearchCriterias = _.filter(criteriasState, criteria => criteria.rendered === true);
+        advancedSearchCriterias.forEach(renderedCriteria => {
+            if (renderedCriteria.value && renderedCriteria.value.trim() !== '') {
+                query += ` AND ${renderedCriteria.label}:${renderedCriteria.value.trim()}`;
+            }
+        });
+        return query;
     }
     /*
      * If search on init is not required, extends data with stored dataset
