@@ -280,6 +280,7 @@ $classTreeVariables: (
         .advanced-search-container {
             margin-top: 30px;
             .add-criteria-container {
+                margin-top: 10px;
                 padding-right: 20px;
                 position: relative;
                 .icon-add {
@@ -312,7 +313,11 @@ $classTreeVariables: (
                 }
                 &.scrollable {
                     padding-right: 10px;
+                }
+                &.scroll-separator-top {
                     border-top: 1px solid $uiGeneralContentBorder;
+                }
+                &.scroll-separator-bottom {
                     border-bottom: 1px solid $uiGeneralContentBorder;
                 }
             }

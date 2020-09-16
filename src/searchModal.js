@@ -275,7 +275,8 @@ export default function searchModalFactory(config) {
     }
 
     /**
-     * Inits template selectors, buttons behaviour, and sets initial search query on search input
+     * Inits template selectors, buttons behaviour, scroll animation,
+     * and sets initial search query on search input
      */
     function initUiSelectors() {
         $searchButton = $('.btn-search', $container);
@@ -288,11 +289,31 @@ export default function searchModalFactory(config) {
         $criteriaSelect = $('.add-criteria-container select', $container);
         $advancedCriteriasContainer = $('.advanced-criterias-container', $container);
 
+        $advancedCriteriasContainer.on('scroll', animateScroll);
         $searchButton.on('click', search);
         $clearButton.on('click', clear);
         $searchInput.val(
             instance.config.criterias && instance.config.criterias.search ? instance.config.criterias.search : ''
         );
+    }
+
+    /**
+     * Styles scrolling on $advancedCriteriasContainer
+     */
+    function animateScroll() {
+        const scrollPercentage =
+            $advancedCriteriasContainer.get(0).scrollTop /
+            ($advancedCriteriasContainer.get(0).scrollHeight - $advancedCriteriasContainer.get(0).clientHeight);
+        if (scrollPercentage > 0.1) {
+            $advancedCriteriasContainer.addClass('scroll-separator-top');
+        } else {
+            $advancedCriteriasContainer.removeClass('scroll-separator-top');
+        }
+        if (scrollPercentage < 0.9) {
+            $advancedCriteriasContainer.addClass('scroll-separator-bottom');
+        } else {
+            $advancedCriteriasContainer.removeClass('scroll-separator-bottom');
+        }
     }
 
     /**
