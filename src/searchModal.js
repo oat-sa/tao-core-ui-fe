@@ -15,7 +15,7 @@
  *
  * Copyright (c) 2020 (original work) Open Assessment Technologies SA ;
  */
-import $ from 'jquery';
+import $, { isArray } from 'jquery';
 import _ from 'lodash';
 import __ from 'i18n';
 import context from 'context';
@@ -23,6 +23,8 @@ import layoutTpl from 'ui/searchModal/tpl/layout';
 import infoMessageTpl from 'ui/searchModal/tpl/info-message';
 import textCriteriaTpl from 'ui/searchModal/tpl/text-criteria';
 import invalidCriteriaWarningTpl from 'ui/searchModal/tpl/invalid-criteria-warning';
+import listCheckboxCriteriaTpl from 'ui/searchModal/tpl/list-checkbox-criteria';
+import listSelectCriteriaTpl from 'ui/searchModal/tpl/list-select-criteria';
 import 'ui/searchModal/css/searchModal.css';
 import component from 'ui/component';
 import 'ui/modal';
@@ -191,8 +193,18 @@ export default function searchModalFactory(config) {
         if (_.map(selectedValue, 'label')[0] === 'Item') {
             return [
                 {
-                    label: 'in-both',
+                    label: 'in-both-text',
                     type: 'text'
+                },
+                {
+                    label: 'in-both-list',
+                    type: 'list',
+                    values: ['value0', 'value1', 'value2', 'value3']
+                },
+                {
+                    label: 'in-both-select',
+                    type: 'list',
+                    values: ['value0', 'value1', 'value2', 'value3', 'value4']
                 },
                 {
                     label: 'only-in-root',
@@ -202,8 +214,18 @@ export default function searchModalFactory(config) {
         } else if (_.map(selectedValue, 'label')[0] === 'QTI Interactions') {
             return [
                 {
-                    label: 'in-both',
+                    label: 'in-both-text',
                     type: 'text'
+                },
+                {
+                    label: 'in-both-list',
+                    type: 'list',
+                    values: ['value0', 'value1', 'value2', 'value3']
+                },
+                {
+                    label: 'in-both-select',
+                    type: 'list',
+                    values: ['value0', 'value1', 'value2', 'value3', 'value4']
                 },
                 {
                     label: 'only-in-child',
@@ -243,7 +265,8 @@ export default function searchModalFactory(config) {
             if (criteriasState[criteria.label]) {
                 if (
                     criteriasState[criteria.label].rendered === true &&
-                    criteriasState[criteria.label].value !== undefined
+                    criteriasState[criteria.label].value !== undefined &&
+                    $advancedCriteriasContainer.find(`.${criteria.label}-filter`).length === 0
                 ) {
                     addNewCriteria(criteria.label);
                 }
@@ -272,10 +295,10 @@ export default function searchModalFactory(config) {
                 invalidCriteria.push(criteria);
             } else {
                 criteriasState[criteria].rendered = true;
-                criteriasState[criteria].value = $(
-                    `[data-criteria=${criteria}] input`,
-                    $advancedCriteriasContainer
-                ).val();
+                // criteriasState[criteria].value = $(
+                //     `[data-criteria=${criteria}] input`,
+                //     $advancedCriteriasContainer
+                // ).val();
                 $criteriaSelect.find(`option[value=${criteria}]`).remove();
             }
         });
@@ -396,8 +419,63 @@ export default function searchModalFactory(config) {
                 const criteriaData = arguments[0].data.criteriaData;
                 criteriasState[criteriaData.label].value = $(this).val();
             });
-        } else {
-            // TODO
+        } else if (criteriaData.type === 'list') {
+            let criteriaTemplate = null;
+            if (criteriaData.values.length < 5) {
+                criteriaTemplate = listCheckboxCriteriaTpl({ criteriaData });
+            } else {
+                criteriaTemplate = listSelectCriteriaTpl({ criteriaData });
+            }
+            $advancedCriteriasContainer.prepend(criteriaTemplate);
+            const $criteriaContainer = $(`.${criteriaData.label}-filter`, $container);
+            // init select if required
+            if (criteriaData.values.length >= 5) {
+                // init select2 select
+                debugger;
+                $(`input[name=${criteriaData.label}-select]`, $criteriaContainer).select2({
+                    multiple: true,
+                    data: [
+                        { id: 0, text: 'enhancement' }, // TODO - need to map label and text to label
+                        { id: 1, text: 'bug' },
+                        { id: 2, text: 'duplicate' },
+                        { id: 3, text: 'invalid' },
+                        { id: 4, text: 'wontfix' }
+                    ]
+                });
+                $(`input[name=${criteriaData.label}-select]`, $criteriaContainer).on('change', event => {
+                    debugger;
+                    // TODO - add value (event.val?) to criteriasState[criteriaData.label].value
+                });
+            }
+            if (criteriaData.value) {
+                criteriaData.value.forEach(selectedValue => {
+                    $(`input[value=${selectedValue}]`, $criteriaContainer).prop('checked', true);
+                });
+            }
+            // manage closing criteria container
+            $('.select2-search-choice-close', $criteriaContainer).on('click', { criteriaData }, function () {
+                const criteriaData = arguments[0].data.criteriaData;
+                const newOption = new Option(criteriaData.label, criteriaData.label, false, false);
+                $criteriaSelect.append(newOption);
+                $(this).parent().remove();
+                criteriasState[criteriaData.label].rendered = false;
+                criteriasState[criteriaData.label].value = undefined;
+                if ($advancedCriteriasContainer.get(0).scrollHeight === $advancedCriteriasContainer.height()) {
+                    $advancedCriteriasContainer.removeClass('scrollable');
+                }
+            });
+
+            // sync criteriaState with select values
+            $('input', $criteriaContainer).on('change', { criteriaData }, function () {
+                const criteriaData = arguments[0].data.criteriaData;
+                criteriasState[criteriaData.label].value = $(this)
+                    .closest('.filter-container')
+                    .find('input[type=checkbox]:checked')
+                    .get()
+                    .map(function (element) {
+                        return element.value;
+                    });
+            });
         }
         if ($advancedCriteriasContainer.get(0).scrollHeight > $advancedCriteriasContainer.height()) {
             $advancedCriteriasContainer.addClass('scrollable');
@@ -488,8 +566,15 @@ export default function searchModalFactory(config) {
         console.dir(criteriasState);
         const advancedSearchCriterias = _.filter(criteriasState, criteria => criteria.rendered === true);
         advancedSearchCriterias.forEach(renderedCriteria => {
-            if (renderedCriteria.value && renderedCriteria.value.trim() !== '') {
-                query += ` AND ${renderedCriteria.label}:${renderedCriteria.value.trim()}`;
+            debugger;
+            if (renderedCriteria.type === 'text') {
+                if (renderedCriteria.value && renderedCriteria.value.trim() !== '') {
+                    query += ` AND ${renderedCriteria.label}:${renderedCriteria.value.trim()}`;
+                }
+            } else if (renderedCriteria.type === 'list') {
+                if (renderedCriteria.value.length > 0) {
+                    query += ` AND ${renderedCriteria.label}:(${renderedCriteria.value.join(' OR ')})`;
+                }
             }
         });
         return query;

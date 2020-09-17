@@ -305,13 +305,27 @@ $invalidCriteriaBorder: #266d9c;
                 max-height: 72vh;
                 .filter-container {
                     margin-bottom: 30px;
-                    input {
-                        padding-left: 4px;
-                    }
                     .select2-search-choice-close {
                         right: 0;
                         top: 2px;
                         cursor: pointer;
+                    }
+                    &[data-type='text'] {
+                        input {
+                            padding-left: 4px;
+                        }
+                    }
+                    &[data-type='list'] {
+                        .select2-container {
+                            width: 100%;
+                        }
+                        ul {
+                            list-style: none;
+                            padding-left: 0;
+                        }
+                        input[type='checkbox'] {
+                            width: initial;
+                        }
                     }
                 }
                 .invalid-criteria-warning-container {
