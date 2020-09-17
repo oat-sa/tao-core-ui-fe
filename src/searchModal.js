@@ -431,26 +431,27 @@ export default function searchModalFactory(config) {
             // init select if required
             if (criteriaData.values.length >= 5) {
                 // init select2 select
-                debugger;
                 $(`input[name=${criteriaData.label}-select]`, $criteriaContainer).select2({
                     multiple: true,
-                    data: [
-                        { id: 0, text: 'enhancement' }, // TODO - need to map label and text to label
-                        { id: 1, text: 'bug' },
-                        { id: 2, text: 'duplicate' },
-                        { id: 3, text: 'invalid' },
-                        { id: 4, text: 'wontfix' }
-                    ]
+                    data: criteriaData.values.map(value => {
+                        return { id: value, text: value };
+                    })
                 });
                 $(`input[name=${criteriaData.label}-select]`, $criteriaContainer).on('change', event => {
-                    debugger;
-                    // TODO - add value (event.val?) to criteriasState[criteriaData.label].value
+                    criteriasState[criteriaData.label].value = event.val;
                 });
-            }
-            if (criteriaData.value) {
-                criteriaData.value.forEach(selectedValue => {
-                    $(`input[value=${selectedValue}]`, $criteriaContainer).prop('checked', true);
-                });
+                if (criteriaData.value) {
+                    $(`input[name=${criteriaData.label}-select]`, $criteriaContainer).select2(
+                        'val',
+                        criteriaData.value
+                    );
+                }
+            } else {
+                if (criteriaData.value) {
+                    criteriaData.value.forEach(selectedValue => {
+                        $(`input[value=${selectedValue}]`, $criteriaContainer).prop('checked', true);
+                    });
+                }
             }
             // manage closing criteria container
             $('.select2-search-choice-close', $criteriaContainer).on('click', { criteriaData }, function () {
@@ -466,7 +467,7 @@ export default function searchModalFactory(config) {
             });
 
             // sync criteriaState with select values
-            $('input', $criteriaContainer).on('change', { criteriaData }, function () {
+            $('input[type="checkbox"]', $criteriaContainer).on('change', { criteriaData }, function () {
                 const criteriaData = arguments[0].data.criteriaData;
                 criteriasState[criteriaData.label].value = $(this)
                     .closest('.filter-container')
@@ -566,13 +567,12 @@ export default function searchModalFactory(config) {
         console.dir(criteriasState);
         const advancedSearchCriterias = _.filter(criteriasState, criteria => criteria.rendered === true);
         advancedSearchCriterias.forEach(renderedCriteria => {
-            debugger;
             if (renderedCriteria.type === 'text') {
                 if (renderedCriteria.value && renderedCriteria.value.trim() !== '') {
                     query += ` AND ${renderedCriteria.label}:${renderedCriteria.value.trim()}`;
                 }
             } else if (renderedCriteria.type === 'list') {
-                if (renderedCriteria.value.length > 0) {
+                if (renderedCriteria.value && renderedCriteria.value.length > 0) {
                     query += ` AND ${renderedCriteria.label}:(${renderedCriteria.value.join(' OR ')})`;
                 }
             }
