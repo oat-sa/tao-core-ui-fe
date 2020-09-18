@@ -299,7 +299,7 @@ $invalidCriteriaBorder: #266d9c;
                     width: 70% !important;
                 }
             }
-            .advanced-criterias-container {
+            .advanced-criteria-container {
                 overflow-y: auto;
                 padding-right: 20px;
                 max-height: 72vh;
@@ -351,15 +351,15 @@ $invalidCriteriaBorder: #266d9c;
                     border-bottom: 1px solid $uiGeneralContentBorder;
                 }
             }
-            .advanced-criterias-container::-webkit-scrollbar {
+            .advanced-criteria-container::-webkit-scrollbar {
                 width: 10px;
             }
-            .advanced-criterias-container::-webkit-scrollbar-thumb {
+            .advanced-criteria-container::-webkit-scrollbar-thumb {
                 border-radius: 5px;
                 background-color: $grey;
                 border: 2px solid $textHighlight;
             }
-            .advanced-criterias-container::-webkit-scrollbar-track {
+            .advanced-criteria-container::-webkit-scrollbar-track {
                 background-color: $textHighlight;
             }
         }

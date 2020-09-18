@@ -16,7 +16,7 @@
                 </div>
                 <!-- TODO: This container must only be rendered if advanced search is enabled -->
                 <div class="advanced-search-container">
-                    <div class="advanced-criterias-container"></div>
+                    <div class="advanced-criteria-container"></div>
                     <div class="add-criteria-container">
                         <a><span class="icon-add"></span> add criteria</a>
                         <select name="criteria-select">

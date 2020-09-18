@@ -21,10 +21,10 @@ import __ from 'i18n';
 import context from 'context';
 import layoutTpl from 'ui/searchModal/tpl/layout';
 import infoMessageTpl from 'ui/searchModal/tpl/info-message';
-import textCriteriaTpl from 'ui/searchModal/tpl/text-criteria';
+import textCriterionTpl from 'ui/searchModal/tpl/text-criterion';
 import invalidCriteriaWarningTpl from 'ui/searchModal/tpl/invalid-criteria-warning';
-import listCheckboxCriteriaTpl from 'ui/searchModal/tpl/list-checkbox-criteria';
-import listSelectCriteriaTpl from 'ui/searchModal/tpl/list-select-criteria';
+import listCheckboxCriterionTpl from 'ui/searchModal/tpl/list-checkbox-criterion';
+import listSelectCriterionTpl from 'ui/searchModal/tpl/list-select-criterion';
 import 'ui/searchModal/css/searchModal.css';
 import component from 'ui/component';
 import 'ui/modal';
@@ -40,7 +40,7 @@ import 'select2';
  *
  * @param {object} config
  * @param {object} config.renderTo - DOM element where component will be rendered to
- * @param {string} config.criterias - Search criterias to be set on component creation
+ * @param {string} config.criterias - Search criteria to be set on component creation
  * @param {boolean} config.searchOnInit - if init search must be triggered or not (stored results are used instead)
  * @param {string} config.url - search endpoint to be set on datatable
  * @param {string} config.rootClassUri - Uri for the root class of current context, required to init the class filter
@@ -65,8 +65,8 @@ export default function searchModalFactory(config) {
     let $classTreeContainer = null;
     let $addCriteriaInput = null;
     let $criteriaSelect = null;
-    let $advancedCriteriasContainer = null;
-    let criteriasState = null;
+    let $advancedCriteriaContainer = null;
+    let criteriaState = null;
 
     /**
      * Creates search modal, inits template selectors, inits search store, and once is created triggers initial search
@@ -76,7 +76,7 @@ export default function searchModalFactory(config) {
         initModal();
         initUiSelectors();
         initAddCriteriaSelector();
-        initCriteriasState();
+        initcriteriaState();
         promises.push(initClassFilter());
         promises.push(initSearchStore());
         Promise.all(promises)
@@ -88,19 +88,19 @@ export default function searchModalFactory(config) {
     }
 
     /**
-     * inis criteriasState loading the one from the store (if present) or empty object.
-     * If there is a stored criteriasState, those criterias that were rendered
+     * inits criteriaState loading it from the store (if present) or empty object.
+     * If there is a stored criteriaState, those criteria that were rendered
      * but with undefined value are updated to not being rendered
      */
-    function initCriteriasState() {
-        if (instance.config.criterias.advancedCriterias) {
-            _.forEach(instance.config.criterias.advancedCriterias, criteria => {
-                if (criteria.rendered === true && criteria.value === undefined) {
-                    criteria.rendered = false;
+    function initcriteriaState() {
+        if (instance.config.criterias.advancedCriteria) {
+            _.forEach(instance.config.criterias.advancedCriteria, criterion => {
+                if (criterion.rendered === true && criterion.value === undefined) {
+                    criterion.rendered = false;
                 }
             });
         }
-        criteriasState = instance.config.criterias.advancedCriterias || {};
+        criteriaState = instance.config.criterias.advancedCriteria || {};
     }
 
     /**
@@ -188,8 +188,8 @@ export default function searchModalFactory(config) {
                 $classFilterInput.val(_.map(selectedValue, 'label')[0]);
                 $classTreeContainer.hide();
                 // TODO - once BE is implemented, this might be moved to select2 ajax constructor property and using minimumInputLength: 0
-                const availableCriterias = requestAvailableCriterias(selectedValue);
-                updateAvailableCriteriasList(availableCriterias);
+                const criteria = requestCriteria(selectedValue);
+                updateCriteria(criteria);
             });
 
             setResourceSelectorUIBehaviour();
@@ -197,14 +197,14 @@ export default function searchModalFactory(config) {
     }
 
     /**
-     * Request properties of selected class (and children) schemas
+     * Request criteria for selected class (and children) schemas
      * @param {object} selectedValue - class to retreieve its properties from
      * @returns {array} - array of class properties
      */
-    function requestAvailableCriterias(selectedValue) {
+    function requestCriteria(selectedValue) {
         /**
          * TODO - Implement ajax request once is implemented on BE. This conditional is
-         * just to check the logic of replacing/removing criterias on class change
+         * just to check the logic of replacing/removing criteria on class change
          */
         if (_.map(selectedValue, 'label')[0] === 'Item') {
             return [
@@ -252,29 +252,29 @@ export default function searchModalFactory(config) {
     }
 
     /**
-     * Manages the new set of available criterias. To do so, removes warning container and every
-     * selectable criteria. Then removes from criteriasState and view every deprecated criteria,
-     * updates criteriasState with the new available criterias set, and renders new warning
+     * Manages the new set of available criteria. To do so, removes warning container and every
+     * selectable criterion. Then removes from criteriaState and view every deprecated criterion,
+     * updates criteriaState with the new available criteria set, and renders new warning
      * message if required
-     * @param {array} availableCriterias - array of class properties
+     * @param {array} criteria - array of class properties
      */
-    function updateAvailableCriteriasList(availableCriterias) {
+    function updateCriteria(criteria) {
         $('.invalid-criteria-warning-container').remove();
         $criteriaSelect.find('option:not(:first-child)').remove();
-        const invalidCriteria = deleteDeprecatedCriterias(availableCriterias);
-        extendNewCriterias(availableCriterias);
+        const invalidCriteria = deleteDeprecatedCriteria(criteria);
+        extendCriteria(criteria);
         renderWarningMessage(invalidCriteria);
     }
 
     /**
-     * If there is any invalid criteria, renders an explanatory warning message
-     * @param {array} invalidCriteria - array of string containing the label of every invalid criteria (those that were rendered but are no longer available)
+     * If there is any invalid criterion, renders an explanatory warning message
+     * @param {array} invalidCriteria - array of string containing the label of every invalid criterion (those that were rendered but are no longer available)
      */
     function renderWarningMessage(invalidCriteria) {
         if (invalidCriteria.length > 0) {
             const invalidCriteriaWarning = invalidCriteriaWarningTpl({ invalidCriteria });
-            $advancedCriteriasContainer.prepend(invalidCriteriaWarning);
-            $('.invalid-criteria-warning-container .select2-search-choice-close', $advancedCriteriasContainer).on(
+            $advancedCriteriaContainer.prepend(invalidCriteriaWarning);
+            $('.invalid-criteria-warning-container .select2-search-choice-close', $advancedCriteriaContainer).on(
                 'click',
                 function () {
                     $(this).parent().remove();
@@ -283,24 +283,24 @@ export default function searchModalFactory(config) {
         }
     }
     /**
-     * Loops through current criteriasState so every criteria that is no longer available in the new
-     * available criteria set is removed from criteriasState and from view, in case it had been
+     * Loops through current criteriaState so every criterion that is no longer available in the new
+     * available criteria set is removed from criteriaState and from view, in case it had been
      * rendered. In that case it is also pushed into invalidCriteria array to be latter
      * included in the warning message
-     * @param {array} availableCriterias - array containing new set of criterias for current class
-     * @returns {array} - array of strings with each deprecated criteria that was being displayed
+     * @param {array} criteria - array containing new set of criteria for current class
+     * @returns {array} - array of strings with each deprecated criterion that was being displayed
      */
-    function deleteDeprecatedCriterias(availableCriterias) {
+    function deleteDeprecatedCriteria(criteria) {
         const invalidCriteria = [];
 
-        _.forEach(criteriasState, oldCriteria => {
-            const deprecatedCriteria = !availableCriterias.find(newCriteria => newCriteria.label === oldCriteria.label);
-            if (deprecatedCriteria) {
-                if (criteriasState[oldCriteria.label].rendered) {
-                    $advancedCriteriasContainer.find(`.${oldCriteria.label}-filter`).remove();
-                    invalidCriteria.push(oldCriteria.label);
+        _.forEach(criteriaState, oldCriterion => {
+            const deprecatedCriterion = !criteria.find(newCriterion => newCriterion.label === oldCriterion.label);
+            if (deprecatedCriterion) {
+                if (criteriaState[oldCriterion.label].rendered) {
+                    $advancedCriteriaContainer.find(`.${oldCriterion.label}-filter`).remove();
+                    invalidCriteria.push(oldCriterion.label);
                 }
-                delete criteriasState[oldCriteria.label];
+                delete criteriaState[oldCriterion.label];
             }
         });
 
@@ -308,30 +308,30 @@ export default function searchModalFactory(config) {
     }
 
     /**
-     * Loops through new criterias set and checks if each new criteria was already present or not on criteriasState
-     * and updates view and selectable criterias list accordingly
-     * @param {array} availableCriterias - array containing new set of criterias for current class
+     * Loops through new criteria set and checks if each new criterion was already present or not on criteriaState
+     * and updates view and selectable criteria list accordingly
+     * @param {array} criteria - array containing new set of criteria for current class
      */
-    function extendNewCriterias(availableCriterias) {
-        availableCriterias.forEach(criteria => {
+    function extendCriteria(criteria) {
+        criteria.forEach(criterion => {
             let createOption = true;
 
-            // if new criteria was already on criteriasState and had to be rendered, we avoid creating an option for it and render it if it was not
-            if (criteriasState[criteria.label] && criteriasState[criteria.label].rendered === true) {
+            // if new criterion was already on criteriaState and had to be rendered, we avoid creating an option for it and render it if it was not
+            if (criteriaState[criterion.label] && criteriaState[criterion.label].rendered === true) {
                 createOption = false;
-                if ($advancedCriteriasContainer.find(`.${criteria.label}-filter`).length === 0) {
-                    addNewCriteria(criteria.label);
+                if ($advancedCriteriaContainer.find(`.${criterion.label}-filter`).length === 0) {
+                    addNewCriterion(criterion.label);
                 }
             } else {
-                // if new criteria was not on criteriaState we add it
-                criteriasState[criteria.label] = criteria;
-                criteriasState[criteria.label].rendered = false;
-                criteriasState[criteria.label].value = undefined;
+                // if new criterion was not on criteriaState we add it
+                criteriaState[criterion.label] = criterion;
+                criteriaState[criterion.label].rendered = false;
+                criteriaState[criterion.label].value = undefined;
             }
 
-            // create new option element to criterias select
+            // create new option element to criteria select
             if (createOption) {
-                const newOption = new Option(criteria.label, criteria.label, false, false);
+                const newOption = new Option(criterion.label, criterion.label, false, false);
                 $criteriaSelect.append(newOption);
             }
         });
@@ -350,9 +350,9 @@ export default function searchModalFactory(config) {
         $classFilterContainer = $('.class-filter-container', $container);
         $addCriteriaInput = $('.add-criteria-container a', $container);
         $criteriaSelect = $('.add-criteria-container select', $container);
-        $advancedCriteriasContainer = $('.advanced-criterias-container', $container);
+        $advancedCriteriaContainer = $('.advanced-criteria-container', $container);
 
-        $advancedCriteriasContainer.on('scroll', animateScroll);
+        $advancedCriteriaContainer.on('scroll', animateScroll);
         $searchButton.on('click', search);
         $clearButton.on('click', clear);
         $searchInput.val(
@@ -361,21 +361,21 @@ export default function searchModalFactory(config) {
     }
 
     /**
-     * Styles scrolling on $advancedCriteriasContainer
+     * Styles scrolling on $advancedCriteriaContainer
      */
     function animateScroll() {
         const scrollPercentage =
-            $advancedCriteriasContainer.get(0).scrollTop /
-            ($advancedCriteriasContainer.get(0).scrollHeight - $advancedCriteriasContainer.get(0).clientHeight);
+            $advancedCriteriaContainer.get(0).scrollTop /
+            ($advancedCriteriaContainer.get(0).scrollHeight - $advancedCriteriaContainer.get(0).clientHeight);
         if (scrollPercentage > 0.1) {
-            $advancedCriteriasContainer.addClass('scroll-separator-top');
+            $advancedCriteriaContainer.addClass('scroll-separator-top');
         } else {
-            $advancedCriteriasContainer.removeClass('scroll-separator-top');
+            $advancedCriteriaContainer.removeClass('scroll-separator-top');
         }
         if (scrollPercentage < 0.9) {
-            $advancedCriteriasContainer.addClass('scroll-separator-bottom');
+            $advancedCriteriaContainer.addClass('scroll-separator-bottom');
         } else {
-            $advancedCriteriasContainer.removeClass('scroll-separator-bottom');
+            $advancedCriteriaContainer.removeClass('scroll-separator-bottom');
         }
     }
 
@@ -401,73 +401,73 @@ export default function searchModalFactory(config) {
             }
         });
 
-        // when a criteria is selected add it to criterias container, remove it from dropdown options and reset select
+        // when a criterion is selected add it to criteria container, remove it from dropdown options and reset select
         $criteriaSelect.on('change', () => {
-            const criteriaToAdd = $criteriaSelect.children('option:selected').val();
-            addNewCriteria(criteriaToAdd);
+            const criterionToAdd = $criteriaSelect.children('option:selected').val();
+            addNewCriterion(criterionToAdd);
             $criteriaSelect.children('option:selected').remove();
             $criteriaSelect.select2('val', '');
         });
     }
 
     /**
-     * Renders new criteria to criterias container so it can be used on advanced search filtering
-     * @param {string} criteriaToAdd - new criteria to be added
+     * Renders new criterion to criteria container so it can be used on advanced search filtering
+     * @param {string} criterionToAdd - new criterion to be added
      */
-    function addNewCriteria(criteriaToAdd) {
+    function addNewCriterion(criterionToAdd) {
         // remove deprecated warning message
         $('.invalid-criteria-warning-container').remove();
 
-        // render new criteria
-        const criteria = criteriasState[criteriaToAdd];
-        const $criteriaContainer = renderCriteria(criteria);
+        // render new criterion
+        const criterion = criteriaState[criterionToAdd];
+        const $criterionContainer = renderCriterion(criterion);
 
-        // set logic to remove criteria
-        $('.select2-search-choice-close', $criteriaContainer).on('click', { criteria }, removeCriteria);
+        // set logic to remove criterion
+        $('.select2-search-choice-close', $criterionContainer).on('click', { criterion }, removeCriterion);
 
         // set initial value and manage value changes
-        bindCriteriaValue(criteria, $criteriaContainer);
+        bindCriterionValue(criterion, $criterionContainer);
 
         // update styles if scroll is enabled
-        if ($advancedCriteriasContainer.get(0).scrollHeight > $advancedCriteriasContainer.height()) {
-            $advancedCriteriasContainer.addClass('scrollable');
+        if ($advancedCriteriaContainer.get(0).scrollHeight > $advancedCriteriaContainer.height()) {
+            $advancedCriteriaContainer.addClass('scrollable');
         }
 
-        criteria.rendered = true;
+        criterion.rendered = true;
     }
 
     /**
-     * Sets intial value for rendered criteria and sets binding between view and state
-     * @param {object} criteria - criteria to be managed
-     * @param {object} $criteriaContainer - rendered criteria
+     * Sets intial value for rendered criterion and sets binding between view and state
+     * @param {object} criterion - criterion to be managed
+     * @param {object} $criterionContainer - rendered criterion
      */
-    function bindCriteriaValue(criteria, $criteriaContainer) {
-        if (criteria.type === 'text') {
+    function bindCriterionValue(criterion, $criterionContainer) {
+        if (criterion.type === 'text') {
             // set initial value
-            $('input', $criteriaContainer).val(criteria.value);
+            $('input', $criterionContainer).val(criterion.value);
             // set event to bind input value to critariaState
-            $('input', $criteriaContainer).on('change', function () {
-                criteria.value = $(this).val() || undefined;
+            $('input', $criterionContainer).on('change', function () {
+                criterion.value = $(this).val() || undefined;
             });
-        } else if (criteria.type === 'list' && criteria.values.length >= 5) {
+        } else if (criterion.type === 'list' && criterion.values.length >= 5) {
             // set initial value
-            if (criteria.value) {
-                $(`input[name=${criteria.label}-select]`, $criteriaContainer).select2('val', criteria.value);
+            if (criterion.value) {
+                $(`input[name=${criterion.label}-select]`, $criterionContainer).select2('val', criterion.value);
             }
             // set event to bind input value to critariaState
-            $(`input[name=${criteria.label}-select]`, $criteriaContainer).on('change', event => {
-                criteria.value = event.val;
+            $(`input[name=${criterion.label}-select]`, $criterionContainer).on('change', event => {
+                criterion.value = event.val;
             });
         } else {
             // set initial value
-            if (criteria.value) {
-                criteria.value.forEach(selectedValue => {
-                    $(`input[value=${selectedValue}]`, $criteriaContainer).prop('checked', true);
+            if (criterion.value) {
+                criterion.value.forEach(selectedValue => {
+                    $(`input[value=${selectedValue}]`, $criterionContainer).prop('checked', true);
                 });
             }
             // set event to bind input value to critariaState
-            $('input[type="checkbox"]', $criteriaContainer).on('change', function () {
-                criteria.value = $(this)
+            $('input[type="checkbox"]', $criterionContainer).on('change', function () {
+                criterion.value = $(this)
                     .closest('.filter-container')
                     .find('input[type=checkbox]:checked')
                     .get()
@@ -479,61 +479,61 @@ export default function searchModalFactory(config) {
     }
 
     /**
-     * Renders the new criteria selecting the appropiate handlebars template and prepending to advanced criterias container.
-     * If criteria is of type list with more than give options, select2 is also init
-     * @param {object} criteriaData - criteria to render
+     * Renders the new criterion selecting the appropiate handlebars template and prepending to advanced criteria container.
+     * If criterion is of type list with more than give options, select2 is also init
+     * @param {object} criterion - criterion to render
      * @returns - the rendered container
      */
-    function renderCriteria(criteriaData) {
+    function renderCriterion(criterion) {
         let templateToUse = null;
 
-        if (criteriaData.type === 'text') {
-            templateToUse = textCriteriaTpl;
-        } else if (criteriaData.type === 'list' && criteriaData.values.length < 5) {
-            templateToUse = listCheckboxCriteriaTpl;
+        if (criterion.type === 'text') {
+            templateToUse = textCriterionTpl;
+        } else if (criterion.type === 'list' && criterion.values.length < 5) {
+            templateToUse = listCheckboxCriterionTpl;
         } else {
-            templateToUse = listSelectCriteriaTpl;
+            templateToUse = listSelectCriterionTpl;
         }
 
-        $advancedCriteriasContainer.prepend(templateToUse({ criteriaData }));
-        const $criteriaContainer = $(`.${criteriaData.label}-filter`, $container);
+        $advancedCriteriaContainer.prepend(templateToUse({ criterion }));
+        const $criterionContainer = $(`.${criterion.label}-filter`, $container);
 
         /**
-         * On criterias of type list with more than five options, template includes a select
+         * On criterion of type list with more than five options, template includes a select
          * that is managed with select2, so we init it here
          */
-        if (criteriaData.type === 'list' && criteriaData.values.length >= 5) {
-            $(`input[name=${criteriaData.label}-select]`, $criteriaContainer).select2({
+        if (criterion.type === 'list' && criterion.values.length >= 5) {
+            $(`input[name=${criterion.label}-select]`, $criterionContainer).select2({
                 multiple: true,
-                data: criteriaData.values.map(value => {
+                data: criterion.values.map(value => {
                     return { id: value, text: value };
                 })
             });
         }
 
-        return $criteriaContainer;
+        return $criterionContainer;
     }
 
     /**
-     * Removes a criteria from advanced criterias container when user clicks on the criteria close icon.
-     * It also adds the option element to criteria select so removed criteria can be rendered again
+     * Removes a criterion from advanced criteria container when user clicks on the criterion close icon.
+     * It also adds the option element to criteria select so removed criterion can be rendered again
      * @param {object} event - click event triggered on closing icon
      */
-    function removeCriteria(event) {
-        const criteriaData = event.data.criteriaData;
-        const newOption = new Option(criteriaData.label, criteriaData.label, false, false);
+    function removeCriterion(event) {
+        const criterion = event.data.criterion;
+        const newOption = new Option(criterion.label, criterion.label, false, false);
 
-        // remove criteria and append new criteria to select options
+        // remove criterion and append new criterion to select options
         $(this).parent().remove();
         $criteriaSelect.append(newOption);
 
-        // reset criteria values on criteriaState
-        criteriasState[criteriaData.label].rendered = false;
-        criteriasState[criteriaData.label].value = undefined;
+        // reset criterion values on criteriaState
+        criteriaState[criterion.label].rendered = false;
+        criteriaState[criterion.label].value = undefined;
 
-        // check if advanced criterias container is no longer scrollable
-        if ($advancedCriteriasContainer.get(0).scrollHeight === $advancedCriteriasContainer.height()) {
-            $advancedCriteriasContainer.removeClass('scrollable');
+        // check if advanced criteria container is no longer scrollable
+        if ($advancedCriteriaContainer.get(0).scrollHeight === $advancedCriteriaContainer.height()) {
+            $advancedCriteriaContainer.removeClass('scrollable');
         }
     }
 
@@ -617,16 +617,15 @@ export default function searchModalFactory(config) {
         const $searchInputValue = $searchInput.val().trim();
         const classFilterValue = $classFilterInput.val().trim();
         let query = `class:${classFilterValue} AND ${$searchInputValue}`;
-        console.dir(criteriasState);
-        const advancedSearchCriterias = _.filter(criteriasState, criteria => criteria.rendered === true);
-        advancedSearchCriterias.forEach(renderedCriteria => {
-            if (renderedCriteria.type === 'text') {
-                if (renderedCriteria.value && renderedCriteria.value.trim() !== '') {
-                    query += ` AND ${renderedCriteria.label}:${renderedCriteria.value.trim()}`;
+        const advancedSearchCriteria = _.filter(criteriaState, criterion => criterion.rendered === true);
+        advancedSearchCriteria.forEach(renderedCriterion => {
+            if (renderedCriterion.type === 'text') {
+                if (renderedCriterion.value && renderedCriterion.value.trim() !== '') {
+                    query += ` AND ${renderedCriterion.label}:${renderedCriterion.value.trim()}`;
                 }
-            } else if (renderedCriteria.type === 'list') {
-                if (renderedCriteria.value && renderedCriteria.value.length > 0) {
-                    query += ` AND ${renderedCriteria.label}:(${renderedCriteria.value.join(' OR ')})`;
+            } else if (renderedCriterion.type === 'list') {
+                if (renderedCriterion.value && renderedCriterion.value.length > 0) {
+                    query += ` AND ${renderedCriterion.label}:(${renderedCriterion.value.join(' OR ')})`;
                 }
             }
         });
@@ -716,7 +715,7 @@ export default function searchModalFactory(config) {
             criterias: {
                 search: $searchInput.val(),
                 class: _.map(resourceSelector.getSelection(), 'uri')[0],
-                advancedCriterias: criteriasState
+                advancedCriteria: criteriaState
             }
         });
     }
@@ -747,12 +746,18 @@ export default function searchModalFactory(config) {
     }
 
     /**
-     * Clear search input, criterias and results from both, view and store
+     * Clear search input, criteria and results from both, view and store.
+     * Also sets every criterion on criteriaState to unredered and
+     * undefined value
      */
     function clear() {
         $searchInput.val('');
-        $advancedCriteriasContainer.removeClass('scrollable');
-        $advancedCriteriasContainer.empty();
+        $advancedCriteriaContainer.removeClass('scrollable');
+        $advancedCriteriaContainer.empty();
+        _.forEach(criteriaState, criterion => {
+            criterion.rendered = false;
+            criterion.value = undefined;
+        });
         resourceSelector.select(instance.config.rootClassUri);
         replaceSearchResultsDatatableWithMessage('no-query');
         updateSearchStore({ action: 'clear' });

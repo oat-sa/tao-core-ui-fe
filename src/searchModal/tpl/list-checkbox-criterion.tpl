@@ -1,8 +1,8 @@
-<div class="filter-container {{criteriaData.label}}-filter" data-criteria="{{criteriaData.label}}"  data-type="{{criteriaData.type}}">
+<div class="filter-container {{criterion.label}}-filter" data-criteria="{{criterion.label}}"  data-type="{{criterion.type}}">
     <span class="select2-search-choice-close"></span>
-    <span>{{criteriaData.label}}</span>
+    <span>{{criterion.label}}</span>
     <ul>
-    {{#each criteriaData.values}}
+    {{#each criterion.values}}
         <li>
             <input type="checkbox" value="{{this}}" id="{{this}}">
             <label for="{{this}}">{{this}}</label>
