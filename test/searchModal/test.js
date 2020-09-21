@@ -245,7 +245,7 @@ define([
     QUnit.module('class filter');
     QUnit.test('class filter workflow is correct', function (assert) {
         const ready = assert.async();
-        assert.expect(3);
+        assert.expect(7);
         const instance = searchModalFactory({
             criterias: { search: 'example' },
             url: '/test/searchModal/mocks/with-occurrences/search.json',
@@ -257,6 +257,16 @@ define([
             const $container = $('.search-modal');
             const $classInput = $container.find('.class-filter');
             const $clearButton = $('.btn-clear');
+            const $classTree = $('.class-tree');
+
+            assert.equal($classTree.css('display'), 'none', 'class tree is initially hidden');
+            $classInput.trigger('mousedown');
+            assert.equal($classTree.css('display'), 'block', 'class tree is visible on click');
+            $classTree.trigger('mousedown');
+            assert.equal($classTree.css('display'), 'block', 'class tree is not hidden when clicking on it');
+            $container.trigger('mousedown');
+            assert.equal($classTree.css('display'), 'none', 'class tree is hidden clicking outside of it');
+
             const $qtiInteractionsClassNode = $('.class-tree [title="QTI Interactions"]');
 
             assert.equal($classInput.val(), 'Item', 'class input value is correctly initialized');
