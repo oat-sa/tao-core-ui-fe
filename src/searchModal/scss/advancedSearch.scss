@@ -1,0 +1,98 @@
+@import 'inc/bootstrap';
+
+$invalidCriteriaBackground: #cfdfe9;
+$invalidCriteriaBorder: #266d9c;
+
+.advanced-search-container {
+    margin-top: 30px;
+    .add-criteria-container {
+        margin-top: 10px;
+        padding-right: 20px;
+        position: relative;
+        .icon-add {
+            font-size: 1.6rem;
+        }
+        a {
+            text-decoration: none;
+        }
+        .criteria-select2 {
+            visibility: hidden;
+            position: absolute;
+            left: 0;
+            width: 70% !important;
+        }
+    }
+    .advanced-criteria-container {
+        overflow-y: auto;
+        padding-right: 20px;
+        max-height: 72vh;
+        .filter-container {
+            margin-bottom: 30px;
+            .select2-search-choice-close {
+                right: 0;
+                top: 2px;
+                cursor: pointer;
+            }
+            &[data-type='text'] {
+                input {
+                    padding-left: 4px;
+                }
+            }
+            &[data-type='list'] {
+                .select2-container {
+                    width: 100%;
+                }
+                ul {
+                    list-style: none;
+                    padding-left: 0;
+                }
+                input[type='checkbox'] {
+                    width: initial;
+                }
+            }
+        }
+        .invalid-criteria-warning-container {
+            background-color: $invalidCriteriaBackground;
+            border: 1px solid $invalidCriteriaBorder;
+            padding: 10px;
+            p {
+                margin-bottom: 0;
+            }
+            ul {
+                list-style: none;
+                font-weight: bolder;
+                padding-left: 0;
+            }
+        }
+        &.scrollable {
+            padding-right: 10px;
+        }
+        &.scroll-separator-top {
+            border-top: 1px solid $uiGeneralContentBorder;
+        }
+        &.scroll-separator-bottom {
+            border-bottom: 1px solid $uiGeneralContentBorder;
+        }
+    }
+    .advanced-criteria-container::-webkit-scrollbar {
+        width: 10px;
+    }
+    .advanced-criteria-container::-webkit-scrollbar-thumb {
+        border-radius: 5px;
+        background-color: $grey;
+        border: 2px solid $textHighlight;
+    }
+    .advanced-criteria-container::-webkit-scrollbar-track {
+        background-color: $textHighlight;
+    }
+}
+
+// select2 appends dropdown options directly to body, so need a custom class to isolate custom styles
+.criteria-dropdown-select2 {
+    border: 1px solid $uiGeneralContentBorder;
+    box-shadow: $uiGeneralContentBorder 1px 1px 1px;
+    input {
+        min-width: initial;
+        background-image: initial;
+    }
+}
