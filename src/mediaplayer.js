@@ -1388,7 +1388,8 @@ var mediaplayer = {
         if (this.$component) {
             height -= this.$component.outerHeight() - this.$component.height();
             width -= this.$component.outerWidth() - this.$component.width();
-            this.$component.width(width).height(height);
+            this.$component.width(width + 1).height(height + 1);
+            this.$player.width(width).height(height);
 
             if (!this.is('nogui')) {
                 height -= this.$controls.outerHeight();
