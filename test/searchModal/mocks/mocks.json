@@ -43,5 +43,32 @@
             }
         },
         "version": "3.4.0-sprint135"
+    },
+    "mockedAdvancedCriteria": {
+        "in-both-text": {
+            "label": "in-both-text",
+            "type": "text",
+            "rendered": false
+        },
+        "in-both-list": {
+            "label": "in-both-list",
+            "type": "list",
+            "values": ["value0", "value1", "value2", "value3"],
+            "rendered": true,
+            "value": ["value0"]
+        },
+        "in-both-select": {
+            "label": "in-both-select",
+            "type": "list",
+            "values": ["value0", "value1", "value2", "value3", "value4"],
+            "rendered": true,
+            "value": ["value1"]
+        },
+        "only-in-child": {
+            "label": "only-in-child",
+            "type": "text",
+            "rendered": false,
+            "value": "foo"
+        }
     }
 }
