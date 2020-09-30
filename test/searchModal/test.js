@@ -281,6 +281,24 @@ define([
             ready();
         });
     });
+    QUnit.test('class filter disables private classes', function (assert) {
+        const ready = assert.async();
+        $.mockjax.handler(0).responseText = mocks.mockedClassTreeWithPermissions;
+        assert.expect(1);
+        const instance = searchModalFactory({
+            criterias: { search: 'example' },
+            url: '/test/searchModal/mocks/with-occurrences/search.json',
+            renderTo: '#testable-container',
+            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
+        });
+
+        instance.on('ready', function () {
+            assert.equal($('.resource-tree').find('[data-access="denied"]').length, 1, 'private class is disabled');
+            instance.destroy();
+            ready();
+            $.mockjax.handler(0).responseText = mocks.mockedClassTree;
+        });
+    });
 
     QUnit.module('searchStore');
     QUnit.test('searchStore saves all required information', function (assert) {
