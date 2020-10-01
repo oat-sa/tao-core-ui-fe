@@ -132,6 +132,9 @@ export default function searchModalFactory(config) {
                 const route = urlUtil.route('getAll', 'RestResource', 'tao');
                 request(route, classOnlyParams)
                     .then(response => {
+                        if (response.permissions.supportedRights && response.permissions.supportedRights.length > 0) {
+                            manageClassTreePermissions(response);
+                        }
                         resourceSelector.update(response.resources, classOnlyParams);
                     })
                     .catch(e => instance.trigger('error', e));
@@ -156,6 +159,26 @@ export default function searchModalFactory(config) {
 
             setResourceSelectorUIBehaviour();
         });
+    }
+
+    /**
+     * Loops through each class in received class tree and sets access mode to 'denied' on private classes
+     * so are disabled on class tree
+     * @param {object} classTree - class tree received by server, containing resources (classes) and permissions
+     */
+    function manageClassTreePermissions(classTree) {
+        const disableBlockedClasses = function (resources) {
+            resources.forEach((resource, index, array) => {
+                if (classTree.permissions.data[resource.uri].find(permission => permission === 'READ')) {
+                    if (resource.children) {
+                        disableBlockedClasses(resource.children);
+                    }
+                } else {
+                    array[index].accessMode = 'denied';
+                }
+            });
+        };
+        disableBlockedClasses(classTree.resources);
     }
 
     /**
