@@ -11,11 +11,12 @@ export default function(options) {
     var $divContainer = $('.' + root, $fileBrowser);
     var $folderContainer = $('.folders', $divContainer);
     var fileTree = {};
-    //create the tree node for the ROOT folder by default
-    $folderContainer.append('<li class="root"><a class="root-folder" href="#"></a></li>');
 
     //load the content of the ROOT
     getFolderContent(fileTree, path, function(content) {
+        //create the tree node for the ROOT folder by default once the initial content loaded
+        $folderContainer.append('<li class="root"><a class="root-folder" href="#"></a></li>');
+
         var $rootNode = $('.root-folder', $folderContainer);
         //create an inner list and append found elements
         var $innerList = $('<ul></ul>').insertAfter($rootNode);
