@@ -173,7 +173,7 @@ export default function searchModalFactory(config) {
      */
     function manageClassTreePermissions(classTree) {
         const disableBlockedClasses = function (resources) {
-            resources.forEach((resource, index, array) => {
+            _.forEach(resources, (resource, index, array) => {
                 if (
                     classTree.permissions.data[resource.uri] &&
                     classTree.permissions.data[resource.uri].find(permission => permission === 'READ')
