@@ -1,6 +1,6 @@
 <div class="search-modal section-container">
     <div class="clear content-wrapper content-panel">
-        <div class="navi-container">
+        <div class="ui-container">
             <div class="filters-container">
                 <div class="filter-container">
                     <span class="icon-find"></span>

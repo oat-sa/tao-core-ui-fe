@@ -132,7 +132,11 @@ export default function searchModalFactory(config) {
                 const route = urlUtil.route('getAll', 'RestResource', 'tao');
                 request(route, classOnlyParams)
                     .then(response => {
-                        if (response.permissions.supportedRights && response.permissions.supportedRights.length > 0) {
+                        if (
+                            response.permissions &&
+                            response.permissions.supportedRights &&
+                            response.permissions.supportedRights.length > 0
+                        ) {
                             manageClassTreePermissions(response);
                         }
                         resourceSelector.update(response.resources, classOnlyParams);
@@ -169,7 +173,10 @@ export default function searchModalFactory(config) {
     function manageClassTreePermissions(classTree) {
         const disableBlockedClasses = function (resources) {
             resources.forEach((resource, index, array) => {
-                if (classTree.permissions.data[resource.uri].find(permission => permission === 'READ')) {
+                if (
+                    classTree.permissions.data[resource.uri] &&
+                    classTree.permissions.data[resource.uri].find(permission => permission === 'READ')
+                ) {
                     if (resource.children) {
                         disableBlockedClasses(resource.children);
                     }
