@@ -43,5 +43,54 @@
             }
         },
         "version": "3.4.0-sprint135"
+    },
+    "mockedClassTreeWithPermissions": {
+        "success": true,
+        "data": {
+            "resources": [
+                {
+                    "label": "Item",
+                    "type": "class",
+                    "uri": "http://www.tao.lu/Ontologies/TAOItem.rdf#Item",
+                    "classUri": null,
+                    "signature": "dc36445fa73ce3b87d63a0073cc6fadc4802b434da0ff69352105624f091060e",
+                    "state": "open",
+                    "count": 0,
+                    "children": [
+                        {
+                            "label": "QTI Interactions",
+                            "type": "class",
+                            "uri": "https://tao0.docker.localhost/ontologies/tao.rdf#i5f71ac09abde474b5fa37ef76d2415d",
+                            "classUri": "http://www.tao.lu/Ontologies/TAOItem.rdf#Item",
+                            "signature": "f08b300e7757cef1d61177e38565eff31ef918c3f99c0fb3610ce03f559b4374",
+                            "state": "closed",
+                            "count": 0
+                        },
+                        {
+                            "label": "private0",
+                            "type": "class",
+                            "uri": "https://tao0.docker.localhost/ontologies/tao.rdf#i5f743e3ee869d685f55538dbd01531",
+                            "classUri": "http://www.tao.lu/Ontologies/TAOItem.rdf#Item",
+                            "signature": "573e3f191e0aad0b3dd409253750e26bbd120dfe41b2a3c2ac5f7cde3db6414f",
+                            "state": false,
+                            "count": 0
+                        }
+                    ]
+                }
+            ],
+            "permissions": {
+                "supportedRights": ["GRANT", "WRITE", "READ"],
+                "data": {
+                    "http://www.tao.lu/Ontologies/TAOItem.rdf#Item": ["GRANT", "READ", "WRITE"],
+                    "https://tao0.docker.localhost/ontologies/tao.rdf#i5f71ac09abde474b5fa37ef76d2415d": [
+                        "GRANT",
+                        "READ",
+                        "WRITE"
+                    ],
+                    "https://tao0.docker.localhost/ontologies/tao.rdf#i5f743e3ee869d685f55538dbd01531": []
+                }
+            }
+        },
+        "version": "3.4.0-sprint135"
     }
 }
