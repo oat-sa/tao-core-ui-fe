@@ -134,6 +134,7 @@ export default function searchModalFactory(config) {
                     .then(response => {
                         if (
                             response.permissions &&
+                            response.permissions.data &&
                             response.permissions.supportedRights &&
                             response.permissions.supportedRights.length > 0
                         ) {
