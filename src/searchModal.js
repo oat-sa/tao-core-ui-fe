@@ -173,9 +173,11 @@ export default function searchModalFactory(config) {
                 if (_.isEmpty(selectedValue)) {
                     return;
                 }
-                $classFilterInput.val(_.map(selectedValue, 'label')[0]);
+                const classUri = _.map(selectedValue, 'classUri')[0];
+                const label = _.map(selectedValue, 'label')[0];
+                $classFilterInput.val(label);
                 $classTreeContainer.hide();
-                advancedSearch.updateCriteria(selectedValue);
+                advancedSearch.updateCriteria(classUri);
             });
 
             setResourceSelectorUIBehaviour();

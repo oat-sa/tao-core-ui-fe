@@ -28,6 +28,8 @@ import component from 'ui/component';
 import 'ui/modal';
 import 'ui/datatable';
 import 'select2';
+import urlUtil from 'util/url';
+import request from 'core/dataProvider/request';
 
 /**
  * Creates advanced search component
@@ -47,9 +49,14 @@ export default function advancedSearchFactory(config) {
 
     // Creates new component
     const instance = component({
-        updateCriteria: function (selectedValue) {
-            const criteria = requestCriteria(selectedValue);
-            updateCriteria(criteria);
+        updateCriteria: function (classUri) {
+            const route = urlUtil.route('get', 'ClassMetadata', 'tao', { classUri, listMaxSize: 100 });
+            return request(route)
+                .then(response => {
+                    const criteria = formatCriteria(response);
+                    updateCriteria(criteria);
+                })
+                .catch(e => instance.trigger('error', e));
         },
         getState: function () {
             return criteriaState;
@@ -73,7 +80,7 @@ export default function advancedSearchFactory(config) {
                     }
                 } else if (renderedCriterion.type === 'list') {
                     if (renderedCriterion.value && renderedCriterion.value.length > 0) {
-                        query += ` AND ${renderedCriterion.label}:(${renderedCriterion.value.join(' OR ')})`;
+                        query += ` AND ${renderedCriterion.label}:${renderedCriterion.value.join(' OR ')}`;
                     }
                 }
             });
@@ -194,34 +201,46 @@ export default function advancedSearchFactory(config) {
 
     /**
      * Renders the new criterion selecting the appropiate handlebars template and prepending to advanced criteria container.
-     * If criterion is of type list with more than give options, select2 is also init
+     * If criterion is of type list with a uri endpoint to request the options, select2 is also init
      * @param {object} criterion - criterion to render
      * @returns - the rendered container
      */
     function renderCriterion(criterion) {
         let templateToUse = null;
-
         if (criterion.type === 'text') {
             templateToUse = textCriterionTpl;
-        } else if (criterion.type === 'list' && criterion.values.length < 5) {
-            templateToUse = listCheckboxCriterionTpl;
-        } else {
+        } else if (criterion.type === 'list' && criterion.uri) {
             templateToUse = listSelectCriterionTpl;
+        } else {
+            templateToUse = listCheckboxCriterionTpl;
         }
 
         $advancedCriteriaContainer.prepend(templateToUse({ criterion }));
         const $criterionContainer = $(`.${criterion.label}-filter`, $container);
 
         /**
-         * On criterion of type list with more than five options, template includes a select
+         * On criterion of type list with a uri endpoint to retrieve options, template includes a select
          * that is managed with select2, so we init it here
          */
-        if (criterion.type === 'list' && criterion.values.length >= 5) {
+        if (criterion.type === 'list' && criterion.uri) {
             $(`input[name=${criterion.label}-select]`, $criterionContainer).select2({
                 multiple: true,
-                data: criterion.values.map(value => {
-                    return { id: value, text: value };
-                })
+                ajax: {
+                    url: criterion.uri,
+                    dataType: 'json',
+                    data: function (term) {
+                        console.log(term);
+                        return {
+                            subject: term
+                        };
+                    },
+                    results: function (response) {
+                        const res = response.data.map(option => {
+                            return { id: option.label, text: option.label };
+                        });
+                        return { results: res };
+                    }
+                }
             });
         }
 
@@ -241,7 +260,7 @@ export default function advancedSearchFactory(config) {
             $('input', $criterionContainer).on('change', function () {
                 criterion.value = $(this).val() || undefined;
             });
-        } else if (criterion.type === 'list' && criterion.values.length >= 5) {
+        } else if (criterion.type === 'list' && criterion.uri) {
             // set initial value
             if (criterion.value) {
                 $(`input[name=${criterion.label}-select]`, $criterionContainer).select2('val', criterion.value);
@@ -294,58 +313,20 @@ export default function advancedSearchFactory(config) {
     }
 
     /**
-     * Request criteria for selected class (and children) schemas
-     * @param {object} selectedValue - class to retreieve its properties from
-     * @returns {array} - array of class properties
+     * Parses received criteria from BE to the data structure required for criteria selector. To do so,
+     * appends every criterion into criteria array and then returns a duplicate-free version of it
+     * considering label property as uniqueness criterion
+     * @param {Array} classes - array of classes with the metadata (aka criteria) for each one of them
+     * @returns {Array} - criteria array
      */
-    function requestCriteria(selectedValue) {
-        /**
-         * TODO - Implement ajax request once is implemented on BE. This conditional is
-         * just to check the logic of replacing/removing criteria on class change
-         */
-        if (_.map(selectedValue, 'label')[0] === 'Item') {
-            return [
-                {
-                    label: 'in-both-text',
-                    type: 'text'
-                },
-                {
-                    label: 'in-both-list',
-                    type: 'list',
-                    values: ['value0', 'value1', 'value2', 'value3']
-                },
-                {
-                    label: 'in-both-select',
-                    type: 'list',
-                    values: ['value0', 'value1', 'value2', 'value3', 'value4']
-                },
-                {
-                    label: 'only-in-root',
-                    type: 'text'
-                }
-            ];
-        } else if (_.map(selectedValue, 'label')[0] === 'QTI Interactions') {
-            return [
-                {
-                    label: 'in-both-text',
-                    type: 'text'
-                },
-                {
-                    label: 'in-both-list',
-                    type: 'list',
-                    values: ['value0', 'value1', 'value2', 'value3']
-                },
-                {
-                    label: 'in-both-select',
-                    type: 'list',
-                    values: ['value0', 'value1', 'value2', 'value3', 'value4']
-                },
-                {
-                    label: 'only-in-child',
-                    type: 'text'
-                }
-            ];
-        }
+    function formatCriteria(classTree) {
+        const criteria = [];
+
+        _.forEach(classTree, classInstance => {
+            criteria.push(...classInstance.metadata);
+        });
+
+        return _.uniq(criteria, 'label');
     }
 
     /**
