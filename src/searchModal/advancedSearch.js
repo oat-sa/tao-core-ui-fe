@@ -229,7 +229,6 @@ export default function advancedSearchFactory(config) {
                     url: criterion.uri,
                     dataType: 'json',
                     data: function (term) {
-                        console.log(term);
                         return {
                             subject: term
                         };
@@ -240,6 +239,13 @@ export default function advancedSearchFactory(config) {
                         });
                         return { results: res };
                     }
+                },
+                initSelection: function (element, callback) {
+                    const data = [];
+                    $(element.val().split(',')).each(function () {
+                        data.push({ id: this, text: this });
+                    });
+                    callback(data);
                 }
             });
         }
