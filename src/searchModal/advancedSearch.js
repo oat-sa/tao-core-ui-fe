@@ -49,6 +49,11 @@ export default function advancedSearchFactory(config) {
 
     // Creates new component
     const instance = component({
+        /**
+         * Request metadata (criteria) for the given uri
+         * @param {string} classUri - Uri of the class to get metadata from
+         * @returns {Promise} - Request promise
+         */
         updateCriteria: function (classUri) {
             const route = urlUtil.route('get', 'ClassMetadata', 'tao', { classUri, listMaxSize: 100 });
             return request(route)
@@ -58,9 +63,17 @@ export default function advancedSearchFactory(config) {
                 })
                 .catch(e => instance.trigger('error', e));
         },
+        /**
+         * Access to component state
+         * @returns {Object} - criteria state
+         */
         getState: function () {
             return criteriaState;
         },
+        /**
+         * Removes every rendered criterion, updates criteria state accordingly
+         * and removes classes applied to scrollable list of criteria
+         */
         clear: function () {
             $advancedCriteriaContainer.removeClass('scrollable');
             $advancedCriteriaContainer.removeClass('scroll-separator-top');
@@ -71,6 +84,9 @@ export default function advancedSearchFactory(config) {
                 criterion.value = undefined;
             });
         },
+        /**
+         * Builds substring of search query with the advanced criteria conditions
+         */
         getAdvancedCriteriaQuery: function () {
             const advancedSearchCriteria = _.filter(criteriaState, criterion => criterion.rendered === true);
             let query = '';
