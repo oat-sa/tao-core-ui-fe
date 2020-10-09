@@ -132,7 +132,7 @@ define([
             assert.equal($optionToSelect.length, 0, 'selected criterion is not longer on select options');
 
             // close added criterion
-            $criteriaContainer.find('.in-both-text-filter .select2-search-choice-close').trigger('click');
+            $criteriaContainer.find('.in-both-text-filter .icon-result-nok').trigger('click');
             $optionToSelect = $criteriaSelect.find('option[value="in-both-text"]');
             assert.equal($criteriaContainer.find('.in-both-text-filter').length, 0, 'criterion was removed');
             assert.equal($optionToSelect.length, 1, 'criterion is selectable again');
