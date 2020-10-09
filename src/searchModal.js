@@ -177,9 +177,10 @@ export default function searchModalFactory(config) {
                 const label = _.map(selectedValue, 'label')[0];
                 $classFilterInput.val(label);
                 $classTreeContainer.hide();
-                advancedSearch.updateCriteria(classUri).then(() => {
-                    instance.trigger('criteriaListUpdated');
-                });
+                advancedSearch
+                    .updateCriteria(classUri)
+                    .then(() => instance.trigger('criteriaListUpdated'))
+                    .catch(e => instance.trigger('error', e));
             });
 
             setResourceSelectorUIBehaviour();

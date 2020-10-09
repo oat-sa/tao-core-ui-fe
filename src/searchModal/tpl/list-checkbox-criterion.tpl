@@ -1,5 +1,5 @@
 <div class="filter-container {{criterion.label}}-filter" data-criteria="{{criterion.label}}"  data-type="{{criterion.type}}">
-    <span class="select2-search-choice-close"></span>
+    <span class="icon-result-nok"></span>
     <span>{{criterion.label}}</span>
     <ul>
     {{#each criterion.values}}

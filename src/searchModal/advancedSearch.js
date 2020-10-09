@@ -63,6 +63,8 @@ export default function advancedSearchFactory(config) {
         },
         clear: function () {
             $advancedCriteriaContainer.removeClass('scrollable');
+            $advancedCriteriaContainer.removeClass('scroll-separator-top');
+            $advancedCriteriaContainer.removeClass('scroll-separator-bottom');
             $advancedCriteriaContainer.empty();
             _.forEach(criteriaState, criterion => {
                 criterion.rendered = false;
@@ -186,7 +188,7 @@ export default function advancedSearchFactory(config) {
         const $criterionContainer = renderCriterion(criterion);
 
         // set logic to remove criterion
-        $('.select2-search-choice-close', $criterionContainer).on('click', { criterion }, removeCriterion);
+        $('.icon-result-nok', $criterionContainer).on('click', { criterion }, removeCriterion);
 
         // set initial value and manage value changes
         bindCriterionValue(criterion, $criterionContainer);
@@ -215,7 +217,7 @@ export default function advancedSearchFactory(config) {
             templateToUse = listCheckboxCriterionTpl;
         }
 
-        $advancedCriteriaContainer.prepend(templateToUse({ criterion }));
+        $advancedCriteriaContainer.append(templateToUse({ criterion }));
         const $criterionContainer = $(`.${criterion.label}-filter`, $container);
 
         /**
