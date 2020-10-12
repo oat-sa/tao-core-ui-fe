@@ -113,7 +113,7 @@ define([
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
-        assert.expect(10);
+        assert.expect(11);
 
         assert.equal($('.resource-tree', $container).length, 0, 'No resource tree in the container');
 
@@ -140,7 +140,12 @@ define([
                 3,
                 'The root node has 3 instance children'
             );
-            assert.equal($('> ul > li > ul', $element).children('.class').length, 2, 'The root node has 2 child class');
+            assert.equal($('> ul > li > ul', $element).children('.class').length, 3, 'The root node has 3 child class');
+            assert.equal(
+                $('> ul > li > ul', $element).children('[data-access="read"]').length,
+                1,
+                'The root node has 1 children instance with read access'
+            );
 
             ready();
         });

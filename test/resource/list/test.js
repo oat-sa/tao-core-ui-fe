@@ -113,7 +113,7 @@ define([
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
-        assert.expect(8);
+        assert.expect(11);
 
         assert.equal($('.resource-list', $container).length, 0, 'No resource list in the container');
 
@@ -151,6 +151,9 @@ define([
                 'Demo item 1',
                 'The last list item has the correct text content'
             );
+            assert.equal($('li[data-access="grant"]', $element).length, 1, 'The list has 1 node with grant access');
+            assert.equal($('li[data-access="write"]', $element).length, 1, 'The list has 1 node with write access');
+            assert.equal($('li[data-access="read"]', $element).length, 1, 'The list has 1 node with read access');
 
             ready();
         });

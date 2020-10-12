@@ -15,6 +15,12 @@
     "state": "closed",
     "count": 3
   }, {
+    "label": "Astronomy",
+    "type": "class",
+    "uri": "http:\/\/bertao\/tao.rdf#i1491898712953395",
+    "state": "empty",
+    "accessMode": "read"
+  },{
     "label": "Maths test 1",
     "type": "instance",
     "uri": "http:\/\/bertao\/tao.rdf#i1491898771637894"
