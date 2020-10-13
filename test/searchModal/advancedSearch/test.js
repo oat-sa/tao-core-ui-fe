@@ -61,10 +61,11 @@ define([
                     const $invalidCriteriaContainer = $container.find('.invalid-criteria-warning-container');
 
                     assert.equal($invalidCriteriaContainer.length, 0, 'invalid criteira is not initially rendered');
+                    debugger;
                     _.forEach(mocks.mockedCriteriaStore, criterionToRender => {
                         // check for each stored criterion if it is rendered when criterion.rendered is true, and viceversa
                         assert.equal(
-                            $container.find(`.${criterionToRender.label}-filter`).length,
+                            $container.find(`.${criterionToRender.id}-filter`).length,
                             criterionToRender.rendered,
                             `${criterionToRender.label} criterion is ${
                                 criterionToRender.rendered ? '' : 'not'
@@ -127,19 +128,19 @@ define([
 
             // check state after criterion is select
             $optionToSelect = $criteriaSelect.find('option[value="in-both-text"]');
-            assert.equal($criteriaContainer.find('.in-both-text-filter').length, 1, 'criterion is added to DOM');
+            assert.equal($criteriaContainer.find('.inbothtext-filter').length, 1, 'criterion is added to DOM');
             assert.equal($criteriaSelect.select2('opened'), false, 'critera select is closed after adding a criteria');
             assert.equal($optionToSelect.length, 0, 'selected criterion is not longer on select options');
 
             // close added criterion
-            $criteriaContainer.find('.in-both-text-filter .icon-result-nok').trigger('click');
+            $criteriaContainer.find('.inbothtext-filter .icon-result-nok').trigger('click');
             $optionToSelect = $criteriaSelect.find('option[value="in-both-text"]');
-            assert.equal($criteriaContainer.find('.in-both-text-filter').length, 0, 'criterion was removed');
+            assert.equal($criteriaContainer.find('.inbothtext-filter').length, 0, 'criterion was removed');
             assert.equal($optionToSelect.length, 1, 'criterion is selectable again');
 
             // add a criterion that is not available on child class
             $criteriaSelect.select2('val', 'in-parent-text').trigger('change');
-            assert.equal($criteriaContainer.find('.in-parent-text-filter').length, 1, 'criterion is added to DOM');
+            assert.equal($criteriaContainer.find('.inparenttext-filter').length, 1, 'criterion is added to DOM');
 
             // change current class and check that unavailable criterion has been removed
             const $qtiInteractionsClassNode = $('.class-tree [title="QTI Interactions"]');
@@ -152,7 +153,7 @@ define([
 
                 // add a new criterion
                 $criteriaSelect.select2('val', 'in-child-text').trigger('change');
-                assert.equal($criteriaContainer.find('.in-child-text-filter').length, 1, 'criterion is added to DOM');
+                assert.equal($criteriaContainer.find('.inchildtext-filter').length, 1, 'criterion is added to DOM');
                 assert.equal($container.find('.invalid-criteria-warning-container').length, 0, 'warning removed');
 
                 // clear current search
@@ -187,10 +188,10 @@ define([
             $criteriaSelect.select2('val', 'in-both-text').trigger('change');
             $criteriaSelect.select2('val', 'in-both-select').trigger('change');
             $criteriaSelect.select2('val', 'in-both-list').trigger('change');
-            const $criterionTextInput = $criteriaContainer.find('.in-both-text-filter input');
-            const $criterionSelectInput = $criteriaContainer.find('.in-both-select-filter input');
+            const $criterionTextInput = $criteriaContainer.find('.inbothtext-filter input');
+            const $criterionSelectInput = $criteriaContainer.find('.inbothselect-filter input');
             const $criterionListSelected = $criteriaContainer
-                .find('.in-both-list-filter input[type=checkbox]:checked')
+                .find('.inbothlist-filter input[type=checkbox]:checked')
                 .get()
                 .map(checkbox => {
                     return checkbox.value;
@@ -208,7 +209,7 @@ define([
             // update value on each criterion
             $criterionTextInput.val('foo0').trigger('change');
             $criteriaContainer
-                .find('.in-both-list-filter input[type=checkbox][value=value2]')
+                .find('.inbothlist-filter input[type=checkbox][value=value2]')
                 .prop('checked', true)
                 .trigger('change');
 

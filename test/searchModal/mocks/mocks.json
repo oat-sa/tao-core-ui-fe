@@ -175,6 +175,7 @@
     "mockedCriteriaStore": {
         "in-both-list": {
             "label": "in-both-list",
+            "id": "inbothlist",
             "type": "list",
             "values": ["easy", "medium", "hard"],
             "uri": null,
@@ -183,6 +184,7 @@
         },
         "in-both-text": {
             "label": "in-both-text",
+            "id": "inbothtext",
             "type": "text",
             "values": null,
             "uri": null,
@@ -191,6 +193,7 @@
         },
         "in-both-select": {
             "label": "in-both-select",
+            "id": "inbothselect",
             "type": "list",
             "values": null,
             "uri": "/tao/PropertyValues/get?propertyUri=https%3A%2F%2Ftao3.docker.localhost%2Fontologies%2Ftao.rdf%23i5f7dcc4e2e0a56945f7e59e65d0b990",
