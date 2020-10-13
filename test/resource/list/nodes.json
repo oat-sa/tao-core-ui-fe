@@ -5,15 +5,15 @@
   "nodes": [{
     "uri": "http:\/\/bertao\/tao.rdf#i1491898771637894",
     "label": "Maths test 1",
-    "accessMode": "grant"
+    "accessMode": "allowed"
   }, {
     "uri": "http:\/\/bertao\/tao.rdf#i1491898801542197",
-    "label": "Maths test 2",
-    "accessMode": "read"
+    "label": "Maths test 2 [denied]",
+    "accessMode": "denied"
   }, {
     "uri": "http:\/\/bertao\/tao.rdf#i14918988061562101",
-    "label": "Maths test 3",
-    "accessMode": "write"
+    "label": "Maths test 3 [partial]",
+    "accessMode": "partial"
   }, {
     "uri": "http:\/\/bertao\/tao.rdf#i14918988138981105",
     "label": "Algebra 1"

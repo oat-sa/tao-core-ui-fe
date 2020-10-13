@@ -151,9 +151,9 @@ define([
                 'Demo item 1',
                 'The last list item has the correct text content'
             );
-            assert.equal($('li[data-access="grant"]', $element).length, 1, 'The list has 1 node with grant access');
-            assert.equal($('li[data-access="write"]', $element).length, 1, 'The list has 1 node with write access');
-            assert.equal($('li[data-access="read"]', $element).length, 1, 'The list has 1 node with read access');
+            assert.equal($('li[data-access="allowed"]', $element).length, 1, 'The list has 1 node with grant access');
+            assert.equal($('li[data-access="denied"]', $element).length, 1, 'The list has 1 node with write access');
+            assert.equal($('li[data-access="partial"]', $element).length, 1, 'The list has 1 node with read access');
 
             ready();
         });
@@ -178,7 +178,7 @@ define([
 
                 this.update(nodesData, params);
             })
-            .on('update', function(params) {
+            .on('update', function() {
                 assert.equal($('li', this.getElement()).length, 25, 'The list has been updated with the proper amount of nodes');
             })
             .on('render', function(params) {
@@ -284,7 +284,7 @@ define([
             assert.equal(
                 typeof selection['http://bertao/tao.rdf#i14918988538969120'],
                 'undefined',
-                'The selection does not contain the noder2'
+                'The selection does not contain the node2'
             );
 
             $node2.click();
@@ -311,18 +311,21 @@ define([
     QUnit.module('Visual');
 
     QUnit.test('playground', function(assert) {
-        var ready = assert.async();
+        const ready = assert.async();
 
-        var container = document.getElementById('visual');
-        var config = {
+        const container = document.getElementById('resource-selector');
+        const config = {
             classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
             nodes: nodesData,
-            multiple: true
+            multiple: true,
+            icon: 'item'
         };
 
         assert.expect(1);
 
         resourceListFactory(container, config).on('render', function() {
+            const $selector = $('#resource-selector');
+            $selector.css({'opacity': 1});
             assert.ok(true);
             ready();
         });

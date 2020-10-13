@@ -13,6 +13,10 @@
         @include transition(all, 200ms, linear);
     }
 
+    &.multiple ul li[data-access="denied"] a:after {
+        display: none;
+    }
+
     ul {
         list-style-type: none;
         padding: 0;
