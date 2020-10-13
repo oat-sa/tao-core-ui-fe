@@ -52,10 +52,13 @@ export default function advancedSearchFactory(config) {
         /**
          * Request metadata (criteria) for the given uri
          * @param {string} classUri - Uri of the class to get metadata from
+         * @param {number} maxListSize - max number of values to return for a metadata of type list If
+         *                               available values options exceed this number, an uri will
+         *                               be returned instead to get its values dinamically
          * @returns {Promise} - Request promise
          */
-        updateCriteria: function (classUri) {
-            const route = urlUtil.route('get', 'ClassMetadata', 'tao', { classUri, listMaxSize: 100 });
+        updateCriteria: function (classUri, maxListSize = 5) {
+            const route = urlUtil.route('get', 'ClassMetadata', 'tao', { classUri, maxListSize });
             return request(route)
                 .then(response => {
                     const criteria = formatCriteria(response);
@@ -122,7 +125,7 @@ export default function advancedSearchFactory(config) {
         $criteriaSelect = $('.add-criteria-container select', $container);
         $advancedCriteriaContainer = $('.advanced-criteria-container', $container);
 
-        $advancedCriteriaContainer.on('scroll', animateScroll);
+        $advancedCriteriaContainer.on('scroll', _.throttle(animateScroll, 100));
     }
 
     /**
@@ -210,7 +213,7 @@ export default function advancedSearchFactory(config) {
         bindCriterionValue(criterion, $criterionContainer);
 
         // update styles if scroll is enabled
-        if ($advancedCriteriaContainer.get(0).scrollHeight > $advancedCriteriaContainer.height()) {
+        if ($advancedCriteriaContainer.get(0).scrollHeight > $advancedCriteriaContainer.outerHeight()) {
             $advancedCriteriaContainer.addClass('scrollable');
         }
 
@@ -234,7 +237,8 @@ export default function advancedSearchFactory(config) {
         }
 
         $advancedCriteriaContainer.append(templateToUse({ criterion }));
-        const $criterionContainer = $(`.${criterion.label}-filter`, $container);
+
+        const $criterionContainer = $(`.${criterion.id}-filter`, $container);
 
         /**
          * On criterion of type list with a uri endpoint to retrieve options, template includes a select
@@ -306,9 +310,7 @@ export default function advancedSearchFactory(config) {
                     .closest('.filter-container')
                     .find('input[type=checkbox]:checked')
                     .get()
-                    .map(function (element) {
-                        return element.value;
-                    });
+                    .map(element => element.value);
             });
         }
     }
@@ -331,7 +333,7 @@ export default function advancedSearchFactory(config) {
         criteriaState[criterion.label].value = undefined;
 
         // check if advanced criteria container is no longer scrollable
-        if ($advancedCriteriaContainer.get(0).scrollHeight === $advancedCriteriaContainer.height()) {
+        if ($advancedCriteriaContainer.get(0).scrollHeight <= $advancedCriteriaContainer.outerHeight()) {
             $advancedCriteriaContainer.removeClass('scrollable');
         }
     }
@@ -350,7 +352,12 @@ export default function advancedSearchFactory(config) {
             criteria.push(...classInstance.metadata);
         });
 
-        return _.uniq(criteria, 'label');
+        criteria = _.uniq(criteria, 'label');
+
+        // extends each criterion with an id that can be use as a valid css class
+        _.forEach(criteria, criterion => (criterion.id = criterion.label.replace(/^[^a-zA-Z]*|[^a-zA-Z0-9]*/g, '')));
+
+        return criteria;
     }
 
     /**
@@ -400,7 +407,7 @@ export default function advancedSearchFactory(config) {
             const deprecatedCriterion = !criteria.find(newCriterion => newCriterion.label === oldCriterion.label);
             if (deprecatedCriterion) {
                 if (criteriaState[oldCriterion.label].rendered) {
-                    $advancedCriteriaContainer.find(`.${oldCriterion.label}-filter`).remove();
+                    $advancedCriteriaContainer.find(`.${oldCriterion.id}-filter`).remove();
                     invalidCriteria.push(oldCriterion.label);
                 }
                 delete criteriaState[oldCriterion.label];
@@ -422,7 +429,8 @@ export default function advancedSearchFactory(config) {
             // if new criterion was already on criteriaState and had to be rendered, we avoid creating an option for it and render it if it was not
             if (criteriaState[criterion.label] && criteriaState[criterion.label].rendered === true) {
                 createOption = false;
-                if ($advancedCriteriaContainer.find(`.${criterion.label}-filter`).length === 0) {
+
+                if ($advancedCriteriaContainer.find(`.${criterion.id}-filter`).length === 0) {
                     addNewCriterion(criterion.label);
                 }
             } else {

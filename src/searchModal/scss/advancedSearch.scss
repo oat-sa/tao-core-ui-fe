@@ -19,7 +19,7 @@ $invalidCriteriaBorder: #266d9c;
             visibility: hidden;
             position: absolute;
             left: 0;
-            width: 70% !important;
+            width: 70%;
         }
     }
     .advanced-criteria-container {
@@ -75,17 +75,6 @@ $invalidCriteriaBorder: #266d9c;
         &.scroll-separator-bottom {
             border-bottom: 1px solid $uiGeneralContentBorder;
         }
-    }
-    .advanced-criteria-container::-webkit-scrollbar {
-        width: 10px;
-    }
-    .advanced-criteria-container::-webkit-scrollbar-thumb {
-        border-radius: 5px;
-        background-color: $grey;
-        border: 2px solid $textHighlight;
-    }
-    .advanced-criteria-container::-webkit-scrollbar-track {
-        background-color: $textHighlight;
     }
 }
 
