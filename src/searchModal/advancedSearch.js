@@ -346,7 +346,7 @@ export default function advancedSearchFactory(config) {
      * @returns {Array} - criteria array
      */
     function formatCriteria(classTree) {
-        const criteria = [];
+        let criteria = [];
 
         _.forEach(classTree, classInstance => {
             criteria.push(...classInstance.metadata);
