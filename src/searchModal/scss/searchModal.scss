@@ -1,4 +1,11 @@
 @import 'inc/bootstrap';
+$classTreeVariables: (
+    top: 27px,
+    left: 0px,
+    width: 275px,
+    font-size: 1.2rem
+);
+
 .section-container {
     // some variations of flex children
     $flexCols: full, half, third, quarter;
@@ -94,7 +101,7 @@
         }
     }
 
-    .navi-container {
+    .ui-container {
         display: none;
         background: $canvas;
         @include simple-flex-box($treeSidebar * 1px);
@@ -228,22 +235,48 @@
 .search-modal {
     height: 100% !important;
     padding: 0px !important;
-    .navi-container {
+    .ui-container {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         padding: 40px 20px 20px 20px;
-        .search-bar-container {
+        .filter-container {
             position: relative;
-            .icon-find {
+            margin-bottom: 10px;
+            > .icon-find,
+            > .icon-folder {
                 position: absolute;
                 top: 5px;
                 left: 5px;
+            }
+            .icon-down {
+                position: absolute;
+                top: 5px;
+                right: 5px;
             }
             input {
                 width: 100%;
                 padding-left: 25px;
             }
+            .class-filter {
+                cursor: pointer;
+            }
+            .class-tree {
+                display: none;
+                position: absolute;
+                top: map-get($classTreeVariables, top);
+                left: map-get($classTreeVariables, left);
+                width: map-get($classTreeVariables, width);
+                font-size: map-get($classTreeVariables, font-size);
+
+                main {
+                    overflow-y: auto;
+                    border: 1px solid black;
+                }
+            }
+        }
+        .class-filter-container {
+            cursor: pointer;
         }
         .buttons-container {
             display: flex;
