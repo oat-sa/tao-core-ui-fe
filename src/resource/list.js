@@ -92,10 +92,9 @@ export default function resourceListFactory($container, config) {
 
                 /**
                  * Update the component with the given nodes
-                 * @param {Object[]} nodes - the tree nodes, with at least a URI as key and as property
-                 * @param {Object} params - the query parameters
                  * @returns {resourceList} chains
                  * @fires resourceList#update
+                 * @param resources
                  */
                 update: function update(resources) {
                     var self = this;
