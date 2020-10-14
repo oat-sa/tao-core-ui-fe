@@ -15,6 +15,18 @@
     "state": "closed",
     "count": 3
   }, {
+    "label": "Astronomy Partial",
+    "type": "class",
+    "uri": "http:\/\/bertao\/tao.rdf#i1491898712953395",
+    "state": "empty",
+    "accessMode": "partial"
+  }, {
+    "label": "Math Denied",
+    "type": "class",
+    "uri": "http:\/\/bertao\/tao.rdf#i1491898712953396",
+    "state": "empty",
+    "accessMode": "denied"
+  },{
     "label": "Maths test 1",
     "type": "instance",
     "uri": "http:\/\/bertao\/tao.rdf#i1491898771637894"
@@ -26,6 +38,16 @@
     "label": "Maths test 3",
     "type": "instance",
     "uri": "http:\/\/bertao\/tao.rdf#i14918988061562101"
+  }, {
+    "label": "Maths Denied test 4",
+    "type": "instance",
+    "uri": "http:\/\/bertao\/tao.rdf#i14918988061562102",
+    "accessMode": "denied"
+  }, {
+    "label": "Maths Partial test 5",
+    "type": "instance",
+    "uri": "http:\/\/bertao\/tao.rdf#i14918988061562103",
+    "accessMode": "partial"
   }],
-  "count": 6
+  "count": 9
 }]

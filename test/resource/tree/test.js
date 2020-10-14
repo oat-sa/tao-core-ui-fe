@@ -113,7 +113,7 @@ define([
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
-        assert.expect(10);
+        assert.expect(12);
 
         assert.equal($('.resource-tree', $container).length, 0, 'No resource tree in the container');
 
@@ -137,10 +137,20 @@ define([
             assert.ok(!$('> ul > li', $element).hasClass('closed'), 'The root node is open');
             assert.equal(
                 $('> ul > li > ul', $element).children('.instance').length,
-                3,
-                'The root node has 3 instance children'
+                5,
+                'The root node has 5 instance children'
             );
-            assert.equal($('> ul > li > ul', $element).children('.class').length, 2, 'The root node has 2 child class');
+            assert.equal($('> ul > li > ul', $element).children('.class').length, 4, 'The root node has 4 child class');
+            assert.equal(
+                $('> ul > li > ul', $element).children('[data-access="partial"]').length,
+                2,
+                'The root node has 2 children instance with partial access'
+            );
+            assert.equal(
+                $('> ul > li > ul', $element).children('[data-access="denied"]').length,
+                2,
+                'The root node has 2 children instance with denied access'
+            );
 
             ready();
         });
@@ -172,7 +182,7 @@ define([
             });
     });
 
-    QUnit.test('open node', function(assert) {
+    QUnit.test('open closed node', function(assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -203,40 +213,72 @@ define([
         });
     });
 
-    QUnit.test('select nodes', function(assert) {
+    QUnit.test('open empty node', function(assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
-        assert.expect(12);
+        assert.expect(4);
 
         resourceTreeFactory($container, {
             classUri: 'http://bertao/tao.rdf#i1491898694361191',
             nodes: rootData
         }).on('render', function() {
-            var selection = this.getSelection();
-            var $node1 = $('[data-uri="http://bertao/tao.rdf#i1491898801542197"]', this.getElement());
-            var $node2 = $('[data-uri="http://bertao/tao.rdf#i14918988061562101"]', this.getElement());
+            var $emptyClass = $('[data-uri="http://bertao/tao.rdf#i1491898702297492"]', this.getElement());
 
-            assert.equal($node1.length, 1, 'The node1 exists');
-            assert.ok($node1.hasClass('instance'), 'The node1 is an instance');
-            assert.ok(!$node1.hasClass('selected'), 'The node1 is not selected');
-            assert.equal(
-                typeof selection['http://bertao/tao.rdf#i1491898801542197'],
-                'undefined',
-                'The selection does not contain the node1'
-            );
+            assert.equal($emptyClass.length, 1, 'An empty class node has been inserted');
+            assert.ok($emptyClass.hasClass('empty'), 'The class node is empty');
+            assert.equal($emptyClass.children('ul').children('li').length, 0, 'The class node is no children');
+            assert.equal($emptyClass.data('count'), 0, 'The class node expects 0 children');
 
-            assert.equal($node2.length, 1, 'The node1 exists');
-            assert.ok($node2.hasClass('instance'), 'The node1 is an instance');
-            assert.ok(!$node2.hasClass('selected'), 'The node1 is not selected');
-            assert.equal(
-                typeof selection['http://bertao/tao.rdf#i14918988061562101'],
-                'undefined',
-                'The selection does not contain the noder2'
-            );
+            this.on('query.foo', function() {
+                assert.ok(false, 'Should not be here');
+                ready();
+            });
+
+            $emptyClass.click();
+            ready();
+        });
+    });
+
+    QUnit.test('select nodes', function(assert) {
+        const ready = assert.async();
+        const $container = $('#qunit-fixture');
+
+        assert.expect(24);
+
+        resourceTreeFactory($container, {
+            classUri: 'http://bertao/tao.rdf#i1491898694361191',
+            nodes: rootData
+        }).on('render', function() {
+            let selection = this.getSelection();
+            const $node1 = $('[data-uri="http://bertao/tao.rdf#i1491898801542197"]', this.getElement());
+            const $node2 = $('[data-uri="http://bertao/tao.rdf#i14918988061562101"]', this.getElement());
+
+            // clickable
+            const $nodeInstancePartial = $('[data-uri="http://bertao/tao.rdf#i14918988061562103"]', this.getElement());
+            // not clickable
+            const $nodeInstanceDenied = $('[data-uri="http://bertao/tao.rdf#i14918988061562102"]', this.getElement());
+
+            function checkNodeInstance ($node) {
+                assert.equal($node.length, 1, 'The node1 exists');
+                assert.ok($node.hasClass('instance'), 'The node is an instance');
+                assert.ok(!$node.hasClass('selected'), 'The node is not selected');
+                assert.equal(
+                    typeof selection[$node.data('uri')],
+                    'undefined',
+                    'The selection does not contain the node'
+                );
+            }
+
+            checkNodeInstance($node1);
+            checkNodeInstance($node2);
+            checkNodeInstance($nodeInstanceDenied);
+            checkNodeInstance($nodeInstancePartial);
 
             $node1.click();
             $node2.click();
+            $nodeInstancePartial.click();
+            $nodeInstanceDenied.click();
 
             selection = this.getSelection();
 
@@ -251,6 +293,18 @@ define([
                 typeof selection['http://bertao/tao.rdf#i14918988061562101'],
                 'object',
                 'The selection contains the node2'
+            );
+            assert.ok($nodeInstancePartial.hasClass('selected'), 'The node instance partial is now selected');
+            assert.equal(
+                typeof selection['http://bertao/tao.rdf#i14918988061562103'],
+                'object',
+                'The selection contains the node instance partial'
+            );
+            assert.ok(!$nodeInstanceDenied.hasClass('selected'), 'The node instance denied is NOT selected');
+            assert.equal(
+                typeof selection['http://bertao/tao.rdf#i14918988061562102'],
+                "undefined",
+                'The selection does not contain the node instance denied'
             );
 
             ready();
@@ -344,7 +398,7 @@ define([
             var $node = $('[data-uri="' + uri + '"]', this.getElement());
 
             assert.equal($classNode.length, 1, 'The class node is in the DOM');
-            assert.equal($classNode.data('count'), 6, 'The instances count is correct');
+            assert.equal($classNode.data('count'), 9, 'The instances count is correct');
 
             this.after('remove', function(removedUri) {
                 assert.equal(removedUri, uri, 'The removedUri is correct');
@@ -356,7 +410,7 @@ define([
                     'The node is not in the DOM anymore'
                 );
 
-                assert.equal($classNode.data('count'), 5, 'The class count has been updated');
+                assert.equal($classNode.data('count'), 8, 'The class count has been updated');
 
                 ready();
             });
@@ -374,13 +428,14 @@ define([
     QUnit.module('Visual');
 
     QUnit.test('playground', function(assert) {
-        var ready = assert.async();
+        const ready = assert.async();
 
-        var container = document.getElementById('visual');
-        var config = {
+        const container = document.getElementById('resource-selector');
+        const config = {
             classUri: 'http://bertao/tao.rdf#i1491898694361191',
             nodes: rootData,
-            multiple: true
+            multiple: true,
+            icon: 'item'
         };
 
         assert.expect(1);
@@ -390,6 +445,8 @@ define([
                 this.update(nodeData, params);
             })
             .on('render', function() {
+                const $selector = $('#resource-selector');
+                $selector.css({'opacity': 1});
                 assert.ok(true);
                 ready();
             });
