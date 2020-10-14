@@ -113,7 +113,7 @@ export default function advancedSearchFactory(config) {
         .on('render', () => {
             initUiSelectors();
             initAddCriteriaSelector();
-            initcriteriaState();
+            initCriteriaState();
         });
 
     /**
@@ -164,7 +164,7 @@ export default function advancedSearchFactory(config) {
      * If there is a stored criteriaState, those criteria that were rendered
      * but with undefined value are updated to not being rendered
      */
-    function initcriteriaState() {
+    function initCriteriaState() {
         if (instance.config.advancedCriteria) {
             _.forEach(instance.config.advancedCriteria, criterion => {
                 if (criterion.rendered === true && criterion.value === undefined) {
