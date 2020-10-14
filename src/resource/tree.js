@@ -305,7 +305,6 @@ export default function resourceTreeFactory($container, config) {
 
                 $component.on('click', '.class', function(e) {
                     const $class = $(e.currentTarget);
-                    console.log('2', $class)
                     e.preventDefault();
                     e.stopPropagation();
 
