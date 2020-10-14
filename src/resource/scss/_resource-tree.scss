@@ -17,6 +17,10 @@
         }
     }
 
+    &.multiple ul li.instance[data-access="denied"] a .selector {
+        display: none;
+    }
+
     .clickable {
         &:hover {
             &:before {
@@ -122,7 +126,7 @@
                 & > a > [class^="icon-"], & > a > [class*=" icon-"] {
                     color: $info;
                     margin-right: 4px;
-                    padding-left: $actionWidth;
+                    margin-left: $actionWidth;
                     @include font-size(16);
                 }
                 &:hover {
