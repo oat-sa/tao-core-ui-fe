@@ -98,11 +98,10 @@ export default function searchModalFactory(config) {
         .on('destroy', destroyModal);
 
     /**
-     * Creates search modal and binds esc keydown to search modal close
+     * Creates search modal
      */
     function initModal() {
         $container = instance.getElement();
-
         $container
             .addClass('modal')
             .on('closed.modal', () => instance.destroy())
