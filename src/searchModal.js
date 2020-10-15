@@ -98,10 +98,18 @@ export default function searchModalFactory(config) {
         .on('destroy', destroyModal);
 
     /**
-     * Creates search modal
+     * Creates search modal and binds esc keydown to search modal close
      */
     function initModal() {
         $container = instance.getElement();
+
+        $(window).on('keydown.searchModal', e => {
+            if (e.which === 27) {
+                $(window).off('keydown.searchModal');
+                instance.destroy();
+            }
+        });
+
         $container
             .addClass('modal')
             .on('closed.modal', () => instance.destroy())
@@ -224,6 +232,11 @@ export default function searchModalFactory(config) {
 
         $searchButton.on('click', search);
         $clearButton.on('click', clear);
+        $searchInput.on('keypress', e => {
+            if (e.which === 13) {
+                search();
+            }
+        });
         $searchInput.val(
             instance.config.criterias && instance.config.criterias.search ? instance.config.criterias.search : ''
         );
