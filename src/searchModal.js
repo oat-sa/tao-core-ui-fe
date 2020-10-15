@@ -103,18 +103,11 @@ export default function searchModalFactory(config) {
     function initModal() {
         $container = instance.getElement();
 
-        $(window).on('keydown.searchModal', e => {
-            if (e.which === 27) {
-                $(window).off('keydown.searchModal');
-                instance.destroy();
-            }
-        });
-
         $container
             .addClass('modal')
             .on('closed.modal', () => instance.destroy())
             .modal({
-                disableEscape: true,
+                disableEscape: false,
                 width: $(window).width(),
                 minHeight: $(window).height(),
                 modalCloseClass: 'modal-close-left'
