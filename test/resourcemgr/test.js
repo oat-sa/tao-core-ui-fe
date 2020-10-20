@@ -4,9 +4,9 @@ define(['jquery', 'ui/resourcemgr'], function($) {
     QUnit.module('Init');
 
     QUnit.test('Resource manager Loading but not open', function(assert) {
-        var ready = assert.async();
+        const ready = assert.async();
         assert.expect(3);
-        var $launcher = $('#launcher');
+        const $launcher = $('#launcher');
 
         $launcher.on('create.resourcemgr', function() {
             assert.ok($('#outside-container .resourcemgr').length === 1, 'The resource manager modal is created');
@@ -31,9 +31,9 @@ define(['jquery', 'ui/resourcemgr'], function($) {
     });
 
     QUnit.test('Resource manager Loading with eventBinding', function(assert) {
-        var ready = assert.async();
+        const ready = assert.async();
         assert.expect(3);
-        var $launcher = $('#launcher');
+        const $launcher = $('#launcher');
 
         $launcher.resourcemgr({
             params: {
@@ -60,9 +60,9 @@ define(['jquery', 'ui/resourcemgr'], function($) {
     QUnit.module('Loading');
 
     QUnit.test('Resource manager loading and open', function(assert) {
-        var ready = assert.async();
+        const ready = assert.async();
         assert.expect(3);
-        var $launcher = $('#launcher');
+        const $launcher = $('#launcher');
 
         $launcher.on('open.resourcemgr', function() {
             assert.ok($('#outside-container .resourcemgr').length === 1, 'The resource manager modal is created');
@@ -81,9 +81,9 @@ define(['jquery', 'ui/resourcemgr'], function($) {
     });
 
     QUnit.test('Resource manager select and close', function(assert) {
-        var ready = assert.async();
+        const ready = assert.async();
         assert.expect(1);
-        var $launcher = $('#launcher');
+        const $launcher = $('#launcher');
 
         $launcher.on('close.resourcemgr', function() {
             assert.ok(true, 'the modal is closed on select resource');
@@ -102,9 +102,9 @@ define(['jquery', 'ui/resourcemgr'], function($) {
     });
 
     QUnit.test('Resource manager close and reopen', function(assert) {
-        var ready = assert.async();
+        const ready = assert.async();
         assert.expect(2);
-        var $launcher = $('#launcher');
+        const $launcher = $('#launcher');
 
         $launcher.on('close.resourcemgr', function() {
             assert.ok(true, 'the modal is closed on select resource');
@@ -142,9 +142,9 @@ define(['jquery', 'ui/resourcemgr'], function($) {
     QUnit.module('Destroy');
 
     QUnit.test('ResourceManager destroy', function(assert) {
-        var ready = assert.async();
+        const ready = assert.async();
         assert.expect(1);
-        var $launcher = $('#launcher');
+        const $launcher = $('#launcher');
 
         $launcher.on('open.resourcemgr', function() {
             $launcher.resourcemgr('destroy');
@@ -154,6 +154,21 @@ define(['jquery', 'ui/resourcemgr'], function($) {
             ready();
         });
 
+        $launcher.resourcemgr({
+            params: {
+                filters: 'image/gif,audio/mpeg',
+                uri: 'http://myUri',
+                lang: 'en-US'
+            },
+            open: true
+        });
+    });
+
+    QUnit.module('Preview');
+
+    QUnit.test('Test Mode', function (assert) {
+        assert.expect(0);
+        const $launcher = $('#preview-launcher');
         $launcher.resourcemgr({
             params: {
                 filters: 'image/gif,audio/mpeg',
