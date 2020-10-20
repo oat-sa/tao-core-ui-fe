@@ -47,6 +47,11 @@ export default function advancedSearchFactory(config) {
     let $advancedCriteriaContainer = null;
     let criteriaState = null;
 
+    const criteriaTypes = {
+        text: 'text',
+        list: 'list'
+    };
+
     // Creates new component
     const instance = component({
         /**
@@ -78,9 +83,7 @@ export default function advancedSearchFactory(config) {
          * and removes classes applied to scrollable list of criteria
          */
         clear: function () {
-            $advancedCriteriaContainer.removeClass('scrollable');
-            $advancedCriteriaContainer.removeClass('scroll-separator-top');
-            $advancedCriteriaContainer.removeClass('scroll-separator-bottom');
+            $advancedCriteriaContainer.removeClass(['scrollable', 'scroll-separator-top', 'scroll-separator-bottom']);
             $advancedCriteriaContainer.empty();
             _.forEach(criteriaState, criterion => {
                 criterion.rendered = false;
@@ -95,11 +98,11 @@ export default function advancedSearchFactory(config) {
             let query = '';
 
             advancedSearchCriteria.forEach(renderedCriterion => {
-                if (renderedCriterion.type === 'text') {
+                if (renderedCriterion.type === criteriaTypes.text) {
                     if (renderedCriterion.value && renderedCriterion.value.trim() !== '') {
                         query += ` AND ${renderedCriterion.label}:${renderedCriterion.value.trim()}`;
                     }
-                } else if (renderedCriterion.type === 'list') {
+                } else if (renderedCriterion.type === criteriaTypes.list) {
                     if (renderedCriterion.value && renderedCriterion.value.length > 0) {
                         query += ` AND ${renderedCriterion.label}:${renderedCriterion.value.join(' OR ')}`;
                     }
@@ -228,9 +231,9 @@ export default function advancedSearchFactory(config) {
      */
     function renderCriterion(criterion) {
         let templateToUse = null;
-        if (criterion.type === 'text') {
+        if (criterion.type === criteriaTypes.text) {
             templateToUse = textCriterionTpl;
-        } else if (criterion.type === 'list' && criterion.uri) {
+        } else if (criterion.type === criteriaTypes.list && criterion.uri) {
             templateToUse = listSelectCriterionTpl;
         } else {
             templateToUse = listCheckboxCriterionTpl;
@@ -244,7 +247,7 @@ export default function advancedSearchFactory(config) {
          * On criterion of type list with a uri endpoint to retrieve options, template includes a select
          * that is managed with select2, so we init it here
          */
-        if (criterion.type === 'list' && criterion.uri) {
+        if (criterion.type === criteriaTypes.list && criterion.uri) {
             $(`input[name=${criterion.label}-select]`, $criterionContainer).select2({
                 multiple: true,
                 ajax: {
@@ -281,14 +284,14 @@ export default function advancedSearchFactory(config) {
      * @param {object} $criterionContainer - rendered criterion
      */
     function bindCriterionValue(criterion, $criterionContainer) {
-        if (criterion.type === 'text') {
+        if (criterion.type === criteriaTypes.text) {
             // set initial value
             $('input', $criterionContainer).val(criterion.value);
             // set event to bind input value to critariaState
             $('input', $criterionContainer).on('change', function () {
                 criterion.value = $(this).val() || undefined;
             });
-        } else if (criterion.type === 'list' && criterion.uri) {
+        } else if (criterion.type === criteriaTypes.list && criterion.uri) {
             // set initial value
             if (criterion.value) {
                 $(`input[name=${criterion.label}-select]`, $criterionContainer).select2('val', criterion.value);
