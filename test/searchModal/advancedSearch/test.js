@@ -31,7 +31,7 @@ define([
         responseText: mocks.mockedClassTree
     });
     $.mockjax({
-        url: 'undefined/tao/ClassMetadata/*',
+        url: new RegExp(/.+ClassMetadata.+/),
         dataType: 'json',
         responseText: mocks.mockedAdvancedCriteria
     });
@@ -169,7 +169,7 @@ define([
         });
         const ready = assert.async();
         assert.expect(8);
-        instance.updateCriteria('foo').then(function () {
+        instance.updateCriteria('undefined/tao/ClassMetadata/').then(function () {
             const $container = $('.advanced-search-container');
             const $criteriaContainer = $container.find('.advanced-criteria-container');
             const $criteriaSelect = $('.add-criteria-container select', $container);
