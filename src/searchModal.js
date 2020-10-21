@@ -27,14 +27,17 @@ import 'ui/modal';
 import 'ui/datatable';
 import store from 'core/store';
 import resourceSelectorFactory from 'ui/resource/selector';
+import advancedSearchFactory from 'ui/searchModal/advancedSearch';
 import request from 'core/dataProvider/request';
 import urlUtil from 'util/url';
+import 'select2';
+
 /**
  * Creates a searchModal instance
  *
  * @param {object} config
  * @param {object} config.renderTo - DOM element where component will be rendered to
- * @param {string} config.criterias - Search criterias to be set on component creation
+ * @param {string} config.criterias - Search criteria to be set on component creation
  * @param {boolean} config.searchOnInit - if init search must be triggered or not (stored results are used instead)
  * @param {string} config.url - search endpoint to be set on datatable
  * @param {string} config.rootClassUri - Uri for the root class of current context, required to init the class filter
@@ -44,9 +47,9 @@ export default function searchModalFactory(config) {
     const defaults = {
         renderTo: 'body',
         criterias: {},
-        searchOnInit: true
+        searchOnInit: true,
+        maxListSize: 5
     };
-
     // Private properties to be easily accessible by instance methods
     let $container = null;
     let $searchInput = null;
@@ -58,6 +61,7 @@ export default function searchModalFactory(config) {
     let $classFilterContainer = null;
     let $classFilterInput = null;
     let $classTreeContainer = null;
+    let advancedSearch = null;
 
     /**
      * Creates search modal, inits template selectors, inits search store, and once is created triggers initial search
@@ -66,6 +70,10 @@ export default function searchModalFactory(config) {
         const promises = [];
         initModal();
         initUiSelectors();
+        advancedSearch = advancedSearchFactory({
+            renderTo: $('.filters-container', $container),
+            advancedCriteria: instance.config.criterias.advancedCriteria
+        });
         promises.push(initClassFilter());
         promises.push(initSearchStore());
         Promise.all(promises)
@@ -156,10 +164,28 @@ export default function searchModalFactory(config) {
                 resolve();
             });
 
-            // then new class is selected, set its label into class filter input and hide filter container
+            // then new class is selected, set its label into class filter input and hide filter container, then request class properties
             resourceSelector.on('change', selectedValue => {
-                $classFilterInput.val(_.map(selectedValue, 'label')[0]);
+                /*
+                 * on searchModal init we set manually the selector to the provided config.rootClassUri. When a selector
+                 * is set manually Selector component execs @clearSelection which triggers a change event
+                 * with an empty object as param. We catch this undesired behaviour here
+                 */
+                if (_.isEmpty(selectedValue)) {
+                    return;
+                }
+                const classUri = _.map(selectedValue, 'classUri')[0];
+                const label = _.map(selectedValue, 'label')[0];
+                const route = urlUtil.route('get', 'ClassMetadata', 'tao', {
+                    classUri,
+                    maxListSize: instance.config.maxListSize
+                });
+                $classFilterInput.val(label);
                 $classTreeContainer.hide();
+                advancedSearch
+                    .updateCriteria(route)
+                    .then(() => instance.trigger('criteriaListUpdated'))
+                    .catch(e => instance.trigger('error', e));
             });
 
             setResourceSelectorUIBehaviour();
@@ -190,7 +216,8 @@ export default function searchModalFactory(config) {
     }
 
     /**
-     * Inits template selectors and sets initial search query on search input
+     * Inits template selectors, buttons behaviour, scroll animation,
+     * and sets initial search query on search input
      */
     function initUiSelectors() {
         $searchButton = $('.btn-search', $container);
@@ -199,6 +226,7 @@ export default function searchModalFactory(config) {
         $classFilterInput = $('.class-filter', $container);
         $classTreeContainer = $('.class-tree', $container);
         $classFilterContainer = $('.class-filter-container', $container);
+
         $searchButton.on('click', search);
         $clearButton.on('click', clear);
         $searchInput.val(
@@ -283,11 +311,15 @@ export default function searchModalFactory(config) {
      * build final complex query appending every filter
      */
     function buildComplexQuery() {
-        const $searchInputValue = $searchInput.val();
-        const classFilterValue = $classFilterInput.val();
+        const $searchInputValue = $searchInput.val().trim();
+        const classFilterValue = $classFilterInput.val().trim();
 
-        return `class:${classFilterValue} AND ${$searchInputValue}`;
+        let query = `class:${classFilterValue} AND ${$searchInputValue}`;
+        query += advancedSearch.getAdvancedCriteriaQuery();
+
+        return query;
     }
+
     /*
      * If search on init is not required, extends data with stored dataset
      * @param {object} data - search configuration including model and endpoint for datatable
@@ -370,7 +402,8 @@ export default function searchModalFactory(config) {
             context: context.shownStructure,
             criterias: {
                 search: $searchInput.val(),
-                class: _.map(resourceSelector.getSelection(), 'uri')[0]
+                class: _.map(resourceSelector.getSelection(), 'uri')[0],
+                advancedCriteria: advancedSearch.getState()
             }
         });
     }
@@ -401,10 +434,13 @@ export default function searchModalFactory(config) {
     }
 
     /**
-     * Clear search input and search results from both, view and store
+     * Clear search input, criteria and results from both, view and store.
+     * Also sets every criterion on criteriaState to unredered and
+     * undefined value
      */
     function clear() {
         $searchInput.val('');
+        advancedSearch.clear();
         resourceSelector.select(instance.config.rootClassUri);
         replaceSearchResultsDatatableWithMessage('no-query');
         updateSearchStore({ action: 'clear' });
