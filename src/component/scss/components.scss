@@ -230,7 +230,7 @@ ul.listbox {
     &:focus {
         outline: none;
     }
-    
+
     .modal-close {
         position: absolute;
         right: 12px;
@@ -430,16 +430,23 @@ ul[data-button-group], ul.button-group {
     margin: 5px;
     min-width: 280px;
     min-height: 200px;
-    text-align: center;
+    display: -webkit-flexbox;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+    justify-content: center;
+
     .nopreview {
         color: $uiGeneralContentBorder;
-        text-align: center;
         @include font-size(20);
         &:before {
             @include font-size(60);
             @include tao-icon-setup;
             @include icon-media;
-            display: block !important;
         }
     }
 }
