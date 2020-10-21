@@ -92,5 +92,113 @@
             }
         },
         "version": "3.4.0-sprint135"
+    },
+    "mockedAdvancedCriteria": {
+        "success": true,
+        "data": [
+            {
+                "class": "parent-class",
+                "metadata": [
+                    {
+                        "label": "in-both-text",
+                        "type": "text"
+                    },
+                    {
+                        "label": "in-both-list",
+                        "type": "list",
+                        "values": ["value0", "value1", "value2", "value3"]
+                    },
+                    {
+                        "label": "in-both-select",
+                        "type": "list",
+                        "uri": "foo"
+                    },
+                    {
+                        "label": "in-parent-text",
+                        "type": "text"
+                    }
+                ]
+            },
+            {
+                "class": "child-class",
+                "metadata": [
+                    {
+                        "label": "in-both-text",
+                        "type": "text"
+                    },
+                    {
+                        "label": "in-both-list",
+                        "type": "list",
+                        "values": ["value0", "value1", "value2", "value3"]
+                    },
+                    {
+                        "label": "in-both-select",
+                        "type": "list",
+                        "uri": "foo"
+                    },
+                    {
+                        "label": "in-child-text",
+                        "type": "text"
+                    }
+                ]
+            }
+        ]
+    },
+    "mockedAdvancedCriteriaInChildClass": {
+        "success": true,
+        "data": [
+            {
+                "class": "child-class",
+                "metadata": [
+                    {
+                        "label": "in-both-text",
+                        "type": "text"
+                    },
+                    {
+                        "label": "in-both-list",
+                        "type": "list",
+                        "values": ["value0", "value1", "value2", "value3"]
+                    },
+                    {
+                        "label": "in-both-select",
+                        "type": "list",
+                        "uri": "foo"
+                    },
+                    {
+                        "label": "in-child-text",
+                        "type": "text"
+                    }
+                ]
+            }
+        ]
+    },
+    "mockedCriteriaStore": {
+        "in-both-list": {
+            "label": "in-both-list",
+            "id": "inbothlist",
+            "type": "list",
+            "values": ["easy", "medium", "hard"],
+            "uri": null,
+            "rendered": true,
+            "value": ["easy"]
+        },
+        "in-both-text": {
+            "label": "in-both-text",
+            "id": "inbothtext",
+            "type": "text",
+            "values": null,
+            "uri": null,
+            "rendered": true,
+            "value": "foo"
+        },
+        "in-both-select": {
+            "label": "in-both-select",
+            "id": "inbothselect",
+            "type": "list",
+            "values": null,
+            "uri": "/tao/PropertyValues/get?propertyUri=https%3A%2F%2Ftao3.docker.localhost%2Fontologies%2Ftao.rdf%23i5f7dcc4e2e0a56945f7e59e65d0b990",
+            "rendered": true,
+            "value": ["English"]
+        }
     }
 }
