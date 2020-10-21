@@ -56,12 +56,10 @@ define([
                 });
 
                 instance.on('criteriaListUpdated', function () {
-                    debugger;
                     const $container = $('.advanced-search-container');
                     const $invalidCriteriaContainer = $container.find('.invalid-criteria-warning-container');
 
                     assert.equal($invalidCriteriaContainer.length, 0, 'invalid criteira is not initially rendered');
-                    debugger;
                     _.forEach(mocks.mockedCriteriaStore, criterionToRender => {
                         // check for each stored criterion if it is rendered when criterion.rendered is true, and viceversa
                         assert.equal(
