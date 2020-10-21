@@ -176,6 +176,7 @@ var resourceMgr = {
      * @public
      */
     destroy: function() {
+
         this.each(function() {
             var $elt = $(this);
             var options = $elt.data(dataNs);
@@ -183,17 +184,28 @@ var resourceMgr = {
             if (options.bindEvent !== undefined && options.bindEvent !== false) {
                 $elt.off(options.bindEvent);
             }
+
             if (options.targetId) {
-                $('#' + options.targetId).remove();
+
+                options.$target
+                    .on('closed.modal', function() {
+                        $('#' + options.targetId).remove();
+                        $(window).off('resize.resourcemgr');
+                        /**
+                         * The plugin have been destroyed.
+                         * @event ResourceMgr#destroy.resourcemgr
+                         */
+                        $elt.trigger('destroy.' + ns);
+                    })
+                    .modal('close');
+            } else {
+                $(window).off('resize.resourcemgr');
+                /**
+                 * The plugin have been destroyed.
+                 * @event ResourceMgr#destroy.resourcemgr
+                 */
+                $elt.trigger('destroy.' + ns);
             }
-
-            $(window).off('resize.resourcemgr');
-
-            /**
-             * The plugin have been destroyed.
-             * @event ResourceMgr#destroy.resourcemgr
-             */
-            $elt.trigger('destroy.' + ns);
         });
     }
 };
