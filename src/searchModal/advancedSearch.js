@@ -56,14 +56,10 @@ export default function advancedSearchFactory(config) {
     const instance = component({
         /**
          * Request metadata (criteria) for the given uri
-         * @param {string} classUri - Uri of the class to get metadata from
-         * @param {number} maxListSize - max number of values to return for a metadata of type list If
-         *                               available values options exceed this number, an uri will
-         *                               be returned instead to get its values dinamically
+         * @param {string} classUri - url to make the reques to
          * @returns {Promise} - Request promise
          */
-        updateCriteria: function (classUri, maxListSize = 5) {
-            const route = urlUtil.route('get', 'ClassMetadata', 'tao', { classUri, maxListSize });
+        updateCriteria: function (route) {
             return request(route)
                 .then(response => {
                     const criteria = formatCriteria(response);

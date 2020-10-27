@@ -47,7 +47,8 @@ export default function searchModalFactory(config) {
     const defaults = {
         renderTo: 'body',
         criterias: {},
-        searchOnInit: true
+        searchOnInit: true,
+        maxListSize: 5
     };
     // Private properties to be easily accessible by instance methods
     let $container = null;
@@ -175,10 +176,14 @@ export default function searchModalFactory(config) {
                 }
                 const classUri = _.map(selectedValue, 'classUri')[0];
                 const label = _.map(selectedValue, 'label')[0];
+                const route = urlUtil.route('get', 'ClassMetadata', 'tao', {
+                    classUri,
+                    maxListSize: instance.config.maxListSize
+                });
                 $classFilterInput.val(label);
                 $classTreeContainer.hide();
                 advancedSearch
-                    .updateCriteria(classUri)
+                    .updateCriteria(route)
                     .then(() => instance.trigger('criteriaListUpdated'))
                     .catch(e => instance.trigger('error', e));
             });

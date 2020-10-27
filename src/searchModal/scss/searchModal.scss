@@ -26,6 +26,11 @@ $classTreeVariables: (
     .flex-container-main-form {
         @include simple-flex-box(500px);
         margin: 0 20px 20px 0;
+        width: 100%;
+
+        .form-content {
+            max-width: 100%;
+        }
     }
 
     // the one for the sidebar that usually holds tree

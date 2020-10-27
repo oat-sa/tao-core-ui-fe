@@ -229,7 +229,9 @@ export default function resourceTreeFactory($container, config) {
                         needMore($root);
                         indentChildren($component.children('ul'), 0);
 
-                        $root.removeClass('closed').toggleClass('empty', !$root.children('ul').children('li').length);
+                        $root
+                            .removeClass('closed')
+                            .toggleClass('empty', !$root.children('ul').children('li').length);
 
                         /**
                          * The tree has been updated
@@ -302,7 +304,7 @@ export default function resourceTreeFactory($container, config) {
                 //if we can
 
                 $component.on('click', '.class', function(e) {
-                    var $class = $(e.currentTarget);
+                    const $class = $(e.currentTarget);
                     e.preventDefault();
                     e.stopPropagation();
 
@@ -319,25 +321,33 @@ export default function resourceTreeFactory($container, config) {
                     }
                 });
             } else {
-                $component.on('click', '.class:not(.empty)', function(e) {
-                    var $class = $(e.currentTarget);
+                $component.on('click', '.class', function(e) {
+                    const $class = $(e.currentTarget);
+
                     e.preventDefault();
                     e.stopPropagation();
 
-                    toggleClass($class);
+                    if (!$class.hasClass('empty')) {
+                        toggleClass($class);
+                    }
                 });
             }
 
             //selection
-            $component.on('click', '.instance:not([data-access=denied])', function(e) {
-                var $instance = $(e.currentTarget);
+            $component.on('click', '.instance', function(e) {
+                const $instance = $(e.currentTarget);
+
+                // all instances should be not clickable because in the tree if it is child node - it will close
+                // parent node
                 e.preventDefault();
                 e.stopPropagation();
 
-                if ($instance.hasClass('selected')) {
-                    self.unselect($instance.data('uri'));
-                } else {
-                    self.select($instance.data('uri'), !self.is('multiple'));
+                if ($instance.data('access') !== 'denied') {
+                    if ($instance.hasClass('selected')) {
+                        self.unselect($instance.data('uri'));
+                    } else {
+                        self.select($instance.data('uri'), !self.is('multiple'));
+                    }
                 }
             });
 

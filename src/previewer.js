@@ -171,7 +171,7 @@ var previewer = {
 
             if (!content) {
                 content = previewGenerator.placeHolder({
-                    desc: __('No preview available'),
+                    desc: '',
                     type: options.type || options.mime || ''
                 });
             }

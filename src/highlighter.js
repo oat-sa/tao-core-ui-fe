@@ -560,6 +560,7 @@ export default function(options) {
         highlightRanges: highlightRanges,
         highlightFromIndex: highlightFromIndex,
         getHighlightIndex: getHighlightIndex,
-        clearHighlights: clearHighlights
+        clearHighlights: clearHighlights,
+        clearSingleHighlight: clearSingleHighlight
     };
 }

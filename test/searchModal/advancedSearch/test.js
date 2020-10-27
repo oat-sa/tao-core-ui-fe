@@ -31,7 +31,7 @@ define([
         responseText: mocks.mockedClassTree
     });
     $.mockjax({
-        url: 'undefined/tao/ClassMetadata/*',
+        url: new RegExp(/.+ClassMetadata.+/),
         dataType: 'json',
         responseText: mocks.mockedAdvancedCriteria
     });
@@ -56,12 +56,10 @@ define([
                 });
 
                 instance.on('criteriaListUpdated', function () {
-                    debugger;
                     const $container = $('.advanced-search-container');
                     const $invalidCriteriaContainer = $container.find('.invalid-criteria-warning-container');
 
                     assert.equal($invalidCriteriaContainer.length, 0, 'invalid criteira is not initially rendered');
-                    debugger;
                     _.forEach(mocks.mockedCriteriaStore, criterionToRender => {
                         // check for each stored criterion if it is rendered when criterion.rendered is true, and viceversa
                         assert.equal(
@@ -171,7 +169,7 @@ define([
         });
         const ready = assert.async();
         assert.expect(8);
-        instance.updateCriteria('foo').then(function () {
+        instance.updateCriteria('undefined/tao/ClassMetadata/').then(function () {
             const $container = $('.advanced-search-container');
             const $criteriaContainer = $container.find('.advanced-criteria-container');
             const $criteriaSelect = $('.add-criteria-container select', $container);
