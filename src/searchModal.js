@@ -107,7 +107,7 @@ export default function searchModalFactory(config) {
             .addClass('modal')
             .on('closed.modal', () => instance.destroy())
             .modal({
-                disableEscape: true,
+                disableEscape: false,
                 width: $(window).width(),
                 minHeight: $(window).height(),
                 modalCloseClass: 'modal-close-left'
@@ -229,6 +229,11 @@ export default function searchModalFactory(config) {
 
         $searchButton.on('click', search);
         $clearButton.on('click', clear);
+        $searchInput.on('keypress', e => {
+            if (e.which === 13) {
+                search();
+            }
+        });
         $searchInput.val(
             instance.config.criterias && instance.config.criterias.search ? instance.config.criterias.search : ''
         );
