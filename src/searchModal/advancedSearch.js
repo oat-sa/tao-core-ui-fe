@@ -42,6 +42,7 @@ import request from 'core/dataProvider/request';
 export default function advancedSearchFactory(config) {
     // Private properties to be easily accessible by instance methods
     let $container = null;
+    let $addCriteria = null;
     let $addCriteriaInput = null;
     let $criteriaSelect = null;
     let $advancedCriteriaContainer = null;
@@ -120,6 +121,8 @@ export default function advancedSearchFactory(config) {
      */
     function initUiSelectors() {
         $container = instance.getElement();
+        $addCriteria = $('.add-criteria-container', $container);
+        $addCriteria.addClass('disabled');
         $addCriteriaInput = $('.add-criteria-container a', $container);
         $criteriaSelect = $('.add-criteria-container select', $container);
         $advancedCriteriaContainer = $('.advanced-criteria-container', $container);
@@ -131,30 +134,45 @@ export default function advancedSearchFactory(config) {
      * Inits select2 on criteria select and its UX logic
      */
     function initAddCriteriaSelector() {
-        $criteriaSelect.select2({
-            containerCssClass: 'criteria-select2',
-            dropdownCssClass: 'criteria-dropdown-select2',
-            sortResults: results => _.sortBy(results, ['text'])
-        });
-
-        // open dropdown when user clicks on add criteria input
-        $addCriteriaInput.on('click', () => {
-            $criteriaSelect.select2('open');
-            // if dropdown is opened above addCriteria input, top property is slightly decreased to avoid overlapping with addCriteria icon
-            if ($('.criteria-dropdown-select2').hasClass('select2-drop-above')) {
-                $('.criteria-dropdown-select2').css(
-                    'top',
-                    $('.criteria-dropdown-select2').css('top').split('px')[0] - 10 + 'px'
-                );
+        const route = urlUtil.route('status', 'advanced_search', 'tao');
+        /*
+          TODO: Use real request when backend provide endpoint
+          Sustitute finally for then
+        */
+        request(route).finally(function (response = { enabled: false }) {
+            if (!response.enabled) {
+                $addCriteria.addClass('disabled');
+                return;
             }
-        });
+            $addCriteria.removeClass('disabled');
+            $criteriaSelect.select2({
+                containerCssClass: 'criteria-select2',
+                dropdownCssClass: 'criteria-dropdown-select2',
+                sortResults: results => _.sortBy(results, ['text'])
+            });
 
-        // when a criterion is selected add it to criteria container, remove it from dropdown options and reset select
-        $criteriaSelect.on('change', () => {
-            const criterionToAdd = $criteriaSelect.children('option:selected').val();
-            addNewCriterion(criterionToAdd);
-            $criteriaSelect.children('option:selected').remove();
-            $criteriaSelect.select2('val', '');
+            // open dropdown when user clicks on add criteria input
+            $addCriteriaInput.on('click', () => {
+                $criteriaSelect.select2('open');
+                // if dropdown is opened above addCriteria input, top property is slightly decreased to avoid overlapping with addCriteria icon
+                if ($('.criteria-dropdown-select2').hasClass('select2-drop-above')) {
+                    $('.criteria-dropdown-select2').css(
+                        'top',
+                        $('.criteria-dropdown-select2').css('top').split('px')[0] - 10 + 'px'
+                    );
+                }
+            });
+
+            // when a criterion is selected add it to criteria container, remove it from dropdown options and reset select
+            $criteriaSelect.on('change', () => {
+                const criterionToAdd = $criteriaSelect.children('option:selected').val();
+                addNewCriterion(criterionToAdd);
+                $criteriaSelect.children('option:selected').remove();
+                $criteriaSelect.select2('val', '');
+            });
+        })
+        .catch(function (e) {
+          return instance.trigger('error', e);
         });
     }
 
