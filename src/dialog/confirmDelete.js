@@ -21,7 +21,7 @@
 import _ from 'lodash';
 import __ from 'i18n';
 import dialog from 'ui/dialog';
-import checkBoxTpl from 'ui/dialog/tpl/checkBox';
+import checkBoxTpl from 'ui/dialog/tpl/checkBox.tpl';
 
 /**
  * Displays a confirm message
