@@ -412,6 +412,7 @@ const dialog = {
                     }
                 });
             const $items = this.getDom()
+                .add($(_scope).find('input'))
                 .add(this.$buttons.find('button'));
             const closeButton = $(_scope).find('#modal-close-btn')[0];
 
@@ -447,7 +448,12 @@ const dialog = {
                     }
                 })
                 .on('activate', function(cursor) {
-                    cursor.navigable.getElement().click();
+                    const $elt = cursor.navigable.getElement();
+                    if (!$elt.is(':radio,:checkbox')) {
+                        $elt.click();
+                    } else {
+                        $elt.prop('checked', !$elt.prop('checked'));
+                    }
                 });
             this.navigator.first();
             //added a global shortcut to enable setting focus on tab
