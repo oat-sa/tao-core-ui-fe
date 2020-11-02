@@ -65,7 +65,7 @@ export default function dialogConfirm(message, accept, refuse, options) {
             delete: {
                 id: 'delete',
                 type: 'info',
-                label: options.buttons.labels.ok || _options.buttons.labels.delete,
+                label: options.buttons.labels.delete || _options.buttons.labels.delete,
                 close: true
             },
             cancel: {
