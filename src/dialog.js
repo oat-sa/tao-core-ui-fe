@@ -426,10 +426,16 @@ const dialog = {
                 propagateTab: false
             })
                 .on('right down', function() {
-                    this.next();
+                    if (this.getCursor().position === $items.length - 1) {
+                        this.setCursorAt(1);  // Skip container.
+                    } else {
+                        this.next();
+                    }
                 })
                 .on('left up', function() {
-                    if (this.getCursor().position > 1) { // Skip container.
+                    if (this.getCursor().position === 1) {  // Skip container.
+                        this.last();
+                    } else {
                         this.previous();
                     }
                 })
@@ -447,14 +453,15 @@ const dialog = {
                         this.previous();
                     }
                 })
-                .on('activate', function(cursor) {
+                .on('activate', _.debounce(function(cursor) {
                     const $elt = cursor.navigable.getElement();
                     if (!$elt.is(':radio,:checkbox')) {
                         $elt.click();
                     } else {
                         $elt.prop('checked', !$elt.prop('checked'));
                     }
-                });
+                }, 10)
+                );
             this.navigator.first();
             //added a global shortcut to enable setting focus on tab
             this.globalShortcut = shortcutRegistry($('body')).add('tab shift+tab', () => {
