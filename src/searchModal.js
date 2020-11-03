@@ -182,7 +182,7 @@ export default function searchModalFactory(config) {
                     maxListSize: instance.config.maxListSize
                 });
                 $classFilterInput.val(label);
-                $classFilterInput.data('uri',uri);
+                $classFilterInput.data('uri', uri);
                 $classTreeContainer.hide();
                 advancedSearch
                     .updateCriteria(route)
