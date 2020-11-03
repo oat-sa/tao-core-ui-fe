@@ -37,8 +37,8 @@ import checkBoxTpl from 'ui/dialog/tpl/checkbox';
  * @returns {dialog} - Returns the dialog instance
  */
 export default function dialogConfirm(message, accept, refuse, options) {
-    var accepted = false;
-    var _options = {
+    let accepted = false;
+    const _options = {
         buttons: {
             labels: {
                 delete: __('Delete'),
@@ -47,12 +47,12 @@ export default function dialogConfirm(message, accept, refuse, options) {
         },
         confirmationMessage: __('I understand that this action is permanent.')
     };
-    var dialogOptions;
-    var dlg;
+    let dialogOptions;
+    let dlg;
     options = _.defaults(options || {}, _options);
     dialogOptions = {
         message: message,
-        content: checkBoxTpl({id: 'confirm', checked: false, text: options.confirmationMessage}),
+        content: checkBoxTpl({ id: 'confirm', checked: false, text: options.confirmationMessage }),
         autoRender: true,
         autoDestroy: true,
         onDeleteBtn: function() {
