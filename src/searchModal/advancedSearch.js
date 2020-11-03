@@ -134,12 +134,8 @@ export default function advancedSearchFactory(config) {
      * Inits select2 on criteria select and its UX logic
      */
     function initAddCriteriaSelector() {
-        const route = urlUtil.route('status', 'advanced_search', 'tao');
-        /*
-          TODO: Use real request when backend provide endpoint
-          Sustitute finally for then
-        */
-        request(route).finally(function (response = { enabled: false }) {
+        const route = urlUtil.route('status', 'AdvancedSearch', 'tao');
+        request(route).then(function (response) {
             if (!response.enabled) {
                 $addCriteria.addClass('disabled');
                 return;
@@ -172,7 +168,7 @@ export default function advancedSearchFactory(config) {
             });
         })
         .catch(function (e) {
-          return instance.trigger('error', e);
+            return instance.trigger('error', e);
         });
     }
 
