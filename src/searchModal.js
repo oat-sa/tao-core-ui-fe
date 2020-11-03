@@ -107,7 +107,7 @@ export default function searchModalFactory(config) {
             .addClass('modal')
             .on('closed.modal', () => instance.destroy())
             .modal({
-                disableEscape: true,
+                disableEscape: false,
                 width: $(window).width(),
                 minHeight: $(window).height(),
                 modalCloseClass: 'modal-close-left'
@@ -176,11 +176,13 @@ export default function searchModalFactory(config) {
                 }
                 const classUri = _.map(selectedValue, 'classUri')[0];
                 const label = _.map(selectedValue, 'label')[0];
+                const uri = _.map(selectedValue, 'uri')[0];
                 const route = urlUtil.route('get', 'ClassMetadata', 'tao', {
                     classUri,
                     maxListSize: instance.config.maxListSize
                 });
                 $classFilterInput.val(label);
+                $classFilterInput.data('uri', uri);
                 $classTreeContainer.hide();
                 advancedSearch
                     .updateCriteria(route)
@@ -229,6 +231,11 @@ export default function searchModalFactory(config) {
 
         $searchButton.on('click', search);
         $clearButton.on('click', clear);
+        $searchInput.on('keypress', e => {
+            if (e.which === 13) {
+                search();
+            }
+        });
         $searchInput.val(
             instance.config.criterias && instance.config.criterias.search ? instance.config.criterias.search : ''
         );
@@ -312,9 +319,9 @@ export default function searchModalFactory(config) {
      */
     function buildComplexQuery() {
         const $searchInputValue = $searchInput.val().trim();
-        const classFilterValue = $classFilterInput.val().trim();
+        const classFilterUri = $classFilterInput.data('uri').trim();
 
-        let query = `class:${classFilterValue} AND ${$searchInputValue}`;
+        let query = `parents: ${classFilterUri} AND ${$searchInputValue}`;
         query += advancedSearch.getAdvancedCriteriaQuery();
 
         return query;
