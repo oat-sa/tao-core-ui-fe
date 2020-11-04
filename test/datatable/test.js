@@ -220,6 +220,43 @@ define([
         });
     });
 
+    QUnit.test('Option requestInterceptor', function(assert){
+        const $container = $('#container-1');
+
+        $.mockjax(function() {
+            assert.ok(false, 'AJAX request must be intercepted');
+        });
+
+        $container.on('load.datatable', function() {
+            assert.verifySteps(['intercept'])
+        });
+
+        $container.datatable({
+            url: '/test/datatable/data.json',
+            model: [{
+                id: 'name',
+                label: 'Name',
+            }],
+            requestInterceptor: function(){
+                return new Promise(function(resolve, reject){
+                    assert.step('intercept');
+                    resolve({
+                        data: [{
+                            id: 1,
+                            name: 'John',
+                            email: 'john.smith@mail.com'
+                        }, {
+                            id: 2,
+                            name: 'Jane',
+                            email: 'jane.doe@mail.com'
+                        }]
+                    });
+                    
+                })
+            }
+        });
+    });
+
     QUnit.test('Model loading using AJAX', function(assert) {
         var ready3 = assert.async();
         var ready2 = assert.async();
@@ -1783,8 +1820,6 @@ define([
             rows: 50,
         });
     });
-
-
 
     QUnit.cases.init([
         {
