@@ -290,6 +290,12 @@ ul.listbox {
                 }
             }
         }
+        input[type="checkbox"] {
+            &:focus ~ [class^="icon-"],
+            &:focus ~ [class*=" icon-"] {
+                outline: 3px solid $actionLinkColor;
+            }
+        }
     }
 
     &[class^="icon-"], &[class*=" icon-"] { // supports any TAO icon
