@@ -24,7 +24,7 @@ import dialog from 'ui/dialog';
 import checkBoxTpl from 'ui/dialog/tpl/checkbox';
 
 /**
- * Displays a confirm message
+ * Displays a confirm delete message with checkbox
  * @param {String} message - The displayed message
  * @param {Function} accept - An action called when the message is accepted
  * @param {Function} refuse - An action called when the message is refused
@@ -46,7 +46,7 @@ const defaults = {
     confirmationMessage: __('I understand that this action is permanent.')
 };
 
-export default function dialogConfirm(message, accept, refuse, options) {
+export default function dialogConfirmDelete(message, accept, refuse, options) {
     let accepted = false;
     options = _.defaults(options || {}, defaults);
     const dialogOptions = {
