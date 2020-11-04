@@ -458,7 +458,7 @@ const dialog = {
                     if (!$elt.is(':radio,:checkbox')) {
                         $elt.click();
                     } else {
-                        $elt.prop('checked', !$elt.prop('checked'));
+                        $elt.prop('checked', !$elt.prop('checked')).change();
                     }
                 }, 10)
                 );
