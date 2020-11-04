@@ -169,7 +169,7 @@ const dataTable = {
      * @property {String} [icon] Generate button icon
      * @property {Boolean} [hidden] When present, button is hidden
      * @property {Function} [action] Handler on button click
-    */
+     */
 
     /**
      * Used for generating action button from Object
@@ -177,7 +177,7 @@ const dataTable = {
      * @typedef  {{
      *  [key: Action.id & Action.icon & Action.title ]: Action.action,
      * }} ActionsObject
-     * 
+     *
      * @example
      * {
      *  actions: {
@@ -185,7 +185,7 @@ const dataTable = {
      *    remove: removeUser,
      *  }
      * }
-     * 
+     *
      * ! IMPORTANT USE INSTEAD:
      * {
      *   actions: [
@@ -234,6 +234,7 @@ const dataTable = {
      * @param {String} options.emptyText - text that will be shown when no data found for showing in the grid.
      * @param {Boolean} options.pageSizeSelector - flag that indicates if control for changing page size should be displayed
      * @param {Boolean} options.atomicUpdate - allowed to keep the datatable state to be able on "render" event, compare with new state and atomically update the table cells.
+     * @param {Function} options.requestInterceptor - Intercept sending AJAX request. The call of function must returns promise with provided data.
      * @param {Object} [data] - inject predefined data to avoid the first query.
      * @fires dataTable#create.datatable
      * @returns {jQueryElement} for chaining
@@ -338,6 +339,18 @@ const dataTable = {
         // display the loading state
         if (options.status) {
             $elt.find('.loading').removeClass(hiddenCls);
+        }
+
+        if (typeof options.requestInterceptor === 'function') {
+            Promise.resolve(options.requestInterceptor(parameters))
+                .then(data => {
+                    self._render($elt, data);
+                })
+                .catch(error => {
+                    $elt.trigger('error.' + ns, [error]);
+                    self._render($elt, {});
+                });
+            return;
         }
 
         $.ajax(ajaxConfig)
