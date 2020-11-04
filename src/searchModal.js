@@ -316,7 +316,7 @@ export default function searchModalFactory(config) {
         const $searchInputValue = $searchInput.val().trim();
         const classFilterUri = $classFilterInput.data('uri').trim();
 
-        let query = `parents: ${classFilterUri} AND ${$searchInputValue}`;
+        let query = `parent_classes: ${classFilterUri} AND ${$searchInputValue}`;
         query += advancedSearch.getAdvancedCriteriaQuery();
 
         return query;
