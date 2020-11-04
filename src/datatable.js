@@ -169,7 +169,7 @@ const dataTable = {
      * @property {String} [icon] Generate button icon
      * @property {Boolean} [hidden] When present, button is hidden
      * @property {Function} [action] Handler on button click
-    */
+     */
 
     /**
      * Used for generating action button from Object
@@ -177,7 +177,7 @@ const dataTable = {
      * @typedef  {{
      *  [key: Action.id & Action.icon & Action.title ]: Action.action,
      * }} ActionsObject
-     * 
+     *
      * @example
      * {
      *  actions: {
@@ -185,7 +185,7 @@ const dataTable = {
      *    remove: removeUser,
      *  }
      * }
-     * 
+     *
      * ! IMPORTANT USE INSTEAD:
      * {
      *   actions: [
@@ -330,13 +330,16 @@ const dataTable = {
         // disable pagination to not press multiple on it
         disablePagination($elt.paginations);
 
-        if (options.requestInterceptor){
-            options.requestInterceptor(parameters).then((data)=>{
-                self._render($elt, data);
-            }).catch((error)=> {
-                $elt.trigger('error.' + ns, [error]);
-                self._render($elt, {});
-            })
+        if (typeof options.requestInterceptor === 'function') {
+            options
+                .requestInterceptor(parameters)
+                .then(data => {
+                    self._render($elt, data);
+                })
+                .catch(error => {
+                    $elt.trigger('error.' + ns, [error]);
+                    self._render($elt, {});
+                });
             return;
         }
 
