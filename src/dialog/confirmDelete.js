@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2015 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2020 (original work) Open Assessment Technologies SA ;
  */
 /**
  * @author Hanna Dzmitryieva <hanna@taotesting.com>
@@ -36,21 +36,20 @@ import checkBoxTpl from 'ui/dialog/tpl/checkbox';
  * @param {String} options.buttons.labels.cancel - "Cancel" button label
  * @returns {dialog} - Returns the dialog instance
  */
+const defaults = {
+    buttons: {
+        labels: {
+            delete: __('Delete'),
+            cancel: __('Cancel')
+        }
+    },
+    confirmationMessage: __('I understand that this action is permanent.')
+};
+
 export default function dialogConfirm(message, accept, refuse, options) {
-    var accepted = false;
-    var _options = {
-        buttons: {
-            labels: {
-                delete: __('Delete'),
-                cancel: __('Cancel')
-            }
-        },
-        confirmationMessage: __('I understand that this action is permanent.')
-    };
-    var dialogOptions;
-    var dlg;
-    options = _.defaults(options || {}, _options);
-    dialogOptions = {
+    let accepted = false;
+    options = _.defaults(options || {}, defaults);
+    const dialogOptions = {
         message: message,
         content: checkBoxTpl({id: 'confirm', checked: false, text: options.confirmationMessage}),
         autoRender: true,
@@ -65,18 +64,18 @@ export default function dialogConfirm(message, accept, refuse, options) {
             delete: {
                 id: 'delete',
                 type: 'info',
-                label: options.buttons.labels.delete || _options.buttons.labels.delete,
+                label: options.buttons.labels.delete || defaults.buttons.labels.delete,
                 close: true
             },
             cancel: {
                 id: 'cancel',
                 type: 'regular',
-                label: options.buttons.labels.cancel || _options.buttons.labels.cancel,
+                label: options.buttons.labels.cancel || defaults.buttons.labels.cancel,
                 close: true
             }
         }
     };
-    dlg = dialog(dialogOptions);
+    const dlg = dialog(dialogOptions);
 
     const $html = dlg.getDom();
     const $deleteButton = $html.find('[data-control="delete"]');
