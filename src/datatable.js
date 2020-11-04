@@ -342,8 +342,7 @@ const dataTable = {
         }
 
         if (typeof options.requestInterceptor === 'function') {
-            options
-                .requestInterceptor(parameters)
+            Promise.resolve(options.requestInterceptor(parameters))
                 .then(data => {
                     self._render($elt, data);
                 })
