@@ -222,13 +222,16 @@ define([
 
     QUnit.test('Option requestInterceptor', function(assert){
         const $container = $('#container-1');
+        const done = assert.async();
 
         $.mockjax(function() {
             assert.ok(false, 'AJAX request must be intercepted');
+            done();
         });
 
         $container.on('load.datatable', function() {
             assert.verifySteps(['intercept'])
+            done();
         });
 
         $container.datatable({
