@@ -51,7 +51,7 @@ export default function dialogConfirm(message, accept, refuse, options) {
     options = _.defaults(options || {}, defaults);
     const dialogOptions = {
         message: message,
-        content: checkBoxTpl({id: 'confirm', checked: false, text: options.confirmationMessage}),
+        content: checkBoxTpl({ id: 'confirm', checked: false, text: options.confirmationMessage }),
         autoRender: true,
         autoDestroy: true,
         onDeleteBtn: function() {
