@@ -330,6 +330,17 @@ const dataTable = {
         // disable pagination to not press multiple on it
         disablePagination($elt.paginations);
 
+        /**
+         * @event dataTable#query.datatable
+         * @param {Object} ajaxConfig - The config object used to setup the AJAX request
+         */
+        $elt.trigger('query.' + ns, [ajaxConfig]);
+
+        // display the loading state
+        if (options.status) {
+            $elt.find('.loading').removeClass(hiddenCls);
+        }
+
         if (typeof options.requestInterceptor === 'function') {
             options
                 .requestInterceptor(parameters)
@@ -341,17 +352,6 @@ const dataTable = {
                     self._render($elt, {});
                 });
             return;
-        }
-
-        /**
-         * @event dataTable#query.datatable
-         * @param {Object} ajaxConfig - The config object used to setup the AJAX request
-         */
-        $elt.trigger('query.' + ns, [ajaxConfig]);
-
-        // display the loading state
-        if (options.status) {
-            $elt.find('.loading').removeClass(hiddenCls);
         }
 
         $.ajax(ajaxConfig)
