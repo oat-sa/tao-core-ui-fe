@@ -112,8 +112,10 @@ export default function advancedSearchFactory(config) {
         .setTemplate(advancedSearchTpl)
         .on('render', () => {
             initUiSelectors();
-            initAddCriteriaSelector();
-            initCriteriaState();
+            initAddCriteriaSelector().then(() => {
+                initCriteriaState();
+                instance.trigger('ready');
+            });
         });
 
     /**

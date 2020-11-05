@@ -98,12 +98,20 @@ define([
     });
 
     QUnit.module('advanced search logic');
-    QUnit.test('advancedSearch criteria manipulation', function (assert) {
+    QUnit. QUnit.cases.init([
+        { enabled: true },
+        { enabled: false }
+    ]).test('advancedSearch criteria manipulation', function (data, assert) {
         const instance = searchModalFactory({
             criterias: { search: 'example' },
             url: '/test/searchModal/mocks/with-occurrences/search.json',
             renderTo: '#testable-container',
             rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
+        });
+        $.mockjax({
+            url: new RegExp(/\/*/),
+            dataType: 'json',
+            responseText: data.enabled
         });
         const ready = assert.async();
         assert.expect(14);
@@ -111,12 +119,13 @@ define([
         instance.on('criteriaListUpdated', function () {
             const $container = $('.advanced-search-container');
             const $criteriaContainer = $container.find('.advanced-criteria-container');
+            const $addCriteria = $('.add-criteria-container', $container);
             const $addCriteriaInput = $('.add-criteria-container a', $container);
             const $criteriaSelect = $('.add-criteria-container select', $container);
             let $optionToSelect = $criteriaSelect.find('option[value="in-both-text"]');
 
             // check initial state
-            assert.equal($criteriaSelect.select2('opened'), false, 'critera select is initially closed');
+            assert.equal(!$addCriteria.hasClass('disabled'), data.enabled, 'critera select is initially disabled');
             assert.equal($optionToSelect.length, 1, 'criterion to select is initially on select options');
 
             // select a criterion
@@ -160,6 +169,14 @@ define([
                 instance.destroy();
                 ready();
                 $.mockjax.handler(1).responseText = mocks.mockedAdvancedCriteria;
+            });
+
+            instance.off('ready').on('ready', function () {
+                if (data.enabled) {
+                    assert.equal(!$addCriteria.hasClass('disabled'), data.enabled, 'critera select is enabled because status is enabled');
+                    return;
+                }
+                assert.equal($addCriteria.hasClass('disabled'), data.enabled, 'critera select is disabled because status is disabled');
             });
         });
     });
