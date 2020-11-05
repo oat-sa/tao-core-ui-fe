@@ -24,6 +24,9 @@ define([
     'json!test/ui/searchModal/mocks/mocks.json',
     'jquery.mockjax'
 ], function ($, _, searchModalFactory, advancedSearchFactory, store, mocks) {
+
+    // Prevent the AJAX mocks to pollute the logs
+    $.mockjaxSettings.logger = null;
     $.mockjaxSettings.responseTime = 1;
     $.mockjax({
         url: 'undefined/tao/RestResource/getAll',
