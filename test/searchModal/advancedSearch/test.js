@@ -35,6 +35,16 @@ define([
         dataType: 'json',
         responseText: mocks.mockedAdvancedCriteria
     });
+    $.mockjax({
+        url: 'undefined/tao/AdvancedSearch/status',
+        dataType: 'json',
+        responseText: {
+            success: true,
+            data: {
+                enabled: true
+            }
+        }
+    });
     QUnit.module('advancedSearch');
     QUnit.test('module', function (assert) {
         assert.expect(1);
@@ -99,8 +109,16 @@ define([
 
     QUnit.module('advanced search logic');
     QUnit.cases.init([
-        { enabled: true },
-        { enabled: false }
+        {
+            response: {
+                enabled: true
+            },
+        },
+        {
+            response: {
+                enabled: false
+            },
+        }
     ]).test('advancedSearch criteria manipulation', function (data, assert) {
         const instance = searchModalFactory({
             criterias: { search: 'example' },
@@ -108,13 +126,18 @@ define([
             renderTo: '#testable-container',
             rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
         });
-        $.mockjax({
-            url: new RegExp(/\/*/),
-            dataType: 'json',
-            responseText: data.enabled
-        });
+
         const ready = assert.async();
-        assert.expect(14);
+        assert.expect(13);
+
+        $.mockjax({
+            url: 'undefined/tao/AdvancedSearch/status',
+            dataType: 'json',
+            responseText: {
+                success: true,
+                data: data.response
+            }
+        });
 
         instance.on('criteriaListUpdated', function () {
             const $container = $('.advanced-search-container');
@@ -125,7 +148,6 @@ define([
             let $optionToSelect = $criteriaSelect.find('option[value="in-both-text"]');
 
             // check initial state
-            assert.equal(!$addCriteria.hasClass('disabled'), data.enabled, 'critera select is initially disabled');
             assert.equal($optionToSelect.length, 1, 'criterion to select is initially on select options');
 
             // select a criterion
