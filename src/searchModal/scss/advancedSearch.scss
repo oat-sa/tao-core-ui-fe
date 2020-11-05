@@ -21,6 +21,9 @@ $invalidCriteriaBorder: #266d9c;
             left: 0;
             width: 70%;
         }
+        &.disabled {
+            display: none;
+        }
     }
     .advanced-criteria-container {
         padding-top: 16px;
