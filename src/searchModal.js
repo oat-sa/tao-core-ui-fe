@@ -176,11 +176,13 @@ export default function searchModalFactory(config) {
                 }
                 const classUri = _.map(selectedValue, 'classUri')[0];
                 const label = _.map(selectedValue, 'label')[0];
+                const uri = _.map(selectedValue, 'uri')[0];
                 const route = urlUtil.route('get', 'ClassMetadata', 'tao', {
                     classUri,
                     maxListSize: instance.config.maxListSize
                 });
                 $classFilterInput.val(label);
+                $classFilterInput.data('uri', uri);
                 $classTreeContainer.hide();
                 advancedSearch
                     .updateCriteria(route)
@@ -317,9 +319,9 @@ export default function searchModalFactory(config) {
      */
     function buildComplexQuery() {
         const $searchInputValue = $searchInput.val().trim();
-        const classFilterValue = $classFilterInput.val().trim();
+        const classFilterUri = $classFilterInput.data('uri').trim();
 
-        let query = `class:${classFilterValue} AND ${$searchInputValue}`;
+        let query = `parent_classes: ${classFilterUri} AND ${$searchInputValue}`;
         query += advancedSearch.getAdvancedCriteriaQuery();
 
         return query;
