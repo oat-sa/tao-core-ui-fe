@@ -137,7 +137,7 @@ export default function advancedSearchFactory(config) {
      */
     function initAddCriteriaSelector() {
         const route = urlUtil.route('status', 'AdvancedSearch', 'tao');
-        request(route).then(function (response) {
+        return request(route).then(function (response) {
             if (!response.enabled) {
                 return;
             }
