@@ -137,7 +137,6 @@ export default function advancedSearchFactory(config) {
         const route = urlUtil.route('status', 'AdvancedSearch', 'tao');
         request(route).then(function (response) {
             if (!response.enabled) {
-                $addCriteria.addClass('disabled');
                 return;
             }
             $addCriteria.removeClass('disabled');
