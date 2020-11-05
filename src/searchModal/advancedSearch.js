@@ -115,7 +115,7 @@ export default function advancedSearchFactory(config) {
             initAddCriteriaSelector().then(() => {
                 initCriteriaState();
                 instance.trigger('ready');
-            });
+            }).catch(e => instance.trigger('error', e));
         });
 
     /**
