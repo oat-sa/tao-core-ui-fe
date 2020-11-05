@@ -98,7 +98,7 @@ define([
     });
 
     QUnit.module('advanced search logic');
-    QUnit. QUnit.cases.init([
+    QUnit.cases.init([
         { enabled: true },
         { enabled: false }
     ]).test('advancedSearch criteria manipulation', function (data, assert) {
