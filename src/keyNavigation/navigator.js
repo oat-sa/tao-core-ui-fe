@@ -152,9 +152,11 @@ export default function keyNavigatorFactory(config) {
                         $group.removeClass('focusin');
                     }
                 });
-                focusOutObserver.observe($group.get(0), {
-                    childList: true,
-                    subtree: true
+                $group.each(index => {
+                    focusOutObserver.observe($group.get(index), {
+                      childList: true,
+                      subtree: true
+                    });
                 });
             }
 
