@@ -290,7 +290,7 @@ export default function advancedSearchFactory(config) {
     }
 
     /**
-     * Sets intial value for rendered criterion and sets binding between view and state
+     * Sets initial value for rendered criterion and sets binding between view and state
      * @param {object} criterion - criterion to be managed
      * @param {object} $criterionContainer - rendered criterion
      */
