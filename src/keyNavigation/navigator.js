@@ -154,8 +154,8 @@ export default function keyNavigatorFactory(config) {
                 });
                 $group.each(index => {
                     focusOutObserver.observe($group.get(index), {
-                      childList: true,
-                      subtree: true
+                        childList: true,
+                        subtree: true
                     });
                 });
             }
