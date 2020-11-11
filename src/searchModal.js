@@ -291,6 +291,7 @@ export default function searchModalFactory(config) {
 
         // build complex query
         const query = buildComplexQuery();
+        const classFilterUri = $classFilterInput.data('uri').trim();
 
         //throttle and control to prevent sending too many requests
         const searchHandler = _.throttle(query => {
@@ -299,7 +300,7 @@ export default function searchModalFactory(config) {
                 $.ajax({
                     url: instance.config.url,
                     type: 'POST',
-                    data: { query: query },
+                    data: { query: query, rootNode: classFilterUri },
                     dataType: 'json'
                 })
                     .done(data => {
@@ -319,9 +320,8 @@ export default function searchModalFactory(config) {
      */
     function buildComplexQuery() {
         const $searchInputValue = $searchInput.val().trim();
-        const classFilterUri = $classFilterInput.data('uri').trim();
 
-        let query = `parent_classes: ${classFilterUri} AND ${$searchInputValue}`;
+        let query = $searchInputValue;
         query += advancedSearch.getAdvancedCriteriaQuery();
 
         return query;
