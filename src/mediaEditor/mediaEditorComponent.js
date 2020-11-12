@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2018  (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2020  (original work) Open Assessment Technologies SA;
  *
  * @author Oleksander Zagovorychev <zagovorichev@gmail.com>
  */
@@ -32,6 +32,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 import component from 'ui/component';
 import mediaDimensionComponent from 'ui/mediaEditor/plugins/mediaDimension/mediaDimensionComponent';
+import mediaAlignmentComponent from 'ui/mediaEditor/plugins/mediaAlignment/mediaAlignmentComponent';
 import tpl from 'ui/mediaEditor/tpl/editor';
 
 /**
@@ -59,6 +60,9 @@ import tpl from 'ui/mediaEditor/tpl/editor';
  */
 var defaultConfig = {
     mediaDimension: {
+        active: false
+    },
+    mediaAlignment: {
         active: false
     }
 };
@@ -96,9 +100,11 @@ export default function mediaEditorFactory($container, media, config) {
         .on('render', function() {
             var self = this;
             var $dimensionTools = $('.media-dimension', this.getTemplate());
-            var plugin;
+            var $alignmentTools = $('.media-align', this.getTemplate());
+            var dimensionPlugin;
+            var alignmentPlugin;
             if (this.getConfig().mediaDimension.active) {
-                plugin = mediaDimensionComponent($dimensionTools, media, { responsive: media.responsive }).on(
+                dimensionPlugin = mediaDimensionComponent($dimensionTools, media, { responsive: media.responsive }).on(
                     'change',
                     function(conf) {
                         media.responsive = conf.responsive;
@@ -114,8 +120,26 @@ export default function mediaEditorFactory($container, media, config) {
                         self.trigger('change', media);
                     }
                 );
+                plugins.push(dimensionPlugin);
+            }
+            if (this.getConfig().mediaAlignment.active) {
+                alignmentPlugin = mediaAlignmentComponent($alignmentTools, media).on(
+                    'change',
+                    function(conf) {
+                        media.responsive = conf.responsive;
+                        if (conf.responsive) {
+                            // percent
+                            media.width = conf.sizeProps['%'].current.width;
+                            media.height = null;
+                        } else {
+                            media.width = conf.sizeProps.px.current.width;
+                            media.height = conf.sizeProps.px.current.height;
+                        }
 
-                plugins.push(plugin);
+                        self.trigger('change', media);
+                    }
+                );
+                plugins.push(alignmentPlugin);
             }
         })
         .on('destroy', function() {
