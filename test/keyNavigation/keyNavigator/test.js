@@ -930,6 +930,34 @@ define([
         assert.ok(!keyNavigator.isFocused(), 'the navigator is now blurred');
     });
 
+    QUnit.test('isFocused when nav is deleted', function (assert) {
+        var ready = assert.async();
+        var keyNavigator;
+        var $container = $('#qunit-fixture .nav-4');
+        var $elements = $container.find('.nav');
+        var elements = navigableDomElement.createFromDoms($elements);
+
+        assert.expect(2);
+
+        keyNavigator = keyNavigatorFactory({elements: elements, group: $container});
+        keyNavigator.focus();
+
+        new Promise(function(resolve) {
+            setTimeout(resolve, testDelay);
+        })
+        .then(function() {
+            return new Promise(function(resolve) {
+                assert.ok($container.hasClass('focusin'), 'container has focusin class');
+                $elements.remove();
+                setTimeout(resolve, testDelay);
+            });
+        })
+        .then(function () {
+            assert.ok(!$container.hasClass('focusin'), 'container has no focusin class anymore');
+            ready();
+        });
+    });
+
     QUnit.test('loop', function (assert) {
         var ready = assert.async();
         var keyNavigator;
