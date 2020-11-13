@@ -126,16 +126,7 @@ export default function mediaEditorFactory($container, media, config) {
                 alignmentPlugin = mediaAlignmentComponent($alignmentTools, media).on(
                     'change',
                     function(conf) {
-                        media.responsive = conf.responsive;
-                        if (conf.responsive) {
-                            // percent
-                            media.width = conf.sizeProps['%'].current.width;
-                            media.height = null;
-                        } else {
-                            media.width = conf.sizeProps.px.current.width;
-                            media.height = conf.sizeProps.px.current.height;
-                        }
-
+                        console.log('conf', conf);
                         self.trigger('change', media);
                     }
                 );

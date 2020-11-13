@@ -24,6 +24,7 @@
 import $ from 'jquery';
 import _ from 'lodash';
 import component from 'ui/component';
+import { initAlign } from 'ui/mediaEditor/plugins/mediaAlignment/helper';
 import tpl from 'ui/mediaEditor/plugins/mediaAlignment/tpl/mediaAlignment';
 import 'ui/mediaEditor/plugins/mediaAlignment/style.css';
 
@@ -67,8 +68,7 @@ export default function mediaAlignmentFactory($container, media, config) {
              * Init the component to the initial state
              */
             init: function init() {
-
-                // trigger event
+                initAlign(media.$node);
                 this.trigger('init');
                 return this;
             },
@@ -76,8 +76,7 @@ export default function mediaAlignmentFactory($container, media, config) {
              * Apply configurations to the view
              */
             update: function update() {
-
-                // trigger event
+                // initAlign(media);
                 this.trigger('change');
             }
         }
@@ -92,7 +91,7 @@ export default function mediaAlignmentFactory($container, media, config) {
 
             $template.appendTo(this.getContainer());
 
-            mediaAlignmentComponent.update();
+            // mediaAlignmentComponent.update();
         })
         .on('destroy', function() {
             $template.remove();
