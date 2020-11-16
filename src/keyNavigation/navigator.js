@@ -76,6 +76,7 @@ export default function keyNavigatorFactory(config) {
 
     const navigableElements = navigatorConfig.elements || [];
     let lastPosition = -1;
+    let focusOutObserver;
 
     /**
      * Checks if the navigable element is available
@@ -145,6 +146,18 @@ export default function keyNavigatorFactory(config) {
                             $group.removeClass('focusin');
                         }
                     });
+                
+                focusOutObserver = new MutationObserver(() => {
+                    if (!this.isVisible() && $group.hasClass('focusin')) {
+                        $group.removeClass('focusin');
+                    }
+                });
+                $group.each(index => {
+                    focusOutObserver.observe($group.get(index), {
+                        childList: true,
+                        subtree: true
+                    });
+                });
             }
 
             navigableElements.forEach(navigable => {
@@ -182,6 +195,10 @@ export default function keyNavigatorFactory(config) {
                 $group
                     .off(`.${this.getId()}`)
                     .removeClass('focusin');
+            }
+
+            if (focusOutObserver) {
+                focusOutObserver.disconnect();
             }
 
             navigableElements.forEach(navigable => {
