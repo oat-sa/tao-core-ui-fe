@@ -47,6 +47,17 @@ export default function(options) {
     var className = options.className;
     var containerSelector = options.containerSelector;
 
+    // TODO: Get from config colors and currently active color @dresha
+    // options.colors = {
+    const colors = {
+            ocher: 'txt-user-highlight-ocher',
+            pink: 'txt-user-highlight-pink',
+            blue: 'txt-user-highlight-blue'
+        }
+    
+    className = colors.ocher;
+    const highlightingClasses = Object.values(colors);
+    
     /**
      * list of node selectors which should NOT receive any highlighting from this instance
      * an optional passed-in blacklist is merged with local defaults
@@ -104,8 +115,17 @@ export default function(options) {
                 ) {
                     range.surroundContents(getWrapper(currentGroupId));
 
+                    
+                } else if(
+                    isWrappable(range.commonAncestorContainer) &&
+                    isWrappingNode(range.commonAncestorContainer.parentNode) &&
+                    range.commonAncestorContainer.parentNode !== className
+                    ){
+                    console.log(`🎩 IT'S TIME FOR BLACK MAGIC!!!`);
+                    doMagic(range.commonAncestorContainer, className, range, currentGroupId)
+                
                     // now the fun stuff: highlighting a mix of text and DOM nodes
-                } else {
+                } else {    
                     rangeInfos = {
                         startNode: isElement(range.startContainer)
                             ? range.startContainer.childNodes[range.startOffset]
@@ -183,32 +203,50 @@ export default function(options) {
             }
             currentNode = childNodes[i];
 
-            // split current node in case the wrapping start/ends on a partially selected text node
-            if (currentNode.isSameNode(rangeInfos.startNode)) {
-                if (isText(rangeInfos.startNodeContainer) && rangeInfos.startOffset !== 0) {
-                    // we defer the wrapping to the next iteration of the loop
-                    rangeInfos.startNode = currentNode.splitText(rangeInfos.startOffset);
-                    rangeInfos.startOffset = 0;
-                } else {
-                    isWrapping = true;
+            const isCurrentNodeTextInsideOfAnotherHighlightingWrapper = isText(currentNode) && isWrappingNode(currentNode.parentNode) && currentNode.parentNode.className !== className;
+
+            if (isCurrentNodeTextInsideOfAnotherHighlightingWrapper) {
+                const internalRange = new Range();
+                internalRange.selectNodeContents(currentNode);
+
+                if (rangeInfos.startNode === currentNode) {
+                    internalRange.setStart(currentNode, rangeInfos.startOffset);
                 }
-            }
 
-            if (currentNode.isSameNode(rangeInfos.endNode) && isText(rangeInfos.endNodeContainer)) {
-                if (rangeInfos.endOffset !== 0) {
-                    currentNode.splitText(rangeInfos.endOffset);
-                } else {
-                    isWrapping = false;
+                if (rangeInfos.endNode === currentNode) {
+                    internalRange.setEnd(currentNode, rangeInfos.endOffset);
                 }
-            }
 
-            // wrap the current node...
-            if (isText(currentNode)) {
-                wrapTextNode(currentNode, currentGroupId);
+                doMagic(currentNode, className, internalRange, currentGroupId);
+                isWrapping = true;
+            } else {
+                // split current node in case the wrapping start/ends on a partially selected text node
+                if (currentNode.isSameNode(rangeInfos.startNode)) {
+                    if (isText(rangeInfos.startNodeContainer) && rangeInfos.startOffset !== 0) {
+                        // we defer the wrapping to the next iteration of the loop
+                        rangeInfos.startNode = currentNode.splitText(rangeInfos.startOffset);
+                        rangeInfos.startOffset = 0;
+                    } else {
+                        isWrapping = true;
+                    }
+                }
 
-                // ... or continue deeper in the node tree
-            } else if (isElement(currentNode)) {
-                wrapTextNodesInRange(currentNode, rangeInfos);
+                if (currentNode.isSameNode(rangeInfos.endNode) && isText(rangeInfos.endNodeContainer)) {
+                    if (rangeInfos.endOffset !== 0) {
+                        currentNode.splitText(rangeInfos.endOffset);
+                    } else {
+                        isWrapping = false;
+                    }
+                }
+
+                // wrap the current node...
+                if (isText(currentNode)) {
+                    wrapTextNode(currentNode, currentGroupId);
+
+                    // ... or continue deeper in the node tree
+                } else if (isElement(currentNode)) {
+                    wrapTextNodesInRange(currentNode, rangeInfos);
+                }
             }
 
             // end wrapping ?
@@ -218,6 +256,79 @@ export default function(options) {
                 break;
             }
         }
+    }
+
+    // TODO: Clean up and rename @dresha
+    function doMagic(textNode, activeClass, selectedRange, currentGroupId) {
+        // TODO: Replace with existing wrapper creator @dresha
+        const wrap = (textNode, className, groupId) => {
+            const element = document.createElement('span');
+        
+            element.className = className;
+            element.setAttribute(GROUP_ATTR, `${groupId}`);
+            element.appendChild(textNode)
+            return element;
+        }
+
+         const container = textNode.parentNode;
+         const containerClass = container.className;
+           
+         const range = new Range();
+         range.selectNodeContents(textNode);
+         
+         const isSelectionCoversNodeStart = range.compareBoundaryPoints(Range.START_TO_START, selectedRange) === 0;
+         const isSelectionCoversNodeEnd = range.compareBoundaryPoints(Range.END_TO_END, selectedRange) === 0;
+         
+         if (isSelectionCoversNodeStart && isSelectionCoversNodeEnd){
+           // Apply another highlighting color to the content
+           textNode.parentNode.className = activeClass;
+         } else if (isSelectionCoversNodeStart) {
+           // Breaks the Text node into two nodes.
+           // Wrap 1st node into active color, 2nd to the current color
+           textNode.splitText(selectedRange.endOffset)
+           const fragment = new DocumentFragment();
+         
+           container.childNodes.forEach((node, index) => {
+             if (index === 0) {
+                fragment.appendChild(wrap(node.cloneNode(), activeClass, currentGroupId));
+             } else {
+                fragment.appendChild(wrap(node.cloneNode(), containerClass, currentGroupId));
+             }
+           });
+         
+           container.replaceWith(fragment);
+           
+         } else if (isSelectionCoversNodeEnd) {
+           // Breaks the Text node into two nodes.
+           // Wrap 1nd to the current color, 2st node into active color
+           textNode.splitText(selectedRange.startOffset);
+           const fragment = new DocumentFragment();
+         
+           container.childNodes.forEach((node, index) => {
+             if (index === 1) {
+                fragment.appendChild(wrap(node.cloneNode(), activeClass));
+             } else {
+                fragment.appendChild(wrap(node.cloneNode(), containerClass));
+             }
+           });
+         
+           container.replaceWith(fragment);
+         } else {
+           // Wrap the part of the Text
+           textNode.splitText(selectedRange.startOffset).splitText(selectedRange.endOffset);
+           
+           const fragment = new DocumentFragment();
+         
+           container.childNodes.forEach((node, index) => {
+             if (index === 1) {
+                fragment.appendChild(wrap(node.cloneNode(), activeClass));
+             } else {
+                fragment.appendChild(wrap(node.cloneNode(), containerClass));
+             }
+           });
+         
+           container.replaceWith(fragment);
+         }
     }
 
     /**
@@ -274,7 +385,7 @@ export default function(options) {
             currentNode = childNodes[i];
 
             if (isWrappingNode(currentNode)) {
-                while (isWrappingNode(currentNode.nextSibling)) {
+                while (isWrappingNode(currentNode.nextSibling) && currentNode.className === currentNode.nextSibling.className) {
                     currentNode.firstChild.textContent += currentNode.nextSibling.firstChild.textContent;
                     currentNode.parentNode.removeChild(currentNode.nextSibling);
                 }
@@ -471,6 +582,24 @@ export default function(options) {
     }
 
     /**
+     * Set highlighter color
+     * @param {string} color Active highlighter color
+     */
+    const setActiveColor = (color) => {
+        if(colors[color]) {
+            className = colors[color];
+        }
+    }
+
+    /**
+     * Returns currently active highlighted class
+     * @returns {string}
+     */
+    const getActiveColor = () => {
+        return activeColor;
+    }
+
+    /**
      * Helpers
      */
 
@@ -480,7 +609,7 @@ export default function(options) {
      * @returns {boolean}
      */
     function isWrappingNode(node) {
-        return isElement(node) && node.tagName.toLowerCase() === 'span' && node.className === className;
+        return isElement(node) && node.tagName.toLowerCase() === 'span' && highlightingClasses.includes(node.className);
     }
 
     /**
@@ -561,6 +690,8 @@ export default function(options) {
         highlightFromIndex: highlightFromIndex,
         getHighlightIndex: getHighlightIndex,
         clearHighlights: clearHighlights,
-        clearSingleHighlight: clearSingleHighlight
+        clearSingleHighlight: clearSingleHighlight,
+        setActiveColor,
+        getActiveColor
     };
 }
