@@ -270,7 +270,6 @@ export default function(options) {
     // TODO: Clean up and rename @dresha
     function doMagic(textNode, activeClass, selectedRange, currentGroupId) {
          const container = textNode.parentNode;
-         const containerClass = container.className;
            
          const range = new Range();
          range.selectNodeContents(textNode);
@@ -285,49 +284,40 @@ export default function(options) {
            // Breaks the Text node into two nodes.
            // Wrap 1st node into active color, 2nd to the current color
            textNode.splitText(selectedRange.endOffset)
-           const fragment = new DocumentFragment();
-         
-           container.childNodes.forEach((node, index) => {
-             if (index === 0) {
-                fragment.appendChild(wrap(node.cloneNode(), activeClass, currentGroupId));
-             } else {
-                fragment.appendChild(wrap(node.cloneNode(), containerClass, currentGroupId));
-             }
-           });
-         
-           container.replaceWith(fragment);
-           
+           wrapContainerChildNodes(container, 0, activeClass, currentGroupId);
          } else if (isSelectionCoversNodeEnd) {
            // Breaks the Text node into two nodes.
            // Wrap 1nd to the current color, 2st node into active color
            textNode.splitText(selectedRange.startOffset);
-           const fragment = new DocumentFragment();
-         
-           container.childNodes.forEach((node, index) => {
-             if (index === 1) {
-                fragment.appendChild(wrap(node.cloneNode(), activeClass, currentGroupId));
-             } else {
-                fragment.appendChild(wrap(node.cloneNode(), containerClass, currentGroupId));
-             }
-           });
-         
-           container.replaceWith(fragment);
+           wrapContainerChildNodes(container, 1, activeClass, currentGroupId);
          } else {
            // Wrap the part of the Text
            textNode.splitText(selectedRange.startOffset).splitText(selectedRange.endOffset);
-           
-           const fragment = new DocumentFragment();
-         
-           container.childNodes.forEach((node, index) => {
-             if (index === 1) {
-                fragment.appendChild(wrap(node.cloneNode(), activeClass, currentGroupId));
-             } else {
-                fragment.appendChild(wrap(node.cloneNode(), containerClass, currentGroupId));
-             }
-           });
-         
-           container.replaceWith(fragment);
+           wrapContainerChildNodes(container, 1, activeClass, currentGroupId);
          }
+    }
+
+    /**
+     * Wraps all containers text nodes with highlighter element.
+     * The child node with index given by indexToWrapNode parameter will be wrap with class given by activeClass parameter
+     * @param {Element} container 
+     * @param {number} indexToWrapNode 
+     * @param {string} activeClass 
+     * @param {number} currentGroupId 
+     */
+    function wrapContainerChildNodes(container, indexToWrapNode, activeClass, currentGroupId) {
+        const containerClass = container.className;
+        const fragment = new DocumentFragment();
+         
+        container.childNodes.forEach((node, index) => {
+            if (index === indexToWrapNode) {
+                fragment.appendChild(wrap(node.cloneNode(), activeClass, currentGroupId));
+            } else {
+                fragment.appendChild(wrap(node.cloneNode(), containerClass, currentGroupId));
+            }
+        });
+        
+        container.replaceWith(fragment);
     }
 
     /**
