@@ -280,24 +280,70 @@ export default function(options) {
          const isSelectionCoversNodeStart = range.compareBoundaryPoints(Range.START_TO_START, selectedRange) === 0;
          const isSelectionCoversNodeEnd = range.compareBoundaryPoints(Range.END_TO_END, selectedRange) === 0;
          
-         if (isSelectionCoversNodeStart && isSelectionCoversNodeEnd){
-           // Apply another highlighting color to the content
+        /*
+        There are 4 possible cases selected area is intersected with already highlighted element.
+        In examples below the border is represents the selection, "yellow" is class name of already highlighted 
+        container, "red" is class name of currently active highlighter
+        **********************************************************************************************************
+        1. The container content is completely selected, so that we only have to change the highlighter class name
+        
+        Input:
+         __________________________________________________
+        |                                                  |
+        |<span class="yellow"> Lorem ipsum dolor sit</span>| 
+        |__________________________________________________|
+
+        Output:
+         <span class="red"> Lorem ipsum dolor sit</span>
+
+        **********************************************************************************************************
+        2. The container content is partially selected from the begging.
+
+        Input:                                                     
+         ______________________________
+        |                              |
+        |<span class="yellow"> Lorem ip|sum dolor sit</span>
+        |______________________________|
+
+        Output:
+        <span class="red"> Lorem ip</span><span class="yellow">sum dolor sit</span>
+
+        **********************************************************************************************************
+        3. The container content is partially selected at the end.
+
+        Input:                                                     
+                                       ____________________
+                                      |                    |
+        <span class="yellow"> Lorem ip|sum dolor sit</span>|
+                                      |____________________|
+
+        Output:
+        <span class="yellow"> Lorem ip</span><span class="red">sum dolor sit</span>
+
+        **********************************************************************************************************
+        4. The container content is partially selected in the middle.
+
+        Input:
+                                     ___________
+                                    |           |
+        <span class="yellow"> Lorem |ipsum dolor| sit</span>
+                                    |___________|
+
+        Output:
+         <span class="yellow"> Lorem </span><span class="red">ipsum dolor</span><span class="yellow"> sit</span>
+         */
+        if (isSelectionCoversNodeStart && isSelectionCoversNodeEnd){
            textNode.parentNode.className = activeClass;
-         } else if (isSelectionCoversNodeStart) {
-           // Breaks the Text node into two nodes.
-           // Wrap 1st node into active color, 2nd to the current color
+        } else if (isSelectionCoversNodeStart) {
            textNode.splitText(selectedRange.endOffset)
            wrapContainerChildNodes(container, 0, activeClass, currentGroupId);
-         } else if (isSelectionCoversNodeEnd) {
-           // Breaks the Text node into two nodes.
-           // Wrap 1nd to the current color, 2st node into active color
+        } else if (isSelectionCoversNodeEnd) { 
            textNode.splitText(selectedRange.startOffset);
            wrapContainerChildNodes(container, 1, activeClass, currentGroupId);
-         } else {
-           // Wrap the part of the Text
+        } else {
            textNode.splitText(selectedRange.startOffset).splitText(selectedRange.endOffset);
            wrapContainerChildNodes(container, 1, activeClass, currentGroupId);
-         }
+        }
     }
 
     /**
