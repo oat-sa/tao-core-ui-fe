@@ -75,7 +75,7 @@ var defaultConfig = {
  * @param {mediaEditorConfig} config
  * @returns {component|*}
  */
-export default function mediaEditorFactory($container, media, config) {
+export default function mediaEditorFactory($container, media, config, widget) {
     /**
      * Active Plugins
      * @type {Array}
@@ -123,7 +123,7 @@ export default function mediaEditorFactory($container, media, config) {
                 plugins.push(dimensionPlugin);
             }
             if (this.getConfig().mediaAlignment.active) {
-                alignmentPlugin = mediaAlignmentComponent($alignmentTools, media).on(
+                alignmentPlugin = mediaAlignmentComponent($alignmentTools, media, widget).on(
                     'change',
                     function(conf) {
                         console.log('conf', conf);

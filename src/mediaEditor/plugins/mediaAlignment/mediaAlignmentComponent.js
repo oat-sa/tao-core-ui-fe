@@ -36,12 +36,7 @@ import 'ui/mediaEditor/plugins/mediaAlignment/style.css';
  * @fires "changed" - on State changed
  * return {component|*}
  */
-export default function mediaAlignmentFactory($container, media, config) {
-    /**
-     * Collections of the jquery elements grouped by type
-     */
-    var $blocks, $slider, $fields;
-
+export default function mediaAlignmentFactory($container, media, widget) {
     /**
      * Template of the dimension controller
      */
@@ -68,15 +63,14 @@ export default function mediaAlignmentFactory($container, media, config) {
              * Init the component to the initial state
              */
             init: function init() {
-                initAlign(media.$node);
+                initAlign(widget);
                 this.trigger('init');
-                return this;
             },
             /**
              * Apply configurations to the view
              */
             update: function update() {
-                // initAlign(media);
+                initAlign(widget);
                 this.trigger('change');
             }
         }
@@ -84,21 +78,16 @@ export default function mediaAlignmentFactory($container, media, config) {
 
     mediaAlignmentComponent
         .on('init', function() {
-            this.render($container);
-        })
-        .on('render', function() {
             $template = $(tpl());
-
-            $template.appendTo(this.getContainer());
-
-            // mediaAlignmentComponent.update();
+            $template.appendTo($container);
+            mediaAlignmentComponent.update();
         })
         .on('destroy', function() {
             $template.remove();
         });
 
     _.defer(function() {
-        mediaAlignmentComponent.init(config);
+        mediaAlignmentComponent.init();
     });
 
     return mediaAlignmentComponent;
