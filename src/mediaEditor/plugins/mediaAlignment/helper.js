@@ -47,5 +47,4 @@ export const initAlign = function initAlign (widget) {
     }
 
     positionFloat(widget, align);
-    widget.$form.find('select[name=align]').val(align);
 };
