@@ -121,7 +121,8 @@ export default function(options) {
                     isWrappingNode(range.commonAncestorContainer.parentNode) &&
                     range.commonAncestorContainer.parentNode !== className
                     ){
-                    console.log(`🎩 IT'S TIME FOR BLACK MAGIC!!!`);
+
+                    // TODO: Move to the common place @dresha
                     doMagic(range.commonAncestorContainer, className, range, currentGroupId)
                 
                     // now the fun stuff: highlighting a mix of text and DOM nodes
@@ -137,7 +138,8 @@ export default function(options) {
                             ? range.endContainer.childNodes[range.endOffset - 1]
                             : range.endContainer,
                         endNodeContainer: range.endContainer,
-                        endOffset: range.endOffset
+                        endOffset: range.endOffset, 
+                        commonRange: range
                     };
 
                     isWrapping = false;
@@ -217,8 +219,15 @@ export default function(options) {
                     internalRange.setEnd(currentNode, rangeInfos.endOffset);
                 }
 
-                doMagic(currentNode, className, internalRange, currentGroupId);
+                const isNodeInRange = rangeInfos.commonRange.isPointInRange(currentNode, internalRange.endOffset);
+                
+                // Apply new highlighting color only for selected nodes
+                if (isNodeInRange) {
+                    doMagic(currentNode, className, internalRange, currentGroupId);
+                }
+
                 isWrapping = true;
+               
             } else {
                 // split current node in case the wrapping start/ends on a partially selected text node
                 if (currentNode.isSameNode(rangeInfos.startNode)) {
@@ -275,7 +284,7 @@ export default function(options) {
            
          const range = new Range();
          range.selectNodeContents(textNode);
-         
+
          const isSelectionCoversNodeStart = range.compareBoundaryPoints(Range.START_TO_START, selectedRange) === 0;
          const isSelectionCoversNodeEnd = range.compareBoundaryPoints(Range.END_TO_END, selectedRange) === 0;
          
@@ -306,9 +315,9 @@ export default function(options) {
          
            container.childNodes.forEach((node, index) => {
              if (index === 1) {
-                fragment.appendChild(wrap(node.cloneNode(), activeClass));
+                fragment.appendChild(wrap(node.cloneNode(), activeClass, currentGroupId));
              } else {
-                fragment.appendChild(wrap(node.cloneNode(), containerClass));
+                fragment.appendChild(wrap(node.cloneNode(), containerClass, currentGroupId));
              }
            });
          
@@ -321,9 +330,9 @@ export default function(options) {
          
            container.childNodes.forEach((node, index) => {
              if (index === 1) {
-                fragment.appendChild(wrap(node.cloneNode(), activeClass));
+                fragment.appendChild(wrap(node.cloneNode(), activeClass, currentGroupId));
              } else {
-                fragment.appendChild(wrap(node.cloneNode(), containerClass));
+                fragment.appendChild(wrap(node.cloneNode(), containerClass, currentGroupId));
              }
            });
          
