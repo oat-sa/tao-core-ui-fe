@@ -381,7 +381,7 @@ export default function(options) {
     }
 
     /**
-     * We need to reindex the groups after a user highlight: either to merge groups or to resolve inconsistencies
+     * We need to re-index the groups after a user highlight: either to merge groups or to resolve inconsistencies
      * Recursive.
      *
      * @param {Node} rootNode
@@ -506,11 +506,12 @@ export default function(options) {
                 highlightIndex[textNodesIndex] = { highlighted: false };
                 textNodesIndex++;
 
-                // an isolated node (= not followed by a highlightable text) with its whole content highlighted
+                // an isolated node (= not followed by a highligh table text) with its whole content highlighted
             } else if (isWrappingNode(currentNode) && !isWrappable(currentNode.nextSibling)) {
                 highlightIndex[textNodesIndex] = {
                     highlighted: true,
-                    groupId: currentNode.getAttribute(GROUP_ATTR)
+                    groupId: currentNode.getAttribute(GROUP_ATTR),
+                    cl: currentNode.className
                 };
                 textNodesIndex++;
 
@@ -529,7 +530,8 @@ export default function(options) {
                 while (currentNode) {
                     if (isWrappingNode(currentNode)) {
                         inlineRange = {
-                            groupId: currentNode.getAttribute(GROUP_ATTR)
+                            groupId: currentNode.getAttribute(GROUP_ATTR),
+                            cl: currentNode.className
                         };
                         if (isText(currentNode.previousSibling)) {
                             inlineRange.startOffset = inlineOffset;
@@ -599,14 +601,14 @@ export default function(options) {
                             range = document.createRange();
                             range.setStart(currentNode, inlineRange.startOffset || 0);
                             range.setEnd(currentNode, inlineRange.endOffset || currentNode.textContent.length);
-                            range.surroundContents(getWrapper(inlineRange.groupId));
+                            range.surroundContents(getWrapper(inlineRange.groupId, inlineRange.cl));
                         });
 
                         // fully highlighted text node
                     } else {
                         range = document.createRange();
                         range.selectNodeContents(currentNode);
-                        range.surroundContents(getWrapper(nodeInfos.groupId));
+                        range.surroundContents(getWrapper(nodeInfos.groupId, nodeInfos.cl));
                     }
                     // we do want to loop over the nodes created by the wrapping operation
                     nodesToSkip = parent.childNodes.length - initialChildCount;
