@@ -121,9 +121,7 @@ export default function(options) {
                     isWrappingNode(range.commonAncestorContainer.parentNode) &&
                     range.commonAncestorContainer.parentNode !== className
                     ){
-
-                    // TODO: Move to the common place @dresha
-                    doMagic(range.commonAncestorContainer, className, range, currentGroupId)
+                    highlightContainerNodes(range.commonAncestorContainer, className, range, currentGroupId)
                 
                     // now the fun stuff: highlighting a mix of text and DOM nodes
                 } else {    
@@ -223,7 +221,7 @@ export default function(options) {
                 
                 // Apply new highlighting color only for selected nodes
                 if (isNodeInRange) {
-                    doMagic(currentNode, className, internalRange, currentGroupId);
+                    highlightContainerNodes(currentNode, className, internalRange, currentGroupId);
                 }
 
                 isWrapping = true;
@@ -267,10 +265,15 @@ export default function(options) {
         }
     }
 
-    // TODO: Clean up and rename @dresha
-    function doMagic(textNode, activeClass, selectedRange, currentGroupId) {
+    /**
+     * Restructure content of the highlighted wrapper according to the selectedRange
+     * @param {Node} textNode
+     * @param {string} activeClass
+     * @param {Range} selectedRange
+     * @param {number} currentGroupId
+     */
+    function highlightContainerNodes(textNode, activeClass, selectedRange, currentGroupId) {
          const container = textNode.parentNode;
-           
          const range = new Range();
          range.selectNodeContents(textNode);
 
