@@ -269,16 +269,6 @@ export default function(options) {
 
     // TODO: Clean up and rename @dresha
     function doMagic(textNode, activeClass, selectedRange, currentGroupId) {
-        // TODO: Replace with existing wrapper creator @dresha
-        const wrap = (textNode, className, groupId) => {
-            const element = document.createElement('span');
-        
-            element.className = className;
-            element.setAttribute(GROUP_ATTR, `${groupId}`);
-            element.appendChild(textNode)
-            return element;
-        }
-
          const container = textNode.parentNode;
          const containerClass = container.className;
            
@@ -640,15 +630,25 @@ export default function(options) {
         return closestBlackListed.length > 0;
     }
 
+    // TODO: Replace with existing wrapper creator @dresha
+    function wrap (textNode, className, groupId) {
+        const element = getWrapper(groupId, className)
+    
+        element.appendChild(textNode);
+        return element;
+    }
+    
+    
     /**
      * Create a wrapping node
      * @param {number} groupId
      * @returns {Element}
      */
-    function getWrapper(groupId) {
-        var wrapper = document.createElement('span');
-        wrapper.className = className;
-        wrapper.setAttribute(GROUP_ATTR, groupId + '');
+    function getWrapper(groupId, wrapperClass) {
+        const wrapper = document.createElement('span');
+
+        wrapper.className = wrapperClass || className;
+        wrapper.setAttribute(GROUP_ATTR, `${groupId}`);
         return wrapper;
     }
 
