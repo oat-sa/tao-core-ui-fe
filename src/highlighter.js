@@ -41,23 +41,20 @@ var defaultBlackList = ['textarea', 'math', 'script', '.select2-container'];
  * @param {Object} options.containerSelector - allows to select the root Node in which highlighting is allowed
  * @param {Object} [options.containersBlackList] - additional blacklist selectors to be added to module instance's blacklist
  * @param {Object} [options.clearOnClick] - clear single highlight node on click
+ * @param {Object} [options.colors] - keys is keeping as the "c" value of storing/restore the highlighters for indexing, values are wrappers class names
  * @returns {Object} - the highlighter instance
  */
 export default function(options) {
     var className = options.className;
     var containerSelector = options.containerSelector;
+    
+    let highlightingClasses = [className];
 
-    // TODO: Get from config colors and currently active color @dresha
-    // options.colors = {
-    const colors = {
-            ocher: 'txt-user-highlight-ocher',
-            pink: 'txt-user-highlight-pink',
-            blue: 'txt-user-highlight-blue'
-        }
-    
-    className = colors.ocher;
-    const highlightingClasses = Object.values(colors);
-    
+    // Multi-color mode
+    if (options.colors) {
+        highlightingClasses =  Object.values(options.colors);
+    }
+
     /**
      * list of node selectors which should NOT receive any highlighting from this instance
      * an optional passed-in blacklist is merged with local defaults
@@ -509,7 +506,7 @@ export default function(options) {
                 highlightIndex[textNodesIndex] = {
                     highlighted: true,
                     groupId: currentNode.getAttribute(GROUP_ATTR),
-                    cl: currentNode.className
+                    c: getColorByClassName(currentNode.className)
                 };
                 textNodesIndex++;
 
@@ -529,9 +526,9 @@ export default function(options) {
                     if (isWrappingNode(currentNode)) {
                         inlineRange = {
                             groupId: currentNode.getAttribute(GROUP_ATTR),
-                            cl: currentNode.className
+                            c: getColorByClassName(currentNode.className)
                         };
-                        
+
                         if (isText(currentNode.previousSibling) || isWrappingNode(currentNode.previousSibling)) {
                             inlineRange.startOffset = inlineOffset;
                         }
@@ -600,7 +597,7 @@ export default function(options) {
                             range = document.createRange();
                             range.setStart(currentNode, inlineRange.startOffset || 0);
                             range.setEnd(currentNode, inlineRange.endOffset || currentNode.textContent.length);
-                            range.surroundContents(getWrapper(inlineRange.groupId, inlineRange.cl));
+                            range.surroundContents(getWrapper(inlineRange.groupId, getClassNameByColor(inlineRange.c)));
                         });
 
                         // fully highlighted text node
@@ -625,23 +622,49 @@ export default function(options) {
      * @param {string} color Active highlighter color
      */
     const setActiveColor = (color) => {
-        if(colors[color]) {
-            className = colors[color];
+        if (options.colors[color]) {
+            className = options.colors[color];
         }
-    }
-
-    /**
-     * Returns currently active highlighted class
-     * @returns {string}
-     */
-    const getActiveColor = () => {
-        return activeColor;
     }
 
     /**
      * Helpers
      */
 
+     /**
+     * Return the object key contains the given value
+     * @param {Object} object 
+     * @param {any} value 
+     * @return {string|undefined}
+     */
+    const getKeyByValue = (object, value) => Object.keys(object).find(key => object[key] === value);
+
+    /**
+     * Returns color identifier for the given class name
+     * @param {string} highlighterClassName Class name of highlighter classes
+     * @returns {string|number} Color identifier
+     */
+    const getColorByClassName = (highlighterClassName) => {
+        if (options.colors) {
+            return getKeyByValue(options.colors, highlighterClassName);
+        }
+
+        return className;
+    }
+
+    /**
+     * Returns class name for the given color identifier
+     * @param {string|number} color Color identifier
+     * @returns {string} Class name
+     */
+    const getClassNameByColor = (color) => {
+        if (options.colors) {
+            return options.colors[color]
+        }
+
+        return className;
+    }
+    
     /**
      * Check if the given node is a wrapper
      * @param {Node|Element} node
@@ -670,9 +693,14 @@ export default function(options) {
         return closestBlackListed.length > 0;
     }
 
-    // TODO: Replace with existing wrapper creator @dresha
+    /**
+     * Wraps text node to the highlighter wrapper element
+     * @param {Node} textNode Text node to wrap
+     * @param {string} className Wrapper class name
+     * @param {number} groupId Group id
+     */
     function wrap (textNode, className, groupId) {
-        const element = getWrapper(groupId, className)
+        const element = getWrapper(groupId, className);
     
         element.appendChild(textNode);
         return element;
@@ -740,7 +768,6 @@ export default function(options) {
         getHighlightIndex: getHighlightIndex,
         clearHighlights: clearHighlights,
         clearSingleHighlight: clearSingleHighlight,
-        setActiveColor,
-        getActiveColor
+        setActiveColor
     };
 }
