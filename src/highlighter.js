@@ -116,12 +116,12 @@ export default function(options) {
                     range.surroundContents(getWrapper(currentGroupId));
 
                     
-                } else if(
+                } else if (
                     isWrappable(range.commonAncestorContainer) &&
                     isWrappingNode(range.commonAncestorContainer.parentNode) &&
                     range.commonAncestorContainer.parentNode !== className
-                    ){
-                    highlightContainerNodes(range.commonAncestorContainer, className, range, currentGroupId)
+                ) {
+                    highlightContainerNodes(range.commonAncestorContainer, className, range, currentGroupId);
                 
                     // now the fun stuff: highlighting a mix of text and DOM nodes
                 } else {    
@@ -221,11 +221,9 @@ export default function(options) {
                 
                 // Apply new highlighting color only for selected nodes
                 if (isNodeInRange) {
+                    isWrapping = true;
                     highlightContainerNodes(currentNode, className, internalRange, currentGroupId);
                 }
-
-                isWrapping = true;
-               
             } else {
                 // split current node in case the wrapping start/ends on a partially selected text node
                 if (currentNode.isSameNode(rangeInfos.startNode)) {
