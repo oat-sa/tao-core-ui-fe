@@ -516,7 +516,7 @@ export default function(options) {
                 // less straightforward: a succession of (at least) 1 wrapping node with 1 wrappable text node, in either order, and possibly more
                 // the trick is to create a unique text node on which we will be able to re-apply multiple partial highlights
                 // for this, we use 'inlineRanges'
-            } else if (isHotNode(currentNode) && isHotNode(currentNode.nextSibling)) {
+                 } else if (isHotNode(currentNode)) {
                 nodeInfos = {
                     highlighted: true,
                     inlineRanges: []
@@ -531,10 +531,11 @@ export default function(options) {
                             groupId: currentNode.getAttribute(GROUP_ATTR),
                             cl: currentNode.className
                         };
-                        if (isText(currentNode.previousSibling)) {
+                        
+                        if (isText(currentNode.previousSibling) || isWrappingNode(currentNode.previousSibling)) {
                             inlineRange.startOffset = inlineOffset;
                         }
-                        if (isText(currentNode.nextSibling)) {
+                        if (isText(currentNode.nextSibling) || isWrappingNode(currentNode.nextSibling)) {
                             inlineRange.endOffset = inlineOffset + currentNode.textContent.length;
                         }
                         nodeInfos.inlineRanges.push(inlineRange);
