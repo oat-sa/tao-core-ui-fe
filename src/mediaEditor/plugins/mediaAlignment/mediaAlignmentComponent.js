@@ -24,7 +24,6 @@
 import $ from 'jquery';
 import _ from 'lodash';
 import component from 'ui/component';
-import { initAlign } from 'ui/mediaEditor/plugins/mediaAlignment/helper';
 import tpl from 'ui/mediaEditor/plugins/mediaAlignment/tpl/mediaAlignment';
 import 'ui/mediaEditor/plugins/mediaAlignment/style.css';
 
@@ -36,11 +35,11 @@ import 'ui/mediaEditor/plugins/mediaAlignment/style.css';
  * @fires "changed" - on State changed
  * return {component|*}
  */
-export default function mediaAlignmentFactory($container, media, widget) {
+export default function mediaAlignmentFactory($container, media) {
     /**
      * Template of the dimension controller
      */
-    var $template;
+    var $template, $fields;
 
     /**
      * Size properties of the media control panel
@@ -60,18 +59,23 @@ export default function mediaAlignmentFactory($container, media, widget) {
     var mediaAlignmentComponent = component(
         {
             /**
-             * Init the component to the initial state
-             */
-            init: function init() {
-                initAlign(widget);
-                this.trigger('init');
-            },
-            /**
              * Apply configurations to the view
              */
-            update: function update() {
-                initAlign(widget);
-                this.trigger('change');
+            update: function update(conf) {
+                var selectedField;
+                $fields.each(function(index) {
+                    $fields[index].removeAttribute('checked');
+                });
+                if (conf === 'rgt') {
+                    selectedField= $template.find('input[name="wrap-right"]');
+                } else if (conf === 'lft') {
+                    selectedField = $template.find('input[name="wrap-left"]');
+                } else {
+                    selectedField = $template.find('input[name="wrap-inline"]');
+                }
+                selectedField[0].setAttribute('checked', '')
+                media.align = conf
+                this.trigger('change', media);
             }
         }
     );
@@ -80,7 +84,11 @@ export default function mediaAlignmentFactory($container, media, widget) {
         .on('init', function() {
             $template = $(tpl());
             $template.appendTo($container);
-            mediaAlignmentComponent.update();
+            $fields = $template.find('input');
+            this.update(media.$node[0].className);
+            $template.on('click', function() {
+                this.update(media.$node[0].className);
+            });
         })
         .on('destroy', function() {
             $template.remove();

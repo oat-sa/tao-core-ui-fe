@@ -125,8 +125,7 @@ export default function mediaEditorFactory($container, media, config, widget) {
             if (this.getConfig().mediaAlignment.active) {
                 alignmentPlugin = mediaAlignmentComponent($alignmentTools, media, widget).on(
                     'change',
-                    function(conf) {
-                        console.log('conf', conf);
+                    function(media) {
                         self.trigger('change', media);
                     }
                 );
