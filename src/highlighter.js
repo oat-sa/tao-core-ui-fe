@@ -604,7 +604,7 @@ export default function(options) {
                     } else {
                         range = document.createRange();
                         range.selectNodeContents(currentNode);
-                        range.surroundContents(getWrapper(nodeInfos.groupId, nodeInfos.cl));
+                        range.surroundContents(getWrapper(nodeInfos.groupId, getClassNameByColor(nodeInfos.c)));
                     }
                     // we do want to loop over the nodes created by the wrapping operation
                     nodesToSkip = parent.childNodes.length - initialChildCount;
@@ -658,7 +658,7 @@ export default function(options) {
      * @returns {string} Class name
      */
     const getClassNameByColor = (color) => {
-        if (options.colors) {
+        if (options.colors && options.colors[color]) {
             return options.colors[color]
         }
 
