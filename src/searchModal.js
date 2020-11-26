@@ -41,6 +41,7 @@ import 'select2';
  * @param {boolean} config.searchOnInit - if init search must be triggered or not (stored results are used instead)
  * @param {string} config.url - search endpoint to be set on datatable
  * @param {string} config.rootClassUri - Uri for the root class of current context, required to init the class filter
+ * @param {bool} config.hideResourceSelector - if resourceSelector must be hidden
  * @returns {searchModal}
  */
 export default function searchModalFactory(config) {
@@ -62,6 +63,10 @@ export default function searchModalFactory(config) {
     let $classFilterInput = null;
     let $classTreeContainer = null;
     let advancedSearch = null;
+
+    // resorce selector
+    const isResourceSelector = !(config.hideResourceSelector || false);
+    const rootClassUri = config.rootClassUri;
 
     /**
      * Creates search modal, inits template selectors, inits search store, and once is created triggers initial search
@@ -120,7 +125,10 @@ export default function searchModalFactory(config) {
      */
     function initClassFilter() {
         return new Promise(resolve => {
-            const rootClassUri = instance.config.rootClassUri;
+            if (!isResourceSelector) {
+                $classFilterContainer.hide();
+                return resolve();
+            }
             const initialClassUri =
                 instance.config.criterias && instance.config.criterias.class
                     ? instance.config.criterias.class
@@ -291,7 +299,7 @@ export default function searchModalFactory(config) {
 
         // build complex query
         const query = buildComplexQuery();
-        const classFilterUri = $classFilterInput.data('uri').trim();
+        const classFilterUri = isResourceSelector ? $classFilterInput.data('uri').trim() : rootClassUri;
 
         //throttle and control to prevent sending too many requests
         const searchHandler = _.throttle(query => {
@@ -409,7 +417,7 @@ export default function searchModalFactory(config) {
             context: context.shownStructure,
             criterias: {
                 search: $searchInput.val(),
-                class: _.map(resourceSelector.getSelection(), 'uri')[0],
+                class: isResourceSelector ? _.map(resourceSelector.getSelection(), 'uri')[0] : rootClassUri,
                 advancedCriteria: advancedSearch.getState()
             }
         });
@@ -448,7 +456,7 @@ export default function searchModalFactory(config) {
     function clear() {
         $searchInput.val('');
         advancedSearch.clear();
-        resourceSelector.select(instance.config.rootClassUri);
+        isResourceSelector && resourceSelector.select(rootClassUri);
         replaceSearchResultsDatatableWithMessage('no-query');
         updateSearchStore({ action: 'clear' });
     }
