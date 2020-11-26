@@ -330,7 +330,7 @@ export default function(options) {
         if (isSelectionCoversNodeStart && isSelectionCoversNodeEnd) {
            textNode.parentNode.className = activeClass;
         } else if (isSelectionCoversNodeStart) {
-           textNode.splitText(selectedRange.endOffset)
+           textNode.splitText(selectedRange.endOffset);
            wrapContainerChildNodes(container, 0, activeClass, currentGroupId);
         } else if (isSelectionCoversNodeEnd) { 
            textNode.splitText(selectedRange.startOffset);
