@@ -355,9 +355,9 @@ export default function(options) {
          
         container.childNodes.forEach((node, index) => {
             if (index === indexToWrapNode) {
-                fragment.appendChild(wrap(node.cloneNode(), activeClass, currentGroupId));
+                fragment.appendChild(wrapNode(node.cloneNode(), activeClass, currentGroupId));
             } else {
-                fragment.appendChild(wrap(node.cloneNode(), containerClass, currentGroupId));
+                fragment.appendChild(wrapNode(node.cloneNode(), containerClass, currentGroupId));
             }
         });
         
@@ -699,7 +699,7 @@ export default function(options) {
      * @param {string} className Wrapper class name
      * @param {number} groupId Group id
      */
-    function wrap (textNode, className, groupId) {
+    function wrapNode (textNode, className, groupId) {
         const element = getWrapper(groupId, className);
     
         element.appendChild(textNode);
