@@ -41,11 +41,19 @@ var defaultBlackList = ['textarea', 'math', 'script', '.select2-container'];
  * @param {Object} options.containerSelector - allows to select the root Node in which highlighting is allowed
  * @param {Object} [options.containersBlackList] - additional blacklist selectors to be added to module instance's blacklist
  * @param {Object} [options.clearOnClick] - clear single highlight node on click
+ * @param {Object} [options.colors] - keys is keeping as the "c" value of storing/restore the highlighters for indexing, values are wrappers class names
  * @returns {Object} - the highlighter instance
  */
 export default function(options) {
     var className = options.className;
     var containerSelector = options.containerSelector;
+    
+    let highlightingClasses = [className];
+
+    // Multi-color mode
+    if (options.colors) {
+        highlightingClasses =  Object.values(options.colors);
+    }
 
     /**
      * list of node selectors which should NOT receive any highlighting from this instance
@@ -104,8 +112,16 @@ export default function(options) {
                 ) {
                     range.surroundContents(getWrapper(currentGroupId));
 
+                    
+                } else if (
+                    isWrappable(range.commonAncestorContainer) &&
+                    isWrappingNode(range.commonAncestorContainer.parentNode) &&
+                    range.commonAncestorContainer.parentNode !== className
+                ) {
+                    highlightContainerNodes(range.commonAncestorContainer, className, range, currentGroupId);
+                
                     // now the fun stuff: highlighting a mix of text and DOM nodes
-                } else {
+                } else {    
                     rangeInfos = {
                         startNode: isElement(range.startContainer)
                             ? range.startContainer.childNodes[range.startOffset]
@@ -117,7 +133,8 @@ export default function(options) {
                             ? range.endContainer.childNodes[range.endOffset - 1]
                             : range.endContainer,
                         endNodeContainer: range.endContainer,
-                        endOffset: range.endOffset
+                        endOffset: range.endOffset, 
+                        commonRange: range
                     };
 
                     isWrapping = false;
@@ -183,32 +200,55 @@ export default function(options) {
             }
             currentNode = childNodes[i];
 
-            // split current node in case the wrapping start/ends on a partially selected text node
-            if (currentNode.isSameNode(rangeInfos.startNode)) {
-                if (isText(rangeInfos.startNodeContainer) && rangeInfos.startOffset !== 0) {
-                    // we defer the wrapping to the next iteration of the loop
-                    rangeInfos.startNode = currentNode.splitText(rangeInfos.startOffset);
-                    rangeInfos.startOffset = 0;
-                } else {
+            const isCurrentNodeTextInsideOfAnotherHighlightingWrapper = isText(currentNode) && isWrappingNode(currentNode.parentNode) && currentNode.parentNode.className !== className;
+
+            if (isCurrentNodeTextInsideOfAnotherHighlightingWrapper) {
+                const internalRange = new Range();
+                internalRange.selectNodeContents(currentNode);
+
+                if (rangeInfos.startNode === currentNode) {
+                    internalRange.setStart(currentNode, rangeInfos.startOffset);
+                }
+
+                if (rangeInfos.endNode === currentNode) {
+                    internalRange.setEnd(currentNode, rangeInfos.endOffset);
+                }
+
+                const isNodeInRange = rangeInfos.commonRange.isPointInRange(currentNode, internalRange.endOffset);
+                
+                // Apply new highlighting color only for selected nodes
+                if (isNodeInRange) {
                     isWrapping = true;
+                    highlightContainerNodes(currentNode, className, internalRange, currentGroupId);
                 }
-            }
-
-            if (currentNode.isSameNode(rangeInfos.endNode) && isText(rangeInfos.endNodeContainer)) {
-                if (rangeInfos.endOffset !== 0) {
-                    currentNode.splitText(rangeInfos.endOffset);
-                } else {
-                    isWrapping = false;
+            } else {
+                // split current node in case the wrapping start/ends on a partially selected text node
+                if (currentNode.isSameNode(rangeInfos.startNode)) {
+                    if (isText(rangeInfos.startNodeContainer) && rangeInfos.startOffset !== 0) {
+                        // we defer the wrapping to the next iteration of the loop
+                        rangeInfos.startNode = currentNode.splitText(rangeInfos.startOffset);
+                        rangeInfos.startOffset = 0;
+                    } else {
+                        isWrapping = true;
+                    }
                 }
-            }
 
-            // wrap the current node...
-            if (isText(currentNode)) {
-                wrapTextNode(currentNode, currentGroupId);
+                if (currentNode.isSameNode(rangeInfos.endNode) && isText(rangeInfos.endNodeContainer)) {
+                    if (rangeInfos.endOffset !== 0) {
+                        currentNode.splitText(rangeInfos.endOffset);
+                    } else {
+                        isWrapping = false;
+                    }
+                }
 
-                // ... or continue deeper in the node tree
-            } else if (isElement(currentNode)) {
-                wrapTextNodesInRange(currentNode, rangeInfos);
+                // wrap the current node...
+                if (isText(currentNode)) {
+                    wrapTextNode(currentNode, currentGroupId);
+
+                    // ... or continue deeper in the node tree
+                } else if (isElement(currentNode)) {
+                    wrapTextNodesInRange(currentNode, rangeInfos);
+                }
             }
 
             // end wrapping ?
@@ -218,6 +258,110 @@ export default function(options) {
                 break;
             }
         }
+    }
+
+    /**
+     * Restructure content of the highlighted wrapper according to the selectedRange
+     * @param {Node} textNode
+     * @param {string} activeClass
+     * @param {Range} selectedRange
+     * @param {number} currentGroupId
+     */
+    function highlightContainerNodes(textNode, activeClass, selectedRange, currentGroupId) {
+         const container = textNode.parentNode;
+         const range = new Range();
+         range.selectNodeContents(textNode);
+
+         const isSelectionCoversNodeStart = range.compareBoundaryPoints(Range.START_TO_START, selectedRange) === 0;
+         const isSelectionCoversNodeEnd = range.compareBoundaryPoints(Range.END_TO_END, selectedRange) === 0;
+         
+        /*
+        There are 4 possible cases selected area is intersected with already highlighted element.
+        In examples below the border is represents the selection, "yellow" is class name of already highlighted 
+        container, "red" is class name of currently active highlighter
+        **********************************************************************************************************
+        1. The container content is completely selected, so that we only have to change the highlighter class name
+        
+        Input:
+         __________________________________________________
+        |                                                  |
+        |<span class="yellow"> Lorem ipsum dolor sit</span>| 
+        |__________________________________________________|
+
+        Output:
+         <span class="red"> Lorem ipsum dolor sit</span>
+
+        **********************************************************************************************************
+        2. The container content is partially selected from the begging.
+
+        Input:                                                     
+         ______________________________
+        |                              |
+        |<span class="yellow"> Lorem ip|sum dolor sit</span>
+        |______________________________|
+
+        Output:
+        <span class="red"> Lorem ip</span><span class="yellow">sum dolor sit</span>
+
+        **********************************************************************************************************
+        3. The container content is partially selected at the end.
+
+        Input:                                                     
+                                       ____________________
+                                      |                    |
+        <span class="yellow"> Lorem ip|sum dolor sit</span>|
+                                      |____________________|
+
+        Output:
+        <span class="yellow"> Lorem ip</span><span class="red">sum dolor sit</span>
+
+        **********************************************************************************************************
+        4. The container content is partially selected in the middle.
+
+        Input:
+                                     ___________
+                                    |           |
+        <span class="yellow"> Lorem |ipsum dolor| sit</span>
+                                    |___________|
+
+        Output:
+         <span class="yellow"> Lorem </span><span class="red">ipsum dolor</span><span class="yellow"> sit</span>
+         */
+        if (isSelectionCoversNodeStart && isSelectionCoversNodeEnd) {
+           textNode.parentNode.className = activeClass;
+        } else if (isSelectionCoversNodeStart) {
+           textNode.splitText(selectedRange.endOffset);
+           wrapContainerChildNodes(container, 0, activeClass, currentGroupId);
+        } else if (isSelectionCoversNodeEnd) { 
+           textNode.splitText(selectedRange.startOffset);
+           wrapContainerChildNodes(container, 1, activeClass, currentGroupId);
+        } else {
+           textNode.splitText(selectedRange.startOffset).splitText(selectedRange.endOffset);
+           wrapContainerChildNodes(container, 1, activeClass, currentGroupId);
+        }
+    }
+
+    /**
+     * Wraps all containers text nodes with highlighter element.
+     * The child node with index given by indexToWrapNode parameter will be wrap with class given by activeClass parameter
+     * @param {Element} container 
+     * @param {number} indexToWrapNode 
+     * @param {string} activeClass 
+     * @param {number} currentGroupId 
+     */
+    function wrapContainerChildNodes(container, indexToWrapNode, activeClass, currentGroupId) {
+        const containerClass = container.className;
+        const fragment = new DocumentFragment();
+         
+        container.childNodes.forEach((node, index) => {
+            if (index === indexToWrapNode) {
+                fragment.appendChild(wrapNode(node.cloneNode(), activeClass, currentGroupId));
+            } else {
+                fragment.appendChild(wrapNode(node.cloneNode(), containerClass, currentGroupId));
+            }
+        });
+        
+        container.replaceWith(fragment);
     }
 
     /**
@@ -232,7 +376,7 @@ export default function(options) {
     }
 
     /**
-     * We need to reindex the groups after a user highlight: either to merge groups or to resolve inconsistencies
+     * We need to re-index the groups after a user highlight: either to merge groups or to resolve inconsistencies
      * Recursive.
      *
      * @param {Node} rootNode
@@ -274,7 +418,7 @@ export default function(options) {
             currentNode = childNodes[i];
 
             if (isWrappingNode(currentNode)) {
-                while (isWrappingNode(currentNode.nextSibling)) {
+                while (isWrappingNode(currentNode.nextSibling) && currentNode.className === currentNode.nextSibling.className) {
                     currentNode.firstChild.textContent += currentNode.nextSibling.firstChild.textContent;
                     currentNode.parentNode.removeChild(currentNode.nextSibling);
                 }
@@ -357,18 +501,19 @@ export default function(options) {
                 highlightIndex[textNodesIndex] = { highlighted: false };
                 textNodesIndex++;
 
-                // an isolated node (= not followed by a highlightable text) with its whole content highlighted
+                // an isolated node (= not followed by a highligh table text) with its whole content highlighted
             } else if (isWrappingNode(currentNode) && !isWrappable(currentNode.nextSibling)) {
                 highlightIndex[textNodesIndex] = {
                     highlighted: true,
-                    groupId: currentNode.getAttribute(GROUP_ATTR)
+                    groupId: currentNode.getAttribute(GROUP_ATTR),
+                    c: getColorByClassName(currentNode.className)
                 };
                 textNodesIndex++;
 
                 // less straightforward: a succession of (at least) 1 wrapping node with 1 wrappable text node, in either order, and possibly more
                 // the trick is to create a unique text node on which we will be able to re-apply multiple partial highlights
                 // for this, we use 'inlineRanges'
-            } else if (isHotNode(currentNode) && isHotNode(currentNode.nextSibling)) {
+                 } else if (isHotNode(currentNode)) {
                 nodeInfos = {
                     highlighted: true,
                     inlineRanges: []
@@ -380,12 +525,14 @@ export default function(options) {
                 while (currentNode) {
                     if (isWrappingNode(currentNode)) {
                         inlineRange = {
-                            groupId: currentNode.getAttribute(GROUP_ATTR)
+                            groupId: currentNode.getAttribute(GROUP_ATTR),
+                            c: getColorByClassName(currentNode.className)
                         };
-                        if (isText(currentNode.previousSibling)) {
+
+                        if (isText(currentNode.previousSibling) || isWrappingNode(currentNode.previousSibling)) {
                             inlineRange.startOffset = inlineOffset;
                         }
-                        if (isText(currentNode.nextSibling)) {
+                        if (isText(currentNode.nextSibling) || isWrappingNode(currentNode.nextSibling)) {
                             inlineRange.endOffset = inlineOffset + currentNode.textContent.length;
                         }
                         nodeInfos.inlineRanges.push(inlineRange);
@@ -450,14 +597,14 @@ export default function(options) {
                             range = document.createRange();
                             range.setStart(currentNode, inlineRange.startOffset || 0);
                             range.setEnd(currentNode, inlineRange.endOffset || currentNode.textContent.length);
-                            range.surroundContents(getWrapper(inlineRange.groupId));
+                            range.surroundContents(getWrapper(inlineRange.groupId, getClassNameByColor(inlineRange.c)));
                         });
 
                         // fully highlighted text node
                     } else {
                         range = document.createRange();
                         range.selectNodeContents(currentNode);
-                        range.surroundContents(getWrapper(nodeInfos.groupId));
+                        range.surroundContents(getWrapper(nodeInfos.groupId, getClassNameByColor(nodeInfos.c)));
                     }
                     // we do want to loop over the nodes created by the wrapping operation
                     nodesToSkip = parent.childNodes.length - initialChildCount;
@@ -471,16 +618,60 @@ export default function(options) {
     }
 
     /**
+     * Set highlighter color
+     * @param {string} color Active highlighter color
+     */
+    const setActiveColor = (color) => {
+        if (options.colors[color]) {
+            className = options.colors[color];
+        }
+    }
+
+    /**
      * Helpers
      */
 
+     /**
+     * Return the object key contains the given value
+     * @param {Object} object 
+     * @param {any} value 
+     * @return {string|undefined}
+     */
+    const getKeyByValue = (object, value) => Object.keys(object).find(key => object[key] === value);
+
+    /**
+     * Returns color identifier for the given class name
+     * @param {string} highlighterClassName Class name of highlighter classes
+     * @returns {string|number} Color identifier
+     */
+    const getColorByClassName = (highlighterClassName) => {
+        if (options.colors) {
+            return getKeyByValue(options.colors, highlighterClassName);
+        }
+
+        return className;
+    }
+
+    /**
+     * Returns class name for the given color identifier
+     * @param {string|number} color Color identifier
+     * @returns {string} Class name
+     */
+    const getClassNameByColor = (color) => {
+        if (options.colors && options.colors[color]) {
+            return options.colors[color]
+        }
+
+        return className;
+    }
+    
     /**
      * Check if the given node is a wrapper
      * @param {Node|Element} node
      * @returns {boolean}
      */
     function isWrappingNode(node) {
-        return isElement(node) && node.tagName.toLowerCase() === 'span' && node.className === className;
+        return isElement(node) && node.tagName.toLowerCase() === 'span' && highlightingClasses.includes(node.className);
     }
 
     /**
@@ -503,14 +694,29 @@ export default function(options) {
     }
 
     /**
+     * Wraps text node to the highlighter wrapper element
+     * @param {Node} textNode Text node to wrap
+     * @param {string} className Wrapper class name
+     * @param {number} groupId Group id
+     */
+    function wrapNode (textNode, className, groupId) {
+        const element = getWrapper(groupId, className);
+    
+        element.appendChild(textNode);
+        return element;
+    }
+    
+    
+    /**
      * Create a wrapping node
      * @param {number} groupId
      * @returns {Element}
      */
-    function getWrapper(groupId) {
-        var wrapper = document.createElement('span');
-        wrapper.className = className;
-        wrapper.setAttribute(GROUP_ATTR, groupId + '');
+    function getWrapper(groupId, wrapperClass) {
+        const wrapper = document.createElement('span');
+
+        wrapper.className = wrapperClass || className;
+        wrapper.setAttribute(GROUP_ATTR, `${groupId}`);
         return wrapper;
     }
 
@@ -561,6 +767,7 @@ export default function(options) {
         highlightFromIndex: highlightFromIndex,
         getHighlightIndex: getHighlightIndex,
         clearHighlights: clearHighlights,
-        clearSingleHighlight: clearSingleHighlight
+        clearSingleHighlight: clearSingleHighlight,
+        setActiveColor
     };
 }

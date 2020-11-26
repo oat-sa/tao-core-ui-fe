@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2016 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2016-2020 (original work) Open Assessment Technologies SA ;
  */
 /**
  * @author Christophe Noël <christophe@taotesting.com>
@@ -44,7 +44,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             buildRange: function(range, fixtureContainer) {
                 range.selectNodeContents(fixtureContainer);
             },
-            highlightIndex: [{ highlighted: true, groupId: '1' }]
+            highlightIndex: [{ highlighted: true, groupId: '1', c: 'hl' }]
         },
 
         {
@@ -61,6 +61,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                     highlighted: true,
                     inlineRanges: [
                         {
+                            c: 'hl',
                             groupId: '1',
                             startOffset: 'I should end up '.length,
                             endOffset: 'I should end up partially'.length
@@ -80,7 +81,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 range.setEnd(fixtureContainer.firstChild, 'I should end up partially'.length);
             },
             highlightIndex: [
-                { highlighted: true, inlineRanges: [{ groupId: '1', endOffset: 'I should end up partially'.length }] }
+                { highlighted: true, inlineRanges: [{ groupId: '1', endOffset: 'I should end up partially'.length, c: 'hl' }] }
             ]
         },
 
@@ -106,21 +107,25 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                     highlighted: true,
                     inlineRanges: [
                         {
+                            c: 'hl',
                             groupId: '1',
                             startOffset: 'How cool is that: '.length,
                             endOffset: 'How cool is that: Me'.length
                         },
                         {
+                            c: 'hl',
                             groupId: '2',
                             startOffset: 'How cool is that: Me, '.length,
                             endOffset: 'How cool is that: Me, myself'.length
                         },
                         {
+                            c: 'hl',
                             groupId: '3',
                             startOffset: 'How cool is that: Me, myself and '.length,
                             endOffset: 'How cool is that: Me, myself and I'.length
                         },
                         {
+                            c: 'hl',
                             groupId: '4',
                             startOffset: 'How cool is that: Me, myself and I are a bunch of '.length,
                             endOffset: 'How cool is that: Me, myself and I are a bunch of highlighted'.length
@@ -151,23 +156,26 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 {
                     highlighted: true,
                     inlineRanges: [
-                        { groupId: '1', endOffset: 'How cool'.length },
+                        { c: 'hl', groupId: '1', endOffset: 'How cool'.length },
                         {
+                            c: 'hl',
                             groupId: '2',
                             startOffset: 'How cool is that: '.length,
                             endOffset: 'How cool is that: Me'.length
                         },
                         {
+                            c: 'hl',
                             groupId: '3',
                             startOffset: 'How cool is that: Me, '.length,
                             endOffset: 'How cool is that: Me, myself'.length
                         },
                         {
+                            c: 'hl',
                             groupId: '4',
                             startOffset: 'How cool is that: Me, myself and '.length,
                             endOffset: 'How cool is that: Me, myself and I'.length
                         },
-                        { groupId: '5', startOffset: 'How cool is that: Me, myself and I are a bunch of '.length }
+                        { c: 'hl', groupId: '5', startOffset: 'How cool is that: Me, myself and I are a bunch of '.length }
                     ]
                 }
             ]
@@ -181,7 +189,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             buildRange: function(range, fixtureContainer) {
                 range.selectNode(fixtureContainer.firstChild);
             },
-            highlightIndex: [{ highlighted: true, groupId: '1' }]
+            highlightIndex: [{ highlighted: true, groupId: '1', c: 'hl', }]
         },
 
         {
@@ -198,6 +206,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                     highlighted: true,
                     inlineRanges: [
                         {
+                            c: 'hl',
                             groupId: '1',
                             startOffset: 'I should end up '.length,
                             endOffset: 'I should end up partially'.length
@@ -231,8 +240,8 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             },
             highlightIndex: [
                 { highlighted: false },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' },
+                { highlighted: true, groupId: '1', c: 'hl' },
+                { highlighted: true, groupId: '1', c: 'hl' },
                 { highlighted: false }
             ]
         },
@@ -268,8 +277,8 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             },
             highlightIndex: [
                 { highlighted: false },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' },
+                { highlighted: true, groupId: '1', c: 'hl' },
+                { highlighted: true, groupId: '1', c: 'hl' },
                 { highlighted: false }
             ]
         },
@@ -286,9 +295,9 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 range.selectNodeContents(fixtureContainer);
             },
             highlightIndex: [
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' }
+                { highlighted: true, groupId: '1', c: 'hl' },
+                { highlighted: true, groupId: '1', c: 'hl' },
+                { highlighted: true, groupId: '1', c: 'hl' }
             ]
         },
 
@@ -305,9 +314,9 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 range.setEnd(fixtureContainer.lastChild, ' should end up'.length);
             },
             highlightIndex: [
-                { highlighted: true, inlineRanges: [{ groupId: '1', startOffset: 'We, '.length }] },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, inlineRanges: [{ groupId: '1', endOffset: ' should end up'.length }] }
+                { highlighted: true, inlineRanges: [{ c: 'hl', groupId: '1', startOffset: 'We, '.length }] },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, inlineRanges: [{ c: 'hl', groupId: '1', endOffset: ' should end up'.length }] }
             ]
         },
 
@@ -329,7 +338,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 {
                     highlighted: true,
                     inlineRanges: [
-                        { groupId: '1', startOffset: ' should '.length, endOffset: ' should not bother '.length }
+                        { c: 'hl', groupId: '1', startOffset: ' should '.length, endOffset: ' should not bother '.length }
                     ]
                 },
                 { highlighted: false }
@@ -356,8 +365,8 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 range.setEnd(fixtureContainer.lastChild.firstChild, 'even if I was'.length);
             },
             highlightIndex: [
-                { highlighted: true, inlineRanges: [{ groupId: '1', startOffset: 'I should be '.length }] },
-                { highlighted: true, inlineRanges: [{ groupId: '1', endOffset: 'even if I was'.length }] }
+                { highlighted: true, inlineRanges: [{ c: 'hl', groupId: '1', startOffset: 'I should be '.length }] },
+                { highlighted: true, inlineRanges: [{ c: 'hl', groupId: '1', endOffset: 'even if I was'.length }] }
             ]
         },
 
@@ -376,11 +385,10 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 range.setEnd(fixtureContainer.lastChild, ' even if I was'.length);
             },
             highlightIndex: [
-                { highlighted: true, inlineRanges: [{ groupId: '1', startOffset: 'I should be '.length }] },
-                { highlighted: true, inlineRanges: [{ groupId: '1', endOffset: ' even if I was'.length }] }
+                { highlighted: true, inlineRanges: [{ c: 'hl', groupId: '1', startOffset: 'I should be '.length }] },
+                { highlighted: true, inlineRanges: [{ c: 'hl', groupId: '1', endOffset: ' even if I was'.length }] }
             ]
         },
-
         {
             title: 'Highlights a range containing multiples nodes, 1',
             input:
@@ -419,13 +427,13 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             },
             highlightIndex: [
                 { highlighted: false },
-                { highlighted: true, inlineRanges: [{ groupId: '1', startOffset: 'There is a ni'.length }] },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' },
+                { highlighted: true, inlineRanges: [{ c: 'hl', groupId: '1', startOffset: 'There is a ni'.length }] },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
                 { highlighted: false },
                 { highlighted: false },
                 { highlighted: false },
@@ -476,13 +484,13 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 { highlighted: false },
                 { highlighted: false },
                 { highlighted: false },
-                { highlighted: true, inlineRanges: [{ groupId: '1', startOffset: 'th'.length }] },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, inlineRanges: [{ groupId: '1', endOffset: ', see you'.length }] }
+                { highlighted: true, inlineRanges: [{ c: 'hl', groupId: '1', startOffset: 'th'.length }] },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, inlineRanges: [{ c: 'hl', groupId: '1', endOffset: ', see you'.length }] }
             ]
         },
 
@@ -524,11 +532,11 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 range.setEnd(endNode, 'I am'.length);
             },
             highlightIndex: [
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, inlineRanges: [{ groupId: '1', endOffset: 'I am'.length }] },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, inlineRanges: [{ c: 'hl', groupId: '1', endOffset: 'I am'.length }] },
                 { highlighted: false },
                 { highlighted: false },
                 { highlighted: false },
@@ -552,7 +560,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             buildRange: function(range, fixtureContainer) {
                 range.selectNodeContents(fixtureContainer);
             },
-            highlightIndex: [{ highlighted: true, groupId: '1' }, { highlighted: true, groupId: '1' }]
+            highlightIndex: [{ c: 'hl', highlighted: true, groupId: '1' }, { c: 'hl', highlighted: true, groupId: '1' }]
         },
 
         {
@@ -600,7 +608,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             buildRange: function(range, fixtureContainer) {
                 range.selectNodeContents(fixtureContainer);
             },
-            highlightIndex: [{ highlighted: true, groupId: '1' }, { highlighted: true, groupId: '1' }]
+            highlightIndex: [{ c: 'hl', highlighted: true, groupId: '1' }, { c: 'hl', highlighted: true, groupId: '1' }]
         },
 
         {
@@ -635,10 +643,10 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 range.selectNodeContents(fixtureContainer);
             },
             highlightIndex: [
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' }
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' }
             ]
         },
 
@@ -660,11 +668,11 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 range.selectNodeContents(fixtureContainer);
             },
             highlightIndex: [
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' }
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' }
             ]
         },
 
@@ -683,8 +691,8 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 {
                     highlighted: true,
                     inlineRanges: [
-                        { groupId: '1', endOffset: 'I am enlightened'.length },
-                        { groupId: '2', startOffset: 'I am enlightened, '.length }
+                        { c: 'hl', groupId: '1', endOffset: 'I am enlightened'.length },
+                        { c: 'hl', groupId: '2', startOffset: 'I am enlightened, '.length }
                     ]
                 }
             ]
@@ -698,7 +706,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             buildRange: function(range, fixtureContainer) {
                 range.selectNodeContents(fixtureContainer.childNodes[1]);
             },
-            highlightIndex: [{ highlighted: true, groupId: '1' }]
+            highlightIndex: [{ highlighted: true, c: 'hl', groupId: '1' }]
         },
 
         {
@@ -710,7 +718,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             buildRange: function(range, fixtureContainer) {
                 range.selectNodeContents(fixtureContainer.childNodes[1]);
             },
-            highlightIndex: [{ highlighted: true, groupId: '1' }]
+            highlightIndex: [{ highlighted: true, c: 'hl', groupId: '1' }]
         },
 
         {
@@ -733,9 +741,9 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 range.setEnd(fixtureContainer.firstChild, 2);
             },
             highlightIndex: [
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' }
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' }
             ]
         },
 
@@ -747,7 +755,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             buildRange: function(range, fixtureContainer) {
                 range.selectNodeContents(fixtureContainer.firstChild.firstChild);
             },
-            highlightIndex: [{ highlighted: true, groupId: '1' }]
+            highlightIndex: [{ highlighted: true, c: 'hl', groupId: '1' }]
         },
 
         {
@@ -761,7 +769,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 range.setStart(fixtureContainer.firstChild.firstChild, 'I already have more '.length);
                 range.setEnd(fixtureContainer.firstChild.firstChild, 'I already have more highlight'.length);
             },
-            highlightIndex: [{ highlighted: true, groupId: '1' }]
+            highlightIndex: [{ highlighted: true, c: 'hl', groupId: '1' }]
         },
 
         {
@@ -772,7 +780,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             buildRange: function(range, fixtureContainer) {
                 range.selectNodeContents(fixtureContainer);
             },
-            highlightIndex: [{ highlighted: true, groupId: '1' }]
+            highlightIndex: [{ highlighted: true, c: 'hl', groupId: '1' }]
         },
 
         {
@@ -783,7 +791,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             buildRange: function(range, fixtureContainer) {
                 range.selectNodeContents(fixtureContainer);
             },
-            highlightIndex: [{ highlighted: true, groupId: '1' }]
+            highlightIndex: [{ highlighted: true, c: 'hl', groupId: '1' }]
         },
 
         {
@@ -812,10 +820,10 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 range.setEnd(fixtureContainer.firstChild, 4);
             },
             highlightIndex: [
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' }
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' }
             ]
         },
 
@@ -832,7 +840,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 range.setEnd(fixtureContainer.childNodes[1].firstChild, 'existing'.length);
             },
             highlightIndex: [
-                { highlighted: true, inlineRanges: [{ groupId: '1', endOffset: 'This existing highlight'.length }] }
+                { highlighted: true, inlineRanges: [{ c: 'hl', groupId: '1', endOffset: 'This existing highlight'.length }] }
             ]
         },
 
@@ -851,6 +859,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                     highlighted: true,
                     inlineRanges: [
                         {
+                            c: 'hl',
                             groupId: '1',
                             startOffset: 'This '.length,
                             endOffset: 'This existing highlight is about to'.length
@@ -885,9 +894,9 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 range.setEnd(fixtureContainer.childNodes[5].firstChild, 'by a '.length);
             },
             highlightIndex: [
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' },
-                { highlighted: true, groupId: '1' }
+                { highlighted: true, groupId: '1', c: 'hl' },
+                { highlighted: true, groupId: '1', c: 'hl' },
+                { highlighted: true, groupId: '1', c: 'hl' }
             ]
         }
     ];
