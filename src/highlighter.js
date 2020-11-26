@@ -327,7 +327,7 @@ export default function(options) {
         Output:
          <span class="yellow"> Lorem </span><span class="red">ipsum dolor</span><span class="yellow"> sit</span>
          */
-        if (isSelectionCoversNodeStart && isSelectionCoversNodeEnd){
+        if (isSelectionCoversNodeStart && isSelectionCoversNodeEnd) {
            textNode.parentNode.className = activeClass;
         } else if (isSelectionCoversNodeStart) {
            textNode.splitText(selectedRange.endOffset)
