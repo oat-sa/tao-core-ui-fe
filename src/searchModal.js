@@ -312,8 +312,8 @@ export default function searchModalFactory(config) {
                     dataType: 'json'
                 })
                     .done(data => {
-                        appendDefaultDatasetToDatatable(data)
-                            .then(() => buildSearchResultsDatatable(data))
+                        appendDefaultDatasetToDatatable(data.data)
+                            .then(() => buildSearchResultsDatatable(data.data))
                             .catch(e => instance.trigger('error', e));
                     })
                     .always(() => (running = false));
