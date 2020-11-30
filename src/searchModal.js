@@ -308,7 +308,7 @@ export default function searchModalFactory(config) {
                 $.ajax({
                     url: instance.config.url,
                     type: 'POST',
-                    data: { query: query, parentNode: classFilterUri },
+                    data: { query: query, parentNode: classFilterUri, structure: context.shownStructure },
                     dataType: 'json'
                 })
                     .done(data => {
