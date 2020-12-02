@@ -42,7 +42,7 @@ import 'select2';
  * @param {string} config.url - search endpoint to be set on datatable
  * @param {string} config.rootClassUri - Uri for the root class of current context, required to init the class filter
  * @param {bool} config.hideResourceSelector - if resourceSelector must be hidden
- * @param {bool} config.placeholder - placeholder for input in template
+ * @param {string} config.placeholder - placeholder for input in template
  * @returns {searchModal}
  */
 export default function searchModalFactory(config) {
