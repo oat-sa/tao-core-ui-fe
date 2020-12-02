@@ -66,7 +66,7 @@ export default function searchModalFactory(config) {
     let advancedSearch = null;
 
     // resorce selector
-    const isResourceSelector = !(config.hideResourceSelector || false);
+    const isResourceSelector = !config.hideResourceSelector;
     const rootClassUri = config.rootClassUri;
 
     /**
