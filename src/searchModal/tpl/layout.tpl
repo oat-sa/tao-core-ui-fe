@@ -5,12 +5,12 @@
                 <div class="basic-search-container">
                     <div class="filter-container">
                         <span class="icon-find"></span>
-                        <input class="generic-search-input" type="text" placeholder="{{__ "Search Item"}}">
+                        <input class="generic-search-input" type="text" placeholder="{{placeholder}}">
                     </div>
                     <div class="filter-container class-filter-container">
                         <span class="icon-folder"></span>
                         <span class="icon-down"></span>
-                        <input class="class-filter" type="text" placeholder="{{__ "Search Item"}}">
+                        <input class="class-filter" type="text" placeholder="{{placeholder}}">
                         <div class="class-tree"></div>
                     </div>
                 </div>
