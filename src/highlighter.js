@@ -502,8 +502,9 @@ export default function(options) {
                 textNodesIndex++;
 
                 // an isolated node (= not followed by a highlight table text) with its whole content highlighted
-            } else if (isWrappingNode(currentNode) && !isWrappable(currentNode.nextSibling) &&
-                (!currentNode.nextSibling || currentNode.className === currentNode.nextSibling.className)) {
+            } else if (isWrappingNode(currentNode) &&
+                       !isWrappable(currentNode.nextSibling) &&
+                       (!isWrappingNode(currentNode.nextSibling) || currentNode.className === currentNode.nextSibling.className)) {
                 highlightIndex[textNodesIndex] = {
                     highlighted: true,
                     groupId: currentNode.getAttribute(GROUP_ATTR),
@@ -514,7 +515,7 @@ export default function(options) {
                 // less straightforward: a succession of (at least) 1 wrapping node with 1 wrappable text node, in either order, and possibly more
                 // the trick is to create a unique text node on which we will be able to re-apply multiple partial highlights
                 // for this, we use 'inlineRanges'
-                 } else if (isHotNode(currentNode)) {
+            } else if (isHotNode(currentNode)) {
                 nodeInfos = {
                     highlighted: true,
                     inlineRanges: []
