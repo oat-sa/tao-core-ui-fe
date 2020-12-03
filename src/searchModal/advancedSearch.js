@@ -18,6 +18,7 @@
 import $ from 'jquery';
 import _ from 'lodash';
 import __ from 'i18n';
+import context from 'context';
 import advancedSearchTpl from 'ui/searchModal/tpl/advanced-search';
 import textCriterionTpl from 'ui/searchModal/tpl/text-criterion';
 import invalidCriteriaWarningTpl from 'ui/searchModal/tpl/invalid-criteria-warning';
@@ -112,10 +113,12 @@ export default function advancedSearchFactory(config) {
         .setTemplate(advancedSearchTpl)
         .on('render', () => {
             initUiSelectors();
-            initAddCriteriaSelector().then(() => {
-                initCriteriaState();
-                instance.trigger('ready');
-            }).catch(e => instance.trigger('error', e));
+            initAddCriteriaSelector()
+                .then(() => {
+                    initCriteriaState();
+                    instance.trigger('ready');
+                })
+                .catch(e => instance.trigger('error', e));
         });
 
     /**
@@ -137,40 +140,41 @@ export default function advancedSearchFactory(config) {
      */
     function initAddCriteriaSelector() {
         const route = urlUtil.route('status', 'AdvancedSearch', 'tao');
-        return request(route).then(function (response) {
-            if (!response.enabled) {
-                return;
-            }
-            $addCriteria.removeClass('disabled');
-            $criteriaSelect.select2({
-                containerCssClass: 'criteria-select2',
-                dropdownCssClass: 'criteria-dropdown-select2',
-                sortResults: results => _.sortBy(results, ['text'])
-            });
-
-            // open dropdown when user clicks on add criteria input
-            $addCriteriaInput.on('click', () => {
-                $criteriaSelect.select2('open');
-                // if dropdown is opened above addCriteria input, top property is slightly decreased to avoid overlapping with addCriteria icon
-                if ($('.criteria-dropdown-select2').hasClass('select2-drop-above')) {
-                    $('.criteria-dropdown-select2').css(
-                        'top',
-                        $('.criteria-dropdown-select2').css('top').split('px')[0] - 10 + 'px'
-                    );
+        return request(route)
+            .then(function (response) {
+                if (!response.enabled || context.shownStructure === 'results') {
+                    return;
                 }
-            });
+                $addCriteria.removeClass('disabled');
+                $criteriaSelect.select2({
+                    containerCssClass: 'criteria-select2',
+                    dropdownCssClass: 'criteria-dropdown-select2',
+                    sortResults: results => _.sortBy(results, ['text'])
+                });
 
-            // when a criterion is selected add it to criteria container, remove it from dropdown options and reset select
-            $criteriaSelect.on('change', () => {
-                const criterionToAdd = $criteriaSelect.children('option:selected').val();
-                addNewCriterion(criterionToAdd);
-                $criteriaSelect.children('option:selected').remove();
-                $criteriaSelect.select2('val', '');
+                // open dropdown when user clicks on add criteria input
+                $addCriteriaInput.on('click', () => {
+                    $criteriaSelect.select2('open');
+                    // if dropdown is opened above addCriteria input, top property is slightly decreased to avoid overlapping with addCriteria icon
+                    if ($('.criteria-dropdown-select2').hasClass('select2-drop-above')) {
+                        $('.criteria-dropdown-select2').css(
+                            'top',
+                            $('.criteria-dropdown-select2').css('top').split('px')[0] - 10 + 'px'
+                        );
+                    }
+                });
+
+                // when a criterion is selected add it to criteria container, remove it from dropdown options and reset select
+                $criteriaSelect.on('change', () => {
+                    const criterionToAdd = $criteriaSelect.children('option:selected').val();
+                    addNewCriterion(criterionToAdd);
+                    $criteriaSelect.children('option:selected').remove();
+                    $criteriaSelect.select2('val', '');
+                });
+            })
+            .catch(function (e) {
+                return instance.trigger('error', e);
             });
-        })
-        .catch(function (e) {
-            return instance.trigger('error', e);
-        });
     }
 
     /**
