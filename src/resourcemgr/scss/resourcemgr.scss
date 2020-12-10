@@ -183,6 +183,7 @@
             padding: 0;
             list-style-type: none;
             max-height: 550px;
+            overflow-y: auto;
             li {
                 height: 35px;
                 line-height: 35px;
@@ -242,6 +243,12 @@
         .file-upload-container {
             display: none;
             padding: 0 5px;
+        }
+        .pagination-bottom {  
+            position: absolute;
+            bottom: 0;
+            right: 10px;
+            left: 10px;
         }
     }
 }

@@ -1,5 +1,23 @@
+/**
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; under version 2
+ * of the License (non-upgradable).
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * Copyright (c) 2018-2020 (original work) Open Assessment Technologies SA;
+ */
 import $ from 'jquery';
 import _ from 'lodash';
+import paginationComponent from 'ui/pagination';
 
 var ns = 'resourcemgr';
 
@@ -11,6 +29,13 @@ export default function(options) {
     var $divContainer = $('.' + root, $fileBrowser);
     var $folderContainer = $('.folders', $divContainer);
     var fileTree = {};
+    // for pagination
+    let selectedClass = {
+        path: path,
+        limit: 10,
+        total: 0,
+        page: 1
+    }
 
     //load the content of the ROOT
     getFolderContent(fileTree, path, function(content) {
@@ -29,8 +54,10 @@ export default function(options) {
             .find('li.active')
             .removeClass('active');
         $('li.root', $folderContainer).addClass('active');
-        $rootNode.attr('data-path', content.path).text(content.label);
-        $container.trigger('folderselect.' + ns, [content.label, content.children, content.path]);
+        $rootNode.attr('data-path', content.path).attr('data-limit', content.limit).attr('data-total', content.total).text(content.label);
+        $container.trigger('folderselect.' + ns, [content.label, getPage(content.children), content.path]);
+        updateSelectedClass(content.path, content.total, content.limit);
+        renderPagination($container, content);
     });
 
     // by clicking on the tree (using a live binding  because content is not complete yet)
@@ -39,7 +66,7 @@ export default function(options) {
         var $selected = $(this);
         var $folders = $('.folders li', $fileBrowser);
         var fullPath = $selected.data('path');
-        var displayPath = $selected.data('display');
+        updateSelectedClass(fullPath, $selected.data('total'), $selected.data('limit'));
         var subTree = getByPath(fileTree, fullPath);
 
         //get the folder content
@@ -66,7 +93,8 @@ export default function(options) {
                 $selected.parent('li').addClass('active');
 
                 //internal event to set the file-selector content
-                $container.trigger('folderselect.' + ns, [content.label, content.children, content.path]);
+                $container.trigger('folderselect.' + ns, [content.label, getPage(content.children), content.path]);
+                renderPagination($container, content);
             }
         });
     });
@@ -79,7 +107,7 @@ export default function(options) {
             }
             if (!_.find(subTree.children, { name: file.name })) {
                 subTree.children.push(file);
-                $container.trigger('folderselect.' + ns, [subTree.label, subTree.children, path]);
+                $container.trigger('folderselect.' + ns, [subTree.label, getPage(subTree.children), path]);
             }
         }
     });
@@ -88,6 +116,12 @@ export default function(options) {
         removeFromPath(fileTree, path);
     });
 
+    function getPage(children) {
+        const files = _.filter(children, function(item) {
+            return !!item.uri;
+        })
+        return files.slice((selectedClass.page - 1) * selectedClass.limit, selectedClass.page * selectedClass.limit);
+    }
     /**
      * Get the content of a folder, either in the model or load it
      * @param {Object} tree - the tree model
@@ -109,6 +143,15 @@ export default function(options) {
                     tree.empty = true;
                 }
                 cb(data);
+            });
+        } else if (content.children && !content.empty && content.children.length < selectedClass.page * selectedClass.limit) {
+            loadContent(path).done(function(data) {
+                const files = _.filter(data.children, function(item) {
+                    return !!item.uri;
+                });
+                setToPath(tree, path, files);
+                content = getByPath(tree, path);
+                cb(content);
             });
         } else {
             cb(content);
@@ -149,7 +192,7 @@ export default function(options) {
         var done = false;
         if (tree) {
             if (tree.path === path) {
-                tree.children = data;
+                tree.children = tree.children ? tree.children.concat(data) : data;
             } else if (tree.children) {
                 _.forEach(tree.children, function(child) {
                     done = setToPath(child, path, data);
@@ -190,7 +233,14 @@ export default function(options) {
     function loadContent(path) {
         var parameters = {};
         parameters[options.pathParam] = path;
-        return $.getJSON(options.browseUrl, _.merge(parameters, options.params));
+        return $.getJSON(
+            options.browseUrl, 
+            _.merge(
+                parameters,
+                options.params,
+                { offset: (selectedClass.page - 1) * selectedClass.limit }
+            )
+        );
     }
 
     /**
@@ -210,6 +260,10 @@ export default function(options) {
                     data.path +
                     '" data-display="' +
                     data.relPath +
+                    '" data-total="' +
+                    (data.total || 0) +
+                    '" data-limit="' +
+                    data.limit +
                     '" href="#">' +
                     data.label +
                     '</a></li>'
@@ -220,5 +274,52 @@ export default function(options) {
                 updateFolders(child, $parent, true);
             });
         }
+    }
+    function updateSelectedClass(path, total, limit) {
+        selectedClass = {
+            path,
+            total,
+            limit,
+            page: 1
+        };
+    }
+    /**
+     * Render pagination
+     * @param {jQueryElement} $container - container for pagination component
+     * @param {Object} data
+     */
+    function renderPagination($container) {
+        const $paginationContainer = $('.pagination-bottom', $container);
+        $paginationContainer.empty();
+        const totalPages = Math.ceil(selectedClass.total / selectedClass.limit);
+
+        if (selectedClass.total && totalPages > 1) {
+            paginationComponent({
+                mode: 'simple',
+                activePage: selectedClass.page,
+                totalPages
+            })
+                .on('prev', function () {
+                    page--;
+                    loadNewPage();
+                })
+                .on('next', function () {
+                    page++;
+                    loadNewPage();
+                })
+                .render($paginationContainer);
+        }
+    }
+
+    function loadNewPage() {
+        var subTree = getByPath(fileTree, fullPath);
+
+        //get the folder content
+        getFolderContent(subTree, fullPath, function(content) {
+            if (content) {
+                //internal event to set the file-selector content
+                $container.trigger('folderselect.' + ns, [content.label, getPage(content.children), content.path]);
+            }
+        });
     }
 }
