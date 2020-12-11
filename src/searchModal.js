@@ -385,7 +385,7 @@ export default function searchModalFactory(config) {
                 actions: [
                     {
                         id: 'go-to-item',
-                        label: __('Go to item'),
+                        label: __('View'),
                         action: function openResource(uri, data) {
                             instance.trigger('refresh', uri, data);
                             instance.destroy();
