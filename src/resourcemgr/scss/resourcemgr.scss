@@ -29,7 +29,7 @@
     .file-wrapper {
         overflow-y: auto;
         margin: 0 #{$rmSideMargin * 1px};
-        height: calc(100% - 40px - 30px - 40px); // full height - h2.padding - h2.height - modal.bottom-padding
+        height: calc(100% - 40px - 40px - 40px); // full height - h2.padding - h2.height - modal.bottom-padding
         @include flex-container();
     }
 
@@ -150,6 +150,8 @@
         border: solid 1px #fff;
         border-top: none;
         border-bottom: none;
+        display: flex;
+        flex-direction: column;
 
         background-color: $uiGeneralContentBg;
         & > h1 {
@@ -182,7 +184,7 @@
             margin-bottom: 0;
             padding: 0;
             list-style-type: none;
-            max-height: 550px;
+            flex-grow: 1;
             overflow-y: auto;
             li {
                 height: 35px;
@@ -245,10 +247,9 @@
             padding: 0 5px;
         }
         .pagination-bottom {  
-            position: absolute;
-            bottom: 0;
-            right: 10px;
-            left: 10px;
+            align-self: flex-end;
+            width: 100%;
+            padding: 5px 10px 0;
         }
     }
 }
