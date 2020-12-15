@@ -62,16 +62,19 @@ export default function mediaAlignmentFactory($container, media) {
              * Apply configurations to the view
              */
             update: function update(conf) {
-                const inputValue = $template.find('input[name="wrap"]').val(conf);
-                switch (inputValue) {
+                $template.find('input:checked').prop('checked', false);
+                switch (conf) {
                     case 'wrap-right':
                         conf = 'right';
+                        $template.find('input[name="wrap-right"]').prop('checked', true);
                         break;
                     case 'wrap-left':
                         conf = 'left';
+                        $template.find('input[name="wrap-left"]').prop('checked', true);
                         break;
                     default:
                         conf = 'default';
+                        $template.find('input[name="wrap-inline"]').prop('checked', true);
                         break;
                 }
                 media.align = conf;
@@ -86,17 +89,17 @@ export default function mediaAlignmentFactory($container, media) {
             $template.appendTo($container);
             switch (media.$node[0].className) {
                 case 'rgt':
-                    $template.find('input[name="wrap"]').val('wrap-right');
+                    $template.find('input[name="wrap-right"]').prop('checked', true);
                     break;
                 case 'lft':
-                    $template.find('input[name="wrap"]').val('wrap-left');
+                    $template.find('input[name="wrap-left"]').prop('checked', true);
                     break;
                 default:
-                    $template.find('input[name="wrap"]').val('wrap-inline');
+                    $template.find('input[name="wrap-inline"]').prop('checked', true);
                     break;
             }
             $template.on('click', function(event) {
-                event.target.value && this.update(event.target.value);
+                event.target.name && this.update(event.target.name);
             }.bind(this));
         })
         .on('destroy', function() {
