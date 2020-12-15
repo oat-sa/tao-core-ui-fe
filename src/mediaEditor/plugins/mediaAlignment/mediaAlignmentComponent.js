@@ -85,17 +85,20 @@ export default function mediaAlignmentFactory($container, media) {
 
     mediaAlignmentComponent
         .on('init', function() {
+            this.render($container);
+        })
+        .on('render', function () {
             $template = $(tpl());
             $template.appendTo($container);
             switch (media.$node[0].className) {
                 case 'rgt':
-                    $template.find('input[name="wrap-right"]').prop('checked', true);
+                    this.update('wrap-right');
                     break;
                 case 'lft':
-                    $template.find('input[name="wrap-left"]').prop('checked', true);
+                    this.update('wrap-left');
                     break;
                 default:
-                    $template.find('input[name="wrap-inline"]').prop('checked', true);
+                    this.update('wrap-inline');
                     break;
             }
             $template.on('click', function(event) {
