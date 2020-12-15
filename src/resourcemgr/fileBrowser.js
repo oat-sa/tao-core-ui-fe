@@ -34,7 +34,7 @@ export default function (options) {
     // for pagination
     let selectedClass = {
         path: path,
-        limit: 10,
+        childrenLimit: 10,
         total: 0,
         page: 1
     };
@@ -54,7 +54,7 @@ export default function (options) {
         //internal event to set the file-selector content
         $('.file-browser').find('li.active').removeClass('active');
         $container.trigger('folderselect.' + ns, [content.label, getPage(content.children), content.path]);
-        updateSelectedClass(content.path, content.total, content.limit);
+        updateSelectedClass(content.path, content.total, content.childrenLimit);
         renderPagination($container, content);
     });
 
@@ -64,7 +64,7 @@ export default function (options) {
         const $selected = $(this);
         const $folders = $('.folders li', $fileBrowser);
         const fullPath = $selected.data('path');
-        updateSelectedClass(fullPath, $selected.data('total'), $selected.data('limit'));
+        updateSelectedClass(fullPath, $selected.data('total'), $selected.data('childrenLimit'));
         const subTree = getByPath(fileTree, fullPath);
 
         //get the folder content
@@ -122,10 +122,10 @@ export default function (options) {
         const files = _.filter(children, function (item) {
             return !!item.uri;
         });
-        if (selectedClass.limit) {
+        if (selectedClass.childrenLimit) {
             return files.slice(
-                (selectedClass.page - 1) * selectedClass.limit,
-                selectedClass.page * selectedClass.limit
+                (selectedClass.page - 1) * selectedClass.childrenLimit,
+                selectedClass.page * selectedClass.childrenLimit
             );
         }
         return files;
@@ -155,7 +155,7 @@ export default function (options) {
         } else if (
             content.children &&
             !content.empty &&
-            content.children.length < selectedClass.page * selectedClass.limit
+            content.children.length < selectedClass.page * selectedClass.childrenLimit
         ) {
             loadContent(path).done(function (data) {
                 const files = _.filter(data.children, function (item) {
@@ -252,7 +252,7 @@ export default function (options) {
         parameters[options.pathParam] = path;
         return $.getJSON(
             options.browseUrl,
-            _.merge(parameters, options.params, { offset: (selectedClass.page - 1) * selectedClass.limit })
+            _.merge(parameters, options.params, { childrenOffset: (selectedClass.page - 1) * selectedClass.childrenLimit })
         );
     }
 
@@ -280,13 +280,13 @@ export default function (options) {
      * Update the selectedClass
      * @param {String} path - the folder path
      * @param {Number} total - files in class
-     * @param {Number} limit - page size
+     * @param {Number} childrenLimit - page size
      */
-    function updateSelectedClass(path, total, limit) {
+    function updateSelectedClass(path, total, childrenLimit) {
         selectedClass = {
             path,
             total,
-            limit,
+            childrenLimit,
             page: 1
         };
     }
@@ -298,7 +298,7 @@ export default function (options) {
     function renderPagination($container) {
         const $paginationContainer = $('.pagination-bottom', $container);
         $paginationContainer.empty();
-        const totalPages = Math.ceil(selectedClass.total / selectedClass.limit);
+        const totalPages = Math.ceil(selectedClass.total / selectedClass.childrenLimit);
 
         if (selectedClass.total && totalPages > 1) {
             paginationComponent({
