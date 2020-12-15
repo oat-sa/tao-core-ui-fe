@@ -64,7 +64,7 @@ export default function (options) {
         const $selected = $(this);
         const $folders = $('.folders li', $fileBrowser);
         const fullPath = $selected.data('path');
-        updateSelectedClass(fullPath, $selected.data('total'), $selected.data('childrenLimit'));
+        updateSelectedClass(fullPath, $selected.data('total'), $selected.data('children-limit'));
         const subTree = getByPath(fileTree, fullPath);
 
         //get the folder content
@@ -154,17 +154,26 @@ export default function (options) {
             });
         } else if (
             content.children &&
-            !content.empty &&
-            content.children.length < selectedClass.page * selectedClass.childrenLimit
+            !content.empty
         ) {
-            loadContent(path).done(function (data) {
-                const files = _.filter(data.children, function (item) {
-                    return !!item.uri;
-                });
-                setToPath(tree, path, files);
-                content = getByPath(tree, path);
-                cb(content);
+            const files = _.filter(content.children, function (item) {
+                return !!item.uri;
             });
+            // if files less then total and need toload this page
+            if ((files.length < selectedClass.total) &&
+                (files.length < selectedClass.page * selectedClass.childrenLimit)
+            ) {
+                loadContent(path).done(function (data) {
+                    const files = _.filter(data.children, function (item) {
+                        return !!item.uri;
+                    });
+                    setToPath(tree, path, files);
+                    content = getByPath(tree, path);
+                    cb(content);
+                });
+            } else {
+                cb(content);
+            }
         } else {
             cb(content);
         }
