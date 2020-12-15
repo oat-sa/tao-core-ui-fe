@@ -10,7 +10,12 @@ $invalidCriteriaBorder: #266d9c;
         padding-right: 20px;
         position: relative;
         .icon-add {
-            font-size: 1.6rem;
+            @include font-size(16);
+            position: relative;
+            top: 2px;
+            left: 2px;
+            color: $info;
+            padding-right: 8px
         }
         a {
             text-decoration: none;
