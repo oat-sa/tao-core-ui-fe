@@ -39,7 +39,7 @@ export default function mediaAlignmentFactory($container, media) {
     /**
      * Template of the dimension controller
      */
-    var $template, $fields;
+    let $template;
 
     /**
      * Size properties of the media control panel
@@ -56,25 +56,25 @@ export default function mediaAlignmentFactory($container, media) {
     /**
      * Current component
      */
-    var mediaAlignmentComponent = component(
+    const mediaAlignmentComponent = component(
         {
             /**
              * Apply configurations to the view
              */
             update: function update(conf) {
-                var selectedField;
-                $fields.each(function(index) {
-                    $fields[index].removeAttribute('checked');
-                });
-                if (conf === 'rgt') {
-                    selectedField= $template.find('input[name="wrap-right"]');
-                } else if (conf === 'lft') {
-                    selectedField = $template.find('input[name="wrap-left"]');
-                } else {
-                    selectedField = $template.find('input[name="wrap-inline"]');
+                const inputValue = $template.find('input[name="wrap"]').val(conf);
+                switch (inputValue) {
+                    case 'wrap-right':
+                        conf = 'right';
+                        break;
+                    case 'wrap-left':
+                        conf = 'left';
+                        break;
+                    default:
+                        conf = 'default';
+                        break;
                 }
-                selectedField[0].setAttribute('checked', '')
-                media.align = conf
+                media.align = conf;
                 this.trigger('change', media);
             }
         }
@@ -84,11 +84,20 @@ export default function mediaAlignmentFactory($container, media) {
         .on('init', function() {
             $template = $(tpl());
             $template.appendTo($container);
-            $fields = $template.find('input');
-            this.update(media.$node[0].className);
-            $template.on('click', function() {
-                this.update(media.$node[0].className);
-            });
+            switch (media.$node[0].className) {
+                case 'rgt':
+                    $template.find('input[name="wrap"]').val('wrap-right');
+                    break;
+                case 'lft':
+                    $template.find('input[name="wrap"]').val('wrap-left');
+                    break;
+                default:
+                    $template.find('input[name="wrap"]').val('wrap-inline');
+                    break;
+            }
+            $template.on('click', function(event) {
+                event.target.value && this.update(event.target.value);
+            }.bind(this));
         })
         .on('destroy', function() {
             $template.remove();
