@@ -56,7 +56,7 @@ export default function (options) {
         $('.file-browser').find('li.active').removeClass('active');
         updateSelectedClass(content.path, content.total, content.childrenLimit);
         $container.trigger('folderselect.' + ns, [content.label, getPage(content.children), content.path]);
-        renderPagination($container, content);
+        renderPagination();
     });
 
     // by clicking on the tree (using a live binding  because content is not complete yet)
@@ -93,7 +93,7 @@ export default function (options) {
 
                 //internal event to set the file-selector content
                 $container.trigger('folderselect.' + ns, [content.label, getPage(content.children), content.path]);
-                renderPagination($container, content);
+                renderPagination();
             }
         });
     });
@@ -104,15 +104,16 @@ export default function (options) {
             if (!subTree.children) {
                 subTree.children = [];
             }
-            if (!_.find(subTree.children, { name: file.name })) {
-                subTree.children.push(file);
-                $container.trigger('folderselect.' + ns, [subTree.label, getPage(subTree.children), path]);
-            }
+            subTree.children.push(file);
+            $container.trigger('folderselect.' + ns, [subTree.label, getPage(subTree.children), path]);
+            renderPagination();
         }
     });
 
     $container.on('filedelete.' + ns, function (e, path) {
-        removeFromPath(fileTree, path);
+        if (removeFromPath(fileTree, path)) {
+            loadPage();
+        }
     });
     /**
      * Get files for page
@@ -307,10 +308,9 @@ export default function (options) {
     }
     /**
      * Render pagination
-     * @param {jQueryElement} $container - container for pagination component
      * @param {Object} data
      */
-    function renderPagination($container) {
+    function renderPagination() {
         const $paginationContainer = $('.pagination-bottom', $container);
         $paginationContainer.empty();
         const totalPages = Math.ceil(selectedClass.total / selectedClass.childrenLimit);
@@ -323,19 +323,19 @@ export default function (options) {
             })
                 .on('prev', function () {
                     selectedClass.page--;
-                    loadNewPage();
+                    loadPage();
                 })
                 .on('next', function () {
                     selectedClass.page++;
-                    loadNewPage();
+                    loadPage();
                 })
                 .render($paginationContainer);
         }
     }
     /**
-     * Load new page
+     * Load page
      */
-    function loadNewPage() {
+    function loadPage() {
         const subTree = getByPath(fileTree, selectedClass.path);
 
         //get the folder content

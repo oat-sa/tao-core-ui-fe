@@ -25,6 +25,11 @@ export default function(options) {
             stopPreview();
         }
     });
+    $container.on('filedelete.' + ns, function (e, path) {
+        if (currentSelection.file == path) {
+            stopPreview();
+        }
+    });
 
     $selectButton.on('click', function(e) {
         e.preventDefault();
