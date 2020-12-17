@@ -123,6 +123,7 @@ $classTreeVariables: (
 
     .content-container {
         border: none;
+        padding: 64px !important;
         @include simple-flex-box();
     }
 
@@ -239,17 +240,19 @@ $classTreeVariables: (
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        padding: 60px 0px 20px 20px;
+        padding: 60px 0 20px 20px;
         .basic-search-container {
             padding-right: 20px;
+            margin-bottom: 8px;
             .class-filter-container {
                 cursor: pointer;
                 z-index: 2;
+                margin-bottom: 0;
             }
         }
         .filter-container {
             position: relative;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             > .icon-find,
             > .icon-folder {
                 position: absolute;
@@ -287,13 +290,16 @@ $classTreeVariables: (
             display: flex;
             justify-content: space-around;
             button {
-                width: 45%;
+                flex: 1;
             }
             .btn-transparent {
                 background-color: transparent;
                 border: 1px solid black;
                 color: black;
                 text-shadow: none;
+            }
+            .btn-search {
+                margin-left: 16px;
             }
         }
     }
@@ -332,7 +338,7 @@ $classTreeVariables: (
         color: $textColor !important;
         background-color: transparent;
         padding: 0;
-        height: 20px;
+        height: 24px;
         .icon-close {
             font-size: 2rem;
         }
