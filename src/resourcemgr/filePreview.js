@@ -4,20 +4,20 @@ import bytes from 'util/bytes';
 import context from 'context';
 import 'ui/previewer';
 
-var ns = 'resourcemgr';
+const ns = 'resourcemgr';
 
 export default function(options) {
-    var $container = options.$target;
-    var $filePreview = $('.file-preview', $container);
-    var $previewer = $('.previewer', $container);
-    var $propType = $('.prop-type', $filePreview);
-    var $propSize = $('.prop-size', $filePreview);
-    var $propUrl = $('.prop-url', $filePreview);
-    var $link = $('a', $propUrl);
-    var $selectButton = $('.select-action', $filePreview);
-    var currentSelection = [];
+    const $container = options.$target;
+    const $filePreview = $('.file-preview', $container);
+    const $previewer = $('.previewer', $container);
+    const $propType = $('.prop-type', $filePreview);
+    const $propSize = $('.prop-size', $filePreview);
+    const $propUrl = $('.prop-url', $filePreview);
+    const $link = $('a', $propUrl);
+    const $selectButton = $('.select-action', $filePreview);
+    let currentSelection = [];
 
-    $container.on('fileselect.' + ns, function(e, file) {
+    $container.on(`fileselect.${ns}`, function(e, file) {
         if (file && file.file) {
             startPreview(file);
             currentSelection = file;
@@ -25,8 +25,8 @@ export default function(options) {
             stopPreview();
         }
     });
-    $container.on('filedelete.' + ns, function (e, path) {
-        if (currentSelection.file == path) {
+    $container.on(`filedelete.${ns}`, function (e, path) {
+        if (currentSelection.file === path) {
             stopPreview();
         }
     });
@@ -34,17 +34,17 @@ export default function(options) {
     $selectButton.on('click', function(e) {
         e.preventDefault();
 
-        var data = _.pick(currentSelection, ['file', 'type', 'mime', 'size', 'alt']);
+        const data = _.pick(currentSelection, ['file', 'type', 'mime', 'size', 'alt']);
         if (context.mediaSources && context.mediaSources.length === 0 && data.file.indexOf('local/') > -1) {
             data.file = data.file.substring(6);
         }
 
-        $container.trigger('select.' + ns, [[data]]);
+        $container.trigger(`select.${ns}`, [[data]]);
     });
 
     function startPreview(file) {
         $previewer.previewer(file);
-        $propType.text(file.type + ' (' + file.mime + ')');
+        $propType.text(`${file.type} (${file.mime})`);
         $propSize.text(bytes.hrSize(file.size));
         $link.attr('href', file.download).attr('download', file.file);
         if ($link.hasClass('hidden')) {

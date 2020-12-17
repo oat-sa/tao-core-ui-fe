@@ -25,23 +25,23 @@ import folderTpl from 'ui/resourcemgr/tpl/folder';
 const ns = 'resourcemgr';
 
 export default function (options) {
-    const root = options.root || '/';
-    const path = options.path || '/';
+    const root = options.root || 'local';
+    const rootPath = options.path || '/';
     const $container = options.$target;
     const $fileBrowser = $('.file-browser .file-browser-wrapper', $container);
-    const $divContainer = $('.' + root, $fileBrowser);
+    const $divContainer = $(`.${root}`, $fileBrowser);
     const $folderContainer = $('.folders', $divContainer);
     const fileTree = {};
     // for pagination
     let selectedClass = {
-        path: path,
+        path: rootPath,
         childrenLimit: 10,
         total: 0,
         page: 1
     };
 
     //load the content of the ROOT
-    getFolderContent(fileTree, path, function (content) {
+    getFolderContent(fileTree, rootPath, function (content) {
         //create the tree node for the ROOT folder by default once the initial content loaded
         $folderContainer.append(rootFolderTpl(content));
 
@@ -55,7 +55,7 @@ export default function (options) {
         //internal event to set the file-selector content
         $('.file-browser').find('li.active').removeClass('active');
         updateSelectedClass(content.path, content.total, content.childrenLimit);
-        $container.trigger('folderselect.' + ns, [content.label, getPage(content.children), content.path]);
+        $container.trigger(`folderselect.${ns}`, [content.label, getPage(content.children), content.path]);
         renderPagination();
     });
 
@@ -65,8 +65,8 @@ export default function (options) {
         const $selected = $(this);
         const $folders = $('.folders li', $fileBrowser);
         const fullPath = $selected.data('path');
-        updateSelectedClass(fullPath, $selected.data('total'), $selected.data('children-limit'));
         const subTree = getByPath(fileTree, fullPath);
+        updateSelectedClass(fullPath, subTree.total, $selected.data('children-limit'));
 
         //get the folder content
         getFolderContent(subTree, fullPath, function (content) {
@@ -92,33 +92,38 @@ export default function (options) {
                 $selected.parent('li').addClass('active');
 
                 //internal event to set the file-selector content
-                $container.trigger('folderselect.' + ns, [content.label, getPage(content.children), content.path]);
+                $container.trigger(`folderselect.${ns}`, [content.label, getPage(content.children), content.path]);
                 renderPagination();
             }
         });
     });
 
-    $container.on('filenew.' + ns, function (e, file, path) {
+    $container.on(`filenew.${ns}`, function (e, file, path) {
         const subTree = getByPath(fileTree, path);
         if (subTree) {
             if (!subTree.children) {
                 subTree.children = [];
             }
-            subTree.children.push(file);
-            $container.trigger('folderselect.' + ns, [subTree.label, getPage(subTree.children), path]);
-            renderPagination();
+            if (root !== 'local' || !_.find(subTree.children, { name: file.name })) {
+                subTree.children.push(file);
+                subTree.total++;
+                selectedClass.total++;
+                $container.trigger(`folderselect.${ns}`, [subTree.label, getPage(subTree.children), path]);
+                renderPagination();
+            }
         }
     });
 
-    $container.on('filedelete.' + ns, function (e, path) {
+    $container.on(`filedelete.${ns}`, function (e, path) {
         if (removeFromPath(fileTree, path)) {
+            selectedClass.total--;
             loadPage();
         }
     });
     /**
      * Get files for page
      * @param {Array} children
-     * @return {Array} children for this page
+     * @returns {Array} files for this page
      */
     function getPage(children) {
         const files = _.filter(children, function (item) {
@@ -136,7 +141,7 @@ export default function (options) {
      * Get the content of a folder, either in the model or load it
      * @param {Object} tree - the tree model
      * @param {String} path - the folder path (relative to the root)
-     * @param {Function} cb- called back with the content in 1st parameter
+     * @param {Function} cb - called back with the content in 1st parameter
      */
     function getFolderContent(tree, path, cb) {
         let content = getByPath(tree, path);
@@ -148,7 +153,7 @@ export default function (options) {
                     if (!_.find(content.children, 'path')) {
                         tree.empty = true;
                     }
-                    setToPath(tree, path, data.children);
+                    setToPath(tree, path, data);
                 } else {
                     tree.empty = true;
                 }
@@ -166,10 +171,10 @@ export default function (options) {
                 (files.length < selectedClass.page * selectedClass.childrenLimit)
             ) {
                 loadContent(path).then(function (data) {
-                    const files = _.filter(data.children, function (item) {
+                    const loadedFiles = _.filter(data.children, function (item) {
                         return !!item.uri;
                     });
-                    setToPath(tree, path, files);
+                    setToPath(tree, path, {children: loadedFiles});
                     content = getByPath(tree, path);
                     cb(content);
                 });
@@ -215,7 +220,10 @@ export default function (options) {
         let done = false;
         if (tree) {
             if (tree.path === path) {
-                tree.children = tree.children ? tree.children.concat(data) : data;
+                tree.children = tree.children ? tree.children.concat(data.children) : data.children;
+                if (data.total) {
+                    tree.total = data.total;
+                }
             } else if (tree.children) {
                 _.forEach(tree.children, function (child) {
                     done = setToPath(child, path, data);
@@ -241,6 +249,7 @@ export default function (options) {
                 return child.path === path || (child.name && tree.path + child.name === path) || child.uri === path;
             });
             done = removed.length > 0;
+            tree.total--;
             if (!done) {
                 _.forEach(tree.children, function (child) {
                     done = removeFromPath(child, path);
@@ -267,9 +276,7 @@ export default function (options) {
             dataType: 'json',
             data: _.merge(parameters, options.params, { childrenOffset: (selectedClass.page - 1) * selectedClass.childrenLimit }),
             noToken: true,
-        }).then(response => {
-            return response.data;
-        });
+        }).then(response => response.data);
     }
 
     /**
@@ -308,7 +315,6 @@ export default function (options) {
     }
     /**
      * Render pagination
-     * @param {Object} data
      */
     function renderPagination() {
         const $paginationContainer = $('.pagination-bottom', $container);
@@ -342,7 +348,7 @@ export default function (options) {
         getFolderContent(subTree, selectedClass.path, function (content) {
             if (content) {
                 //internal event to set the file-selector content
-                $container.trigger('folderselect.' + ns, [content.label, getPage(content.children), content.path]);
+                $container.trigger(`folderselect.${ns}`, [content.label, getPage(content.children), content.path]);
             }
         });
     }
