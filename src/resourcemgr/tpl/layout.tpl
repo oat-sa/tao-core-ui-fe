@@ -29,6 +29,8 @@
 
             <div class="file-upload-container"></div>
 
+            <div class="pagination-bottom"></div>
+
         </section>
 
         <section class="file-preview">
