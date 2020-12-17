@@ -17,6 +17,7 @@
  */
 import $ from 'jquery';
 import _ from 'lodash';
+import request from 'core/request';
 import paginationComponent from 'ui/pagination';
 import rootFolderTpl from 'ui/resourcemgr/tpl/rootFolder';
 import folderTpl from 'ui/resourcemgr/tpl/folder';
@@ -53,8 +54,8 @@ export default function (options) {
         updateFolders(content, $innerList);
         //internal event to set the file-selector content
         $('.file-browser').find('li.active').removeClass('active');
-        $container.trigger('folderselect.' + ns, [content.label, getPage(content.children), content.path]);
         updateSelectedClass(content.path, content.total, content.childrenLimit);
+        $container.trigger('folderselect.' + ns, [content.label, getPage(content.children), content.path]);
         renderPagination($container, content);
     });
 
@@ -139,7 +140,7 @@ export default function (options) {
     function getFolderContent(tree, path, cb) {
         let content = getByPath(tree, path);
         if (!content || (!content.children && !content.empty)) {
-            loadContent(path).done(function (data) {
+            loadContent(path).then(function (data) {
                 if (!tree.path) {
                     tree = _.merge(tree, data);
                 } else if (data.children) {
@@ -163,7 +164,7 @@ export default function (options) {
             if ((files.length < selectedClass.total) &&
                 (files.length < selectedClass.page * selectedClass.childrenLimit)
             ) {
-                loadContent(path).done(function (data) {
+                loadContent(path).then(function (data) {
                     const files = _.filter(data.children, function (item) {
                         return !!item.uri;
                     });
@@ -259,10 +260,15 @@ export default function (options) {
     function loadContent(path) {
         const parameters = {};
         parameters[options.pathParam] = path;
-        return $.getJSON(
-            options.browseUrl,
-            _.merge(parameters, options.params, { childrenOffset: (selectedClass.page - 1) * selectedClass.childrenLimit })
-        );
+        return request({
+            url: options.browseUrl,
+            method: 'GET',
+            dataType: 'json',
+            data: _.merge(parameters, options.params, { childrenOffset: (selectedClass.page - 1) * selectedClass.childrenLimit }),
+            noToken: true,
+        }).then(response => {
+            return response.data;
+        });
     }
 
     /**
