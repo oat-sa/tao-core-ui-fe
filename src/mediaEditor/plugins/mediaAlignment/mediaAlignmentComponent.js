@@ -65,11 +65,11 @@ export default function mediaAlignmentFactory($container, media) {
                 $template.find('input:checked').prop('checked', false);
                 switch (conf) {
                     case 'wrap-right':
-                        conf = 'right txt-rgt';
+                        conf = 'right';
                         $template.find('input[name="wrap-right"]').prop('checked', true);
                         break;
                     case 'wrap-left':
-                        conf = 'left txt-lft';
+                        conf = 'left';
                         $template.find('input[name="wrap-left"]').prop('checked', true);
                         break;
                     default:
