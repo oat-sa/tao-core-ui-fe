@@ -245,7 +245,7 @@ $classTreeVariables: (
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        padding: 60px 0px 20px 20px;
+        padding: 64px 0px 20px 20px;
         .filters-container {
             flex: 1 1 auto;
             height: 100%;
@@ -263,12 +263,15 @@ $classTreeVariables: (
         }
         .filter-container {
             position: relative;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            &:last-child {
+                padding-bottom: 16px;
+            }
             > .icon-find,
             > .icon-folder {
                 position: absolute;
                 top: 7px;
-                left: 5px;
+                left: 8px;
                 color: #666;
             }
             .icon-down {
@@ -278,7 +281,7 @@ $classTreeVariables: (
             }
             > input {
                 width: 100%;
-                padding-left: 25px;
+                padding-left: 28px;
             }
             .class-filter {
                 cursor: pointer;
@@ -299,11 +302,12 @@ $classTreeVariables: (
         }
         .buttons-container {
             flex: 0 0 auto;
-            padding-right: 20px;
+            padding-right: 4px;
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
             button {
-                width: 45%;
+                flex: 1 1 auto;
+                margin-right: 16px;
                 vertical-align: top;
             }
             .btn-transparent {
@@ -315,6 +319,9 @@ $classTreeVariables: (
         }
     }
     .content-container {
+        @media screen and (min-width: 840px) {
+            padding: 64px !important;
+        }
         .no-datatable-container {
             display: flex;
             flex-direction: column;
@@ -349,9 +356,9 @@ $classTreeVariables: (
         color: $textColor !important;
         background-color: transparent;
         padding: 0;
-        height: 20px;
+        height: 24px;
         .icon-close {
-            font-size: 2rem;
+            font-size: 2.4rem;
         }
     }
 }
