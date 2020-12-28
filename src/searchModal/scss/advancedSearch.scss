@@ -54,7 +54,15 @@ $invalidCriteriaBorder: #266d9c;
                 top: 2px;
                 cursor: pointer;
                 position: absolute;
-                font-size: 1.6rem;
+                font-size: 1.6rem !important;
+                font-weight: 400;
+                padding: 0;
+                background: transparent;
+                box-shadow: none;
+                border: 0;
+                color: inherit;
+                height: 1.6rem;
+                z-index: 1;
             }
             label {
                 width: 100%;
@@ -63,7 +71,7 @@ $invalidCriteriaBorder: #266d9c;
             }
             .filter-label-text {
                 padding-bottom: 4px;
-                display: block;
+                display: inline-block;
             }
             &[data-type='text'] {
                 input {
