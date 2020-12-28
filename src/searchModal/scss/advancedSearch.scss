@@ -82,6 +82,9 @@ $invalidCriteriaBorder: #266d9c;
                 input[type='checkbox'] {
                     width: initial;
                 }
+                input[type='text'] {
+                    width: 100%;
+                }
             }
         }
         .invalid-criteria-warning-container {
