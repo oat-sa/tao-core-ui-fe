@@ -66,7 +66,6 @@ export default function (options) {
         const $folders = $('.folders li', $fileBrowser);
         const fullPath = $selected.data('path');
         const subTree = getByPath(fileTree, fullPath);
-        updateSelectedClass(fullPath, subTree.total, $selected.data('children-limit'));
 
         //get the folder content
         getFolderContent(subTree, fullPath, function (content) {
@@ -92,6 +91,7 @@ export default function (options) {
                 $selected.parent('li').addClass('active');
 
                 //internal event to set the file-selector content
+                updateSelectedClass(fullPath, subTree.total, $selected.data('children-limit'));
                 $container.trigger(`folderselect.${ns}`, [content.label, getPage(content.children), content.path]);
                 renderPagination();
             }
@@ -150,7 +150,8 @@ export default function (options) {
                 if (!tree.path) {
                     tree = _.merge(tree, data);
                 } else if (data.children) {
-                    if (!_.find(content.children, 'path')) {
+                    if (!_.find(data.children, 'path')) {
+                        // no subfolders inside folder
                         tree.empty = true;
                     }
                     setToPath(tree, path, data);
@@ -159,10 +160,7 @@ export default function (options) {
                 }
                 cb(data);
             });
-        } else if (
-            content.children &&
-            !content.empty
-        ) {
+        } else if (content.children) {
             const files = _.filter(content.children, function (item) {
                 return !!item.uri;
             });
