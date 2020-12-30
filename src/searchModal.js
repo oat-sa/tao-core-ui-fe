@@ -115,7 +115,6 @@ export default function searchModalFactory(config) {
             .modal({
                 disableEscape: false,
                 width: $(window).width(),
-                minHeight: $(window).height(),
                 modalCloseClass: 'modal-close-left'
             })
             .focus();
