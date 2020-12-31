@@ -61,8 +61,12 @@ $invalidCriteriaBorder: #266d9c;
                 box-shadow: none;
                 border: 0;
                 color: inherit;
-                height: 1.6rem;
+                height: 1.8rem;
                 z-index: 1;
+                border: 1px dashed transparent;
+                &:focus {
+                    border-color: $darkBar;
+                }
             }
             label {
                 width: 100%;
