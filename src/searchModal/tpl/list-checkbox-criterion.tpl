@@ -1,5 +1,5 @@
 <div class="filter-container {{criterion.id}}-filter" data-criteria="{{criterion.label}}"  data-type="{{criterion.type}}">
-    <span class="icon-result-nok"></span>
+    <button class="icon-result-nok" aria-label="{{__ "Remove criteria"}}"></button>
     <span>{{criterion.label}}</span>
     <ul>
     {{#each criterion.values}}
