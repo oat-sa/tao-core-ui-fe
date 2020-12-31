@@ -54,15 +54,33 @@ $invalidCriteriaBorder: #266d9c;
                 top: 2px;
                 cursor: pointer;
                 position: absolute;
-                font-size: 1.6rem;
+                font-size: 1.6rem !important;
+                font-weight: 400;
+                padding: 0;
+                background: transparent;
+                box-shadow: none;
+                border: 0;
+                color: inherit;
+                height: 1.8rem;
+                z-index: 1;
+                border: 1px dashed transparent;
+                &:focus {
+                    border-color: $darkBar;
+                }
+            }
+            label {
+                width: 100%;
+                padding: 0;
+                margin: 0;
             }
             .filter-label-text {
-                padding-bottom:4px;
+                padding-bottom: 4px;
                 display: inline-block;
             }
             &[data-type='text'] {
                 input {
                     padding-left: 4px;
+                    width: 100%;
                 }
             }
             &[data-type='list'] {
@@ -75,6 +93,9 @@ $invalidCriteriaBorder: #266d9c;
                 }
                 input[type='checkbox'] {
                     width: initial;
+                }
+                input[type='text'] {
+                    width: 100%;
                 }
             }
         }
