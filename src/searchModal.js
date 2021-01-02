@@ -258,15 +258,50 @@ export default function searchModalFactory(config) {
         });
 
         /**
-         * clicking on class filter input will toggle resource selector,
-         * will preventDefault to avoid focus on input field,
-         * and will stopPropagation to prevent be closed
+         * Pressing space, enter, esc, backspace 
+         * on class filter input will toggle resource selector
+         */
+        $classFilterInput.on('keyup', e => {
+            const spacePressed = e.code === "Space" || e.which === 32;
+            const enterPressed = e.code === "Enter" || e.key === "Enter"|| e.which === 13;
+            const backspacePressed = e.code === "Backspace" || e.key === "Backspace" || e.which === 8;
+            const escPressed = e.code === "Escape" || e.key === "Escape" || e.which === 27;
+
+            if (spacePressed || enterPressed) {
+                $classTreeContainer.show();
+                return;
+            }
+
+            if (backspacePressed || escPressed) {
+                $classTreeContainer.hide();
+            }
+        });
+
+        /**
+         * Pressing esc stopPropagation prevents modal dialog from closing
+         */
+        $classFilterInput.on('keydown', e => {
+            const escPressed = e.code === "Escape" || e.key === "Escape" || e.which === 27;
+
+            if (escPressed) {
+                e.stopPropagation();
+            }
+        });
+
+        /**
+         * clicking on class filter container will toggle resource selector
+         */
+        $classFilterContainer.on('click', e => {
+            $classTreeContainer.toggle();
+        });
+        
+        /**
+         * clicking on class filter container will
+         * stopPropagation to prevent be closed
          * by searchModal.mouseDown listener
          */
         $classFilterContainer.on('mousedown', e => {
-            e.preventDefault();
             e.stopPropagation();
-            $classTreeContainer.toggle();
         });
 
         // clicking on resource selector will stopPropagation to prevent be closed by searchModal.mouseDown listener
