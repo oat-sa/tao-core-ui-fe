@@ -265,6 +265,16 @@ var _checkSupport = function(media, mimeType) {
 };
 
 /**
+ * Checks if the browser can play media
+ * @param {String} sizeProps Width or Height
+ * @returns {Boolean}
+ * @private
+ */
+var _isResponsiveSize = function(sizeProps) {
+    return /%/.test(sizeProps) || sizeProps === 'auto';
+};
+
+/**
  * Support dection
  * @type {Object}
  * @private
@@ -1379,20 +1389,24 @@ var mediaplayer = {
         var type = this.is('video') ? 'video' : 'audio';
         var defaults = _defaults[type] || _defaults.video;
 
-        width = Math.max(defaults.minWidth, width);
-        height = Math.max(defaults.minHeight, height);
+        if (!_isResponsiveSize(width)) {
+            width = Math.max(defaults.minWidth, width);
+            height = Math.max(defaults.minHeight, height);
 
-        this.config.width = width;
-        this.config.height = height;
+            this.config.width = width;
+            this.config.height = height;
 
-        if (this.$component) {
-            height -= this.$component.outerHeight() - this.$component.height();
-            width -= this.$component.outerWidth() - this.$component.width();
-            this.$component.width(width).height(height);
+            if (this.$component) {
+                height -= this.$component.outerHeight() - this.$component.height();
+                width -= this.$component.outerWidth() - this.$component.width();
+                this.$component.width(width).height(height);
 
-            if (!this.is('nogui')) {
-                height -= this.$controls.outerHeight();
+                if (!this.is('nogui')) {
+                    height -= this.$controls.outerHeight();
+                }
             }
+        } else {
+            height = 'auto';
         }
 
         this.execute('setSize', width, height);
@@ -1440,7 +1454,20 @@ var mediaplayer = {
 
         return this;
     },
+    /**
+     * get media original size
+     * @returns {Object}
+     */
+    getMediaOriginalSize: function getMediaOriginalSize() {
+        if (this.type === 'video') {
+            return {
+                width: this.$media.get(0).videoWidth,
+                height: this.$media.get(0).videoHeight
+            };
+        }
 
+        return {};
+    },
     /**
      * Ensures the right media type is set
      * @param {String} type
@@ -1561,8 +1588,10 @@ var mediaplayer = {
         var type = this.is('video') ? 'video' : 'audio';
         var defaults = _defaults[type] || _defaults.video;
 
-        this.config.width = _.parseInt(this.config.width) || defaults.width;
-        this.config.height = _.parseInt(this.config.height) || defaults.height;
+        if (!_isResponsiveSize(this.config.width)) {
+            this.config.width = _.parseInt(this.config.width) || defaults.width;
+            this.config.height = _.parseInt(this.config.height) || defaults.height;
+        }
     },
 
     /**

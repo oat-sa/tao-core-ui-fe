@@ -32,6 +32,7 @@ $playerSliderHightlight: whiten($playerSliderColor, .2);
 
     .player {
         position: relative;
+        text-align: center;
 
         iframe {
             pointer-events: none;
