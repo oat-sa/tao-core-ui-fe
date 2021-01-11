@@ -98,21 +98,21 @@ export default function mediaEditorFactory($container, media, config) {
             var $dimensionTools = $('.media-dimension', this.getTemplate());
             var plugin;
             if (this.getConfig().mediaDimension.active) {
-                plugin = mediaDimensionComponent($dimensionTools, media, { responsive: media.responsive }).on(
-                    'change',
-                    function(conf) {
-                        media.responsive = conf.responsive;
-                        if (conf.responsive) {
-                            // percent
-                            media.width = conf.sizeProps['%'].current.width;
-                            media.height = null;
-                        } else {
-                            media.width = conf.sizeProps.px.current.width;
-                            media.height = conf.sizeProps.px.current.height;
-                        }
-
-                        self.trigger('change', media);
+                plugin = mediaDimensionComponent($dimensionTools, media,
+                    { responsive: media.responsive, showResponsiveToggle: this.getConfig().mediaDimension.showResponsiveToggle })
+                .on('change', function(conf) {
+                    media.responsive = conf.responsive;
+                    if (conf.responsive) {
+                        // percent
+                        media.width = conf.sizeProps['%'].current.width;
+                        media.height = null;
+                    } else {
+                        media.width = conf.sizeProps.px.current.width;
+                        media.height = conf.sizeProps.px.current.height;
                     }
+
+                    self.trigger('change', media);
+                }
                 );
 
                 plugins.push(plugin);
