@@ -177,8 +177,8 @@ export default function mediaDimensionFactory($container, media, config) {
                 var syncDim = initialConfig.syncDimensions;
                 if (this.is('rendered')) {
                     // revert the sizes to the original of the image
-                    initialConfig.sizeProps.px.current.width = media.$node[0].naturalWidth;
-                    initialConfig.sizeProps.px.current.height = media.$node[0].naturalHeight;
+                    initialConfig.sizeProps.px.current.width = media.$node[0].naturalWidth || media.$node[0].videoWidth;
+                    initialConfig.sizeProps.px.current.height = media.$node[0].naturalHeight || media.$node[0].videoHeight;
                     initialConfig.sizeProps.ratio.current = initialConfig.sizeProps.ratio.natural;
 
                     // reset needs to restore everything
@@ -450,6 +450,8 @@ export default function mediaDimensionFactory($container, media, config) {
 
     mediaDimensionComponent
         .on('init', function() {
+            var naturalWidth = media.$node[0].naturalWidth || media.$node[0].videoWidth;
+            var naturalHeight = media.$node[0].naturalHeight || media.$node[0].videoHeight;
             var mediaProps = {
                 px: {
                     current: {
@@ -457,8 +459,8 @@ export default function mediaDimensionFactory($container, media, config) {
                         height: media.height
                     },
                     natural: {
-                        width: media.$node[0].naturalWidth ? media.$node[0].naturalWidth : media.width,
-                        height: media.$node[0].naturalHeight ? media.$node[0].naturalHeight : media.height
+                        width:  naturalWidth ? naturalWidth : media.width,
+                        height: naturalHeight ? naturalHeight : media.height
                     }
                 },
                 '%': {
