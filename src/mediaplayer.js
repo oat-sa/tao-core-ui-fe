@@ -101,16 +101,12 @@ var volumePositionThreshold = 200;
 var _defaults = {
     type: 'video/mp4',
     video: {
-        width: 480,
-        height: 270,
-        minWidth: 200,
-        minHeight: 200
+        width: '100%',
+        height: 'auto'
     },
     audio: {
-        width: 400,
-        height: 30,
-        minWidth: 200,
-        minHeight: 36
+        width: '100%',
+        height: 'auto'
     },
     options: {
         volume: Math.floor(_volumeRange * 0.8),
@@ -493,6 +489,7 @@ var _youtubeManager = {
  * @private
  */
 var _youtubePlayer = function(mediaplayer) {
+    var $component;
     var $media;
     var media;
     var player;
@@ -510,6 +507,7 @@ var _youtubePlayer = function(mediaplayer) {
     if (mediaplayer) {
         player = {
             init: function _youtubePlayerInit() {
+                $component  = mediaplayer.$component;
                 $media = mediaplayer.$media;
                 media = null;
                 destroyed = false;
@@ -640,8 +638,8 @@ var _youtubePlayer = function(mediaplayer) {
             },
 
             setSize: function _youtubePlayerSetSize(width, height) {
-                if ($media) {
-                    $media.width(width).height(height);
+                if ($component) {
+                    $component.width(width).height(height);
                 }
                 if (media) {
                     media.setSize(width, height);
@@ -737,6 +735,7 @@ var _youtubePlayer = function(mediaplayer) {
  * @private
  */
 var _nativePlayer = function(mediaplayer) {
+    var $component;
     var $media;
     var media;
     var player;
@@ -748,6 +747,7 @@ var _nativePlayer = function(mediaplayer) {
                 var result = false;
                 var mediaElem;
 
+                $component  = mediaplayer.$component;
                 $media = mediaplayer.$media;
                 media = null;
                 played = false;
@@ -890,8 +890,8 @@ var _nativePlayer = function(mediaplayer) {
             },
 
             setSize: function _nativePlayerSetSize(width, height) {
-                if ($media) {
-                    $media.width(width).height(height);
+                if ($component) {
+                    $component.width(width).height(height);
                 }
             },
 
@@ -1386,26 +1386,7 @@ var mediaplayer = {
      * @returns {mediaplayer}
      */
     resize: function resize(width, height) {
-        var type = this.is('video') ? 'video' : 'audio';
-        var defaults = _defaults[type] || _defaults.video;
-
-        if (!_isResponsiveSize(width)) {
-            width = Math.max(defaults.minWidth, width);
-            height = Math.max(defaults.minHeight, height);
-
-            this.config.width = width;
-            this.config.height = height;
-
-            if (this.$component) {
-                height -= this.$component.outerHeight() - this.$component.height();
-                width -= this.$component.outerWidth() - this.$component.width();
-                this.$component.width(width).height(height);
-
-                if (!this.is('nogui')) {
-                    height -= this.$controls.outerHeight();
-                }
-            }
-        } else {
+        if (_isResponsiveSize(width) && !_isResponsiveSize(height)) {
             height = 'auto';
         }
 
@@ -1588,10 +1569,8 @@ var mediaplayer = {
         var type = this.is('video') ? 'video' : 'audio';
         var defaults = _defaults[type] || _defaults.video;
 
-        if (!_isResponsiveSize(this.config.width)) {
-            this.config.width = _.parseInt(this.config.width) || defaults.width;
-            this.config.height = _.parseInt(this.config.height) || defaults.height;
-        }
+        this.config.width = this.config.width || defaults.width;
+        this.config.height = this.config.height || defaults.height;
     },
 
     /**
