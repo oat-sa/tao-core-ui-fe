@@ -191,15 +191,15 @@ var previewer = {
             $elt.empty().html($content);
             if (options.url) {
                 if (type === 'audio' || type === 'video') {
+                    var defSize = _defaultSize[type] || _defaultSize.video;
+                    var width = options.width || defSize.width;
+                    var height = options.height || defSize.height;
                     player = mediaplayer({
                         url: options.url,
                         type: options.mime,
-                        renderTo: $content
-                    }).on('ready', function() {
-                        var defSize = _defaultSize[this.getType()] || _defaultSize.video;
-                        var width = options.width || defSize.width;
-                        var height = options.height || defSize.height;
-                        this.resize(width, height);
+                        renderTo: $content,
+                        width,
+                        height
                     });
                     self._setPlayer($elt, player);
 

@@ -12,12 +12,15 @@ $playerSliderBackground: $uiGeneralContentBg;
 $playerSliderColor: $darkBar;
 $playerSliderHandle: whiten($playerSliderColor, .4);
 $playerSliderHightlight: whiten($playerSliderColor, .2);
+$controlsHeight: 36px;
 
 .mediaplayer {
     position: relative;
     @include simple-border($playerBorder);
     @include border-radius(2);
     background: $playerBackground;
+    max-width: 100%;
+    min-height: $controlsHeight;
 
     .icon-sound:before {
         @include icon-audio();
@@ -32,10 +35,18 @@ $playerSliderHightlight: whiten($playerSliderColor, .2);
 
     .player {
         position: relative;
-        text-align: center;
+        height: calc(100% - #{$controlsHeight});
+        width: 100%;
 
         iframe {
             pointer-events: none;
+        }
+
+        .media {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: 100%;
         }
 
         .overlay {
@@ -85,6 +96,7 @@ $playerSliderHightlight: whiten($playerSliderColor, .2);
         table-layout: fixed;
         width: 100%;
         border-top: 1px solid $playerBorder;
+        height: $controlsHeight;
 
         .bar {
             display: table-row;
