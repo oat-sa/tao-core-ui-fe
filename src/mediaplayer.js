@@ -108,6 +108,10 @@ var _defaults = {
         width: '100%',
         height: 'auto'
     },
+    youtube: {
+        width: 640,
+        height: 360
+    },
     options: {
         volume: Math.floor(_volumeRange * 0.8),
         startMuted: false,
@@ -411,8 +415,8 @@ var _youtubeManager = {
         $elem = $(elem);
 
         new window.YT.Player($elem.get(0), {
-            height: $elem.width(),
-            width: $elem.height(),
+            height: '360',
+            width: '640',
             videoId: $elem.data('videoId'),
             playerVars: {
                 //hd: true,
@@ -641,9 +645,7 @@ var _youtubePlayer = function(mediaplayer) {
                 if ($component) {
                     $component.width(width).height(height);
                 }
-                if (media) {
-                    media.setSize(width, height);
-                } else {
+                if (!media) {
                     initWidth = width;
                     initHeight = height;
                 }
@@ -1440,7 +1442,9 @@ var mediaplayer = {
      * @returns {Object}
      */
     getMediaOriginalSize: function getMediaOriginalSize() {
-        if (this.type === 'video') {
+        if (this.is('youtube')) {
+            return _defaults.youtube;
+        } if (this.is('video')) {
             return {
                 width: this.$media.get(0).videoWidth,
                 height: this.$media.get(0).videoHeight
@@ -1657,7 +1661,9 @@ var mediaplayer = {
      * @private
      */
     _buildDom: function _buildDom() {
-        this.$component = $(playerTpl(this.config));
+        const configForTemplate = _.clone(this.config);
+        configForTemplate.type = this.type;
+        this.$component = $(playerTpl(configForTemplate));
         this.$player = this.$component.find('.player');
         this.$media = this.$component.find('.media');
         this.$controls = this.$component.find('.controls');
