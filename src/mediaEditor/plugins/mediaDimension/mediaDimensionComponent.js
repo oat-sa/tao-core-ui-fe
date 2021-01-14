@@ -166,6 +166,18 @@ export default function mediaDimensionFactory($container, media, config) {
     };
 
     /**
+     * Return oroginal size
+     * @returns {Object}
+     */
+    function getOriginalSize() {
+        // for images naturalWidth, for video videoWidth, for youtube iframe width
+        return {
+            width: media.$node[0].naturalWidth || media.$node[0].videoWidth || media.$node[0].width,
+            height: media.$node[0].naturalHeight || media.$node[0].videoHeight || media.$node[0].height
+        };
+    }
+
+    /**
      * Current component
      */
     var mediaDimensionComponent = component(
@@ -176,9 +188,10 @@ export default function mediaDimensionFactory($container, media, config) {
             reset: function reset() {
                 var syncDim = initialConfig.syncDimensions;
                 if (this.is('rendered')) {
-                    // revert the sizes to the original of the image
-                    initialConfig.sizeProps.px.current.width = media.$node[0].naturalWidth || media.$node[0].videoWidth;
-                    initialConfig.sizeProps.px.current.height = media.$node[0].naturalHeight || media.$node[0].videoHeight;
+                    // revert the sizes to the original
+                    const originalSize = getOriginalSize();
+                    initialConfig.sizeProps.px.current.width = originalSize.width;
+                    initialConfig.sizeProps.px.current.height = originalSize.height;
                     initialConfig.sizeProps.ratio.current = initialConfig.sizeProps.ratio.natural;
 
                     // reset needs to restore everything
@@ -450,8 +463,9 @@ export default function mediaDimensionFactory($container, media, config) {
 
     mediaDimensionComponent
         .on('init', function() {
-            var naturalWidth = media.$node[0].naturalWidth || media.$node[0].videoWidth;
-            var naturalHeight = media.$node[0].naturalHeight || media.$node[0].videoHeight;
+            const originalSize = getOriginalSize();
+            var naturalWidth = originalSize.width;
+            var naturalHeight = originalSize.height;
             var mediaProps = {
                 px: {
                     current: {

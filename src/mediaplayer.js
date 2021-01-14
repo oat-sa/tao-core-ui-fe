@@ -1388,10 +1388,11 @@ var mediaplayer = {
      * @returns {mediaplayer}
      */
     resize: function resize(width, height) {
-        if (_isResponsiveSize(width) && !_isResponsiveSize(height)) {
+        if (_isResponsiveSize(width) && !_isResponsiveSize(height) || this.is('youtube')) {
+            // responsive width height should be auto
+            // for youtube iframe height is limited by ration
             height = 'auto';
         }
-
         this.execute('setSize', width, height);
 
         return this;
@@ -1575,6 +1576,11 @@ var mediaplayer = {
 
         this.config.width = this.config.width || defaults.width;
         this.config.height = this.config.height || defaults.height;
+        if (_isResponsiveSize(this.config.width) && !_isResponsiveSize(this.config.width) || this.is('youtube')) {
+            // responsive width height should be auto
+            // for youtube iframe height is limited by ration
+            this.config.height = 'auto';
+        }
     },
 
     /**
