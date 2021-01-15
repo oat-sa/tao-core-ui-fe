@@ -1445,7 +1445,7 @@ var mediaplayer = {
     getMediaOriginalSize: function getMediaOriginalSize() {
         if (this.is('youtube')) {
             return _defaults.youtube;
-        } if (this.is('video')) {
+        } if (this.is('video') && this.$media) {
             return {
                 width: this.$media.get(0).videoWidth,
                 height: this.$media.get(0).videoHeight
