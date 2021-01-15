@@ -84,6 +84,7 @@ var previewer = {
      * @constructor
      * @param {Object} [options] - the plugin options
      * @returns {jQueryElement} for chaining
+     * @fires playerready when the mediaplayer (video) is sucessfully loaded and configured
      */
     init: function(options) {
         var self = previewer;
@@ -200,6 +201,12 @@ var previewer = {
                         renderTo: $content,
                         width,
                         height
+                    })
+                    .on('ready', function() {
+                        /**
+                         * @event playerready
+                         */
+                        $elt.trigger('playerready');
                     });
                     self._setPlayer($elt, player);
 
