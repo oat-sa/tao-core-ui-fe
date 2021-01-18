@@ -57,7 +57,7 @@ import tpl from 'ui/mediaEditor/tpl/editor';
  * @type mediaEditorConfig
  * @private
  */
-var defaultConfig = {
+const defaultConfig = {
     mediaDimension: {
         active: false
     }
@@ -76,15 +76,15 @@ export default function mediaEditorFactory($container, media, config) {
      * Active Plugins
      * @type {Array}
      */
-    var plugins = [];
+    const plugins = [];
 
     /**
      * Current component
      */
-    var mediaEditorComponent = component({}, defaultConfig);
+    const mediaEditorComponent = component({}, defaultConfig);
     mediaEditorComponent
         .setTemplate(tpl)
-        .on('init', function() {
+        .on('init', function () {
             if (!media || !media.$node || !media.$node.length) {
                 throw new Error('mediaEditorComponent requires media.$node');
             }
@@ -93,14 +93,14 @@ export default function mediaEditorFactory($container, media, config) {
             }
             this.render($container);
         })
-        .on('render', function() {
-            var self = this;
-            var $dimensionTools = $('.media-dimension', this.getTemplate());
-            var plugin;
+        .on('render', function () {
+            const $dimensionTools = $('.media-dimension', this.getTemplate());
+            let plugin;
             if (this.getConfig().mediaDimension.active) {
-                plugin = mediaDimensionComponent($dimensionTools, media,
-                    { responsive: media.responsive, showResponsiveToggle: this.getConfig().mediaDimension.showResponsiveToggle })
-                .on('change', function(conf) {
+                plugin = mediaDimensionComponent($dimensionTools, media, {
+                    responsive: media.responsive,
+                    showResponsiveToggle: this.getConfig().mediaDimension.showResponsiveToggle
+                }).on('change', conf => {
                     media.responsive = conf.responsive;
                     if (conf.responsive) {
                         // percent
@@ -111,20 +111,19 @@ export default function mediaEditorFactory($container, media, config) {
                         media.height = conf.sizeProps.px.current.height;
                     }
 
-                    self.trigger('change', media);
-                }
-                );
+                    this.trigger('change', media);
+                });
 
                 plugins.push(plugin);
             }
         })
-        .on('destroy', function() {
-            _.forEach(plugins, function(plugin) {
+        .on('destroy', function () {
+            _.forEach(plugins, function (plugin) {
                 plugin.destroy();
             });
         });
 
-    _.defer(function() {
+    _.defer(function () {
         mediaEditorComponent.init(config);
     });
 
