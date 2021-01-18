@@ -76,7 +76,7 @@ import 'ui/mediaEditor/plugins/mediaDimension/style.css';
  * }}
  * @private
  */
-var defaultConfig = {
+const defaultConfig = {
     showResponsiveToggle: true,
     showSync: true,
     showReset: true,
@@ -115,22 +115,22 @@ var defaultConfig = {
 
 /**
  * Creates mediaDimension component
- * @param $container
- * @param media
- * @param config
+ * @param {jQueryElement} $container
+ * @param {Object} media
+ * @param {Object} config
  * @fires "changed" - on State changed
- * return {component|*}
+ * @returns {component|*} mediaDimensionComponent
  */
 export default function mediaDimensionFactory($container, media, config) {
     /**
      * Collections of the jquery elements grouped by type
      */
-    var $blocks, $slider, $fields;
+    let $blocks, $slider, $fields;
 
     /**
      * Template of the dimension controller
      */
-    var $template;
+    let $template;
 
     /**
      * Size properties of the media control panel
@@ -149,13 +149,15 @@ export default function mediaDimensionFactory($container, media, config) {
      * @type {mediaSizeProps}
      * @private
      */
-    var initialConfig;
+    let initialConfig;
 
     /**
      * Calculate propSizes to have correct sizes for the shown image
+     * @param {Object} conf
+     * @returns {Object}
      */
-    var calculateCurrentSizes = function calculateCurrentSizes(conf) {
-        var mediaContainerWidth = helper.getMediaContainerWidth(media);
+    const calculateCurrentSizes = function calculateCurrentSizes(conf) {
+        const mediaContainerWidth = helper.getMediaContainerWidth(media);
         return helper.applyDimensions(conf, {
             width:
                 mediaContainerWidth < conf.sizeProps.px.natural.width
@@ -180,13 +182,14 @@ export default function mediaDimensionFactory($container, media, config) {
     /**
      * Current component
      */
-    var mediaDimensionComponent = component(
+    const mediaDimensionComponent = component(
         {
             /**
              * Reset the component to the initial state
+             * @returns {component} this
              */
             reset: function reset() {
-                var syncDim = initialConfig.syncDimensions;
+                const syncDim = initialConfig.syncDimensions;
                 if (this.is('rendered')) {
                     // revert the sizes to the original
                     const originalSize = getOriginalSize();
@@ -228,12 +231,12 @@ export default function mediaDimensionFactory($container, media, config) {
 
     /**
      * Check that input in progress and we don't need to change anything
-     * @param val
+     * @param {String|number} val
      * @returns {RegExpMatchArray | null}
      */
-    var isInsignificantEnd = function isInsignificantEnd(val) {
+    const isInsignificantEnd = function isInsignificantEnd(val) {
         if (typeof val !== 'string') {
-            val = val + '';
+            val = `${val}`;
         }
         return val.match(/\.[0]*$/);
     };
@@ -241,12 +244,12 @@ export default function mediaDimensionFactory($container, media, config) {
     /**
      * Blocks are the two different parts of the form (either width|height or size)
      *
-     * @param $elt
+     * @param {jQueryElement} $elt
      * @returns {{}}
      * @private
      */
-    var initBlocks = function initBlocks($elt) {
-        var _blocks = {},
+    const initBlocks = function initBlocks($elt) {
+        const _blocks = {},
             $responsiveToggleField = $elt.find('.media-mode-switch'),
             checkMode = function checkMode() {
                 if ($responsiveToggleField.is(':checked')) {
@@ -277,13 +280,13 @@ export default function mediaDimensionFactory($container, media, config) {
             $elt.addClass('media-sizer-responsivetoggle-off');
         }
 
-        _(['px', '%']).forEach(function(unit) {
-            _blocks[unit] = $elt.find('.media-sizer-' + (unit === 'px' ? 'pixel' : 'percent'));
+        _(['px', '%']).forEach(function (unit) {
+            _blocks[unit] = $elt.find(`.media-sizer-${unit === 'px' ? 'pixel' : 'percent'}`);
             _blocks[unit].prop('unit', unit);
             _blocks[unit].find('input').data('unit', unit);
         });
 
-        $responsiveToggleField.on('click', function() {
+        $responsiveToggleField.on('click', function () {
             checkMode();
         });
 
@@ -298,12 +301,12 @@ export default function mediaDimensionFactory($container, media, config) {
     /**
      * Toggle width/height synchronization
      *
-     * @param $elt
+     * @param {jQueryElement} $elt
      * @returns {*}
      * @private
      */
-    var initSyncBtn = function initSyncBtn($elt) {
-        var $mediaSizer = $elt.find('.media-sizer'),
+    const initSyncBtn = function initSyncBtn($elt) {
+        const $mediaSizer = $elt.find('.media-sizer'),
             $btn = $elt.find('.media-sizer-sync');
 
         if (!initialConfig.showSync) {
@@ -312,8 +315,8 @@ export default function mediaDimensionFactory($container, media, config) {
         }
         // this stays intact even if hidden in case it will be
         // displayed from somewhere else
-        $btn.on('click', function() {
-            var $sizerEl = $(this).parents('.media-sizer');
+        $btn.on('click', function () {
+            const $sizerEl = $(this).parents('.media-sizer');
             $sizerEl.toggleClass('media-sizer-synced');
             initialConfig.syncDimensions = $sizerEl.hasClass('media-sizer-synced');
         });
@@ -323,12 +326,12 @@ export default function mediaDimensionFactory($container, media, config) {
     /**
      * Button to reset the size to its original values
      *
-     * @param $elt
+     * @param {jQueryElement} $elt
      * @returns {*}
      * @private
      */
-    var initResetBtn = function initResetBtn($elt) {
-        var $btn = $elt.find('.media-sizer-reset');
+    const initResetBtn = function initResetBtn($elt) {
+        const $btn = $elt.find('.media-sizer-reset');
 
         if (!initialConfig.showReset) {
             $elt.find('.media-sizer').addClass('media-sizer-reset-off');
@@ -336,7 +339,7 @@ export default function mediaDimensionFactory($container, media, config) {
 
         // this stays intact even if hidden in case it will be
         // displayed from somewhere else
-        $btn.on('click', function(e) {
+        $btn.on('click', function (e) {
             e.preventDefault();
             mediaDimensionComponent.reset();
             return false;
@@ -351,17 +354,17 @@ export default function mediaDimensionFactory($container, media, config) {
      * @returns {{}}
      * @private
      */
-    var initFields = function initFields() {
-        var dimensions = ['width', 'height'],
-            field,
-            _fields = {};
+    const initFields = function initFields() {
+        const dimensions = ['width', 'height'];
+        let field;
+        const _fields = {};
 
-        _($blocks).forOwn(function($block, unit) {
+        _($blocks).forOwn(function ($block, unit) {
             _fields[unit] = {};
 
-            $blocks[unit].find('input').each(function() {
-                _(dimensions).forEach(function(dim) {
-                    field = $blocks[unit].find('[name="' + dim + '"]');
+            $blocks[unit].find('input').each(function () {
+                _(dimensions).forEach(function (dim) {
+                    field = $blocks[unit].find(`[name="${dim}"]`);
                     // there is no 'height' field for % - $('<input>') is a dummy to avoid checking if the field exists all the time
                     _fields[unit][dim] = field.length ? field : $('<input>');
                     _fields[unit][dim].prop({
@@ -370,11 +373,11 @@ export default function mediaDimensionFactory($container, media, config) {
                     });
                     _fields[unit][dim].val(initialConfig.sizeProps[unit].current[dim]);
 
-                    _fields[unit][dim].on('keydown', function(e) {
-                        var $field = $(this),
+                    _fields[unit][dim].on('keydown', function (e) {
+                        const $field = $(this),
                             c = e.keyCode,
-                            specChars = (function() {
-                                var chars = [8, 37, 39, 46];
+                            specChars = (function () {
+                                const chars = [8, 37, 39, 46];
                                 if ($field.val().indexOf('.') === -1) {
                                     chars.push(190);
                                     chars.push(110);
@@ -389,10 +392,10 @@ export default function mediaDimensionFactory($container, media, config) {
                         return allowed;
                     });
 
-                    _fields[unit][dim].on('keyup blur sliderchange', function() {
-                        var $field = $(this),
-                            value = $field.val().replace(/,/g, '.'),
-                            newDimensions;
+                    _fields[unit][dim].on('keyup blur sliderchange', function () {
+                        const $field = $(this);
+                        let value = $field.val().replace(/,/g, '.');
+                        let newDimensions;
 
                         $field.val(value);
                         if (isInsignificantEnd(value)) {
@@ -402,10 +405,10 @@ export default function mediaDimensionFactory($container, media, config) {
 
                         if (value > $field.data('max')) {
                             $field.val($field.data('max'));
-                            value = $field.data('max') + '';
+                            value = `${$field.data('max')}`;
                         } else if (value < $field.data('min')) {
                             $field.val($field.data('min'));
-                            value = $field.data('min') + '';
+                            value = `${$field.data('min')}`;
                         }
 
                         if ($field.prop('unit') === '%') {
@@ -432,11 +435,12 @@ export default function mediaDimensionFactory($container, media, config) {
     /**
      * Initialize the two sliders, one based on pixels the other on percentage
      *
+     * @param {jQueryElement} $elt
      * @returns {{}}
      * @private
      */
-    var initSlider = function initSlider($elt) {
-        var slider;
+    const initSlider = function initSlider($elt) {
+        let slider;
 
         slider = $elt.find('.media-sizer-slider');
         slider.prop('unit', '%');
@@ -448,9 +452,9 @@ export default function mediaDimensionFactory($container, media, config) {
                     max: initialConfig.sizeProps.slider.max
                 }
             })
-            .on('slide', function() {
+            .on('slide', function () {
                 // to avoid .00
-                var percent = parseFloat($(this).val() + '');
+                const percent = parseFloat(`${$(this).val()}`);
                 helper.applyDimensions(initialConfig, {
                     percent: percent,
                     maxWidth: helper.getMediaContainerWidth(media)
@@ -462,18 +466,18 @@ export default function mediaDimensionFactory($container, media, config) {
     };
 
     mediaDimensionComponent
-        .on('init', function() {
+        .on('init', function () {
             const originalSize = getOriginalSize();
-            var naturalWidth = originalSize.width;
-            var naturalHeight = originalSize.height;
-            var mediaProps = {
+            const naturalWidth = originalSize.width;
+            const naturalHeight = originalSize.height;
+            const mediaProps = {
                 px: {
                     current: {
                         width: media.width,
                         height: media.height
                     },
                     natural: {
-                        width:  naturalWidth ? naturalWidth : media.width,
+                        width: naturalWidth ? naturalWidth : media.width,
                         height: naturalHeight ? naturalHeight : media.height
                     }
                 },
@@ -496,8 +500,8 @@ export default function mediaDimensionFactory($container, media, config) {
             initialConfig.sizeProps.currentUtil = initialConfig.responsive ? '%' : 'px';
             this.render($container);
         })
-        .on('render', function() {
-            var $mediaSizer;
+        .on('render', function () {
+            let $mediaSizer;
 
             initialConfig = this.getConfig();
             $template = $(
@@ -545,11 +549,11 @@ export default function mediaDimensionFactory($container, media, config) {
 
             mediaDimensionComponent.update();
         })
-        .on('destroy', function() {
+        .on('destroy', function () {
             $template.remove();
         });
 
-    _.defer(function() {
+    _.defer(function () {
         mediaDimensionComponent.init(config);
     });
 
