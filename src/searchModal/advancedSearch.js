@@ -96,7 +96,7 @@ export default function advancedSearchFactory(config) {
             let query = '';
 
             advancedSearchCriteria.forEach(renderedCriterion => {
-                if (hasSearchInput || query.trim().length !== 0) {
+                if ((hasSearchInput || query.trim().length !== 0) && renderedCriterion.value) {
                     query += ' AND ';
                 }
                 if (renderedCriterion.type === criteriaTypes.text) {
