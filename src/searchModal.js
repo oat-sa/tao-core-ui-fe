@@ -31,6 +31,7 @@ import advancedSearchFactory from 'ui/searchModal/advancedSearch';
 import request from 'core/dataProvider/request';
 import urlUtil from 'util/url';
 import 'select2';
+import shortcutRegistry from 'util/shortcut/registry';
 
 /**
  * Creates a searchModal instance
@@ -239,11 +240,8 @@ export default function searchModalFactory(config) {
 
         $searchButton.on('click', search);
         $clearButton.on('click', clear);
-        $searchInput.on('keypress', e => {
-            if (e.which === 13) {
-                search();
-            }
-        });
+        const shortcuts = shortcutRegistry($searchInput);
+        shortcuts.clear().add('enter', search);
         $searchInput.val(
             instance.config.criterias && instance.config.criterias.search ? instance.config.criterias.search : ''
         );
@@ -261,32 +259,11 @@ export default function searchModalFactory(config) {
          * Pressing space, enter, esc, backspace 
          * on class filter input will toggle resource selector
          */
-        $classFilterInput.on('keyup', e => {
-            const spacePressed = e.code === "Space" || e.which === 32;
-            const enterPressed = e.code === "Enter" || e.key === "Enter"|| e.which === 13;
-            const backspacePressed = e.code === "Backspace" || e.key === "Backspace" || e.which === 8;
-            const escPressed = e.code === "Escape" || e.key === "Escape" || e.which === 27;
-
-            if (spacePressed || enterPressed) {
-                $classTreeContainer.show();
-                return;
-            }
-
-            if (backspacePressed || escPressed) {
-                $classTreeContainer.hide();
-            }
-        });
-
-        /**
-         * Pressing esc stopPropagation prevents modal dialog from closing
-         */
-        $classFilterInput.on('keydown', e => {
-            const escPressed = e.code === "Escape" || e.key === "Escape" || e.which === 27;
-
-            if (escPressed) {
-                e.stopPropagation();
-            }
-        });
+        const shortcuts = shortcutRegistry($classFilterInput);
+        shortcuts.add('enter', () => $classTreeContainer.show());
+        shortcuts.add('space', () => $classTreeContainer.show());
+        shortcuts.add('backspace', () => $classTreeContainer.hide());
+        shortcuts.add('escape', () => $classTreeContainer.hide(), { propagate: false });
 
         /**
          * clicking on class filter container will toggle resource selector
