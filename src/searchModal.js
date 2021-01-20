@@ -326,13 +326,6 @@ export default function searchModalFactory(config) {
      * Request search results and manages its results
      */
     function search() {
-        // if query is empty just clear datatable
-        if ($searchInput.val() === '') {
-            clear();
-            return;
-        }
-
-        // build complex query
         const query = buildComplexQuery();
         const classFilterUri = isResourceSelector ? $classFilterInput.data('uri').trim() : rootClassUri;
 
@@ -365,7 +358,7 @@ export default function searchModalFactory(config) {
         const $searchInputValue = $searchInput.val().trim();
 
         let query = $searchInputValue;
-        query += advancedSearch.getAdvancedCriteriaQuery();
+        query += advancedSearch.getAdvancedCriteriaQuery(query !== '');
 
         return query;
     }
