@@ -31,6 +31,7 @@ import advancedSearchFactory from 'ui/searchModal/advancedSearch';
 import request from 'core/dataProvider/request';
 import urlUtil from 'util/url';
 import 'select2';
+import shortcutRegistry from 'util/shortcut/registry';
 
 /**
  * Creates a searchModal instance
@@ -239,11 +240,8 @@ export default function searchModalFactory(config) {
 
         $searchButton.on('click', search);
         $clearButton.on('click', clear);
-        $searchInput.on('keypress', e => {
-            if (e.which === 13) {
-                search();
-            }
-        });
+        const shortcuts = shortcutRegistry($searchInput);
+        shortcuts.clear().add('enter', search);
         $searchInput.val(
             instance.config.criterias && instance.config.criterias.search ? instance.config.criterias.search : ''
         );
@@ -258,15 +256,29 @@ export default function searchModalFactory(config) {
         });
 
         /**
-         * clicking on class filter input will toggle resource selector,
-         * will preventDefault to avoid focus on input field,
-         * and will stopPropagation to prevent be closed
+         * Pressing space, enter, esc, backspace 
+         * on class filter input will toggle resource selector
+         */
+        const shortcuts = shortcutRegistry($classFilterInput);
+        shortcuts.add('enter', () => $classTreeContainer.show());
+        shortcuts.add('space', () => $classTreeContainer.show());
+        shortcuts.add('backspace', () => $classTreeContainer.hide());
+        shortcuts.add('escape', () => $classTreeContainer.hide(), { propagate: false });
+
+        /**
+         * clicking on class filter container will toggle resource selector
+         */
+        $classFilterContainer.on('click', e => {
+            $classTreeContainer.toggle();
+        });
+        
+        /**
+         * clicking on class filter container will
+         * stopPropagation to prevent be closed
          * by searchModal.mouseDown listener
          */
         $classFilterContainer.on('mousedown', e => {
-            e.preventDefault();
             e.stopPropagation();
-            $classTreeContainer.toggle();
         });
 
         // clicking on resource selector will stopPropagation to prevent be closed by searchModal.mouseDown listener
