@@ -124,7 +124,6 @@ $classTreeVariables: (
     .content-container {
         border: none;
         @include simple-flex-box();
-        overflow: auto;
     }
 
     .content-block {
@@ -286,9 +285,6 @@ $classTreeVariables: (
             }
             .class-filter {
                 cursor: pointer;
-                &[readonly]{
-                    opacity: 1 !important;
-                }
             }
             .class-tree {
                 display: none;

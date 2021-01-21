@@ -10,7 +10,7 @@
                     <div class="filter-container class-filter-container">
                         <span class="icon-folder"></span>
                         <span class="icon-down"></span>
-                        <input class="class-filter" type="text" readonly>
+                        <input class="class-filter" type="text">
                         <div class="class-tree"></div>
                     </div>
                 </div>
