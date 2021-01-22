@@ -35,82 +35,82 @@ import 'nouislider';
  * @type {boolean}
  * @private
  */
-var _debugMode = false;
+const _debugMode = false;
 
 /**
  * CSS namespace
  * @type {String}
  * @private
  */
-var _ns = '.mediaplayer';
+const _ns = '.mediaplayer';
 
 /**
  * A Regex to extract ID from Youtube URLs
  * @type {RegExp}
  * @private
  */
-var _reYoutube = /([?&\/]v[=\/])([\w-]+)([&\/]?)/;
+const _reYoutube = /([?&\/]v[=\/])([\w-]+)([&\/]?)/;
 
 /**
  * A Regex to detect Apple mobile browsers
  * @type {RegExp}
  * @private
  */
-var _reAppleMobiles = /ip(hone|od)/i;
+const _reAppleMobiles = /ip(hone|od)/i;
 
 /**
  * Array slice method needed to slice arguments
  * @type {Function}
  * @private
  */
-var _slice = [].slice;
+const _slice = [].slice;
 
 /**
  * Minimum value of the volume
  * @type {Number}
  * @private
  */
-var _volumeMin = 0;
+const _volumeMin = 0;
 
 /**
  * Maximum value of the volume
  * @type {Number}
  * @private
  */
-var _volumeMax = 100;
+const _volumeMax = 100;
 
 /**
  * Range value of the volume
  * @type {Number}
  * @private
  */
-var _volumeRange = _volumeMax - _volumeMin;
+const _volumeRange = _volumeMax - _volumeMin;
 
 /**
  * Threshold (minium requires space above the player) to display the volume
  * above the bar.
  * @type {Number}
  */
-var volumePositionThreshold = 200;
+const volumePositionThreshold = 200;
 
 /**
  * Some default values
  * @type {Object}
  * @private
  */
-var _defaults = {
+const _defaults = {
     type: 'video/mp4',
     video: {
-        width: 480,
-        height: 270,
-        minWidth: 200,
-        minHeight: 200
+        width: '100%',
+        height: 'auto'
     },
     audio: {
-        width: 400,
-        height: 30,
-        minWidth: 200,
-        minHeight: 36
+        width: '100%',
+        height: 'auto'
+    },
+    youtube: {
+        width: 640,
+        height: 360
     },
     options: {
         volume: Math.floor(_volumeRange * 0.8),
@@ -129,7 +129,7 @@ var _defaults = {
  * @type {Object}
  * @private
  */
-var _mimeTypes = {
+const _mimeTypes = {
     // video
     'video/webm': 'video/webm; codecs="vp8, vorbis"',
     'video/mp4': 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"',
@@ -147,8 +147,8 @@ var _mimeTypes = {
  * @returns {String}
  * @private
  */
-var _extractYoutubeId = function(url) {
-    var res = _reYoutube.exec(url);
+const _extractYoutubeId = function (url) {
+    const res = _reYoutube.exec(url);
     return (res && res[2]) || url;
 };
 
@@ -158,7 +158,7 @@ var _extractYoutubeId = function(url) {
  * @returns {Number}
  * @private
  */
-var _ensureNumber = function(value) {
+const _ensureNumber = function (value) {
     value = parseFloat(value);
     return isFinite(value) ? value : 0;
 };
@@ -170,10 +170,10 @@ var _ensureNumber = function(value) {
  * @returns {String}
  * @private
  */
-var _leadingZero = function(n, len) {
-    var value = n.toString();
+const _leadingZero = function (n, len) {
+    let value = n.toString();
     while (value.length < len) {
-        value = '0' + value;
+        value = `0${value}`;
     }
     return value;
 };
@@ -184,11 +184,11 @@ var _leadingZero = function(n, len) {
  * @returns {String}
  * @private
  */
-var _timerFormat = function(time) {
-    var seconds = Math.floor(time % 60);
-    var minutes = Math.floor(time / 60) % 60;
-    var hours = Math.floor(time / 3600);
-    var parts = [];
+const _timerFormat = function (time) {
+    const seconds = Math.floor(time % 60);
+    const minutes = Math.floor(time / 60) % 60;
+    const hours = Math.floor(time / 3600);
+    const parts = [];
 
     if (hours) {
         parts.push(hours);
@@ -205,7 +205,7 @@ var _timerFormat = function(time) {
  * @returns {Boolean}
  * @private
  */
-var _needTypeAdjust = function(type) {
+const _needTypeAdjust = function (type) {
     return 'string' === typeof type && type.indexOf('application') === 0;
 };
 
@@ -215,10 +215,10 @@ var _needTypeAdjust = function(type) {
  * @returns {String}
  * @private
  */
-var _getAdjustedType = function(source) {
-    var type = 'video/ogg';
-    var url = (source && source.src) || source;
-    var ext = url && url.substr(-4);
+const _getAdjustedType = function (source) {
+    let type = 'video/ogg';
+    const url = (source && source.src) || source;
+    const ext = url && url.substr(-4);
     if (ext === '.ogg' || ext === '.oga') {
         type = 'audio/ogg';
     }
@@ -231,9 +231,9 @@ var _getAdjustedType = function(source) {
  * @returns {Array}
  * @private
  */
-var _configToSources = function(config) {
-    var sources = config.sources || [];
-    var url = config.url;
+const _configToSources = function (config) {
+    let sources = config.sources || [];
+    let url = config.url;
 
     if (!_.isArray(sources)) {
         sources = [sources];
@@ -256,8 +256,8 @@ var _configToSources = function(config) {
  * @returns {Boolean}
  * @private
  */
-var _checkSupport = function(media, mimeType) {
-    var support = !!media.canPlayType;
+const _checkSupport = function (media, mimeType) {
+    let support = !!media.canPlayType;
     if (mimeType && support) {
         support = !!media.canPlayType(_mimeTypes[mimeType] || mimeType).replace(/no/, '');
     }
@@ -265,11 +265,21 @@ var _checkSupport = function(media, mimeType) {
 };
 
 /**
+ * Checks if the browser can play media
+ * @param {String} sizeProps Width or Height
+ * @returns {Boolean}
+ * @private
+ */
+const _isResponsiveSize = function (sizeProps) {
+    return /%/.test(sizeProps) || sizeProps === 'auto';
+};
+
+/**
  * Support dection
  * @type {Object}
  * @private
  */
-var _support = {
+const _support = {
     /**
      * Checks if the browser can play video and audio
      * @param {String} [type] The type of media (audio or video)
@@ -332,7 +342,7 @@ var _support = {
  * @type {Object}
  * @private
  */
-var _youtubeManager = {
+const _youtubeManager = {
     /**
      * The Youtube API injection state
      * @type {Boolean}
@@ -376,8 +386,8 @@ var _youtubeManager = {
      * @param {Object} player
      */
     remove: function remove(elem, player) {
-        var pending = this.pending;
-        _.forEach(pending, function(args, idx) {
+        const pending = this.pending;
+        _.forEach(pending, function (args, idx) {
             if (args && elem === args[0] && player === args[1]) {
                 pending[idx] = null;
             }
@@ -392,7 +402,7 @@ var _youtubeManager = {
      * @param {Boolean} [options.controls]
      */
     create: function create(elem, player, options) {
-        var $elem;
+        let $elem;
 
         if (!this.ready) {
             return this.add(elem, player, options);
@@ -405,8 +415,8 @@ var _youtubeManager = {
         $elem = $(elem);
 
         new window.YT.Player($elem.get(0), {
-            height: $elem.width(),
-            width: $elem.height(),
+            height: '360',
+            width: '640',
             videoId: $elem.data('videoId'),
             playerVars: {
                 //hd: true,
@@ -432,15 +442,14 @@ var _youtubeManager = {
      * Called when the Youtube API is ready. Should install all pending players.
      */
     apiReady: function apiReady() {
-        var self = this;
-        var pending = this.pending;
+        const pending = this.pending;
 
         this.pending = [];
         this.ready = true;
 
-        _.forEach(pending, function(args) {
+        _.forEach(pending, args => {
             if (args) {
-                self.create.apply(self, args);
+                this.create.apply(this, args);
             }
         });
     },
@@ -450,7 +459,7 @@ var _youtubeManager = {
      * @returns {Boolean}
      */
     isApiReady: function isApiReady() {
-        var apiReady = typeof window.YT !== 'undefined' && typeof window.YT.Player !== 'undefined';
+        const apiReady = typeof window.YT !== 'undefined' && typeof window.YT.Player !== 'undefined';
         if (apiReady && !this.ready) {
             _youtubeManager.apiReady();
         }
@@ -461,11 +470,10 @@ var _youtubeManager = {
      * Injects the Youtube API into the page
      */
     injectApi: function injectApi() {
-        var self = this;
-        if (!self.isApiReady()) {
-            window.require(['https://www.youtube.com/iframe_api'], function() {
-                var check = function() {
-                    if (!self.isApiReady()) {
+        if (!this.isApiReady()) {
+            window.require(['https://www.youtube.com/iframe_api'], () => {
+                const check = () => {
+                    if (!this.isApiReady()) {
                         setTimeout(check, 100);
                     }
                 };
@@ -481,14 +489,16 @@ var _youtubeManager = {
  * Defines a player object dedicated to youtube media
  * @param {mediaplayer} mediaplayer
  * @private
+ * @returns {Object} player
  */
-var _youtubePlayer = function(mediaplayer) {
-    var $media;
-    var media;
-    var player;
-    var interval;
-    var destroyed;
-    var initWidth, initHeight;
+const _youtubePlayer = function (mediaplayer) {
+    let $component;
+    let $media;
+    let media;
+    let player;
+    let interval;
+    let destroyed;
+    let initWidth, initHeight;
 
     function loopEvents(callback) {
         _.forEach(
@@ -500,6 +510,7 @@ var _youtubePlayer = function(mediaplayer) {
     if (mediaplayer) {
         player = {
             init: function _youtubePlayerInit() {
+                $component = mediaplayer.$component;
                 $media = mediaplayer.$media;
                 media = null;
                 destroyed = false;
@@ -514,7 +525,7 @@ var _youtubePlayer = function(mediaplayer) {
             },
 
             onReady: function _youtubePlayerOnReady(event) {
-                var callbacks = this._callbacks;
+                const callbacks = this._callbacks;
 
                 media = event.target;
                 $media = $(media.getIframe());
@@ -523,8 +534,8 @@ var _youtubePlayer = function(mediaplayer) {
                 if (!destroyed) {
                     if (_debugMode) {
                         // install debug logger
-                        loopEvents(function(ev) {
-                            media.addEventListener(ev, function(e) {
+                        loopEvents(function (ev) {
+                            media.addEventListener(ev, function (e) {
                                 window.console.log(ev, e);
                             });
                         });
@@ -537,7 +548,7 @@ var _youtubePlayer = function(mediaplayer) {
                     mediaplayer._onReady();
 
                     if (callbacks) {
-                        _.forEach(callbacks, function(cb) {
+                        _.forEach(callbacks, function (cb) {
                             cb();
                         });
                     }
@@ -578,7 +589,7 @@ var _youtubePlayer = function(mediaplayer) {
             },
 
             startPolling: function _youtubePlayerStartPolling() {
-                interval = setInterval(function() {
+                interval = setInterval(function () {
                     mediaplayer._onTimeUpdate();
                 }, mediaplayerFactory.youtubePolling);
             },
@@ -587,7 +598,7 @@ var _youtubePlayer = function(mediaplayer) {
                 destroyed = true;
 
                 if (media) {
-                    loopEvents(function(ev) {
+                    loopEvents(function (ev) {
                         media.removeEventListener(ev);
                     });
                     media.destroy();
@@ -616,7 +627,7 @@ var _youtubePlayer = function(mediaplayer) {
             },
 
             getVolume: function _youtubePlayerGetVolume() {
-                var value = 0;
+                let value = 0;
                 if (media) {
                     value = (media.getVolume() * _volumeRange) / 100 + _volumeMin;
                 }
@@ -630,12 +641,10 @@ var _youtubePlayer = function(mediaplayer) {
             },
 
             setSize: function _youtubePlayerSetSize(width, height) {
-                if ($media) {
-                    $media.width(width).height(height);
+                if ($component) {
+                    $component.width(width).height(height);
                 }
-                if (media) {
-                    media.setSize(width, height);
-                } else {
+                if (!media) {
                     initWidth = width;
                     initHeight = height;
                 }
@@ -680,10 +689,10 @@ var _youtubePlayer = function(mediaplayer) {
             },
 
             addMedia: function _youtubePlayerSetMedia(url) {
-                var id = _extractYoutubeId(url);
-                var cb =
+                const id = _extractYoutubeId(url);
+                const cb =
                     id &&
-                    function() {
+                    function () {
                         media.cueVideoById(id);
                     };
                 if (cb) {
@@ -699,10 +708,10 @@ var _youtubePlayer = function(mediaplayer) {
             },
 
             setMedia: function _youtubePlayerSetMedia(url) {
-                var id = _extractYoutubeId(url);
-                var cb =
+                const id = _extractYoutubeId(url);
+                const cb =
                     id &&
-                    function() {
+                    function () {
                         media.loadVideoById(id);
                     };
                 if (cb) {
@@ -724,20 +733,23 @@ var _youtubePlayer = function(mediaplayer) {
 /**
  * Defines a player object dedicated to native player
  * @param {mediaplayer} mediaplayer
+ * @returns {Object} player
  * @private
  */
-var _nativePlayer = function(mediaplayer) {
-    var $media;
-    var media;
-    var player;
-    var played;
+const _nativePlayer = function (mediaplayer) {
+    let $component;
+    let $media;
+    let media;
+    let player;
+    let played;
 
     if (mediaplayer) {
         player = {
             init: function _nativePlayerInit() {
-                var result = false;
-                var mediaElem;
+                let result = false;
+                let mediaElem;
 
+                $component = mediaplayer.$component;
                 $media = mediaplayer.$media;
                 media = null;
                 played = false;
@@ -754,26 +766,26 @@ var _nativePlayer = function(mediaplayer) {
                     }
 
                     $media
-                        .on('play' + _ns, function() {
+                        .on(`play${_ns}`, function () {
                             played = true;
                             mediaplayer._onPlay();
                         })
-                        .on('pause' + _ns, function() {
+                        .on(`pause${_ns}`, function () {
                             mediaplayer._onPause();
                         })
-                        .on('ended' + _ns, function() {
+                        .on(`ended${_ns}`, function () {
                             played = false;
                             mediaplayer._onEnd();
                         })
-                        .on('timeupdate' + _ns, function() {
+                        .on(`timeupdate${_ns}`, function () {
                             mediaplayer._onTimeUpdate();
                         })
-                        .on('loadstart', function() {
+                        .on('loadstart', function () {
                             if (media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
                                 mediaplayer._onError();
                             }
                         })
-                        .on('error' + _ns, function() {
+                        .on(`error${_ns}`, function () {
                             if (media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
                                 mediaplayer._onError();
                             } else {
@@ -788,7 +800,7 @@ var _nativePlayer = function(mediaplayer) {
                                 }
                             }
                         })
-                        .on('loadedmetadata' + _ns, function() {
+                        .on(`loadedmetadata${_ns}`, function () {
                             if (mediaplayer.is('error')) {
                                 mediaplayer._onRecoverError();
                             }
@@ -823,8 +835,8 @@ var _nativePlayer = function(mediaplayer) {
                                 'volumechange',
                                 'waiting'
                             ],
-                            function(ev) {
-                                $media.on(ev + _ns, function(e) {
+                            function (ev) {
+                                $media.on(ev + _ns, function (e) {
                                     window.console.log(
                                         e.type,
                                         $media && $media.find('source').attr('src'),
@@ -866,7 +878,7 @@ var _nativePlayer = function(mediaplayer) {
             },
 
             getVolume: function _nativePlayerGetVolume() {
-                var value = 0;
+                let value = 0;
                 if (media) {
                     value = parseFloat(media.volume) * _volumeRange + _volumeMin;
                 }
@@ -880,8 +892,8 @@ var _nativePlayer = function(mediaplayer) {
             },
 
             setSize: function _nativePlayerSetSize(width, height) {
-                if ($media) {
-                    $media.width(width).height(height);
+                if ($component) {
+                    $component.width(width).height(height);
                 }
             },
 
@@ -934,7 +946,7 @@ var _nativePlayer = function(mediaplayer) {
                 }
 
                 if (url && $media) {
-                    $media.append('<source src="' + url + '" type="' + (_mimeTypes[type] || type) + '" />');
+                    $media.append(`<source src="${url}" type="${_mimeTypes[type] || type}" />`);
                     return true;
                 }
                 return false;
@@ -958,7 +970,7 @@ var _nativePlayer = function(mediaplayer) {
  * @type {Object}
  * @private
  */
-var _players = {
+const _players = {
     audio: _nativePlayer,
     video: _nativePlayer,
     youtube: _youtubePlayer
@@ -968,7 +980,7 @@ var _players = {
  * Defines a media player object
  * @type {Object}
  */
-var mediaplayer = {
+const mediaplayer = {
     /**
      * Initializes the media player
      * @param {Object} config
@@ -989,10 +1001,8 @@ var mediaplayer = {
      * @returns {mediaplayer}
      */
     init: function init(config) {
-        var self = this;
-
         // load the config set, discard null values in order to allow defaults to be set
-        this.config = _.omit(config || {}, function(value) {
+        this.config = _.omit(config || {}, function (value) {
             return typeof value === 'undefined' || value === null;
         });
         _.defaults(this.config, _defaults.options);
@@ -1001,19 +1011,19 @@ var mediaplayer = {
         this._reset();
         this._updateVolumeFromStore();
         this._initEvents();
-        this._initSources(function() {
-            if (!self.is('youtube')) {
-                _.each(self.config.sources, function(source) {
+        this._initSources(() => {
+            if (!this.is('youtube')) {
+                _.each(this.config.sources, source => {
                     if (source && source.type && source.type.indexOf('audio') === 0) {
-                        self._setType(source.type);
-                        self._initType();
+                        this._setType(source.type);
+                        this._initType();
                         return false;
                     }
                 });
             }
-            if (self.config.renderTo) {
-                _.defer(function() {
-                    self.render();
+            if (this.config.renderTo) {
+                _.defer(() => {
+                    this.render();
                 });
             }
         });
@@ -1055,7 +1065,7 @@ var mediaplayer = {
      * @returns {mediaplayer}
      */
     render: function render(to) {
-        var renderTo = to || this.config.renderTo || this.$container;
+        const renderTo = to || this.config.renderTo || this.$container;
 
         if (this.$component) {
             this.destroy();
@@ -1290,9 +1300,8 @@ var mediaplayer = {
      * @returns {jQuery}
      */
     getContainer: function getContainer() {
-        var $container;
         if (!this.$container && this.$component) {
-            $container = this.$component.parent();
+            let $container = this.$component.parent();
             if ($container.length) {
                 this.$container = $container;
             }
@@ -1323,7 +1332,7 @@ var mediaplayer = {
      * @returns {mediaplayer}
      */
     setSource: function setSource(src, callback) {
-        this._getSource(src, function(source) {
+        this._getSource(src, function (source) {
             this.config.sources = [source];
 
             if (this.is('rendered')) {
@@ -1345,7 +1354,7 @@ var mediaplayer = {
      * @returns {mediaplayer}
      */
     addSource: function addSource(src, callback) {
-        this._getSource(src, function(source) {
+        this._getSource(src, function (source) {
             this.config.sources.push(source);
 
             if (this.is('rendered')) {
@@ -1376,25 +1385,11 @@ var mediaplayer = {
      * @returns {mediaplayer}
      */
     resize: function resize(width, height) {
-        var type = this.is('video') ? 'video' : 'audio';
-        var defaults = _defaults[type] || _defaults.video;
-
-        width = Math.max(defaults.minWidth, width);
-        height = Math.max(defaults.minHeight, height);
-
-        this.config.width = width;
-        this.config.height = height;
-
-        if (this.$component) {
-            height -= this.$component.outerHeight() - this.$component.height();
-            width -= this.$component.outerWidth() - this.$component.width();
-            this.$component.width(width).height(height);
-
-            if (!this.is('nogui')) {
-                height -= this.$controls.outerHeight();
-            }
+        if ((_isResponsiveSize(width) && !_isResponsiveSize(height)) || this.is('youtube')) {
+            // responsive width height should be auto
+            // for youtube iframe height is limited by ration
+            height = 'auto';
         }
-
         this.execute('setSize', width, height);
 
         return this;
@@ -1440,7 +1435,23 @@ var mediaplayer = {
 
         return this;
     },
+    /**
+     * get media original size
+     * @returns {Object}
+     */
+    getMediaOriginalSize: function getMediaOriginalSize() {
+        if (this.is('youtube')) {
+            return _defaults.youtube;
+        }
+        if (this.is('video') && this.$media) {
+            return {
+                width: this.$media.get(0).videoWidth,
+                height: this.$media.get(0).videoHeight
+            };
+        }
 
+        return {};
+    },
     /**
      * Ensures the right media type is set
      * @param {String} type
@@ -1461,7 +1472,7 @@ var mediaplayer = {
      * @private
      */
     _initType: function _initType() {
-        var is = this.config.is;
+        const is = this.config.is;
         is.youtube = 'youtube' === this.type;
         is.video = 'video' === this.type || 'youtube' === this.type;
         is.audio = 'audio' === this.type;
@@ -1473,8 +1484,18 @@ var mediaplayer = {
      * @param {Function} callback - A function called to provide the media source object
      */
     _getSource: function _getSource(src, callback) {
-        var self = this;
-        var source;
+        let source;
+        const done = () => {
+            if (_needTypeAdjust(source.type)) {
+                source.type = _getAdjustedType(source);
+            }
+
+            if (this.is('youtube')) {
+                source.id = _extractYoutubeId(source.src);
+            }
+
+            callback.call(this, source);
+        };
 
         if (_.isString(src)) {
             source = {
@@ -1489,7 +1510,7 @@ var mediaplayer = {
         }
 
         if (!source.type) {
-            mimetype.getResourceType(source.src, function(err, type) {
+            mimetype.getResourceType(source.src, function (err, type) {
                 if (err) {
                     type = _defaults.type;
                 }
@@ -1499,18 +1520,6 @@ var mediaplayer = {
         } else {
             done();
         }
-
-        function done() {
-            if (_needTypeAdjust(source.type)) {
-                source.type = _getAdjustedType(source);
-            }
-
-            if (self.is('youtube')) {
-                source.id = _extractYoutubeId(source.src);
-            }
-
-            callback.call(self, source);
-        }
     },
 
     /**
@@ -1519,15 +1528,14 @@ var mediaplayer = {
      * @private
      */
     _initSources: function _initSources(callback) {
-        var self = this;
-        var sources = _configToSources(this.config);
+        const sources = _configToSources(this.config);
 
         this.config.sources = [];
 
         async.each(
             sources,
-            function(source, cb) {
-                self.addSource(source, function(src) {
+            (source, cb) => {
+                this.addSource(source, function (src) {
                     cb(null, src);
                 });
             },
@@ -1540,11 +1548,9 @@ var mediaplayer = {
      * @private
      */
     _initEvents: function _initEvents() {
-        var triggerEvent;
-
         eventifier(this);
 
-        triggerEvent = this.trigger;
+        const triggerEvent = this.trigger;
         this.trigger = function trigger(eventName) {
             if (this.$component) {
                 this.$component.trigger(eventName + _ns, _slice.call(arguments, 1));
@@ -1558,11 +1564,16 @@ var mediaplayer = {
      * @private
      */
     _initSize: function _initSize() {
-        var type = this.is('video') ? 'video' : 'audio';
-        var defaults = _defaults[type] || _defaults.video;
+        const type = this.is('video') ? 'video' : 'audio';
+        const defaults = _defaults[type] || _defaults.video;
 
-        this.config.width = _.parseInt(this.config.width) || defaults.width;
-        this.config.height = _.parseInt(this.config.height) || defaults.height;
+        this.config.width = this.config.width || defaults.width;
+        this.config.height = this.config.height || defaults.height;
+        if ((_isResponsiveSize(this.config.width) && !_isResponsiveSize(this.config.width)) || this.is('youtube')) {
+            // responsive width height should be auto
+            // for youtube iframe height is limited by ration
+            this.config.height = 'auto';
+        }
     },
 
     /**
@@ -1570,8 +1581,8 @@ var mediaplayer = {
      * @private
      */
     _initPlayer: function _initPlayer() {
-        var player = _players[this.type];
-        var error;
+        const player = _players[this.type];
+        let error;
 
         if (_support.canPlay(this.type)) {
             if (_.isFunction(player)) {
@@ -1597,12 +1608,12 @@ var mediaplayer = {
      * @private
      */
     _initState: function _initState() {
-        var isCORS = false;
-        var page;
+        let isCORS = false;
+        let page;
 
         if (!this.is('youtube')) {
             page = new UrlParser(window.location);
-            isCORS = _.some(this.config.sources, function(source) {
+            isCORS = _.some(this.config.sources, function (source) {
                 return !page.sameDomain(source.src);
             });
         }
@@ -1649,7 +1660,9 @@ var mediaplayer = {
      * @private
      */
     _buildDom: function _buildDom() {
-        this.$component = $(playerTpl(this.config));
+        const configForTemplate = _.clone(this.config);
+        configForTemplate.type = this.type;
+        this.$component = $(playerTpl(configForTemplate));
         this.$player = this.$component.find('.player');
         this.$media = this.$component.find('.media');
         this.$controls = this.$component.find('.controls');
@@ -1675,7 +1688,7 @@ var mediaplayer = {
      * @private
      */
     _renderSlider: function _renderSlider($elt, value, min, max, vertical) {
-        var orientation, direction;
+        let orientation, direction;
 
         if (vertical) {
             orientation = 'vertical';
@@ -1715,66 +1728,65 @@ var mediaplayer = {
      * @private
      */
     _bindEvents: function _bindEvents() {
-        var self = this;
-        var overing = false;
+        let overing = false;
 
-        this.$component.on('contextmenu' + _ns, function(event) {
+        this.$component.on(`contextmenu${_ns}`, function (event) {
             event.preventDefault();
         });
 
-        this.$controls.on('click' + _ns, '.action', function(event) {
-            var $target = $(event.target);
-            var $action = $target.closest('.action');
-            var id = $action.data('control');
+        this.$controls.on(`click${_ns}`, '.action', event => {
+            const $target = $(event.target);
+            const $action = $target.closest('.action');
+            const id = $action.data('control');
 
-            if (_.isFunction(self[id])) {
-                self[id]();
+            if (_.isFunction(this[id])) {
+                this[id]();
             }
         });
 
-        this.$player.on('click' + _ns, function() {
-            if (self.is('playing')) {
-                self.pause();
+        this.$player.on(`click${_ns}`, () => {
+            if (this.is('playing')) {
+                this.pause();
             } else {
-                self.play();
+                this.play();
             }
         });
 
-        this.$seek.on('change' + _ns, function(event, value) {
-            self.seek(value, true);
+        this.$seek.on(`change${_ns}`, (event, value) => {
+            this.seek(value, true);
         });
 
-        $(document).on('updateVolume' + _ns, function(event, value) {
-            self.setVolume(value);
+        $(document).on(`updateVolume${_ns}`, (event, value) => {
+            this.setVolume(value);
         });
 
-        this.$volume.on('change' + _ns, function(event, value) {
-            self.unmute();
-            $(document).trigger('updateVolume' + _ns, value);
-            self.setVolume(value, true);
+        this.$volume.on(`change${_ns}`, (event, value) => {
+            this.unmute();
+            $(document).trigger(`updateVolume${_ns}`, value);
+            this.setVolume(value, true);
         });
 
-        this.$sound.on('mouseover' + _ns, 'a', function() {
-            var position;
+        this.$sound.on(`mouseover${_ns}`, 'a', () => {
+            let position;
 
-            if (!overing && !self.$volumeControl.hasClass('up') && !self.$volumeControl.hasClass('down')) {
+            if (!overing && !this.$volumeControl.hasClass('up') && !this.$volumeControl.hasClass('down')) {
                 overing = true;
-                position = self.$controls[0].getBoundingClientRect();
+                position = this.$controls[0].getBoundingClientRect();
                 if (position && position.top && position.top < volumePositionThreshold) {
-                    self.$volumeControl.addClass('down');
+                    this.$volumeControl.addClass('down');
                 } else {
-                    self.$volumeControl.addClass('up');
+                    this.$volumeControl.addClass('up');
                 }
 
                 //close the volume control after 15s
-                self.overingTimer = _.delay(function() {
-                    if (self.$volumeControl) {
-                        self.$volumeControl.removeClass('up down');
+                this.overingTimer = _.delay(() => {
+                    if (this.$volumeControl) {
+                        this.$volumeControl.removeClass('up down');
                     }
                     overing = false;
                 }, 15000);
-                self.$volumeControl.one('mouseleave' + _ns, function() {
-                    self.$volumeControl.removeClass('up down');
+                this.$volumeControl.one(`mouseleave${_ns}`, () => {
+                    this.$volumeControl.removeClass('up down');
                     overing = false;
                 });
             }
@@ -1937,28 +1949,29 @@ var mediaplayer = {
     /**
      * Update volume in DBIndex store
      * @param {Number} volume
+     * @returns {Promise}
      * @private
      */
     _storeVolume: function _storeVolume(volume) {
-        return store('mediaVolume').then(function(volumeStore) {
+        return store('mediaVolume').then(function (volumeStore) {
             volumeStore.setItem('volume', volume);
         });
     },
 
     /**
      * Get volume from DBIndex store
+     * @returns {Promise}
      * @private
      */
     _updateVolumeFromStore: function _updateVolumeFromStore() {
-        var self = this;
         return store('mediaVolume')
-            .then(function(volumeStore) {
+            .then(function (volumeStore) {
                 return volumeStore.getItem('volume');
             })
-            .then(function(volume) {
+            .then(volume => {
                 if (_.isNumber(volume)) {
-                    self.volume = Math.max(_volumeMin, Math.min(_volumeMax, parseFloat(volume)));
-                    self.setVolume(self.volume);
+                    this.volume = Math.max(_volumeMin, Math.min(_volumeMax, parseFloat(volume)));
+                    this.setVolume(this.volume);
                 }
             });
     },
@@ -2071,7 +2084,7 @@ var mediaplayer = {
      * @private
      */
     _replayTimeout: function _replayTimeout() {
-        var nowMs = new window.Date().getTime(),
+        const nowMs = new window.Date().getTime(),
             elapsedSeconds = Math.floor((nowMs - this.replayTimeoutStartMs) / 1000);
 
         this.timerId = requestAnimationFrame(this._replayTimeout.bind(this));
@@ -2203,8 +2216,8 @@ var mediaplayer = {
      * @private
      */
     execute: function execute(command) {
-        var ctx = this.player;
-        var method = ctx && ctx[command];
+        const ctx = this.player;
+        const method = ctx && ctx[command];
 
         if (_.isFunction(method)) {
             return method.apply(ctx, _slice.call(arguments, 1));
@@ -2239,8 +2252,8 @@ var mediaplayer = {
  * @event destroy - Event triggered when the player is destroying
  * @returns {mediaplayer}
  */
-var mediaplayerFactory = function mediaplayerFactory(config) {
-    var player = _.clone(mediaplayer);
+const mediaplayerFactory = function mediaplayerFactory(config) {
+    const player = _.clone(mediaplayer);
     return player.init(config);
 };
 
