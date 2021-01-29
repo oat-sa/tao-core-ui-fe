@@ -104,7 +104,7 @@ export default function mediaEditorFactory($container, media, config) {
             var dimensionPlugin;
             var alignmentPlugin;
             if (this.getConfig().mediaDimension.active) {
-                dimensionPlugin = mediaDimensionComponent($dimensionTools, media, { responsive: media.responsive }).on(
+                const dimensionPlugin = mediaDimensionComponent($dimensionTools, media, { responsive: media.responsive }).on(
                     'change',
                     function(conf) {
                         media.responsive = conf.responsive;
