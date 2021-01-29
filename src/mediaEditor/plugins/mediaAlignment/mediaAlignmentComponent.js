@@ -61,7 +61,7 @@ export default function mediaAlignmentFactory($container, media) {
             /**
              * Apply configurations to the view
              */
-            update: function update(conf) {
+            update(conf) {
                 $template.find('input:checked').prop('checked', false);
                 switch (conf) {
                     case 'wrap-right':
