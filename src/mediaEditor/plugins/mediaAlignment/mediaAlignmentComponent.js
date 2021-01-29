@@ -101,9 +101,9 @@ export default function mediaAlignmentFactory($container, media) {
                     this.update('wrap-inline');
                     break;
             }
-            $template.on('click', function(event) {
+            $template.on('click', event => {
                 event.target.name && this.update(event.target.name);
-            }.bind(this));
+            });
         })
         .on('destroy', function() {
             $template.remove();
