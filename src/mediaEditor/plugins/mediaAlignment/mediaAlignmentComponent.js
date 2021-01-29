@@ -109,9 +109,7 @@ export default function mediaAlignmentFactory($container, media) {
             $template.remove();
         });
 
-    _.defer(function() {
-        mediaAlignmentComponent.init();
-    });
+    _.defer(() => mediaAlignmentComponent.init());
 
     return mediaAlignmentComponent;
 }
