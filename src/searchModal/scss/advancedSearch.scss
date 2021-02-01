@@ -68,6 +68,14 @@ $invalidCriteriaBorder: #266d9c;
                     border-color: $darkBar;
                 }
             }
+            .filter-bool-group {
+                legend {
+                    padding-bottom: 4px;
+                }
+                input[type="checkbox"] {
+                    margin-left: 0;
+                }
+            }
             label {
                 width: 100%;
                 padding: 0;
@@ -76,6 +84,8 @@ $invalidCriteriaBorder: #266d9c;
             .filter-label-text {
                 padding-bottom: 4px;
                 display: inline-block;
+                width: auto;
+                vertical-align: middle;
             }
             &[data-type='text'] {
                 input {
@@ -93,6 +103,7 @@ $invalidCriteriaBorder: #266d9c;
                 }
                 input[type='checkbox'] {
                     width: initial;
+                    vertical-align: top;
                 }
                 input[type='text'] {
                     width: 100%;
