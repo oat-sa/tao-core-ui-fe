@@ -91,18 +91,21 @@ export default function advancedSearchFactory(config) {
         /**
          * Builds substring of search query with the advanced criteria conditions
          */
-        getAdvancedCriteriaQuery: function () {
+        getAdvancedCriteriaQuery: function (hasSearchInput) {
             const advancedSearchCriteria = _.filter(criteriaState, criterion => criterion.rendered === true);
             let query = '';
 
             advancedSearchCriteria.forEach(renderedCriterion => {
+                if ((hasSearchInput || query.trim().length !== 0) && renderedCriterion.value) {
+                    query += ' AND ';
+                }
                 if (renderedCriterion.type === criteriaTypes.text) {
                     if (renderedCriterion.value && renderedCriterion.value.trim() !== '') {
-                        query += ` AND ${renderedCriterion.label}:${renderedCriterion.value.trim()}`;
+                        query += `${renderedCriterion.label}:${renderedCriterion.value.trim()}`;
                     }
                 } else if (renderedCriterion.type === criteriaTypes.list) {
                     if (renderedCriterion.value && renderedCriterion.value.length > 0) {
-                        query += ` AND ${renderedCriterion.label}:${renderedCriterion.value.join(' OR ')}`;
+                        query += `${renderedCriterion.label}:${renderedCriterion.value.join(' OR ')}`;
                     }
                 }
             });

@@ -4,13 +4,22 @@ $invalidCriteriaBackground: #cfdfe9;
 $invalidCriteriaBorder: #266d9c;
 
 .advanced-search-container {
-    margin-top: 16px;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    &:not(:empty) {
+        padding: 0 0 32px 0;
+    }
     .add-criteria-container {
-        margin-top: 16px;
+        padding-top: 16px;
         padding-right: 20px;
         position: relative;
         .icon-add {
             font-size: 1.6rem;
+            position: relative;
+            top: 2px;
+            margin-right: 8px;
         }
         a {
             text-decoration: none;
@@ -26,22 +35,62 @@ $invalidCriteriaBorder: #266d9c;
         }
     }
     .advanced-criteria-container {
-        padding-top: 16px;
         overflow-y: auto;
         padding-right: 20px;
-        max-height: 72vh;
+        max-height: 100%;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        &:not(:empty) {
+            padding-top: 16px;
+        }
         .filter-container {
-            margin-bottom: 30px;
+            margin-bottom: 32px;
+            &:last-child {
+                margin-bottom: 16px;
+            }
             .icon-result-nok {
                 right: 0;
                 top: 2px;
                 cursor: pointer;
                 position: absolute;
+                font-size: 1.6rem !important;
+                font-weight: 400;
+                padding: 0;
+                background: transparent;
+                box-shadow: none;
+                border: 0;
+                color: inherit;
+                height: 1.8rem;
+                z-index: 1;
+                border: 1px dashed transparent;
+                &:focus {
+                    border-color: $darkBar;
+                }
+            }
+            .filter-bool-group {
+                legend {
+                    padding-bottom: 4px;
+                }
+                input[type="checkbox"] {
+                    margin-left: 0;
+                }
+            }
+            label {
+                width: 100%;
+                padding: 0;
+                margin: 0;
+            }
+            .filter-label-text {
+                padding-bottom: 4px;
+                display: inline-block;
+                width: auto;
+                vertical-align: middle;
             }
             &[data-type='text'] {
                 input {
                     padding-left: 4px;
-                    margin-top: 8px;
+                    width: 100%;
                 }
             }
             &[data-type='list'] {
@@ -54,6 +103,10 @@ $invalidCriteriaBorder: #266d9c;
                 }
                 input[type='checkbox'] {
                     width: initial;
+                    vertical-align: top;
+                }
+                input[type='text'] {
+                    width: 100%;
                 }
             }
         }

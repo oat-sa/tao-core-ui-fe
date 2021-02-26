@@ -125,6 +125,7 @@ $classTreeVariables: (
         border: none;
         padding: 64px !important;
         @include simple-flex-box();
+        overflow: auto;
     }
 
     .content-block {
@@ -234,16 +235,29 @@ $classTreeVariables: (
 }
 
 .search-modal {
-    height: 100% !important;
-    padding: 0px !important;
+    width: 100% !important;
+    // Increasing specificity
+    &.search-modal {
+        max-height: 100%;
+        min-height: 320px;    
+        height: 100%;
+        padding: 0px;
+    }
     .ui-container {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        padding: 60px 0 20px 20px;
+        padding: 64px 0px 20px 20px;
+        .filters-container {
+            flex: 1 1 auto;
+            height: 100%;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
         .basic-search-container {
             padding-right: 20px;
-            margin-bottom: 8px;
+            flex: 0 0 auto;
             .class-filter-container {
                 cursor: pointer;
                 z-index: 2;
@@ -253,11 +267,15 @@ $classTreeVariables: (
         .filter-container {
             position: relative;
             margin-bottom: 8px;
+            &:last-child {
+                padding-bottom: 16px;
+            }
             > .icon-find,
             > .icon-folder {
                 position: absolute;
-                top: 5px;
-                left: 5px;
+                top: 7px;
+                left: 8px;
+                color: #666;
             }
             .icon-down {
                 position: absolute;
@@ -266,10 +284,13 @@ $classTreeVariables: (
             }
             > input {
                 width: 100%;
-                padding-left: 25px;
+                padding-left: 28px;
             }
             .class-filter {
                 cursor: pointer;
+                &[readonly]{
+                    opacity: 1 !important;
+                }
             }
             .class-tree {
                 display: none;
@@ -286,11 +307,14 @@ $classTreeVariables: (
             }
         }
         .buttons-container {
-            padding-right: 20px;
+            flex: 0 0 auto;
+            padding-right: 4px;
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
             button {
-                flex: 1;
+                flex: 1 1 auto;
+                margin-right: 16px;
+                vertical-align: top;
             }
             .btn-transparent {
                 background-color: transparent;
@@ -304,6 +328,9 @@ $classTreeVariables: (
         }
     }
     .content-container {
+        @media screen and (min-width: 840px) {
+            padding: 64px !important;
+        }
         .no-datatable-container {
             display: flex;
             flex-direction: column;
@@ -340,7 +367,7 @@ $classTreeVariables: (
         padding: 0;
         height: 24px;
         .icon-close {
-            font-size: 2rem;
+            font-size: 2.4rem;
         }
     }
 }

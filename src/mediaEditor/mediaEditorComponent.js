@@ -58,7 +58,7 @@ import tpl from 'ui/mediaEditor/tpl/editor';
  * @type mediaEditorConfig
  * @private
  */
-var defaultConfig = {
+const defaultConfig = {
     mediaDimension: {
         active: false
     },
@@ -80,15 +80,15 @@ export default function mediaEditorFactory($container, media, config) {
      * Active Plugins
      * @type {Array}
      */
-    var plugins = [];
+    const plugins = [];
 
     /**
      * Current component
      */
-    var mediaEditorComponent = component({}, defaultConfig);
+    const mediaEditorComponent = component({}, defaultConfig);
     mediaEditorComponent
         .setTemplate(tpl)
-        .on('init', function() {
+        .on('init', function () {
             if (!media || !media.$node || !media.$node.length) {
                 throw new Error('mediaEditorComponent requires media.$node');
             }
@@ -97,29 +97,29 @@ export default function mediaEditorFactory($container, media, config) {
             }
             this.render($container);
         })
-        .on('render', function() {
-            var self = this;
-            var $dimensionTools = $('.media-dimension', this.getTemplate());
-            var $alignmentTools = $('.media-align', this.getTemplate());
-            var dimensionPlugin;
-            var alignmentPlugin;
+        .on('render', function () {
+            const $dimensionTools = $('.media-dimension', this.getTemplate());
+            const $alignmentTools = $('.media-align', this.getTemplate());
+            let dimensionPlugin;
+            let alignmentPlugin;
             if (this.getConfig().mediaDimension.active) {
-                const dimensionPlugin = mediaDimensionComponent($dimensionTools, media, { responsive: media.responsive }).on(
-                    'change',
-                    function(conf) {
-                        media.responsive = conf.responsive;
-                        if (conf.responsive) {
-                            // percent
-                            media.width = conf.sizeProps['%'].current.width;
-                            media.height = null;
-                        } else {
-                            media.width = conf.sizeProps.px.current.width;
-                            media.height = conf.sizeProps.px.current.height;
-                        }
-
-                        self.trigger('change', media);
+                dimensionPlugin = mediaDimensionComponent($dimensionTools, media, {
+                    responsive: media.responsive,
+                    showResponsiveToggle: this.getConfig().mediaDimension.showResponsiveToggle
+                }).on('change', conf => {
+                    media.responsive = conf.responsive;
+                    if (conf.responsive) {
+                        // percent
+                        media.width = conf.sizeProps['%'].current.width;
+                        media.height = null;
+                    } else {
+                        media.width = conf.sizeProps.px.current.width;
+                        media.height = conf.sizeProps.px.current.height;
                     }
-                );
+
+                    this.trigger('change', media);
+                });
+
                 plugins.push(dimensionPlugin);
             }
             if (this.getConfig().mediaAlignment.active) {
@@ -127,13 +127,13 @@ export default function mediaEditorFactory($container, media, config) {
                 plugins.push(alignmentPlugin);
             }
         })
-        .on('destroy', function() {
-            _.forEach(plugins, function(plugin) {
+        .on('destroy', function () {
+            _.forEach(plugins, function (plugin) {
                 plugin.destroy();
             });
         });
 
-    _.defer(function() {
+    _.defer(function () {
         mediaEditorComponent.init(config);
     });
 
