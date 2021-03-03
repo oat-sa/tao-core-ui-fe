@@ -1,3 +1,4 @@
+<h3 class="media-sizer-panel-label">{{__ 'Position'}}</h3>
 <div class="media-alignment">
     <label class="smaller-prompt">
         <input type="radio" name="wrap-inline"/>
