@@ -62,10 +62,15 @@ export default function advancedSearchFactory(config) {
          * @returns {Promise} - Request promise
          */
         updateCriteria: function (route) {
+            const addCriteriaSpan = $('.add-criteria-container a span');
+            addCriteriaSpan.toggle('icon-add');
+            addCriteriaSpan.toggle('icon-loop');
             return request(route)
                 .then(response => {
                     const criteria = formatCriteria(response);
                     updateCriteria(criteria);
+                    addCriteriaSpan.toggle('icon-loop');
+                    addCriteriaSpan.toggle('icon-add');
                 })
                 .catch(e => instance.trigger('error', e));
         },
