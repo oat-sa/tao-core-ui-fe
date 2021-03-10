@@ -997,7 +997,7 @@ const mediaplayer = {
      * @param {Number} [config.replayTimeout] - disable the possibility to replay a media after this timeout, in seconds (default: 0)
      * @param {Number} [config.volume] - Sets the sound volume (default: 80)
      * @param {Number} [config.width] - Sets the width of the player (default: depends on media type)
-     * @param {Number} [config.height] - Sets the height of the player (default: depends on media type)
+     * @param {Number} [config.height] - Sets the height of the player (default: auto)
      * @returns {mediaplayer}
      */
     init: function init(config) {
@@ -1385,11 +1385,6 @@ const mediaplayer = {
      * @returns {mediaplayer}
      */
     resize: function resize(width, height) {
-        if ((_isResponsiveSize(width) && !_isResponsiveSize(height)) || this.is('youtube')) {
-            // responsive width height should be auto
-            // for youtube iframe height is limited by ration
-            height = 'auto';
-        }
         this.execute('setSize', width, height);
 
         return this;
@@ -1568,12 +1563,7 @@ const mediaplayer = {
         const defaults = _defaults[type] || _defaults.video;
 
         this.config.width = this.config.width || defaults.width;
-        this.config.height = this.config.height || defaults.height;
-        if ((_isResponsiveSize(this.config.width) && !_isResponsiveSize(this.config.width)) || this.is('youtube')) {
-            // responsive width height should be auto
-            // for youtube iframe height is limited by ration
-            this.config.height = 'auto';
-        }
+        this.config.height = 'auto';
     },
 
     /**
@@ -2239,7 +2229,7 @@ const mediaplayer = {
  * @param {Number} [config.maxPlays] - Sets a few number of plays (default: infinite)
  * @param {Number} [config.volume] - Sets the sound volume (default: 80)
  * @param {Number} [config.width] - Sets the width of the player (default: depends on media type)
- * @param {Number} [config.height] - Sets the height of the player (default: depends on media type)
+ * @param {Number} [config.height] - Sets the height of the player (default: auto)
  * @event render - Event triggered when the player is rendering
  * @event error - Event triggered when the player throws an unrecoverable error
  * @event recovererror - Event triggered when the player throws a recoverable error
