@@ -1079,7 +1079,13 @@ const mediaplayer = {
         this._playingState(false, true);
         this._initPlayer();
         this._initSize();
-        this.resize(this.config.width, this.config.height);
+
+        // Resize for old items with defined height to avoid big jump
+        if(this.config.height && this.config.height !== 'auto') {
+            this.resize('100%', 'auto');
+        } else {
+            this.resize(this.config.width, this.config.height);
+        }
         this.config.is.rendered = true;
 
         if (renderTo) {
@@ -1385,6 +1391,11 @@ const mediaplayer = {
      * @returns {mediaplayer}
      */
     resize: function resize(width, height) {
+        if ((_isResponsiveSize(width) && !_isResponsiveSize(height)) || this.is('youtube')) {
+            // responsive width height should be auto
+            // for youtube iframe height is limited by ration
+            height = 'auto';
+        }
         this.execute('setSize', width, height);
 
         return this;
@@ -1563,7 +1574,15 @@ const mediaplayer = {
         const defaults = _defaults[type] || _defaults.video;
 
         this.config.width = this.config.width || defaults.width;
-        this.config.height = 'auto';
+        this.config.height = this.config.height || defaults.height;
+
+         if ((_isResponsiveSize(this.config.width) && !_isResponsiveSize(this.config.width)) || this.is('youtube')) {
+             // responsive width height should be auto
+             // for youtube iframe height is limited by ration
+             this.config.height = 'auto';
+         }
+
+        this.config.maxHeight = this.config.height || defaults.height;
     },
 
     /**
@@ -1933,6 +1952,30 @@ const mediaplayer = {
             this.seek(this.autoStartAt);
         } else if (this.autoStart) {
             this.play();
+        }
+
+        if(this.$container && this.config.height && this.config.height !== 'auto') {
+            this._setMaxHeight();
+        }
+    },
+
+    /**
+     * Set max height limit for container
+     * using by old media items with defined height.
+     * @private
+     */
+    _setMaxHeight: function _setMaxHeight() {
+        const $player = this.$container.find('.player');
+        const $video = this.$container.find('video.video', $player);
+        const controlsHeight = parseInt(window.getComputedStyle(this.$controls[0]).height);
+        const scale = $video.height() / this.config.height;
+        const videoWidth = $video.width() / scale;
+
+        if(videoWidth > $player.width()) {
+            this.execute('setSize', '100%', 'auto');
+        } else {
+            this.$component.css({'maxHeight':`${this.config.height + controlsHeight}px`});
+            this.execute('setSize', Math.floor(videoWidth), 'auto');
         }
     },
 
