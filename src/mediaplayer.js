@@ -1963,13 +1963,13 @@ const mediaplayer = {
      * @private
      */
     _setMaxHeight: function _setMaxHeight() {
-        const $player = this.$container.find('.player');
-        const $video = this.$container.find('video.video', $player);
+        const $video = this.$container.find('video.video');
         const controlsHeight = parseInt(window.getComputedStyle(this.$controls[0]).height);
         const scale = $video.height() / this.config.height;
+        const playerWidth = this.$container.find('.player').width();
         const videoWidth = $video.width() / scale;
 
-        if(videoWidth > $player.width()) {
+        if(videoWidth > playerWidth) {
             this.execute('setSize', '100%', 'auto');
         } else {
             this.$component.css({'maxHeight':`${this.config.height + controlsHeight}px`});
