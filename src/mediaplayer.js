@@ -1079,7 +1079,13 @@ const mediaplayer = {
         this._playingState(false, true);
         this._initPlayer();
         this._initSize();
-        this.resize(this.config.width, this.config.height);
+
+        // Resize for old items with defined height to avoid big jump
+        if(this.config.height && this.config.height !== 'auto') {
+            this.resize('100%', 'auto');
+        } else {
+            this.resize(this.config.width, this.config.height);
+        }
         this.config.is.rendered = true;
 
         if (renderTo) {
@@ -1569,7 +1575,8 @@ const mediaplayer = {
 
         this.config.width = this.config.width || defaults.width;
         this.config.height = this.config.height || defaults.height;
-        if ((_isResponsiveSize(this.config.width) && !_isResponsiveSize(this.config.width)) || this.is('youtube')) {
+
+        if ((_isResponsiveSize(this.config.width) && !_isResponsiveSize(this.config.height)) || this.is('youtube')) {
             // responsive width height should be auto
             // for youtube iframe height is limited by ration
             this.config.height = 'auto';
@@ -1943,6 +1950,30 @@ const mediaplayer = {
             this.seek(this.autoStartAt);
         } else if (this.autoStart) {
             this.play();
+        }
+
+        if(this.$container && this.config.height && this.config.height !== 'auto') {
+            this._setMaxHeight();
+        }
+    },
+
+    /**
+     * Set max height limit for container
+     * using by old media items with defined height.
+     * @private
+     */
+    _setMaxHeight: function _setMaxHeight() {
+        const $video = this.$container.find('video.video');
+        const controlsHeight = parseInt(window.getComputedStyle(this.$controls[0]).height);
+        const scale = $video.height() / this.config.height;
+        const playerWidth = this.$container.find('.player').width();
+        const videoWidth = $video.width() / scale;
+
+        if(videoWidth > playerWidth) {
+            this.execute('setSize', '100%', 'auto');
+        } else {
+            this.$component.css({'maxHeight':`${this.config.height + controlsHeight}px`});
+            this.execute('setSize', Math.floor(videoWidth), 'auto');
         }
     },
 
