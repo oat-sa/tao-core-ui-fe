@@ -548,7 +548,10 @@ export default function (options) {
                     }
 
                     inlineOffset += currentNode.textContent.length;
-                    currentNode = isHotNode(currentNode.nextSibling) ? currentNode.nextSibling : null;
+                    currentNode =
+                        isHotNode(currentNode.nextSibling) || isText(currentNode.nextSibling)
+                            ? currentNode.nextSibling
+                            : null;
                     nodesToSkip++;
                 }
                 i += nodesToSkip; // we increase the loop counter to avoid looping over the nodes that we just analyzed
@@ -689,7 +692,7 @@ export default function (options) {
      * @returns {boolean}
      */
     function isWrappable(node) {
-        return isText(node) && !isBlacklisted(node) && node.textContent.length > 0;
+        return isText(node) && !isBlacklisted(node) && node.textContent.trim().length > 0;
     }
 
     /**
