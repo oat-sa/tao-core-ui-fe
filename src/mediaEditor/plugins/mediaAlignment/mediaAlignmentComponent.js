@@ -90,7 +90,7 @@ export default function mediaAlignmentFactory($container, media) {
         .on('render', function () {
             $template = $(tpl());
             $template.appendTo($container);
-            switch (media.$node[0].className) {
+            switch (media.$node[0].classList[0]) {
                 case 'rgt':
                     this.update('wrap-right');
                     break;
