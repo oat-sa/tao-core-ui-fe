@@ -508,7 +508,7 @@ export default function (options) {
                 // an isolated node (= not followed by a highlight table text) with its whole content highlighted
             } else if (
                 isWrappingNode(currentNode) &&
-                !isWrappable(currentNode.nextSibling) &&
+                !isText(currentNode.nextSibling) &&
                 (!isWrappingNode(currentNode.nextSibling) ||
                     currentNode.className === currentNode.nextSibling.className)
             ) {
