@@ -371,7 +371,7 @@ export default function (options) {
      * @param {number} groupId - the highlight group
      */
     function wrapTextNode(node, groupId) {
-        if (isWrapping && !isWrappingNode(node.parentNode) && isText(node)) {
+        if (isWrapping && !isWrappingNode(node.parentNode) && isWrappable(node)) {
             $(node).wrap($(getWrapper(groupId)));
         }
     }
