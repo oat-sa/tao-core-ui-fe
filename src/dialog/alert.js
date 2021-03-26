@@ -46,9 +46,16 @@ export default function dialogAlert(message, action, onCreateDialog, options) {
     options = _.defaults(options || {}, _options);
     dialogOptions = {
         message: message,
-        buttons: options.buttons.labels.ok || __('Ok'),
+        autoRender: true,
         autoDestroy: true,
-        autoRender: true
+        buttons: {
+            ok: {
+                id: 'ok',
+                type: 'info',
+                label: options.buttons.labels.ok || __('Ok'),
+                close: true
+            }
+        }
     };
     dlg = dialog(dialogOptions).on('create.dialog', function() {
         if (onCreateDialog) {
