@@ -13,28 +13,44 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2015-2019 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2015-2021 (original work) Open Assessment Technologies SA ;
  */
 /**
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
 import _ from 'lodash';
+import __ from 'i18n';
 import dialog from 'ui/dialog';
 
 /**
- * Displays an alert message
- * @param {String} message - The displayed message
- * @param {Function} action - An action called when the alert is closed
- * @param {Function} onCreateDialog - An action called when dialog created
- * @returns {dialog} - Returns the dialog instance
- */
-export default function dialogAlert(message, action, onCreateDialog) {
-    var dlg = dialog({
+  * Displays an alert message
+  * @param {String} message - The displayed message
+  * @param {Function} action - An action called when the alert is closed
+  * @param {Function} onCreateDialog - An action called when dialog created
+  * @param {Object} options - Dialog options
+  * @param {Object} options.buttons - Dialog button options
+  * @param {Object} options.buttons.labels - Dialog button labels
+  * @param {String} options.buttons.labels.ok - "OK" button label
+  * @returns {dialog} - Returns the dialog instance
+  */
+export default function dialogAlert(message, action, onCreateDialog, options) {
+    const _options = {
+        buttons: {
+            labels: {
+                ok: __('Ok')
+            }
+        }
+    };
+    let dialogOptions;
+    let dlg;
+    options = _.defaults(options || {}, _options);
+    dialogOptions = {
         message: message,
-        buttons: 'ok',
+        buttons: options.buttons.labels.ok || __('Ok'),
         autoDestroy: true,
         autoRender: true
-    }).on('create.dialog', function() {
+    };
+    dlg = dialog(dialogOptions).on('create.dialog', function() {
         if (onCreateDialog) {
             onCreateDialog();
         }
