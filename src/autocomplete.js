@@ -620,7 +620,7 @@ var autocompleter = {
         }
 
         if (this.ontology) {
-            if(!Array.isArray(this.ontologyParam)) {
+            if (!Array.isArray(this.ontologyParam)) {
               searchParams[this.ontologyParam] = this.ontology;
             } else {
               this.ontologyParam.forEach(p => {
@@ -667,7 +667,7 @@ var autocompleter = {
      * @returns {String}
      */
     getOntologyParam: function() {
-        const p = Array.isArray(this.ontologyParam) ? this.ontologyParam[0] : this.ontologyParam
+        const p = Array.isArray(this.ontologyParam) ? this.ontologyParam[0] : this.ontologyParam;
         return this.adjustParam(p);
     },
 
