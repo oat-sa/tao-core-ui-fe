@@ -18,14 +18,14 @@
 /**
  * @author Christophe Noël <christophe@taotesting.com>
  */
-define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory) {
+define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactory) {
     'use strict';
 
     var highlightRangeData;
 
     QUnit.module('highlighterFactory');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.ok(typeof highlighterFactory === 'function', 'the module expose a function');
     });
 
@@ -41,7 +41,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             input: 'I should end up fully highlighted',
             selection: 'I should end up fully highlighted',
             output: '<span class="hl" data-hl-group="1">I should end up fully highlighted</span>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.selectNodeContents(fixtureContainer);
             },
             highlightIndex: [{ highlighted: true, groupId: '1', c: 'hl' }]
@@ -52,7 +52,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             input: 'I should end up partially highlighted',
             selection: 'partially',
             output: 'I should end up <span class="hl" data-hl-group="1">partially</span> highlighted',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.setStart(fixtureContainer.firstChild, 'I should end up '.length);
                 range.setEnd(fixtureContainer.firstChild, 'I should end up partially'.length);
             },
@@ -76,12 +76,15 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             input: 'I should end up partially highlighted',
             selection: 'I should end up partially',
             output: '<span class="hl" data-hl-group="1">I should end up partially</span> highlighted',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.setStart(fixtureContainer.firstChild, 0);
                 range.setEnd(fixtureContainer.firstChild, 'I should end up partially'.length);
             },
             highlightIndex: [
-                { highlighted: true, inlineRanges: [{ groupId: '1', endOffset: 'I should end up partially'.length, c: 'hl' }] }
+                {
+                    highlighted: true,
+                    inlineRanges: [{ groupId: '1', endOffset: 'I should end up partially'.length, c: 'hl' }]
+                }
             ]
         },
 
@@ -98,7 +101,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 '<span class="hl" data-hl-group="2">myself</span> and ' +
                 '<span class="hl" data-hl-group="3">I</span>' +
                 ' are a bunch of <span class="hl" data-hl-group="4">highlighted</span> friends',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.setStart(fixtureContainer.childNodes[4], ' and '.length);
                 range.setEnd(fixtureContainer.childNodes[4], ' and I'.length);
             },
@@ -148,7 +151,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 '<span class="hl" data-hl-group="3">myself</span> and ' +
                 '<span class="hl" data-hl-group="4">I</span>' +
                 ' are a bunch of <span class="hl" data-hl-group="5">highlighted friends</span>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.setStart(fixtureContainer.childNodes[5], ' and '.length);
                 range.setEnd(fixtureContainer.childNodes[5], ' and I'.length);
             },
@@ -175,7 +178,11 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                             startOffset: 'How cool is that: Me, myself and '.length,
                             endOffset: 'How cool is that: Me, myself and I'.length
                         },
-                        { c: 'hl', groupId: '5', startOffset: 'How cool is that: Me, myself and I are a bunch of '.length }
+                        {
+                            c: 'hl',
+                            groupId: '5',
+                            startOffset: 'How cool is that: Me, myself and I are a bunch of '.length
+                        }
                     ]
                 }
             ]
@@ -186,10 +193,10 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             input: '<div>I should end up fully highlighted</div>',
             selection: '<div>I should end up fully highlighted</div>',
             output: '<div><span class="hl" data-hl-group="1">I should end up fully highlighted</span></div>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.selectNode(fixtureContainer.firstChild);
             },
-            highlightIndex: [{ highlighted: true, groupId: '1', c: 'hl', }]
+            highlightIndex: [{ highlighted: true, groupId: '1', c: 'hl' }]
         },
 
         {
@@ -197,7 +204,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             input: '<div>I should end up partially highlighted</div>',
             selection: 'partially',
             output: '<div>I should end up <span class="hl" data-hl-group="1">partially</span> highlighted</div>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.setStart(fixtureContainer.firstChild.firstChild, 'I should end up '.length);
                 range.setEnd(fixtureContainer.firstChild.firstChild, 'I should end up partially'.length);
             },
@@ -233,7 +240,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 '<li><span class="hl" data-hl-group="1">highlight me too!</span></li>' +
                 '<li>I am too shy to be highlighted</li>' +
                 '</ul>',
-            buildRange: function(range) {
+            buildRange: function (range) {
                 var list = document.getElementById('list');
                 range.setStart(list, 1);
                 range.setEnd(list, 3);
@@ -263,7 +270,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 '<li><span class="hl" data-hl-group="1">highlight me too!</span></li>' +
                 '<li>I am too shy to be highlighted</li>' +
                 '</ul>',
-            buildRange: function(range) {
+            buildRange: function (range) {
                 var list = document.getElementById('list');
 
                 // This actually happens in real-world selection scenarios
@@ -291,7 +298,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 '<span class="hl" data-hl-group="1">We, meaning </span>' +
                 '<strong><span class="hl" data-hl-group="1">me and my children</span></strong>' +
                 '<span class="hl" data-hl-group="1"> should end up fully highlighted</span>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.selectNodeContents(fixtureContainer);
             },
             highlightIndex: [
@@ -309,7 +316,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 'We, <span class="hl" data-hl-group="1">meaning </span>' +
                 '<strong><span class="hl" data-hl-group="1">me and my children</span></strong>' +
                 '<span class="hl" data-hl-group="1"> should end up</span> partially highlighted',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.setStart(fixtureContainer.firstChild, 'We, '.length);
                 range.setEnd(fixtureContainer.lastChild, ' should end up'.length);
             },
@@ -328,7 +335,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 'My <strong>siblings</strong> should ' +
                 '<span class="hl" data-hl-group="1">not bother </span>' +
                 'me <strong>at all</strong>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.setStart(fixtureContainer.childNodes[2], ' should '.length);
                 range.setEnd(fixtureContainer.childNodes[2], ' should not bother '.length);
             },
@@ -338,7 +345,12 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 {
                     highlighted: true,
                     inlineRanges: [
-                        { c: 'hl', groupId: '1', startOffset: ' should '.length, endOffset: ' should not bother '.length }
+                        {
+                            c: 'hl',
+                            groupId: '1',
+                            startOffset: ' should '.length,
+                            endOffset: ' should not bother '.length
+                        }
                     ]
                 },
                 { highlighted: false }
@@ -360,7 +372,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 'I should be <span class="hl" data-hl-group="1">highlighted </span>' +
                 '<strong><span class="hl" data-hl-group="1">even if I was</span>' +
                 ' poorly selected...</strong>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.setStart(fixtureContainer.firstChild, 'I should be '.length);
                 range.setEnd(fixtureContainer.lastChild.firstChild, 'even if I was'.length);
             },
@@ -380,7 +392,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 '<strong>I should be <span class="hl" data-hl-group="1">highlighted</span></strong>' +
                 '<span class="hl" data-hl-group="1"> even if I was</span>' +
                 ' poorly selected...',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.setStart(fixtureContainer.firstChild.firstChild, 'I should be '.length);
                 range.setEnd(fixtureContainer.lastChild, ' even if I was'.length);
             },
@@ -421,7 +433,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 '<li><span class="hl" data-hl-group="1">Do not chose the fourth option !</span></li>' +
                 '</ul>' +
                 '<div><p><span>The list</span> is <strong>finished</strong>, see you soon !</p></div>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.setStart(fixtureContainer.childNodes[1].firstChild, 'There is a ni'.length);
                 range.setEnd(fixtureContainer, 3);
             },
@@ -472,7 +484,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 '<li><span class="hl" data-hl-group="1">Do not chose the fourth option !</span></li>' +
                 '</ul>' +
                 '<div><p id="end-p"><span><span class="hl" data-hl-group="1">The list</span></span><span class="hl" data-hl-group="1"> is </span><strong><span class="hl" data-hl-group="1">finished</span></strong><span class="hl" data-hl-group="1">, see you</span> soon !</p></div>',
-            buildRange: function(range) {
+            buildRange: function (range) {
                 var startNode = document.getElementsByClassName('some-class').item(0).firstChild;
                 var endNode = document.getElementById('end-p').childNodes[3];
                 range.setStart(startNode, 'th'.length);
@@ -525,7 +537,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 '<li>Do not chose the fourth option !</li>' +
                 '</ul>' +
                 '<div><p id="end-p"><span>The list</span> is <strong>finished</strong>, see you soon !</p></div>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 var startNode = fixtureContainer.firstChild;
                 var endNode = document.getElementById('list').childNodes[2].firstChild;
                 range.setStart(startNode, 0);
@@ -557,10 +569,13 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             selection: 'There is an image <img src="/tao/views/img/logo_tao.png"> in the middle of this selection',
             output:
                 '<span class="hl" data-hl-group="1">There is an image </span><img src="/tao/views/img/logo_tao.png"><span class="hl" data-hl-group="1"> in the middle of this selection</span>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.selectNodeContents(fixtureContainer);
             },
-            highlightIndex: [{ c: 'hl', highlighted: true, groupId: '1' }, { c: 'hl', highlighted: true, groupId: '1' }]
+            highlightIndex: [
+                { c: 'hl', highlighted: true, groupId: '1' },
+                { c: 'hl', highlighted: true, groupId: '1' }
+            ]
         },
 
         {
@@ -568,7 +583,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             input: '<textarea>Leave me alone, I am inside a text area</textarea>',
             selection: '<textarea>Leave me alone, I am inside a text area</textarea>',
             output: '<textarea>Leave me alone, I am inside a text area</textarea>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.selectNodeContents(fixtureContainer);
             },
             highlightIndex: []
@@ -579,7 +594,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             input: '<textarea>Leave me alone, I am inside a text area</textarea>',
             selection: 'Leave me alone, I am inside a text area',
             output: '<textarea>Leave me alone, I am inside a text area</textarea>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.selectNodeContents(fixtureContainer.firstChild);
             },
             highlightIndex: []
@@ -590,7 +605,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             input: '<textarea>Leave me alone, I am inside a text area</textarea>',
             selection: 'I am inside',
             output: '<textarea>Leave me alone, I am inside a text area</textarea>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.setStart(fixtureContainer.firstChild.firstChild, 'Leave me alone, '.length);
                 range.setEnd(fixtureContainer.firstChild.firstChild, 'Leave me alone, I am inside'.length);
             },
@@ -605,10 +620,13 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 '<div><span class="hl" data-hl-group="1">this selection </span>' +
                 '<textarea>contains</textarea>' +
                 '<span class="hl" data-hl-group="1"> a textarea</span></div>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.selectNodeContents(fixtureContainer);
             },
-            highlightIndex: [{ c: 'hl', highlighted: true, groupId: '1' }, { c: 'hl', highlighted: true, groupId: '1' }]
+            highlightIndex: [
+                { c: 'hl', highlighted: true, groupId: '1' },
+                { c: 'hl', highlighted: true, groupId: '1' }
+            ]
         },
 
         {
@@ -616,7 +634,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             input: '<input value="Don\'t you dare highlighting me!!!" type="text">',
             selection: '<input value="Don\'t you dare highlighting me!!!" type="text">',
             output: '<input value="Don\'t you dare highlighting me!!!" type="text">',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.selectNodeContents(fixtureContainer);
             },
             highlightIndex: []
@@ -639,7 +657,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 '<span class="hl" data-hl-group="1"> live in a </span></p>' +
                 '<div class="qti-include">blacklisted</div>' +
                 '<p><span class="hl" data-hl-group="1">highlighted group</span></p>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.selectNodeContents(fixtureContainer);
             },
             highlightIndex: [
@@ -664,7 +682,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 '<span class="hl" data-hl-group="1"> live in a </span>' +
                 '<span class="yellow"><span class="hl" data-hl-group="1">yellow</span></span>' +
                 '<span class="hl" data-hl-group="1"> highlighted group</span>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.selectNodeContents(fixtureContainer);
             },
             highlightIndex: [
@@ -683,7 +701,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             output:
                 '<span class="hl" data-hl-group="1">I am enlightened</span>, ' +
                 '<span class="hl" data-hl-group="2">will you join me?</span>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.setStart(fixtureContainer.childNodes[1], ', '.length);
                 range.setEnd(fixtureContainer.childNodes[1], ', will you join me?'.length);
             },
@@ -703,7 +721,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             input: '<span class="hl" data-hl-group="1">I already saw the light</span>, and so did you',
             selection: ', and so did you',
             output: '<span class="hl" data-hl-group="1">I already saw the light, and so did you</span>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.selectNodeContents(fixtureContainer.childNodes[1]);
             },
             highlightIndex: [{ highlighted: true, c: 'hl', groupId: '1' }]
@@ -715,7 +733,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 '<span class="hl" data-hl-group="1">I already saw the light</span>, and soon, <span class="hl" data-hl-group="5">we will all had</span>',
             selection: ', and soon, ',
             output: '<span class="hl" data-hl-group="1">I already saw the light, and soon, we will all had</span>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.selectNodeContents(fixtureContainer.childNodes[1]);
             },
             highlightIndex: [{ highlighted: true, c: 'hl', groupId: '1' }]
@@ -736,7 +754,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 '<li><span class="hl" data-hl-group="1">We all belong</span></li>' +
                 '<li><span class="hl" data-hl-group="1">To a different group</span></li>' +
                 '</ul>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.setStart(fixtureContainer.firstChild, 1);
                 range.setEnd(fixtureContainer.firstChild, 2);
             },
@@ -752,7 +770,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             input: '<span class="hl" data-hl-group="1">I already saw the light</span>',
             selection: 'I already saw the light',
             output: '<span class="hl" data-hl-group="1">I already saw the light</span>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.selectNodeContents(fixtureContainer.firstChild.firstChild);
             },
             highlightIndex: [{ highlighted: true, c: 'hl', groupId: '1' }]
@@ -765,7 +783,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             selection: 'highlight',
             output:
                 '<span class="hl" data-hl-group="1">I already have more highlight that I need, leave me alone</span>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.setStart(fixtureContainer.firstChild.firstChild, 'I already have more '.length);
                 range.setEnd(fixtureContainer.firstChild.firstChild, 'I already have more highlight'.length);
             },
@@ -777,7 +795,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             input: '<span class="hl" data-hl-group="1">I already saw the light</span>',
             selection: '<span class="hl" data-hl-group="1">I already saw the light</span>',
             output: '<span class="hl" data-hl-group="1">I already saw the light</span>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.selectNodeContents(fixtureContainer);
             },
             highlightIndex: [{ highlighted: true, c: 'hl', groupId: '1' }]
@@ -788,7 +806,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             input: 'This <span class="hl" data-hl-group="2">existing highlight</span> is about to be extended',
             selection: 'This <span class="hl" data-hl-group="2">existing highlight</span> is about to be extended',
             output: '<span class="hl" data-hl-group="1">This existing highlight is about to be extended</span>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.selectNodeContents(fixtureContainer);
             },
             highlightIndex: [{ highlighted: true, c: 'hl', groupId: '1' }]
@@ -815,7 +833,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 '<li><span class="hl" data-hl-group="1">So did I!</span></li>' +
                 '<li><span class="hl" data-hl-group="1">Can you please enlighten me?</span></li>' +
                 '</ul>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.setStart(fixtureContainer.firstChild, 0);
                 range.setEnd(fixtureContainer.firstChild, 4);
             },
@@ -835,12 +853,15 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 // Added upon invalid range => HTML conversion,
                 '</span>',
             output: '<span class="hl" data-hl-group="1">This existing highlight</span> is about to be extended',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.setStart(fixtureContainer.firstChild, 0);
                 range.setEnd(fixtureContainer.childNodes[1].firstChild, 'existing'.length);
             },
             highlightIndex: [
-                { highlighted: true, inlineRanges: [{ c: 'hl', groupId: '1', endOffset: 'This existing highlight'.length }] }
+                {
+                    highlighted: true,
+                    inlineRanges: [{ c: 'hl', groupId: '1', endOffset: 'This existing highlight'.length }]
+                }
             ]
         },
 
@@ -850,7 +871,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
             // Added upon invalid range => HTML conversion
             selection: '<span class="hl" data-hl-group="2">' + 'highlight</span> is about to',
             output: 'This <span class="hl" data-hl-group="1">existing highlight is about to</span> be extended',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.setStart(fixtureContainer.childNodes[1].firstChild, 'existing '.length);
                 range.setEnd(fixtureContainer.childNodes[2], ' is about to'.length);
             },
@@ -889,7 +910,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
                 '<strong><span class="hl" data-hl-group="1">Look what is about to happen</span></strong>' +
                 '<span class="hl" data-hl-group="1">This existing highlight will soon be joined by a new one</span>' +
                 '<strong><span class="hl" data-hl-group="1">how cool is that ?!</span></strong>',
-            buildRange: function(range, fixtureContainer) {
+            buildRange: function (range, fixtureContainer) {
                 range.setStart(fixtureContainer.childNodes[1].firstChild, 'This existing '.length);
                 range.setEnd(fixtureContainer.childNodes[5].firstChild, 'by a '.length);
             },
@@ -901,7 +922,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
         }
     ];
 
-    QUnit.cases.init(highlightRangeData).test('HighlightRange', function(data, assert) {
+    QUnit.cases.init(highlightRangeData).test('HighlightRange', function (data, assert) {
         // Setup test
         var highlighter = highlighterFactory({
             className: 'hl',
@@ -923,9 +944,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
 
         // Create range, then make sure it is correctly built
         data.buildRange(range, fixtureContainer);
-        rangeHtml = $('<div>')
-            .append(range.cloneContents())
-            .html(); // This conversion to HTML will automatically close partially selected nodes, if any
+        rangeHtml = $('<div>').append(range.cloneContents()).html(); // This conversion to HTML will automatically close partially selected nodes, if any
         assert.equal(rangeHtml, data.selection, 'selection: ' + data.selection);
 
         // Highlight
@@ -951,7 +970,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
         assert.equal(fixtureContainer.innerHTML, data.output, 'highlight has been restored');
     });
 
-    QUnit.test('clearHighlights', function(assert) {
+    QUnit.test('clearHighlights', function (assert) {
         // Setup test
         var highlighter = highlighterFactory({
             className: 'hl',
@@ -982,7 +1001,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
         // Get higlighted node attributes
         var highlightsAttributes = $(fixtureContainer)
             .find('.hl')
-            .map(function(index, node) {
+            .map(function (index, node) {
                 return $(node).attr('data-hl-group');
             })
             .toArray();
@@ -995,7 +1014,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
         assert.equal($(fixtureContainer).find('.hl').length, 0, 'All higlights has been discarded');
     });
 
-    QUnit.test('clearSingleHighlight', function(assert) {
+    QUnit.test('clearSingleHighlight', function (assert) {
         // Setup test
         var highlighter = highlighterFactory({
             className: 'hl',
@@ -1027,7 +1046,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
         // Get higlighted node attributes
         var highlightsAttributes = $(fixtureContainer)
             .find('.hl')
-            .map(function(index, node) {
+            .map(function (index, node) {
                 return $(node).attr('data-hl-group');
             })
             .toArray();
@@ -1050,4 +1069,505 @@ define(['jquery', 'lodash', 'ui/highlighter'], function($, _, highlighterFactory
 
         assert.equal($(fixtureContainer).find('.hl').length, 0, 'Third higlight has been discarded');
     });
+
+    QUnit.module('highlighter with multi colors');
+
+    QUnit.cases
+        .init([
+            {
+                title: 'Highlight next siblings with a different color',
+                initialContent: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
+                contentBeforeApplyingHighlighter:
+                    'Lorem Ipsum is <span class="pink" data-hl-group="1">simply </span>dummy text of the printing and typesetting industry.',
+                contentAfterApplyingHighlighter:
+                    'Lorem Ipsum is <span class="pink" data-hl-group="1">simply </span><span class="ocher" data-hl-group="1">dummy</span> text of the printing and typesetting industry.',
+                buildRange: function (range, fixtureContainer) {
+                    const pinkNode = fixtureContainer.childNodes[1];
+                    range.setStart(pinkNode.nextSibling, 0);
+                    range.setEnd(pinkNode.nextSibling, 'dummy'.length);
+                },
+                highlightIndex: [
+                    {
+                        highlighted: true,
+                        inlineRanges: [
+                            {
+                                c: 'pink',
+                                endOffset: 'Lorem Ipsum is simply '.length,
+                                groupId: '1',
+                                startOffset: 'Lorem Ipsum is '.length
+                            },
+                            {
+                                c: 'ocher',
+                                endOffset: 'Lorem Ipsum is simply dummy'.length,
+                                groupId: '1',
+                                startOffset: 'Lorem Ipsum is simply '.length
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                title:
+                    'Highlight with a different color words that has space between. The first highlight at the beginning of sentence',
+                initialContent: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
+                contentBeforeApplyingHighlighter:
+                    '<span class="pink" data-hl-group="1">Lorem</span> Ipsum is simply dummy text of the printing and typesetting industry.',
+                contentAfterApplyingHighlighter:
+                    '<span class="pink" data-hl-group="1">Lorem</span> <span class="ocher" data-hl-group="1">Ipsum </span>is simply dummy text of the printing and typesetting industry.',
+                buildRange: function (range, fixtureContainer) {
+                    const pinkNode = fixtureContainer.childNodes[0];
+                    range.setStart(pinkNode.nextSibling, ' '.length);
+                    range.setEnd(pinkNode.nextSibling, ' Ipsum '.length);
+                },
+                highlightIndex: [
+                    {
+                        highlighted: true,
+                        inlineRanges: [
+                            {
+                                c: 'pink',
+                                endOffset: 'Lorem'.length,
+                                groupId: '1'
+                            },
+                            {
+                                c: 'ocher',
+                                endOffset: 'Lorem Ipsum '.length,
+                                groupId: '1',
+                                startOffset: 'Lorem '.length
+                            }
+                        ]
+                    }
+                ]
+            },
+
+            {
+                title: 'Highlight with a different color words that has space between',
+                initialContent: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
+                contentBeforeApplyingHighlighter:
+                    '<span class="pink" data-hl-group="1">Lorem</span> Ipsum is simply dummy text of the printing and typesetting industry.',
+                contentAfterApplyingHighlighter:
+                    '<span class="pink" data-hl-group="1">Lorem</span> <span class="ocher" data-hl-group="1">Ipsum</span> is simply dummy text of the printing and typesetting industry.',
+                buildRange: function (range, fixtureContainer) {
+                    const pinkNode = fixtureContainer.childNodes[0];
+                    range.setStart(pinkNode.nextSibling, ' '.length);
+                    range.setEnd(pinkNode.nextSibling, ' Ipsum'.length);
+                },
+                highlightIndex: [
+                    {
+                        highlighted: true,
+                        inlineRanges: [
+                            {
+                                c: 'pink',
+                                endOffset: 'Lorem'.length,
+                                groupId: '1'
+                            },
+                            {
+                                c: 'ocher',
+                                endOffset: 'Lorem Ipsum'.length,
+                                groupId: '1',
+                                startOffset: 'Lorem '.length
+                            }
+                        ]
+                    }
+                ]
+            },
+
+            {
+                title: 'Highlight with a different color words that has space between',
+                initialContent: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
+                contentBeforeApplyingHighlighter:
+                    '<span class="pink" data-hl-group="1">Lorem</span> Ipsum is simply dummy text of the printing and typesetting industry.',
+                contentAfterApplyingHighlighter:
+                    '<span class="pink" data-hl-group="1">Lorem</span> I<span class="ocher" data-hl-group="2">psum</span> is simply dummy text of the printing and typesetting industry.',
+                buildRange: function (range, fixtureContainer) {
+                    const pinkNode = fixtureContainer.childNodes[0];
+                    range.setStart(pinkNode.nextSibling, ' I'.length);
+                    range.setEnd(pinkNode.nextSibling, ' Ipsum'.length);
+                },
+                highlightIndex: [
+                    {
+                        highlighted: true,
+                        inlineRanges: [
+                            {
+                                c: 'pink',
+                                endOffset: 'Lorem'.length,
+                                groupId: '1'
+                            },
+                            {
+                                c: 'ocher',
+                                endOffset: 'Lorem Ipsum'.length,
+                                groupId: '2',
+                                startOffset: 'Lorem I'.length
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                title:
+                    'Override highlights with a different color the selection contains one highlighted node with a different color',
+                initialContent: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
+                contentBeforeApplyingHighlighter:
+                    'Lorem Ipsum is simply <span class="pink" data-hl-group="1">dummy</span> text of the printing and typesetting industry.',
+                contentAfterApplyingHighlighter:
+                    '<span class="ocher" data-hl-group="1">Lorem Ipsum is simply dummy text</span> of the printing and typesetting industry.',
+                buildRange: function (range, fixtureContainer) {
+                    const pinkNode = fixtureContainer.childNodes[1];
+                    range.setStart(fixtureContainer.childNodes[0], 0);
+                    range.setEnd(pinkNode.nextSibling, ' text'.length);
+                },
+                highlightIndex: [
+                    {
+                        highlighted: true,
+                        inlineRanges: [
+                            {
+                                c: 'ocher',
+                                endOffset: 'Lorem Ipsum is simply dummy text'.length,
+                                groupId: '1'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                title: 'Override highlights with a different color the selection contains one highlighted node',
+                initialContent: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
+                contentBeforeApplyingHighlighter:
+                    'Lorem Ipsum is simply <span class="pink" data-hl-group="1">dummy</span> text of the printing and typesetting industry.',
+                contentAfterApplyingHighlighter:
+                    'Lorem Ipsum is <span class="ocher" data-hl-group="1">simply dummy</span> text of the printing and typesetting industry.',
+                buildRange: function (range, fixtureContainer) {
+                    range.setStart(fixtureContainer.childNodes[0], 'Lorem Ipsum is '.length);
+                    range.setEnd(fixtureContainer.childNodes[2], 0);
+                },
+                highlightIndex: [
+                    {
+                        highlighted: true,
+                        inlineRanges: [
+                            {
+                                c: 'ocher',
+                                endOffset: 'Lorem Ipsum is simply dummy'.length,
+                                groupId: '1',
+                                startOffset: 'Lorem Ipsum is '.length
+                            }
+                        ]
+                    }
+                ]
+            },
+
+            {
+                title: 'Partially override highlighted node with another color',
+                initialContent: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
+                contentBeforeApplyingHighlighter:
+                    'Lorem Ipsum is <span class="pink" data-hl-group="1">simply dummy</span> text of the printing and typesetting industry.',
+                contentAfterApplyingHighlighter:
+                    'Lorem Ipsum is <span class="pink" data-hl-group="1">simply dum</span><span class="ocher" data-hl-group="1">my</span> text of the printing and typesetting industry.',
+                buildRange: function (range, fixtureContainer) {
+                    range.setStart(fixtureContainer.childNodes[1].childNodes[0], 'simply dum'.length);
+                    range.setEnd(fixtureContainer.childNodes[1].childNodes[0], 'simply dummy'.length);
+                },
+                highlightIndex: [
+                    {
+                        highlighted: true,
+                        inlineRanges: [
+                            {
+                                c: 'pink',
+                                endOffset: 'Lorem Ipsum is simply dum'.length,
+                                groupId: '1',
+                                startOffset: 'Lorem Ipsum is '.length
+                            },
+                            {
+                                c: 'ocher',
+                                endOffset: 'Lorem Ipsum is simply dummy'.length,
+                                groupId: '1',
+                                startOffset: 'Lorem Ipsum is simply dum'.length
+                            }
+                        ]
+                    }
+                ]
+            },
+
+            {
+                title: 'Highlight piece of highlighted content in different color',
+                initialContent: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
+                contentBeforeApplyingHighlighter:
+                    'Lorem Ipsum is <span class="pink" data-hl-group="1">simply dummy</span> text of the printing and typesetting industry.',
+                contentAfterApplyingHighlighter:
+                    'Lorem Ipsum is <span class="pink" data-hl-group="1">simp</span><span class="ocher" data-hl-group="1">ly du</span><span class="pink" data-hl-group="1">mmy</span> text of the printing and typesetting industry.',
+                buildRange: function (range, fixtureContainer) {
+                    range.setStart(fixtureContainer.childNodes[1].childNodes[0], 'simp'.length);
+                    range.setEnd(fixtureContainer.childNodes[1].childNodes[0], 'simply du'.length);
+                },
+                highlightIndex: [
+                    {
+                        highlighted: true,
+                        inlineRanges: [
+                            {
+                                c: 'pink',
+                                endOffset: 'Lorem Ipsum is simp'.length,
+                                groupId: '1',
+                                startOffset: 'Lorem Ipsum is '.length
+                            },
+                            {
+                                c: 'ocher',
+                                endOffset: 'Lorem Ipsum is simply du'.length,
+                                groupId: '1',
+                                startOffset: 'Lorem Ipsum is simp'.length
+                            },
+                            {
+                                c: 'pink',
+                                endOffset: 'Lorem Ipsum is simply dummy'.length,
+                                groupId: '1',
+                                startOffset: 'Lorem Ipsum is simply du'.length
+                            }
+                        ]
+                    }
+                ]
+            },
+
+            {
+                title: 'Highlight piece of highlighted content in different color',
+                initialContent: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
+                contentBeforeApplyingHighlighter:
+                    'Lorem Ipsum is <span class="pink" data-hl-group="1">simply dummy</span> text of the printing and typesetting industry.',
+                contentAfterApplyingHighlighter:
+                    'Lorem Ipsum is <span class="pink" data-hl-group="1">simp</span><span class="ocher" data-hl-group="1">ly du</span><span class="pink" data-hl-group="1">mmy</span> text of the printing and typesetting industry.',
+                buildRange: function (range, fixtureContainer) {
+                    range.setStart(fixtureContainer.childNodes[1].childNodes[0], 'simp'.length);
+                    range.setEnd(fixtureContainer.childNodes[1].childNodes[0], 'simply du'.length);
+                },
+                highlightIndex: [
+                    {
+                        highlighted: true,
+                        inlineRanges: [
+                            {
+                                c: 'pink',
+                                endOffset: 'Lorem Ipsum is simp'.length,
+                                groupId: '1',
+                                startOffset: 'Lorem Ipsum is '.length
+                            },
+                            {
+                                c: 'ocher',
+                                endOffset: 'Lorem Ipsum is simply du'.length,
+                                groupId: '1',
+                                startOffset: 'Lorem Ipsum is simp'.length
+                            },
+                            {
+                                c: 'pink',
+                                endOffset: 'Lorem Ipsum is simply dummy'.length,
+                                groupId: '1',
+                                startOffset: 'Lorem Ipsum is simply du'.length
+                            }
+                        ]
+                    }
+                ]
+            },
+
+            {
+                title: 'Highlighted content inside and outside of simple tag',
+                initialContent: 'Lorem Ipsum is <p>simply</p> dummy text of the printing and typesetting industry.',
+                contentBeforeApplyingHighlighter:
+                    'Lorem Ipsum is <p>simply</p> dummy text of the printing and typesetting industry.',
+                contentAfterApplyingHighlighter:
+                    'Lorem Ipsum is <p>sim<span class="ocher" data-hl-group="1">ply</span></p><span class="ocher" data-hl-group="1"> dummy</span> text of the printing and typesetting industry.',
+                buildRange: function (range, fixtureContainer) {
+                    range.setStart(fixtureContainer.childNodes[1].childNodes[0], 'sim'.length);
+                    range.setEnd(fixtureContainer.childNodes[2], ' dummy'.length);
+                },
+                highlightIndex: [
+                    {
+                        highlighted: false
+                    },
+                    {
+                        highlighted: true,
+                        inlineRanges: [
+                            {
+                                c: 'ocher',
+                                groupId: '1',
+                                startOffset: 'sim'.length
+                            }
+                        ]
+                    },
+                    {
+                        highlighted: true,
+                        inlineRanges: [
+                            {
+                                c: 'ocher',
+                                endOffset: ' dummy'.length,
+                                groupId: '1'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                title: 'Highlighted content with simple tag inside',
+                initialContent: 'Lorem Ipsum is <p>simply</p> dummy text of the printing and typesetting industry.',
+                contentBeforeApplyingHighlighter:
+                    'Lorem Ipsum is <p>simply</p> dummy text of the printing and typesetting industry.',
+                contentAfterApplyingHighlighter:
+                    'Lorem <span class="ocher" data-hl-group="1">Ipsum is </span><p><span class="ocher" data-hl-group="1">simply</span></p><span class="ocher" data-hl-group="1"> dummy</span> text of the printing and typesetting industry.',
+                buildRange: function (range, fixtureContainer) {
+                    range.setStart(fixtureContainer.childNodes[0], 'Lorem '.length);
+                    range.setEnd(fixtureContainer.childNodes[2], ' dummy'.length);
+                },
+                highlightIndex: [
+                    {
+                        highlighted: true,
+                        inlineRanges: [
+                            {
+                                c: 'ocher',
+                                groupId: '1',
+                                startOffset: 'Lorem '.length
+                            }
+                        ]
+                    },
+                    {
+                        c: 'ocher',
+                        groupId: '1',
+                        highlighted: true
+                    },
+                    {
+                        highlighted: true,
+                        inlineRanges: [
+                            {
+                                c: 'ocher',
+                                endOffset: ' dummy'.length,
+                                groupId: '1'
+                            }
+                        ]
+                    }
+                ]
+            },
+
+            {
+                title: 'Override highlighted nodes with one color',
+                initialContent: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
+                contentBeforeApplyingHighlighter:
+                    'Lorem Ipsum is <span class="ocher" data-hl-group="1">simply</span> dummy <span class="blue" data-hl-group="1">text</span> of <span class="pink" data-hl-group="1">the</span> printing and typesetting industry.',
+                contentAfterApplyingHighlighter:
+                    'Lorem <span class="ocher" data-hl-group="1">Ipsum is simply dummy text of the printing</span> and typesetting industry.',
+                buildRange: function (range, fixtureContainer) {
+                    const lastChildNode = fixtureContainer.childNodes[fixtureContainer.childNodes.length - 1];
+                    range.setStart(fixtureContainer.childNodes[0], 'Lorem '.length);
+                    range.setEnd(lastChildNode, ' printing'.length);
+                },
+                highlightIndex: [
+                    {
+                        highlighted: true,
+                        inlineRanges: [
+                            {
+                                c: 'ocher',
+                                endOffset: 'Lorem Ipsum is simply dummy text of the printing'.length,
+                                groupId: '1',
+                                startOffset: 'Lorem '.length
+                            }
+                        ]
+                    }
+                ]
+            },
+
+            // NOTE: Related to https://oat-sa.atlassian.net/browse/MS-1071
+            //
+            {
+                title: 'Override highlights with a different color the selection contains two highlighted nodes',
+                initialContent: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
+                contentBeforeApplyingHighlighter:
+                    'Lorem Ipsum is simply <span class="pink" data-hl-group="1">dummy</span> <span class="pink" data-hl-group="1">text</span> of the printing and typesetting industry.',
+                contentAfterApplyingHighlighter:
+                    'Lorem Ipsum is <span class="ocher" data-hl-group="1">simply dummy text</span> of the printing and typesetting industry.',
+                buildRange: function (range, fixtureContainer) {
+                    const lastChild = fixtureContainer.childNodes[fixtureContainer.childNodes.length - 1];
+                    range.setStart(fixtureContainer.childNodes[0], 'Lorem Ipsum is '.length);
+                    range.setEnd(lastChild, ''.length);
+                },
+                highlightIndex: [
+                    {
+                        highlighted: true,
+                        inlineRanges: [
+                            {
+                                c: 'ocher',
+                                endOffset: 'Lorem Ipsum is simply dummy text'.length,
+                                groupId: '1',
+                                startOffset: 'Lorem Ipsum is '.length
+                            }
+                        ]
+                    }
+                ]
+            },
+
+            // NOTE: Related to https://oat-sa.atlassian.net/browse/MS-1077
+            {
+                title: 'The user should not be able to highlight line break',
+                initialContent: 'Lorem Ipsum\n of the printing and typesetting industry.',
+                contentBeforeApplyingHighlighter: 'Lorem Ipsum\n of the printing and typesetting industry.',
+                contentAfterApplyingHighlighter: 'Lorem Ipsum\n of the printing and typesetting industry.',
+                buildRange: function (range, fixtureContainer) {
+                    range.setStart(fixtureContainer.childNodes[0], 'Lorem Ipsum'.length);
+                    range.setEnd(fixtureContainer.childNodes[0], 'Lorem Ipsum\n'.length);
+                },
+                highlightIndex: [
+                    {
+                        highlighted: false
+                    }
+                ]
+            }
+        ])
+        .test('setup', function (data, assert) {
+            const colors = {
+                ocher: 'ocher',
+                pink: 'pink',
+                blue: 'blue'
+            };
+
+            const highlighter = highlighterFactory({
+                className: colors.ocher,
+                containerSelector: '#qunit-fixture',
+                containersBlackList: [],
+                colors: colors
+            });
+
+            var range = document.createRange();
+            var highlightIndex;
+
+            var fixtureContainer = document.getElementById('qunit-fixture');
+
+            assert.expect(6);
+
+            fixtureContainer.innerHTML = data.contentBeforeApplyingHighlighter;
+
+            // The following assertion is just to provide a better visual feedback in QUnit UI
+            assert.equal(
+                fixtureContainer.innerHTML,
+                data.contentBeforeApplyingHighlighter,
+                'before highlight: ' + data.contentBeforeApplyingHighlighter
+            );
+
+            // Create range, then make sure it is correctly built
+            data.buildRange(range, fixtureContainer);
+
+            // Highlight
+            highlighter.highlightRanges([range]);
+            assert.equal(
+                fixtureContainer.innerHTML,
+                data.contentAfterApplyingHighlighter,
+                'after highlight: ' + data.contentAfterApplyingHighlighter
+            );
+
+            // Save highlight
+            highlightIndex = highlighter.getHighlightIndex();
+            assert.ok(_.isArray(highlightIndex), 'getHighlightIndex returns an array');
+            assert.equal(highlightIndex.length, data.highlightIndex.length, 'array has the correct size');
+            assert.deepEqual(highlightIndex, data.highlightIndex, 'array has the correct content');
+
+            // Re-add markup and remove any existing highlight in fixture
+            fixtureContainer.innerHTML = data.initialContent;
+
+            // Restore highlight
+            highlighter.highlightFromIndex(highlightIndex);
+            assert.equal(
+                fixtureContainer.innerHTML,
+                data.contentAfterApplyingHighlighter,
+                'highlight has been restored'
+            );
+        });
 });
