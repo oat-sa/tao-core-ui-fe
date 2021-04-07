@@ -76,7 +76,7 @@ var defaults = {
 
     /**
      * Defines the name of the param providing the ontology URI
-     * @type {String}
+     * @type {String|String[]}
      */
     ontologyParam: 'rootNode',
 
@@ -620,7 +620,13 @@ var autocompleter = {
         }
 
         if (this.ontology) {
-            searchParams[this.ontologyParam] = this.ontology;
+            if (!Array.isArray(this.ontologyParam)) {
+              searchParams[this.ontologyParam] = this.ontology;
+            } else {
+              this.ontologyParam.forEach(p => {
+                searchParams[p] = this.ontology;
+              })
+            } 
         }
 
         return params;
@@ -661,7 +667,8 @@ var autocompleter = {
      * @returns {String}
      */
     getOntologyParam: function() {
-        return this.adjustParam(this.ontologyParam);
+        const p = Array.isArray(this.ontologyParam) ? this.ontologyParam[0] : this.ontologyParam;
+        return this.adjustParam(p);
     },
 
     /**
