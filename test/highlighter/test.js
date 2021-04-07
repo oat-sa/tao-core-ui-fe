@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2016-2020 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2016-2021 (original work) Open Assessment Technologies SA ;
  */
 /**
  * @author Christophe Noël <christophe@taotesting.com>
@@ -1113,7 +1113,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
                 contentBeforeApplyingHighlighter:
                     '<span class="pink" data-hl-group="1">Lorem</span> Ipsum is simply dummy text of the printing and typesetting industry.',
                 contentAfterApplyingHighlighter:
-                    '<span class="pink" data-hl-group="1">Lorem</span> <span class="ocher" data-hl-group="1">Ipsum </span>is simply dummy text of the printing and typesetting industry.',
+                    '<span class="pink" data-hl-group="1">Lorem</span> <span class="ocher" data-hl-group="2">Ipsum </span>is simply dummy text of the printing and typesetting industry.',
                 buildRange: function (range, fixtureContainer) {
                     const pinkNode = fixtureContainer.childNodes[0];
                     range.setStart(pinkNode.nextSibling, ' '.length);
@@ -1131,7 +1131,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
                             {
                                 c: 'ocher',
                                 endOffset: 'Lorem Ipsum '.length,
-                                groupId: '1',
+                                groupId: '2',
                                 startOffset: 'Lorem '.length
                             }
                         ]
@@ -1145,7 +1145,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
                 contentBeforeApplyingHighlighter:
                     '<span class="pink" data-hl-group="1">Lorem</span> Ipsum is simply dummy text of the printing and typesetting industry.',
                 contentAfterApplyingHighlighter:
-                    '<span class="pink" data-hl-group="1">Lorem</span> <span class="ocher" data-hl-group="1">Ipsum</span> is simply dummy text of the printing and typesetting industry.',
+                    '<span class="pink" data-hl-group="1">Lorem</span> <span class="ocher" data-hl-group="2">Ipsum</span> is simply dummy text of the printing and typesetting industry.',
                 buildRange: function (range, fixtureContainer) {
                     const pinkNode = fixtureContainer.childNodes[0];
                     range.setStart(pinkNode.nextSibling, ' '.length);
@@ -1163,7 +1163,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
                             {
                                 c: 'ocher',
                                 endOffset: 'Lorem Ipsum'.length,
-                                groupId: '1',
+                                groupId: '2',
                                 startOffset: 'Lorem '.length
                             }
                         ]
