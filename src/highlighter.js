@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2016 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2016-2021 (original work) Open Assessment Technologies SA;
  */
 /**
  * Highlighter helper: wraps every text node found within a Range object.
@@ -95,6 +95,14 @@ export default function (options) {
     }
 
     /**
+     * Returns all highlighted nodes
+     * @returns {JQuery<HTMLElement>}
+     */
+    function getHighlightedNodes() {
+        return $(containerSelector).find(`.${highlightingClasses.join(',.')}`);
+    }
+
+    /**
      * Highlight all text nodes within each given range
      * @param {Range[]} ranges - array of ranges to highlight, may be given by the helper selector.getAllRanges()
      */
@@ -106,6 +114,7 @@ export default function (options) {
                 currentGroupId = getAvailableGroupId();
 
                 // easy peasy: highlighting a plain text without any DOM nodes
+                // NOTE: The condition checks the whole node content and not a selected content in a given range, that allows to wrap whitespace
                 if (
                     isWrappable(range.commonAncestorContainer) &&
                     !isWrappingNode(range.commonAncestorContainer.parentNode)
@@ -148,6 +157,7 @@ export default function (options) {
             isWrapping = false;
             reindexGroups(getContainer());
             mergeAdjacentWrappingNodes(getContainer());
+            unWrapEmptyHighlights();
         });
 
         if (options.clearOnClick) {
@@ -433,6 +443,21 @@ export default function (options) {
     }
 
     /**
+     * Unwraps highlighted nodes with a line break or with an empty content
+     */
+    function unWrapEmptyHighlights() {
+        getHighlightedNodes().each((index, node) => {
+            const nodeContent = node.textContent;
+
+            if (nodeContent.trim().length === 0) {
+                if (nodeContent.length === 0 || /\r|\n/.exec(nodeContent)) {
+                    clearSingleHighlight({ target: node });
+                }
+            }
+        });
+    }
+
+    /**
      * Remove all wrapping nodes from markup
      */
     function clearHighlights() {
@@ -448,10 +473,15 @@ export default function (options) {
      * Remove unwrap dom node
      */
     function clearSingleHighlight(e) {
-        var target = e.target;
+        const $wrapped = $(e.target);
+        const text = $wrapped.text();
 
-        var $wrapped = $(target);
-        $wrapped.replaceWith($wrapped.text());
+        // NOTE: JQuery replaceWith is not working with empty string https://bugs.jquery.com/ticket/13401
+        if (text === '') {
+            $wrapped.remove();
+        } else {
+            $wrapped.replaceWith(text);
+        }
     }
 
     /**
@@ -692,7 +722,7 @@ export default function (options) {
      * @returns {boolean}
      */
     function isWrappable(node) {
-        return isText(node) && !isBlacklisted(node) && node.textContent.trim().length > 0;
+        return isText(node) && !isBlacklisted(node);
     }
 
     /**
