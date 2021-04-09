@@ -65,8 +65,8 @@ export default function advancedSearchFactory(config) {
          */
         updateCriteria: function (route) {
             const addCriteriaSpan = $('.add-criteria-container a span');
-            addCriteriaSpan.toggle('icon-add');
-            addCriteriaSpan.toggle('icon-loop');
+            addCriteriaSpan[0].classList.toggle('icon-add');
+            addCriteriaSpan[0].classList.toggle('icon-loop');
 
             if (!isAdvancedSearchStatusEnabled) {
                 return Promise.resolve();
@@ -75,8 +75,8 @@ export default function advancedSearchFactory(config) {
                 .then(response => {
                     const criteria = formatCriteria(response);
                     updateCriteria(criteria);
-                    addCriteriaSpan.toggle('icon-loop');
-                    addCriteriaSpan.toggle('icon-add');
+                    addCriteriaSpan[0].classList.toggle('icon-loop');
+                    addCriteriaSpan[0].classList.toggle('icon-add');
                 })
                 .catch(e => instance.trigger('error', e));
         },
