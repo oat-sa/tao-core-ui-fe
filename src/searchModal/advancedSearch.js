@@ -54,6 +54,8 @@ export default function advancedSearchFactory(config) {
         list: 'list'
     };
 
+    let isAdvancedSearchStatusEnabled;
+
     // Creates new component
     const instance = component({
         /**
@@ -65,6 +67,10 @@ export default function advancedSearchFactory(config) {
             const addCriteriaSpan = $('.add-criteria-container a span');
             addCriteriaSpan.toggle('icon-add');
             addCriteriaSpan.toggle('icon-loop');
+
+            if (!isAdvancedSearchStatusEnabled) {
+                return Promise.resolve();
+            }
             return request(route)
                 .then(response => {
                     const criteria = formatCriteria(response);
@@ -151,8 +157,10 @@ export default function advancedSearchFactory(config) {
         return request(route)
             .then(function (response) {
                 if (!response.enabled || context.shownStructure === 'results') {
+                    isAdvancedSearchStatusEnabled = false;
                     return;
                 }
+                isAdvancedSearchStatusEnabled = true;
                 $addCriteria.removeClass('disabled');
                 $criteriaSelect.select2({
                     containerCssClass: 'criteria-select2',
