@@ -76,8 +76,7 @@ export default function advancedSearchFactory(config) {
                     const criteria = formatCriteria(response);
                     updateCriteria(criteria);
                     isCriteriaListUpdated = true;
-                    addCriteriaSpan[0].classList.toggle('icon-loop');
-                    addCriteriaSpan[0].classList.toggle('icon-add');
+                    $criteriaIcon.toggleClass('icon-add').toggleClass('icon-loop');
                 })
                 .catch(e => instance.trigger('error', e));
         },
