@@ -47,10 +47,10 @@ interactHelper = {
      */
     iFrameDragFixOn: function iFrameDragFixOn(simulateDropCb) {
         simulateDrop = simulateDropCb;
-        document.body.addEventListener('mouseleave', iFrameDragFixCb);
+        window.addEventListener('mouseleave', iFrameDragFixCb);
     },
     iFrameDragFixOff: function iFrameDragFixOff() {
-        document.body.removeEventListener('mouseleave', iFrameDragFixCb);
+        window.removeEventListener('mouseleave', iFrameDragFixCb);
     },
 
     /**
