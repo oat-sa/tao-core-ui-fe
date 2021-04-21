@@ -55,6 +55,7 @@ export default function advancedSearchFactory(config) {
     };
 
     let isAdvancedSearchStatusEnabled;
+    let isCriteriaListUpdated = false;
 
     // Creates new component
     const instance = component({
@@ -64,6 +65,9 @@ export default function advancedSearchFactory(config) {
          * @returns {Promise} - Request promise
          */
         updateCriteria: function (route) {
+            const $criteriaIcon = $('.add-criteria-container a span').eq(0);
+            $criteriaIcon.toggleClass('icon-add').toggleClass('icon-loop');
+
             if (!isAdvancedSearchStatusEnabled) {
                 return Promise.resolve();
             }
@@ -71,6 +75,8 @@ export default function advancedSearchFactory(config) {
                 .then(response => {
                     const criteria = formatCriteria(response);
                     updateCriteria(criteria);
+                    isCriteriaListUpdated = true;
+                    $criteriaIcon.toggleClass('icon-add').toggleClass('icon-loop');
                 })
                 .catch(e => instance.trigger('error', e));
         },
@@ -164,13 +170,15 @@ export default function advancedSearchFactory(config) {
 
                 // open dropdown when user clicks on add criteria input
                 $addCriteriaInput.on('click', () => {
-                    $criteriaSelect.select2('open');
-                    // if dropdown is opened above addCriteria input, top property is slightly decreased to avoid overlapping with addCriteria icon
-                    if ($('.criteria-dropdown-select2').hasClass('select2-drop-above')) {
-                        $('.criteria-dropdown-select2').css(
-                            'top',
-                            $('.criteria-dropdown-select2').css('top').split('px')[0] - 10 + 'px'
-                        );
+                    if (isCriteriaListUpdated) {
+                        $criteriaSelect.select2('open');
+                        // if dropdown is opened above addCriteria input, top property is slightly decreased to avoid overlapping with addCriteria icon
+                        if ($('.criteria-dropdown-select2').hasClass('select2-drop-above')) {
+                            $('.criteria-dropdown-select2').css(
+                                'top',
+                                $('.criteria-dropdown-select2').css('top').split('px')[0] - 10 + 'px'
+                            );
+                        }
                     }
                 });
 

@@ -21,6 +21,14 @@ $invalidCriteriaBorder: #266d9c;
             top: 2px;
             margin-right: 8px;
         }
+        .icon-loop {
+            font-size: 1.6rem;
+            position: relative;
+            top: 2px;
+            margin-right: 8px;
+            animation: rotating 2s linear infinite;
+            display: inline-block;
+        }
         a {
             text-decoration: none;
         }
@@ -142,5 +150,14 @@ $invalidCriteriaBorder: #266d9c;
     input {
         min-width: initial;
         background-image: initial;
+    }
+}
+
+@keyframes rotating {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
     }
 }
