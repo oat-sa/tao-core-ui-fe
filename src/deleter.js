@@ -103,7 +103,7 @@ var deleter = {
                  * The target has been closed/removed.
                  * @event deleter#deleted.deleter
                  */
-                $evtTrigger.trigger('deleted.' + ns);
+                $evtTrigger.trigger('deleted.' + ns, [$target]);
             }
         };
         if (options && !$elt.hasClass(options.disableClass)) {
