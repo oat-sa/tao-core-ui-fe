@@ -116,7 +116,8 @@ export default function advancedSearchFactory(config) {
                     }
                 } else if (renderedCriterion.type === criteriaTypes.list) {
                     if (renderedCriterion.value && renderedCriterion.value.length > 0) {
-                        query += `${renderedCriterion.label}:${renderedCriterion.value.join(' OR ')}`;
+                        /* Temp replaced OR with AND. See ADF-7 for details */
+                        query += `${renderedCriterion.label}:${renderedCriterion.value.join(' AND ')}`;
                     }
                 }
             });
