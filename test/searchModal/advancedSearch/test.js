@@ -41,13 +41,9 @@ define([
     $.mockjax({
         url: 'undefined/tao/AdvancedSearch/status',
         dataType: 'json',
-        responseText: {
-            success: true,
-            data: {
-                enabled: true
-            }
-        }
+        responseText: mocks.mockedStatusEnabled
     });
+
     QUnit.module('advancedSearch');
     QUnit.test('module', function (assert) {
         assert.expect(1);
