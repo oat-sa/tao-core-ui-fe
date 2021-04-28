@@ -13,8 +13,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
  */
+
 define([
     'jquery',
     'ui/searchModal',
@@ -22,11 +23,23 @@ define([
     'json!test/ui/searchModal/mocks/mocks.json',
     'jquery.mockjax'
 ], function ($, searchModalFactory, store, mocks) {
+    // Prevent the AJAX mocks to pollute the logs
+    $.mockjaxSettings.logger = null;
     $.mockjaxSettings.responseTime = 1;
     $.mockjax({
         url: 'undefined/tao/RestResource/getAll',
         dataType: 'json',
         responseText: mocks.mockedClassTree
+    });
+    $.mockjax({
+        url: new RegExp(/.+ClassMetadata.+/),
+        dataType: 'json',
+        responseText: mocks.mockedAdvancedCriteria
+    });
+    $.mockjax({
+        url: 'undefined/tao/AdvancedSearch/status',
+        dataType: 'json',
+        responseText: mocks.mockedStatusEnabled
     });
 
     QUnit.module('searchModal');
@@ -106,7 +119,7 @@ define([
 
     QUnit.module('destroy');
     QUnit.test('searchModal component is correctly destroyed on close button click', function (assert) {
-        const instance = searchModalFactory({
+        searchModalFactory({
             criterias: { search: '' },
             url: '',
             renderTo: '#testable-container',
@@ -160,6 +173,11 @@ define([
         });
         const ready = assert.async();
         assert.expect(4);
+
+        instance.on('ready', function () {
+            const $searchButton = $('.btn-search');
+            $searchButton.trigger('click');
+        });
 
         instance.on('datatable-loaded', function () {
             const $container = $('.search-modal');
@@ -260,7 +278,7 @@ define([
             const $classTree = $('.class-tree');
 
             assert.equal($classTree.css('display'), 'none', 'class tree is initially hidden');
-            $classInput.trigger('mousedown');
+            $classInput.trigger('click');
             assert.equal($classTree.css('display'), 'block', 'class tree is visible on click');
             $classTree.trigger('mousedown');
             assert.equal($classTree.css('display'), 'block', 'class tree is not hidden when clicking on it');
@@ -309,33 +327,32 @@ define([
             rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
         });
         const ready = assert.async();
-        assert.expect(6);
+        assert.expect(5);
 
-        instance.on('store-updated', function () {
-            const $datatable = $('table.datatable');
-            assert.equal($datatable.length, 1, 'datatable has been created');
-            assert.equal($datatable.find('tbody tr').length, 9, 'datatable display the correct number of matches');
-            store('search').then(searchStore => {
-                const promises = [];
-                promises.push(searchStore.getItem('criterias'));
-                promises.push(searchStore.getItem('results'));
-                promises.push(searchStore.getItem('context'));
-                Promise.all(promises).then(function (resolutions) {
-                    const criterias = resolutions[0];
-                    const results = resolutions[1];
-                    const context = resolutions[2];
+        instance.off('ready').on('ready', function () {
+            instance.on('store-updated', function () {
+                const $datatable = $('table.datatable');
+                assert.equal($datatable.length, 1, 'datatable has been created');
+                assert.equal($datatable.find('tbody tr').length, 9, 'datatable display the correct number of matches');
+                store('search').then(searchStore => {
+                    const promises = [];
+                    promises.push(searchStore.getItem('criterias'));
+                    promises.push(searchStore.getItem('results'));
+                    Promise.all(promises).then(function (resolutions) {
+                        const criterias = resolutions[0];
+                        const results = resolutions[1];
 
-                    assert.equal(criterias.search, 'query to be stored', 'query correctly stored');
-                    assert.equal(results.totalCount, 9, 'results correctly stored');
-                    assert.equal(context.key, 'context', 'context correctly stored');
-                    assert.equal(
-                        criterias.class,
-                        'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
-                        'class correctly stored'
-                    );
+                        assert.equal(criterias.search, 'query to be stored', 'query correctly stored');
+                        assert.equal(results.totalCount, 9, 'results correctly stored');
+                        assert.equal(
+                            criterias.class,
+                            'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
+                            'class correctly stored'
+                        );
 
-                    instance.destroy();
-                    ready();
+                        instance.destroy();
+                        ready();
+                    });
                 });
             });
         });
