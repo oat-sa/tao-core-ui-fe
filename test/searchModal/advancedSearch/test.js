@@ -203,12 +203,12 @@ define([
     });
     QUnit.test('bind between view and model is correctly set', function (assert) {
         const instance = advancedSearchFactory({
-            renderTo: '#testable-container',
-            isAdvancedSearchStatusEnabled: true
+            renderTo: '#testable-container'
         });
         const ready = assert.async();
         assert.expect(8);
-        instance.off('ready').on('ready', function () {
+
+        instance.on('ready', function () {
             instance.updateCriteria('undefined/tao/ClassMetadata/').then(function () {
                 const $container = $('.advanced-search-container');
                 const $criteriaContainer = $container.find('.advanced-criteria-container');

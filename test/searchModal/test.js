@@ -329,7 +329,7 @@ define([
         const ready = assert.async();
         assert.expect(5);
 
-        instance.off('ready').on('ready', function () {
+        instance.on('ready', function () {
             instance.on('store-updated', function () {
                 const $datatable = $('table.datatable');
                 assert.equal($datatable.length, 1, 'datatable has been created');
