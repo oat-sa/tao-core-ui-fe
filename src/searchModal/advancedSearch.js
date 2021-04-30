@@ -13,8 +13,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2020 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2021 (original work) Open Assessment Technologies SA ;
  */
+
 import $ from 'jquery';
 import _ from 'lodash';
 import __ from 'i18n';
@@ -116,7 +117,8 @@ export default function advancedSearchFactory(config) {
                     }
                 } else if (renderedCriterion.type === criteriaTypes.list) {
                     if (renderedCriterion.value && renderedCriterion.value.length > 0) {
-                        query += `${renderedCriterion.label}:${renderedCriterion.value.join(' OR ')}`;
+                        /* Temp replaced OR with AND. See ADF-7 for details */
+                        query += `${renderedCriterion.label}:${renderedCriterion.value.join(' AND ')}`;
                     }
                 }
             });
