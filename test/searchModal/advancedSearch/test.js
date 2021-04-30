@@ -13,8 +13,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
  */
+
 define([
     'jquery',
     'lodash',
@@ -24,7 +25,6 @@ define([
     'json!test/ui/searchModal/mocks/mocks.json',
     'jquery.mockjax'
 ], function ($, _, searchModalFactory, advancedSearchFactory, store, mocks) {
-
     // Prevent the AJAX mocks to pollute the logs
     $.mockjaxSettings.logger = null;
     $.mockjaxSettings.responseTime = 1;
@@ -41,13 +41,9 @@ define([
     $.mockjax({
         url: 'undefined/tao/AdvancedSearch/status',
         dataType: 'json',
-        responseText: {
-            success: true,
-            data: {
-                enabled: true
-            }
-        }
+        responseText: mocks.mockedStatusEnabled
     });
+
     QUnit.module('advancedSearch');
     QUnit.test('module', function (assert) {
         assert.expect(1);
@@ -211,64 +207,67 @@ define([
         });
         const ready = assert.async();
         assert.expect(8);
-        instance.updateCriteria('undefined/tao/ClassMetadata/').then(function () {
-            const $container = $('.advanced-search-container');
-            const $criteriaContainer = $container.find('.advanced-criteria-container');
-            const $criteriaSelect = $('.add-criteria-container select', $container);
-            // check initial state
-            assert.equal($criteriaContainer.length, 1, 'container for criteria is rendered');
-            assert.equal($criteriaContainer.children().length, 0, 'container for criteria is empty');
 
-            // set a default value for each criterion
-            instance.getState()['in-both-text'].value = 'default value0';
-            instance.getState()['in-both-select'].value = ['value0'];
-            instance.getState()['in-both-list'].value = ['value1'];
+        instance.on('ready', function () {
+            instance.updateCriteria('undefined/tao/ClassMetadata/').then(function () {
+                const $container = $('.advanced-search-container');
+                const $criteriaContainer = $container.find('.advanced-criteria-container');
+                const $criteriaSelect = $('.add-criteria-container select', $container);
+                // check initial state
+                assert.equal($criteriaContainer.length, 1, 'container for criteria is rendered');
+                assert.equal($criteriaContainer.children().length, 0, 'container for criteria is empty');
 
-            // render a criterion from each type
-            $criteriaSelect.select2('val', 'in-both-text').trigger('change');
-            $criteriaSelect.select2('val', 'in-both-select').trigger('change');
-            $criteriaSelect.select2('val', 'in-both-list').trigger('change');
-            const $criterionTextInput = $criteriaContainer.find('.inbothtext-filter input');
-            const $criterionSelectInput = $criteriaContainer.find('.inbothselect-filter input');
-            const $criterionListSelected = $criteriaContainer
-                .find('.inbothlist-filter input[type=checkbox]:checked')
-                .get()
-                .map(checkbox => {
-                    return checkbox.value;
-                });
+                // set a default value for each criterion
+                instance.getState()['in-both-text'].value = 'default value0';
+                instance.getState()['in-both-select'].value = ['value0'];
+                instance.getState()['in-both-list'].value = ['value1'];
 
-            // check default value on each criterion type
-            assert.equal($criterionTextInput.val(), 'default value0', 'text criterion correctly initialized');
-            assert.deepEqual(
-                $criterionSelectInput.select2('val'),
-                ['value0'],
-                'select criterion correctly initialized'
-            );
-            assert.deepEqual($criterionListSelected, ['value1'], 'list criterion correctly initialized');
+                // render a criterion from each type
+                $criteriaSelect.select2('val', 'in-both-text').trigger('change');
+                $criteriaSelect.select2('val', 'in-both-select').trigger('change');
+                $criteriaSelect.select2('val', 'in-both-list').trigger('change');
+                const $criterionTextInput = $criteriaContainer.find('.inbothtext-filter input');
+                const $criterionSelectInput = $criteriaContainer.find('.inbothselect-filter input');
+                const $criterionListSelected = $criteriaContainer
+                    .find('.inbothlist-filter input[type=checkbox]:checked')
+                    .get()
+                    .map(checkbox => {
+                        return checkbox.value;
+                    });
 
-            // update value on each criterion
-            $criterionTextInput.val('foo0').trigger('change');
-            $criteriaContainer
-                .find('.inbothlist-filter input[type=checkbox][value=value2]')
-                .prop('checked', true)
-                .trigger('change');
+                // check default value on each criterion type
+                assert.equal($criterionTextInput.val(), 'default value0', 'text criterion correctly initialized');
+                assert.deepEqual(
+                    $criterionSelectInput.select2('val'),
+                    ['value0'],
+                    'select criterion correctly initialized'
+                );
+                assert.deepEqual($criterionListSelected, ['value1'], 'list criterion correctly initialized');
 
-            // check updated value on each criterion
-            assert.equal(instance.getState()['in-both-text'].value, 'foo0', 'text criterion correctly updated');
-            assert.deepEqual(
-                instance.getState()['in-both-list'].value,
-                ['value1', 'value2'],
-                'list criteria correctly updated'
-            );
+                // update value on each criterion
+                $criterionTextInput.val('foo0').trigger('change');
+                $criteriaContainer
+                    .find('.inbothlist-filter input[type=checkbox][value=value2]')
+                    .prop('checked', true)
+                    .trigger('change');
 
-            const query = instance.getAdvancedCriteriaQuery();
-            assert.equal(
-                query,
-                'in-both-text:foo0 AND in-both-list:value1 OR value2 AND in-both-select:value0',
-                'advanced search query is correctly built'
-            );
-            instance.destroy();
-            ready();
+                // check updated value on each criterion
+                assert.equal(instance.getState()['in-both-text'].value, 'foo0', 'text criterion correctly updated');
+                assert.deepEqual(
+                    instance.getState()['in-both-list'].value,
+                    ['value1', 'value2'],
+                    'list criteria correctly updated'
+                );
+
+                const query = instance.getAdvancedCriteriaQuery();
+                assert.equal(
+                    query,
+                    'in-both-text:foo0 AND in-both-list:value1 OR value2 AND in-both-select:value0',
+                    'advanced search query is correctly built'
+                );
+                instance.destroy();
+                ready();
+            });
         });
     });
 
