@@ -274,7 +274,25 @@ export default function (options) {
             dataType: 'json',
             data: _.merge(parameters, options.params, { childrenOffset: (selectedClass.page - 1) * selectedClass.childrenLimit }),
             noToken: true,
-        }).then(response => response.data);
+        })
+        .then(response => response.data)
+        .then(response => {
+            let permissions = {
+                read: false,
+                write: false
+            }
+            if (response.permissions) {
+                if (response.permissions.includes('READ')) {
+                    permissions.read = true;
+                }
+                if (response.permissions.includes('WRITE')) {
+                    permissions.write = true;
+                }
+                response.permissions = permissions;
+            }
+            return response;
+        });
+
     }
 
     /**
