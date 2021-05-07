@@ -26,10 +26,16 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function (_, $, themeLoader) {
     const red = 'rgb(255, 0, 0)';
 
     let eventTriggered = '';
+    let themeApplied = '';
 
     $(document)
         .off('themechange.themeloader')
         .on('themechange.themeloader', (e, data) => eventTriggered = data);
+
+    $(document)
+        .off('themeapplied.test')
+        .on('themeapplied.test', (e, themeId) => themeApplied = themeId);
+
 
     QUnit.module('Theme Loader API');
 
@@ -95,7 +101,7 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function (_, $, themeLoader) {
         const loader = themeLoader(config);
         const $container = $('#qti-item');
 
-        assert.expect(6);
+        assert.expect(7);
 
         assert.equal($container.length, 1, 'The container exists');
 
@@ -113,6 +119,11 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function (_, $, themeLoader) {
                     eventTriggered,
                     loader.getActiveTheme(),
                     'The themechange event has been triggered along with the correct parameters'
+                );
+                assert.equal(
+                    themeApplied,
+                    loader.getActiveTheme(),
+                    'The themeapplied event has been triggered along with the correct parameters'
                 );
                 ready();
             }, 250);
@@ -187,7 +198,7 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function (_, $, themeLoader) {
         const loader = themeLoader(config);
         const $container = $('#qti-item');
 
-        assert.expect(9);
+        assert.expect(10);
 
         assert.equal($container.length, 1, 'The container exists');
 
@@ -213,6 +224,11 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function (_, $, themeLoader) {
                         loader.getActiveTheme(),
                         'The themechange event has been triggered along with the correct parameters'
                     );
+                    assert.equal(
+                        themeApplied,
+                        loader.getActiveTheme(),
+                        'The themeapplied event has been triggered along with the correct parameters'
+                    );
                     ready();
                 }, 250);
             }, 50);
@@ -224,7 +240,7 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function (_, $, themeLoader) {
         const loader = themeLoader(config);
         const $container = $('#qti-item');
 
-        assert.expect(11);
+        assert.expect(12);
 
         assert.equal($container.length, 1, 'The container exists');
 
@@ -256,6 +272,11 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function (_, $, themeLoader) {
                             loader.getActiveTheme(),
                             'The themechange event has been triggered along with the correct parameters'
                         );
+                        assert.equal(
+                            themeApplied,
+                            loader.getActiveTheme(),
+                            'The themeapplied event has been triggered along with the correct parameters'
+                        );
                         ready();
                     }, 250);
                 }, 100);
@@ -268,7 +289,7 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function (_, $, themeLoader) {
         const loader = themeLoader(config);
         const $container = $('#qti-item');
 
-        assert.expect(16);
+        assert.expect(17);
 
         assert.equal($container.length, 1, 'The container exists');
 
@@ -309,6 +330,11 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function (_, $, themeLoader) {
                                 eventTriggered,
                                 loader2.getActiveTheme(),
                                 'The themechange event has been triggered along with the correct parameters'
+                            );
+                            assert.equal(
+                                themeApplied,
+                                loader2.getActiveTheme(),
+                                'The themeapplied event has been triggered along with the correct parameters'
                             );
                             ready();
                         }, 250);

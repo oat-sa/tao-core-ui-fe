@@ -48,7 +48,9 @@ const ns = 'themeloader';
  */
 function triggerThemeChange(themeId) {
     _.delay(() => {
-        $(document).trigger(`themechange.${ns}`, [themeId]);
+        $(document)
+            .trigger(`themechange.${ns}`, [themeId])
+            .trigger('themeapplied', [themeId]);
     }, 200);
 }
 
