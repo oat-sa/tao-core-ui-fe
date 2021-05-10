@@ -92,7 +92,7 @@ export default function (options) {
 
                 //internal event to set the file-selector content
                 updateSelectedClass(fullPath, subTree.total, $selected.data('children-limit'));
-                $container.trigger(`folderselect.${ns}`, [content.label, getPage(content.children), content.path]);
+                $container.trigger(`folderselect.${ns}`, [content.label, getPage(content.children), content.path, content]);
                 renderPagination();
             }
         });
