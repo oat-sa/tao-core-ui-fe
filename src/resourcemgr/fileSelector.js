@@ -85,7 +85,7 @@ export default function(options) {
     $container.on('folderselect.' + ns, function(e, fullPath, data, activePath, content) {
         var files;
         //update title
-        if (!content.permissions.write) {
+        if (content && content.permissions && !content.permissions.write) {
             $container[0].querySelector('.upload').classList.add('hidden');
         } else {
             $container[0].querySelector('.upload').classList.remove('hidden');
