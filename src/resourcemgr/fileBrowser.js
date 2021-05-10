@@ -278,18 +278,18 @@ export default function (options) {
         .then(response => response.data)
         .then(response => {
             let permissions = {
-                read: false,
-                write: false
+                read: true,
+                write: true
             }
             if (response.permissions) {
-                if (response.permissions.includes('READ')) {
-                    permissions.read = true;
+                if (!response.permissions.includes('READ')) {
+                    permissions.read = false;
                 }
-                if (response.permissions.includes('WRITE')) {
-                    permissions.write = true;
+                if (!response.permissions.includes('WRITE')) {
+                    permissions.write = false;
                 }
-                response.permissions = permissions;
             }
+            response.permissions = permissions;
             return response;
         });
 
