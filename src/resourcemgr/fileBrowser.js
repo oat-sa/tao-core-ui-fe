@@ -277,22 +277,35 @@ export default function (options) {
         })
         .then(response => response.data)
         .then(response => {
-            let permissions = {
-                read: true,
-                write: true
+            response = updatePermissions(response);
+            if (response.children && response.children.length > 0) {
+                response.children.map(responseChildren => updatePermissions(responseChildren));
             }
-            if (response.permissions) {
-                if (!response.permissions.includes('READ')) {
-                    permissions.read = false;
-                }
-                if (!response.permissions.includes('WRITE')) {
-                    permissions.write = false;
-                }
-            }
-            response.permissions = permissions;
             return response;
         });
 
+    }
+
+    /**
+     * Update the permissions in HTML Tree
+     * @param {Object} item - the tree item
+     * @return {Object} - item with permissions
+     */
+    function updatePermissions(item) {
+        let permissions = {
+            read: true,
+            write: true
+        }
+        if (item.permissions) {
+            if (!item.permissions.includes('READ')) {
+                permissions.read = false;
+            }
+            if (!item.permissions.includes('WRITE')) {
+                permissions.write = false;
+            }
+        }
+        item.permissions = permissions;
+        return item;
     }
 
     /**
@@ -306,7 +319,7 @@ export default function (options) {
             if (data.relPath === undefined) {
                 data.relPath = data.path;
             }
-            $(folderTpl(data)).appendTo($parent);
+            $parent.append(folderTpl(data));
         }
         if (data && data.children && _.isArray(data.children) && !data.empty) {
             _.forEach(data.children, function (child) {
