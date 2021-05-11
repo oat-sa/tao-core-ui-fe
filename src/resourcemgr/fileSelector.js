@@ -85,10 +85,12 @@ export default function(options) {
     $container.on('folderselect.' + ns, function(e, fullPath, data, activePath, content) {
         var files;
         //update title
-        if (content && content.permissions && !content.permissions.write && $container[0].querySelector('.upload')) {
-            $container[0].querySelector('.upload').classList.add('hidden');
-        } else {
-            $container[0].querySelector('.upload').classList.remove('hidden');
+        if ($container[0].querySelector('.upload')) {
+            if (content && content.permissions && !content.permissions.write) {
+                $container[0].querySelector('.upload').classList.add('hidden');
+            } else {
+                $container[0].querySelector('.upload').classList.remove('hidden');
+            }
         }
 
         $pathTitle.text(isTextLarger($pathTitle, fullPath) ? shortenPath(fullPath) : fullPath);
