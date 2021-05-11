@@ -86,7 +86,7 @@ export default function(options) {
         let files;
 
         data = data.map(function (dataItem) {
-            if (!dataItem.permissions) {
+            if (Array.isArray(dataItem.permissions)) {
                 dataItem.permissions = {
                     read: true,
                     write: true
