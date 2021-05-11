@@ -83,14 +83,17 @@ export default function(options) {
     }
     //update current folder
     $container.on('folderselect.' + ns, function(e, fullPath, data, activePath, content) {
-        var files;
+        let files;
 
-        if (!data.permissions) {
-            data.permissions = {
-                read: true,
-                write: true
+        data = data.map(function (dataItem) {
+            if (!dataItem.permissions) {
+                dataItem.permissions = {
+                    read: true,
+                    write: true
+                }
             }
-        }
+            return dataItem;
+        })
 
         //update title
         if ($container[0].querySelector('.upload')) {
