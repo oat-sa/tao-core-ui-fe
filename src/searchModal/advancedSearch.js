@@ -13,8 +13,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2020 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2021 (original work) Open Assessment Technologies SA ;
  */
+
 import $ from 'jquery';
 import _ from 'lodash';
 import __ from 'i18n';
@@ -54,6 +55,9 @@ export default function advancedSearchFactory(config) {
         list: 'list'
     };
 
+    let isAdvancedSearchStatusEnabled;
+    let isCriteriaListUpdated = false;
+
     // Creates new component
     const instance = component({
         /**
@@ -62,10 +66,18 @@ export default function advancedSearchFactory(config) {
          * @returns {Promise} - Request promise
          */
         updateCriteria: function (route) {
+            const $criteriaIcon = $('.add-criteria-container a span').eq(0);
+            $criteriaIcon.toggleClass('icon-add').toggleClass('icon-loop');
+
+            if (!isAdvancedSearchStatusEnabled) {
+                return Promise.resolve();
+            }
             return request(route)
                 .then(response => {
                     const criteria = formatCriteria(response);
                     updateCriteria(criteria);
+                    isCriteriaListUpdated = true;
+                    $criteriaIcon.toggleClass('icon-add').toggleClass('icon-loop');
                 })
                 .catch(e => instance.trigger('error', e));
         },
@@ -105,7 +117,8 @@ export default function advancedSearchFactory(config) {
                     }
                 } else if (renderedCriterion.type === criteriaTypes.list) {
                     if (renderedCriterion.value && renderedCriterion.value.length > 0) {
-                        query += `${renderedCriterion.label}:${renderedCriterion.value.join(' OR ')}`;
+                        /* Temp replaced OR with AND. See ADF-7 for details */
+                        query += `${renderedCriterion.label}:${renderedCriterion.value.join(' AND ')}`;
                     }
                 }
             });
@@ -146,8 +159,10 @@ export default function advancedSearchFactory(config) {
         return request(route)
             .then(function (response) {
                 if (!response.enabled || context.shownStructure === 'results') {
+                    isAdvancedSearchStatusEnabled = false;
                     return;
                 }
+                isAdvancedSearchStatusEnabled = true;
                 $addCriteria.removeClass('disabled');
                 $criteriaSelect.select2({
                     containerCssClass: 'criteria-select2',
@@ -157,13 +172,15 @@ export default function advancedSearchFactory(config) {
 
                 // open dropdown when user clicks on add criteria input
                 $addCriteriaInput.on('click', () => {
-                    $criteriaSelect.select2('open');
-                    // if dropdown is opened above addCriteria input, top property is slightly decreased to avoid overlapping with addCriteria icon
-                    if ($('.criteria-dropdown-select2').hasClass('select2-drop-above')) {
-                        $('.criteria-dropdown-select2').css(
-                            'top',
-                            $('.criteria-dropdown-select2').css('top').split('px')[0] - 10 + 'px'
-                        );
+                    if (isCriteriaListUpdated) {
+                        $criteriaSelect.select2('open');
+                        // if dropdown is opened above addCriteria input, top property is slightly decreased to avoid overlapping with addCriteria icon
+                        if ($('.criteria-dropdown-select2').hasClass('select2-drop-above')) {
+                            $('.criteria-dropdown-select2').css(
+                                'top',
+                                $('.criteria-dropdown-select2').css('top').split('px')[0] - 10 + 'px'
+                            );
+                        }
                     }
                 });
 

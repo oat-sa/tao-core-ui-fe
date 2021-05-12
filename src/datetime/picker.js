@@ -111,7 +111,7 @@ var supportedConstraints = ['minDate', 'maxDate', 'enable', 'disable'];
  * @param {String} locale
  * @returns {Boolean}
  */
-const hasTranslationsForLocale = locale => _.isObject(flatpickrLocalization.default[locale]);
+const hasTranslationsForLocale = locale => _.isObject(flatpickrLocalization[locale]);
 
 /**
  * Detects document language

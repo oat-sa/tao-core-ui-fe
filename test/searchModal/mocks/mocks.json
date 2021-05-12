@@ -200,5 +200,11 @@
             "rendered": true,
             "value": ["English"]
         }
+    },
+    "mockedStatusEnabled": {
+        "success": true,
+        "data": {
+            "enabled": true
+        }
     }
 }
