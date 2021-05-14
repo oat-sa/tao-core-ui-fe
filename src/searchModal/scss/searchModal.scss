@@ -123,7 +123,6 @@ $classTreeVariables: (
 
     .content-container {
         border: none;
-        padding: 64px !important;
         @include simple-flex-box();
         overflow: auto;
     }
@@ -239,7 +238,7 @@ $classTreeVariables: (
     // Increasing specificity
     &.search-modal {
         max-height: 100%;
-        min-height: 320px;    
+        min-height: 320px;
         height: 100%;
         padding: 0px;
     }
@@ -261,7 +260,6 @@ $classTreeVariables: (
             .class-filter-container {
                 cursor: pointer;
                 z-index: 2;
-                margin-bottom: 0;
             }
         }
         .filter-container {
@@ -321,9 +319,6 @@ $classTreeVariables: (
                 border: 1px solid black;
                 color: black;
                 text-shadow: none;
-            }
-            .btn-search {
-                margin-left: 16px;
             }
         }
     }
