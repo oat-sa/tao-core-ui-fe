@@ -90,17 +90,16 @@ export default function mediaAlignmentFactory($container, media) {
         .on('render', function () {
             $template = $(tpl());
             $template.appendTo($container);
-            switch (media.$node[0].classList[0]) {
-                case 'rgt':
-                    this.update('wrap-right');
-                    break;
-                case 'lft':
-                    this.update('wrap-left');
-                    break;
-                default:
-                    this.update('wrap-inline');
-                    break;
+            const classListTag = media.$node[0].parentNode.classList;
+
+            if (classListTag.contains('rgt')) {
+                this.update('wrap-right');
+            } else if (classListTag.contains('lft')) {
+                this.update('wrap-left');
+            } else {
+                this.update('wrap-inline');
             }
+
             $template.on('click', event => {
                 event.target.name && this.update(event.target.name);
             });
