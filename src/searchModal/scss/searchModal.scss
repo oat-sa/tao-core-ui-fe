@@ -277,15 +277,21 @@ $classTreeVariables: (
             }
             .icon-down {
                 position: absolute;
-                top: 5px;
-                right: 5px;
+                top: 1px;
+                right: 1px;
+                padding: 5px;
+                background: white;
             }
-            > input {
+            > input,
+            > textarea {
                 width: 100%;
                 padding-left: 28px;
             }
             .class-filter {
                 cursor: pointer;
+                resize: none;
+                white-space: nowrap;
+                overflow: hidden;
                 &[readonly]{
                     opacity: 1 !important;
                 }
