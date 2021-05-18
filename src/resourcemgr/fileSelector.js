@@ -82,9 +82,27 @@ export default function(options) {
         setUpUploader(root);
     }
     //update current folder
-    $container.on('folderselect.' + ns, function(e, fullPath, data, activePath) {
-        var files;
+    $container.on('folderselect.' + ns, function(e, fullPath, data, activePath, content) {
+        let files;
+
+        data = data.map(function (dataItem) {
+            if (Array.isArray(dataItem.permissions)) {
+                dataItem.permissions = {
+                    read: true,
+                    write: true
+                }
+            }
+            return dataItem;
+        })
+
         //update title
+        if ($container[0].querySelector('.upload')) {
+            if (content && content.permissions && !content.permissions.write) {
+                $container[0].querySelector('.upload').classList.add('hidden');
+            } else {
+                $container[0].querySelector('.upload').classList.remove('hidden');
+            }
+        }
 
         $pathTitle.text(isTextLarger($pathTitle, fullPath) ? shortenPath(fullPath) : fullPath);
 

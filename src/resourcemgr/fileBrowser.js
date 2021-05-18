@@ -92,7 +92,7 @@ export default function (options) {
 
                 //internal event to set the file-selector content
                 updateSelectedClass(fullPath, subTree.total, $selected.data('children-limit'));
-                $container.trigger(`folderselect.${ns}`, [content.label, getPage(content.children), content.path]);
+                $container.trigger(`folderselect.${ns}`, [content.label, getPage(content.children), content.path, content]);
                 renderPagination();
             }
         });
@@ -274,7 +274,38 @@ export default function (options) {
             dataType: 'json',
             data: _.merge(parameters, options.params, { childrenOffset: (selectedClass.page - 1) * selectedClass.childrenLimit }),
             noToken: true,
-        }).then(response => response.data);
+        })
+        .then(response => response.data)
+        .then(response => {
+            response = updatePermissions(response);
+            if (response.children && response.children.length > 0) {
+                response.children.map(responseChildren => updatePermissions(responseChildren));
+            }
+            return response;
+        });
+
+    }
+
+    /**
+     * Update the permissions in HTML Tree
+     * @param {Object} item - the tree item
+     * @return {Object} - item with permissions
+     */
+    function updatePermissions(item) {
+        let permissions = {
+            read: true,
+            write: true
+        }
+        if (item.permissions) {
+            if (!item.permissions.includes('READ')) {
+                permissions.read = false;
+            }
+            if (!item.permissions.includes('WRITE')) {
+                permissions.write = false;
+            }
+        }
+        item.permissions = permissions;
+        return item;
     }
 
     /**
@@ -288,7 +319,7 @@ export default function (options) {
             if (data.relPath === undefined) {
                 data.relPath = data.path;
             }
-            $(folderTpl(data)).appendTo($parent);
+            $parent.append(folderTpl(data));
         }
         if (data && data.children && _.isArray(data.children) && !data.empty) {
             _.forEach(data.children, function (child) {
