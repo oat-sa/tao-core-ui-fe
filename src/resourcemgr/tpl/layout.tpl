@@ -15,10 +15,10 @@
 
             <h1>
                 <div class="title lft"></div>
-                <div class="upload-switcher rgt">
-                    <a href="#" class="btn-info small upload"><span class="icon-add"></span>{{__ 'Add file(s)'}}</a>
-                    <a href="#" class="btn-info small listing"><span class="icon-undo"></span>{{__ 'Back to listing'}}</a>
-                </div>
+                    <div class="upload-switcher rgt">
+                        <a href="#" class="btn-info small upload"><span class="icon-add"></span>{{__ 'Add file(s)'}}</a>
+                        <a href="#" class="btn-info small listing"><span class="icon-undo"></span>{{__ 'Back to listing'}}</a>
+                    </div>
             </h1>
 
             <div class="empty">
