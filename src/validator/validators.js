@@ -26,6 +26,7 @@
 import $ from 'jquery';
 import _ from 'lodash';
 import __ from 'i18n';
+import urlUtil from 'util/url';
 
 /**
  * Defines the validation callback
@@ -129,18 +130,7 @@ var validators = {
                     return;
                 }
 
-                //FIXME use util/url
-                //valid way to know if it is an url
-                var pattern = new RegExp(
-                    '^(https?:\\/\\/)?' + // protocol
-                    '((([a-z\\d]([a-z\\d-]*[a-z\\d])?)\\.)+[a-z]{2,}|' + // domain name
-                    '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
-                    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
-                    '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
-                        '(\\#[-a-z\\d_]*)?$',
-                    'i'
-                ); // fragment locator
-                if (!pattern.test(value) && !/^data:[^\/]+\/[^;]+(;charset=[\w]+)?;base64,/.test(value)) {
+                if (!urlUtil.isAbsolute(value) && !urlUtil.isBase64(value)) {
                     //request HEAD only for bandwidth saving
                     $.ajax({
                         type: 'HEAD',
