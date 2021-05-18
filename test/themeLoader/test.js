@@ -1,7 +1,9 @@
-define(['lodash', 'jquery', 'ui/themeLoader'], function(_, $, themeLoader) {
+define(['lodash', 'jquery', 'ui/themeLoader'], function (_, $, themeLoader) {
     'use strict';
 
-    var config = {
+    const getStyleSheets = () => $('link[data-type^="custom-theme"]');
+
+    const config = {
         base: 'base.css',
         default: 'blue',
         available: [
@@ -18,63 +20,57 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function(_, $, themeLoader) {
         ]
     };
 
-    var pink = 'rgb(255, 192, 203)';
-    var blue = 'rgb(0, 0, 255)';
-    var green = 'rgb(0, 128, 0)';
-    var red = 'rgb(255, 0, 0)';
+    const pink = 'rgb(255, 192, 203)';
+    const blue = 'rgb(0, 0, 255)';
+    const green = 'rgb(0, 128, 0)';
+    const red = 'rgb(255, 0, 0)';
 
-    var eventTriggered = '';
+    let eventTriggered = '';
+    let themeApplied = '';
 
     $(document)
         .off('themechange.themeloader')
-        .on('themechange.themeloader', function(e, data) {
-            eventTriggered = data;
-        });
+        .on('themechange.themeloader', (e, data) => eventTriggered = data);
+
+    $(document)
+        .off('themeapplied.test')
+        .on('themeapplied.test', (e, themeId) => themeApplied = themeId);
+
 
     QUnit.module('Theme Loader API');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', assert => {
         assert.expect(2);
         assert.ok(typeof themeLoader !== 'undefined', 'The module exports something');
         assert.ok(typeof themeLoader === 'function', 'The module exports a function');
     });
 
-    QUnit.test('config format', function(assert) {
+    QUnit.test('config format', assert => {
         assert.expect(4);
 
         assert.throws(
-            function() {
-                themeLoader();
-            },
+            () => themeLoader(),
             TypeError,
             'A config parameter is required'
         );
 
         assert.throws(
-            function() {
-                themeLoader({});
-            },
+            () => themeLoader({}),
             TypeError,
             'A config parameter with a base property is required'
         );
 
         assert.throws(
-            function() {
-                themeLoader({
-                    base: ''
-                });
-            },
+            () => themeLoader({ base: '' }),
             TypeError,
             'A config parameter with available themes property is required'
         );
 
         assert.throws(
-            function() {
-                themeLoader({
-                    base: '',
-                    available: [{}]
-                });
-            },
+            () => themeLoader({
+                base: '',
+                available: [{}]
+            }),
             TypeError,
             'Themes should contain path and id'
         );
@@ -83,8 +79,8 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function(_, $, themeLoader) {
         themeLoader(config);
     });
 
-    QUnit.test('loader api', function(assert) {
-        var loader = themeLoader(config);
+    QUnit.test('loader api', assert => {
+        const loader = themeLoader(config);
 
         assert.expect(4);
 
@@ -95,68 +91,68 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function(_, $, themeLoader) {
     });
 
     QUnit.module('Theme loading', {
-        afterEach: function(assert) {
-            $('head')
-                .find('link[data-type^="custom-theme"]')
-                .remove();
+        afterEach() {
+            getStyleSheets().remove();
         }
     });
 
-    QUnit.test('load', function(assert) {
-        var ready = assert.async();
-        var loader = themeLoader(config);
-        var $container = $('#qti-item');
+    QUnit.test('load', assert => {
+        const ready = assert.async();
+        const loader = themeLoader(config);
+        const $container = $('#qti-item');
 
-        assert.expect(6);
+        assert.expect(7);
 
         assert.equal($container.length, 1, 'The container exists');
 
         loader.load();
-        setTimeout(function() {
-            var $styleSheets = $('link[data-type^="custom-theme"]');
+        setTimeout(() => {
+            const $styleSheets = getStyleSheets();
             assert.ok($styleSheets.length > 0, 'The styleSheets have been inserted');
             assert.equal($styleSheets.length, 3, 'All styleSheets have been inserted');
 
             assert.equal($container.css('background-color'), pink, 'The base style is loaded and computed');
             assert.equal($container.css('color'), blue, 'The theme style is loaded and computed');
 
-            setTimeout(function() {
+            setTimeout(() => {
                 assert.equal(
                     eventTriggered,
                     loader.getActiveTheme(),
                     'The themechange event has been triggered along with the correct parameters'
+                );
+                assert.equal(
+                    themeApplied,
+                    loader.getActiveTheme(),
+                    'The themeapplied event has been triggered along with the correct parameters'
                 );
                 ready();
             }, 250);
         }, 50);
     });
 
-    QUnit.test('preload', function(assert) {
-        var ready = assert.async();
-        var preloadConfig = _.cloneDeep(config);
-        var $styleSheets = $('link[data-type^="custom-theme"]');
-        var $container = $('#qti-item');
-        var loader;
+    QUnit.test('preload', assert => {
+        const ready = assert.async();
+        const preloadConfig = _.cloneDeep(config);
+        const $container = $('#qti-item');
 
         preloadConfig.available.push({
             id: 'red',
             path: 'red.css',
             name: 'Red'
         });
-        loader = themeLoader(preloadConfig);
+        const loader = themeLoader(preloadConfig);
 
         assert.expect(7);
 
-        $styleSheets.remove();
-        $styleSheets = $('link[data-type^="custom-theme"]');
-        assert.equal($styleSheets.length, 0, 'All styleSheets have been removed');
+        getStyleSheets().remove();
+        assert.equal(getStyleSheets().length, 0, 'All styleSheets have been removed');
         assert.equal($container.length, 1, 'The container exists');
 
         loader.load(true);
-        setTimeout(function() {
-            $styleSheets = $('link[data-type^="custom-theme"]');
+        setTimeout(() => {
+            const $styleSheets = getStyleSheets();
             assert.equal($styleSheets.length, 4, 'All styleSheets have been inserted');
-            $styleSheets.each(function() {
+            $styleSheets.each(function () {
                 assert.equal(this.getAttribute('disabled'), 'disabled', 'The loaded styleSheet is disabled');
             });
 
@@ -164,18 +160,18 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function(_, $, themeLoader) {
         }, 50);
     });
 
-    QUnit.test('unload', function(assert) {
-        var ready = assert.async();
-        var loader = themeLoader(config);
-        var $container = $('#qti-item');
+    QUnit.test('unload', assert => {
+        const ready = assert.async();
+        const loader = themeLoader(config);
+        const $container = $('#qti-item');
 
         assert.expect(11);
 
         assert.equal($container.length, 1, 'The container exists');
 
         loader.load();
-        setTimeout(function() {
-            var $styleSheets = $('link[data-type^="custom-theme"]');
+        setTimeout(() => {
+            const $styleSheets = getStyleSheets();
             assert.ok($styleSheets.length > 0, 'The styleSheets have been inserted');
             assert.equal($styleSheets.length, 3, 'All styleSheets have been inserted');
             assert.equal($container.css('background-color'), pink, 'The base style is loaded and computed');
@@ -183,8 +179,8 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function(_, $, themeLoader) {
 
             loader.unload();
 
-            setTimeout(function() {
-                assert.equal($('link[data-type^="custom-theme"]').length, 3, 'The stylesheets are still there');
+            setTimeout(() => {
+                assert.equal(getStyleSheets().length, 3, 'The stylesheets are still there');
                 assert.ok($('link[data-id="base"]').prop('disabled'), 'The base stylesheet is disabled');
                 assert.ok($('link[data-id="green"]').prop('disabled'), 'The green stylesheet is disabled');
                 assert.ok($('link[data-id="blue"]').prop('disabled'), 'The blue stylesheet is disabled');
@@ -197,18 +193,18 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function(_, $, themeLoader) {
         }, 50);
     });
 
-    QUnit.test('change', function(assert) {
-        var ready = assert.async();
-        var loader = themeLoader(config);
-        var $container = $('#qti-item');
+    QUnit.test('change', assert => {
+        const ready = assert.async();
+        const loader = themeLoader(config);
+        const $container = $('#qti-item');
 
-        assert.expect(9);
+        assert.expect(10);
 
         assert.equal($container.length, 1, 'The container exists');
 
         loader.load();
-        setTimeout(function() {
-            var $styleSheets = $('link[data-type^="custom-theme"]');
+        setTimeout(() => {
+            const $styleSheets = getStyleSheets();
             assert.ok($styleSheets.length > 0, 'The styleSheets have been inserted');
             assert.equal($styleSheets.length, 3, 'All styleSheets have been inserted');
 
@@ -217,16 +213,21 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function(_, $, themeLoader) {
 
             loader.change('green');
 
-            setTimeout(function() {
+            setTimeout(() => {
                 assert.equal($container.css('background-color'), pink, 'The base style is still loaded');
                 assert.equal($container.css('color'), green, 'The new theme style is loaded and computed');
                 assert.equal(loader.getActiveTheme(), 'green', 'The new theme became the active theme');
 
-                setTimeout(function() {
+                setTimeout(() => {
                     assert.equal(
                         eventTriggered,
                         loader.getActiveTheme(),
                         'The themechange event has been triggered along with the correct parameters'
+                    );
+                    assert.equal(
+                        themeApplied,
+                        loader.getActiveTheme(),
+                        'The themeapplied event has been triggered along with the correct parameters'
                     );
                     ready();
                 }, 250);
@@ -234,18 +235,18 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function(_, $, themeLoader) {
         }, 50);
     });
 
-    QUnit.test('change back to default', function(assert) {
-        var ready = assert.async();
-        var loader = themeLoader(config);
-        var $container = $('#qti-item');
+    QUnit.test('change back to default', assert => {
+        const ready = assert.async();
+        const loader = themeLoader(config);
+        const $container = $('#qti-item');
 
-        assert.expect(11);
+        assert.expect(12);
 
         assert.equal($container.length, 1, 'The container exists');
 
         loader.load();
-        setTimeout(function() {
-            var $styleSheets = $('link[data-type^="custom-theme"]');
+        setTimeout(() => {
+            const $styleSheets = getStyleSheets();
             assert.ok($styleSheets.length > 0, 'The styleSheets have been inserted');
             assert.equal($styleSheets.length, 3, 'All styleSheets have been inserted');
 
@@ -254,22 +255,27 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function(_, $, themeLoader) {
 
             loader.change('green');
 
-            setTimeout(function() {
+            setTimeout(() => {
                 assert.equal($container.css('background-color'), pink, 'The base style is still loaded');
                 assert.equal($container.css('color'), green, 'The new theme style is loaded and computed');
 
                 loader.change('default');
 
-                setTimeout(function() {
+                setTimeout(() => {
                     assert.equal($container.css('background-color'), pink, 'The base style is loaded and computed');
                     assert.equal($container.css('color'), blue, 'The default theme style is loaded');
                     assert.equal(loader.getActiveTheme(), 'blue', 'The active theme has been reset to default');
 
-                    setTimeout(function() {
+                    setTimeout(() => {
                         assert.equal(
                             eventTriggered,
                             loader.getActiveTheme(),
                             'The themechange event has been triggered along with the correct parameters'
+                        );
+                        assert.equal(
+                            themeApplied,
+                            loader.getActiveTheme(),
+                            'The themeapplied event has been triggered along with the correct parameters'
                         );
                         ready();
                     }, 250);
@@ -278,18 +284,18 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function(_, $, themeLoader) {
         }, 100);
     });
 
-    QUnit.test('reload and change', function(assert) {
-        var ready = assert.async();
-        var loader = themeLoader(config);
-        var $container = $('#qti-item');
+    QUnit.test('reload and change', assert => {
+        const ready = assert.async();
+        const loader = themeLoader(config);
+        const $container = $('#qti-item');
 
-        assert.expect(16);
+        assert.expect(17);
 
         assert.equal($container.length, 1, 'The container exists');
 
         loader.load();
-        setTimeout(function() {
-            var $styleSheets = $('link[data-type^="custom-theme"]');
+        setTimeout(() => {
+            const $styleSheets = getStyleSheets();
             assert.ok($styleSheets.length > 0, 'The styleSheets have been inserted');
             assert.equal($styleSheets.length, 3, 'All styleSheets have been inserted');
 
@@ -298,34 +304,37 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function(_, $, themeLoader) {
 
             loader.unload();
 
-            setTimeout(function() {
-                var loader2;
-
-                assert.equal($('link[data-type^="custom-theme"]').length, 3, 'The stylesheets are stil there');
+            setTimeout(() => {
+                assert.equal(getStyleSheets().length, 3, 'The stylesheets are stil there');
                 assert.ok($('link[data-id="base"]').prop('disabled'), 'The base stylesheet is disabled');
                 assert.ok($('link[data-id="blue"]').prop('disabled'), 'The blue stylesheet is disabled');
                 assert.ok($('link[data-id="green"]').prop('disabled'), 'The green stylesheet is disabled');
 
-                loader2 = themeLoader(config);
+                const loader2 = themeLoader(config);
                 loader2.load();
 
-                setTimeout(function() {
+                setTimeout(() => {
                     assert.ok(!$('link[data-id="base"]').prop('disabled'), 'The base stylesheet is now enabled');
                     assert.ok(!$('link[data-id="blue"]').prop('disabled'), 'The blue stylesheet is now enabled');
                     assert.ok($('link[data-id="green"]').prop('disabled'), 'The green stylesheet is disabled');
 
                     loader2.change('green');
 
-                    setTimeout(function() {
+                    setTimeout(() => {
                         assert.equal($container.css('background-color'), pink, 'The base style is still loaded');
                         assert.equal($container.css('color'), green, 'The new theme style is loaded and computed');
                         assert.equal(loader2.getActiveTheme(), 'green', 'The new theme became the active theme');
 
-                        setTimeout(function() {
+                        setTimeout(() => {
                             assert.equal(
                                 eventTriggered,
                                 loader2.getActiveTheme(),
                                 'The themechange event has been triggered along with the correct parameters'
+                            );
+                            assert.equal(
+                                themeApplied,
+                                loader2.getActiveTheme(),
+                                'The themeapplied event has been triggered along with the correct parameters'
                             );
                             ready();
                         }, 250);
