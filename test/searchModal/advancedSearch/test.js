@@ -16,7 +16,7 @@
  * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
  */
 
-define([
+ define([
     'jquery',
     'lodash',
     'ui/searchModal',
@@ -262,6 +262,7 @@ define([
                 const query = instance.getAdvancedCriteriaQuery();
                 assert.equal(
                     query,
+                    // TODO: change 2nd AND to OR when functionality is developed on BE
                     'in-both-text:foo0 AND in-both-list:value1 AND value2 AND in-both-select:value0',
                     'advanced search query is correctly built'
                 );
