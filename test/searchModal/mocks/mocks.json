@@ -100,20 +100,24 @@
                 "class": "parent-class",
                 "metadata": [
                     {
+                        "id": "in-both-text",
                         "label": "in-both-text",
                         "type": "text"
                     },
                     {
+                        "id": "in-both-list",
                         "label": "in-both-list",
                         "type": "list",
                         "values": ["value0", "value1", "value2", "value3"]
                     },
                     {
+                        "id": "in-both-select",
                         "label": "in-both-select",
                         "type": "list",
                         "uri": "foo"
                     },
                     {
+                        "id": "in-parent-text",
                         "label": "in-parent-text",
                         "type": "text"
                     }
