@@ -16,7 +16,7 @@
  * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
  */
 
-define([
+ define([
     'jquery',
     'lodash',
     'ui/searchModal',
