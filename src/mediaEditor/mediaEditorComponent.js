@@ -123,7 +123,7 @@ export default function mediaEditorFactory($container, media, config) {
                 plugins.push(dimensionPlugin);
             }
             if (this.getConfig().mediaAlignment.active) {
-                const alignmentPlugin = mediaAlignmentComponent($alignmentTools, media).spread(this, 'change');
+                alignmentPlugin = mediaAlignmentComponent($alignmentTools, media).spread(this, 'change');
                 plugins.push(alignmentPlugin);
             }
         })

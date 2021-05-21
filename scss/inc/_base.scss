@@ -402,6 +402,15 @@ body {
         text-align: justify;
     }
 
+    .wrap-left, .wrap-inline {
+        margin-right: 20px;
+    }
+
+    .wrap-right {
+        margin-left: 20px;
+    }
+
+
     // added to make _u_ in ck QTI compatible
     .txt-underline {
         text-decoration: underline;
