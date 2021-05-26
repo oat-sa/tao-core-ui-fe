@@ -66,12 +66,12 @@ export default function advancedSearchFactory(config) {
          * @returns {Promise} - Request promise
          */
         updateCriteria: function (route) {
-            const $criteriaIcon = $('.add-criteria-container a span').eq(0);
-            $criteriaIcon.toggleClass('icon-add').toggleClass('icon-loop');
-
             if (!isAdvancedSearchStatusEnabled) {
                 return Promise.resolve();
             }
+
+            const $criteriaIcon = $('.add-criteria-container a span').eq(0);
+            $criteriaIcon.toggleClass('icon-add').toggleClass('icon-loop');
             return request(route)
                 .then(response => {
                     const criteria = formatCriteria(response);
