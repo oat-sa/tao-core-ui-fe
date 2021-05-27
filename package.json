@@ -46,7 +46,7 @@
         "@oat-sa/rollup-plugin-wildcard-external": "^0.1.0",
         "@oat-sa/tao-core-libs": "^0.4.4",
         "@oat-sa/tao-core-sdk": "^1.8.1",
-        "@oat-sa/tao-core-shared-libs": "git://github.com/oat-sa/tao-core-shared-libs-fe#fix/AUT-444/error-with-image",
+        "@oat-sa/tao-core-shared-libs": "1.0.0",
         "@oat-sa/tao-qunit-testrunner": "^1.0.3",
         "async": "^0.2.10",
         "autoprefixer": "^9.5.1",
