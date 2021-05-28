@@ -474,7 +474,7 @@ $controlsHeight: 36px;
         }
         .overlay {
             [data-control="reload"] {
-                display: block;
+                display: inline-block;
             }
         }
     }
