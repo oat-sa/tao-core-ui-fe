@@ -32,6 +32,10 @@
         <div class="overlay">
             <a class="action play" data-control="play"><span class="icon icon-play" title="{{__ 'Play'}}"></span></a>
             <a class="action play" data-control="pause"><span class="icon icon-pause" title="{{__ 'Pause'}}"></span></a>
+            <a class="action reload" data-control="reload">
+                <div class="icon icon-reload" title="{{__ 'Reload'}}"></div>
+                <span class="message">{{__ 'You are encountering a prolonged connectivity loss'}}</span>
+            </a>
         </div>
     </div>
     <div class="controls">
