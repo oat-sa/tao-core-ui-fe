@@ -1760,11 +1760,23 @@ const mediaplayer = {
             }
         });
 
-        this.$player.on(`click${_ns}`, () => {
-            if (this.is('playing')) {
-                this.pause();
+        this.$player.on(`click${_ns}`, event => {
+            const $target = $(event.target);
+            const $action = $target.closest('.action');
+
+            // if action was clicked
+            if ($action.length) {
+                const id = $action.data('control');
+                if (_.isFunction(this[id])) {
+                    this[id]();
+                }
+            // default action is toggle play
             } else {
-                this.play();
+                if (this.is('playing')) {
+                    this.pause();
+                } else {
+                    this.play();
+                }
             }
         });
 
