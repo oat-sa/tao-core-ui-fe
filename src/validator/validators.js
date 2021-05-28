@@ -132,9 +132,10 @@ var validators = {
                 }
 
                 const parser = new UrlParser(value);
-                const protocol = parser.data && parser.data.protocol;
+                const protocol = parser.get('protocol');
+                const isHttp = protocol === 'http:' || protocol === 'https:';
 
-                if (!(urlUtil.isAbsolute(value) && protocol === 'https:') && !urlUtil.isBase64(value)) {
+                if (!(urlUtil.isAbsolute(value) && isHttp) && !urlUtil.isBase64(value)) {
                     //request HEAD only for bandwidth saving
                     $.ajax({
                         type: 'HEAD',
