@@ -78,8 +78,7 @@ $controlsHeight: 36px;
             z-index: 2;
             top: 50%;
             left: 50%;
-            width: 64px;
-            height: 64px;
+            transform: translate(-50%);
             margin-top: -32px;
             margin-left: -32px;
             text-align: center;
@@ -96,6 +95,30 @@ $controlsHeight: 36px;
 
                 &:hover {
                     opacity: 0.6;
+                }
+            }
+
+            &.reload {
+                max-width: 300px;
+                font-size: 50px;
+                line-height: 25px;
+
+                &:hover {
+                    .icon {
+                        opacity: 1;
+                    }
+                }
+
+                .icon {
+                    opacity: 0.6;
+                    background: none;
+                }
+                .message {
+                    font-size: 20px;
+                }
+
+                .icon, .message {
+                    text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
                 }
             }
         }
