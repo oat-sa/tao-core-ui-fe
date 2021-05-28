@@ -66,12 +66,12 @@ export default function advancedSearchFactory(config) {
          * @returns {Promise} - Request promise
          */
         updateCriteria: function (route) {
-            const $criteriaIcon = $('.add-criteria-container a span').eq(0);
-            $criteriaIcon.toggleClass('icon-add').toggleClass('icon-loop');
-
             if (!isAdvancedSearchStatusEnabled) {
                 return Promise.resolve();
             }
+
+            const $criteriaIcon = $('.add-criteria-container a span').eq(0);
+            $criteriaIcon.toggleClass('icon-add').toggleClass('icon-loop');
             return request(route)
                 .then(response => {
                     const criteria = formatCriteria(response);
@@ -283,7 +283,7 @@ export default function advancedSearchFactory(config) {
          * that is managed with select2, so we init it here
          */
         if (criterion.type === criteriaTypes.list && criterion.uri) {
-            $(`input[name=${criterion.label}-select]`, $criterionContainer).select2({
+            $(`input[name=${criterion.id}-select]`, $criterionContainer).select2({
                 multiple: true,
                 ajax: {
                     url: criterion.uri,
@@ -329,10 +329,10 @@ export default function advancedSearchFactory(config) {
         } else if (criterion.type === criteriaTypes.list && criterion.uri) {
             // set initial value
             if (criterion.value) {
-                $(`input[name=${criterion.label}-select]`, $criterionContainer).select2('val', criterion.value);
+                $(`input[name=${criterion.id}-select]`, $criterionContainer).select2('val', criterion.value);
             }
             // set event to bind input value to critariaState
-            $(`input[name=${criterion.label}-select]`, $criterionContainer).on('change', event => {
+            $(`input[name=${criterion.id}-select]`, $criterionContainer).on('change', event => {
                 criterion.value = event.val;
             });
         } else {
