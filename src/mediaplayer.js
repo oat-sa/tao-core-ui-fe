@@ -807,7 +807,11 @@ const _nativePlayer = function (mediaplayer) {
                             mediaplayer._onReady();
                         })
                         .on(`stalled${_ns}`, () => {
-                            mediaplayer.trigger('stalled');
+                            mediaplayer.previousPosition = mediaplayer.getPosition();
+                            mediaplayer._setState('stalled', true);
+                        })
+                        .on(`playing${_ns}`, () => {
+                            mediaplayer._setState('stalled', false);
                         });
 
                     if (_debugMode) {
@@ -837,7 +841,8 @@ const _nativePlayer = function (mediaplayer) {
                                 'timeupdate',
                                 'volumechange',
                                 'waiting',
-                                'stalled'
+                                'stalled',
+                                'playing'
                             ],
                             function (ev) {
                                 $media.on(ev + _ns, function (e) {
