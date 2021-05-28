@@ -466,4 +466,16 @@ $controlsHeight: 36px;
         border-top-color: #07d;
         animation: spinner .6s linear infinite;
     }
+
+    &.stalled {
+        .video {
+            filter: blur(4px);
+            opacity: 0.4;
+        }
+        .overlay {
+            [data-control="reload"] {
+                display: block;
+            }
+        }
+    }
 }
