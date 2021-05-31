@@ -1039,4 +1039,46 @@ define(['jquery', 'lodash', 'ui/mediaplayer'], function($, _, mediaplayer) {
             player.destroy();
         });
 
+    QUnit.only('stalled', function(assert) {
+        const done = assert.async();
+        
+        assert.expect(5);
+
+        mediaplayer({
+            url: '/test/mediaplayer/samples/video.mp4',
+            type: 'video',
+            renderTo: '#fixture-7'
+        })
+            .on('render', function($dom) {    
+                // set state that should be kept
+                this.timesPlayed = 1;
+                
+                $dom.find('video').trigger('stalled');
+            
+                setTimeout(() => {
+                    assert.equal(this.is('stalled'), true, 'player is stalled after 2 seconds');
+                    
+                    //simulate user click to reload button
+                    this.reload();
+                }, 2000);
+            })
+            .on('reload', function() {
+                assert.ok(true, 'reload event is fired');
+                
+                // add listener for rerender
+                this.on('render', function($dom) {
+                    assert.equal(this.getTimesPlayed(), 1, 'timesPlayed is kept');
+                    assert.equal(this.is('stalled'), true, 'player still stalled after reload');
+                    
+                    // simulate video start playing
+                    $dom.find('video').trigger('playing');
+                    assert.equal(this.is('stalled'), false);
+                    
+                    this.destroy();
+                });
+            })
+            .on('destroy', function() {
+                done();
+            });
+    });
 });
