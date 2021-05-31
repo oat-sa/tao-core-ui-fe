@@ -428,7 +428,7 @@ $controlsHeight: 36px;
         }
     }
 
-    &.error {
+    &.error:not(.stalled) {
         .media, .controls {
             display: none;
         }
@@ -447,7 +447,7 @@ $controlsHeight: 36px;
         }
     }
 
-    &.loading::before {
+    &.loading:not(.stalled)::before {
         @keyframes spinner {
             to { transform: rotate(360deg); }
         }
