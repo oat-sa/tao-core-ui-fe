@@ -26,6 +26,7 @@
  import component from 'ui/component';
  import tpl from 'ui/mediaEditor/plugins/mediaAlignment/tpl/mediaAlignment';
  import 'ui/mediaEditor/plugins/mediaAlignment/style.css';
+ import { FLOAT_LEFT_CLASS, FLOAT_RIGHT_CLASS } from './helper';
  
  /**
   * Creates mediaAlignment component
@@ -35,7 +36,7 @@
   * @fires "changed" - on State changed
   * return {component|*}
   */
- export default function mediaAlignmentFactory($container, media) {
+ export default function mediaAlignmentFactory($container, media, initialPosition) {
      /**
       * Template of the dimension controller
       */
@@ -92,9 +93,9 @@
              $template.appendTo($container);
              const classListTag = media.$node[0].parentNode.classList;
  
-             if (classListTag.contains('rgt')) {
+             if (classListTag.contains(FLOAT_RIGHT_CLASS)) {
                  this.update('wrap-right');
-             } else if (classListTag.contains('lft')) {
+             } else if (classListTag.contains(FLOAT_LEFT_CLASS)) {
                  this.update('wrap-left');
              } else {
                  this.update('wrap-inline');
