@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2015 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2015-2021 (original work) Open Assessment Technologies SA ;
  */
 /**
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
@@ -778,9 +778,22 @@ const _nativePlayer = function (mediaplayer) {
                             mediaplayer._onEnd();
                         })
                         .on(`timeupdate${_ns}`, function () {
+                            if (mediaplayer.stalledTimer) {
+                                if (mediaplayer.stalledTimeUpdateCount === 5) {
+                                    clearTimeout(mediaplayer.stalledTimer);
+                                    mediaplayer.stalledTimer = null;
+                                }
+                                else {
+                                    mediaplayer.stalledTimeUpdateCount++;
+                                }
+                            }
                             mediaplayer._onTimeUpdate();
                         })
                         .on('loadstart', function () {
+                            if (mediaplayer.is('stalled')) {
+                                return;
+                            }
+                            
                             if (media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
                                 mediaplayer._onError();
                             }
@@ -805,13 +818,26 @@ const _nativePlayer = function (mediaplayer) {
                                 mediaplayer._onRecoverError();
                             }
                             mediaplayer._onReady();
+
+                            // seek back to the previous position after recover from stalled
+                            if (mediaplayer.is('stalled')) {
+                                mediaplayer.play(mediaplayer.positionBeforeStalled);
+                            }
                         })
                         .on(`stalled${_ns}`, () => {
-                            mediaplayer.previousPosition = mediaplayer.getPosition();
-                            mediaplayer._setState('stalled', true);
+                            mediaplayer.stalledTimeUpdateCount = 0;
+                            mediaplayer.stalledTimer = setTimeout(() => {
+                                const position = mediaplayer.getPosition();
+                                if (position) {
+                                    mediaplayer.positionBeforeStalled = position;
+                                }
+                                mediaplayer._setState('stalled', true);
+                                mediaplayer._setState('ready', false);
+                            }, 2000);
                         })
                         .on(`playing${_ns}`, () => {
                             mediaplayer._setState('stalled', false);
+                            mediaplayer._setState('ready', true);
                         });
 
                     if (_debugMode) {
@@ -1101,6 +1127,11 @@ const mediaplayer = {
             this.$container = $(renderTo).append(this.$component);
         }
 
+        // add class if it is stalled
+        if (this.is('stalled')) {
+            this._setState('stalled', true);
+        }
+
         /**
          * Triggers a render event
          * @event mediaplayer#render
@@ -1109,6 +1140,48 @@ const mediaplayer = {
         this.trigger('render', this.$component);
 
         return this;
+    },
+
+    /**
+     * Reloads media player after it was stalled
+     */
+    reload() {
+        /**
+         * Triggers a reload event
+         * @event mediaplayer#reload
+         */
+        this.trigger('reload');
+        
+        // destroy player
+        if (this.player) {
+            this.player.destroy();
+        }
+
+        // remove events and component
+        if (this.$component) {
+            this._unbindEvents();
+            this._destroySlider(this.$seekSlider);
+            this._destroySlider(this.$volumeSlider);
+
+            this.$component.remove();
+            this.$component = null;
+        }
+
+        // rerender
+        this.render();
+    },
+
+    /**
+     * Set initial states
+     */
+    setInitialStates() {
+        if (!this.is('stalled')) {
+            this._setState('ready', true);
+        }
+        this._setState('canplay', true);
+        this._setState('canpause', this.config.canPause);
+        this._setState('canseek', this.config.canSeek);
+        this._setState('loading', false);
     },
 
     /**
@@ -1952,11 +2025,7 @@ const mediaplayer = {
      */
     _onReady: function _onReady() {
         this._updateDuration(this.player.getDuration());
-        this._setState('ready', true);
-        this._setState('canplay', true);
-        this._setState('canpause', this.config.canPause);
-        this._setState('canseek', this.config.canSeek);
-        this._setState('loading', false);
+        this.setInitialStates();
 
         /**
          * Triggers a media ready event
@@ -2172,7 +2241,7 @@ const mediaplayer = {
      * @private
      */
     _canPlay: function _canPlay() {
-        return this.is('ready') && !this.is('disabled') && !this.is('hidden') && !this._playLimitReached();
+        return (this.is('ready') || this.is('stalled')) && !this.is('disabled') && !this.is('hidden') && !this._playLimitReached();
     },
 
     /**
