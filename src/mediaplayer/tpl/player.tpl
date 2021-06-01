@@ -34,7 +34,8 @@
             <a class="action play" data-control="pause"><span class="icon icon-pause" title="{{__ 'Pause'}}"></span></a>
             <a class="action reload" data-control="reload">
                 <div class="icon icon-reload" title="{{__ 'Reload'}}"></div>
-                <span class="message">{{__ 'You are encountering a prolonged connectivity loss'}}</span>
+                <div class="message">{{__ 'You are encountering a prolonged connectivity loss.'}}</div>
+                <div class="message">{{__ 'Click to reload.'}}</div>
             </a>
         </div>
     </div>
