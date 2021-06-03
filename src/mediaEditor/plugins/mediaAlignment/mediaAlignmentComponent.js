@@ -32,31 +32,12 @@
   * Creates mediaAlignment component
   * @param $container
   * @param media
-  * @param config
   * @fires "changed" - on State changed
   * return {component|*}
   */
- export default function mediaAlignmentFactory($container, media, initialPosition) {
-     /**
-      * Template of the dimension controller
-      */
+ export default function mediaAlignmentFactory($container, media) {
      let $template;
- 
-     /**
-      * Size properties of the media control panel
-      * @typedef {Object} mediaSizeProps
-      * @property showResponsiveToggle boolean
-      * @property responsive boolean
-      * @property sizeProps sizeProps
-      * @property syncDimensions boolean
-      * @property denyCustomRatio boolean
-      * @property precision number
-      * @property showReset boolean
-      */
- 
-     /**
-      * Current component
-      */
+
      const mediaAlignmentComponent = component(
          {
              /**

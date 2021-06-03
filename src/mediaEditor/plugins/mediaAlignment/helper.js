@@ -57,3 +57,4 @@
          return positionFloat(widget, 'right')
      }
  }
+ 
