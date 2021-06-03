@@ -16,45 +16,43 @@
  * Copyright (c) 2021  (original work) Open Assessment Technologies SA;
  */
 
- export const FLOAT_LEFT_CLASS = 'wrap-left';
- export const FLOAT_RIGHT_CLASS = 'wrap-right';
+export const FLOAT_LEFT_CLASS = 'wrap-left';
+export const FLOAT_RIGHT_CLASS = 'wrap-right';
 
+export const positionFloat = function positionFloat(widget, position) {
+    if (!position) {
+        return;
+    }
+    
+    widget.$container.removeClass(`${FLOAT_LEFT_CLASS} ${FLOAT_RIGHT_CLASS}`);
+    widget.$original.removeClass(`${FLOAT_LEFT_CLASS} ${FLOAT_RIGHT_CLASS}`);
 
- export const positionFloat = function positionFloat(widget, position) {
-     if (!position) {
-         return;
-     }
-     
-     widget.$container.removeClass(`${FLOAT_LEFT_CLASS} ${FLOAT_RIGHT_CLASS}`);
-     widget.$original.removeClass(`${FLOAT_LEFT_CLASS} ${FLOAT_RIGHT_CLASS}`);
- 
-     let className;
-     
-     switch(position) {
-         case 'right':
-             className = FLOAT_RIGHT_CLASS;
-             break;
-         case 'left':
-             className = FLOAT_LEFT_CLASS;
-             break;
-         case 'default':
-             className = '';
-     }
- 
-     // Update DOM
-     widget.$container.addClass(className);
-     // Update model
-     widget.element.attr('class', className);
- 
-     widget.$original.trigger('contentChange.qti-widget');
- };
- 
- export const initAlignment = function initAlignment(widget) {
-     if (widget.element.hasClass(FLOAT_LEFT_CLASS)) {
-         return positionFloat(widget, 'left')
-     }
-     if (widget.element.hasClass(FLOAT_RIGHT_CLASS)) {
-         return positionFloat(widget, 'right')
-     }
- }
- 
+    let className;
+    
+    switch(position) {
+        case 'right':
+            className = FLOAT_RIGHT_CLASS;
+            break;
+        case 'left':
+            className = FLOAT_LEFT_CLASS;
+            break;
+        case 'default':
+            className = '';
+    }
+
+    // Update DOM
+    widget.$container.addClass(className);
+    // Update model
+    widget.element.attr('class', className);
+
+    widget.$original.trigger('contentChange.qti-widget');
+};
+
+export const initAlignment = function initAlignment(widget) {
+    if (widget.element.hasClass(FLOAT_LEFT_CLASS)) {
+        return positionFloat(widget, 'left')
+    }
+    if (widget.element.hasClass(FLOAT_RIGHT_CLASS)) {
+        return positionFloat(widget, 'right')
+    }
+}
