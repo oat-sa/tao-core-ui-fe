@@ -1,3 +1,7 @@
-.media-align {
+.media-alignment {
     margin-top: 15px;
+}
+
+.media-alignment .media-sizer-panel-label {
+    margin-bottom: 12px;
 }
