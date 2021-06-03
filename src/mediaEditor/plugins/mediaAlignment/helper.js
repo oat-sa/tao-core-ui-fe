@@ -43,7 +43,6 @@
  
      // Update DOM
      widget.$container.addClass(className);
-     widget.$original.addClass(className);
      // Update model
      widget.element.attr('class', className);
  
