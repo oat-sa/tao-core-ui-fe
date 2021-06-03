@@ -1039,7 +1039,7 @@ define(['jquery', 'lodash', 'ui/mediaplayer'], function($, _, mediaplayer) {
             player.destroy();
         });
 
-    QUnit.only('stalled', function(assert) {
+    QUnit.test('stalled', function(assert) {
         const done = assert.async();
         
         assert.expect(5);
