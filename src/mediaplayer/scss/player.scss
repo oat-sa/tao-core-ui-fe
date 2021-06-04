@@ -78,10 +78,8 @@ $controlsHeight: 36px;
             z-index: 2;
             top: 50%;
             left: 50%;
-            width: 64px;
-            height: 64px;
+            transform: translate(-50%);
             margin-top: -32px;
-            margin-left: -32px;
             text-align: center;
             text-decoration: none;
             display: none;
@@ -96,6 +94,30 @@ $controlsHeight: 36px;
 
                 &:hover {
                     opacity: 0.6;
+                }
+            }
+
+            &.reload {
+                width: 100%;
+                font-size: 50px;
+                line-height: 30px;
+
+                &:hover {
+                    .icon {
+                        opacity: 1;
+                    }
+                }
+
+                .icon {
+                    opacity: 0.6;
+                    background: none;
+                }
+                .message {
+                    font-size: 20px;
+                }
+
+                .icon, .message {
+                    text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
                 }
             }
         }
@@ -405,7 +427,7 @@ $controlsHeight: 36px;
         }
     }
 
-    &.error {
+    &.error:not(.stalled) {
         .media, .controls {
             display: none;
         }
@@ -424,7 +446,7 @@ $controlsHeight: 36px;
         }
     }
 
-    &.loading::before {
+    &.loading:not(.stalled)::before {
         @keyframes spinner {
             to { transform: rotate(360deg); }
         }
@@ -442,5 +464,17 @@ $controlsHeight: 36px;
         border: 1px solid #ccc;
         border-top-color: #07d;
         animation: spinner .6s linear infinite;
+    }
+
+    &.stalled {
+        .video {
+            filter: blur(4px);
+            opacity: 0.4;
+        }
+        .overlay {
+            [data-control="reload"] {
+                display: inline-block;
+            }
+        }
     }
 }
