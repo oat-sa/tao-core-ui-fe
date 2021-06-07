@@ -376,14 +376,24 @@ body {
     }
 
 
-    .lft {
+    .lft,
+    .wrap-left {
         display: inline;
         float: left;
     }
 
-    .rgt {
+    .rgt,
+    .wrap-right {
         display: inline;
         float: right;
+    }
+
+    .wrap-left {
+        margin: 20px 20px 20px 0;
+    }
+
+    .wrap-right {
+        margin: 20px 0 20px 20px;
     }
 
     .txt-ctr {

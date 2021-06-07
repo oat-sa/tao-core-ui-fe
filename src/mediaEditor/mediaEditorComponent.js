@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2018  (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
  *
  * @author Oleksander Zagovorychev <zagovorichev@gmail.com>
  */
@@ -32,6 +32,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 import component from 'ui/component';
 import mediaDimensionComponent from 'ui/mediaEditor/plugins/mediaDimension/mediaDimensionComponent';
+import mediaAlignmentComponent from 'ui/mediaEditor/plugins/mediaAlignment/mediaAlignmentComponent';
 import tpl from 'ui/mediaEditor/tpl/editor';
 
 /**
@@ -59,6 +60,9 @@ import tpl from 'ui/mediaEditor/tpl/editor';
  */
 const defaultConfig = {
     mediaDimension: {
+        active: false
+    },
+    mediaAlignment: {
         active: false
     }
 };
@@ -95,9 +99,11 @@ export default function mediaEditorFactory($container, media, config) {
         })
         .on('render', function () {
             const $dimensionTools = $('.media-dimension', this.getTemplate());
-            let plugin;
+            const $alignmentTools = $('.media-align', this.getTemplate());
+            let dimensionPlugin;
+            let alignmentPlugin;
             if (this.getConfig().mediaDimension.active) {
-                plugin = mediaDimensionComponent($dimensionTools, media, {
+                dimensionPlugin = mediaDimensionComponent($dimensionTools, media, {
                     responsive: media.responsive,
                     showResponsiveToggle: this.getConfig().mediaDimension.showResponsiveToggle
                 }).on('change', conf => {
@@ -114,7 +120,11 @@ export default function mediaEditorFactory($container, media, config) {
                     this.trigger('change', media);
                 });
 
-                plugins.push(plugin);
+                plugins.push(dimensionPlugin);
+            }
+            if (this.getConfig().mediaAlignment.active) {
+                alignmentPlugin = mediaAlignmentComponent($alignmentTools, media).spread(this, 'change');
+                plugins.push(alignmentPlugin);
             }
         })
         .on('destroy', function () {
