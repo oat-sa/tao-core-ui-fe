@@ -71,6 +71,18 @@ function hasSameState(task1, task2) {
     return false;
 }
 
+function workaroundMessages(taskData) {
+    return taskData.map(item => {
+        if (item.interpolationMessage) {
+            item.message = item.interpolationMessage;
+        }
+        if (item.children.length > 0) {
+            workaroundMessages(item.children);
+        }
+        return item;
+    })
+}
+
 /**
  * Create a task queue model to communicates with the server REST API
  *
@@ -145,6 +157,8 @@ export default function taskQueueModel(config) {
             }
 
             status = request(config.url.get, { taskId: taskId }, 'GET', {}, true).then(function(taskData) {
+                // Workaround for translations
+                taskData.report.children = workaroundMessages(taskData.report.children);
                 //check taskData
                 if (taskData && taskData.status) {
                     if (_cache) {
