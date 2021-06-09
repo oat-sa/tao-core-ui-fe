@@ -35,6 +35,7 @@
  */
 import $ from 'jquery';
 import _ from 'lodash';
+import __ from 'i18n';
 
 import eventifier from 'core/eventifier';
 import polling from 'core/polling';
@@ -74,7 +75,7 @@ function hasSameState(task1, task2) {
 function workaroundMessages(taskData) {
     return taskData.map(item => {
         if (item.interpolationMessage) {
-            item.message = item.interpolationMessage;
+            item.message = __(item.interpolationMessage, ...item.interpolationData);
         }
         if (item.children.length > 0) {
             workaroundMessages(item.children);
