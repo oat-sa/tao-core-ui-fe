@@ -21,7 +21,7 @@ pipeline {
                 dir('.') {
                     sh(
                         label: 'Setup frontend toolchain',
-                        script: 'npm ci'
+                        script: 'npm install'
                     )
                     sh (
                         label : 'Run frontend tests',
