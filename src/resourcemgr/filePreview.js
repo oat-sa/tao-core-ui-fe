@@ -8,6 +8,7 @@ const ns = 'resourcemgr';
 
 export default function(options) {
     const $container = options.$target;
+    const isDownloadable = options.isDownloadable || false;
     const $filePreview = $('.file-preview', $container);
     const $previewer = $('.previewer', $container);
     const $propType = $('.prop-type', $filePreview);
@@ -18,7 +19,8 @@ export default function(options) {
     let currentSelection = [];
 
     $container.on(`fileselect.${ns}`, function(e, file) {
-        if (file && file.file && $container[0].querySelector(`li[data-file='${file.file}'] .icon-download`)) {
+        const $listItem = $container[0].querySelector(`[data-file='${file.file}']`);
+        if (file && file.file && $listItem && $listItem.dataset.download) {
             startPreview(file);
             currentSelection = file;
         } else {
