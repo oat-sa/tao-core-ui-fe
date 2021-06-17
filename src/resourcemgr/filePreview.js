@@ -8,7 +8,6 @@ const ns = 'resourcemgr';
 
 export default function(options) {
     const $container = options.$target;
-    const isDownloadable = options.isDownloadable || false;
     const $filePreview = $('.file-preview', $container);
     const $previewer = $('.previewer', $container);
     const $propType = $('.prop-type', $filePreview);
