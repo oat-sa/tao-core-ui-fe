@@ -72,13 +72,13 @@ function hasSameState(task1, task2) {
     return false;
 }
 
-function workaroundMessages(taskData) {
+function translateReportMessages(taskData) {
     return taskData.map(item => {
         if (item.interpolationMessage) {
             item.message = __(item.interpolationMessage, ...item.interpolationData);
         }
         if (item.children.length > 0) {
-            workaroundMessages(item.children);
+            translateReportMessages(item.children);
         }
         return item;
     })
@@ -159,7 +159,7 @@ export default function taskQueueModel(config) {
 
             status = request(config.url.get, { taskId: taskId }, 'GET', {}, true).then(function(taskData) {
                 // Workaround for translations
-                taskData.report.children = workaroundMessages(taskData.report.children);
+                taskData.report.children = translateReportMessages(taskData.report.children);
                 //check taskData
                 if (taskData && taskData.status) {
                     if (_cache) {
