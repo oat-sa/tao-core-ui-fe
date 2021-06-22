@@ -98,7 +98,7 @@ var Incrementer = {
                                     options = $elt.data(dataNs);
 
                                 //sanitize the string by removing all invalid characters (only allow digit and dot)
-                                value = parseFloat(value.replace(/[^\d\.]/g, ''));
+                                value = parseFloat(value.replace(/[^\d\.]/g, '')).toFixed(0);
 
                                 if (isNaN(value)) {
                                     //allow empty input
