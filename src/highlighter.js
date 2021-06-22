@@ -461,12 +461,10 @@ export default function (options) {
      * Remove all wrapping nodes from markup
      */
     function clearHighlights() {
-        $(getContainer())
-            .find('.' + className)
-            .each(function () {
-                var $wrapped = $(this);
-                $wrapped.replaceWith($wrapped.text());
-            });
+        getHighlightedNodes().each(function () {
+            var $wrapped = $(this);
+            $wrapped.replaceWith($wrapped.text());
+        });
     }
 
     /**
