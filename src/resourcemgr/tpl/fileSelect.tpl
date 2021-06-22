@@ -1,5 +1,12 @@
 {{#each files}}
-    <li data-type="{{type}}" data-file="{{uri}}" data-display="{{display}}" data-mime="{{mime}}" data-size="{{size}}" data-url="{{viewUrl}}" data-download="{{downloadUrl}}" data-alt="{{alt}}">
+    <li data-type="{{type}}" 
+        data-file="{{uri}}" 
+        data-display="{{display}}" 
+        data-mime="{{mime}}" 
+        data-size="{{size}}" 
+        data-url="{{viewUrl}}" 
+        {{#if permissions.read}} data-download="{{downloadUrl}}"{{/if}}
+        data-alt="{{alt}}">
         <span class="desc truncate">{{name}}</span>
         <div class="actions">
             <div class="tlb">
