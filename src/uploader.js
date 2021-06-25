@@ -388,7 +388,7 @@ var uploader = {
         options.$resetBtn.prop('disabled', true);
 
         const importButton = options.$form[0].querySelector('button');
-        if (importButton) {
+        if (importButton && !options.$form[0].querySelector('[data-id="schema"]')) {
             importButton.setAttribute('disabled', true);
         }
 
