@@ -105,6 +105,7 @@ export default function (options) {
                 subTree.children = [];
             }
             if (root !== 'local' || !_.find(subTree.children, { name: file.name })) {
+                updatePermissions(file);
                 subTree.children.push(file);
                 subTree.total++;
                 selectedClass.total++;
