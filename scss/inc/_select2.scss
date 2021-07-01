@@ -607,3 +607,22 @@ disabled look for disabled choices in the results dropdown
     height: 100px;
     overflow: scroll;
 }
+
+.form_radlst[disabled] {
+    .select2-container {
+        pointer-events: none;
+        cursor: default;
+        color: $textColor;
+        opacity: .55 !important;
+
+        .select2-search-field, 
+        .select2-search-choice-close,
+        .select2-arrow {
+            display: none;
+        }
+        .select2-search-choice {
+            cursor: default;
+            padding-left: 5px;
+        }
+    }
+}
