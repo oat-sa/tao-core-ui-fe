@@ -108,7 +108,7 @@ export default function advancedSearchFactory(config) {
             let query = '';
 
             advancedSearchCriteria.forEach(renderedCriterion => {
-                renderedCriterion.label.replaceAll(' ', '+');
+                renderedCriterion.label = renderedCriterion.label.replaceAll(' ', '+');
                 if ((hasSearchInput || query.trim().length !== 0) && renderedCriterion.value) {
                     query += ' AND ';
                 }
