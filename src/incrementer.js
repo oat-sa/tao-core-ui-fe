@@ -105,23 +105,20 @@ var Incrementer = {
                                     $elt.val('');
                                 } else {
                                     //allow negative values
-                                    value = negative ? -value : value;
+                                    value = negative ? -value : value; //check if the min and max are respected:
 
-                                    //check if the min and max are respected:
-                                    if (
-                                        options.min === null ||
-                                        (_.isNumber(options.min) && value >= options.min) ||
-                                        (options.zero === true && value === 0)
-                                    ) {
-                                        $elt.val(value);
-                                    } else {
+                                    options.min = parseFloat($elt.parent().parent().find("[name='normalMinimum']").attr('value'));
+                                    options.max = parseFloat($elt.parent().parent().find("[name='normalMaximum']").attr('value'));
+
+                                    if ($elt[0].getAttribute('name') === 'normalMaximum' && value < options.min) {
                                         $elt.val(options.min);
-                                        value = options.min;
-                                    }
-                                    if (options.max === null || (_.isNumber(options.max) && value <= options.max)) {
-                                        $elt.val(value);
-                                    } else {
+                                        $elt[0].setAttribute('value', options.min);
+                                    } else if ($elt[0].getAttribute('name') === 'normalMinimum' && options.max < value) {
                                         $elt.val(options.max);
+                                        $elt[0].setAttribute('value', options.max);
+                                    } else {
+                                        $elt.val(value);
+                                        $elt[0].setAttribute('value', value);
                                     }
                                 }
 
@@ -201,23 +198,37 @@ var Incrementer = {
      * @param {jQueryElement} $elt - plugin's element
      * @fires Incrementer#plus.incrementer
      */
-    _inc: function($elt) {
+    _inc: function _inc($elt) {
         var options = $elt.data(dataNs),
             current = parseFloat($elt.val() || 0),
             value;
-
         value = gamp.add(current, options.step);
+
+        if ($elt[0].getAttribute('name') === 'normalMaximum') {
+            options.max = parseFloat($elt.parent().parent().find("[name='normalMaximum']").attr('value')) + 1;
+            options.min = parseFloat($elt.parent().parent().find("[name='normalMinimum']").attr('value'));
+        } else {
+            options.max = parseFloat($elt.parent().parent().find("[name='normalMaximum']").attr('value'));
+            options.min = parseFloat($elt.parent().parent().find("[name='normalMinimum']").attr('value')) + 1;
+        }
+
+        if (options.max < options.min) {
+            return;
+        }
+
         if (_.isNumber(options.min) && value < options.min) {
             value = options.min;
         }
 
-        if (options.max === null || (_.isNumber(options.max) && value <= options.max)) {
+        if (options.max === null || _.isNumber(options.max) && value <= options.max) {
             $elt.val(value);
+            $elt[0].setAttribute('value', value);
 
             /**
              * The target has been toggled.
              * @event Incrementer#increment.incrementer
              */
+
             $elt.trigger('increment.' + ns, [value]).trigger('change');
         }
     },
@@ -228,28 +239,36 @@ var Incrementer = {
      * @param {jQueryElement} $elt - plugin's element
      * @fires Incrementer#minus.incrementer
      */
-    _dec: function($elt) {
+    _dec: function _dec($elt) {
         var options = $elt.data(dataNs),
             current = parseFloat($elt.val() || 0),
             value;
-
         value = gamp.sub(current, options.step);
+
+        if ($elt[0].getAttribute('name') === 'normalMaximum') {
+            options.max = parseFloat($elt.parent().parent().find("[name='normalMaximum']").attr('value')) - 1;
+            options.min = parseFloat($elt.parent().parent().find("[name='normalMinimum']").attr('value'));
+        } else {
+            options.max = parseFloat($elt.parent().parent().find("[name='normalMaximum']").attr('value'));
+            options.min = parseFloat($elt.parent().parent().find("[name='normalMinimum']").attr('value')) - 1;
+        }
+
+        if (options.max < options.min) {
+            return;
+        }
 
         if (options.zero === true && _.isNumber(options.min) && value < options.min) {
             value = 0;
         }
 
-        if (
-            options.min === null ||
-            (_.isNumber(options.min) && value >= options.min) ||
-            (options.zero === true && value === 0)
-        ) {
+        if (options.min === null || _.isNumber(options.min) && value >= options.min || options.zero === true && value === 0) {
             $elt.val(value);
-
+            $elt[0].setAttribute('value', value);
             /**
              * The target has been toggled.
              * @event Incrementer#decrement.incrementer
              */
+
             $elt.trigger('decrement.' + ns, [value]).trigger('change');
         }
     },
