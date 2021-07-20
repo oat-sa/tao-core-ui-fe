@@ -270,3 +270,21 @@ Usage:
 @mixin disableSelect() {
     @include vendor-prefix(user-select, none, property);
 }
+
+/*
+ * Define for left to right text direction rules
+ */
+@mixin ltr {
+    body:not([dir="rtl"]) & {
+        @content;
+    }
+}
+
+/*
+ * Define for right to left text direction rules
+ */
+@mixin rtl {
+    body[dir="rtl"] & {
+        @content;
+    }
+}
