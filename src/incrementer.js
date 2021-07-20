@@ -120,9 +120,10 @@ var Incrementer = {
                         .on(
                             'keyup',
                             _.debounce(function() {
-                                var value = $elt.val(),
-                                    negative = value.charAt(0) === '-',
-                                    options = $elt.data(dataNs);
+                                let value = $elt.val();
+                                const negative = value.charAt(0) === '-';
+                                let options = $elt.data(dataNs);
+                                const name = $elt[0].getAttribute('name');
 
                                 //sanitize the string by removing all invalid characters (only allow digit and dot)
                                 value = parseFloat(value.replace(/[^\d\.]/g, '')).toFixed(0);
@@ -133,12 +134,11 @@ var Incrementer = {
                                 } else {
                                     //allow negative values
                                     value = negative ? -value : value; //check if the min and max are respected:
-
                                     options = setNormalValues(options, $elt, true);
 
-                                    if ($elt[0].getAttribute('name') === 'normalMaximum' && value < options.min) {
+                                    if (name === 'normalMaximum' && value < options.min) {
                                         setBothValues($elt, options.min);
-                                    } else if ($elt[0].getAttribute('name') === 'normalMinimum' && options.max < value) {
+                                    } else if (name === 'normalMinimum' && options.max < value) {
                                         setBothValues($elt, options.max);
                                     } else {
                                         setBothValues($elt, value);
@@ -232,13 +232,12 @@ var Incrementer = {
             return;
         }
 
-        if (_.isNumber(options.min) && value < options.min) {
+        if (value < options.min) {
             value = options.min;
         }
 
-        if (options.max === null || _.isNumber(options.max) && value <= options.max) {
-            $elt.val(value);
-            $elt[0].setAttribute('value', value);
+        if (options.max === null || value <= options.max) {
+            setBothValues($elt, value);
 
             /**
              * The target has been toggled.
@@ -266,13 +265,12 @@ var Incrementer = {
             return;
         }
 
-        if (options.zero === true && _.isNumber(options.min) && value < options.min) {
+        if (options.zero === true && value < options.min) {
             value = 0;
         }
 
-        if (options.min === null || _.isNumber(options.min) && value >= options.min || options.zero === true && value === 0) {
-            $elt.val(value);
-            $elt[0].setAttribute('value', value);
+        if (options.min === null || value >= options.min || options.zero === true && value === 0) {
+            setBothValues($elt, value);
             /**
              * The target has been toggled.
              * @event Incrementer#decrement.incrementer
