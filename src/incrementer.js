@@ -23,6 +23,33 @@ var defaults = {
     decimal: 0
 };
 
+const getNormalValues = function (element, selector) {
+    return element.parent().parent().find(`[name='${ selector }']`).attr('value');
+}
+
+const setNormalValues = function (options, elt, setup, positive = true) {
+    if (setup) {
+        options.min = parseFloat(elt.parent().parent().find("[name='normalMinimum']").attr('value'));
+        options.max = parseFloat(elt.parent().parent().find("[name='normalMaximum']").attr('value'));
+    } else {
+        const name = elt[0].getAttribute('name');
+        const sign = positive ? '+' : '-';
+        if (name === 'normalMaximum') {
+            options.max = +`${ parseFloat(elt.parent().parent().find("[name='normalMaximum']").attr('value')) } ${ sign } 1`;
+            options.min = parseFloat(elt.parent().parent().find("[name='normalMinimum']").attr('value'));
+        } else {
+            options.max = parseFloat(elt.parent().parent().find("[name='normalMaximum']").attr('value'));
+            options.min = +`${ parseFloat(elt.parent().parent().find("[name='normalMinimum']").attr('value')) } ${ sign } 1`;
+        }
+    }
+    return options;
+}
+
+const setBothValues = function (elt, value) {
+    elt.val(value);
+    elt[0].setAttribute('value', value);
+}
+
 /**
  * The Incrementer component, it transforms a text input in an number input, the data-attr way
  * (has the HTML5 number input type is not yet very well supported, we don't use polyfill to have a consistent UI)
@@ -107,18 +134,14 @@ var Incrementer = {
                                     //allow negative values
                                     value = negative ? -value : value; //check if the min and max are respected:
 
-                                    options.min = parseFloat($elt.parent().parent().find("[name='normalMinimum']").attr('value'));
-                                    options.max = parseFloat($elt.parent().parent().find("[name='normalMaximum']").attr('value'));
+                                    options = setNormalValues(options, $elt, true);
 
                                     if ($elt[0].getAttribute('name') === 'normalMaximum' && value < options.min) {
-                                        $elt.val(options.min);
-                                        $elt[0].setAttribute('value', options.min);
+                                        setBothValues($elt, options.min);
                                     } else if ($elt[0].getAttribute('name') === 'normalMinimum' && options.max < value) {
-                                        $elt.val(options.max);
-                                        $elt[0].setAttribute('value', options.max);
+                                        setBothValues($elt, options.max);
                                     } else {
-                                        $elt.val(value);
-                                        $elt[0].setAttribute('value', value);
+                                        setBothValues($elt, value);
                                     }
                                 }
 
@@ -199,18 +222,11 @@ var Incrementer = {
      * @fires Incrementer#plus.incrementer
      */
     _inc: function _inc($elt) {
-        var options = $elt.data(dataNs),
-            current = parseFloat($elt.val() || 0),
-            value;
-        value = gamp.add(current, options.step);
+        let options = $elt.data(dataNs);
+        const current = parseFloat($elt.val() || 0);
+        let value = gamp.add(current, options.step);
 
-        if ($elt[0].getAttribute('name') === 'normalMaximum') {
-            options.max = parseFloat($elt.parent().parent().find("[name='normalMaximum']").attr('value')) + 1;
-            options.min = parseFloat($elt.parent().parent().find("[name='normalMinimum']").attr('value'));
-        } else {
-            options.max = parseFloat($elt.parent().parent().find("[name='normalMaximum']").attr('value'));
-            options.min = parseFloat($elt.parent().parent().find("[name='normalMinimum']").attr('value')) + 1;
-        }
+        options = setNormalValues(options, $elt, false, true);
 
         if (options.max < options.min) {
             return;
@@ -240,18 +256,11 @@ var Incrementer = {
      * @fires Incrementer#minus.incrementer
      */
     _dec: function _dec($elt) {
-        var options = $elt.data(dataNs),
-            current = parseFloat($elt.val() || 0),
-            value;
-        value = gamp.sub(current, options.step);
+        let options = $elt.data(dataNs);
+        const current = parseFloat($elt.val() || 0);
+        let value = gamp.sub(current, options.step);
 
-        if ($elt[0].getAttribute('name') === 'normalMaximum') {
-            options.max = parseFloat($elt.parent().parent().find("[name='normalMaximum']").attr('value')) - 1;
-            options.min = parseFloat($elt.parent().parent().find("[name='normalMinimum']").attr('value'));
-        } else {
-            options.max = parseFloat($elt.parent().parent().find("[name='normalMaximum']").attr('value'));
-            options.min = parseFloat($elt.parent().parent().find("[name='normalMinimum']").attr('value')) - 1;
-        }
+        options = setNormalValues(options, $elt, false, false);
 
         if (options.max < options.min) {
             return;
