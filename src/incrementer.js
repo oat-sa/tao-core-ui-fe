@@ -28,18 +28,20 @@ const getNormalValues = function (element, selector) {
 }
 
 const setNormalValues = function (options, elt, setup, positive = true) {
+    const minValue = parseFloat(elt.parent().parent().find("[name='normalMinimum']").attr('value'));
+    const maxValue = parseFloat(elt.parent().parent().find("[name='normalMaximum']").attr('value'));
     if (setup) {
-        options.min = parseFloat(elt.parent().parent().find("[name='normalMinimum']").attr('value'));
-        options.max = parseFloat(elt.parent().parent().find("[name='normalMaximum']").attr('value'));
+        options.min = minValue;
+        options.max = maxValue;
     } else {
         const name = elt[0].getAttribute('name');
         const sign = positive ? '+' : '-';
         if (name === 'normalMaximum') {
-            options.max = +`${ parseFloat(elt.parent().parent().find("[name='normalMaximum']").attr('value')) } ${ sign } 1`;
-            options.min = parseFloat(elt.parent().parent().find("[name='normalMinimum']").attr('value'));
+            options.max = +`${ maxValue } ${ sign } 1`;
+            options.min = minValue;
         } else {
-            options.max = parseFloat(elt.parent().parent().find("[name='normalMaximum']").attr('value'));
-            options.min = +`${ parseFloat(elt.parent().parent().find("[name='normalMinimum']").attr('value')) } ${ sign } 1`;
+            options.max = maxValue;
+            options.min = +`${ minValue } ${ sign } 1`;
         }
     }
     return options;
@@ -243,7 +245,6 @@ var Incrementer = {
              * The target has been toggled.
              * @event Incrementer#increment.incrementer
              */
-
             $elt.trigger('increment.' + ns, [value]).trigger('change');
         }
     },
@@ -271,11 +272,11 @@ var Incrementer = {
 
         if (options.min === null || value >= options.min || options.zero === true && value === 0) {
             setBothValues($elt, value);
+
             /**
              * The target has been toggled.
              * @event Incrementer#decrement.incrementer
              */
-
             $elt.trigger('decrement.' + ns, [value]).trigger('change');
         }
     },
