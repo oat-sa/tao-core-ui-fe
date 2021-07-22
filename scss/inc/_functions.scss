@@ -273,18 +273,20 @@ Usage:
 
 /*
  * Define for left to right text direction rules
+ * @param {string} [$selector = 'body'] parent selector for dir attribute
  */
-@mixin ltr {
-    body:not([dir="rtl"]) & {
+@mixin ltr($selector: 'body') {
+    #{$selector}:not([dir="rtl"]) & {
         @content;
     }
 }
 
 /*
  * Define for right to left text direction rules
+ * @param {string} [$selector = 'body'] parent selector for dir attribute
  */
-@mixin rtl {
-    body[dir="rtl"] & {
+@mixin rtl($selector: 'body') {
+    #{$selector}[dir="rtl"] & {
         @content;
     }
 }
