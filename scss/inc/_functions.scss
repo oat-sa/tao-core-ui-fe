@@ -270,23 +270,3 @@ Usage:
 @mixin disableSelect() {
     @include vendor-prefix(user-select, none, property);
 }
-
-/*
- * Define for left to right text direction rules
- * @param {string} [$selector = 'body'] parent selector for dir attribute
- */
-@mixin ltr($selector: 'body') {
-    #{$selector}:not([dir="rtl"]) & {
-        @content;
-    }
-}
-
-/*
- * Define for right to left text direction rules
- * @param {string} [$selector = 'body'] parent selector for dir attribute
- */
-@mixin rtl($selector: 'body') {
-    #{$selector}[dir="rtl"] & {
-        @content;
-    }
-}

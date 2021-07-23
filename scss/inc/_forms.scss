@@ -23,10 +23,10 @@ label, .form_desc {
     display: inline-block;
     cursor: pointer;
     margin-bottom: 5px;
-    @include ltr {
-        padding-right: 10px;
-    }
-    @include rtl {
+    padding-right: 10px;
+
+    [dir="rtl"] & {
+        padding-right: 0;
         padding-left: 10px;
     }
     abbr {
@@ -217,18 +217,18 @@ label, .form_desc {
         position: absolute;
         top: 0;
         margin: 0;
-        @include ltr {
-            left: 0;
-        }
-        @include rtl {
+        left: 0;
+
+        [dir="rtl"] &{
+            left: auto;
             right: 0;
         }
         & + div {
             cursor: pointer;
-            @include ltr {
-                margin-left: 24px;
-            }
-            @include rtl {
+            margin-left: 24px;
+
+            [dir="rtl"] &{
+                margin-left: 0;
                 margin-right: 24px;
             }
         }
@@ -416,15 +416,18 @@ label {
         }
         &:before {
             z-index: 3;
-            @include rtl {
+
+            [dir="rtl"] & {
                 right: -1em;
             }
         }
         &:after {
             position: relative;
             z-index: 2;
-            @include ltr {
-                left: -1em;
+            left: -1em;
+
+            [dir="rtl"] & {
+                left: auto;
             }
         }
     }
@@ -707,10 +710,9 @@ label {
     .form_desc {
         width: 35%;
         display:inline-block;
-        @include ltr {
-            padding: 0 10px 0 0;
-        }
-        @include rtl {
+        padding: 0 10px 0 0;
+
+        [dir="rtl"] & {
             padding: 0 0 0 10px;
         }
         &.hidden-input-label {
