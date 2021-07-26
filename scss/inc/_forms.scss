@@ -416,19 +416,11 @@ label {
         }
         &:before {
             z-index: 3;
-
-            [dir="rtl"] & {
-                right: -1em;
-            }
         }
         &:after {
             position: relative;
             z-index: 2;
             left: -1em;
-
-            [dir="rtl"] & {
-                left: auto;
-            }
         }
     }
     input[type="radio"],
