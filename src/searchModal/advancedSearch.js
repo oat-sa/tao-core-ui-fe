@@ -49,7 +49,7 @@ export default function advancedSearchFactory(config) {
     let $criteriaSelect = null;
     let $advancedCriteriaContainer = null;
     let criteriaState = null;
-
+    let criteriaMapping = {};
     const criteriaTypes = {
         text: 'text',
         list: 'list'
@@ -74,7 +74,9 @@ export default function advancedSearchFactory(config) {
             $criteriaIcon.toggleClass('icon-add').toggleClass('icon-loop');
             return request(route)
                 .then(response => {
-                    const criteria = formatCriteria(response);
+                    criteriaMapping = response.criteriaMapping || {};
+                    const classTree = response.classDefinition ? response.classDefinition : response;
+                    const criteria = formatCriteria(classTree);
                     updateCriteria(criteria);
                     isCriteriaListUpdated = true;
                     $criteriaIcon.toggleClass('icon-add').toggleClass('icon-loop');
@@ -108,18 +110,18 @@ export default function advancedSearchFactory(config) {
             let query = '';
 
             advancedSearchCriteria.forEach(renderedCriterion => {
-                renderedCriterion.label = renderedCriterion.label.replaceAll(/\s+/g, '-');
+                const queryParam = renderedCriterion.propertyUri;
                 if ((hasSearchInput || query.trim().length !== 0) && renderedCriterion.value) {
                     query += ' AND ';
                 }
                 if (renderedCriterion.type === criteriaTypes.text) {
                     if (renderedCriterion.value && renderedCriterion.value.trim() !== '') {
-                        query += `${renderedCriterion.label}:${renderedCriterion.value.trim()}`;
+                        query += `${queryParam}:${renderedCriterion.value.trim()}`;
                     }
                 } else if (renderedCriterion.type === criteriaTypes.list) {
                     if (renderedCriterion.value && renderedCriterion.value.length > 0) {
                         /* Temp replaced OR with AND. See ADF-7 for details */
-                        query += `${renderedCriterion.label}:${renderedCriterion.value.join(' AND ')}`;
+                        query += `${queryParam}:${renderedCriterion.value.join(' AND ')}`;
                     }
                 }
             });
@@ -294,12 +296,9 @@ export default function advancedSearchFactory(config) {
                             subject: term
                         };
                     },
-                    results: function (response) {
-                        const res = response.data.map(option => {
-                            return { id: option.label, text: option.label };
-                        });
-                        return { results: res };
-                    }
+                    results: (response) => ({ 
+                          results: response.data.map(option => ({ id: option.uri || option.label, text: option.label }))
+                    })
                 },
                 initSelection: function (element, callback) {
                     const data = [];
