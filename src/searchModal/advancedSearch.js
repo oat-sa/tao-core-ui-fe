@@ -280,7 +280,8 @@ export default function advancedSearchFactory(config) {
         $advancedCriteriaContainer.append(templateToUse({ criterion }));
 
         const $criterionContainer = $(`.${criterion.id}-filter`, $container);
-
+        const valueMapping = criteriaMapping[criterion.type];
+        
         /**
          * On criterion of type list with a uri endpoint to retrieve options, template includes a select
          * that is managed with select2, so we init it here
@@ -297,7 +298,7 @@ export default function advancedSearchFactory(config) {
                         };
                     },
                     results: (response) => ({ 
-                          results: response.data.map(option => ({ id: option.uri || option.label, text: option.label }))
+                          results: response.data.map(option => ({ id: valueMapping !== 'uri' ? option.uri : option.label, text: option.label }))
                     })
                 },
                 initSelection: function (element, callback) {
@@ -314,43 +315,69 @@ export default function advancedSearchFactory(config) {
     }
 
     /**
+     * Fetches initial criterion label from api in case the value mapping is uri
+     * @param {object} criterion - criterion to be managed
+     */
+    function getInitialCriterionLabel(criterion) {
+        const valueMapping = criteriaMapping[criterion.type];
+        if (valueMapping !== 'uri' || !criterion.value) {
+            return Promise.resolve(criterion.value);
+        }
+        return $.ajax({
+            type: 'GET',
+            url: criterion.uri,
+            dataType: 'json',
+        }).then(({ data }) => {
+            if (Array.isArray(criterion.value)) {
+                return criterion.value.map(v => ({
+                    id: v,
+                    text: (data.find(d => d.uri === v) || {}).label
+                }))
+            }
+            return (data.find(d => d.uri === criterion.value) || {}).label
+        })
+    }
+
+    /**
      * Sets initial value for rendered criterion and sets binding between view and state
      * @param {object} criterion - criterion to be managed
      * @param {object} $criterionContainer - rendered criterion
      */
     function bindCriterionValue(criterion, $criterionContainer) {
-        if (criterion.type === criteriaTypes.text) {
-            // set initial value
-            $('input', $criterionContainer).val(criterion.value);
-            // set event to bind input value to critariaState
-            $('input', $criterionContainer).on('change', function () {
-                criterion.value = $(this).val() || undefined;
-            });
-        } else if (criterion.type === criteriaTypes.list && criterion.uri) {
-            // set initial value
-            if (criterion.value) {
-                $(`input[name=${criterion.id}-select]`, $criterionContainer).select2('val', criterion.value);
-            }
-            // set event to bind input value to critariaState
-            $(`input[name=${criterion.id}-select]`, $criterionContainer).on('change', event => {
-                criterion.value = event.val;
-            });
-        } else {
-            // set initial value
-            if (criterion.value) {
-                criterion.value.forEach(selectedValue => {
-                    $(`input[value=${selectedValue}]`, $criterionContainer).prop('checked', true);
+        getInitialCriterionLabel(criterion).then(initialCriterion => {
+            if (criterion.type === criteriaTypes.text) {
+                // set initial value
+                $('input', $criterionContainer).val(criterion.value);
+                // set event to bind input value to critariaState
+                $('input', $criterionContainer).on('change', function () {
+                    criterion.value = $(this).val() || undefined;
+                });
+            } else if (criterion.type === criteriaTypes.list && criterion.uri) {
+                // set initial value
+                if (criterion.value) {
+                    $(`input[name=${criterion.id}-select]`, $criterionContainer).select2('data', initialCriterion);
+                }
+                // set event to bind input value to critariaState
+                $(`input[name=${criterion.id}-select]`, $criterionContainer).on('change', event => {
+                    criterion.value = event.val;
+                });
+            } else {
+                // set initial value
+                if (criterion.value) {
+                    criterion.value.forEach(selectedValue => {
+                        $(`input[value=${selectedValue}]`, $criterionContainer).prop('checked', true);
+                    });
+                }
+                // set event to bind input value to critariaState
+                $('input[type="checkbox"]', $criterionContainer).on('change', function () {
+                    criterion.value = $(this)
+                        .closest('.filter-container')
+                        .find('input[type=checkbox]:checked')
+                        .get()
+                        .map(element => element.value);
                 });
             }
-            // set event to bind input value to critariaState
-            $('input[type="checkbox"]', $criterionContainer).on('change', function () {
-                criterion.value = $(this)
-                    .closest('.filter-container')
-                    .find('input[type=checkbox]:checked')
-                    .get()
-                    .map(element => element.value);
-            });
-        }
+        });
     }
 
     /**
