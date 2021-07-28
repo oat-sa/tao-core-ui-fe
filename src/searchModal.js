@@ -187,7 +187,7 @@ export default function searchModalFactory(config) {
                 const classUri = _.map(selectedValue, 'classUri')[0];
                 const label = _.map(selectedValue, 'label')[0];
                 const uri = _.map(selectedValue, 'uri')[0];
-                const route = urlUtil.route('get', 'ClassMetadata', 'tao', {
+                const route = urlUtil.route('getWithMapping', 'ClassMetadata', 'tao', {
                     classUri,
                     maxListSize: instance.config.maxListSize
                 });
