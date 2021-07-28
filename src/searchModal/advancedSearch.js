@@ -321,7 +321,10 @@ export default function advancedSearchFactory(config) {
     function getInitialCriterionLabel(criterion) {
         const valueMapping = criteriaMapping[criterion.type];
         if (valueMapping !== 'uri' || !criterion.value) {
-            return Promise.resolve(criterion.value);
+            return Promise.resolve({
+                id: criterion.value,
+                text: criterion.value
+            });
         }
         return $.ajax({
             type: 'GET',
@@ -334,7 +337,11 @@ export default function advancedSearchFactory(config) {
                     text: (data.find(d => d.uri === v) || {}).label
                 }))
             }
-            return (data.find(d => d.uri === criterion.value) || {}).label
+            let c = (data.find(d => d.uri === criterion.value) || {})
+            return {
+                text: c.label,
+                id: criterion.value,
+            }
         })
     }
 
