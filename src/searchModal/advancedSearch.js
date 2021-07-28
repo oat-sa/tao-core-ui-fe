@@ -298,7 +298,7 @@ export default function advancedSearchFactory(config) {
                         };
                     },
                     results: (response) => ({ 
-                          results: response.data.map(option => ({ id: valueMapping !== 'uri' ? option.uri : option.label, text: option.label }))
+                          results: response.data.map(option => ({ id: valueMapping === 'uri' ? option.uri : option.label, text: option.label }))
                     })
                 },
                 initSelection: function (element, callback) {
