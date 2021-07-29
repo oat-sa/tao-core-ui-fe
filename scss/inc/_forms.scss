@@ -219,7 +219,7 @@ label, .form_desc {
         margin: 0;
         left: 0;
 
-        [dir="rtl"] &{
+        [dir="rtl"] & {
             left: auto;
             right: 0;
         }
@@ -227,7 +227,7 @@ label, .form_desc {
             cursor: pointer;
             margin-left: 24px;
 
-            [dir="rtl"] &{
+            [dir="rtl"] & {
                 margin-left: 0;
                 margin-right: 24px;
             }
