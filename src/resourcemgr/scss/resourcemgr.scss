@@ -136,6 +136,9 @@
         .previewer {
             height: 300px;
             overflow: hidden;
+            iframe {
+                height: 100%;
+            }
         }
 
         .actions {
