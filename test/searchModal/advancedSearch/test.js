@@ -239,12 +239,16 @@
                 $criteriaSelect.select2('val', 'in-both-list').trigger('change');
                 const $criterionTextInput = $criteriaContainer.find('.inbothtext-filter input');
                 const $criterionSelectInput = $criteriaContainer.find('.inbothselect-filter input');
-                const $criterionListSelected = $criteriaContainer
-                    .find('.inbothlist-filter input[type=checkbox]:checked')
-                    .get()
-                    .map(checkbox => {
-                        return checkbox.value;
-                    });
+
+                // Checkboxes are temporary replaced with select2
+                // const $criterionListSelected = $criteriaContainer
+                //     .find('.-filter input[type=checkbox]:checked')
+                //     .get()
+                //     .map(checkbox => {
+                //         return checkbox.value;
+                //     });
+
+                const $criterionListSelected = $criteriaContainer.find('.inbothlist-filter input');
 
                 // check default value on each criterion type
                 await nextTick();
@@ -254,15 +258,21 @@
                     ['value0'],
                     'select criterion correctly initialized'
                 );
-                assert.deepEqual($criterionListSelected, ['value1'], 'list criterion correctly initialized');
+
+                assert.deepEqual($criterionListSelected.select2('val'), ['value1'], 'list criterion correctly initialized');
 
                 // update value on each criterion
                 $criterionTextInput.val('foo0').trigger('change');
-                $criteriaContainer
-                    .find('.inbothlist-filter input[type=checkbox][value=value2]')
-                    .prop('checked', true)
-                    .trigger('change');
-
+                
+                // Checkboxes are temporary replaced with select2
+                // $criteriaContainer
+                //     .find('.inbothlist-filter input[type=checkbox][value=value2]')
+                //     .prop('checked', true)
+                //     .trigger('change');
+                $criteriaContainer.find('.inbothlist-filter .select2-choices').click();
+                await nextTick(200);
+                $('.select2-results .select2-selected + * .select2-result-label').mouseup();
+                await nextTick(200);
                 // check updated value on each criterion
                 assert.equal(instance.getState()['in-both-text'].value, 'foo0', 'text criterion correctly updated');
                 assert.deepEqual(
