@@ -25,6 +25,7 @@
     'json!test/ui/searchModal/mocks/mocks.json',
     'jquery.mockjax'
 ], function ($, _, searchModalFactory, advancedSearchFactory, store, mocks) {
+    const nextTick = (wait = 0) => new Promise((r) => setTimeout(r, wait));
     // Prevent the AJAX mocks to pollute the logs
     $.mockjaxSettings.logger = null;
     $.mockjaxSettings.responseTime = 1;
@@ -37,6 +38,16 @@
         url: new RegExp(/.+ClassMetadata.+/),
         dataType: 'json',
         responseText: mocks.mockedAdvancedCriteria
+    });
+    $.mockjax({
+        url: new RegExp(/.+PropertyValues.+/),
+        dataType: 'json',
+        responseText: mocks.mockedCriteriaSelect
+    });
+    $.mockjax({
+        url: new RegExp(/in\-both\-[list|select]/),
+        dataType: 'json',
+        responseText: mocks.mockedCriteriaSelect
     });
     $.mockjax({
         url: 'undefined/tao/AdvancedSearch/status',
@@ -68,7 +79,7 @@
                     const $container = $('.advanced-search-container');
                     const $invalidCriteriaContainer = $container.find('.invalid-criteria-warning-container');
 
-                    assert.equal($invalidCriteriaContainer.length, 0, 'invalid criteira is not initially rendered');
+                    assert.equal($invalidCriteriaContainer.length, 0, 'invalid criteria is not initially rendered');
                     _.forEach(mocks.mockedCriteriaStore, criterionToRender => {
                         // check for each stored criterion if it is rendered when criterion.rendered is true, and viceversa
                         assert.equal(
@@ -209,7 +220,7 @@
         assert.expect(8);
 
         instance.on('ready', function () {
-            instance.updateCriteria('undefined/tao/ClassMetadata/').then(function () {
+            instance.updateCriteria('undefined/tao/ClassMetadata/').then(async function () {
                 const $container = $('.advanced-search-container');
                 const $criteriaContainer = $container.find('.advanced-criteria-container');
                 const $criteriaSelect = $('.add-criteria-container select', $container);
@@ -236,6 +247,7 @@
                     });
 
                 // check default value on each criterion type
+                await nextTick();
                 assert.equal($criterionTextInput.val(), 'default value0', 'text criterion correctly initialized');
                 assert.deepEqual(
                     $criterionSelectInput.select2('val'),
