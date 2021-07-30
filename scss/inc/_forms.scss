@@ -22,8 +22,13 @@ textarea {
 label, .form_desc {
     display: inline-block;
     cursor: pointer;
-    padding-right: 10px;
     margin-bottom: 5px;
+    padding-right: 10px;
+
+    [dir="rtl"] & {
+        padding-right: 0;
+        padding-left: 10px;
+    }
     abbr {
         color: $info;
         border-bottom: none;
@@ -211,11 +216,21 @@ label, .form_desc {
         width: 20px;
         position: absolute;
         top: 0;
-        left: 0;
         margin: 0;
+        left: 0;
+
+        [dir="rtl"] & {
+            left: auto;
+            right: 0;
+        }
         & + div {
             cursor: pointer;
             margin-left: 24px;
+
+            [dir="rtl"] & {
+                margin-left: 0;
+                margin-right: 24px;
+            }
         }
     }
     abbr {
@@ -403,9 +418,9 @@ label {
             z-index: 3;
         }
         &:after {
-            left:-1em;
             position: relative;
             z-index: 2;
+            left: -1em;
         }
     }
     input[type="radio"],
@@ -688,6 +703,10 @@ label {
         width: 35%;
         display:inline-block;
         padding: 0 10px 0 0;
+
+        [dir="rtl"] & {
+            padding: 0 0 0 10px;
+        }
         &.hidden-input-label {
             width: auto;
         }
