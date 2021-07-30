@@ -25,6 +25,7 @@
     'json!test/ui/searchModal/mocks/mocks.json',
     'jquery.mockjax'
 ], function ($, _, searchModalFactory, advancedSearchFactory, store, mocks) {
+    const nextTick = (wait = 0) => new Promise((r) => setTimeout(r, wait));
     // Prevent the AJAX mocks to pollute the logs
     $.mockjaxSettings.logger = null;
     $.mockjaxSettings.responseTime = 1;
@@ -37,6 +38,16 @@
         url: new RegExp(/.+ClassMetadata.+/),
         dataType: 'json',
         responseText: mocks.mockedAdvancedCriteria
+    });
+    $.mockjax({
+        url: new RegExp(/.+PropertyValues.+/),
+        dataType: 'json',
+        responseText: mocks.mockedCriteriaSelect
+    });
+    $.mockjax({
+        url: new RegExp(/in\-both\-[list|select]/),
+        dataType: 'json',
+        responseText: mocks.mockedCriteriaSelect
     });
     $.mockjax({
         url: 'undefined/tao/AdvancedSearch/status',
@@ -68,7 +79,7 @@
                     const $container = $('.advanced-search-container');
                     const $invalidCriteriaContainer = $container.find('.invalid-criteria-warning-container');
 
-                    assert.equal($invalidCriteriaContainer.length, 0, 'invalid criteira is not initially rendered');
+                    assert.equal($invalidCriteriaContainer.length, 0, 'invalid criteria is not initially rendered');
                     _.forEach(mocks.mockedCriteriaStore, criterionToRender => {
                         // check for each stored criterion if it is rendered when criterion.rendered is true, and viceversa
                         assert.equal(
@@ -209,7 +220,7 @@
         assert.expect(8);
 
         instance.on('ready', function () {
-            instance.updateCriteria('undefined/tao/ClassMetadata/').then(function () {
+            instance.updateCriteria('undefined/tao/ClassMetadata/').then(async function () {
                 const $container = $('.advanced-search-container');
                 const $criteriaContainer = $container.find('.advanced-criteria-container');
                 const $criteriaSelect = $('.add-criteria-container select', $container);
@@ -228,29 +239,40 @@
                 $criteriaSelect.select2('val', 'in-both-list').trigger('change');
                 const $criterionTextInput = $criteriaContainer.find('.inbothtext-filter input');
                 const $criterionSelectInput = $criteriaContainer.find('.inbothselect-filter input');
-                const $criterionListSelected = $criteriaContainer
-                    .find('.inbothlist-filter input[type=checkbox]:checked')
-                    .get()
-                    .map(checkbox => {
-                        return checkbox.value;
-                    });
+
+                // Checkboxes are temporary replaced with select2
+                // const $criterionListSelected = $criteriaContainer
+                //     .find('.-filter input[type=checkbox]:checked')
+                //     .get()
+                //     .map(checkbox => {
+                //         return checkbox.value;
+                //     });
+
+                const $criterionListSelected = $criteriaContainer.find('.inbothlist-filter input');
 
                 // check default value on each criterion type
+                await nextTick();
                 assert.equal($criterionTextInput.val(), 'default value0', 'text criterion correctly initialized');
                 assert.deepEqual(
                     $criterionSelectInput.select2('val'),
                     ['value0'],
                     'select criterion correctly initialized'
                 );
-                assert.deepEqual($criterionListSelected, ['value1'], 'list criterion correctly initialized');
+
+                assert.deepEqual($criterionListSelected.select2('val'), ['value1'], 'list criterion correctly initialized');
 
                 // update value on each criterion
                 $criterionTextInput.val('foo0').trigger('change');
-                $criteriaContainer
-                    .find('.inbothlist-filter input[type=checkbox][value=value2]')
-                    .prop('checked', true)
-                    .trigger('change');
-
+                
+                // Checkboxes are temporary replaced with select2
+                // $criteriaContainer
+                //     .find('.inbothlist-filter input[type=checkbox][value=value2]')
+                //     .prop('checked', true)
+                //     .trigger('change');
+                $criteriaContainer.find('.inbothlist-filter .select2-choices').click();
+                await nextTick(200);
+                $('.select2-results .select2-selected + * .select2-result-label').mouseup();
+                await nextTick(200);
                 // check updated value on each criterion
                 assert.equal(instance.getState()['in-both-text'].value, 'foo0', 'text criterion correctly updated');
                 assert.deepEqual(

@@ -95,58 +95,83 @@
     },
     "mockedAdvancedCriteria": {
         "success": true,
-        "data": [
-            {
-                "class": "parent-class",
-                "metadata": [
-                    {
-                        "id": "in-both-text",
-                        "label": "in-both-text",
-                        "type": "text"
-                    },
-                    {
-                        "id": "in-both-list",
-                        "label": "in-both-list",
-                        "type": "list",
-                        "values": ["value0", "value1", "value2", "value3"]
-                    },
-                    {
-                        "id": "in-both-select",
-                        "label": "in-both-select",
-                        "type": "list",
-                        "uri": "foo"
-                    },
-                    {
-                        "id": "in-parent-text",
-                        "label": "in-parent-text",
-                        "type": "text"
-                    }
-                ]
-            },
-            {
-                "class": "child-class",
-                "metadata": [
-                    {
-                        "label": "in-both-text",
-                        "type": "text"
-                    },
-                    {
-                        "label": "in-both-list",
-                        "type": "list",
-                        "values": ["value0", "value1", "value2", "value3"]
-                    },
-                    {
-                        "label": "in-both-select",
-                        "type": "list",
-                        "uri": "foo"
-                    },
-                    {
-                        "label": "in-child-text",
-                        "type": "text"
-                    }
-                ]
+        "data": {
+            "classDefinition": [
+                {
+                    "class": "parent-class",
+                    "metadata": [
+                        {
+                            "id": "in-both-text",
+                            "label": "in-both-text",
+                            "uri": "in-both-text",
+                            "propertyUri": "in-both-text",
+                            "type": "text"
+                        },
+                        {
+                            "id": "in-both-list",
+                            "label": "in-both-list",
+                            "uri": "in-both-list",
+                            "propertyUri": "in-both-list",
+                            "type": "list",
+                            "values": [
+                                "value0",
+                                "value1",
+                                "value2",
+                                "value3"
+                            ]
+                        },
+                        {
+                            "id": "in-both-select",
+                            "label": "in-both-select",
+                            "type": "list",
+                            "uri": "in-both-select",
+                            "propertyUri": "in-both-select"
+                        },
+                        {
+                            "id": "in-parent-text",
+                            "label": "in-parent-text",
+                            "type": "text",
+                            "uri": "in-parent-text-uri"
+                        }
+                    ]
+                },
+                {
+                    "class": "child-class",
+                    "metadata": [
+                        {
+                            "label": "in-both-text",
+                            "type": "text",
+                            "uri": "in-both-text-uri"
+                        },
+                        {
+                            "label": "in-both-list",
+                            "type": "list",
+                            "values": [
+                                "value0",
+                                "value1",
+                                "value2",
+                                "value3"
+                            ],
+                            "uri": "in-both-list-uri"
+                        },
+                        {
+                            "label": "in-both-select",
+                            "type": "list",
+                            "uri": "foo"
+                        },
+                        {
+                            "label": "in-child-text",
+                            "type": "text",
+                            "uri": "in-child-text-uri"
+                        }
+                    ]
+                }
+            ],
+            "criteriaMapping": {
+                "list": "uri",
+                "text": "label"
             }
-        ]
+        }
     },
     "mockedAdvancedCriteriaInChildClass": {
         "success": true,
@@ -182,7 +207,7 @@
             "id": "inbothlist",
             "type": "list",
             "values": ["easy", "medium", "hard"],
-            "uri": null,
+            "uri": "in-both-list",
             "rendered": true,
             "value": ["easy"]
         },
@@ -191,7 +216,7 @@
             "id": "inbothtext",
             "type": "text",
             "values": null,
-            "uri": null,
+            "uri": "in-both-text",
             "rendered": true,
             "value": "foo"
         },
@@ -210,5 +235,22 @@
         "data": {
             "enabled": true
         }
+    },
+    "mockedCriteriaSelect": {
+        "success": true,
+        "data": [
+            {
+                "uri": "value0",
+                "label": "value0"
+            },
+            {
+                "uri": "value1",
+                "label": "value1"
+            },
+            {
+                "uri": "value2",
+                "label": "value2"
+            }
+        ]
     }
 }
