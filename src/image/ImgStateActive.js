@@ -25,7 +25,7 @@ import initAll, { initAdvanced } from './ImgStateActive/initHelper';
 import initMediaEditor  from './ImgStateActive/initMediaEditor';
 
 const config = module.config() || {};
-const mediaAlignment = typeof config.mediaAlignment === "undefined" ? true : config.mediaAlignment;
+const mediaAlignment = typeof config.mediaAlignment === "undefined" ? false : config.mediaAlignment;
 const options = {
     mediaDimension: {
         active: true
