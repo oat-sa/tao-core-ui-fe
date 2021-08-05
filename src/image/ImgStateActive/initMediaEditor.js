@@ -62,16 +62,8 @@ const getMedia = (imgQtiElement, $imgNode, cb) => {
     }
 };
 
-const getMediaCb = (media, widget, mediaEditor) => {
+const getMediaCb = (media, widget, mediaEditor, options) => {
     const $mediaResizer = widget.$form.find('.img-resizer');
-    var options = {
-        mediaDimension: {
-            active: true
-        },
-        mediaAlignment: {
-            active: true
-        }
-    };
     media.$container = widget.$container.parents('.widget-box');
     if (media.$container.length) {
         // eslint-disable-next-line no-unused-vars
@@ -86,7 +78,7 @@ const getMediaCb = (media, widget, mediaEditor) => {
     }
 };
 
-export default function initMediaEditor(widget, mediaEditor) {
+export default function initMediaEditor(widget, mediaEditor, options) {
     if (mediaEditor) {
         mediaEditor.destroy();
     }
@@ -95,5 +87,5 @@ export default function initMediaEditor(widget, mediaEditor) {
         return;
     }
 
-    getMedia(widget.element, widget.$original, (m) => getMediaCb(m, widget, mediaEditor));
+    getMedia(widget.element, widget.$original, (m) => getMediaCb(m, widget, mediaEditor, options));
 }

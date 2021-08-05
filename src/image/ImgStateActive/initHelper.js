@@ -127,9 +127,9 @@ export const initUpload = function (widget) {
     }
 };
 
-export default function initAll(widget, mediaEditor) {
+export default function initAll(widget, mediaEditor, options) {
     initAdvanced(widget);
-    initMediaEditor(widget, mediaEditor);
+    initMediaEditor(widget, mediaEditor, options);
     initUpload(widget);
 }
 

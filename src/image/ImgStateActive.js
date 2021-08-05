@@ -20,8 +20,20 @@ import 'nouislider';
 import 'ui/resourcemgr';
 import 'ui/tooltip';
 import _ from 'lodash';
+import module from 'module';
 import initAll, { initAdvanced } from './ImgStateActive/initHelper';
 import initMediaEditor  from './ImgStateActive/initMediaEditor';
+
+const config = module.config() || {};
+const mediaAlignment = typeof config.mediaAlignment === "undefined" ? true : config.mediaAlignment;
+const options = {
+    mediaDimension: {
+        active: true
+    },
+    mediaAlignment: {
+        active: mediaAlignment
+    }
+};
 
 const formCallbacks = ({ widget, formElement, mediaEditor, togglePlaceholder }) => {
     const $img = widget.$original;
@@ -40,7 +52,7 @@ const formCallbacks = ({ widget, formElement, mediaEditor, togglePlaceholder }) 
             if (img.attr('off-media-editor') === 1) {
                 img.removeAttr('off-media-editor');
             } else {
-                initMediaEditor(widget, mediaEditor);
+                initMediaEditor(widget, mediaEditor, options);
             }
         }, 1000),
         alt: function (img, value) {
@@ -61,7 +73,7 @@ const initForm = ({ widget, formElement, formTpl, mediaEditor, togglePlaceholder
     );
 
     // init upload, advanced and media editor
-    initAll(widget, mediaEditor);
+    initAll(widget, mediaEditor, options);
 
     // init standard ui widget
     formElement.initWidget(widget.$form);
