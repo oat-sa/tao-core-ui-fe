@@ -23,35 +23,6 @@ var defaults = {
     decimal: 0
 };
 
-const getNormalValues = function (element, selector) {
-    return element.parent().parent().find(`[name='${ selector }']`).attr('value');
-}
-
-const setNormalValues = function (options, elt, setup, positive = true) {
-    const minValue = parseFloat(elt.parent().parent().find("[name='normalMinimum']").attr('value'));
-    const maxValue = parseFloat(elt.parent().parent().find("[name='normalMaximum']").attr('value'));
-    if (setup) {
-        options.min = minValue;
-        options.max = maxValue;
-    } else {
-        const name = elt[0].getAttribute('name');
-        const sign = positive ? '+' : '-';
-        if (name === 'normalMaximum') {
-            options.max = +`${ maxValue } ${ sign } 1`;
-            options.min = minValue;
-        } else {
-            options.max = maxValue;
-            options.min = +`${ minValue } ${ sign } 1`;
-        }
-    }
-    return options;
-}
-
-const setBothValues = function (elt, value) {
-    elt.val(value);
-    elt[0].setAttribute('value', value);
-}
-
 /**
  * The Incrementer component, it transforms a text input in an number input, the data-attr way
  * (has the HTML5 number input type is not yet very well supported, we don't use polyfill to have a consistent UI)
@@ -96,15 +67,15 @@ var Incrementer = {
                         .after(
                             //set up controls
                             '<span class="ctrl ' +
-                                options.incrementerCtrlClass +
-                                '">' +
-                                '<a href="#" class="inc" title="+' +
-                                options.step +
-                                '" tabindex="-1"></a>' +
-                                '<a href="#" class="dec" title="-' +
-                                options.step +
-                                '" tabindex="-1"></a>' +
-                                '</span>'
+                            options.incrementerCtrlClass +
+                            '">' +
+                            '<a href="#" class="inc" title="+' +
+                            options.step +
+                            '" tabindex="-1"></a>' +
+                            '<a href="#" class="dec" title="-' +
+                            options.step +
+                            '" tabindex="-1"></a>' +
+                            '</span>'
                         )
                         .on('keydown', function(e) {
                             if (e.which === 38) {
@@ -122,28 +93,35 @@ var Incrementer = {
                         .on(
                             'keyup',
                             _.debounce(function() {
-                                let value = $elt.val();
-                                const negative = value.charAt(0) === '-';
-                                let options = $elt.data(dataNs);
-                                const name = $elt[0].getAttribute('name');
+                                var value = $elt.val(),
+                                    negative = value.charAt(0) === '-',
+                                    options = $elt.data(dataNs);
 
                                 //sanitize the string by removing all invalid characters (only allow digit and dot)
-                                value = parseFloat(value.replace(/[^\d\.]/g, '')).toFixed(0);
+                                value = parseFloat(value.replace(/[^\d\.]/g, ''));
 
                                 if (isNaN(value)) {
                                     //allow empty input
                                     $elt.val('');
                                 } else {
                                     //allow negative values
-                                    value = negative ? -value : value; //check if the min and max are respected:
-                                    options = setNormalValues(options, $elt, true);
+                                    value = negative ? -value : value;
 
-                                    if (name === 'normalMaximum' && value < options.min) {
-                                        setBothValues($elt, options.min);
-                                    } else if (name === 'normalMinimum' && options.max < value) {
-                                        setBothValues($elt, options.max);
+                                    //check if the min and max are respected:
+                                    if (
+                                        options.min === null ||
+                                        (_.isNumber(options.min) && value >= options.min) ||
+                                        (options.zero === true && value === 0)
+                                    ) {
+                                        $elt.val(value);
                                     } else {
-                                        setBothValues($elt, value);
+                                        $elt.val(options.min);
+                                        value = options.min;
+                                    }
+                                    if (options.max === null || (_.isNumber(options.max) && value <= options.max)) {
+                                        $elt.val(value);
+                                    } else {
+                                        $elt.val(options.max);
                                     }
                                 }
 
@@ -223,23 +201,18 @@ var Incrementer = {
      * @param {jQueryElement} $elt - plugin's element
      * @fires Incrementer#plus.incrementer
      */
-    _inc: function _inc($elt) {
-        let options = $elt.data(dataNs);
-        const current = parseFloat($elt.val() || 0);
-        let value = gamp.add(current, options.step);
+    _inc: function($elt) {
+        var options = $elt.data(dataNs),
+            current = parseFloat($elt.val() || 0),
+            value;
 
-        options = setNormalValues(options, $elt, false, true);
-
-        if (options.max < options.min) {
-            return;
-        }
-
-        if (value < options.min) {
+        value = gamp.add(current, options.step);
+        if (_.isNumber(options.min) && value < options.min) {
             value = options.min;
         }
 
-        if (options.max === null || value <= options.max) {
-            setBothValues($elt, value);
+        if (options.max === null || (_.isNumber(options.max) && value <= options.max)) {
+            $elt.val(value);
 
             /**
              * The target has been toggled.
@@ -255,23 +228,23 @@ var Incrementer = {
      * @param {jQueryElement} $elt - plugin's element
      * @fires Incrementer#minus.incrementer
      */
-    _dec: function _dec($elt) {
-        let options = $elt.data(dataNs);
-        const current = parseFloat($elt.val() || 0);
-        let value = gamp.sub(current, options.step);
+    _dec: function($elt) {
+        var options = $elt.data(dataNs),
+            current = parseFloat($elt.val() || 0),
+            value;
 
-        options = setNormalValues(options, $elt, false, false);
+        value = gamp.sub(current, options.step);
 
-        if (options.max < options.min) {
-            return;
-        }
-
-        if (options.zero === true && value < options.min) {
+        if (options.zero === true && _.isNumber(options.min) && value < options.min) {
             value = 0;
         }
 
-        if (options.min === null || value >= options.min || options.zero === true && value === 0) {
-            setBothValues($elt, value);
+        if (
+            options.min === null ||
+            (_.isNumber(options.min) && value >= options.min) ||
+            (options.zero === true && value === 0)
+        ) {
+            $elt.val(value);
 
             /**
              * The target has been toggled.
