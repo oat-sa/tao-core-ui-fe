@@ -23,6 +23,7 @@ import UrlParser from 'util/urlParser';
 import eventifier from 'core/eventifier';
 import mimetype from 'core/mimetype';
 import store from 'core/store';
+import support from 'ui/mediaplayer/support';
 import playerTpl from 'ui/mediaplayer/tpl/player';
 import 'ui/mediaplayer/css/player.css';
 import 'nouislider';
@@ -47,13 +48,6 @@ const _ns = '.mediaplayer';
  * @private
  */
 const _reYoutube = /([?&\/]v[=\/])([\w-]+)([&\/]?)/;
-
-/**
- * A Regex to detect Apple mobile browsers
- * @type {RegExp}
- * @private
- */
-const _reAppleMobiles = /ip(hone|od)/i;
 
 /**
  * Array slice method needed to slice arguments
@@ -119,23 +113,6 @@ const _defaults = {
         loop: false,
         autoStart: false
     }
-};
-
-/**
- * A list of MIME types with codec declaration
- * @type {Object}
- * @private
- */
-const _mimeTypes = {
-    // video
-    'video/webm': 'video/webm; codecs="vp8, vorbis"',
-    'video/mp4': 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"',
-    'video/ogg': 'video/ogg; codecs="theora, vorbis"',
-    // audio
-    'audio/mpeg': 'audio/mpeg;',
-    'audio/mp4': 'audio/mp4; codecs="mp4a.40.5"',
-    'audio/ogg': 'audio/ogg; codecs="vorbis"',
-    'audio/wav': 'audio/wav; codecs="1"'
 };
 
 /**
@@ -248,89 +225,12 @@ const _configToSources = config => {
 
 /**
  * Checks if the browser can play media
- * @param {HTMLMediaElement} media The media element on which check support
- * @param {String} [mimeType] An optional MIME type to precise the support
- * @returns {Boolean}
- * @private
- */
-const _checkSupport = (media, mimeType) => {
-    let support = !!media.canPlayType;
-    if (mimeType && support) {
-        support = !!media.canPlayType(_mimeTypes[mimeType] || mimeType).replace(/no/, '');
-    }
-    return support;
-};
-
-/**
- * Checks if the browser can play media
  * @param {String} sizeProps Width or Height
  * @returns {Boolean}
  * @private
  */
 const _isResponsiveSize = sizeProps => {
     return /%/.test(sizeProps) || sizeProps === 'auto';
-};
-
-/**
- * Support dection
- * @type {Object}
- * @private
- */
-const _support = {
-    /**
-     * Checks if the browser can play video and audio
-     * @param {String} [type] The type of media (audio or video)
-     * @param {String} [mime] A media MIME type to check
-     * @returns {Boolean}
-     */
-    canPlay(type, mime) {
-        if (type) {
-            switch (type.toLowerCase()) {
-                case 'audio':
-                    return this.canPlayAudio(mime);
-                case 'youtube':
-                case 'video':
-                    return this.canPlayVideo(mime);
-                default:
-                    return false;
-            }
-        }
-        return this.canPlayAudio() && this.canPlayVideo();
-    },
-
-    /**
-     * Checks if the browser can play audio
-     * @param {String} [mime] A media MIME type to check
-     * @returns {Boolean}
-     */
-    canPlayAudio(mime) {
-        if (!this._mediaAudio) {
-            this._mediaAudio = document.createElement('audio');
-        }
-
-        return _checkSupport(this._mediaAudio, mime);
-    },
-
-    /**
-     * Checks if the browser can play video
-     * @param {String} [mime] A media MIME type to check
-     * @returns {Boolean}
-     */
-    canPlayVideo(mime) {
-        if (!this._mediaVideo) {
-            this._mediaVideo = document.createElement('video');
-        }
-
-        return _checkSupport(this._mediaVideo, mime);
-    },
-
-    /**
-     * Checks if the browser allows to control the media playback
-     * @returns {Boolean}
-     */
-    canControl() {
-        return !_reAppleMobiles.test(navigator.userAgent);
-    }
 };
 
 /**
@@ -956,13 +856,13 @@ const _nativePlayer = function _nativePlayer(mediaplayer) {
             addMedia(url, type) {
                 type = type || _defaults.type;
                 if (media) {
-                    if (!_checkSupport(media, type)) {
+                    if (!support.checkSupport(media, type)) {
                         return false;
                     }
                 }
 
                 if (url && $media) {
-                    $media.append(`<source src="${url}" type="${_mimeTypes[type] || type}" />`);
+                    $media.append(`<source src="${url}" type="${type}" />`);
                     return true;
                 }
                 return false;
@@ -1648,7 +1548,7 @@ const mediaplayer = {
         const player = _players[this.type];
         let error;
 
-        if (_support.canPlay(this.type)) {
+        if (support.canPlay(this.type)) {
             if (_.isFunction(player)) {
                 this.player = player(this);
             }
@@ -1663,7 +1563,7 @@ const mediaplayer = {
         }
 
         this._setState('error', error);
-        this._setState('nogui', !_support.canControl());
+        this._setState('nogui', !support.canControl());
         this._setState('loading', true);
     },
 
@@ -2352,7 +2252,7 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
  * @type {Boolean}
  */
 mediaplayerFactory.canPlay = function canPlay(type, mime) {
-    return _support.canPlay(type, mime);
+    return support.canPlay(type, mime);
 };
 
 /**
@@ -2361,7 +2261,7 @@ mediaplayerFactory.canPlay = function canPlay(type, mime) {
  * @type {Boolean}
  */
 mediaplayerFactory.canPlayAudio = function canPlayAudio(mime) {
-    return _support.canPlayAudio(mime);
+    return support.canPlayAudio(mime);
 };
 
 /**
@@ -2370,7 +2270,7 @@ mediaplayerFactory.canPlayAudio = function canPlayAudio(mime) {
  * @type {Boolean}
  */
 mediaplayerFactory.canPlayVideo = function canPlayVideo(mime) {
-    return _support.canPlayVideo(mime);
+    return support.canPlayVideo(mime);
 };
 
 /**
@@ -2378,7 +2278,7 @@ mediaplayerFactory.canPlayVideo = function canPlayVideo(mime) {
  * @returns {Boolean}
  */
 mediaplayerFactory.canControl = function canControl() {
-    return _support.canControl();
+    return support.canControl();
 };
 
 /**
