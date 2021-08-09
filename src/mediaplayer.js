@@ -24,6 +24,7 @@ import eventifier from 'core/eventifier';
 import mimetype from 'core/mimetype';
 import store from 'core/store';
 import support from 'ui/mediaplayer/support';
+import youtubeManagerFactory from 'ui/mediaplayer/youtubeManager';
 import playerTpl from 'ui/mediaplayer/tpl/player';
 import 'ui/mediaplayer/css/player.css';
 import 'nouislider';
@@ -239,148 +240,7 @@ const _isResponsiveSize = sizeProps => {
  * @type {Object}
  * @private
  */
-const _youtubeManager = {
-    /**
-     * The Youtube API injection state
-     * @type {Boolean}
-     */
-    injected: false,
-
-    /**
-     * The Youtube API ready state
-     * @type {Boolean}
-     */
-    ready: false,
-
-    /**
-     * A list of pending players
-     * @type {Array}
-     */
-    pending: [],
-
-    /**
-     * Add a Youtube player
-     * @param {String|jQuery|HTMLElement} elem
-     * @param {Object} player
-     * @param {Object} [options]
-     * @param {Boolean} [options.controls]
-     */
-    add(elem, player, options) {
-        if (this.ready) {
-            this.create(elem, player, options);
-        } else {
-            this.pending.push([elem, player, options]);
-
-            if (!this.injected) {
-                this.injectApi();
-            }
-        }
-    },
-
-    /**
-     * Removes a pending Youtube player
-     * @param {String|jQuery|HTMLElement} elem
-     * @param {Object} player
-     */
-    remove(elem, player) {
-        const pending = this.pending;
-        _.forEach(pending, (args, idx) => {
-            if (args && elem === args[0] && player === args[1]) {
-                pending[idx] = null;
-            }
-        });
-    },
-
-    /**
-     * Install a Youtube player. The Youtube API must be ready
-     * @param {String|jQuery|HTMLElement} elem
-     * @param {Object} player
-     * @param {Object} [options]
-     * @param {Boolean} [options.controls]
-     */
-    create(elem, player, options) {
-        let $elem;
-
-        if (!this.ready) {
-            return this.add(elem, player, options);
-        }
-
-        if (!options) {
-            options = {};
-        }
-
-        $elem = $(elem);
-
-        new window.YT.Player($elem.get(0), {
-            height: '360',
-            width: '640',
-            videoId: $elem.data('videoId'),
-            playerVars: {
-                //hd: true,
-                autoplay: 0,
-                controls: options.controls ? 1 : 0,
-                rel: 0,
-                showinfo: 0,
-                wmode: 'transparent',
-                modestbranding: 1,
-                disablekb: 1,
-                playsinline: 1,
-                enablejsapi: 1,
-                origin: location.hostname
-            },
-            events: {
-                onReady: player.onReady.bind(player),
-                onStateChange: player.onStateChange.bind(player)
-            }
-        });
-    },
-
-    /**
-     * Called when the Youtube API is ready. Should install all pending players.
-     */
-    apiReady() {
-        const pending = this.pending;
-
-        this.pending = [];
-        this.ready = true;
-
-        _.forEach(pending, args => {
-            if (args) {
-                this.create.apply(this, args);
-            }
-        });
-    },
-
-    /**
-     * Checks if the Youtube API is ready to use
-     * @returns {Boolean}
-     */
-    isApiReady() {
-        const apiReady = typeof window.YT !== 'undefined' && typeof window.YT.Player !== 'undefined';
-        if (apiReady && !this.ready) {
-            _youtubeManager.apiReady();
-        }
-        return apiReady;
-    },
-
-    /**
-     * Injects the Youtube API into the page
-     */
-    injectApi() {
-        if (!this.isApiReady()) {
-            window.require(['https://www.youtube.com/iframe_api'], () => {
-                const check = () => {
-                    if (!this.isApiReady()) {
-                        setTimeout(check, 100);
-                    }
-                };
-                check();
-            });
-        }
-
-        this.injected = true;
-    }
-};
+const _youtubeManager = youtubeManagerFactory();
 
 /**
  * Defines a player object dedicated to youtube media
