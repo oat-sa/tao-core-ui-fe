@@ -15,9 +15,6 @@
  *
  * Copyright (c) 2015-2021 (original work) Open Assessment Technologies SA ;
  */
-/**
- * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
- */
 
 import $ from 'jquery';
 import _ from 'lodash';
@@ -147,7 +144,7 @@ const _mimeTypes = {
  * @returns {String}
  * @private
  */
-const _extractYoutubeId = function (url) {
+const _extractYoutubeId = url => {
     const res = _reYoutube.exec(url);
     return (res && res[2]) || url;
 };
@@ -158,9 +155,9 @@ const _extractYoutubeId = function (url) {
  * @returns {Number}
  * @private
  */
-const _ensureNumber = function (value) {
-    value = parseFloat(value);
-    return isFinite(value) ? value : 0;
+const _ensureNumber = value => {
+    const floatValue = parseFloat(value);
+    return isFinite(floatValue) ? floatValue : 0;
 };
 
 /**
@@ -170,7 +167,7 @@ const _ensureNumber = function (value) {
  * @returns {String}
  * @private
  */
-const _leadingZero = function (n, len) {
+const _leadingZero = (n, len) => {
     let value = n.toString();
     while (value.length < len) {
         value = `0${value}`;
@@ -184,7 +181,7 @@ const _leadingZero = function (n, len) {
  * @returns {String}
  * @private
  */
-const _timerFormat = function (time) {
+const _timerFormat =  time => {
     const seconds = Math.floor(time % 60);
     const minutes = Math.floor(time / 60) % 60;
     const hours = Math.floor(time / 3600);
@@ -205,7 +202,7 @@ const _timerFormat = function (time) {
  * @returns {Boolean}
  * @private
  */
-const _needTypeAdjust = function (type) {
+const _needTypeAdjust = type => {
     return 'string' === typeof type && type.indexOf('application') === 0;
 };
 
@@ -215,7 +212,7 @@ const _needTypeAdjust = function (type) {
  * @returns {String}
  * @private
  */
-const _getAdjustedType = function (source) {
+const _getAdjustedType = source => {
     let type = 'video/ogg';
     const url = (source && source.src) || source;
     const ext = url && url.substr(-4);
@@ -231,7 +228,7 @@ const _getAdjustedType = function (source) {
  * @returns {Array}
  * @private
  */
-const _configToSources = function (config) {
+const _configToSources = config => {
     let sources = config.sources || [];
     let url = config.url;
 
@@ -256,7 +253,7 @@ const _configToSources = function (config) {
  * @returns {Boolean}
  * @private
  */
-const _checkSupport = function (media, mimeType) {
+const _checkSupport = (media, mimeType) => {
     let support = !!media.canPlayType;
     if (mimeType && support) {
         support = !!media.canPlayType(_mimeTypes[mimeType] || mimeType).replace(/no/, '');
@@ -270,7 +267,7 @@ const _checkSupport = function (media, mimeType) {
  * @returns {Boolean}
  * @private
  */
-const _isResponsiveSize = function (sizeProps) {
+const _isResponsiveSize = sizeProps => {
     return /%/.test(sizeProps) || sizeProps === 'auto';
 };
 
@@ -286,7 +283,7 @@ const _support = {
      * @param {String} [mime] A media MIME type to check
      * @returns {Boolean}
      */
-    canPlay: function canPlay(type, mime) {
+    canPlay(type, mime) {
         if (type) {
             switch (type.toLowerCase()) {
                 case 'audio':
@@ -306,7 +303,7 @@ const _support = {
      * @param {String} [mime] A media MIME type to check
      * @returns {Boolean}
      */
-    canPlayAudio: function canPlayAudio(mime) {
+    canPlayAudio(mime) {
         if (!this._mediaAudio) {
             this._mediaAudio = document.createElement('audio');
         }
@@ -319,7 +316,7 @@ const _support = {
      * @param {String} [mime] A media MIME type to check
      * @returns {Boolean}
      */
-    canPlayVideo: function canPlayVideo(mime) {
+    canPlayVideo(mime) {
         if (!this._mediaVideo) {
             this._mediaVideo = document.createElement('video');
         }
@@ -331,7 +328,7 @@ const _support = {
      * Checks if the browser allows to control the media playback
      * @returns {Boolean}
      */
-    canControl: function canControl() {
+    canControl() {
         return !_reAppleMobiles.test(navigator.userAgent);
     }
 };
@@ -368,7 +365,7 @@ const _youtubeManager = {
      * @param {Object} [options]
      * @param {Boolean} [options.controls]
      */
-    add: function add(elem, player, options) {
+    add(elem, player, options) {
         if (this.ready) {
             this.create(elem, player, options);
         } else {
@@ -385,9 +382,9 @@ const _youtubeManager = {
      * @param {String|jQuery|HTMLElement} elem
      * @param {Object} player
      */
-    remove: function remove(elem, player) {
+    remove(elem, player) {
         const pending = this.pending;
-        _.forEach(pending, function (args, idx) {
+        _.forEach(pending, (args, idx) => {
             if (args && elem === args[0] && player === args[1]) {
                 pending[idx] = null;
             }
@@ -401,7 +398,7 @@ const _youtubeManager = {
      * @param {Object} [options]
      * @param {Boolean} [options.controls]
      */
-    create: function create(elem, player, options) {
+    create(elem, player, options) {
         let $elem;
 
         if (!this.ready) {
@@ -441,7 +438,7 @@ const _youtubeManager = {
     /**
      * Called when the Youtube API is ready. Should install all pending players.
      */
-    apiReady: function apiReady() {
+    apiReady() {
         const pending = this.pending;
 
         this.pending = [];
@@ -458,7 +455,7 @@ const _youtubeManager = {
      * Checks if the Youtube API is ready to use
      * @returns {Boolean}
      */
-    isApiReady: function isApiReady() {
+    isApiReady() {
         const apiReady = typeof window.YT !== 'undefined' && typeof window.YT.Player !== 'undefined';
         if (apiReady && !this.ready) {
             _youtubeManager.apiReady();
@@ -469,7 +466,7 @@ const _youtubeManager = {
     /**
      * Injects the Youtube API into the page
      */
-    injectApi: function injectApi() {
+    injectApi() {
         if (!this.isApiReady()) {
             window.require(['https://www.youtube.com/iframe_api'], () => {
                 const check = () => {
@@ -491,7 +488,7 @@ const _youtubeManager = {
  * @private
  * @returns {Object} player
  */
-const _youtubePlayer = function (mediaplayer) {
+const _youtubePlayer = function _youtubePlayer(mediaplayer) {
     let $component;
     let $media;
     let media;
@@ -509,7 +506,7 @@ const _youtubePlayer = function (mediaplayer) {
 
     if (mediaplayer) {
         player = {
-            init: function _youtubePlayerInit() {
+            init() {
                 $component = mediaplayer.$component;
                 $media = mediaplayer.$media;
                 media = null;
@@ -524,7 +521,7 @@ const _youtubePlayer = function (mediaplayer) {
                 return !!$media;
             },
 
-            onReady: function _youtubePlayerOnReady(event) {
+            onReady(event) {
                 const callbacks = this._callbacks;
 
                 media = event.target;
@@ -534,10 +531,8 @@ const _youtubePlayer = function (mediaplayer) {
                 if (!destroyed) {
                     if (_debugMode) {
                         // install debug logger
-                        loopEvents(function (ev) {
-                            media.addEventListener(ev, function (e) {
-                                window.console.log(ev, e);
-                            });
+                        loopEvents(ev => {
+                            media.addEventListener(ev, e => window.console.log(ev, e));
                         });
                     }
 
@@ -548,16 +543,14 @@ const _youtubePlayer = function (mediaplayer) {
                     mediaplayer._onReady();
 
                     if (callbacks) {
-                        _.forEach(callbacks, function (cb) {
-                            cb();
-                        });
+                        _.forEach(callbacks, cb => cb());
                     }
                 } else {
                     this.destroy();
                 }
             },
 
-            onStateChange: function _youtubePlayerOnStateChange(event) {
+            onStateChange(event) {
                 this.stopPolling();
 
                 if (!destroyed) {
@@ -581,26 +574,22 @@ const _youtubePlayer = function (mediaplayer) {
                 }
             },
 
-            stopPolling: function _youtubePlayerStopPolling() {
+            stopPolling() {
                 if (interval) {
                     clearInterval(interval);
                     interval = null;
                 }
             },
 
-            startPolling: function _youtubePlayerStartPolling() {
-                interval = setInterval(function () {
-                    mediaplayer._onTimeUpdate();
-                }, mediaplayerFactory.youtubePolling);
+            startPolling() {
+                interval = setInterval(() => mediaplayer._onTimeUpdate(), mediaplayerFactory.youtubePolling);
             },
 
-            destroy: function _youtubePlayerDestroy() {
+            destroy() {
                 destroyed = true;
 
                 if (media) {
-                    loopEvents(function (ev) {
-                        media.removeEventListener(ev);
-                    });
+                    loopEvents(ev => media.removeEventListener(ev));
                     media.destroy();
                 } else {
                     _youtubeManager.remove($media, this);
@@ -612,21 +601,21 @@ const _youtubePlayer = function (mediaplayer) {
                 media = null;
             },
 
-            getPosition: function _youtubePlayerGetPosition() {
+            getPosition() {
                 if (media) {
                     return media.getCurrentTime();
                 }
                 return 0;
             },
 
-            getDuration: function _youtubePlayerGetDuration() {
+            getDuration() {
                 if (media) {
                     return media.getDuration();
                 }
                 return 0;
             },
 
-            getVolume: function _youtubePlayerGetVolume() {
+            getVolume() {
                 let value = 0;
                 if (media) {
                     value = (media.getVolume() * _volumeRange) / 100 + _volumeMin;
@@ -634,13 +623,13 @@ const _youtubePlayer = function (mediaplayer) {
                 return value;
             },
 
-            setVolume: function _youtubePlayerSetVolume(value) {
+            setVolume(value) {
                 if (media) {
                     media.setVolume(((parseFloat(value) - _volumeMin) / _volumeRange) * 100);
                 }
             },
 
-            setSize: function _youtubePlayerSetSize(width, height) {
+            setSize(width, height) {
                 if ($component) {
                     $component.width(width).height(height);
                 }
@@ -650,51 +639,47 @@ const _youtubePlayer = function (mediaplayer) {
                 }
             },
 
-            seek: function _youtubePlayerSeek(value) {
+            seek(value) {
                 if (media) {
                     media.seekTo(parseFloat(value), true);
                 }
             },
 
-            play: function _youtubePlayerPlay() {
+            play() {
                 if (media) {
                     media.playVideo();
                 }
             },
 
-            pause: function _youtubePlayerPause() {
+            pause() {
                 if (media) {
                     media.pauseVideo();
                 }
             },
 
-            stop: function _youtubePlayerStop() {
+            stop() {
                 if (media) {
                     media.stopVideo();
                     mediaplayer._onEnd();
                 }
             },
 
-            mute: function _youtubePlayerMute(state) {
+            mute(state) {
                 if (media) {
                     media[state ? 'mute' : 'unMute']();
                 }
             },
 
-            isMuted: function _youtubePlayerIsMuted() {
+            isMuted() {
                 if (media) {
                     return media.isMuted();
                 }
                 return false;
             },
 
-            addMedia: function _youtubePlayerSetMedia(url) {
+            addMedia(url) {
                 const id = _extractYoutubeId(url);
-                const cb =
-                    id &&
-                    function () {
-                        media.cueVideoById(id);
-                    };
+                const cb = id && (() => media.cueVideoById(id));
                 if (cb) {
                     if (media) {
                         cb();
@@ -707,13 +692,9 @@ const _youtubePlayer = function (mediaplayer) {
                 return false;
             },
 
-            setMedia: function _youtubePlayerSetMedia(url) {
+            setMedia(url) {
                 const id = _extractYoutubeId(url);
-                const cb =
-                    id &&
-                    function () {
-                        media.loadVideoById(id);
-                    };
+                const cb = id && (() => media.loadVideoById(id));
                 if (cb) {
                     if (media) {
                         cb();
@@ -736,7 +717,7 @@ const _youtubePlayer = function (mediaplayer) {
  * @returns {Object} player
  * @private
  */
-const _nativePlayer = function (mediaplayer) {
+const _nativePlayer = function _nativePlayer(mediaplayer) {
     let $component;
     let $media;
     let media;
@@ -745,7 +726,7 @@ const _nativePlayer = function (mediaplayer) {
 
     if (mediaplayer) {
         player = {
-            init: function _nativePlayerInit() {
+            init() {
                 let result = false;
                 let mediaElem;
 
@@ -766,18 +747,18 @@ const _nativePlayer = function (mediaplayer) {
                     }
 
                     $media
-                        .on(`play${_ns}`, function () {
+                        .on(`play${_ns}`, () => {
                             played = true;
                             mediaplayer._onPlay();
                         })
-                        .on(`pause${_ns}`, function () {
+                        .on(`pause${_ns}`, () => {
                             mediaplayer._onPause();
                         })
-                        .on(`ended${_ns}`, function () {
+                        .on(`ended${_ns}`, () => {
                             played = false;
                             mediaplayer._onEnd();
                         })
-                        .on(`timeupdate${_ns}`, function () {
+                        .on(`timeupdate${_ns}`, () => {
                             if (mediaplayer.stalledTimer) {
                                 if (mediaplayer.stalledTimeUpdateCount === 5) {
                                     clearTimeout(mediaplayer.stalledTimer);
@@ -789,16 +770,16 @@ const _nativePlayer = function (mediaplayer) {
                             }
                             mediaplayer._onTimeUpdate();
                         })
-                        .on('loadstart', function () {
+                        .on('loadstart', () => {
                             if (mediaplayer.is('stalled')) {
                                 return;
                             }
-                            
+
                             if (media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
                                 mediaplayer._onError();
                             }
                         })
-                        .on(`error${_ns}`, function () {
+                        .on(`error${_ns}`, () => {
                             if (media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
                                 mediaplayer._onError();
                             } else {
@@ -813,7 +794,7 @@ const _nativePlayer = function (mediaplayer) {
                                 }
                             }
                         })
-                        .on(`loadedmetadata${_ns}`, function () {
+                        .on(`loadedmetadata${_ns}`, () => {
                             if (mediaplayer.is('error')) {
                                 mediaplayer._onRecoverError();
                             }
@@ -870,8 +851,8 @@ const _nativePlayer = function (mediaplayer) {
                                 'stalled',
                                 'playing'
                             ],
-                            function (ev) {
-                                $media.on(ev + _ns, function (e) {
+                            ev => {
+                                $media.on(ev + _ns, e => {
                                     window.console.log(
                                         e.type,
                                         $media && $media.find('source').attr('src'),
@@ -886,7 +867,7 @@ const _nativePlayer = function (mediaplayer) {
                 return result;
             },
 
-            destroy: function _nativePlayerDestroy() {
+            destroy() {
                 if ($media) {
                     $media.off(_ns).attr('controls', '');
                 }
@@ -898,21 +879,21 @@ const _nativePlayer = function (mediaplayer) {
                 played = false;
             },
 
-            getPosition: function _nativePlayerGetPosition() {
+            getPosition() {
                 if (media) {
                     return media.currentTime;
                 }
                 return 0;
             },
 
-            getDuration: function _nativePlayerGetDuration() {
+            getDuration() {
                 if (media) {
                     return media.duration;
                 }
                 return 0;
             },
 
-            getVolume: function _nativePlayerGetVolume() {
+            getVolume() {
                 let value = 0;
                 if (media) {
                     value = parseFloat(media.volume) * _volumeRange + _volumeMin;
@@ -920,19 +901,19 @@ const _nativePlayer = function (mediaplayer) {
                 return value;
             },
 
-            setVolume: function _nativePlayerSetVolume(value) {
+            setVolume(value) {
                 if (media) {
                     media.volume = (parseFloat(value) - _volumeMin) / _volumeRange;
                 }
             },
 
-            setSize: function _nativePlayerSetSize(width, height) {
+            setSize(width, height) {
                 if ($component) {
                     $component.width(width).height(height);
                 }
             },
 
-            seek: function _nativePlayerSeek(value) {
+            seek(value) {
                 if (media) {
                     media.currentTime = parseFloat(value);
                     if (!played) {
@@ -941,38 +922,38 @@ const _nativePlayer = function (mediaplayer) {
                 }
             },
 
-            play: function _nativePlayerPlay() {
+            play() {
                 if (media) {
                     media.play();
                 }
             },
 
-            pause: function _nativePlayerPause() {
+            pause() {
                 if (media) {
                     media.pause();
                 }
             },
 
-            stop: function _nativePlayerStop() {
+            stop() {
                 if (media && played) {
                     media.currentTime = media.duration;
                 }
             },
 
-            mute: function _nativePlayerMute(state) {
+            mute(state) {
                 if (media) {
                     media.muted = !!state;
                 }
             },
 
-            isMuted: function _nativePlayerIsMuted() {
+            isMuted() {
                 if (media) {
                     return !!media.muted;
                 }
                 return false;
             },
 
-            addMedia: function _nativePlayerSetMedia(url, type) {
+            addMedia(url, type) {
                 type = type || _defaults.type;
                 if (media) {
                     if (!_checkSupport(media, type)) {
@@ -987,7 +968,7 @@ const _nativePlayer = function (mediaplayer) {
                 return false;
             },
 
-            setMedia: function _nativePlayerSetMedia(url, type) {
+            setMedia(url, type) {
                 if ($media) {
                     $media.empty();
                     return this.addMedia(url, type);
@@ -1035,11 +1016,9 @@ const mediaplayer = {
      * @param {Number} [config.height] - Sets the height of the player (default: depends on media type)
      * @returns {mediaplayer}
      */
-    init: function init(config) {
+    init(config) {
         // load the config set, discard null values in order to allow defaults to be set
-        this.config = _.omit(config || {}, function (value) {
-            return typeof value === 'undefined' || value === null;
-        });
+        this.config = _.omit(config || {}, value => typeof value === 'undefined' || value === null);
         _.defaults(this.config, _defaults.options);
         this._setType(this.config.type || _defaults.type);
 
@@ -1048,7 +1027,7 @@ const mediaplayer = {
         this._initEvents();
         this._initSources(() => {
             if (!this.is('youtube')) {
-                _.each(this.config.sources, source => {
+                _.forEach(this.config.sources, source => {
                     if (source && source.type && source.type.indexOf('audio') === 0) {
                         this._setType(source.type);
                         this._initType();
@@ -1057,9 +1036,7 @@ const mediaplayer = {
                 });
             }
             if (this.config.renderTo) {
-                _.defer(() => {
-                    this.render();
-                });
+                _.defer(() => this.render());
             }
         });
 
@@ -1070,7 +1047,7 @@ const mediaplayer = {
      * Uninstalls the media player
      * @returns {mediaplayer}
      */
-    destroy: function destroy() {
+    destroy() {
         /**
          * Triggers a destroy event
          * @event mediaplayer#destroy
@@ -1099,7 +1076,7 @@ const mediaplayer = {
      * @param {String|jQuery|HTMLElement} [to]
      * @returns {mediaplayer}
      */
-    render: function render(to) {
+    render(to) {
         const renderTo = to || this.config.renderTo || this.$container;
 
         if (this.$component) {
@@ -1116,7 +1093,7 @@ const mediaplayer = {
         this._initSize();
 
         // Resize for old items with defined height to avoid big jump
-        if(this.config.height && this.config.height !== 'auto') {
+        if (this.config.height && this.config.height !== 'auto') {
             this.resize('100%', 'auto');
         } else {
             this.resize(this.config.width, this.config.height);
@@ -1151,7 +1128,7 @@ const mediaplayer = {
          * @event mediaplayer#reload
          */
         this.trigger('reload');
-        
+
         // destroy player
         if (this.player) {
             this.player.destroy();
@@ -1190,7 +1167,7 @@ const mediaplayer = {
      * @param {*} [internal] - Internal use
      * @returns {mediaplayer}
      */
-    seek: function seek(time, internal) {
+    seek(time, internal) {
         if (this._canPlay()) {
             this._updatePosition(time, internal);
 
@@ -1210,7 +1187,7 @@ const mediaplayer = {
      * @param {Number} [time] - An optional start position in seconds
      * @returns {mediaplayer}
      */
-    play: function play(time) {
+    play(time) {
         if (this._canPlay()) {
             if (typeof time !== 'undefined') {
                 this.seek(time);
@@ -1237,7 +1214,7 @@ const mediaplayer = {
      * @param {Number} [time] - An optional time position in seconds
      * @returns {mediaplayer}
      */
-    pause: function pause(time) {
+    pause(time) {
         if (this._canPause()) {
             if (typeof time !== 'undefined') {
                 this.seek(time);
@@ -1257,7 +1234,7 @@ const mediaplayer = {
      * Resumes the media
      * @returns {mediaplayer}
      */
-    resume: function resume() {
+    resume() {
         if (this._canResume()) {
             this.play();
         }
@@ -1269,7 +1246,7 @@ const mediaplayer = {
      * Stops the playback
      * @returns {mediaplayer}
      */
-    stop: function stop() {
+    stop() {
         this.loop = false;
         this.execute('stop');
 
@@ -1284,7 +1261,7 @@ const mediaplayer = {
      * Restarts the media from the beginning
      * @returns {mediaplayer}
      */
-    restart: function restart() {
+    restart() {
         this.play(0);
 
         return this;
@@ -1294,7 +1271,7 @@ const mediaplayer = {
      * Rewind the media to the beginning
      * @returns {mediaplayer}
      */
-    rewind: function rewind() {
+    rewind() {
         this.seek(0);
 
         return this;
@@ -1305,7 +1282,7 @@ const mediaplayer = {
      * @param {Boolean} [state] - A flag to set the mute state (default: true)
      * @returns {mediaplayer}
      */
-    mute: function mute(state) {
+    mute(state) {
         if (typeof state === 'undefined') {
             state = true;
         }
@@ -1323,7 +1300,7 @@ const mediaplayer = {
      * Restore the sound of the media after a mute
      * @returns {mediaplayer}
      */
-    unmute: function unmute() {
+    unmute() {
         this.mute(false);
 
         return this;
@@ -1335,7 +1312,7 @@ const mediaplayer = {
      * @param {*} [internal] - Internal use
      * @returns {mediaplayer}
      */
-    setVolume: function setVolume(value, internal) {
+    setVolume(value, internal) {
         this._updateVolume(value, internal);
 
         this.execute('setVolume', this.volume);
@@ -1347,7 +1324,7 @@ const mediaplayer = {
      * Gets the sound volume applied to the media being played
      * @returns {Number} Returns a value between 0 and 100
      */
-    getVolume: function getVolume() {
+    getVolume() {
         return this.volume;
     },
 
@@ -1355,7 +1332,7 @@ const mediaplayer = {
      * Gets the current displayed position inside the media
      * @returns {Number}
      */
-    getPosition: function getPosition() {
+    getPosition() {
         return this.position;
     },
 
@@ -1363,7 +1340,7 @@ const mediaplayer = {
      * Gets the duration of the media
      * @returns {Number}
      */
-    getDuration: function getDuration() {
+    getDuration() {
         return this.duration;
     },
 
@@ -1371,7 +1348,7 @@ const mediaplayer = {
      * Gets the number of times the media has been played
      * @returns {Number}
      */
-    getTimesPlayed: function getTimesPlayed() {
+    getTimesPlayed() {
         return this.timesPlayed;
     },
 
@@ -1379,7 +1356,7 @@ const mediaplayer = {
      * Gets the type of player
      * @returns {String}
      */
-    getType: function getType() {
+    getType() {
         return this.type;
     },
 
@@ -1387,7 +1364,7 @@ const mediaplayer = {
      * Gets the DOM container
      * @returns {jQuery}
      */
-    getContainer: function getContainer() {
+    getContainer() {
         if (!this.$container && this.$component) {
             let $container = this.$component.parent();
             if ($container.length) {
@@ -1401,7 +1378,7 @@ const mediaplayer = {
      * Gets the underlying DOM element
      * @returns {jQuery}
      */
-    getElement: function getElement() {
+    getElement() {
         return this.$component;
     },
 
@@ -1409,7 +1386,7 @@ const mediaplayer = {
      * Gets the list of media
      * @returns {Array}
      */
-    getSources: function getSources() {
+    getSources() {
         return this.config.sources.slice();
     },
 
@@ -1419,8 +1396,8 @@ const mediaplayer = {
      * @param {Function} [callback] - A function called to provide the added media source object
      * @returns {mediaplayer}
      */
-    setSource: function setSource(src, callback) {
-        this._getSource(src, function (source) {
+    setSource(src, callback) {
+        this._getSource(src, source => {
             this.config.sources = [source];
 
             if (this.is('rendered')) {
@@ -1441,8 +1418,8 @@ const mediaplayer = {
      * @param {Function} [callback] - A function called to provide the added media source object
      * @returns {mediaplayer}
      */
-    addSource: function addSource(src, callback) {
-        this._getSource(src, function (source) {
+    addSource(src, callback) {
+        this._getSource(src, source => {
             this.config.sources.push(source);
 
             if (this.is('rendered')) {
@@ -1462,7 +1439,7 @@ const mediaplayer = {
      * @param {String} state
      * @returns {Boolean}
      */
-    is: function is(state) {
+    is(state) {
         return !!this.config.is[state];
     },
 
@@ -1472,7 +1449,7 @@ const mediaplayer = {
      * @param {Number} height
      * @returns {mediaplayer}
      */
-    resize: function resize(width, height) {
+    resize(width, height) {
         if ((_isResponsiveSize(width) && !_isResponsiveSize(height)) || this.is('youtube')) {
             // responsive width height should be auto
             // for youtube iframe height is limited by ration
@@ -1487,7 +1464,7 @@ const mediaplayer = {
      * Enables the media player
      * @returns {mediaplayer}
      */
-    enable: function enable() {
+    enable() {
         this._fromState('disabled');
 
         return this;
@@ -1497,7 +1474,7 @@ const mediaplayer = {
      * Disables the media player
      * @returns {mediaplayer}
      */
-    disable: function disable() {
+    disable() {
         this._toState('disabled');
         this.trigger('disabled');
 
@@ -1508,7 +1485,7 @@ const mediaplayer = {
      * Shows the media player
      * @returns {mediaplayer}
      */
-    show: function show() {
+    show() {
         this._fromState('hidden');
 
         return this;
@@ -1518,7 +1495,7 @@ const mediaplayer = {
      * hides the media player
      * @returns {mediaplayer}
      */
-    hide: function hide() {
+    hide() {
         this._toState('hidden');
 
         return this;
@@ -1527,7 +1504,7 @@ const mediaplayer = {
      * get media original size
      * @returns {Object}
      */
-    getMediaOriginalSize: function getMediaOriginalSize() {
+    getMediaOriginalSize() {
         if (this.is('youtube')) {
             return _defaults.youtube;
         }
@@ -1545,7 +1522,7 @@ const mediaplayer = {
      * @param {String} type
      * @private
      */
-    _setType: function _setType(type) {
+    _setType(type) {
         if (type.indexOf('youtube') !== -1) {
             this.type = 'youtube';
         } else if (type.indexOf('audio') === 0) {
@@ -1559,7 +1536,7 @@ const mediaplayer = {
      * Ensures the type is correctly applied
      * @private
      */
-    _initType: function _initType() {
+    _initType() {
         const is = this.config.is;
         is.youtube = 'youtube' === this.type;
         is.video = 'video' === this.type || 'youtube' === this.type;
@@ -1571,7 +1548,7 @@ const mediaplayer = {
      * @param {String|Object} src - The media URL, or an object containing the source and the type
      * @param {Function} callback - A function called to provide the media source object
      */
-    _getSource: function _getSource(src, callback) {
+    _getSource(src, callback) {
         let source;
         const done = () => {
             if (_needTypeAdjust(source.type)) {
@@ -1598,7 +1575,7 @@ const mediaplayer = {
         }
 
         if (!source.type) {
-            mimetype.getResourceType(source.src, function (err, type) {
+            mimetype.getResourceType(source.src, (err, type) => {
                 if (err) {
                     type = _defaults.type;
                 }
@@ -1615,7 +1592,7 @@ const mediaplayer = {
      * @param {Function} callback - A function called once all sources have been initialized
      * @private
      */
-    _initSources: function _initSources(callback) {
+    _initSources(callback) {
         const sources = _configToSources(this.config);
 
         this.config.sources = [];
@@ -1623,9 +1600,7 @@ const mediaplayer = {
         async.each(
             sources,
             (source, cb) => {
-                this.addSource(source, function (src) {
-                    cb(null, src);
-                });
+                this.addSource(source, src => cb(null, src));
             },
             callback
         );
@@ -1635,7 +1610,7 @@ const mediaplayer = {
      * Installs the events manager onto the instance
      * @private
      */
-    _initEvents: function _initEvents() {
+    _initEvents() {
         eventifier(this);
 
         const triggerEvent = this.trigger;
@@ -1651,7 +1626,7 @@ const mediaplayer = {
      * Ensures the right size is set according to the media type
      * @private
      */
-    _initSize: function _initSize() {
+    _initSize() {
         const type = this.is('video') ? 'video' : 'audio';
         const defaults = _defaults[type] || _defaults.video;
 
@@ -1669,7 +1644,7 @@ const mediaplayer = {
      * Initializes the right player instance
      * @private
      */
-    _initPlayer: function _initPlayer() {
+    _initPlayer() {
         const player = _players[this.type];
         let error;
 
@@ -1696,15 +1671,13 @@ const mediaplayer = {
      * Initializes the player state
      * @private
      */
-    _initState: function _initState() {
+    _initState() {
         let isCORS = false;
         let page;
 
         if (!this.is('youtube')) {
             page = new UrlParser(window.location);
-            isCORS = _.some(this.config.sources, function (source) {
-                return !page.sameDomain(source.src);
-            });
+            isCORS = _.some(this.config.sources, source => !page.sameDomain(source.src));
         }
 
         this._setState('cors', isCORS);
@@ -1715,7 +1688,7 @@ const mediaplayer = {
      * Resets the internals attributes
      * @private
      */
-    _reset: function _reset() {
+    _reset() {
         this.config.is = {};
         this._initType();
 
@@ -1748,7 +1721,7 @@ const mediaplayer = {
      * Builds the DOM content
      * @private
      */
-    _buildDom: function _buildDom() {
+    _buildDom() {
         const configForTemplate = _.clone(this.config);
         configForTemplate.type = this.type;
         this.$component = $(playerTpl(configForTemplate));
@@ -1776,7 +1749,7 @@ const mediaplayer = {
      * @returns {jQuery} - Returns the element
      * @private
      */
-    _renderSlider: function _renderSlider($elt, value, min, max, vertical) {
+    _renderSlider($elt, value, min, max, vertical) {
         let orientation, direction;
 
         if (vertical) {
@@ -1806,7 +1779,7 @@ const mediaplayer = {
      * @param {jQuery} $elt
      * @private
      */
-    _destroySlider: function _destroySlider($elt) {
+    _destroySlider($elt) {
         if ($elt) {
             $elt.get(0).destroy();
         }
@@ -1816,12 +1789,10 @@ const mediaplayer = {
      * Binds events onto the rendered player
      * @private
      */
-    _bindEvents: function _bindEvents() {
+    _bindEvents() {
         let overing = false;
 
-        this.$component.on(`contextmenu${_ns}`, function (event) {
-            event.preventDefault();
-        });
+        this.$component.on(`contextmenu${_ns}`, event => event.preventDefault());
 
         this.$controls.on(`click${_ns}`, '.action', event => {
             const $target = $(event.target);
@@ -1898,7 +1869,7 @@ const mediaplayer = {
      * Unbinds events from the rendered player
      * @private
      */
-    _unbindEvents: function _unbindEvents() {
+    _unbindEvents() {
         this.$component.off(_ns);
         this.$player.off(_ns);
         this.$controls.off(_ns);
@@ -1919,7 +1890,7 @@ const mediaplayer = {
      * @param {Number} value
      * @private
      */
-    _updateVolumeSlider: function _updateVolumeSlider(value) {
+    _updateVolumeSlider(value) {
         if (this.$volumeSlider) {
             this.$volumeSlider.val(value);
         }
@@ -1931,7 +1902,7 @@ const mediaplayer = {
      * @param {*} [internal]
      * @private
      */
-    _updateVolume: function _updateVolume(value, internal) {
+    _updateVolume(value, internal) {
         this.volume = Math.max(_volumeMin, Math.min(_volumeMax, parseFloat(value)));
         this._storeVolume(this.volume);
         if (!internal) {
@@ -1944,7 +1915,7 @@ const mediaplayer = {
      * @param {Number} value
      * @private
      */
-    _updatePositionSlider: function _updatePositionSlider(value) {
+    _updatePositionSlider(value) {
         if (this.$seekSlider) {
             this.$seekSlider.val(value);
         }
@@ -1955,7 +1926,7 @@ const mediaplayer = {
      * @param {Number} value
      * @private
      */
-    _updatePositionLabel: function _updatePositionLabel(value) {
+    _updatePositionLabel(value) {
         if (this.$position) {
             this.$position.text(_timerFormat(value));
         }
@@ -1967,7 +1938,7 @@ const mediaplayer = {
      * @param {*} [internal]
      * @private
      */
-    _updatePosition: function _updatePosition(value, internal) {
+    _updatePosition(value, internal) {
         this.position = Math.max(0, Math.min(this.duration, parseFloat(value)));
 
         if (!internal) {
@@ -1981,7 +1952,7 @@ const mediaplayer = {
      * @param {Number} value
      * @private
      */
-    _updateDurationSlider: function _updateDurationSlider(value) {
+    _updateDurationSlider(value) {
         if (this.$seekSlider) {
             this._destroySlider(this.$seekSlider);
             this.$seekSlider = null;
@@ -1998,7 +1969,7 @@ const mediaplayer = {
      * @param {Number} value
      * @private
      */
-    _updateDurationLabel: function _updateDurationLabel(value) {
+    _updateDurationLabel(value) {
         if (this.$duration) {
             if (value && isFinite(value)) {
                 this.$duration.text(_timerFormat(value)).show();
@@ -2013,7 +1984,7 @@ const mediaplayer = {
      * @param {Number} value
      * @private
      */
-    _updateDuration: function _updateDuration(value) {
+    _updateDuration(value) {
         this.duration = Math.abs(parseFloat(value));
         this._updateDurationSlider(this.duration);
         this._updateDurationLabel(this.duration);
@@ -2023,7 +1994,7 @@ const mediaplayer = {
      * Event called when the media is ready
      * @private
      */
-    _onReady: function _onReady() {
+    _onReady() {
         this._updateDuration(this.player.getDuration());
         this.setInitialStates();
 
@@ -2052,7 +2023,7 @@ const mediaplayer = {
      * using by old media items with defined height.
      * @private
      */
-    _setMaxHeight: function _setMaxHeight() {
+    _setMaxHeight() {
         const $video = this.$container.find('video.video');
         const controlsHeight = parseInt(window.getComputedStyle(this.$controls[0]).height);
         const scale = $video.height() / this.config.height;
@@ -2073,10 +2044,8 @@ const mediaplayer = {
      * @returns {Promise}
      * @private
      */
-    _storeVolume: function _storeVolume(volume) {
-        return store('mediaVolume').then(function (volumeStore) {
-            volumeStore.setItem('volume', volume);
-        });
+    _storeVolume(volume) {
+        return store('mediaVolume').then(volumeStore => volumeStore.setItem('volume', volume));
     },
 
     /**
@@ -2084,11 +2053,9 @@ const mediaplayer = {
      * @returns {Promise}
      * @private
      */
-    _updateVolumeFromStore: function _updateVolumeFromStore() {
+    _updateVolumeFromStore() {
         return store('mediaVolume')
-            .then(function (volumeStore) {
-                return volumeStore.getItem('volume');
-            })
+            .then(volumeStore => volumeStore.getItem('volume'))
             .then(volume => {
                 if (_.isNumber(volume)) {
                     this.volume = Math.max(_volumeMin, Math.min(_volumeMax, parseFloat(volume)));
@@ -2101,7 +2068,7 @@ const mediaplayer = {
      * Event called when the media throws unrecoverable error
      * @private
      */
-    _onError: function _onError() {
+    _onError() {
         this._setState('error', true);
         this._setState('loading', false);
 
@@ -2116,7 +2083,7 @@ const mediaplayer = {
      * Event called when the media throws recoverable error
      * @private
      */
-    _onRecoverError: function _onRecoverError() {
+    _onRecoverError() {
         this._setState('error', false);
 
         /**
@@ -2130,7 +2097,7 @@ const mediaplayer = {
      * Event called when the media is played
      * @private
      */
-    _onPlay: function _onPlay() {
+    _onPlay() {
         this._playingState(true);
 
         /**
@@ -2144,7 +2111,7 @@ const mediaplayer = {
      * Event called when the media is paused
      * @private
      */
-    _onPause: function _onPause() {
+    _onPause() {
         this._playingState(false);
 
         /**
@@ -2158,7 +2125,7 @@ const mediaplayer = {
      * Event called when the media is ended
      * @private
      */
-    _onEnd: function _onEnd() {
+    _onEnd() {
         this.timesPlayed++;
         this._playingState(false, true);
         this._updatePosition(0);
@@ -2190,7 +2157,7 @@ const mediaplayer = {
      * Event called when the time position has changed
      * @private
      */
-    _onTimeUpdate: function _onTimeUpdate() {
+    _onTimeUpdate() {
         this._updatePosition(this.player.getPosition());
 
         /**
@@ -2204,7 +2171,7 @@ const mediaplayer = {
      * Run a timer to disable the possibility of replaying a media
      * @private
      */
-    _replayTimeout: function _replayTimeout() {
+    _replayTimeout() {
         const nowMs = new window.Date().getTime(),
             elapsedSeconds = Math.floor((nowMs - this.replayTimeoutStartMs) / 1000);
 
@@ -2221,7 +2188,7 @@ const mediaplayer = {
      * Disable the player GUI
      * @private
      */
-    _disableGUI: function disableGUI() {
+    _disableGUI() {
         this._setState('ready', false);
         this._setState('canplay', false);
     },
@@ -2231,7 +2198,7 @@ const mediaplayer = {
      * @returns {Boolean}
      * @private
      */
-    _playLimitReached: function _playLimitReached() {
+    _playLimitReached() {
         return this.config.maxPlays && this.timesPlayed >= this.config.maxPlays;
     },
 
@@ -2240,7 +2207,7 @@ const mediaplayer = {
      * @returns {Boolean}
      * @private
      */
-    _canPlay: function _canPlay() {
+    _canPlay() {
         return (this.is('ready') || this.is('stalled')) && !this.is('disabled') && !this.is('hidden') && !this._playLimitReached();
     },
 
@@ -2249,7 +2216,7 @@ const mediaplayer = {
      * @returns {Boolean}
      * @private
      */
-    _canPause: function _canPause() {
+    _canPause() {
         return !!this.config.canPause;
     },
 
@@ -2258,7 +2225,7 @@ const mediaplayer = {
      * @returns {Boolean}
      * @private
      */
-    _canSeek: function _canSeek() {
+    _canSeek() {
         return !!this.config.canSeek;
     },
 
@@ -2267,7 +2234,7 @@ const mediaplayer = {
      * @returns {Boolean}
      * @private
      */
-    _canResume: function _canResume() {
+    _canResume() {
         return this.is('paused') && this._canPlay();
     },
 
@@ -2277,7 +2244,7 @@ const mediaplayer = {
      * @param {Boolean} value
      * @returns {mediaplayer}
      */
-    _setState: function _setState(name, value) {
+    _setState(name, value) {
         value = !!value;
 
         this.config.is[name] = value;
@@ -2295,7 +2262,7 @@ const mediaplayer = {
      * @returns {mediaplayer}
      * @private
      */
-    _fromState: function _fromState(stateName) {
+    _fromState(stateName) {
         this._setState(stateName, false);
         this.resume();
 
@@ -2308,7 +2275,7 @@ const mediaplayer = {
      * @returns {mediaplayer}
      * @private
      */
-    _toState: function _toState(stateName) {
+    _toState(stateName) {
         this.pause();
         this._setState(stateName, true);
 
@@ -2322,7 +2289,7 @@ const mediaplayer = {
      * @returns {mediaplayer}
      * @private
      */
-    _playingState: function _playingState(state, ended) {
+    _playingState(state, ended) {
         this._setState('playing', !!state);
         this._setState('paused', !state);
         this._setState('ended', !!ended);
@@ -2336,7 +2303,7 @@ const mediaplayer = {
      * @returns {*}
      * @private
      */
-    execute: function execute(command) {
+    execute(command) {
         const ctx = this.player;
         const method = ctx && ctx[command];
 
