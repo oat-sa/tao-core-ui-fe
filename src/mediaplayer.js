@@ -255,7 +255,6 @@ const _youtubeManager = youtubeManagerFactory();
  * @returns {Object} player
  */
 const _youtubePlayer = function _youtubePlayer(mediaplayer) {
-    let $component;
     let $media;
     let media;
     let player;
@@ -273,7 +272,6 @@ const _youtubePlayer = function _youtubePlayer(mediaplayer) {
     if (mediaplayer) {
         player = {
             init() {
-                $component = mediaplayer.$component;
                 $media = mediaplayer.$media;
                 media = null;
                 destroyed = false;
@@ -397,9 +395,8 @@ const _youtubePlayer = function _youtubePlayer(mediaplayer) {
             },
 
             setSize(width, height) {
-                if ($component) {
-                    $component.width(width).height(height);
-                }
+                this.trigger('resize', width, height);
+
                 if (!media) {
                     initWidth = width;
                     initHeight = height;
@@ -485,7 +482,6 @@ const _youtubePlayer = function _youtubePlayer(mediaplayer) {
  * @private
  */
 const _nativePlayer = function _nativePlayer(mediaplayer) {
-    let $component;
     let $media;
     let media;
     let player;
@@ -498,7 +494,6 @@ const _nativePlayer = function _nativePlayer(mediaplayer) {
                 let result = false;
                 let mediaElem;
 
-                $component = mediaplayer.$component;
                 $media = mediaplayer.$media;
                 media = null;
                 played = false;
@@ -645,9 +640,7 @@ const _nativePlayer = function _nativePlayer(mediaplayer) {
             },
 
             setSize(width, height) {
-                if ($component) {
-                    $component.width(width).height(height);
-                }
+                this.trigger('resize', width, height);
             },
 
             seek(value) {
@@ -1388,6 +1381,11 @@ const mediaplayer = {
         if (support.canPlay(this.type)) {
             if (_.isFunction(player)) {
                 this.player = player(this)
+                    .on('resize', (width, height) => {
+                        if (this.$component) {
+                            this.$component.width(width).height(height);
+                        }
+                    })
                     .on('ready', () => this._onReady())
                     .on('play', () => this._onPlay())
                     .on('pause', () => this._onPause())
