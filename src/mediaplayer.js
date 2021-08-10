@@ -274,7 +274,7 @@ const _youtubePlayer = function _youtubePlayer(mediaplayer) {
 
                 if ($media) {
                     _youtubeManager.add($media, this, {
-                        controls: mediaplayer.is('nogui')
+                        controls: !support.canControl()
                     });
                 }
 
@@ -300,7 +300,7 @@ const _youtubePlayer = function _youtubePlayer(mediaplayer) {
                         this.setSize(initWidth, initHeight);
                     }
 
-                    mediaplayer._onReady();
+                    this.trigger('ready');
 
                     if (callbacks) {
                         _.forEach(callbacks, cb => cb());
@@ -317,18 +317,18 @@ const _youtubePlayer = function _youtubePlayer(mediaplayer) {
                     switch (event.data) {
                         // ended
                         case 0:
-                            mediaplayer._onEnd();
+                            this.trigger('end');
                             break;
 
                         // playing
                         case 1:
-                            mediaplayer._onPlay();
+                            this.trigger('play');
                             this.startPolling();
                             break;
 
                         // paused
                         case 2:
-                            mediaplayer._onPause();
+                            this.trigger('pause');
                             break;
                     }
                 }
@@ -342,7 +342,7 @@ const _youtubePlayer = function _youtubePlayer(mediaplayer) {
             },
 
             startPolling() {
-                interval = setInterval(() => mediaplayer._onTimeUpdate(), mediaplayerFactory.youtubePolling);
+                interval = setInterval(() => this.trigger('timeupdate'), mediaplayerFactory.youtubePolling);
             },
 
             destroy() {
@@ -356,6 +356,7 @@ const _youtubePlayer = function _youtubePlayer(mediaplayer) {
                 }
 
                 this.stopPolling();
+                this.removeAllListeners();
 
                 $media = null;
                 media = null;
@@ -420,7 +421,7 @@ const _youtubePlayer = function _youtubePlayer(mediaplayer) {
             stop() {
                 if (media) {
                     media.stopVideo();
-                    mediaplayer._onEnd();
+                    this.trigger('end');
                 }
             },
 
@@ -468,7 +469,7 @@ const _youtubePlayer = function _youtubePlayer(mediaplayer) {
         };
     }
 
-    return player;
+    return eventifier(player);
 };
 
 /**
@@ -502,21 +503,21 @@ const _nativePlayer = function _nativePlayer(mediaplayer) {
                         result = true;
                     }
 
-                    if (!mediaplayer.is('nogui')) {
+                    if (!!support.canControl()) {
                         $media.removeAttr('controls');
                     }
 
                     $media
                         .on(`play${_ns}`, () => {
                             played = true;
-                            mediaplayer._onPlay();
+                            this.trigger('play');
                         })
                         .on(`pause${_ns}`, () => {
-                            mediaplayer._onPause();
+                            this.trigger('pause');
                         })
                         .on(`ended${_ns}`, () => {
                             played = false;
-                            mediaplayer._onEnd();
+                            this.trigger('end');
                         })
                         .on(`timeupdate${_ns}`, () => {
                             if (mediaplayer.stalledTimer) {
@@ -528,7 +529,7 @@ const _nativePlayer = function _nativePlayer(mediaplayer) {
                                     mediaplayer.stalledTimeUpdateCount++;
                                 }
                             }
-                            mediaplayer._onTimeUpdate();
+                            this.trigger('timeupdate');
                         })
                         .on('loadstart', () => {
                             if (mediaplayer.is('stalled')) {
@@ -536,14 +537,14 @@ const _nativePlayer = function _nativePlayer(mediaplayer) {
                             }
 
                             if (media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
-                                mediaplayer._onError();
+                                this.trigger('error');
                             }
                         })
                         .on(`error${_ns}`, () => {
                             if (media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
-                                mediaplayer._onError();
+                                this.trigger('error');
                             } else {
-                                mediaplayer._onRecoverError();
+                                this.trigger('recovererror');
 
                                 // recover from playing error
                                 if (
@@ -556,9 +557,9 @@ const _nativePlayer = function _nativePlayer(mediaplayer) {
                         })
                         .on(`loadedmetadata${_ns}`, () => {
                             if (mediaplayer.is('error')) {
-                                mediaplayer._onRecoverError();
+                                this.trigger('recovererror');
                             }
-                            mediaplayer._onReady();
+                            this.trigger('ready');
 
                             // seek back to the previous position after recover from stalled
                             if (mediaplayer.is('stalled')) {
@@ -633,6 +634,7 @@ const _nativePlayer = function _nativePlayer(mediaplayer) {
                 }
 
                 this.stop();
+                this.removeAllListeners();
 
                 $media = null;
                 media = null;
@@ -738,7 +740,7 @@ const _nativePlayer = function _nativePlayer(mediaplayer) {
         };
     }
 
-    return player;
+    return eventifier(player);
 };
 
 /**
@@ -1410,7 +1412,14 @@ const mediaplayer = {
 
         if (support.canPlay(this.type)) {
             if (_.isFunction(player)) {
-                this.player = player(this);
+                this.player = player(this)
+                    .on('ready', () => this._onReady())
+                    .on('play', () => this._onPlay())
+                    .on('pause', () => this._onPause())
+                    .on('timeupdate', () => this._onTimeUpdate())
+                    .on('end', () => this._onEnd())
+                    .on('error', () => this._onError())
+                    .on('recovererror', () => this._onRecoverError());
             }
 
             if (this.player) {
