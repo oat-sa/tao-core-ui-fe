@@ -86,6 +86,12 @@ const _volumeRange = _volumeMax - _volumeMin;
 const volumePositionThreshold = 200;
 
 /**
+ * Delay before considering stalled playback
+ * @type {Number}
+ */
+const stalledTimeout = 2000;
+
+/**
  * Some default values
  * @type {Object}
  * @private
@@ -484,6 +490,7 @@ const _nativePlayer = function _nativePlayer(mediaplayer) {
     let media;
     let player;
     let played;
+    let stalled = false;
 
     if (mediaplayer) {
         player = {
@@ -520,19 +527,10 @@ const _nativePlayer = function _nativePlayer(mediaplayer) {
                             this.trigger('end');
                         })
                         .on(`timeupdate${_ns}`, () => {
-                            if (mediaplayer.stalledTimer) {
-                                if (mediaplayer.stalledTimeUpdateCount === 5) {
-                                    clearTimeout(mediaplayer.stalledTimer);
-                                    mediaplayer.stalledTimer = null;
-                                }
-                                else {
-                                    mediaplayer.stalledTimeUpdateCount++;
-                                }
-                            }
                             this.trigger('timeupdate');
                         })
                         .on('loadstart', () => {
-                            if (mediaplayer.is('stalled')) {
+                            if (stalled) {
                                 return;
                             }
 
@@ -544,42 +542,19 @@ const _nativePlayer = function _nativePlayer(mediaplayer) {
                             if (media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
                                 this.trigger('error');
                             } else {
-                                this.trigger('recovererror');
-
-                                // recover from playing error
-                                if (
-                                    media.networkState === HTMLMediaElement.NETWORK_LOADING &&
-                                    mediaplayer.is('playing')
-                                ) {
-                                    mediaplayer.render();
-                                }
+                                this.trigger('recovererror', media.networkState === HTMLMediaElement.NETWORK_LOADING);
                             }
                         })
                         .on(`loadedmetadata${_ns}`, () => {
-                            if (mediaplayer.is('error')) {
-                                this.trigger('recovererror');
-                            }
                             this.trigger('ready');
-
-                            // seek back to the previous position after recover from stalled
-                            if (mediaplayer.is('stalled')) {
-                                mediaplayer.play(mediaplayer.positionBeforeStalled);
-                            }
                         })
                         .on(`stalled${_ns}`, () => {
-                            mediaplayer.stalledTimeUpdateCount = 0;
-                            mediaplayer.stalledTimer = setTimeout(() => {
-                                const position = mediaplayer.getPosition();
-                                if (position) {
-                                    mediaplayer.positionBeforeStalled = position;
-                                }
-                                mediaplayer._setState('stalled', true);
-                                mediaplayer._setState('ready', false);
-                            }, 2000);
+                            stalled = true;
+                            this.trigger('stalled');
                         })
                         .on(`playing${_ns}`, () => {
-                            mediaplayer._setState('stalled', false);
-                            mediaplayer._setState('ready', true);
+                            stalled = false;
+                            this.trigger('playing');
                         });
 
                     if (_debugMode) {
@@ -1417,9 +1392,11 @@ const mediaplayer = {
                     .on('play', () => this._onPlay())
                     .on('pause', () => this._onPause())
                     .on('timeupdate', () => this._onTimeUpdate())
+                    .on('stalled', () => this._onStalled())
+                    .on('playing', () => this._onPlaying())
                     .on('end', () => this._onEnd())
                     .on('error', () => this._onError())
-                    .on('recovererror', () => this._onRecoverError());
+                    .on('recovererror', fromLoading => this._onRecoverError(fromLoading));
             }
 
             if (this.player) {
@@ -1764,6 +1741,10 @@ const mediaplayer = {
      * @private
      */
     _onReady() {
+        if (this.is('error')) {
+            this._onRecoverError();
+        }
+
         this._updateDuration(this.player.getDuration());
         this.setInitialStates();
 
@@ -1784,6 +1765,11 @@ const mediaplayer = {
 
         if(this.$container && this.config.height && this.config.height !== 'auto') {
             this._setMaxHeight();
+        }
+
+        // seek back to the previous position after recover from stalled
+        if (this.is('stalled')) {
+            this.play(this.positionBeforeStalled);
         }
     },
 
@@ -1850,9 +1836,15 @@ const mediaplayer = {
 
     /**
      * Event called when the media throws recoverable error
+     * @param {Boolean} fromLoading - recover from an error while loading the media
      * @private
      */
-    _onRecoverError() {
+    _onRecoverError(fromLoading = false) {
+        // recover from playing error
+        if (fromLoading && this.is('playing')) {
+            this.render();
+        }
+
         this._setState('error', false);
 
         /**
@@ -1923,10 +1915,45 @@ const mediaplayer = {
     },
 
     /**
+     * Event called when the playback is playing
+     * @private
+     */
+    _onPlaying() {
+        this._setState('stalled', false);
+        this._setState('ready', true);
+    },
+
+    /**
+     * Event called when the playback is stalled
+     * @private
+     */
+    _onStalled() {
+        this.stalledTimeUpdateCount = 0;
+        this.stalledTimer = window.setTimeout(() => {
+            const position = this.getPosition();
+            if (position) {
+                this.positionBeforeStalled = position;
+            }
+            this._setState('stalled', true);
+            this._setState('ready', false);
+        }, stalledTimeout);
+    },
+
+    /**
      * Event called when the time position has changed
      * @private
      */
     _onTimeUpdate() {
+        if (this.stalledTimer) {
+            if (this.stalledTimeUpdateCount === 5) {
+                window.clearTimeout(this.stalledTimer);
+                this.stalledTimer = null;
+            }
+            else {
+                this.stalledTimeUpdateCount++;
+            }
+        }
+
         this._updatePosition(this.player.getPosition());
 
         /**
