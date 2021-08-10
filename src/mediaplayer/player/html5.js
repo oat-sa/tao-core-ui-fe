@@ -17,9 +17,12 @@
  */
 
 import $ from 'jquery';
-import _ from 'lodash';
+import UrlParser from 'util/urlParser';
 import eventifier from 'core/eventifier';
 import support from 'ui/mediaplayer/support';
+import audioTpl from 'ui/mediaplayer/tpl/audio';
+import videoTpl from 'ui/mediaplayer/tpl/video';
+import sourceTpl from 'ui/mediaplayer/tpl/source';
 
 /**
  * Enables the debug mode
@@ -74,10 +77,14 @@ const mediaEvents = [
 
 /**
  * Defines a player object dedicated to the native HTML5 player
- * @param {mediaplayer} mediaplayer
+ * @param {jQuery} $container - Where to render the player
+ * @param {Array} sources - The list of media sources
+ * @param {String} type - The type of player (video or audio)
  * @returns {Object} player
  */
-export default function html5PlayerFactory(mediaplayer) {
+export default function html5PlayerFactory($container, sources = [], type = 'video') {
+    sources = sources || [];
+
     let $media;
     let media;
     let played;
@@ -85,96 +92,126 @@ export default function html5PlayerFactory(mediaplayer) {
 
     const player = {
         init() {
+            const tpl = 'audio' === type ? audioTpl : videoTpl;
+            const page = new UrlParser(window.location);
+            let cors = false;
+            let poster = '';
+            let link = '';
             let result = false;
-            let mediaElem;
 
-            $media = mediaplayer.$media;
+            sources.forEach(source => {
+                if (!page.sameDomain(source.src)) {
+                    cors = true;
+                }
+                if (source.poster) {
+                    poster = source.poster;
+                }
+                if (source.link) {
+                    link = source.link;
+                }
+            });
+
+            $media = $(tpl({ cors, poster, link }));
+            $container.append($media);
+
             media = null;
             played = false;
 
-            if ($media) {
-                mediaElem = $media.get(0);
-                if (mediaElem && mediaElem.canPlayType) {
-                    media = mediaElem;
-                    result = true;
-                }
+            media = $media.get(0);
+            result = !!(media && media.canPlayType);
 
-                if (!!support.canControl()) {
-                    $media.removeAttr('controls');
-                }
-
-                $media
-                    .on(`play${ns}`, () => {
-                        played = true;
-                        this.trigger('play');
-                    })
-                    .on(`pause${ns}`, () => {
-                        this.trigger('pause');
-                    })
-                    .on(`ended${ns}`, () => {
-                        played = false;
-                        this.trigger('end');
-                    })
-                    .on(`timeupdate${ns}`, () => {
-                        this.trigger('timeupdate');
-                    })
-                    .on('loadstart', () => {
-                        if (stalled) {
-                            return;
-                        }
-
-                        if (media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
-                            this.trigger('error');
-                        }
-                    })
-                    .on(`error${ns}`, () => {
-                        if (media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
-                            this.trigger('error');
-                        } else {
-                            this.trigger('recovererror', media.networkState === HTMLMediaElement.NETWORK_LOADING);
-                        }
-                    })
-                    .on(`loadedmetadata${ns}`, () => {
-                        this.trigger('ready');
-                    })
-                    .on(`stalled${ns}`, () => {
-                        stalled = true;
-                        this.trigger('stalled');
-                    })
-                    .on(`playing${ns}`, () => {
-                        stalled = false;
-                        this.trigger('playing');
-                    });
-
-                if (debugMode) {
-                    // install debug logger
-                    mediaEvents.forEach(ev => {
-                        $media.on(ev + ns, e => {
-                            window.console.log(
-                                e.type,
-                                $media && $media.find('source').attr('src'),
-                                'networkState', media && media.networkState,
-                                'readyState', media && media.readyState
-                            );
-                        });
-                    });
-                }
+            // remove the browser native controls if we can use the API instead
+            if (support.canControl()) {
+                $media.removeAttr('controls');
             }
+
+            $media
+                .on(`play${ns}`, () => {
+                    played = true;
+                    this.trigger('play');
+                })
+                .on(`pause${ns}`, () => {
+                    this.trigger('pause');
+                })
+                .on(`ended${ns}`, () => {
+                    played = false;
+                    this.trigger('end');
+                })
+                .on(`timeupdate${ns}`, () => {
+                    this.trigger('timeupdate');
+                })
+                .on('loadstart', () => {
+                    if (stalled) {
+                        return;
+                    }
+
+                    if (media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
+                        this.trigger('error');
+                    }
+                })
+                .on(`error${ns}`, () => {
+                    if (media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
+                        this.trigger('error');
+                    } else {
+                        this.trigger('recovererror', media.networkState === HTMLMediaElement.NETWORK_LOADING);
+                    }
+                })
+                .on(`loadedmetadata${ns}`, () => {
+                    this.trigger('ready');
+                })
+                .on(`stalled${ns}`, () => {
+                    stalled = true;
+                    this.trigger('stalled');
+                })
+                .on(`playing${ns}`, () => {
+                    stalled = false;
+                    this.trigger('playing');
+                });
+
+            if (debugMode) {
+                // install debug logger
+                mediaEvents.forEach(ev => {
+                    $media.on(ev + ns, e => {
+                        window.console.log(
+                            e.type,
+                            $media && $media.find('source').attr('src'),
+                            'networkState', media && media.networkState,
+                            'readyState', media && media.readyState
+                        );
+                    });
+                });
+            }
+
+            sources.forEach(source => $media.append(sourceTpl(source)));
 
             return result;
         },
 
         destroy() {
-            if ($media) {
-                $media.off(ns).attr('controls', '');
-            }
-
             this.stop();
             this.removeAllListeners();
+
+            if ($media) {
+                $media.off(ns).remove();
+            }
 
             $media = null;
             media = null;
             played = false;
+        },
+
+        getMedia() {
+            return media;
+        },
+
+        getMediaSize() {
+            if (media) {
+                return {
+                    width: media.videoWidth,
+                    height: media.videoHeight
+                }
+            }
+            return {};
         },
 
         getPosition() {
@@ -249,24 +286,24 @@ export default function html5PlayerFactory(mediaplayer) {
             return false;
         },
 
-        addMedia(url, type) {
+        addMedia(src, type) {
             if (media) {
                 if (!support.checkSupport(media, type)) {
                     return false;
                 }
             }
 
-            if (url && $media) {
-                $media.append(`<source src="${url}" type="${type}" />`);
+            if (src && $media) {
+                $media.append(sourceTpl({ src, type }));
                 return true;
             }
             return false;
         },
 
-        setMedia(url, type) {
+        setMedia(src, type) {
             if ($media) {
                 $media.empty();
-                return this.addMedia(url, type);
+                return this.addMedia(src, type);
             }
             return false;
         }

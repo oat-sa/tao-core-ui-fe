@@ -45,13 +45,6 @@ const _debugMode = false;
 const _ns = '.mediaplayer';
 
 /**
- * A Regex to extract ID from Youtube URLs
- * @type {RegExp}
- * @private
- */
-const _reYoutube = /([?&\/]v[=\/])([\w-]+)([&\/]?)/;
-
-/**
  * Array slice method needed to slice arguments
  * @type {Function}
  * @private
@@ -71,13 +64,6 @@ const _volumeMin = 0;
  * @private
  */
 const _volumeMax = 100;
-
-/**
- * Range value of the volume
- * @type {Number}
- * @private
- */
-const _volumeRange = _volumeMax - _volumeMin;
 
 /**
  * Threshold (minium requires space above the player) to display the volume
@@ -112,7 +98,7 @@ const _defaults = {
         height: 360
     },
     options: {
-        volume: Math.floor(_volumeRange * 0.8),
+        volume: 80,
         startMuted: false,
         maxPlays: 0,
         replayTimeout: 0,
@@ -121,17 +107,6 @@ const _defaults = {
         loop: false,
         autoStart: false
     }
-};
-
-/**
- * Extracts the ID of a Youtube video from an URL
- * @param {String} url
- * @returns {String}
- * @private
- */
-const _extractYoutubeId = url => {
-    const res = _reYoutube.exec(url);
-    return (res && res[2]) || url;
 };
 
 /**
@@ -166,7 +141,7 @@ const _leadingZero = (n, len) => {
  * @returns {String}
  * @private
  */
-const _timerFormat =  time => {
+const _timerFormat = time => {
     const seconds = Math.floor(time % 60);
     const minutes = Math.floor(time / 60) % 60;
     const hours = Math.floor(time / 3600);
@@ -768,13 +743,9 @@ const mediaplayer = {
         if (this.is('youtube')) {
             return _defaults.youtube;
         }
-        if (this.is('video') && this.$media) {
-            return {
-                width: this.$media.get(0).videoWidth,
-                height: this.$media.get(0).videoHeight
-            };
+        if (this.is('video') && this.player) {
+            return this.player.getMediaSize();
         }
-
         return {};
     },
     /**
@@ -813,10 +784,6 @@ const mediaplayer = {
         const done = () => {
             if (_needTypeAdjust(source.type)) {
                 source.type = _getAdjustedType(source);
-            }
-
-            if (this.is('youtube')) {
-                source.id = _extractYoutubeId(source.src);
             }
 
             callback.call(this, source);
@@ -910,7 +877,7 @@ const mediaplayer = {
 
         if (support.canPlay(this.type)) {
             if (_.isFunction(player)) {
-                this.player = player(this)
+                this.player = player(this.$player, this.getSources(), this.getType())
                     .on('resize', (width, height) => {
                         if (this.$component) {
                             this.$component.width(width).height(height);
@@ -969,7 +936,6 @@ const mediaplayer = {
         this.$component = null;
         this.$container = null;
         this.$player = null;
-        this.$media = null;
         this.$controls = null;
         this.$seek = null;
         this.$seekSlider = null;
@@ -1000,7 +966,6 @@ const mediaplayer = {
         configForTemplate.type = this.type;
         this.$component = $(playerTpl(configForTemplate));
         this.$player = this.$component.find('.player');
-        this.$media = this.$component.find('.media');
         this.$controls = this.$component.find('.controls');
 
         this.$seek = this.$controls.find('.seek .slider');
@@ -1088,8 +1053,8 @@ const mediaplayer = {
                 if (_.isFunction(this[id])) {
                     this[id]();
                 }
-            // default action is toggle play
             } else {
+                // default action is toggle play
                 if (this.is('playing')) {
                     this.pause();
                 } else {
@@ -1291,7 +1256,7 @@ const mediaplayer = {
             this.play();
         }
 
-        if(this.$container && this.config.height && this.config.height !== 'auto') {
+        if (this.$container && this.config.height && this.config.height !== 'auto') {
             this._setMaxHeight();
         }
 
@@ -1313,10 +1278,10 @@ const mediaplayer = {
         const playerWidth = this.$container.find('.player').width();
         const videoWidth = $video.width() / scale;
 
-        if(videoWidth > playerWidth) {
+        if (videoWidth > playerWidth) {
             this.execute('setSize', '100%', 'auto');
         } else {
-            this.$component.css({'maxHeight':`${this.config.height + controlsHeight}px`});
+            this.$component.css({ 'maxHeight': `${this.config.height + controlsHeight}px` });
             this.execute('setSize', Math.floor(videoWidth), 'auto');
         }
     },
@@ -1393,7 +1358,7 @@ const mediaplayer = {
          * Triggers a media playback event
          * @event mediaplayer#play
          */
-        this.trigger('play', this.$media[0]);
+        this.trigger('play', this.player && this.player.getMedia());
     },
 
     /**
@@ -1476,8 +1441,7 @@ const mediaplayer = {
             if (this.stalledTimeUpdateCount === 5) {
                 window.clearTimeout(this.stalledTimer);
                 this.stalledTimer = null;
-            }
-            else {
+            } else {
                 this.stalledTimeUpdateCount++;
             }
         }

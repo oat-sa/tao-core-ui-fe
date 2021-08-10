@@ -17,10 +17,10 @@
  */
 
 import $ from 'jquery';
-import _ from 'lodash';
 import eventifier from 'core/eventifier';
 import support from 'ui/mediaplayer/support';
 import youtubeManagerFactory from 'ui/mediaplayer/youtubeManager';
+import youtubeTpl from 'ui/mediaplayer/tpl/youtube';
 
 /**
  * Enables the debug mode
@@ -66,37 +66,59 @@ const youtubeManager = youtubeManagerFactory();
 
 /**
  * Defines a player object dedicated to youtube media
- * @param {mediaplayer} mediaplayer
+ * @param {jQuery} $container - Where to render the player
+ * @param {Array} sources - The list of media sources
+ * @param {String} type - The type of player (youtube)
  * @returns {Object} player
  */
-export default function youtubePlayerFactory(mediaplayer) {
+export default function youtubePlayerFactory($container, sources = [], type= 'youtube') {
+    sources = sources || [];
+    const source = sources[0] || {};
+    const otherSources = sources.slice(1);
+
     let $media;
     let media;
     let interval;
     let destroyed;
-    let initWidth, initHeight;
+    let initWidth;
+    let initHeight;
+    let callbacks = [];
+
+    const queueMedia = (url, register) => {
+        const id = extractYoutubeId(url);
+        if (id) {
+            if (media) {
+                register(id);
+            } else {
+                callbacks.push(() => register(id));
+            }
+            return true;
+        }
+        return false;
+    };
 
     const player = {
         init() {
-            $media = mediaplayer.$media;
+            $media = $(youtubeTpl({
+                src: source.src,
+                id: extractYoutubeId(source.src)
+            }));
+            $container.append($media);
+            otherSources.forEach(source => this.addMedia(source.src));
+
             media = null;
             destroyed = false;
 
-            if ($media) {
-                youtubeManager.add($media, this, {
-                    controls: !support.canControl()
-                });
-            }
+            youtubeManager.add($media, this, {
+                controls: !support.canControl()
+            });
 
-            return !!$media;
+            return true;
         },
 
         onReady(event) {
-            const callbacks = this._callbacks;
-
             media = event.target;
-            $media = $(media.getIframe());
-            this._callbacks = null;
+            $media = $(media.getIframe()); // the injected media placeholder is replaced by an iframe by the YouTube lib
 
             if (!destroyed) {
                 if (debugMode) {
@@ -108,11 +130,10 @@ export default function youtubePlayerFactory(mediaplayer) {
                     this.setSize(initWidth, initHeight);
                 }
 
-                this.trigger('ready');
+                callbacks.forEach(cb => cb());
+                callbacks = [];
 
-                if (callbacks) {
-                    _.forEach(callbacks, cb => cb());
-                }
+                this.trigger('ready');
             } else {
                 this.destroy();
             }
@@ -144,30 +165,37 @@ export default function youtubePlayerFactory(mediaplayer) {
 
         stopPolling() {
             if (interval) {
-                clearInterval(interval);
+                window.clearInterval(interval);
                 interval = null;
             }
         },
 
         startPolling() {
-            interval = setInterval(() => this.trigger('timeupdate'), youtubePolling);
+            interval = window.setInterval(() => this.trigger('timeupdate'), youtubePolling);
         },
 
         destroy() {
             destroyed = true;
 
+            this.stopPolling();
+            this.removeAllListeners();
+
             if (media) {
                 youtubeEvents.forEach(ev => media.removeEventListener(ev));
                 media.destroy();
+                media = null;
             } else {
                 youtubeManager.remove($media, this);
             }
 
-            this.stopPolling();
-            this.removeAllListeners();
+            if ($media) {
+                $media.remove();
+                $media = null;
+            }
+        },
 
-            $media = null;
-            media = null;
+        getMedia() {
+            return media;
         },
 
         getPosition() {
@@ -185,11 +213,10 @@ export default function youtubePlayerFactory(mediaplayer) {
         },
 
         getVolume() {
-            let value = 0;
             if (media) {
-                value = media.getVolume();
+                return media.getVolume();
             }
-            return value;
+            return 0;
         },
 
         setVolume(value) {
@@ -246,32 +273,12 @@ export default function youtubePlayerFactory(mediaplayer) {
         },
 
         addMedia(url) {
-            const id = extractYoutubeId(url);
-            const cb = id && (() => media.cueVideoById(id));
-            if (cb) {
-                if (media) {
-                    cb();
-                } else {
-                    this._callbacks = this._callbacks || [];
-                    this._callbacks.push(cb);
-                }
-                return true;
-            }
-            return false;
+            return queueMedia(url, id => media && media.cueVideoById(id));
         },
 
         setMedia(url) {
-            const id = extractYoutubeId(url);
-            const cb = id && (() => media.loadVideoById(id));
-            if (cb) {
-                if (media) {
-                    cb();
-                } else {
-                    this._callbacks = [cb];
-                }
-                return true;
-            }
-            return false;
+            callbacks = [];
+            return queueMedia(url, id => media && media.loadVideoById(id));
         }
     };
 

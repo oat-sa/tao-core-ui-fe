@@ -1,34 +1,5 @@
 <div class="mediaplayer {{type}}">
     <div class="player">
-    {{#if is.video}}
-        {{#if is.youtube}}
-            {{#each sources}}
-        <div class="media video youtube" data-video-src="{{src}}" data-video-id="{{id}}" data-type="youtube"></div>
-            {{/each}}
-        {{else}}
-        <video class="media video" poster="{{poster}}" controls {{#if is.cors}}crossorigin{{/if}}>
-            {{#each sources}}
-            <source src="{{src}}" type="{{type}}">
-            {{/each}}
-
-            {{__ 'Your browser doesn’t support the video player.'}}
-            {{#if link}}
-            <a href="{{link}}">{{__ 'Please download the video and view offline.'}}</a>
-            {{/if}}
-        </video>
-        {{/if}}
-    {{else}}
-        <audio class="media audio" controls {{#if is.cors}}crossorigin{{/if}}>
-            {{#each sources}}
-            <source src="{{src}}" type="{{type}}">
-            {{/each}}
-
-            {{__ 'Your browser doesn’t support the audio player.'}}
-            {{#if link}}
-            <a href="{{link}}">{{__ 'Please download the track and listen offline.'}}</a>
-            {{/if}}
-        </audio>
-    {{/if}}
         <div class="overlay">
             <a class="action play" data-control="play"><span class="icon icon-play" title="{{__ 'Play'}}"></span></a>
             <a class="action play" data-control="pause"><span class="icon icon-pause" title="{{__ 'Pause'}}"></span></a>
