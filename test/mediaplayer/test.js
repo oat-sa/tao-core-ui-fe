@@ -77,7 +77,7 @@ define(['jquery', 'lodash', 'ui/mediaplayer'], function ($, _, mediaplayer) {
     QUnit.test('DOM [audio player]', assert => {
         const ready = assert.async();
         const url = 'samples/audio.mp3';
-        const $container = $('#fixture-1');
+        const $container = $('#qunit-fixture');
         const instance = mediaplayer({
             url: url,
             type: 'audio/mp3',
@@ -141,7 +141,7 @@ define(['jquery', 'lodash', 'ui/mediaplayer'], function ($, _, mediaplayer) {
     QUnit.test('DOM [video player]', assert => {
         const ready = assert.async();
         const url = 'samples/video.mp4';
-        const $container = $('#fixture-2');
+        const $container = $('#qunit-fixture');
         const instance = mediaplayer({
             url: url,
             type: 'video/mp4',
@@ -206,7 +206,7 @@ define(['jquery', 'lodash', 'ui/mediaplayer'], function ($, _, mediaplayer) {
         const ready = assert.async();
         const videoId = 'YJWSVUPSQqw';
         const url = `//www.youtube.com/watch?v=${videoId}`;
-        const $container = $('#fixture-3');
+        const $container = $('#qunit-fixture');
         const instance = mediaplayer({
             url: url,
             type: 'video/youtube',
@@ -471,7 +471,7 @@ define(['jquery', 'lodash', 'ui/mediaplayer'], function ($, _, mediaplayer) {
                     }
                 }];
 
-                const $container = $(`#fixture-${data.fixture}`);
+                const $container = $('#qunit-fixture');
                 const events = ['render', 'ready', 'play', 'pause', 'update', 'ended', 'destroy'];
                 const instance = mediaplayer({
                     url: data.url,
@@ -538,7 +538,7 @@ define(['jquery', 'lodash', 'ui/mediaplayer'], function ($, _, mediaplayer) {
                     type: data.type,
                     startMuted: true,
                     autoStart: true,
-                    renderTo: `#fixture-${data.fixture}`
+                    renderTo: '#qunit-fixture'
                 })
                     .on('play', () => {
                         assert.ok(true, 'The media player has auto started the playback');
@@ -562,7 +562,7 @@ define(['jquery', 'lodash', 'ui/mediaplayer'], function ($, _, mediaplayer) {
                     type: data.type,
                     startMuted: true,
                     autoStartAt: expected,
-                    renderTo: `#fixture-${data.fixture}`
+                    renderTo: '#qunit-fixture'
                 })
                     .on('play', () => {
                         instance.pause();
@@ -588,7 +588,7 @@ define(['jquery', 'lodash', 'ui/mediaplayer'], function ($, _, mediaplayer) {
                     startMuted: true,
                     autoStart: true,
                     canPause: false,
-                    renderTo: `#fixture-${data.fixture}`
+                    renderTo: '#qunit-fixture'
                 })
                     .on('play', () => {
                         assert.ok(true, 'The media player has auto started the playback');
@@ -607,7 +607,7 @@ define(['jquery', 'lodash', 'ui/mediaplayer'], function ($, _, mediaplayer) {
                     startMuted: true,
                     autoStart: true,
                     canPause: true,
-                    renderTo: `#fixture-${data.fixture}`
+                    renderTo: '#qunit-fixture'
                 })
                     .on('play', () => {
                         assert.ok(true, 'The media player has auto started the playback');
@@ -634,7 +634,7 @@ define(['jquery', 'lodash', 'ui/mediaplayer'], function ($, _, mediaplayer) {
                     type: data.type,
                     startMuted: true,
                     autoStart: true,
-                    renderTo: `#fixture-${data.fixture}`
+                    renderTo: '#qunit-fixture'
                 })
                     .on('play', () => {
                         assert.ok(true, 'The media player has auto started the playback');
@@ -652,7 +652,7 @@ define(['jquery', 'lodash', 'ui/mediaplayer'], function ($, _, mediaplayer) {
                     type: data.type,
                     startMuted: false,
                     autoStart: true,
-                    renderTo: `#fixture-${data.fixture}`
+                    renderTo: '#qunit-fixture'
                 })
                     .on('play', () => {
                         assert.ok(true, 'The media player has auto started the playback');
@@ -680,7 +680,7 @@ define(['jquery', 'lodash', 'ui/mediaplayer'], function ($, _, mediaplayer) {
                     type: data.type,
                     volume: expected,
                     autoStart: true,
-                    renderTo: `#fixture-${data.fixture}`
+                    renderTo: '#qunit-fixture'
                 })
                     .on('play', () => {
                         assert.ok(true, 'The media player has auto started the playback');
@@ -710,7 +710,7 @@ define(['jquery', 'lodash', 'ui/mediaplayer'], function ($, _, mediaplayer) {
                     loop: true,
                     autoStart: true,
                     startMuted: true,
-                    renderTo: `#fixture-${data.fixture}`
+                    renderTo: '#qunit-fixture'
                 })
                     .on('play', () => {
                         assert.ok(true, 'The media player has started the playback');
@@ -749,7 +749,7 @@ define(['jquery', 'lodash', 'ui/mediaplayer'], function ($, _, mediaplayer) {
                     maxPlays: expected,
                     autoStart: true,
                     startMuted: true,
-                    renderTo: `#fixture-${data.fixture}`
+                    renderTo: '#qunit-fixture'
                 })
                     .on('play', () => {
                         assert.ok(true, 'The media player has started the playback');
@@ -796,7 +796,7 @@ define(['jquery', 'lodash', 'ui/mediaplayer'], function ($, _, mediaplayer) {
         .cases.init(mediaplayerTypes)
         .test('Option renderTo ', (data, assert) => {
             const ready = assert.async(3);
-            const selector = `#fixture-${data.fixture}`;
+            const selector = '#qunit-fixture';
             const places = [{
                 type: 'jQuery',
                 container: $(selector)
@@ -822,10 +822,11 @@ define(['jquery', 'lodash', 'ui/mediaplayer'], function ($, _, mediaplayer) {
                     .on('destroy', ready);
             });
         });
+
     QUnit
         .cases.init(mediaplayerTypes)
         .test('Show/Hide ', (data, assert) => {
-            const selector = `#fixture-${data.fixture}`;
+            const selector = '#qunit-fixture';
             const ready = assert.async();
             const instance = mediaplayer({
                 url: data.url,
@@ -864,7 +865,7 @@ define(['jquery', 'lodash', 'ui/mediaplayer'], function ($, _, mediaplayer) {
         .cases.init(mediaplayerTypes)
         .test('Enable/Disable ', (data, assert) => {
             const ready = assert.async();
-            const selector = `#fixture-${data.fixture}`;
+            const selector = '#qunit-fixture';
             const instance = mediaplayer({
                 url: data.url,
                 type: data.type,
@@ -945,10 +946,12 @@ define(['jquery', 'lodash', 'ui/mediaplayer'], function ($, _, mediaplayer) {
 
         assert.expect(5);
 
+        const stalledTimeout = 100;
         const instance = mediaplayer({
-            url: '/test/mediaplayer/samples/video.mp4',
+            url: 'samples/video.mp4',
             type: 'video',
-            renderTo: '#fixture-7'
+            renderTo: '#qunit-fixture',
+            stalledTimeout
         })
             .on('render', $dom => {
                 // set state that should be kept
@@ -957,11 +960,11 @@ define(['jquery', 'lodash', 'ui/mediaplayer'], function ($, _, mediaplayer) {
                 $dom.find('video').trigger('stalled');
 
                 setTimeout(() => {
-                    assert.equal(instance.is('stalled'), true, 'player is stalled after 2 seconds');
+                    assert.equal(instance.is('stalled'), true, 'player is stalled after timeout');
 
                     //simulate user click to reload button
                     instance.reload();
-                }, 2000);
+                }, stalledTimeout);
             })
             .on('reload', () => {
                 assert.ok(true, 'reload event is fired');
