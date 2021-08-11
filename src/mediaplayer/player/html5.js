@@ -92,6 +92,7 @@ export default function html5PlayerFactory($container, config = {}) {
             const tpl = 'audio' === type ? audioTpl : videoTpl;
             const page = new UrlParser(window.location);
             let cors = false;
+            let preload = 'metadata';
             let poster = '';
             let link = '';
             let result = false;
@@ -108,7 +109,7 @@ export default function html5PlayerFactory($container, config = {}) {
                 }
             });
 
-            $media = $(tpl({ cors, poster, link }));
+            $media = $(tpl({ cors, preload, poster, link }));
             $container.append($media);
 
             media = null;

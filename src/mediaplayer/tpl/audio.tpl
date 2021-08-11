@@ -1,4 +1,4 @@
-<audio class="media audio" controls {{#if cors}}crossorigin{{/if}}>
+<audio class="media audio" preload="{{preload}}" controls {{#if cors}}crossorigin{{/if}}>
     {{__ 'Your browser doesn’t support the audio player.'}}
 {{#if link}}
     <a href="{{link}}">{{__ 'Please download the track and listen offline.'}}</a>
