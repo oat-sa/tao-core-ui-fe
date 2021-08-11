@@ -39,8 +39,7 @@ var defaultBlackList = ['textarea', 'math', 'script', '.select2-container'];
  * @param {Object} options
  * @param {Object} options.className - name of the class that will be used by the wrappers tags to highlight text
  * @param {Object} options.containerSelector - allows to select the root Node in which highlighting is allowed
- * @param {Array<String>} [options.containersBlackList] - additional blacklist selectors to be added to module instance's blacklist
- * @param {Array<String>} [options.containersWhiteList] - whitelist selectors
+ * @param {Object} [options.containersBlackList] - additional blacklist selectors to be added to module instance's blacklist
  * @param {Object} [options.clearOnClick] - clear single highlight node on click
  * @param {Object} [options.colors] - keys is keeping as the "c" value of storing/restore the highlighters for indexing, values are wrappers class names
  * @returns {Object} - the highlighter instance
@@ -62,9 +61,6 @@ export default function (options) {
      * @type {Array}
      */
     var containersBlackList = _.union(defaultBlackList, options.containersBlackList);
-    var containersBlackListSelector = containersBlackList.join(', ');
-    var containersWhiteListSelector = options.containersWhiteList.join(', ');
-    var containersBlackAndWhiteListSelector = _.union(containersBlackList, options.containersWhiteList).join(', ');
 
     /**
      * used in recursive loops to decide if we should wrap or not the current node
@@ -441,6 +437,10 @@ export default function (options) {
      * @param {Node} rootNode
      */
     function reindexGroups(rootNode) {
+        if (!rootNode) {
+            return;
+        }
+
         var childNodes = rootNode.childNodes;
         var i, currentNode, parent;
 
@@ -470,6 +470,10 @@ export default function (options) {
      * @param {Node} rootNode
      */
     function mergeAdjacentWrappingNodes(rootNode) {
+        if (!rootNode) {
+            return;
+        }
+
         var childNodes = rootNode.childNodes;
         var i, currentNode;
 
@@ -798,13 +802,8 @@ export default function (options) {
      * @returns {boolean}
      */
     function isBlacklisted(node) {
-        const containerOrSelf = isText(node) ? node.parentNode : node;
-        const closestElem = containerOrSelf.closest(containersBlackAndWhiteListSelector);
-        if (!closestElem || closestElem.matches(containersWhiteListSelector)) {
-            return false;
-        } else if (closestElem.matches(containersBlackListSelector)) {
-            return true;
-        }
+        var closestBlackListed = $(node).closest(containersBlackList.join(','));
+        return closestBlackListed.length > 0;
     }
 
     /**
