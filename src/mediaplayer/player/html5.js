@@ -75,6 +75,7 @@ const mediaEvents = [
  * @param {Object} config - The list of config entries
  * @param {Array} config.sources - The list of media sources
  * @param {String} [config.type] - The type of player (video or audio) (default: video)
+ * @param {Boolean} [config.preview] - Enables the media preview (load media metadata)
  * @param {Boolean} [config.debug] - Enables the debug mode
  * @returns {Object} player
  */
@@ -92,7 +93,7 @@ export default function html5PlayerFactory($container, config = {}) {
             const tpl = 'audio' === type ? audioTpl : videoTpl;
             const page = new UrlParser(window.location);
             let cors = false;
-            let preload = 'metadata';
+            let preload = config.preview ? 'metadata' : 'none';
             let poster = '';
             let link = '';
             let result = false;
