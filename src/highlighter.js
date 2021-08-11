@@ -39,7 +39,8 @@ var defaultBlackList = ['textarea', 'math', 'script', '.select2-container'];
  * @param {Object} options
  * @param {Object} options.className - name of the class that will be used by the wrappers tags to highlight text
  * @param {Object} options.containerSelector - allows to select the root Node in which highlighting is allowed
- * @param {Object} [options.containersBlackList] - additional blacklist selectors to be added to module instance's blacklist
+ * @param {Array<String>} [options.containersBlackList] - additional blacklist selectors to be added to module instance's blacklist
+ * @param {Array<String>} [options.containersWhiteList] - whitelist selectors
  * @param {Object} [options.clearOnClick] - clear single highlight node on click
  * @param {Object} [options.colors] - keys is keeping as the "c" value of storing/restore the highlighters for indexing, values are wrappers class names
  * @returns {Object} - the highlighter instance
@@ -61,6 +62,9 @@ export default function (options) {
      * @type {Array}
      */
     var containersBlackList = _.union(defaultBlackList, options.containersBlackList);
+    var containersBlackListSelector = containersBlackList.join(', ');
+    var containersWhiteListSelector = options.containersWhiteList.join(', ');
+    var containersBlackAndWhiteListSelector = _.union(containersBlackList, options.containersWhiteList).join(', ');
 
     /**
      * used in recursive loops to decide if we should wrap or not the current node
@@ -103,6 +107,19 @@ export default function (options) {
     }
 
     /**
+     * Attach data to wrapper node.
+     * Use it when deleting this highlight to know if highlight content should be merged with neighbour text nodes or not.
+     * Needed to keep markup the same as it was before highlighting.
+     * @param {HTMLElement} node
+     * @param {Boolean} beforeWasSplit
+     * @param {Boolean} afterWasSplit
+     */
+    function addSplitData(node, beforeWasSplit, afterWasSplit) {
+        node.dataset.beforeWasSplit = beforeWasSplit;
+        node.dataset.afterWasSplit = afterWasSplit;
+    }
+
+    /**
      * Highlight all text nodes within each given range
      * @param {Range[]} ranges - array of ranges to highlight, may be given by the helper selector.getAllRanges()
      */
@@ -119,7 +136,21 @@ export default function (options) {
                     isWrappable(range.commonAncestorContainer) &&
                     !isWrappingNode(range.commonAncestorContainer.parentNode)
                 ) {
-                    range.surroundContents(getWrapper(currentGroupId));
+                    const wrapperNode = getWrapper(currentGroupId);
+                    addSplitData(wrapperNode, range.startOffset > 0, range.endOffset < range.commonAncestorContainer.length);
+                     const containerPreviousSibling = range.commonAncestorContainer.previousSibling;
+                    const containerNextSibling = range.commonAncestorContainer.nextSibling;
+                    range.surroundContents(wrapperNode);
+                    //'surroundContents' can create empty text nodes, which will cause trouble in 'mergeAdjacentNodes' later
+                    if (wrapperNode.previousSibling && wrapperNode.previousSibling !== containerPreviousSibling
+                        && isText(wrapperNode.previousSibling) && wrapperNode.previousSibling.textContent.length === 0) {
+                        wrapperNode.previousSibling.remove();
+                    }
+                    if (wrapperNode.nextSibling && wrapperNode.nextSibling !== containerNextSibling
+                        && isText(wrapperNode.nextSibling) && wrapperNode.nextSibling.textContent.length === 0) {
+                        wrapperNode.nextSibling.remove();
+                    }
+
                 } else if (
                     isWrappable(range.commonAncestorContainer) &&
                     isWrappingNode(range.commonAncestorContainer.parentNode) &&
@@ -149,9 +180,6 @@ export default function (options) {
                     wrapTextNodesInRange(range.commonAncestorContainer, rangeInfos);
                 }
             }
-
-            // clean up the markup after wrapping...
-            range.commonAncestorContainer.normalize();
 
             currentGroupId = 0;
             isWrapping = false;
@@ -201,6 +229,7 @@ export default function (options) {
     function wrapTextNodesInRange(rootNode, rangeInfos) {
         var childNodes = rootNode.childNodes;
         var currentNode, i;
+        var splitDatas = [];
 
         for (i = 0; i < childNodes.length; i++) {
             if (hasWrapped) {
@@ -237,8 +266,10 @@ export default function (options) {
                 if (currentNode.isSameNode(rangeInfos.startNode)) {
                     if (isText(rangeInfos.startNodeContainer) && rangeInfos.startOffset !== 0) {
                         // we defer the wrapping to the next iteration of the loop
+                        //end of node should be highlighted
                         rangeInfos.startNode = currentNode.splitText(rangeInfos.startOffset);
                         rangeInfos.startOffset = 0;
+                        splitDatas.push({ node: rangeInfos.startNode, beforeWasSplit: true, afterWasSplit: false });
                     } else {
                         isWrapping = true;
                     }
@@ -246,7 +277,9 @@ export default function (options) {
 
                 if (currentNode.isSameNode(rangeInfos.endNode) && isText(rangeInfos.endNodeContainer)) {
                     if (rangeInfos.endOffset !== 0) {
+                        //start of node should be highlighted
                         currentNode.splitText(rangeInfos.endOffset);
+                        splitDatas.push({ node: currentNode, beforeWasSplit: false, afterWasSplit: true });
                     } else {
                         isWrapping = false;
                     }
@@ -254,7 +287,16 @@ export default function (options) {
 
                 // wrap the current node...
                 if (isText(currentNode)) {
-                    wrapTextNode(currentNode, currentGroupId);
+                    //if it's not empty or '\n' or 'space'
+                    if (currentNode.textContent.trim().length > 0) {
+                        const wrapperNode = wrapTextNode(currentNode, currentGroupId);
+                        if (wrapperNode) {
+                            const splitData = splitDatas.find(d => d.node === currentNode);
+                            if (splitData) {
+                                addSplitData(wrapperNode, splitData.beforeWasSplit, splitData.afterWasSplit)
+                            }
+                        }
+                    }
 
                     // ... or continue deeper in the node tree
                 } else if (isElement(currentNode)) {
@@ -363,13 +405,17 @@ export default function (options) {
     function wrapContainerChildNodes(container, indexToWrapNode, activeClass, currentGroupId) {
         const containerClass = container.className;
         const fragment = new DocumentFragment();
+        const childNodesLength = container.childNodes.length;
 
         container.childNodes.forEach((node, index) => {
+            var wrapperNode;
             if (index === indexToWrapNode) {
-                fragment.appendChild(wrapNode(node.cloneNode(), activeClass, currentGroupId));
+                wrapperNode = wrapNode(node.cloneNode(), activeClass, currentGroupId);
             } else {
-                fragment.appendChild(wrapNode(node.cloneNode(), containerClass, currentGroupId));
+                wrapperNode = wrapNode(node.cloneNode(), containerClass, currentGroupId);
             }
+            fragment.appendChild(wrapperNode);
+            addSplitData(wrapperNode, index === 0 ? container.dataset.beforeWasSplit : true, index === childNodesLength - 1 ?  container.dataset.afterWasSplit : true)
         });
 
         container.replaceWith(fragment);
@@ -382,8 +428,10 @@ export default function (options) {
      */
     function wrapTextNode(node, groupId) {
         if (isWrapping && !isWrappingNode(node.parentNode) && isWrappable(node)) {
-            $(node).wrap($(getWrapper(groupId)));
+            $(node).wrap(getWrapper(groupId));
+            return node.parentNode;
         }
+        return null;
     }
 
     /**
@@ -429,11 +477,14 @@ export default function (options) {
             currentNode = childNodes[i];
 
             if (isWrappingNode(currentNode)) {
+                currentNode.normalize();
                 while (
                     isWrappingNode(currentNode.nextSibling) &&
                     currentNode.className === currentNode.nextSibling.className
                 ) {
+                    currentNode.nextSibling.normalize();
                     currentNode.firstChild.textContent += currentNode.nextSibling.firstChild.textContent;
+                    addSplitData(currentNode, currentNode.dataset.beforeWasSplit, currentNode.nextSibling.dataset.afterWasSplit)
                     currentNode.parentNode.removeChild(currentNode.nextSibling);
                 }
             } else if (isElement(currentNode)) {
@@ -461,9 +512,8 @@ export default function (options) {
      * Remove all wrapping nodes from markup
      */
     function clearHighlights() {
-        getHighlightedNodes().each(function () {
-            var $wrapped = $(this);
-            $wrapped.replaceWith($wrapped.text());
+        getHighlightedNodes().each(function (i, elem) {
+            clearSingleHighlight({ target: elem });
         });
     }
 
@@ -471,14 +521,35 @@ export default function (options) {
      * Remove unwrap dom node
      */
     function clearSingleHighlight(e) {
-        const $wrapped = $(e.target);
-        const text = $wrapped.text();
+        const nodeToRemove = e.target;
+        const nodeToRemoveText = nodeToRemove.textContent;
+        const beforeWasSplit = nodeToRemove.dataset.beforeWasSplit === 'true';
+        const afterWasSplit = nodeToRemove.dataset.afterWasSplit === 'true';
 
-        // NOTE: JQuery replaceWith is not working with empty string https://bugs.jquery.com/ticket/13401
-        if (text === '') {
-            $wrapped.remove();
+        if (nodeToRemove.previousSibling && isText(nodeToRemove.previousSibling) && beforeWasSplit) {
+            //append text to previous sibling
+            const prevNode = nodeToRemove.previousSibling;
+            prevNode.textContent += nodeToRemoveText;
+            nodeToRemove.remove();
+
+            if (prevNode.nextSibling && isText(prevNode.nextSibling) && afterWasSplit) {
+                //merge it with next sibling
+                prevNode.textContent += prevNode.nextSibling.textContent;
+                prevNode.nextSibling.remove();
+            }
+        }
+        else if (nodeToRemove.nextSibling && isText(nodeToRemove.nextSibling) && afterWasSplit) {
+            //append text to next sibling
+            const nextNode = nodeToRemove.nextSibling;
+            nextNode.textContent = nodeToRemoveText + nextNode.textContent;
+            nodeToRemove.remove();
+        } else if (nodeToRemoveText) {
+            //keep text in a separate text node
+            const $wrapped = $(nodeToRemove);
+            $wrapped.replaceWith(nodeToRemoveText);
         } else {
-            $wrapped.replaceWith(text);
+            //text is empty, just remove it
+            nodeToRemove.remove();
         }
     }
 
@@ -502,8 +573,6 @@ export default function (options) {
         var highlightIndex = [];
         var rootNode = getContainer();
         if (rootNode) {
-            rootNode.normalize();
-
             textNodesIndex = 0;
 
             buildHighlightIndex(rootNode, highlightIndex);
@@ -517,6 +586,7 @@ export default function (options) {
      * @param {Object[]} highlightIndex
      */
     function buildHighlightIndex(rootNode, highlightIndex) {
+        //TODO: if needed, fix according to changes
         var childNodes = rootNode.childNodes;
         var i, currentNode;
         var nodeInfos, inlineRange, inlineOffset, nodesToSkip;
@@ -601,8 +671,6 @@ export default function (options) {
     function highlightFromIndex(highlightIndex) {
         var rootNode = getContainer();
         if (rootNode) {
-            rootNode.normalize();
-
             textNodesIndex = 0;
 
             restoreHighlight(rootNode, highlightIndex);
@@ -615,6 +683,7 @@ export default function (options) {
      * @param {Object[]} highlightIndex
      */
     function restoreHighlight(rootNode, highlightIndex) {
+        //TODO: if needed, fix according to changes
         var childNodes = rootNode.childNodes;
         var i, currentNode, parent;
         var nodeInfos, nodesToSkip, range, initialChildCount;
@@ -729,8 +798,13 @@ export default function (options) {
      * @returns {boolean}
      */
     function isBlacklisted(node) {
-        var closestBlackListed = $(node).closest(containersBlackList.join(','));
-        return closestBlackListed.length > 0;
+        const containerOrSelf = isText(node) ? node.parentNode : node;
+        const closestElem = containerOrSelf.closest(containersBlackAndWhiteListSelector);
+        if (!closestElem || closestElem.matches(containersWhiteListSelector)) {
+            return false;
+        } else if (closestElem.matches(containersBlackListSelector)) {
+            return true;
+        }
     }
 
     /**
