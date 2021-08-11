@@ -42,11 +42,13 @@ var defaultBlackList = ['textarea', 'math', 'script', '.select2-container'];
  * @param {Object} [options.containersBlackList] - additional blacklist selectors to be added to module instance's blacklist
  * @param {Object} [options.clearOnClick] - clear single highlight node on click
  * @param {Object} [options.colors] - keys is keeping as the "c" value of storing/restore the highlighters for indexing, values are wrappers class names
+ * @param {Boolean} [options.keepEmptyNodes] - retain original dom structure as far as possible and do not remove empty nodes if they were not created by highlighter
  * @returns {Object} - the highlighter instance
  */
 export default function (options) {
     var className = options.className;
     var containerSelector = options.containerSelector;
+    var keepEmptyNodes = options.keepEmptyNodes;
 
     let highlightingClasses = [className];
 
@@ -111,8 +113,10 @@ export default function (options) {
      * @param {Boolean} afterWasSplit
      */
     function addSplitData(node, beforeWasSplit, afterWasSplit) {
-        node.dataset.beforeWasSplit = beforeWasSplit;
-        node.dataset.afterWasSplit = afterWasSplit;
+        if (keepEmptyNodes) {
+            node.dataset.beforeWasSplit = beforeWasSplit;
+            node.dataset.afterWasSplit = afterWasSplit;
+        }
     }
 
     /**
@@ -134,17 +138,19 @@ export default function (options) {
                 ) {
                     const wrapperNode = getWrapper(currentGroupId);
                     addSplitData(wrapperNode, range.startOffset > 0, range.endOffset < range.commonAncestorContainer.length);
-                     const containerPreviousSibling = range.commonAncestorContainer.previousSibling;
+                    const containerPreviousSibling = range.commonAncestorContainer.previousSibling;
                     const containerNextSibling = range.commonAncestorContainer.nextSibling;
                     range.surroundContents(wrapperNode);
-                    //'surroundContents' can create empty text nodes, which will cause trouble in 'mergeAdjacentNodes' later
-                    if (wrapperNode.previousSibling && wrapperNode.previousSibling !== containerPreviousSibling
-                        && isText(wrapperNode.previousSibling) && wrapperNode.previousSibling.textContent.length === 0) {
-                        wrapperNode.previousSibling.remove();
-                    }
-                    if (wrapperNode.nextSibling && wrapperNode.nextSibling !== containerNextSibling
-                        && isText(wrapperNode.nextSibling) && wrapperNode.nextSibling.textContent.length === 0) {
-                        wrapperNode.nextSibling.remove();
+                    if (keepEmptyNodes) {
+                        //'surroundContents' can create empty text nodes, which will cause trouble in 'mergeAdjacentNodes' later
+                        if (wrapperNode.previousSibling && wrapperNode.previousSibling !== containerPreviousSibling
+                            && isText(wrapperNode.previousSibling) && wrapperNode.previousSibling.textContent.length === 0) {
+                            wrapperNode.previousSibling.remove();
+                        }
+                        if (wrapperNode.nextSibling && wrapperNode.nextSibling !== containerNextSibling
+                            && isText(wrapperNode.nextSibling) && wrapperNode.nextSibling.textContent.length === 0) {
+                            wrapperNode.nextSibling.remove();
+                        }
                     }
 
                 } else if (
@@ -175,6 +181,11 @@ export default function (options) {
                     hasWrapped = false;
                     wrapTextNodesInRange(range.commonAncestorContainer, rangeInfos);
                 }
+            }
+
+            if (!keepEmptyNodes) {
+                // clean up the markup after wrapping...
+                range.commonAncestorContainer.normalize();
             }
 
             currentGroupId = 0;
@@ -283,13 +294,17 @@ export default function (options) {
 
                 // wrap the current node...
                 if (isText(currentNode)) {
-                    //if it's not empty or '\n' or 'space'
-                    if (currentNode.textContent.trim().length > 0) {
-                        const wrapperNode = wrapTextNode(currentNode, currentGroupId);
-                        if (wrapperNode) {
-                            const splitData = splitDatas.find(d => d.node === currentNode);
-                            if (splitData) {
-                                addSplitData(wrapperNode, splitData.beforeWasSplit, splitData.afterWasSplit)
+                    if (!keepEmptyNodes) {
+                        wrapTextNode(currentNode, currentGroupId);
+                    } else {
+                        //if it's not empty or '\n' or 'space'
+                        if (currentNode.textContent.trim().length > 0) {
+                            const wrapperNode = wrapTextNode(currentNode, currentGroupId);
+                            if (wrapperNode) {
+                                const splitData = splitDatas.find(d => d.node === currentNode);
+                                if (splitData) {
+                                    addSplitData(wrapperNode, splitData.beforeWasSplit, splitData.afterWasSplit)
+                                }
                             }
                         }
                     }
@@ -481,12 +496,16 @@ export default function (options) {
             currentNode = childNodes[i];
 
             if (isWrappingNode(currentNode)) {
-                currentNode.normalize();
+                if (keepEmptyNodes) {
+                    currentNode.normalize();
+                }
                 while (
                     isWrappingNode(currentNode.nextSibling) &&
                     currentNode.className === currentNode.nextSibling.className
                 ) {
-                    currentNode.nextSibling.normalize();
+                    if (keepEmptyNodes) {
+                        currentNode.nextSibling.normalize();
+                    }
                     currentNode.firstChild.textContent += currentNode.nextSibling.firstChild.textContent;
                     addSplitData(currentNode, currentNode.dataset.beforeWasSplit, currentNode.nextSibling.dataset.afterWasSplit)
                     currentNode.parentNode.removeChild(currentNode.nextSibling);
@@ -517,7 +536,12 @@ export default function (options) {
      */
     function clearHighlights() {
         getHighlightedNodes().each(function (i, elem) {
-            clearSingleHighlight({ target: elem });
+            if (!keepEmptyNodes) {
+                var $wrapped = $(this);
+                $wrapped.replaceWith($wrapped.text());
+            } else {
+                clearSingleHighlight({ target: elem });
+            }
         });
     }
 
@@ -525,35 +549,47 @@ export default function (options) {
      * Remove unwrap dom node
      */
     function clearSingleHighlight(e) {
-        const nodeToRemove = e.target;
-        const nodeToRemoveText = nodeToRemove.textContent;
-        const beforeWasSplit = nodeToRemove.dataset.beforeWasSplit === 'true';
-        const afterWasSplit = nodeToRemove.dataset.afterWasSplit === 'true';
+        if (!keepEmptyNodes) {
+            const $wrapped = $(e.target);
+            const text = $wrapped.text();
 
-        if (nodeToRemove.previousSibling && isText(nodeToRemove.previousSibling) && beforeWasSplit) {
-            //append text to previous sibling
-            const prevNode = nodeToRemove.previousSibling;
-            prevNode.textContent += nodeToRemoveText;
-            nodeToRemove.remove();
-
-            if (prevNode.nextSibling && isText(prevNode.nextSibling) && afterWasSplit) {
-                //merge it with next sibling
-                prevNode.textContent += prevNode.nextSibling.textContent;
-                prevNode.nextSibling.remove();
+            // NOTE: JQuery replaceWith is not working with empty string https://bugs.jquery.com/ticket/13401
+            if (text === '') {
+                $wrapped.remove();
+            } else {
+                $wrapped.replaceWith(text);
             }
-        }
-        else if (nodeToRemove.nextSibling && isText(nodeToRemove.nextSibling) && afterWasSplit) {
-            //append text to next sibling
-            const nextNode = nodeToRemove.nextSibling;
-            nextNode.textContent = nodeToRemoveText + nextNode.textContent;
-            nodeToRemove.remove();
-        } else if (nodeToRemoveText) {
-            //keep text in a separate text node
-            const $wrapped = $(nodeToRemove);
-            $wrapped.replaceWith(nodeToRemoveText);
         } else {
-            //text is empty, just remove it
-            nodeToRemove.remove();
+            const nodeToRemove = e.target;
+            const nodeToRemoveText = nodeToRemove.textContent;
+            const beforeWasSplit = nodeToRemove.dataset.beforeWasSplit === 'true';
+            const afterWasSplit = nodeToRemove.dataset.afterWasSplit === 'true';
+
+            if (beforeWasSplit && nodeToRemove.previousSibling && isText(nodeToRemove.previousSibling) && nodeToRemove.previousSibling.textContent) {
+                //append text to previous sibling
+                const prevNode = nodeToRemove.previousSibling;
+                prevNode.textContent += nodeToRemoveText;
+                nodeToRemove.remove();
+
+                if (afterWasSplit && prevNode.nextSibling && isText(prevNode.nextSibling) && prevNode.nextSibling.textContent) {
+                    //merge it with next sibling
+                    prevNode.textContent += prevNode.nextSibling.textContent;
+                    prevNode.nextSibling.remove();
+                }
+            }
+            else if (afterWasSplit && nodeToRemove.nextSibling && isText(nodeToRemove.nextSibling) && nodeToRemove.nextSibling.textContent) {
+                //append text to next sibling
+                const nextNode = nodeToRemove.nextSibling;
+                nextNode.textContent = nodeToRemoveText + nextNode.textContent;
+                nodeToRemove.remove();
+            } else if (nodeToRemoveText) {
+                //keep text in a separate text node
+                const $wrapped = $(nodeToRemove);
+                $wrapped.replaceWith(nodeToRemoveText);
+            } else {
+                //text is empty, just remove it
+                nodeToRemove.remove();
+            }
         }
     }
 
@@ -577,6 +613,10 @@ export default function (options) {
         var highlightIndex = [];
         var rootNode = getContainer();
         if (rootNode) {
+            if (!keepEmptyNodes) {
+                rootNode.normalize();
+            }
+
             textNodesIndex = 0;
 
             buildHighlightIndex(rootNode, highlightIndex);
@@ -675,6 +715,10 @@ export default function (options) {
     function highlightFromIndex(highlightIndex) {
         var rootNode = getContainer();
         if (rootNode) {
+            if (!keepEmptyNodes) {
+                rootNode.normalize();
+            }
+
             textNodesIndex = 0;
 
             restoreHighlight(rootNode, highlightIndex);
