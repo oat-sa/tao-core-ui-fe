@@ -284,9 +284,14 @@ export default function (options) {
 
                 if (currentNode.isSameNode(rangeInfos.endNode) && isText(rangeInfos.endNodeContainer)) {
                     if (rangeInfos.endOffset !== 0) {
-                        //start of node should be highlighted
-                        currentNode.splitText(rangeInfos.endOffset);
-                        splitDatas.push({ node: currentNode, beforeWasSplit: false, afterWasSplit: true });
+                        if (rangeInfos.endOffset < currentNode.textContent.length) {
+                            //start of node should be highlighted
+                            currentNode.splitText(rangeInfos.endOffset);
+                            splitDatas.push({ node: currentNode, beforeWasSplit: false, afterWasSplit: true });
+                        } else {
+                            //whole node should be highlighted
+                            splitDatas.push({ node: currentNode, beforeWasSplit: false, afterWasSplit: false });
+                        }
                     } else {
                         isWrapping = false;
                     }
@@ -297,8 +302,13 @@ export default function (options) {
                     if (!keepEmptyNodes) {
                         wrapTextNode(currentNode, currentGroupId);
                     } else {
-                        //if it's not empty or '\n' or 'space'
-                        if (currentNode.textContent.trim().length > 0) {
+                        //do the work of `unwrapEmptyHighlights` ahead of time, before `mergeAdjacentNodes` runs,
+                        //because in this branch we do not want to add nodes to dom unless necessary.
+                        //also be more strict and don't allow to select nodes with spaces only, because the may appear in unexpected places in markup
+                        if (currentNode.textContent.length && (
+                                currentNode.textContent.trim().length ||
+                                (currentNode.previousSibling && isWrappingNode(currentNode.previousSibling) && currentNode.previousSibling.className === className) ||
+                                (currentNode.nextSibling && isWrappingNode(currentNode.nextSibling) && currentNode.nextSibling.className === className))) {
                             const wrapperNode = wrapTextNode(currentNode, currentGroupId);
                             if (wrapperNode) {
                                 const splitData = splitDatas.find(d => d.node === currentNode);
@@ -426,7 +436,9 @@ export default function (options) {
                 wrapperNode = wrapNode(node.cloneNode(), containerClass, currentGroupId);
             }
             fragment.appendChild(wrapperNode);
-            addSplitData(wrapperNode, index === 0 ? container.dataset.beforeWasSplit : true, index === childNodesLength - 1 ?  container.dataset.afterWasSplit : true)
+            addSplitData(wrapperNode,
+                index === 0 ? container.dataset.beforeWasSplit : true,
+                index === childNodesLength - 1 ? container.dataset.afterWasSplit : true)
         });
 
         container.replaceWith(fragment);
