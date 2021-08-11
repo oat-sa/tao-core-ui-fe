@@ -94,6 +94,7 @@ const _defaults = {
         canSeek: true,
         loop: false,
         autoStart: false,
+        preview: true,
         debug: false
     }
 };
@@ -234,6 +235,7 @@ const _players = {
  * @param {Number} [config.volume] - Sets the sound volume (default: 80)
  * @param {Number} [config.width] - Sets the width of the player (default: depends on media type)
  * @param {Number} [config.height] - Sets the height of the player (default: depends on media type)
+ * @param {Boolean} [config.preview] - Enables the media preview (load media metadata)
  * @param {Boolean} [config.debug] - Enables the debug mode
  * @event render - Event triggered when the player is rendering
  * @event error - Event triggered when the player throws an unrecoverable error
@@ -887,6 +889,7 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
                     const playerConfig = {
                         type: this.getType(),
                         sources: this.getSources(),
+                        preview: this.config.preview,
                         debug: this.config.debug
                     };
                     this.player = player(this.$player, playerConfig)
