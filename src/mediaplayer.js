@@ -73,12 +73,6 @@ const _volumeMax = 100;
 const volumePositionThreshold = 200;
 
 /**
- * Delay before considering stalled playback
- * @type {Number}
- */
-const stalledTimeout = 2000;
-
-/**
  * Some default values
  * @type {Object}
  * @private
@@ -102,6 +96,7 @@ const _defaults = {
         startMuted: false,
         maxPlays: 0,
         replayTimeout: 0,
+        stalledTimeout: 2000,
         canPause: true,
         canSeek: true,
         loop: false,
@@ -241,6 +236,7 @@ const _players = {
  * @param {Number} [config.autoStartAt] - The time position at which the player should start
  * @param {Number} [config.maxPlays] - Sets a few number of plays (default: infinite)
  * @param {Number} [config.replayTimeout] - disable the possibility to replay a media after this timeout, in seconds (default: 0)
+ * @param {Number} [config.stalledTimeout] - delay before considering stalled playback (default: 2000)
  * @param {Number} [config.volume] - Sets the sound volume (default: 80)
  * @param {Number} [config.width] - Sets the width of the player (default: depends on media type)
  * @param {Number} [config.height] - Sets the height of the player (default: depends on media type)
@@ -1445,7 +1441,7 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
                 }
                 this._setState('stalled', true);
                 this._setState('ready', false);
-            }, stalledTimeout);
+            }, this.config.stalledTimeout);
         },
 
         /**
