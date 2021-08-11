@@ -25,12 +25,6 @@ import videoTpl from 'ui/mediaplayer/tpl/video';
 import sourceTpl from 'ui/mediaplayer/tpl/source';
 
 /**
- * Enables the debug mode
- * @type {Boolean}
- */
-const debugMode = false;
-
-/**
  * CSS namespace
  * @type {String}
  */
@@ -78,12 +72,15 @@ const mediaEvents = [
 /**
  * Defines a player object dedicated to the native HTML5 player
  * @param {jQuery} $container - Where to render the player
- * @param {Array} sources - The list of media sources
- * @param {String} type - The type of player (video or audio)
+ * @param {Object} config - The list of config entries
+ * @param {Array} config.sources - The list of media sources
+ * @param {String} [config.type] - The type of player (video or audio) (default: video)
+ * @param {Boolean} [config.debug] - Enables the debug mode
  * @returns {Object} player
  */
-export default function html5PlayerFactory($container, sources = [], type = 'video') {
-    sources = sources || [];
+export default function html5PlayerFactory($container, config = {}) {
+    const type = config.type || 'video';
+    const sources = config.sources || [];
 
     let $media;
     let media;
@@ -168,8 +165,8 @@ export default function html5PlayerFactory($container, sources = [], type = 'vid
                     this.trigger('playing');
                 });
 
-            if (debugMode) {
-                // install debug logger
+            // install debug logger
+            if (config.debug) {
                 mediaEvents.forEach(ev => {
                     $media.on(ev + ns, e => {
                         window.console.log(

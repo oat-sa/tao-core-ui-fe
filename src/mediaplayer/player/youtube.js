@@ -23,12 +23,6 @@ import youtubeManagerFactory from 'ui/mediaplayer/youtubeManager';
 import youtubeTpl from 'ui/mediaplayer/tpl/youtube';
 
 /**
- * Enables the debug mode
- * @type {Boolean}
- */
-const debugMode = false;
-
-/**
  * The polling interval used to update the progress bar while playing a YouTube video.
  * Note : the YouTube API does not provide events to update this progress bar...
  * @type {Number}
@@ -67,12 +61,13 @@ const youtubeManager = youtubeManagerFactory();
 /**
  * Defines a player object dedicated to youtube media
  * @param {jQuery} $container - Where to render the player
- * @param {Array} sources - The list of media sources
- * @param {String} type - The type of player (youtube)
+ * @param {Object} config - The list of config entries
+ * @param {Array} config.sources - The list of media sources
+ * @param {Boolean} [config.debug] - Enables the debug mode
  * @returns {Object} player
  */
-export default function youtubePlayerFactory($container, sources = [], type= 'youtube') {
-    sources = sources || [];
+export default function youtubePlayerFactory($container, config = {}) {
+    const sources = config.sources || [];
     const source = sources[0] || {};
     const otherSources = sources.slice(1);
 
@@ -121,8 +116,8 @@ export default function youtubePlayerFactory($container, sources = [], type= 'yo
             $media = $(media.getIframe()); // the injected media placeholder is replaced by an iframe by the YouTube lib
 
             if (!destroyed) {
-                if (debugMode) {
-                    // install debug logger
+                // install debug logger
+                if (config.debug) {
                     youtubeEvents.forEach(ev => media.addEventListener(ev, e => window.console.log(ev, e)));
                 }
 

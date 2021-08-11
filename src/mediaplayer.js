@@ -31,13 +31,6 @@ import 'ui/mediaplayer/css/player.css';
 import 'nouislider';
 
 /**
- * Enable the debug mode
- * @type {boolean}
- * @private
- */
-const _debugMode = false;
-
-/**
  * CSS namespace
  * @type {String}
  * @private
@@ -100,7 +93,8 @@ const _defaults = {
         canPause: true,
         canSeek: true,
         loop: false,
-        autoStart: false
+        autoStart: false,
+        debug: false
     }
 };
 
@@ -240,6 +234,7 @@ const _players = {
  * @param {Number} [config.volume] - Sets the sound volume (default: 80)
  * @param {Number} [config.width] - Sets the width of the player (default: depends on media type)
  * @param {Number} [config.height] - Sets the height of the player (default: depends on media type)
+ * @param {Boolean} [config.debug] - Enables the debug mode
  * @event render - Event triggered when the player is rendering
  * @event error - Event triggered when the player throws an unrecoverable error
  * @event recovererror - Event triggered when the player throws a recoverable error
@@ -889,7 +884,12 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
 
             if (support.canPlay(this.type)) {
                 if (_.isFunction(player)) {
-                    this.player = player(this.$player, this.getSources(), this.getType())
+                    const playerConfig = {
+                        type: this.getType(),
+                        sources: this.getSources(),
+                        debug: this.config.debug
+                    };
+                    this.player = player(this.$player, playerConfig)
                         .on('resize', (width, height) => {
                             if (this.$component) {
                                 this.$component.width(width).height(height);
