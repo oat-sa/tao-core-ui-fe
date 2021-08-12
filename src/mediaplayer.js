@@ -329,8 +329,10 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
 
             this._initState();
             this._buildDom();
-            this._updateDuration(0);
-            this._updatePosition(0);
+            if (this.config.preview) {
+                this._updateDuration(0);
+                this._updatePosition(0);
+            }
             this._bindEvents();
             this._playingState(false, true);
             this._initPlayer();
@@ -499,6 +501,16 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
             }
 
             return this;
+        },
+
+        /**
+         * Starts the media
+         * @returns {mediaplayer}
+         */
+        start() {
+            this._setState('preview', true);
+            this._setState('loading', true);
+            this.play();
         },
 
         /**
@@ -920,6 +932,7 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
 
             this._setState('error', error);
             this._setState('nogui', !support.canControl());
+            this._setState('preview', this.config.preview);
             this._setState('loading', true);
         },
 
@@ -1253,7 +1266,11 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
                 this._onRecoverError();
             }
 
-            this._updateDuration(this.player.getDuration());
+            const duration = this.player.getDuration();
+            const timePreview = this.config.preview || duration;
+            if (timePreview) {
+                this._updateDuration(duration);
+            }
             this.setInitialStates();
 
             /**
@@ -1269,6 +1286,8 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
                 this.seek(this.autoStartAt);
             } else if (this.autoStart) {
                 this.play();
+            } else if (timePreview) {
+                this._updatePosition(0);
             }
 
             if (this.$container && this.config.height && this.config.height !== 'auto') {

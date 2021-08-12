@@ -3,6 +3,10 @@
         <div class="overlay">
             <a class="action play" data-control="play"><span class="icon icon-play" title="{{__ 'Play'}}"></span></a>
             <a class="action play" data-control="pause"><span class="icon icon-pause" title="{{__ 'Pause'}}"></span></a>
+            <a class="action reload" data-control="start">
+                <span class="icon icon-play" title="{{__ 'Start'}}"></span>
+                <div class="message">{{__ 'Click to start'}}</div>
+            </a>
             <a class="action reload" data-control="reload">
                 <div class="icon icon-reload" title="{{__ 'Reload'}}"></div>
                 <div class="message">{{__ 'You are encountering a prolonged connectivity loss.'}}</div>
@@ -18,8 +22,8 @@
             </div>
             <div class="control seek"><div class="slider"></div></div>
             <div class="control infos timer">
-                <span class="info time" data-control="time-cur" title="{{__ 'Current playback position'}}">00:00</span>
-                <span class="info time" data-control="time-end" title="{{__ 'Total duration'}}">00:00</span>
+                <span class="info time" data-control="time-cur" title="{{__ 'Current playback position'}}">--:--</span>
+                <span class="info time" data-control="time-end" title="{{__ 'Total duration'}}">--:--</span>
             </div>
             <div class="control actions sound">
                 <div class="volume"><div class="slider"></div></div>
