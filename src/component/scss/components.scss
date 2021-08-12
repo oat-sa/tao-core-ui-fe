@@ -238,6 +238,12 @@ ul.listbox {
         cursor: pointer;
         font-weight: bold;
         color: $textColor;
+
+        [dir="rtl"] & {
+            right: auto;
+            left: 12px;
+        }
+
         &:hover{
             opacity: 0.6;
         }
@@ -273,6 +279,12 @@ ul.listbox {
         .buttons{
             top: 16px;
             position: relative;
+
+            [dir="rtl"] & {
+                float: left;
+                display: flex;
+                flex-direction: row-reverse;
+            }
 
             //flat button
             button {
