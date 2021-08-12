@@ -206,7 +206,10 @@ export default function html5PlayerFactory($container, config = {}) {
                 });
             }
 
-            sources.forEach(source => $media.append(sourceTpl(source)));
+            sources.forEach(source => {
+                const { src, type } = source;
+                this.addMedia(src, type);
+            });
 
             return result;
         },
