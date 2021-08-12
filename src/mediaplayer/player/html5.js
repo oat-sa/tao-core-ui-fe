@@ -164,6 +164,10 @@ export default function html5PlayerFactory($container, config = {}) {
                     if (media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
                         this.trigger('error');
                     }
+
+                    if (!config.preview && media.networkState === HTMLMediaElement.NETWORK_IDLE) {
+                        this.trigger('ready');
+                    }
                 })
                 .on(`error${ns}`, () => {
                     if (media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
