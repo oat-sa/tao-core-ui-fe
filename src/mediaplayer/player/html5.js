@@ -70,6 +70,23 @@ const mediaEvents = [
 ];
 
 /**
+ * List of player events that can be listened to for debugging
+ * @type {String[]}
+ */
+const playerEvents = [
+    'end',
+    'error',
+    'pause',
+    'play',
+    'playing',
+    'ready',
+    'recovererror',
+    'resize',
+    'stalled',
+    'timeupdate'
+];
+
+/**
  * Defines a player object dedicated to the native HTML5 player
  * @param {jQuery} $container - Where to render the player
  * @param {Object} config - The list of config entries
@@ -169,14 +186,18 @@ export default function html5PlayerFactory($container, config = {}) {
 
             // install debug logger
             if (config.debug) {
-                mediaEvents.forEach(ev => {
-                    $media.on(ev + ns, e => {
-                        window.console.log(
-                            e.type,
-                            $media && $media.find('source').attr('src'),
-                            'networkState', media && media.networkState,
-                            'readyState', media && media.readyState
-                        );
+                const networkState = () => media && media.networkState;
+                const readyState = () => media && media.readyState;
+                const getDebugContext = action => `[html5-${type}(networkState=${networkState()},readyState=${readyState()}):${action}]`;
+                window.console.log(getDebugContext('installed'), media);
+                mediaEvents.forEach(eventName => {
+                    $media.on(eventName + ns, e => {
+                        window.console.log(getDebugContext('media event'), eventName, $media && $media.find('source').attr('src'), e);
+                    });
+                });
+                playerEvents.forEach(eventName => {
+                    this.on(eventName, (...args) => {
+                        window.console.log(getDebugContext('player event'), eventName, $media && $media.find('source').attr('src'), ...args);
                     });
                 });
             }

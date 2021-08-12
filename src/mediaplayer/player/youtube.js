@@ -39,7 +39,27 @@ const reYoutube = /([?&\/]v[=\/])([\w-]+)([&\/]?)/;
  * List of YouTube events that can be listened to for debugging
  * @type {String[]}
  */
-const youtubeEvents = ['onStateChange', 'onPlaybackQualityChange', 'onPlaybackRateChange', 'onError', 'onApiChange'];
+const youtubeEvents = [
+    'onApiChange',
+    'onError',
+    'onPlaybackQualityChange',
+    'onPlaybackRateChange',
+    'onStateChange'
+];
+
+/**
+ * List of player events that can be listened to for debugging
+ * @type {String[]}
+ */
+const playerEvents = [
+    'end',
+    'error',
+    'pause',
+    'play',
+    'ready',
+    'resize',
+    'timeupdate'
+];
 
 /**
  * Extracts the ID of a Youtube video from an URL
@@ -118,7 +138,15 @@ export default function youtubePlayerFactory($container, config = {}) {
             if (!destroyed) {
                 // install debug logger
                 if (config.debug) {
-                    youtubeEvents.forEach(ev => media.addEventListener(ev, e => window.console.log(ev, e)));
+                    window.console.log('[youtube:installed]', media);
+                    youtubeEvents.forEach(eventName => media.addEventListener(eventName, e => {
+                        window.console.log('[youtube:media event]', eventName, $media && $media.data('videoSrc'), e);
+                    }));
+                    playerEvents.forEach(eventName => {
+                        this.on(eventName, (...args) => {
+                            window.console.log('[youtube:player event]', eventName, $media && $media.data('videoSrc'), ...args);
+                        });
+                    });
                 }
 
                 if (initWidth && initHeight) {
