@@ -102,7 +102,8 @@ export default function html5PlayerFactory($container, config = {}) {
 
     let $media;
     let media;
-    let played;
+    let playback = false;
+    let loaded = false;
     let stalled = false;
 
     const player = {
@@ -131,7 +132,9 @@ export default function html5PlayerFactory($container, config = {}) {
             $container.append($media);
 
             media = null;
-            played = false;
+            playback = false;
+            loaded = false;
+            stalled = false;
 
             media = $media.get(0);
             result = !!(media && media.canPlayType);
@@ -143,14 +146,14 @@ export default function html5PlayerFactory($container, config = {}) {
 
             $media
                 .on(`play${ns}`, () => {
-                    played = true;
+                    playback = true;
                     this.trigger('play');
                 })
                 .on(`pause${ns}`, () => {
                     this.trigger('pause');
                 })
                 .on(`ended${ns}`, () => {
-                    played = false;
+                    playback = false;
                     this.trigger('end');
                 })
                 .on(`timeupdate${ns}`, () => {
@@ -176,7 +179,8 @@ export default function html5PlayerFactory($container, config = {}) {
                         this.trigger('recovererror', media.networkState === HTMLMediaElement.NETWORK_LOADING);
                     }
                 })
-                .on(`loadedmetadata${ns}`, () => {
+                .on(`canplay${ns}`, () => {
+                    loaded = true;
                     this.trigger('ready');
                 })
                 .on(`stalled${ns}`, () => {
@@ -196,12 +200,12 @@ export default function html5PlayerFactory($container, config = {}) {
                 window.console.log(getDebugContext('installed'), media);
                 mediaEvents.forEach(eventName => {
                     $media.on(eventName + ns, e => {
-                        window.console.log(getDebugContext('media event'), eventName, $media && $media.find('source').attr('src'), e);
+                        window.console.log(getDebugContext('media event'), eventName, media && media.currentSrc, e);
                     });
                 });
                 playerEvents.forEach(eventName => {
                     this.on(eventName, (...args) => {
-                        window.console.log(getDebugContext('player event'), eventName, $media && $media.find('source').attr('src'), ...args);
+                        window.console.log(getDebugContext('player event'), eventName, media && media.currentSrc, ...args);
                     });
                 });
             }
@@ -224,7 +228,9 @@ export default function html5PlayerFactory($container, config = {}) {
 
             $media = null;
             media = null;
-            played = false;
+            playback = false;
+            loaded = false;
+            stalled = false;
         },
 
         getMedia() {
@@ -276,7 +282,7 @@ export default function html5PlayerFactory($container, config = {}) {
         seek(value) {
             if (media) {
                 media.currentTime = parseFloat(value);
-                if (!played) {
+                if (!playback) {
                     this.play();
                 }
             }
@@ -284,7 +290,8 @@ export default function html5PlayerFactory($container, config = {}) {
 
         play() {
             if (media) {
-                media.play();
+                media.play()
+                    .catch(err => this.trigger('error', err));
             }
         },
 
@@ -295,7 +302,7 @@ export default function html5PlayerFactory($container, config = {}) {
         },
 
         stop() {
-            if (media && played) {
+            if (media && playback) {
                 media.currentTime = media.duration;
             }
         },
