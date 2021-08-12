@@ -19,8 +19,8 @@ export default function(options) {
 
     $container.on(`fileselect.${ns}`, function(e, file) {
         const $listItem = $container[0].querySelector(`[data-file='${file.file}']`);
-        if (file && file.file && $listItem && $listItem.dataset.preview === 'true') {
-            startPreview(file, $listItem.dataset.download === 'true');
+        if (file && file.file && $listItem && $listItem.dataset) {
+            startPreview(file, $listItem.dataset.preview === 'true', $listItem.dataset.download === 'true');
             currentSelection = file;
         } else {
             stopPreview();
@@ -43,10 +43,12 @@ export default function(options) {
         $container.trigger(`select.${ns}`, [[data]]);
     });
 
-    function startPreview(file, download) {
-        $previewer.previewer(file);
-        $propType.text(`${file.type} (${file.mime})`);
-        $propSize.text(bytes.hrSize(file.size));
+    function startPreview(file, preview, download) {
+        if (preview) {
+            $previewer.previewer(file);
+            $propType.text(`${file.type} (${file.mime})`);
+            $propSize.text(bytes.hrSize(file.size));
+        }
         if(download) {
             $link.attr('href', file.download).attr('download', file.file);
             if ($link.hasClass('hidden')) {
