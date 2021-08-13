@@ -5,7 +5,8 @@
         data-mime="{{mime}}" 
         data-size="{{size}}" 
         data-url="{{viewUrl}}" 
-        {{#if permissions.read}} data-download="{{downloadUrl}}"{{/if}}
+        {{#if permissions.download}} data-download="true" {{/if}}
+        {{#if permissions.preview}} data-preview="true" {{/if}}
         data-alt="{{alt}}">
         <span class="desc truncate">{{name}}</span>
         <div class="actions">
@@ -16,9 +17,13 @@
                             <span class="tlb-start"></span>
                             {{#if permissions.read }}
                                 <span class="tlb-group">
-                                    <a href="#" class="tlb-button-off select" title="{{__ 'Select this file'}}"><span class="icon-move-item"></span></a>
-                                    <a href="{{downloadUrl}}" download="{{name}}" target="_blank" class="tlb-button-off download" title="{{__ 'Download this file'}}"><span class="icon-download"></span></a>
-                                    {{#if permissions.write }}
+                                    {{#if permissions.read}}
+                                        <a href="#" class="tlb-button-off select" title="{{__ 'Select this file'}}"><span class="icon-move-item"></span></a>
+                                    {{/if}}
+                                    {{#if permissions.download}}
+                                        <a href="{{downloadUrl}}" download="{{name}}" target="_blank" class="tlb-button-off download" title="{{__ 'Download this file'}}"><span class="icon-download"></span></a>
+                                    {{/if}}
+                                    {{#if permissions.delete }}
                                         <a href="#" class="tlb-button-off" title="{{__ 'Remove this file'}}" data-delete=":parent li"><span class="icon-bin"></span></a>
                                     {{/if}}
                                 </span>
