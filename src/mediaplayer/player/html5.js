@@ -312,7 +312,7 @@ export default function html5PlayerFactory($container, config = {}) {
 
             if (media) {
                 media.play()
-                    .catch(err => this.trigger('error', err));
+                    .catch(err => debug('playback error', err));
             }
         },
 
