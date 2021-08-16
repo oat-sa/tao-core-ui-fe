@@ -24,8 +24,7 @@ import eventifier from 'core/eventifier';
 import mimetype from 'core/mimetype';
 import store from 'core/store';
 import support from 'ui/mediaplayer/support';
-import html5PlayerFactory from 'ui/mediaplayer/player/html5';
-import youtubePlayerFactory from 'ui/mediaplayer/player/youtube';
+import players from 'ui/mediaplayer/players';
 import playerTpl from 'ui/mediaplayer/tpl/player';
 import 'ui/mediaplayer/css/player.css';
 import 'nouislider';
@@ -186,16 +185,6 @@ const configToSources = config => {
  */
 const isResponsiveSize = sizeProps => {
     return /%/.test(sizeProps) || sizeProps === 'auto';
-};
-
-/**
- * Defines the list of available players
- * @type {Object}
- */
-const players = {
-    audio: html5PlayerFactory,
-    video: html5PlayerFactory,
-    youtube: youtubePlayerFactory
 };
 
 /**
@@ -874,18 +863,18 @@ function mediaplayerFactory(config) {
          * @private
          */
         _initPlayer() {
-            const player = players[this.type];
+            const playerFactory = players[this.type];
             let error;
 
             if (support.canPlay(this.type)) {
-                if (_.isFunction(player)) {
+                if (_.isFunction(playerFactory)) {
                     const playerConfig = {
                         type: this.getType(),
                         sources: this.getSources(),
                         preview: this.config.preview,
                         debug: this.config.debug
                     };
-                    this.player = player(this.$player, playerConfig)
+                    this.player = playerFactory(this.$player, playerConfig)
                         .on('resize', (width, height) => {
                             if (this.$component) {
                                 this.$component.width(width).height(height);
