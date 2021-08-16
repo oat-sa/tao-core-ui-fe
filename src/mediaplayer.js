@@ -1357,6 +1357,7 @@ function mediaplayerFactory(config) {
          */
         _onPlay() {
             this._playingState(true);
+            this._setState('preview', true);
 
             /**
              * Triggers a media playback event
@@ -1416,6 +1417,7 @@ function mediaplayerFactory(config) {
          * @private
          */
         _onPlaying() {
+            this._setState('preview', true);
             this._setState('stalled', false);
             this._setState('ready', true);
         },
