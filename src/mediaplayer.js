@@ -33,23 +33,20 @@ import 'nouislider';
 /**
  * CSS namespace
  * @type {String}
- * @private
  */
-const _ns = '.mediaplayer';
+const ns = '.mediaplayer';
 
 /**
  * Minimum value of the volume
  * @type {Number}
- * @private
  */
-const _volumeMin = 0;
+const volumeMin = 0;
 
 /**
  * Maximum value of the volume
  * @type {Number}
- * @private
  */
-const _volumeMax = 100;
+const volumeMax = 100;
 
 /**
  * Threshold (minimum required space above the player) to display the volume
@@ -61,9 +58,8 @@ const volumePositionThreshold = 200;
 /**
  * Some default values
  * @type {Object}
- * @private
  */
-const _defaults = {
+const defaults = {
     type: 'video/mp4',
     video: {
         width: '100%',
@@ -96,9 +92,8 @@ const _defaults = {
  * Ensures a value is a number
  * @param {Number|String} value
  * @returns {Number}
- * @private
  */
-const _ensureNumber = value => {
+const ensureNumber = value => {
     const floatValue = parseFloat(value);
     return isFinite(floatValue) ? floatValue : 0;
 };
@@ -108,9 +103,8 @@ const _ensureNumber = value => {
  * @param {Number} n
  * @param {Number} len
  * @returns {String}
- * @private
  */
-const _leadingZero = (n, len) => {
+const leadingZero = (n, len) => {
     let value = n.toString();
     while (value.length < len) {
         value = `0${value}`;
@@ -122,9 +116,8 @@ const _leadingZero = (n, len) => {
  * Formats a time value to string
  * @param {Number} time
  * @returns {String}
- * @private
  */
-const _timerFormat = time => {
+const timerFormat = time => {
     const seconds = Math.floor(time % 60);
     const minutes = Math.floor(time / 60) % 60;
     const hours = Math.floor(time / 3600);
@@ -133,8 +126,8 @@ const _timerFormat = time => {
     if (hours) {
         parts.push(hours);
     }
-    parts.push(_leadingZero(minutes, 2));
-    parts.push(_leadingZero(seconds, 2));
+    parts.push(leadingZero(minutes, 2));
+    parts.push(leadingZero(seconds, 2));
 
     return parts.join(':');
 };
@@ -143,9 +136,8 @@ const _timerFormat = time => {
  * Checks if a type needs to be adjusted
  * @param {String} type
  * @returns {Boolean}
- * @private
  */
-const _needTypeAdjust = type => {
+const needTypeAdjust = type => {
     return 'string' === typeof type && type.indexOf('application') === 0;
 };
 
@@ -153,9 +145,8 @@ const _needTypeAdjust = type => {
  * Adjust bad type by apllying heuristic on URI
  * @param {Object|String} source
  * @returns {String}
- * @private
  */
-const _getAdjustedType = source => {
+const getAdjustedType = source => {
     let type = 'video/ogg';
     const url = (source && source.src) || source;
     const ext = url && url.substr(-4);
@@ -169,9 +160,8 @@ const _getAdjustedType = source => {
  * Extract a list of media sources from a config object
  * @param {Object} config
  * @returns {Array}
- * @private
  */
-const _configToSources = config => {
+const configToSources = config => {
     let sources = config.sources || [];
     let url = config.url;
 
@@ -193,18 +183,16 @@ const _configToSources = config => {
  * Checks if the browser can play media
  * @param {String} sizeProps Width or Height
  * @returns {Boolean}
- * @private
  */
-const _isResponsiveSize = sizeProps => {
+const isResponsiveSize = sizeProps => {
     return /%/.test(sizeProps) || sizeProps === 'auto';
 };
 
 /**
  * Defines the list of available players
  * @type {Object}
- * @private
  */
-const _players = {
+const players = {
     audio: html5PlayerFactory,
     video: html5PlayerFactory,
     youtube: youtubePlayerFactory
@@ -242,7 +230,7 @@ const _players = {
  * @event destroy - Event triggered when the player is destroying
  * @returns {mediaplayer}
  */
-const mediaplayerFactory = function mediaplayerFactory(config) {
+function mediaplayerFactory(config) {
     /**
      * Defines a media player object
      * @type {Object}
@@ -256,8 +244,8 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
         init(config) {
             // load the config set, discard null values in order to allow defaults to be set
             this.config = _.omit(config || {}, value => typeof value === 'undefined' || value === null);
-            _.defaults(this.config, _defaults.options);
-            this._setType(this.config.type || _defaults.type);
+            _.defaults(this.config, defaults.options);
+            this._setType(this.config.type || defaults.type);
 
             this._reset();
             this._updateVolumeFromStore();
@@ -699,7 +687,7 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
          * @returns {mediaplayer}
          */
         resize(width, height) {
-            if ((_isResponsiveSize(width) && !_isResponsiveSize(height)) || this.is('youtube')) {
+            if ((isResponsiveSize(width) && !isResponsiveSize(height)) || this.is('youtube')) {
                 // responsive width height should be auto
                 // for youtube iframe height is limited by ration
                 height = 'auto';
@@ -755,7 +743,7 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
          */
         getMediaOriginalSize() {
             if (this.is('youtube')) {
-                return _defaults.youtube;
+                return defaults.youtube;
             }
             if (this.is('video') && this.player) {
                 return this.player.getMediaSize();
@@ -796,8 +784,8 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
         _getSource(src, callback) {
             let source;
             const done = () => {
-                if (_needTypeAdjust(source.type)) {
-                    source.type = _getAdjustedType(source);
+                if (needTypeAdjust(source.type)) {
+                    source.type = getAdjustedType(source);
                 }
 
                 callback.call(this, source);
@@ -812,13 +800,13 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
             }
 
             if (this.is('youtube') && !source.type) {
-                source.type = _defaults.type;
+                source.type = defaults.type;
             }
 
             if (!source.type) {
                 mimetype.getResourceType(source.src, (err, type) => {
                     if (err) {
-                        type = _defaults.type;
+                        type = defaults.type;
                     }
                     source.type = type;
                     done();
@@ -834,7 +822,7 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
          * @private
          */
         _initSources(callback) {
-            const sources = _configToSources(this.config);
+            const sources = configToSources(this.config);
 
             this.config.sources = [];
 
@@ -857,7 +845,7 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
             const triggerEvent = this.trigger;
             this.trigger = function trigger(eventName, ...args) {
                 if (this.$component) {
-                    this.$component.trigger(eventName + _ns, ...args);
+                    this.$component.trigger(eventName + ns, ...args);
                 }
                 return triggerEvent.call(this, eventName, ...args);
             };
@@ -869,12 +857,12 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
          */
         _initSize() {
             const type = this.is('video') ? 'video' : 'audio';
-            const defaults = _defaults[type] || _defaults.video;
+            const mediaConfig = defaults[type] || defaults.video;
 
-            this.config.width = this.config.width || defaults.width;
-            this.config.height = this.config.height || defaults.height;
+            this.config.width = this.config.width || mediaConfig.width;
+            this.config.height = this.config.height || mediaConfig.height;
 
-            if ((_isResponsiveSize(this.config.width) && !_isResponsiveSize(this.config.height)) || this.is('youtube')) {
+            if ((isResponsiveSize(this.config.width) && !isResponsiveSize(this.config.height)) || this.is('youtube')) {
                 // responsive width height should be auto
                 // for youtube iframe height is limited by ration
                 this.config.height = 'auto';
@@ -886,7 +874,7 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
          * @private
          */
         _initPlayer() {
-            const player = _players[this.type];
+            const player = players[this.type];
             let error;
 
             if (support.canPlay(this.type)) {
@@ -996,7 +984,7 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
             this.$position = this.$controls.find('[data-control="time-cur"]');
             this.$duration = this.$controls.find('[data-control="time-end"]');
 
-            this.$volumeSlider = this._renderSlider(this.$volume, this.volume, _volumeMin, _volumeMax, true);
+            this.$volumeSlider = this._renderSlider(this.$volume, this.volume, volumeMin, volumeMax, true);
         },
 
         /**
@@ -1021,15 +1009,15 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
             }
 
             return $elt.noUiSlider({
-                start: _ensureNumber(value) || 0,
+                start: ensureNumber(value) || 0,
                 step: 1,
                 connect: 'lower',
                 orientation: orientation,
                 direction: direction,
                 animate: true,
                 range: {
-                    min: _ensureNumber(min) || 0,
-                    max: _ensureNumber(max) || 0
+                    min: ensureNumber(min) || 0,
+                    max: ensureNumber(max) || 0
                 }
             });
         },
@@ -1052,9 +1040,9 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
         _bindEvents() {
             let overing = false;
 
-            this.$component.on(`contextmenu${_ns}`, event => event.preventDefault());
+            this.$component.on(`contextmenu${ns}`, event => event.preventDefault());
 
-            this.$controls.on(`click${_ns}`, '.action', event => {
+            this.$controls.on(`click${ns}`, '.action', event => {
                 const $target = $(event.target);
                 const $action = $target.closest('.action');
                 const id = $action.data('control');
@@ -1064,7 +1052,7 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
                 }
             });
 
-            this.$player.on(`click${_ns}`, event => {
+            this.$player.on(`click${ns}`, event => {
                 const $target = $(event.target);
                 const $action = $target.closest('.action');
 
@@ -1084,21 +1072,21 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
                 }
             });
 
-            this.$seek.on(`change${_ns}`, (event, value) => {
+            this.$seek.on(`change${ns}`, (event, value) => {
                 this.seek(value, true);
             });
 
-            $(document).on(`updateVolume${_ns}`, (event, value) => {
+            $(document).on(`updateVolume${ns}`, (event, value) => {
                 this.setVolume(value);
             });
 
-            this.$volume.on(`change${_ns}`, (event, value) => {
+            this.$volume.on(`change${ns}`, (event, value) => {
                 this.unmute();
-                $(document).trigger(`updateVolume${_ns}`, value);
+                $(document).trigger(`updateVolume${ns}`, value);
                 this.setVolume(value, true);
             });
 
-            this.$sound.on(`mouseover${_ns}`, 'a', () => {
+            this.$sound.on(`mouseover${ns}`, 'a', () => {
                 let position;
 
                 if (!overing && !this.$volumeControl.hasClass('up') && !this.$volumeControl.hasClass('down')) {
@@ -1117,7 +1105,7 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
                         }
                         overing = false;
                     }, 15000);
-                    this.$volumeControl.one(`mouseleave${_ns}`, () => {
+                    this.$volumeControl.one(`mouseleave${ns}`, () => {
                         this.$volumeControl.removeClass('up down');
                         overing = false;
                     });
@@ -1130,11 +1118,11 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
          * @private
          */
         _unbindEvents() {
-            this.$component.off(_ns);
-            this.$player.off(_ns);
-            this.$controls.off(_ns);
-            this.$seek.off(_ns);
-            this.$volume.off(_ns);
+            this.$component.off(ns);
+            this.$player.off(ns);
+            this.$controls.off(ns);
+            this.$seek.off(ns);
+            this.$volume.off(ns);
 
             //if the volume is opened and the player destroyed,
             //prevent the callback to run
@@ -1142,7 +1130,7 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
                 clearTimeout(this.overingTimer);
             }
 
-            $(document).off(_ns);
+            $(document).off(ns);
         },
 
         /**
@@ -1163,7 +1151,7 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
          * @private
          */
         _updateVolume(value, internal) {
-            this.volume = Math.max(_volumeMin, Math.min(_volumeMax, parseFloat(value)));
+            this.volume = Math.max(volumeMin, Math.min(volumeMax, parseFloat(value)));
             this._storeVolume(this.volume);
             if (!internal) {
                 this._updateVolumeSlider(value);
@@ -1188,7 +1176,7 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
          */
         _updatePositionLabel(value) {
             if (this.$position) {
-                this.$position.text(_timerFormat(value));
+                this.$position.text(timerFormat(value));
             }
         },
 
@@ -1232,7 +1220,7 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
         _updateDurationLabel(value) {
             if (this.$duration) {
                 if (value && isFinite(value)) {
-                    this.$duration.text(_timerFormat(value)).show();
+                    this.$duration.text(timerFormat(value)).show();
                 } else {
                     this.$duration.hide();
                 }
@@ -1333,7 +1321,7 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
                 .then(volumeStore => volumeStore.getItem('volume'))
                 .then(volume => {
                     if (_.isNumber(volume)) {
-                        this.volume = Math.max(_volumeMin, Math.min(_volumeMax, parseFloat(volume)));
+                        this.volume = Math.max(volumeMin, Math.min(volumeMax, parseFloat(volume)));
                         this.setVolume(this.volume);
                     }
                 });
@@ -1630,7 +1618,7 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
     };
 
     return mediaplayer.init(config);
-};
+}
 
 /**
  * Tells if the browser can play audio and video
