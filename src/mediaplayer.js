@@ -38,13 +38,6 @@ import 'nouislider';
 const _ns = '.mediaplayer';
 
 /**
- * Array slice method needed to slice arguments
- * @type {Function}
- * @private
- */
-const _slice = [].slice;
-
-/**
  * Minimum value of the volume
  * @type {Number}
  * @private
@@ -59,7 +52,7 @@ const _volumeMin = 0;
 const _volumeMax = 100;
 
 /**
- * Threshold (minium requires space above the player) to display the volume
+ * Threshold (minimum required space above the player) to display the volume
  * above the bar.
  * @type {Number}
  */
@@ -862,11 +855,11 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
             eventifier(this);
 
             const triggerEvent = this.trigger;
-            this.trigger = function trigger(eventName) {
+            this.trigger = function trigger(eventName, ...args) {
                 if (this.$component) {
-                    this.$component.trigger(eventName + _ns, _slice.call(arguments, 1));
+                    this.$component.trigger(eventName + _ns, ...args);
                 }
-                return triggerEvent.apply(this, arguments);
+                return triggerEvent.call(this, eventName, ...args);
             };
         },
 
@@ -1622,15 +1615,16 @@ const mediaplayerFactory = function mediaplayerFactory(config) {
         /**
          * Executes a command onto the media
          * @param {String} command - The name of the command to execute
+         * @param {*} args - additional arguments
          * @returns {*}
          * @private
          */
-        execute(command) {
+        execute(command, ...args) {
             const ctx = this.player;
             const method = ctx && ctx[command];
 
             if (_.isFunction(method)) {
-                return method.apply(ctx, _slice.call(arguments, 1));
+                return method.apply(ctx, args);
             }
         }
     };
