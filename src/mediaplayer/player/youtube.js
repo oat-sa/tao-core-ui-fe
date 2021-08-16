@@ -99,6 +99,9 @@ export default function youtubePlayerFactory($container, config = {}) {
     let initHeight;
     let callbacks = [];
 
+    // eslint-disable-next-line
+    const debug = (action, ...args) => (config.debug && window.console.log(`[youtube:${action}]`, ...args));
+
     const queueMedia = (url, register) => {
         const id = extractYoutubeId(url);
         if (id) {
@@ -138,13 +141,13 @@ export default function youtubePlayerFactory($container, config = {}) {
             if (!destroyed) {
                 // install debug logger
                 if (config.debug) {
-                    window.console.log('[youtube:installed]', media);
+                    debug('installed', media);
                     youtubeEvents.forEach(eventName => media.addEventListener(eventName, e => {
-                        window.console.log('[youtube:media event]', eventName, $media && $media.data('videoSrc'), e);
+                        debug('media event', eventName, $media && $media.data('videoSrc'), e);
                     }));
                     playerEvents.forEach(eventName => {
                         this.on(eventName, (...args) => {
-                            window.console.log('[youtube:player event]', eventName, $media && $media.data('videoSrc'), ...args);
+                            debug('player event', eventName, $media && $media.data('videoSrc'), ...args);
                         });
                     });
                 }
@@ -198,6 +201,8 @@ export default function youtubePlayerFactory($container, config = {}) {
         },
 
         destroy() {
+            debug('api call', 'destroy');
+
             destroyed = true;
 
             this.stopPolling();
@@ -218,10 +223,14 @@ export default function youtubePlayerFactory($container, config = {}) {
         },
 
         getMedia() {
+            debug('api call', 'getMedia');
+
             return media;
         },
 
         getPosition() {
+            debug('api call', 'getPosition');
+
             if (media) {
                 return media.getCurrentTime();
             }
@@ -229,6 +238,8 @@ export default function youtubePlayerFactory($container, config = {}) {
         },
 
         getDuration() {
+            debug('api call', 'getDuration');
+
             if (media) {
                 return media.getDuration();
             }
@@ -236,6 +247,8 @@ export default function youtubePlayerFactory($container, config = {}) {
         },
 
         getVolume() {
+            debug('api call', 'getVolume');
+
             if (media) {
                 return media.getVolume();
             }
@@ -243,12 +256,16 @@ export default function youtubePlayerFactory($container, config = {}) {
         },
 
         setVolume(value) {
+            debug('api call', 'setVolume', value);
+
             if (media) {
                 media.setVolume(parseFloat(value));
             }
         },
 
         setSize(width, height) {
+            debug('api call', 'setSize', width, height);
+
             this.trigger('resize', width, height);
 
             if (!media) {
@@ -258,24 +275,32 @@ export default function youtubePlayerFactory($container, config = {}) {
         },
 
         seek(value) {
+            debug('api call', 'seek', value);
+
             if (media) {
                 media.seekTo(parseFloat(value), true);
             }
         },
 
         play() {
+            debug('api call', 'play');
+
             if (media) {
                 media.playVideo();
             }
         },
 
         pause() {
+            debug('api call', 'pause');
+
             if (media) {
                 media.pauseVideo();
             }
         },
 
         stop() {
+            debug('api call', 'stop');
+
             if (media) {
                 media.stopVideo();
                 this.trigger('end');
@@ -283,12 +308,16 @@ export default function youtubePlayerFactory($container, config = {}) {
         },
 
         mute(state) {
+            debug('api call', 'mute', state);
+
             if (media) {
                 media[state ? 'mute' : 'unMute']();
             }
         },
 
         isMuted() {
+            debug('api call', 'isMuted');
+
             if (media) {
                 return media.isMuted();
             }
@@ -296,10 +325,14 @@ export default function youtubePlayerFactory($container, config = {}) {
         },
 
         addMedia(url) {
+            debug('api call', 'addMedia', url);
+
             return queueMedia(url, id => media && media.cueVideoById(id));
         },
 
         setMedia(url) {
+            debug('api call', 'setMedia', url);
+
             callbacks = [];
             return queueMedia(url, id => media && media.loadVideoById(id));
         }
