@@ -37,10 +37,11 @@ var defaultBlackList = ['textarea', 'math', 'script', '.select2-container'];
 
 /**
  * @param {Object} options
- * @param {Object} options.className - name of the class that will be used by the wrappers tags to highlight text
- * @param {Object} options.containerSelector - allows to select the root Node in which highlighting is allowed
- * @param {Object} [options.containersBlackList] - additional blacklist selectors to be added to module instance's blacklist
- * @param {Object} [options.clearOnClick] - clear single highlight node on click
+ * @param {String} options.className - name of the class that will be used by the wrappers tags to highlight text
+ * @param {String} options.containerSelector - allows to select the root Node in which highlighting is allowed
+ * @param {Array<String>} [options.containersBlackList] - additional blacklist selectors to be added to module instance's blacklist
+ * @param {Array<String>} [options.containersWhiteList] - whitelist selectors
+ * @param {Boolean} [options.clearOnClick] - clear single highlight node on click
  * @param {Object} [options.colors] - keys is keeping as the "c" value of storing/restore the highlighters for indexing, values are wrappers class names
  * @param {Boolean} [options.keepEmptyNodes] - retain original dom structure as far as possible and do not remove empty nodes if they were not created by highlighter
  * @returns {Object} - the highlighter instance
@@ -63,6 +64,11 @@ export default function (options) {
      * @type {Array}
      */
     var containersBlackList = _.union(defaultBlackList, options.containersBlackList);
+    var containersBlackListSelector = containersBlackList.join(', ');
+    var containersWhiteListSelector = options.containersWhiteList ? options.containersWhiteList.join(', ') : null;
+    var containersBlackAndWhiteListSelector = options.containersWhiteList
+        ? _.union(containersBlackList, options.containersWhiteList).join(', ')
+        : containersBlackListSelector;
 
     /**
      * used in recursive loops to decide if we should wrap or not the current node
@@ -266,7 +272,9 @@ export default function (options) {
                         rangeInfos.startOffset = 0;
                         splitDatas.push({ node: rangeInfos.startNode, beforeWasSplit: true, afterWasSplit: false });
                     } else {
+                        //whole node should be highlighted
                         isWrapping = true;
+                        splitDatas.push({ node: currentNode, beforeWasSplit: false, afterWasSplit: false });
                     }
                 }
 
@@ -693,6 +701,7 @@ export default function (options) {
             currentNode = childNodes[i];
 
             // Skip blacklisted nodes
+            // TODO: keep whitelisted nodes
             if (isBlacklisted(currentNode)) {
                 continue;
             }
@@ -793,6 +802,7 @@ export default function (options) {
         for (i = 0; i < childNodes.length; i++) {
             currentNode = childNodes[i];
 
+            // TODO: keep whitelisted nodes
             if (isBlacklisted(currentNode)) {
                 continue;
             } else if (isWrappable(currentNode)) {
@@ -900,8 +910,14 @@ export default function (options) {
      * @returns {boolean}
      */
     function isBlacklisted(node) {
-        var closestBlackListed = $(node).closest(containersBlackList.join(','));
-        return closestBlackListed.length > 0;
+        const closest = $(node).closest(containersBlackAndWhiteListSelector);
+        if (!closest.length) {
+            return false;
+        } else if (!containersWhiteListSelector) {
+            return true;
+        } else {
+            return !closest.get(0).matches(containersWhiteListSelector);
+        }
     }
 
     /**
