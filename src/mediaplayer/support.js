@@ -22,7 +22,6 @@
  */
 const reAppleMobiles = /ip(hone|od)/i;
 
-
 /**
  * A list of MIME types with codec declaration
  * @type {Object}
@@ -74,6 +73,8 @@ export default {
                     return this.canPlayAudio(mime);
 
                 case 'youtube':
+                    return this.canPlayVideo();
+
                 case 'video':
                     return this.canPlayVideo(mime);
 
@@ -107,6 +108,6 @@ export default {
      * @returns {Boolean}
      */
     canControl() {
-        return !reAppleMobiles.test(navigator.userAgent);
+        return !reAppleMobiles.test(window.navigator.userAgent);
     }
 };
