@@ -113,10 +113,8 @@ export default function (options) {
      * @param {Boolean} afterWasSplit
      */
     function addSplitData(node, beforeWasSplit, afterWasSplit) {
-        if (keepEmptyNodes) {
-            node.dataset.beforeWasSplit = beforeWasSplit;
-            node.dataset.afterWasSplit = afterWasSplit;
-        }
+        node.dataset.beforeWasSplit = beforeWasSplit;
+        node.dataset.afterWasSplit = afterWasSplit;
     }
 
     /**
@@ -137,22 +135,12 @@ export default function (options) {
                     !isWrappingNode(range.commonAncestorContainer.parentNode)
                 ) {
                     const wrapperNode = getWrapper(currentGroupId);
-                    addSplitData(wrapperNode, range.startOffset > 0, range.endOffset < range.commonAncestorContainer.length);
-                    const containerPreviousSibling = range.commonAncestorContainer.previousSibling;
-                    const containerNextSibling = range.commonAncestorContainer.nextSibling;
-                    range.surroundContents(wrapperNode);
-                    if (keepEmptyNodes) {
-                        //'surroundContents' can create empty text nodes, which will cause trouble in 'mergeAdjacentNodes' later
-                        if (wrapperNode.previousSibling && wrapperNode.previousSibling !== containerPreviousSibling
-                            && isText(wrapperNode.previousSibling) && wrapperNode.previousSibling.textContent.length === 0) {
-                            wrapperNode.previousSibling.remove();
-                        }
-                        if (wrapperNode.nextSibling && wrapperNode.nextSibling !== containerNextSibling
-                            && isText(wrapperNode.nextSibling) && wrapperNode.nextSibling.textContent.length === 0) {
-                            wrapperNode.nextSibling.remove();
-                        }
+                    if (!keepEmptyNodes) {
+                        range.surroundContents(wrapperNode);
+                    } else {
+                        addSplitData(wrapperNode, range.startOffset > 0, range.endOffset < range.commonAncestorContainer.length);
+                        rangeSurroundContentsNoEmptyNodes(range, wrapperNode);
                     }
-
                 } else if (
                     isWrappable(range.commonAncestorContainer) &&
                     isWrappingNode(range.commonAncestorContainer.parentNode) &&
@@ -301,20 +289,12 @@ export default function (options) {
                 if (isText(currentNode)) {
                     if (!keepEmptyNodes) {
                         wrapTextNode(currentNode, currentGroupId);
-                    } else {
-                        //do the work of `unwrapEmptyHighlights` ahead of time, before `mergeAdjacentNodes` runs,
-                        //because in this branch we do not want to add nodes to dom unless necessary.
-                        //also be more strict and don't allow to select nodes with spaces only, because the may appear in unexpected places in markup
-                        if (currentNode.textContent.length && (
-                                currentNode.textContent.trim().length ||
-                                (currentNode.previousSibling && isWrappingNode(currentNode.previousSibling) && currentNode.previousSibling.className === className) ||
-                                (currentNode.nextSibling && isWrappingNode(currentNode.nextSibling) && currentNode.nextSibling.className === className))) {
-                            const wrapperNode = wrapTextNode(currentNode, currentGroupId);
-                            if (wrapperNode) {
-                                const splitData = splitDatas.find(d => d.node === currentNode);
-                                if (splitData) {
-                                    addSplitData(wrapperNode, splitData.beforeWasSplit, splitData.afterWasSplit)
-                                }
+                    } else if (willHighlightNotBeEmptyAfterMerge(currentNode)) {
+                        const wrapperNode = wrapTextNode(currentNode, currentGroupId);
+                        if (wrapperNode) {
+                            const splitData = splitDatas.find(d => d.node === currentNode);
+                            if (splitData) {
+                                addSplitData(wrapperNode, splitData.beforeWasSplit, splitData.afterWasSplit);
                             }
                         }
                     }
@@ -436,9 +416,12 @@ export default function (options) {
                 wrapperNode = wrapNode(node.cloneNode(), containerClass, currentGroupId);
             }
             fragment.appendChild(wrapperNode);
-            addSplitData(wrapperNode,
-                index === 0 ? container.dataset.beforeWasSplit : true,
-                index === childNodesLength - 1 ? container.dataset.afterWasSplit : true)
+
+            if (keepEmptyNodes) {
+                addSplitData(wrapperNode,
+                    index === 0 ? container.dataset.beforeWasSplit : true,
+                    index === childNodesLength - 1 ? container.dataset.afterWasSplit : true);
+            }
         });
 
         container.replaceWith(fragment);
@@ -448,6 +431,7 @@ export default function (options) {
      * wraps a text node into the highlight span
      * @param {Node} node - the node to wrap
      * @param {number} groupId - the highlight group
+     * @returns {Node|null} wrapper node, if it was created
      */
     function wrapTextNode(node, groupId) {
         if (isWrapping && !isWrappingNode(node.parentNode) && isWrappable(node)) {
@@ -519,7 +503,9 @@ export default function (options) {
                         currentNode.nextSibling.normalize();
                     }
                     currentNode.firstChild.textContent += currentNode.nextSibling.firstChild.textContent;
-                    addSplitData(currentNode, currentNode.dataset.beforeWasSplit, currentNode.nextSibling.dataset.afterWasSplit)
+                    if (keepEmptyNodes) {
+                        addSplitData(currentNode, currentNode.dataset.beforeWasSplit, currentNode.nextSibling.dataset.afterWasSplit);
+                    }
                     currentNode.parentNode.removeChild(currentNode.nextSibling);
                 }
             } else if (isElement(currentNode)) {
@@ -541,6 +527,62 @@ export default function (options) {
                 }
             }
         });
+    }
+
+    /**
+     * Check condition to avoid the work of `unwrapEmptyHighlights` ahead of time, before `mergeAdjacentNodes` runs,
+     * because in `keepEmptyNodes` case we do not want to add nodes to dom unless necessary.
+     * Also be more strict and don't allow to select nodes with spaces only, because they may appear in unexpected places in markup
+     * (here it's not exactly same as `unwrapEmptyHighlights`).
+     * @param {Node} node - node which will be wrapped (highlighted)
+     * @returns {Boolean}
+     */
+    function willHighlightNotBeEmptyAfterMerge(node) {
+        if (!node.textContent.length) {
+            return false;
+        }
+        if (node.textContent.trim().length) {
+            return true;
+        }
+        const prevNode = node.previousSibling;
+        const canWrapperBeMergedWithPreviousSibling = prevNode && isWrappingNode(prevNode) && prevNode.className === className;
+        if (canWrapperBeMergedWithPreviousSibling) {
+            return true;
+        }
+        const nextNode = node.nextSibling;
+        const canWrapperBeMergedWithNextSibling = nextNode && isWrappingNode(nextNode) && nextNode.className === className;
+        if (canWrapperBeMergedWithNextSibling) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * `range.surroundContents` can create empty text nodes,
+     * which will cause trouble in `mergeAdjacentNodes` later (in `keepEmptyNodes` case).
+     * This method surrounds range, then removes those nodes
+     * @param {Range} range
+     * @param {Node} wrapperNode
+     */
+    function rangeSurroundContentsNoEmptyNodes(range, wrapperNode) {
+        const containerPreviousSibling = range.commonAncestorContainer.previousSibling;
+        const containerNextSibling = range.commonAncestorContainer.nextSibling;
+
+        range.surroundContents(wrapperNode);
+
+        removeEmptyTextNodeIfDifferent(wrapperNode.previousSibling, containerPreviousSibling);
+        removeEmptyTextNodeIfDifferent(wrapperNode.nextSibling, containerNextSibling);
+    }
+
+    /**
+     * Remove `node`, if it's an empty text node and is *not* the same node as `nodeToCompare`
+     * @param {Node} node
+     * @param {Node} nodeToCompare
+     */
+    function removeEmptyTextNodeIfDifferent(node, nodeToCompare) {
+        if (node && node !== nodeToCompare && isText(node) && node.textContent.length === 0) {
+            node.remove();
+        }
     }
 
     /**
@@ -576,10 +618,11 @@ export default function (options) {
             const nodeToRemoveText = nodeToRemove.textContent;
             const beforeWasSplit = nodeToRemove.dataset.beforeWasSplit === 'true';
             const afterWasSplit = nodeToRemove.dataset.afterWasSplit === 'true';
+            const prevNode = nodeToRemove.previousSibling;
+            const nextNode = nodeToRemove.nextSibling;
 
-            if (beforeWasSplit && nodeToRemove.previousSibling && isText(nodeToRemove.previousSibling) && nodeToRemove.previousSibling.textContent) {
+            if (beforeWasSplit && prevNode && isText(prevNode) && prevNode.textContent) {
                 //append text to previous sibling
-                const prevNode = nodeToRemove.previousSibling;
                 prevNode.textContent += nodeToRemoveText;
                 nodeToRemove.remove();
 
@@ -589,9 +632,8 @@ export default function (options) {
                     prevNode.nextSibling.remove();
                 }
             }
-            else if (afterWasSplit && nodeToRemove.nextSibling && isText(nodeToRemove.nextSibling) && nodeToRemove.nextSibling.textContent) {
+            else if (afterWasSplit && nextNode && isText(nextNode) && nextNode.textContent) {
                 //append text to next sibling
-                const nextNode = nodeToRemove.nextSibling;
                 nextNode.textContent = nodeToRemoveText + nextNode.textContent;
                 nodeToRemove.remove();
             } else if (nodeToRemoveText) {
