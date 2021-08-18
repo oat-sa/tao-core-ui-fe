@@ -140,6 +140,10 @@ export default function(options) {
     $(parentSelector)
         .off('click', '.files li')
         .on('click', '.files li', function(e) {
+            const clickedItem = e.target;
+            if (clickedItem.hasAttribute('data-delete') || clickedItem.hasClass('icon-bin')) {
+                return;
+            }
             let $selected = $(this);
             let $files = $('.files > li', $fileSelector);
             let data = _.clone($selected.data());
