@@ -40,7 +40,7 @@ var defaultBlackList = ['textarea', 'math', 'script', '.select2-container'];
  * @param {String} options.className - name of the class that will be used by the wrappers tags to highlight text
  * @param {String} options.containerSelector - allows to select the root Node in which highlighting is allowed
  * @param {Array<String>} [options.containersBlackList] - additional blacklist selectors to be added to module instance's blacklist
- * @param {Array<String>} [options.containersWhiteList] - whitelist selectors
+ * @param {Array<String>} [options.containersWhiteList] - whitelist selectors; supported only in `keepEmptyNodes` mode
  * @param {Boolean} [options.clearOnClick] - clear single highlight node on click
  * @param {Object} [options.colors] - keys is keeping as the "c" value of storing/restore the highlighters for indexing, values are wrappers class names
  * @param {Boolean} [options.keepEmptyNodes] - retain original dom structure as far as possible and do not remove empty nodes if they were not created by highlighter
@@ -65,10 +65,12 @@ export default function (options) {
      */
     var containersBlackList = _.union(defaultBlackList, options.containersBlackList);
     var containersBlackListSelector = containersBlackList.join(', ');
-    var containersWhiteListSelector = options.containersWhiteList ? options.containersWhiteList.join(', ') : null;
-    var containersBlackAndWhiteListSelector = options.containersWhiteList
-        ? _.union(containersBlackList, options.containersWhiteList).join(', ')
-        : containersBlackListSelector;
+    var containersWhiteListSelector = null;
+    var containersBlackAndWhiteListSelector = containersBlackListSelector;
+    if (options.keepEmptyNodes && options.containersWhiteList) {
+        containersWhiteListSelector = options.containersWhiteList.join(', ');
+        containersBlackAndWhiteListSelector = _.union(containersBlackList, options.containersWhiteList).join(', ');
+    }
 
     /**
      * used in recursive loops to decide if we should wrap or not the current node
@@ -669,20 +671,27 @@ export default function (options) {
 
     /**
      * Bootstrap the process of building the highlight index
-     * @returns {Object[]}
+     * @returns {Object[]|Object|null}
      */
     function getHighlightIndex() {
-        var highlightIndex = [];
+        var highlightIndex;
         var rootNode = getContainer();
-        if (rootNode) {
-            if (!keepEmptyNodes) {
+
+        if (!keepEmptyNodes) {
+            highlightIndex = [];
+            if (rootNode) {
                 rootNode.normalize();
+                textNodesIndex = 0;
+                buildHighlightIndex(rootNode, highlightIndex);
             }
-
-            textNodesIndex = 0;
-
-            buildHighlightIndex(rootNode, highlightIndex);
+        } else {
+            if (rootNode) {
+                highlightIndex = buildHighlightModelKeepEmpty(rootNode);
+            } else {
+                highlightIndex = null;
+            }
         }
+
         return highlightIndex;
     }
 
@@ -692,7 +701,6 @@ export default function (options) {
      * @param {Object[]} highlightIndex
      */
     function buildHighlightIndex(rootNode, highlightIndex) {
-        //TODO: if needed, fix according to changes
         var childNodes = rootNode.childNodes;
         var i, currentNode;
         var nodeInfos, inlineRange, inlineOffset, nodesToSkip;
@@ -701,7 +709,6 @@ export default function (options) {
             currentNode = childNodes[i];
 
             // Skip blacklisted nodes
-            // TODO: keep whitelisted nodes
             if (isBlacklisted(currentNode)) {
                 continue;
             }
@@ -772,19 +779,80 @@ export default function (options) {
     }
 
     /**
+     * For `keepEmptyNodes` option, creates data model of highlights.
+     * Recursive. Traverses DOM tree.
+     * @param {Node} rootNode
+     * @returns {Object|null} highlightModel
+     */
+     function buildHighlightModelKeepEmpty(rootNode) {
+        //todo: as for blacklist, we can save options.black/white/container, compare with new,
+        //and discard highlight if options change - since it's super-rare version update case
+
+        var highlightsModel = null;
+        var indexInModel = 0;
+        var childNodes = rootNode.childNodes;
+        var currentNode;
+
+        for (var k = 0; k < childNodes.length; k++) {
+            currentNode = childNodes[k];
+
+            //should be more reliable to ignore empty nodes when indexing
+            if (isText(currentNode) && !currentNode.textContent.length) {
+                continue;
+            }
+
+            //it's a highlight, add it to model
+            if (isWrappingNode(currentNode)) {
+                if (!highlightsModel) {
+                    highlightsModel = {};
+                }
+                var offsetBefore = 0;
+                var prevNode = currentNode.previousSibling;
+                if (prevNode && isText(prevNode) && currentNode.dataset.beforeWasSplit) {
+                    offsetBefore = prevNode.textContent.length;
+                }
+                //todo: shorter property names
+                highlightsModel[indexInModel] = {
+                    groupId: currentNode.getAttribute(GROUP_ATTR),
+                    c: getColorByClassName(currentNode.className),
+                    offsetBefore,
+                    textLength: currentNode.textContent.length,
+                    beforeWasSplit: currentNode.dataset.beforeWasSplit,
+                    afterWasSplit: currentNode.dataset.afterWasSplit
+                };
+            }
+
+            //go deeper and add inner tree to model, if any highlights were found there
+            if (isElement(currentNode)) {
+                const elementHighlightsModel = buildHighlightModelKeepEmpty(currentNode);
+                if (elementHighlightsModel) {
+                    if (!highlightsModel) {
+                        highlightsModel = {};
+                    }
+                    highlightsModel[indexInModel] = elementHighlightsModel;
+                }
+            }
+
+            ++indexInModel;
+        }
+
+        return highlightsModel;
+    };
+
+    /**
      * Bootstrap the process of restoring the highlights from an index
-     * @param {Object[]} highlightIndex
+     * @param {Object[]|Object|null} highlightIndex
      */
     function highlightFromIndex(highlightIndex) {
         var rootNode = getContainer();
         if (rootNode) {
             if (!keepEmptyNodes) {
                 rootNode.normalize();
+                textNodesIndex = 0;
+                restoreHighlight(rootNode, highlightIndex);
+            } else if (highlightIndex) {
+                restoreHighlightKeepEmpty(rootNode, highlightIndex);
             }
-
-            textNodesIndex = 0;
-
-            restoreHighlight(rootNode, highlightIndex);
         }
     }
 
@@ -793,8 +861,7 @@ export default function (options) {
      * @param {Node} rootNode
      * @param {Object[]} highlightIndex
      */
-    function restoreHighlight(rootNode, highlightIndex) {
-        //TODO: if needed, fix according to changes
+     function restoreHighlight(rootNode, highlightIndex) {
         var childNodes = rootNode.childNodes;
         var i, currentNode, parent;
         var nodeInfos, nodesToSkip, range, initialChildCount;
@@ -802,7 +869,6 @@ export default function (options) {
         for (i = 0; i < childNodes.length; i++) {
             currentNode = childNodes[i];
 
-            // TODO: keep whitelisted nodes
             if (isBlacklisted(currentNode)) {
                 continue;
             } else if (isWrappable(currentNode)) {
@@ -834,6 +900,55 @@ export default function (options) {
                 textNodesIndex++;
             } else if (isElement(currentNode)) {
                 restoreHighlight(currentNode, highlightIndex);
+            }
+        }
+     }
+    /**
+     * For `keepEmptyNodes` option, wraps the text nodes according to highlights data model.
+     * Recursive. Traverses and updates DOM tree.
+     * @param {Node} rootNode
+     * @param {Object} highlightModel
+     */
+     function restoreHighlightKeepEmpty(rootNode, highlightModel) {
+        var currentModelKey, currentModelValue;
+        var range;
+        var highlightModelKeys = Object.keys(highlightModel);
+
+        for (var k = 0; k < highlightModelKeys.length; k++) {
+            currentModelKey = highlightModelKeys[k]; //index among sibling nodes
+            currentModelValue = highlightModel[currentModelKey]; //higlhight(s) data
+
+            //model doesn't count empty nodes
+            var childNodes = Array.from(rootNode.childNodes).filter(node =>
+                !(isText(node) && !node.textContent.length));
+
+            if (!currentModelValue.hasOwnProperty('groupId')) {
+                //go deeper - it's nested tree model
+                var nodeAtIndex = childNodes[currentModelKey]; //todo: throw if doesn't exist; throw if not element
+                restoreHighlightKeepEmpty(nodeAtIndex, currentModelValue);
+            } else {
+                //add single highlight
+                var nodeAtIndex;
+                if (!currentModelValue.offsetBefore) {
+                    //wrap starts on this node
+                    nodeAtIndex = childNodes[currentModelKey]; //todo: throw if not textNode
+                } else {
+                    //split previousSibling to create a node for wrapping
+                    //todo: throw if does not exist; throw if not textNode
+                    var nodeBefore = childNodes[currentModelKey - 1];
+                    nodeAtIndex = nodeBefore.splitText(currentModelValue.offsetBefore);
+                }
+                //cut off its end
+                if (nodeAtIndex.textContent.length > currentModelValue.textLength) {
+                    nodeAtIndex.splitText(currentModelValue.textLength);
+                }
+
+                //wrap
+                const wrapperNode = getWrapper(currentModelValue.groupId, getClassNameByColor(currentModelValue.c));
+                addSplitData(wrapperNode, currentModelValue.beforeWasSplit, currentModelValue.afterWasSplit);
+                range = document.createRange();
+                range.selectNodeContents(nodeAtIndex);
+                rangeSurroundContentsNoEmptyNodes(range, wrapperNode);
             }
         }
     }
