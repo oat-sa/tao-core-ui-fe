@@ -16,8 +16,8 @@
  * Copyright (c) 2015-2021 (original work) Open Assessment Technologies SA ;
  */
 
-import html5PlayerFactory from 'ui/mediaplayer/player/html5';
-import youtubePlayerFactory from 'ui/mediaplayer/player/youtube';
+import html5PlayerFactory from 'ui/mediaplayer/players/html5';
+import youtubePlayerFactory from 'ui/mediaplayer/players/youtube';
 
 /**
  * Defines the list of available players
