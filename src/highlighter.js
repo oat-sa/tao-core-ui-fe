@@ -961,7 +961,7 @@ export default function (options) {
             if (!currentModel.offsetBefore) {
                 //wrap starts on this node
                 nodeAtIndex = childNodes[indexInModel];
-                if (isBlacklisted(nodeAtIndex)) {
+                if (!nodeAtIndex || isBlacklisted(nodeAtIndex)) {
                     continue; //something went wrong
                 }
             } else {
