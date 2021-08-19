@@ -26,6 +26,8 @@ define(['jquery', 'core/eventifier'], function ($, eventifier) {
     const STATE_PLAYING = 1;
     const STATE_PAUSED = 2;
 
+    const reYoutube = /([?&\/]v[=\/])([\w-]+)([&\/]?)/;
+
     function youtubeManagerMockFactory() {
         return {
             add(elem, player, options) {
@@ -124,6 +126,10 @@ define(['jquery', 'core/eventifier'], function ($, eventifier) {
             },
             remove(elem, player) {
                 registry.delete(player._key);
+            },
+            extractYoutubeId(url) {
+                const res = reYoutube.exec(url);
+                return (res && res[2]) || url;
             }
         };
     }

@@ -64,15 +64,17 @@ define(['ui/mediaplayer/youtubeManager'], function (youtubeManager) {
         );
     });
 
-    QUnit.cases.init([{ title: 'add' }, { title: 'remove' }]).test('API ', (data, assert) => {
-        assert.expect(1);
-        const instance = youtubeManager();
-        assert.equal(
-            typeof instance[data.title],
-            'function',
-            `The youtubeManager instance exposes a "${data.title}" function`
-        );
-    });
+    QUnit.cases
+        .init([{ title: 'add' }, { title: 'remove' }, { title: 'extractYoutubeId' }])
+        .test('API ', (data, assert) => {
+            assert.expect(1);
+            const instance = youtubeManager();
+            assert.equal(
+                typeof instance[data.title],
+                'function',
+                `The youtubeManager instance exposes a "${data.title}" function`
+            );
+        });
 
     QUnit.cases
         .init([
@@ -129,7 +131,11 @@ define(['ui/mediaplayer/youtubeManager'], function (youtubeManager) {
             const player = {
                 onReady(e) {
                     assert.ok(true, 'The player is ready');
-                    assert.strictEqual(fixture.getAttribute('data-rendered'), data.videoId, 'The player has been rendered');
+                    assert.strictEqual(
+                        fixture.getAttribute('data-rendered'),
+                        data.videoId,
+                        'The player has been rendered'
+                    );
                     assert.strictEqual(typeof e, 'object', 'The event object is supplied');
                     assert.strictEqual(typeof e.config, 'object', 'The player config is supplied (test mock)');
                     assert.strictEqual(e.config.height, data.height, 'The player was created with the expected height');
@@ -180,7 +186,11 @@ define(['ui/mediaplayer/youtubeManager'], function (youtubeManager) {
                         const player = {
                             onReady(e) {
                                 assert.ok(true, 'The player is ready');
-                                assert.strictEqual(fixture.getAttribute('data-rendered'), data.videoId, 'The player has been rendered');
+                                assert.strictEqual(
+                                    fixture.getAttribute('data-rendered'),
+                                    data.videoId,
+                                    'The player has been rendered'
+                                );
                                 assert.strictEqual(typeof e, 'object', 'The event object is supplied');
                                 assert.strictEqual(
                                     typeof e.config,
@@ -232,7 +242,11 @@ define(['ui/mediaplayer/youtubeManager'], function (youtubeManager) {
                         const fixture = document.getElementById(data.fixture);
                         const timeout = setTimeout(() => {
                             assert.ok(true, 'The player should have been removed');
-                            assert.strictEqual(fixture.getAttribute('data-rendered'), null, 'The player has not been rendered');
+                            assert.strictEqual(
+                                fixture.getAttribute('data-rendered'),
+                                null,
+                                'The player has not been rendered'
+                            );
                             resolve();
                         }, 300);
 
@@ -240,7 +254,11 @@ define(['ui/mediaplayer/youtubeManager'], function (youtubeManager) {
                             onReady() {
                                 clearTimeout(timeout);
                                 assert.ok(false, 'The player should be removed');
-                                assert.strictEqual(fixture.getAttribute('data-rendered'), null, 'The player should not be rendered');
+                                assert.strictEqual(
+                                    fixture.getAttribute('data-rendered'),
+                                    null,
+                                    'The player should not be rendered'
+                                );
                                 reject();
                             }
                         };
@@ -257,4 +275,20 @@ define(['ui/mediaplayer/youtubeManager'], function (youtubeManager) {
             .catch(err => assert.ok(false, err.message))
             .then(ready);
     });
+
+    QUnit.cases
+        .init([
+            { title: 'already id', url: 'YJWSVUPSQqw', expected: 'YJWSVUPSQqw' },
+            { title: 'long url', url: 'https//www.youtube.com/watch?v=YJWSVUPSQqw', expected: 'YJWSVUPSQqw' },
+            { title: 'short url', url: 'https//youtu.be/watch?v=YJWSVUPSQqw', expected: 'YJWSVUPSQqw' }
+        ])
+        .test('extractYoutubeId ', (data, assert) => {
+            assert.expect(1);
+            const instance = youtubeManager();
+            assert.equal(
+                instance.extractYoutubeId(data.url),
+                data.expected,
+                'extractYoutubeId returned the expected id'
+            );
+        });
 });
