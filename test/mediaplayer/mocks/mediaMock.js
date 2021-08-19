@@ -18,38 +18,35 @@
 define(['jquery'], function ($) {
     'use strict';
 
-    function mediaMock(element, { videoWidth = 320, videoHeight = 200, readyDelay = 0 } = {}) {
+    function mediaMock(
+        element,
+        { videoWidth = 320, videoHeight = 200, readyDelay = 0, polling = 10, duration = 100 } = {}
+    ) {
         const $element = $(element);
-        const polling = 10;
         let currentTime = 0;
-        let duration = 100;
         let pollingHandler;
         let playing = false;
+        const startPolling = () => {
+            if (!pollingHandler) {
+                pollingHandler = setInterval(() => {
+                    if (element.currentTime < duration) {
+                        element.currentTime += polling;
+                        $element.trigger('timeupdate');
+                    } else {
+                        stopPolling();
+                        if (playing) {
+                            $element.trigger('ended');
+                        }
+                    }
+                }, polling);
+            }
+        }
         const stopPolling = () => {
             if (pollingHandler) {
                 clearInterval(pollingHandler);
             }
             pollingHandler = null;
         };
-
-        $element
-            .on('play', () => {
-                if (!pollingHandler) {
-                    pollingHandler = setInterval(() => {
-                        if (element.currentTime < duration) {
-                            element.currentTime += polling;
-                            $element.trigger('timeupdate');
-                        } else {
-                            stopPolling();
-                            if (playing) {
-                                $element.trigger('ended');
-                            }
-                        }
-                    }, polling);
-                }
-            })
-            .on('ended', stopPolling)
-            .on('pause', stopPolling);
 
         Object.assign(element, {
             networkState: 0,
@@ -71,6 +68,7 @@ define(['jquery'], function ($) {
             set currentTime(value) {
                 console.log('update', value);
                 if (value >= duration) {
+                    stopPolling();
                     currentTime = duration;
                     playing = false;
                     $element.trigger('ended');
@@ -82,9 +80,11 @@ define(['jquery'], function ($) {
                 $element.trigger('play');
                 $element.trigger('playing');
                 playing = true;
+                startPolling();
                 return Promise.resolve();
             },
             pause() {
+                stopPolling();
                 playing = false;
                 $element.trigger('pause');
             }
