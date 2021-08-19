@@ -303,9 +303,9 @@ export default function (options) {
                         const wrapperNode = wrapTextNode(currentNode, currentGroupId);
                         if (wrapperNode) {
                             const splitData = splitDatas.find(d => d.node === currentNode);
-                            if (splitData) {
-                                addSplitData(wrapperNode, splitData.beforeWasSplit, splitData.afterWasSplit);
-                            }
+                            addSplitData(wrapperNode,
+                                splitData ? splitData.beforeWasSplit : false,
+                                splitData ? splitData.afterWasSplit : false);
                         }
                     }
 
@@ -671,28 +671,25 @@ export default function (options) {
 
     /**
      * Bootstrap the process of building the highlight index
-     * @returns {Object[]|Object|null}
+     * @returns {Object[]|BuildModelResultKeepEmpty|null}
      */
     function getHighlightIndex() {
-        var highlightIndex;
         var rootNode = getContainer();
-
         if (!keepEmptyNodes) {
-            highlightIndex = [];
+            var highlightIndex = [];
             if (rootNode) {
                 rootNode.normalize();
                 textNodesIndex = 0;
                 buildHighlightIndex(rootNode, highlightIndex);
             }
+            return highlightIndex;
         } else {
             if (rootNode) {
-                highlightIndex = buildHighlightModelKeepEmpty(rootNode);
+                return buildHighlightModelKeepEmpty(rootNode);
             } else {
-                highlightIndex = null;
+                return null;
             }
         }
-
-        return highlightIndex;
     }
 
     /**
@@ -779,69 +776,85 @@ export default function (options) {
     }
 
     /**
-     * For `keepEmptyNodes` option, creates data model of highlights.
-     * Recursive. Traverses DOM tree.
-     * @param {Node} rootNode
-     * @returns {Object|null} highlightModel
+     * @typedef HighlightEntryKeepEmpty
+     * @property {String} groupId
+     * @property {String} c - color
+     * @property {Number} offsetBefore
+     * @property {Number} textLength
+     * @property {String} beforeWasSplit
+     * @property {String} afterWasSplit
+     * @property {Array<Number>} path - on each level from root container to highlight, index among siblings
      */
-     function buildHighlightModelKeepEmpty(rootNode) {
-        //todo: as for blacklist, we can save options.black/white/container, compare with new,
-        //and discard highlight if options change - since it's super-rare version update case
+    /**
+     * @typedef BuildModelResultKeepEmpty
+     * @property {HighlightEntryKeepEmpty[]} highlightModel
+     * @property {NodeList} wrapperNodes
+     */
+    /**
+     * For `keepEmptyNodes` option, creates data model of highlights.
+     * Additionally returns array of hilghlight nodes. Traverses DOM tree.
+     * @param {Node} rootNode
+     * @returns {HighlightEntryKeepEmpty[]|null} result
+     */
+    function buildHighlightModelKeepEmpty(rootNode) {
+        const wrapperNodesSelector = Object.values(options.colors).map(cls => containerSelector + ' .' + cls).join(', ');
+        const wrapperNodes = document.querySelectorAll(wrapperNodesSelector);
 
-        var highlightsModel = null;
-        var indexInModel = 0;
-        var childNodes = rootNode.childNodes;
-        var currentNode;
-
-        for (var k = 0; k < childNodes.length; k++) {
-            currentNode = childNodes[k];
-
-            //should be more reliable to ignore empty nodes when indexing
-            if (isText(currentNode) && !currentNode.textContent.length) {
-                continue;
-            }
-
-            //it's a highlight, add it to model
-            if (isWrappingNode(currentNode)) {
-                if (!highlightsModel) {
-                    highlightsModel = {};
-                }
-                var offsetBefore = 0;
-                var prevNode = currentNode.previousSibling;
-                if (prevNode && isText(prevNode) && currentNode.dataset.beforeWasSplit) {
-                    offsetBefore = prevNode.textContent.length;
-                }
-                //todo: shorter property names
-                highlightsModel[indexInModel] = {
-                    groupId: currentNode.getAttribute(GROUP_ATTR),
-                    c: getColorByClassName(currentNode.className),
-                    offsetBefore,
-                    textLength: currentNode.textContent.length,
-                    beforeWasSplit: currentNode.dataset.beforeWasSplit,
-                    afterWasSplit: currentNode.dataset.afterWasSplit
-                };
-            }
-
-            //go deeper and add inner tree to model, if any highlights were found there
-            if (isElement(currentNode)) {
-                const elementHighlightsModel = buildHighlightModelKeepEmpty(currentNode);
-                if (elementHighlightsModel) {
-                    if (!highlightsModel) {
-                        highlightsModel = {};
-                    }
-                    highlightsModel[indexInModel] = elementHighlightsModel;
-                }
-            }
-
-            ++indexInModel;
+        if (!wrapperNodes.length) {
+            return null;
         }
 
-        return highlightsModel;
-    };
+        var highlightModel = [];
+        const indexCache = new Map();
+        for (var k = 0; k < wrapperNodes.length; k++) {
+            var wrapperNode = wrapperNodes[k];
+
+            //get info about highlight itself
+            var offsetBefore = 0;
+            var prevNode = wrapperNode.previousSibling;
+            if (prevNode && isText(prevNode)) {
+                const beforeWasSplit = wrapperNode.dataset.beforeWasSplit === 'true';
+                if (beforeWasSplit) {
+                    offsetBefore = prevNode.textContent.length;
+                }
+            }
+            var highlightData = {
+                groupId: wrapperNode.getAttribute(GROUP_ATTR),
+                c: getColorByClassName(wrapperNode.className),
+                offsetBefore,
+                textLength: wrapperNode.textContent.length,
+                beforeWasSplit: wrapperNode.dataset.beforeWasSplit,
+                afterWasSplit: wrapperNode.dataset.afterWasSplit,
+                path: []
+            };
+
+            //get info about its position in the tree: path through all parents from rootNode to highlight
+            let currentNode = wrapperNode;
+            while (currentNode && currentNode !== rootNode) {
+                let indexInModel = indexCache.get(currentNode);
+                if (!indexInModel && indexInModel !== 0) {
+                    //should be more reliable to ignore empty nodes when indexing
+                    const childNodes = Array.from(currentNode.parentNode.childNodes).filter(node => !(isText(node) && !node.textContent.length));
+                    //index among its non-empty siblings
+                    indexInModel = childNodes.indexOf(currentNode);
+                    indexCache.set(currentNode, indexInModel);
+                }
+                highlightData.path.unshift(indexInModel);
+                currentNode = currentNode.parentNode;
+            }
+
+            //add info about highlight and its position to model
+            highlightModel.push(highlightData);
+        }
+        return {
+            highlightModel,
+            wrapperNodes
+        };
+    }
 
     /**
      * Bootstrap the process of restoring the highlights from an index
-     * @param {Object[]|Object|null} highlightIndex
+     * @param {Object[]|HighlightEntryKeepEmpty[]|null} highlightIndex
      */
     function highlightFromIndex(highlightIndex) {
         var rootNode = getContainer();
@@ -850,7 +863,7 @@ export default function (options) {
                 rootNode.normalize();
                 textNodesIndex = 0;
                 restoreHighlight(rootNode, highlightIndex);
-            } else if (highlightIndex) {
+            } else {
                 restoreHighlightKeepEmpty(rootNode, highlightIndex);
             }
         }
@@ -903,53 +916,70 @@ export default function (options) {
             }
         }
      }
+
     /**
      * For `keepEmptyNodes` option, wraps the text nodes according to highlights data model.
-     * Recursive. Traverses and updates DOM tree.
+     * Traverses and updates DOM tree. Shouldn't throw errors in case of mismatches.
      * @param {Node} rootNode
-     * @param {Object} highlightModel
+     * @param {HighlightEntryKeepEmpty[]|null} highlightModel
      */
-     function restoreHighlightKeepEmpty(rootNode, highlightModel) {
-        var currentModelKey, currentModelValue;
+    function restoreHighlightKeepEmpty(rootNode, highlightModel) {
+        if (!highlightModel) {
+            return;
+        }
+
+        var currentModel;
         var range;
-        var highlightModelKeys = Object.keys(highlightModel);
+        for (var k = 0; k < highlightModel.length; k++) {
+            currentModel = highlightModel[k];
 
-        for (var k = 0; k < highlightModelKeys.length; k++) {
-            currentModelKey = highlightModelKeys[k]; //index among sibling nodes
-            currentModelValue = highlightModel[currentModelKey]; //higlhight(s) data
-
-            //model doesn't count empty nodes
-            var childNodes = Array.from(rootNode.childNodes).filter(node =>
-                !(isText(node) && !node.textContent.length));
-
-            if (!currentModelValue.hasOwnProperty('groupId')) {
-                //go deeper - it's nested tree model
-                var nodeAtIndex = childNodes[currentModelKey]; //todo: throw if doesn't exist; throw if not element
-                restoreHighlightKeepEmpty(nodeAtIndex, currentModelValue);
-            } else {
-                //add single highlight
-                var nodeAtIndex;
-                if (!currentModelValue.offsetBefore) {
-                    //wrap starts on this node
-                    nodeAtIndex = childNodes[currentModelKey]; //todo: throw if not textNode
-                } else {
-                    //split previousSibling to create a node for wrapping
-                    //todo: throw if does not exist; throw if not textNode
-                    var nodeBefore = childNodes[currentModelKey - 1];
-                    nodeAtIndex = nodeBefore.splitText(currentModelValue.offsetBefore);
-                }
-                //cut off its end
-                if (nodeAtIndex.textContent.length > currentModelValue.textLength) {
-                    nodeAtIndex.splitText(currentModelValue.textLength);
-                }
-
-                //wrap
-                const wrapperNode = getWrapper(currentModelValue.groupId, getClassNameByColor(currentModelValue.c));
-                addSplitData(wrapperNode, currentModelValue.beforeWasSplit, currentModelValue.afterWasSplit);
-                range = document.createRange();
-                range.selectNodeContents(nodeAtIndex);
-                rangeSurroundContentsNoEmptyNodes(range, wrapperNode);
+            //find node to wrap - go through nodes until we reach level where node to wrap will be
+            let childNodes;
+            let indexInModel;
+            let currentParentNode = rootNode;
+            if (!currentModel.path || !currentModel.path.length) {
+                continue; //something went wrong
             }
+            for (var m = 0; m < currentModel.path.length; m++) {
+                //path was counted among non-empty nodes
+                childNodes = Array.from(currentParentNode.childNodes).filter(node => !(isText(node) && !node.textContent.length));
+                indexInModel = currentModel.path[m];
+                currentParentNode = childNodes[indexInModel];
+                if (!currentParentNode) {
+                    break;
+                }
+            }
+            if (!currentParentNode) {
+                continue; //something went wrong
+            }
+
+            //add single highlight
+            var nodeAtIndex = null;
+            if (!currentModel.offsetBefore) {
+                //wrap starts on this node
+                nodeAtIndex = childNodes[indexInModel];
+            } else {
+                //split previousSibling to create a node for wrapping
+                var nodeBefore = childNodes[indexInModel - 1];
+                if (!nodeBefore || nodeBefore.textContent.length <= currentModel.offsetBefore) {
+                    continue; //something went wrong
+                }
+                nodeAtIndex = nodeBefore.splitText(currentModel.offsetBefore);
+            }
+            //cut off its end
+            if (nodeAtIndex.textContent.length > currentModel.textLength) {
+                nodeAtIndex.splitText(currentModel.textLength);
+            }
+
+            //wrap
+            if (isBlacklisted(nodeAtIndex)) {
+                continue; //something went wrong
+            }
+            const wrapperNode = getWrapper(currentModel.groupId, getClassNameByColor(currentModel.c));
+            addSplitData(wrapperNode, currentModel.beforeWasSplit, currentModel.afterWasSplit);
+            range = document.createRange();
+            range.selectNodeContents(nodeAtIndex);
+            rangeSurroundContentsNoEmptyNodes(range, wrapperNode);
         }
     }
 
