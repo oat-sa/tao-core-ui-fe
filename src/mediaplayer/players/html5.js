@@ -145,7 +145,7 @@ export default function html5PlayerFactory($container, config = {}) {
             stalled = false;
 
             media = $media.get(0);
-            result = !!(media && media.canPlayType);
+            result = !!(media && support.checkSupport(media));
 
             // remove the browser native controls if we can use the API instead
             if (support.canControl()) {
@@ -229,8 +229,8 @@ export default function html5PlayerFactory($container, config = {}) {
                 $media.off(ns).remove();
             }
 
-            $media = null;
-            media = null;
+            $media = void(0);
+            media = void(0);
             playback = false;
             loaded = false;
             stalled = false;
