@@ -20,8 +20,9 @@ define([
     'ui/mediaplayer/players/html5',
     'ui/mediaplayer/support',
     'util/urlParser',
+    'test/mediaplayer/mocks/jqueryParseHtmlMock',
     'test/mediaplayer/mocks/mediaMock'
-], function ($, playerFactory, support, UrlParser, mediaMock) {
+], function ($, playerFactory, support, UrlParser, parseHTMLMockFactory, mediaMock) {
     'use strict';
 
     const audioMP3 = { src: '../../samples/audio.mp3', type: 'audio/mp3' };
@@ -31,10 +32,6 @@ define([
     const videoOGV = { src: '../../samples/video.ogv', type: 'video/ogg' };
     const posterURL = '../../samples/poster.png';
 
-    const parseHTMLOrigin = $.parseHTML;
-    const mockElements = ['audio', 'video', 'source'];
-    const reTagName = /(<\s*\/?\s*)(\w+)([^>]*>)/g;
-
     const defaultVideoWidth = 320;
     const defaultVideoHeight = 200;
     const mediaConfig = {
@@ -42,24 +39,27 @@ define([
         videoHeight: defaultVideoHeight
     };
 
-    function parseHTMLMock(data, context, keepScripts) {
+    const mockElements = ['audio', 'video', 'source'];
+    const reTagName = /(<\s*\/?\s*)(\w+)([^>]*>)/g;
+    const parseHTMLFilter = data => {
         if ('string' === typeof data) {
             const parse = reTagName.exec(data);
             if (parse) {
                 const tagName = parse[2];
                 if (mockElements.includes(tagName)) {
-                    data = data.replace(reTagName, '$1div$3');
+                    return data.replace(reTagName, '$1div$3');
                 }
             }
         }
-        return parseHTMLOrigin.call($, data, context, keepScripts);
-    }
+        return data;
+    };
+    const parseHTMLMock = parseHTMLMockFactory(parseHTMLFilter);
 
     QUnit.module('players', {
         afterEach() {
             support.reset();
             UrlParser.reset();
-            $.parseHTML = parseHTMLOrigin;
+            parseHTMLMock.reset();
         }
     });
 
@@ -306,7 +306,7 @@ define([
             const ready = assert.async();
             const $container = $('#qunit-fixture');
             const config = { sources: [data.source] };
-            $.parseHTML = parseHTMLMock;
+            parseHTMLMock.install();
             const player = playerFactory($container, config);
 
             assert.equal($container.children().length, 0, 'The container is empty');
@@ -336,7 +336,7 @@ define([
 
             assert.equal($container.children().length, 0, 'The container is empty');
 
-            $.parseHTML = parseHTMLMock;
+            parseHTMLMock.install();
             assert.ok(player.init(), 'The initialisation completed well');
             const $media = $container.find('.media');
             assert.equal($media.length, 1, 'The player has been rendered');
@@ -393,7 +393,7 @@ define([
 
         assert.deepEqual(player.getMediaSize(), {}, 'Initial media size unknown');
 
-        $.parseHTML = parseHTMLMock;
+        parseHTMLMock.install();
         player
             .on('ready', () => {
                 mediaMock(player.getMedia(), mediaConfig);
@@ -426,7 +426,7 @@ define([
 
         assert.strictEqual(player.getPosition(), 0, 'Initial position set even if no media is there yet');
 
-        $.parseHTML = parseHTMLMock;
+        parseHTMLMock.install();
         player
             .on('ready', () => {
                 const media = mediaMock(player.getMedia(), mediaConfig);
@@ -455,7 +455,7 @@ define([
 
         assert.strictEqual(player.getDuration(), 0, 'Initial duration set even if no media is there yet');
 
-        $.parseHTML = parseHTMLMock;
+        parseHTMLMock.install();
         player
             .on('ready', () => {
                 const media = mediaMock(player.getMedia(), mediaConfig);
@@ -486,7 +486,7 @@ define([
         player.setVolume(55);
         assert.strictEqual(player.getVolume(), 0, 'Cannot change the volume if no media is there yet');
 
-        $.parseHTML = parseHTMLMock;
+        parseHTMLMock.install();
         player
             .on('ready', () => {
                 const media = mediaMock(player.getMedia(), mediaConfig);
@@ -523,7 +523,7 @@ define([
 
         player.setSize(expectedWidth, expectedHeight);
 
-        $.parseHTML = parseHTMLMock;
+        parseHTMLMock.install();
         player
             .on('ready', () => {
                 ready();
@@ -549,7 +549,7 @@ define([
         assert.strictEqual(player.getPosition(), 0, 'The position should not have changed');
 
         setTimeout(() => {
-            $.parseHTML = parseHTMLMock;
+            parseHTMLMock.install();
 
             player
                 .off('play')
@@ -599,7 +599,7 @@ define([
             .play();
 
         setTimeout(() => {
-            $.parseHTML = parseHTMLMock;
+            parseHTMLMock.install();
 
             player
                 .off('play')
@@ -639,7 +639,7 @@ define([
             .play();
 
         setTimeout(() => {
-            $.parseHTML = parseHTMLMock;
+            parseHTMLMock.install();
 
             player
                 .off('play')
@@ -672,7 +672,7 @@ define([
         const config = { sources: [videoMP4], type: 'video' };
         const player = playerFactory($container, config);
 
-        $.parseHTML = parseHTMLMock;
+        parseHTMLMock.install();
 
         assert.strictEqual(player.isMuted(), false, 'Initial mute state set even if no media is there yet');
         player.mute(true);
@@ -708,7 +708,7 @@ define([
         const config = { sources: [videoMP4], type: 'video' };
         const player = playerFactory($container, config);
 
-        $.parseHTML = parseHTMLMock;
+        parseHTMLMock.install();
 
         player.addMedia(videoWebM.src, videoWebM.type);
         player
@@ -744,7 +744,7 @@ define([
         const config = { sources: [videoMP4], type: 'video' };
         const player = playerFactory($container, config);
 
-        $.parseHTML = parseHTMLMock;
+        parseHTMLMock.install();
 
         player
             .on('ready', () => {
@@ -779,7 +779,7 @@ define([
         const config = { sources: [videoMP4], type: 'video' };
         const player = playerFactory($container, config);
 
-        $.parseHTML = parseHTMLMock;
+        parseHTMLMock.install();
 
         player.addMedia(videoWebM.src, videoWebM.type);
         player
