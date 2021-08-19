@@ -33,27 +33,13 @@ const youtubePolling = 100;
  * List of YouTube events that can be listened to for debugging
  * @type {String[]}
  */
-const youtubeEvents = [
-    'onApiChange',
-    'onError',
-    'onPlaybackQualityChange',
-    'onPlaybackRateChange',
-    'onStateChange'
-];
+const youtubeEvents = ['onApiChange', 'onError', 'onPlaybackQualityChange', 'onPlaybackRateChange', 'onStateChange'];
 
 /**
  * List of player events that can be listened to for debugging
  * @type {String[]}
  */
-const playerEvents = [
-    'end',
-    'error',
-    'pause',
-    'play',
-    'ready',
-    'resize',
-    'timeupdate'
-];
+const playerEvents = ['end', 'error', 'pause', 'play', 'ready', 'resize', 'timeupdate'];
 
 /**
  * A local manager for Youtube players.
@@ -87,7 +73,7 @@ export default function youtubePlayerFactory($container, config = {}) {
     let callbacks = [];
 
     // eslint-disable-next-line
-    const debug = (action, ...args) => (config.debug && window.console.log(`[youtube:${action}]`, ...args));
+    const debug = (action, ...args) => config.debug && window.console.log(`[youtube:${action}]`, ...args);
 
     const queueMedia = (url, register) => {
         const id = youtubeManager.extractYoutubeId(url);
@@ -104,10 +90,12 @@ export default function youtubePlayerFactory($container, config = {}) {
 
     const player = {
         init() {
-            $media = $(youtubeTpl({
-                src: source.src,
-                id: youtubeManager.extractYoutubeId(source.src)
-            }));
+            $media = $(
+                youtubeTpl({
+                    src: source.src,
+                    id: youtubeManager.extractYoutubeId(source.src)
+                })
+            );
             $container.append($media);
             otherSources.forEach(source => this.addMedia(source.src));
 
@@ -129,9 +117,11 @@ export default function youtubePlayerFactory($container, config = {}) {
                 // install debug logger
                 if (config.debug) {
                     debug('installed', media);
-                    youtubeEvents.forEach(eventName => media.addEventListener(eventName, e => {
-                        debug('media event', eventName, $media && $media.data('videoSrc'), e);
-                    }));
+                    youtubeEvents.forEach(eventName =>
+                        media.addEventListener(eventName, e => {
+                            debug('media event', eventName, $media && $media.data('videoSrc'), e);
+                        })
+                    );
                     playerEvents.forEach(eventName => {
                         this.on(eventName, (...args) => {
                             debug('player event', eventName, $media && $media.data('videoSrc'), ...args);
@@ -198,55 +188,58 @@ export default function youtubePlayerFactory($container, config = {}) {
             if (media) {
                 youtubeEvents.forEach(ev => media.removeEventListener(ev));
                 media.destroy();
-                media = void(0);
+                media = void 0;
             } else {
                 youtubeManager.remove($media, this);
             }
 
             if ($media) {
                 $media.remove();
-                $media = void(0);
+                $media = void 0;
             }
         },
 
         getMedia() {
-            debug('api call', 'getMedia');
+            debug('api call', 'getMedia', media);
 
             return media;
         },
 
         getPosition() {
-            debug('api call', 'getPosition');
-
+            let position = 0;
             if (media) {
-                return media.getCurrentTime();
+                position = media.getCurrentTime();
             }
-            return 0;
+
+            debug('api call', 'getPosition', position);
+            return position;
         },
 
         getDuration() {
-            debug('api call', 'getDuration');
-
+            let duration = 0;
             if (media) {
-                return media.getDuration();
+                duration = media.getDuration();
             }
-            return 0;
+
+            debug('api call', 'getDuration', duration);
+            return duration;
         },
 
         getVolume() {
-            debug('api call', 'getVolume');
-
+            let volume = 0;
             if (media) {
-                return media.getVolume();
+                volume = media.getVolume();
             }
-            return 0;
+
+            debug('api call', 'getVolume', volume);
+            return volume;
         },
 
-        setVolume(value) {
-            debug('api call', 'setVolume', value);
+        setVolume(volume) {
+            debug('api call', 'setVolume', volume);
 
             if (media) {
-                media.setVolume(parseFloat(value));
+                media.setVolume(parseFloat(volume));
             }
         },
 
@@ -261,11 +254,11 @@ export default function youtubePlayerFactory($container, config = {}) {
             }
         },
 
-        seek(value) {
-            debug('api call', 'seek', value);
+        seek(time) {
+            debug('api call', 'seek', time);
 
             if (media) {
-                media.seekTo(parseFloat(value), true);
+                media.seekTo(parseFloat(time), true);
             }
         },
 
@@ -303,12 +296,13 @@ export default function youtubePlayerFactory($container, config = {}) {
         },
 
         isMuted() {
-            debug('api call', 'isMuted');
-
+            let mute = false;
             if (media) {
-                return media.isMuted();
+                mute = media.isMuted();
             }
-            return false;
+
+            debug('api call', 'isMuted', mute);
+            return mute;
         },
 
         addMedia(url) {
