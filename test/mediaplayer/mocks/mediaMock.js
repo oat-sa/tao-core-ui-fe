@@ -18,7 +18,7 @@
 define(['jquery'], function ($) {
     'use strict';
 
-    function mediaMock(element, { videoWidth = 320, videoHeight = 200 } = {}) {
+    function mediaMock(element, { videoWidth = 320, videoHeight = 200, readyDelay = 0 } = {}) {
         const $element = $(element);
         const polling = 10;
         let currentTime = 0;
@@ -89,6 +89,8 @@ define(['jquery'], function ($) {
                 $element.trigger('pause');
             }
         });
+
+        setTimeout(() => $element.trigger('canplay'), readyDelay);
 
         return element;
     }
