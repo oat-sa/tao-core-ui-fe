@@ -937,6 +937,7 @@ export default function (options) {
             let childNodes;
             let indexInModel;
             let currentParentNode = rootNode;
+            let pathNotFound = false;
             if (!currentModel.path || !currentModel.path.length) {
                 continue; //something went wrong
             }
@@ -945,11 +946,13 @@ export default function (options) {
                 childNodes = Array.from(currentParentNode.childNodes).filter(node => !(isText(node) && !node.textContent.length));
                 indexInModel = currentModel.path[m];
                 currentParentNode = childNodes[indexInModel];
-                if (!currentParentNode) {
+                if (!currentParentNode && m < currentModel.path.length - 1) {
+                    //node on last level may not exist yet, no need to fail. See `nodeAtIndex`
+                    pathNotFound = true;
                     break;
                 }
             }
-            if (!currentParentNode) {
+            if (pathNotFound) {
                 continue; //something went wrong
             }
 
@@ -958,10 +961,13 @@ export default function (options) {
             if (!currentModel.offsetBefore) {
                 //wrap starts on this node
                 nodeAtIndex = childNodes[indexInModel];
+                if (isBlacklisted(nodeAtIndex)) {
+                    continue; //something went wrong
+                }
             } else {
                 //split previousSibling to create a node for wrapping
                 var nodeBefore = childNodes[indexInModel - 1];
-                if (!nodeBefore || nodeBefore.textContent.length <= currentModel.offsetBefore) {
+                if (!nodeBefore || nodeBefore.textContent.length <= currentModel.offsetBefore || isBlacklisted(nodeBefore)) {
                     continue; //something went wrong
                 }
                 nodeAtIndex = nodeBefore.splitText(currentModel.offsetBefore);
@@ -972,9 +978,6 @@ export default function (options) {
             }
 
             //wrap
-            if (isBlacklisted(nodeAtIndex)) {
-                continue; //something went wrong
-            }
             const wrapperNode = getWrapper(currentModel.groupId, getClassNameByColor(currentModel.c));
             addSplitData(wrapperNode, currentModel.beforeWasSplit, currentModel.afterWasSplit);
             range = document.createRange();
