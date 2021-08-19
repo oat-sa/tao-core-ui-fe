@@ -30,12 +30,6 @@ import youtubeTpl from 'ui/mediaplayer/tpl/youtube';
 const youtubePolling = 100;
 
 /**
- * A Regex to extract ID from Youtube URLs
- * @type {RegExp}
- */
-const reYoutube = /([?&\/]v[=\/])([\w-]+)([&\/]?)/;
-
-/**
  * List of YouTube events that can be listened to for debugging
  * @type {String[]}
  */
@@ -60,16 +54,6 @@ const playerEvents = [
     'resize',
     'timeupdate'
 ];
-
-/**
- * Extracts the ID of a Youtube video from an URL
- * @param {String} url
- * @returns {String}
- */
-const extractYoutubeId = url => {
-    const res = reYoutube.exec(url);
-    return (res && res[2]) || url;
-};
 
 /**
  * A local manager for Youtube players.
@@ -106,7 +90,7 @@ export default function youtubePlayerFactory($container, config = {}) {
     const debug = (action, ...args) => (config.debug && window.console.log(`[youtube:${action}]`, ...args));
 
     const queueMedia = (url, register) => {
-        const id = extractYoutubeId(url);
+        const id = youtubeManager.extractYoutubeId(url);
         if (id) {
             if (media) {
                 register(id);
@@ -122,7 +106,7 @@ export default function youtubePlayerFactory($container, config = {}) {
         init() {
             $media = $(youtubeTpl({
                 src: source.src,
-                id: extractYoutubeId(source.src)
+                id: youtubeManager.extractYoutubeId(source.src)
             }));
             $container.append($media);
             otherSources.forEach(source => this.addMedia(source.src));

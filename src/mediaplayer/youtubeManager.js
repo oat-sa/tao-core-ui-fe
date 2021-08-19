@@ -25,6 +25,12 @@ import $ from 'jquery';
 const youtubeApi = 'https://www.youtube.com/iframe_api';
 
 /**
+ * A Regex to extract ID from Youtube URLs
+ * @type {RegExp}
+ */
+const reYoutube = /([?&\/]v[=\/])([\w-]+)([&\/]?)/;
+
+/**
  * Installs a Youtube player. The Youtube API must be ready
  * @param {String|jQuery|HTMLElement} elem
  * @param {Object} player
@@ -140,6 +146,16 @@ export default function youtubeManagerFactory() {
                     pending[idx] = null;
                 }
             });
+        },
+
+        /**
+         * Extracts the ID of a Youtube video from an URL
+         * @param {String} url
+         * @returns {String}
+         */
+        extractYoutubeId(url) {
+            const res = reYoutube.exec(url);
+            return (res && res[2]) || url;
         }
     };
 }
