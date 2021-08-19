@@ -1176,9 +1176,9 @@ function mediaplayerFactory(config) {
          * @private
          */
         _updatePosition(value, internal) {
-            this.position = Math.max(0, Math.min(this.duration, parseFloat(value)));
+            this.position = Math.max(0, Math.min(this.duration || +Infinity, parseFloat(value)));
 
-            if (!internal) {
+            if (!internal && this.duration) {
                 this._updatePositionSlider(this.position);
             }
             this._updatePositionLabel(this.position);
@@ -1256,8 +1256,6 @@ function mediaplayerFactory(config) {
                 this.seek(this.autoStartAt);
             } else if (this.autoStart) {
                 this.play();
-            } else if (timePreview) {
-                this._updatePosition(0);
             }
 
             if (this.$container && this.config.height && this.config.height !== 'auto') {
@@ -1285,7 +1283,7 @@ function mediaplayerFactory(config) {
             if (videoWidth > playerWidth) {
                 this.execute('setSize', '100%', 'auto');
             } else {
-                this.$component.css({ 'maxHeight': `${this.config.height + controlsHeight}px` });
+                this.$component.css({ maxHeight: `${this.config.height + controlsHeight}px` });
                 this.execute('setSize', Math.floor(videoWidth), 'auto');
             }
         },
@@ -1502,7 +1500,12 @@ function mediaplayerFactory(config) {
          * @private
          */
         _canPlay() {
-            return (this.is('ready') || this.is('stalled')) && !this.is('disabled') && !this.is('hidden') && !this._playLimitReached();
+            return (
+                (this.is('ready') || this.is('stalled')) &&
+                !this.is('disabled') &&
+                !this.is('hidden') &&
+                !this._playLimitReached()
+            );
         },
 
         /**
