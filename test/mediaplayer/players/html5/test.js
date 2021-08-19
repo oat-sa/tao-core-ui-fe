@@ -15,12 +15,13 @@
  *
  * Copyright (c) 2021 (original work) Open Assessment Technologies SA ;
  */
-define(['jquery', 'ui/mediaplayer/players/html5', 'ui/mediaplayer/support', 'util/urlParser'], function (
-    $,
-    playerFactory,
-    support,
-    UrlParser
-) {
+define([
+    'jquery',
+    'ui/mediaplayer/players/html5',
+    'ui/mediaplayer/support',
+    'util/urlParser',
+    'test/mediaplayer/mocks/mediaMock'
+], function ($, playerFactory, support, UrlParser, mediaMock) {
     'use strict';
 
     const audioMP3 = { src: '../../samples/audio.mp3', type: 'audio/mp3' };
@@ -36,6 +37,10 @@ define(['jquery', 'ui/mediaplayer/players/html5', 'ui/mediaplayer/support', 'uti
 
     const defaultVideoWidth = 320;
     const defaultVideoHeight = 200;
+    const mediaConfig = {
+        videoWidth: defaultVideoWidth,
+        videoHeight: defaultVideoHeight
+    };
 
     function parseHTMLMock(data, context, keepScripts) {
         if ('string' === typeof data) {
@@ -48,81 +53,6 @@ define(['jquery', 'ui/mediaplayer/players/html5', 'ui/mediaplayer/support', 'uti
             }
         }
         return parseHTMLOrigin.call($, data, context, keepScripts);
-    }
-
-    function mediaMock(element) {
-        const $element = $(element);
-        const polling = 10;
-        let currentTime = 0;
-        let duration = 100;
-        let pollingHandler;
-        let playing = false;
-        const stopPolling = () => {
-            if (pollingHandler) {
-                clearInterval(pollingHandler);
-            }
-            pollingHandler = null;
-        };
-
-        $element
-            .on('play', () => {
-                if (!pollingHandler) {
-                    pollingHandler = setInterval(() => {
-                        if (element.currentTime < duration) {
-                            element.currentTime += polling;
-                            $element.trigger('timeupdate');
-                        } else {
-                            stopPolling();
-                            if (playing) {
-                                $element.trigger('ended');
-                            }
-                        }
-                    }, polling);
-                }
-            })
-            .on('ended', stopPolling)
-            .on('pause', stopPolling);
-
-        Object.assign(element, {
-            networkState: 0,
-            readyState: 0,
-            currentSrc: '',
-            videoWidth: defaultVideoWidth,
-            videoHeight: defaultVideoHeight,
-            volume: 1,
-            muted: false,
-            get duration() {
-                return duration;
-            },
-            set duration(value) {
-                duration = value;
-            },
-            get currentTime() {
-                return currentTime;
-            },
-            set currentTime(value) {
-                console.log('update', value);
-                if (value >= duration) {
-                    currentTime = duration;
-                    playing = false;
-                    $element.trigger('ended');
-                } else {
-                    currentTime = value;
-                }
-            },
-            play() {
-                $element.trigger('play');
-                $element.trigger('playing');
-                playing = true;
-                return Promise.resolve();
-            },
-            pause() {
-                playing = false;
-                $element.trigger('pause');
-            }
-        });
-
-        return element;
     }
 
     QUnit.module('players', {
@@ -411,7 +341,7 @@ define(['jquery', 'ui/mediaplayer/players/html5', 'ui/mediaplayer/support', 'uti
             const $media = $container.find('.media');
             assert.equal($media.length, 1, 'The player has been rendered');
 
-            const media = mediaMock($media.get(0));
+            const media = mediaMock($media.get(0), mediaConfig);
             media.currentTime = 0;
             media.duration = duration;
             player.on('ready', () => {
@@ -466,7 +396,7 @@ define(['jquery', 'ui/mediaplayer/players/html5', 'ui/mediaplayer/support', 'uti
         $.parseHTML = parseHTMLMock;
         player
             .on('ready', () => {
-                mediaMock(player.getMedia());
+                mediaMock(player.getMedia(), mediaConfig);
                 assert.deepEqual(
                     player.getMediaSize(),
                     {
@@ -499,7 +429,7 @@ define(['jquery', 'ui/mediaplayer/players/html5', 'ui/mediaplayer/support', 'uti
         $.parseHTML = parseHTMLMock;
         player
             .on('ready', () => {
-                const media = mediaMock(player.getMedia());
+                const media = mediaMock(player.getMedia(), mediaConfig);
                 assert.strictEqual(player.getPosition(), 0, 'Initial position set');
 
                 media.currentTime = 42;
@@ -528,7 +458,7 @@ define(['jquery', 'ui/mediaplayer/players/html5', 'ui/mediaplayer/support', 'uti
         $.parseHTML = parseHTMLMock;
         player
             .on('ready', () => {
-                const media = mediaMock(player.getMedia());
+                const media = mediaMock(player.getMedia(), mediaConfig);
                 assert.strictEqual(player.getDuration(), 100, 'Initial duration set');
 
                 media.duration = 128;
@@ -559,7 +489,7 @@ define(['jquery', 'ui/mediaplayer/players/html5', 'ui/mediaplayer/support', 'uti
         $.parseHTML = parseHTMLMock;
         player
             .on('ready', () => {
-                const media = mediaMock(player.getMedia());
+                const media = mediaMock(player.getMedia(), mediaConfig);
                 assert.strictEqual(player.getVolume(), 100, 'Initial volume set');
 
                 player.setVolume(40);
@@ -642,7 +572,7 @@ define(['jquery', 'ui/mediaplayer/players/html5', 'ui/mediaplayer/support', 'uti
                     ready();
                 })
                 .on('ready', () => {
-                    mediaMock(player.getMedia());
+                    mediaMock(player.getMedia(), mediaConfig);
                     assert.strictEqual(player.getPosition(), 0, 'Initial position set');
 
                     player.seek(10);
@@ -686,7 +616,7 @@ define(['jquery', 'ui/mediaplayer/players/html5', 'ui/mediaplayer/support', 'uti
                     ready();
                 })
                 .on('ready', () => {
-                    mediaMock(player.getMedia());
+                    mediaMock(player.getMedia(), mediaConfig);
                     player.play();
                 })
                 .init();
@@ -726,7 +656,7 @@ define(['jquery', 'ui/mediaplayer/players/html5', 'ui/mediaplayer/support', 'uti
                     ready();
                 })
                 .on('ready', () => {
-                    mediaMock(player.getMedia());
+                    mediaMock(player.getMedia(), mediaConfig);
                     player.play();
                 })
                 .init();
@@ -749,7 +679,7 @@ define(['jquery', 'ui/mediaplayer/players/html5', 'ui/mediaplayer/support', 'uti
         assert.strictEqual(player.isMuted(), false, 'Cannot change the mute state if no media is there yet');
         player
             .on('ready', () => {
-                mediaMock(player.getMedia());
+                mediaMock(player.getMedia(), mediaConfig);
 
                 assert.strictEqual(player.isMuted(), false, 'Initial mute state set');
 
