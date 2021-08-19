@@ -16,6 +16,8 @@
  * Copyright (c) 2021 (original work) Open Assessment Technologies SA ;
  */
 define(['jquery'], function ($) {
+    'use strict';
+
     const parseHTMLOrigin = $.parseHTML;
 
     function parseHTMLMockFactory(defaultFilter) {

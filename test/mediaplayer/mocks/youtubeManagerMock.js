@@ -16,6 +16,8 @@
  * Copyright (c) 2021 (original work) Open Assessment Technologies SA ;
  */
 define(['jquery', 'core/eventifier'], function ($, eventifier) {
+    'use strict';
+
     const registry = new Map();
     let index = 0;
     let delay = 0;

@@ -16,6 +16,8 @@
  * Copyright (c) 2021 (original work) Open Assessment Technologies SA ;
  */
 define(['jquery'], function ($) {
+    'use strict';
+
     function mediaMock(element, { videoWidth = 320, videoHeight = 200 } = {}) {
         const $element = $(element);
         const polling = 10;
