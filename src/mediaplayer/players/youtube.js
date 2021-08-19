@@ -84,12 +84,15 @@ const youtubeManager = youtubeManagerFactory();
  * @param {Object} config - The list of config entries
  * @param {Array} config.sources - The list of media sources
  * @param {Boolean} [config.debug] - Enables the debug mode
+ * @param {Number} [config.polling=100] - The polling interval used to update the progress bar while playing a YouTube video.
  * @returns {Object} player
  */
 export default function youtubePlayerFactory($container, config = {}) {
     const sources = config.sources || [];
     const source = sources[0] || {};
     const otherSources = sources.slice(1);
+
+    config.polling = config.polling || youtubePolling;
 
     let $media;
     let media;
@@ -197,7 +200,7 @@ export default function youtubePlayerFactory($container, config = {}) {
         },
 
         startPolling() {
-            interval = window.setInterval(() => this.trigger('timeupdate'), youtubePolling);
+            interval = window.setInterval(() => this.trigger('timeupdate'), config.polling);
         },
 
         destroy() {
@@ -211,14 +214,14 @@ export default function youtubePlayerFactory($container, config = {}) {
             if (media) {
                 youtubeEvents.forEach(ev => media.removeEventListener(ev));
                 media.destroy();
-                media = null;
+                media = void(0);
             } else {
                 youtubeManager.remove($media, this);
             }
 
             if ($media) {
                 $media.remove();
-                $media = null;
+                $media = void(0);
             }
         },
 
