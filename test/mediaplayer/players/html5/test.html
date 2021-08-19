@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Ui Test - Media Player - HTML5 Player</title>
+        <script type="text/javascript" src="/environment/require.js"></script>
+        <script type="text/javascript">
+            require(['/environment/config.js'], function() {
+                require(['qunitEnv'], function() {
+                    requirejs.config({
+                        paths: {
+                            'util/urlParser': 'test/mediaplayer/mocks/urlParserMock',
+                            'ui/mediaplayer/support': 'test/mediaplayer/mocks/supportMock'
+                        }
+                    });
+                    require(['test/ui/mediaplayer/players/html5/test'], function() {
+                        QUnit.start();
+                    });
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <div id="qunit"></div>
+        <div id="qunit-fixture"></div>
+    </body>
+</html>
