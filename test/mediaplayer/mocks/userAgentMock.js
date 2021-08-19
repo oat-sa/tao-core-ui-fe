@@ -16,6 +16,8 @@
  * Copyright (c) 2021 (original work) Open Assessment Technologies SA ;
  */
 define(function () {
+    'use strict';
+
     function defineUserAgent(value, navigator = window.navigator) {
         const userAgent = {
             value,
