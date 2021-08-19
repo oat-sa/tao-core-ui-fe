@@ -338,13 +338,10 @@ define([
 
             parseHTMLMock.install();
             assert.ok(player.init(), 'The initialisation completed well');
-            const $media = $container.find('.media');
-            assert.equal($media.length, 1, 'The player has been rendered');
+            assert.equal($container.find('.media').length, 1, 'The player has been rendered');
 
-            const media = mediaMock($media.get(0), mediaConfig);
-            media.currentTime = 0;
-            media.duration = duration;
             player.on('ready', () => {
+                const media = player.getMedia();
                 assert.ok(true, 'The player is ready');
 
                 player.play();
@@ -355,7 +352,10 @@ define([
 
                 ready();
             });
-            $media.trigger('canplay');
+
+            const media = mediaMock(player.getMedia(), mediaConfig);
+            media.currentTime = 0;
+            media.duration = duration;
         });
 
     QUnit.test('getMedia', assert => {
@@ -396,7 +396,6 @@ define([
         parseHTMLMock.install();
         player
             .on('ready', () => {
-                mediaMock(player.getMedia(), mediaConfig);
                 assert.deepEqual(
                     player.getMediaSize(),
                     {
@@ -414,7 +413,7 @@ define([
             })
             .init();
 
-        $container.find('.media').trigger('canplay');
+        mediaMock(player.getMedia(), mediaConfig);
     });
 
     QUnit.test('getPosition', assert => {
@@ -429,7 +428,7 @@ define([
         parseHTMLMock.install();
         player
             .on('ready', () => {
-                const media = mediaMock(player.getMedia(), mediaConfig);
+                const media = player.getMedia();
                 assert.strictEqual(player.getPosition(), 0, 'Initial position set');
 
                 media.currentTime = 42;
@@ -443,7 +442,7 @@ define([
             })
             .init();
 
-        $container.find('.media').trigger('canplay');
+        mediaMock(player.getMedia(), mediaConfig);
     });
 
     QUnit.test('getDuration', assert => {
@@ -458,7 +457,7 @@ define([
         parseHTMLMock.install();
         player
             .on('ready', () => {
-                const media = mediaMock(player.getMedia(), mediaConfig);
+                const media = player.getMedia();
                 assert.strictEqual(player.getDuration(), 100, 'Initial duration set');
 
                 media.duration = 128;
@@ -472,7 +471,7 @@ define([
             })
             .init();
 
-        $container.find('.media').trigger('canplay');
+        mediaMock(player.getMedia(), mediaConfig);
     });
 
     QUnit.test('getVolume/setVolume', assert => {
@@ -489,7 +488,7 @@ define([
         parseHTMLMock.install();
         player
             .on('ready', () => {
-                const media = mediaMock(player.getMedia(), mediaConfig);
+                const media = player.getMedia();
                 assert.strictEqual(player.getVolume(), 100, 'Initial volume set');
 
                 player.setVolume(40);
@@ -504,7 +503,7 @@ define([
             })
             .init();
 
-        $container.find('.media').trigger('canplay');
+        mediaMock(player.getMedia(), mediaConfig);
     });
 
     QUnit.test('setSize', assert => {
@@ -530,7 +529,7 @@ define([
             })
             .init();
 
-        $container.find('.media').trigger('canplay');
+        mediaMock(player.getMedia(), mediaConfig);
     });
 
     QUnit.test('seek', assert => {
@@ -572,7 +571,6 @@ define([
                     ready();
                 })
                 .on('ready', () => {
-                    mediaMock(player.getMedia(), mediaConfig);
                     assert.strictEqual(player.getPosition(), 0, 'Initial position set');
 
                     player.seek(10);
@@ -581,7 +579,7 @@ define([
                 })
                 .init();
 
-            $container.find('.media').trigger('canplay');
+            mediaMock(player.getMedia(), mediaConfig);
         }, 50);
     });
 
@@ -616,12 +614,11 @@ define([
                     ready();
                 })
                 .on('ready', () => {
-                    mediaMock(player.getMedia(), mediaConfig);
                     player.play();
                 })
                 .init();
 
-            $container.find('.media').trigger('canplay');
+            mediaMock(player.getMedia(), mediaConfig);
         }, 50);
     });
 
@@ -656,12 +653,11 @@ define([
                     ready();
                 })
                 .on('ready', () => {
-                    mediaMock(player.getMedia(), mediaConfig);
                     player.play();
                 })
                 .init();
 
-            $container.find('.media').trigger('canplay');
+            mediaMock(player.getMedia(), mediaConfig);
         }, 50);
     });
 
@@ -679,8 +675,6 @@ define([
         assert.strictEqual(player.isMuted(), false, 'Cannot change the mute state if no media is there yet');
         player
             .on('ready', () => {
-                mediaMock(player.getMedia(), mediaConfig);
-
                 assert.strictEqual(player.isMuted(), false, 'Initial mute state set');
 
                 player.mute(true);
@@ -698,7 +692,7 @@ define([
             })
             .init();
 
-        $container.find('.media').trigger('canplay');
+        mediaMock(player.getMedia(), mediaConfig);
     });
 
     QUnit.test('addMedia', assert => {
@@ -734,7 +728,7 @@ define([
             })
             .init();
 
-        $container.find('.media').trigger('canplay');
+        mediaMock(player.getMedia(), mediaConfig);
     });
 
     QUnit.test('addMedia with no support', assert => {
@@ -769,7 +763,7 @@ define([
             })
             .init();
 
-        $container.find('.media').trigger('canplay');
+        mediaMock(player.getMedia(), mediaConfig);
     });
 
     QUnit.test('setMedia', assert => {
@@ -800,6 +794,6 @@ define([
             })
             .init();
 
-        $container.find('.media').trigger('canplay');
+        mediaMock(player.getMedia(), mediaConfig);
     });
 });
