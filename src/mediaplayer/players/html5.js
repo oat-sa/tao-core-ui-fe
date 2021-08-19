@@ -109,10 +109,10 @@ export default function html5PlayerFactory($container, config = {}) {
     const getDebugContext = action => {
         const networkState = media && media.networkState;
         const readyState = media && media.readyState;
-        return `[html5-${type}(networkState=${networkState},readyState=${readyState}):${action}]`
+        return `[html5-${type}(networkState=${networkState},readyState=${readyState}):${action}]`;
     };
     // eslint-disable-next-line
-    const debug = (action, ...args) => (config.debug && window.console.log(getDebugContext(action), ...args));
+    const debug = (action, ...args) => config.debug && window.console.log(getDebugContext(action), ...args);
 
     const player = {
         init() {
@@ -139,7 +139,7 @@ export default function html5PlayerFactory($container, config = {}) {
             $media = $(tpl({ cors, preload, poster, link }));
             $container.append($media);
 
-            media = void(0);
+            media = void 0;
             playback = false;
             loaded = false;
             stalled = false;
@@ -207,7 +207,9 @@ export default function html5PlayerFactory($container, config = {}) {
                     $media.on(eventName + ns, e => debug('media event', eventName, media && media.currentSrc, e));
                 });
                 playerEvents.forEach(eventName => {
-                    this.on(eventName, (...args) => debug('player event', eventName, media && media.currentSrc, ...args));
+                    this.on(eventName, (...args) =>
+                        debug('player event', eventName, media && media.currentSrc, ...args)
+                    );
                 });
             }
 
@@ -229,64 +231,67 @@ export default function html5PlayerFactory($container, config = {}) {
                 $media.off(ns).remove();
             }
 
-            $media = void(0);
-            media = void(0);
+            $media = void 0;
+            media = void 0;
             playback = false;
             loaded = false;
             stalled = false;
         },
 
         getMedia() {
-            debug('api call', 'getMedia');
+            debug('api call', 'getMedia', media);
 
             return media;
         },
 
         getMediaSize() {
-            debug('api call', 'getMediaSize');
-
+            let size = {};
             if (media) {
-                return {
+                size = {
                     width: media.videoWidth,
                     height: media.videoHeight
-                }
+                };
             }
-            return {};
+
+            debug('api call', 'getMediaSize', size);
+            return size;
         },
 
         getPosition() {
-            debug('api call', 'getPosition');
-
+            let position = 0;
             if (media) {
-                return media.currentTime;
+                position = media.currentTime;
             }
-            return 0;
+
+            debug('api call', 'getPosition', position);
+            return position;
         },
 
         getDuration() {
-            debug('api call', 'getDuration');
-
+            let duration = 0;
             if (media) {
-                return media.duration;
+                duration = media.duration;
             }
-            return 0;
+
+            debug('api call', 'getDuration', duration);
+            return duration;
         },
 
         getVolume() {
-            debug('api call', 'getVolume');
-
-            let value = 0;
+            let volume = 0;
             if (media) {
-                value = parseFloat(media.volume) * volumeRange;
+                volume = parseFloat(media.volume) * volumeRange;
             }
-            return value;
+
+            debug('api call', 'getVolume', volume);
+            return volume;
         },
 
-        setVolume(value) {
-            debug('api call', 'setVolume', value);
+        setVolume(volume) {
+            debug('api call', 'setVolume', volume);
 
             if (media) {
-                media.volume = parseFloat(value) / volumeRange;
+                media.volume = parseFloat(volume) / volumeRange;
             }
         },
 
@@ -296,11 +301,11 @@ export default function html5PlayerFactory($container, config = {}) {
             this.trigger('resize', width, height);
         },
 
-        seek(value) {
-            debug('api call', 'seek', value);
+        seek(time) {
+            debug('api call', 'seek', time);
 
             if (media) {
-                media.currentTime = parseFloat(value);
+                media.currentTime = parseFloat(time);
                 if (!playback) {
                     this.play();
                 }
@@ -311,8 +316,7 @@ export default function html5PlayerFactory($container, config = {}) {
             debug('api call', 'play');
 
             if (media) {
-                media.play()
-                    .catch(err => debug('playback error', err));
+                media.play().catch(err => debug('playback error', err));
             }
         },
 
@@ -341,12 +345,13 @@ export default function html5PlayerFactory($container, config = {}) {
         },
 
         isMuted() {
-            debug('api call', 'isMuted');
-
+            let mute = false;
             if (media) {
-                return !!media.muted;
+                mute = !!media.muted;
             }
-            return false;
+
+            debug('api call', 'isMuted', mute);
+            return mute;
         },
 
         addMedia(src, type) {
