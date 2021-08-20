@@ -40,7 +40,8 @@ var defaultBlackList = ['textarea', 'math', 'script', '.select2-container'];
  * @param {String} options.className - name of the class that will be used by the wrappers tags to highlight text
  * @param {String} options.containerSelector - allows to select the root Node in which highlighting is allowed
  * @param {Array<String>} [options.containersBlackList] - additional blacklist selectors to be added to module instance's blacklist
- * @param {Array<String>} [options.containersWhiteList] - whitelist selectors; supported only in `keepEmptyNodes` mode
+ * @param {Array<String>} [options.containersWhiteList] - whitelist selectors; supported only in `keepEmptyNodes` mode.
+ *   Priority of blacklist or whitelist is decided by which selector is closest to the node. If no match found, node is considered whitelisted.
  * @param {Boolean} [options.clearOnClick] - clear single highlight node on click
  * @param {Object} [options.colors] - keys is keeping as the "c" value of storing/restore the highlighters for indexing, values are wrappers class names
  * @param {Boolean} [options.keepEmptyNodes] - retain original dom structure as far as possible and do not remove empty nodes if they were not created by highlighter
@@ -963,13 +964,14 @@ export default function (options) {
             if (!currentModel.offsetBefore) {
                 //wrap starts on this node
                 nodeAtIndex = childNodes[indexInModel];
-                if (!nodeAtIndex || isBlacklisted(nodeAtIndex)) {
+                if (!nodeAtIndex || !isText(nodeAtIndex) || isBlacklisted(nodeAtIndex)) {
                     continue; //something went wrong
                 }
             } else {
                 //split previousSibling to create a node for wrapping
                 var nodeBefore = childNodes[indexInModel - 1];
-                if (!nodeBefore || nodeBefore.textContent.length <= currentModel.offsetBefore || isBlacklisted(nodeBefore)) {
+                if (!nodeBefore || !isText(nodeBefore) ||
+                        nodeBefore.textContent.length <= currentModel.offsetBefore || isBlacklisted(nodeBefore)) {
                     continue; //something went wrong
                 }
                 nodeAtIndex = nodeBefore.splitText(currentModel.offsetBefore);

@@ -668,36 +668,6 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
             ]
         },
 
-        {
-            title: 'highlight whitelisted nodes inside blacklisted container',
-            blacklisted: ['.bl'],
-            whitelisted: ['.wh'],
-            input:
-                '<div class="bl">outside<div class="wh">inside</div></div>' +
-                '<div class="wh">inside</div>' +
-                '<div class="bl">outside<div class="wh">inside<div class="bl">outside</div></div></div>' +
-                '<div class="unrelated">inside</div>',
-            selection:
-                '<div class="bl">outside<div class="wh">inside</div></div>' +
-                '<div class="wh">inside</div>' +
-                '<div class="bl">outside<div class="wh">inside<div class="bl">outside</div></div></div>' +
-                '<div class="unrelated">inside</div>',
-            output:
-                '<div class="bl">outside<div class="wh"><span class="hl" data-hl-group="1">inside</span></div></div>' +
-                '<div class="wh"><span class="hl" data-hl-group="1">inside</span></div>' +
-                '<div class="bl">outside<div class="wh"><span class="hl" data-hl-group="1">inside</span><div class="bl">outside</div></div></div>' +
-                '<div class="unrelated"><span class="hl" data-hl-group="1">inside</span></div>',
-            buildRange: function (range, fixtureContainer) {
-                range.selectNodeContents(fixtureContainer);
-            },
-            highlightIndex: [
-                { highlighted: true, c: 'hl', groupId: '1' },
-                { highlighted: true, c: 'hl', groupId: '1' },
-                { highlighted: true, c: 'hl', groupId: '1' },
-                { highlighted: true, c: 'hl', groupId: '1' }
-            ]
-        },
-
         // ===========================
         // Groups & overlapping ranges
         // ===========================
@@ -966,11 +936,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
 
         var fixtureContainer = document.getElementById('qunit-fixture');
 
-        if (!data.whitelisted) { //TODO: implement and update test
-            assert.expect(8);
-        } else {
-            assert.expect(4);
-        }
+        assert.expect(8);
 
         fixtureContainer.innerHTML = data.input;
 
@@ -987,12 +953,10 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
         assert.equal(fixtureContainer.innerHTML, data.output, 'highlight: ' + data.output);
 
         // Save highlight
-        if (!data.whitelisted) { //TODO: implement and update test
-            highlightIndex = highlighter.getHighlightIndex();
-            assert.ok(_.isArray(highlightIndex), 'getHighlightIndex returns an array');
-            assert.equal(highlightIndex.length, data.highlightIndex.length, 'array has the correct size');
-            assert.deepEqual(highlightIndex, data.highlightIndex, 'array has the correct content');
-        }
+        highlightIndex = highlighter.getHighlightIndex();
+        assert.ok(_.isArray(highlightIndex), 'getHighlightIndex returns an array');
+        assert.equal(highlightIndex.length, data.highlightIndex.length, 'array has the correct size');
+        assert.deepEqual(highlightIndex, data.highlightIndex, 'array has the correct content');
 
         // Reset markup
         fixtureContainer.innerHTML = '';
@@ -1003,10 +967,8 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
         highlighter.clearHighlights();
 
         // Restore highlight
-        if (!data.whitelisted) { //TODO: implement and update test
-            highlighter.highlightFromIndex(highlightIndex);
-            assert.equal(fixtureContainer.innerHTML, data.output, 'highlight has been restored');
-        }
+        highlighter.highlightFromIndex(highlightIndex);
+        assert.equal(fixtureContainer.innerHTML, data.output, 'highlight has been restored');
     });
 
     QUnit.test('clearHighlights', function (assert) {
@@ -1635,9 +1597,11 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
 
         assert.equal(
             fixtureContainer.innerHTML,
-            '<span><span class="hl" data-hl-group="1">lorem</span></span>  <span><span class="hl" data-hl-group="2">ipsum</span></span>\n'+
-                '<span><span class="hl" data-hl-group="3">dolor</span></span><span class="hl" data-hl-group="4">sit</span>',
-            'Highlights were created and space-only nodes were not removed'
+            '<span><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">lorem</span></span>  ' +
+                '<span><span class="hl" data-hl-group="2" data-before-was-split="false" data-after-was-split="false">ipsum</span></span>\n' +
+                '<span><span class="hl" data-hl-group="3" data-before-was-split="false" data-after-was-split="false">dolor</span></span>' +
+                '<span class="hl" data-hl-group="4" data-before-was-split="false" data-after-was-split="false">sit</span>',
+            'Highlights were created and space-only nodes were not removed:' + fixtureContainer.innerHTML
         );
         assert.equal(fixtureContainer.childNodes[5], emptyNodeOne, 'Empty nodes were not removed (1)');
         assert.equal(fixtureContainer.childNodes[7], emptyNodeTwo, 'Empty nodes were not removed (2)');
@@ -1918,5 +1882,66 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
                 data.contentAfterApplyingHighlighter,
                 'Split data is inherited on highlight with second color'
             );
+        });
+
+    QUnit.test('highlightRanges: whitelist', function (assert) {
+        const data = {
+            title: 'highlight whitelisted nodes inside blacklisted container',
+            blacklisted: ['.bl'],
+            whitelisted: ['.wh'],
+            input:
+                '<div class="bl">outside<div class="wh">inside</div></div>' +
+                '<div class="wh">inside</div>' +
+                '<div class="bl">outside<div class="wh">inside<div class="bl">outside</div></div></div>' +
+                '<div class="unrelated">inside</div>',
+            selection:
+                '<div class="bl">outside<div class="wh">inside</div></div>' +
+                '<div class="wh">inside</div>' +
+                '<div class="bl">outside<div class="wh">inside<div class="bl">outside</div></div></div>' +
+                '<div class="unrelated">inside</div>',
+            output:
+                '<div class="bl">outside<div class="wh"><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">inside</span></div></div>' +
+                '<div class="wh"><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">inside</span></div>' +
+                '<div class="bl">outside<div class="wh"><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">inside</span><div class="bl">outside</div></div></div>' +
+                '<div class="unrelated"><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">inside</span></div>',
+            buildRange: function (range, fixtureContainer) {
+                range.selectNodeContents(fixtureContainer);
+            },
+            highlightIndex: [
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' }
+            ]
+        };
+
+            // Setup test
+        var highlighter = highlighterFactory({
+                keepEmptyNodes: true,
+                className: 'hl',
+                containerSelector: '#qunit-fixture',
+                containersBlackList: data.blacklisted,
+                containersWhiteList: data.whitelisted
+            });
+            var range = document.createRange();
+            var rangeHtml;
+
+            var fixtureContainer = document.getElementById('qunit-fixture');
+
+            assert.expect(3);
+
+            fixtureContainer.innerHTML = data.input;
+
+            // The following assertion is just to provide a better visual feedback in QUnit UI
+            assert.equal(fixtureContainer.innerHTML, data.input, 'input: ' + data.input);
+
+            // Create range, then make sure it is correctly built
+            data.buildRange(range, fixtureContainer);
+            rangeHtml = $('<div>').append(range.cloneContents()).html(); // This conversion to HTML will automatically close partially selected nodes, if any
+            assert.equal(rangeHtml, data.selection, 'selection: ' + data.selection);
+
+            // Highlight
+            highlighter.highlightRanges([range]);
+            assert.equal(fixtureContainer.innerHTML, data.output, 'highlight: ' + fixtureContainer.innerHTML);
         });
 });
