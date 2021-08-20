@@ -195,7 +195,7 @@ const isResponsiveSize = sizeProps => {
  * @param {String|jQuery|HTMLElement} [config.renderTo] - An optional container in which renders the player
  * @param {Boolean} [config.canSeek] - The player allows to reach an arbitrary position within the media using the duration bar
  * @param {Boolean} [config.loop] - The media will be played continuously
- * @param {Boolean} [config.canPause] - The play can be paused
+ * @param {Boolean} [config.canPause] - The player can be paused
  * @param {Boolean} [config.startMuted] - The player should be initially muted
  * @param {Boolean} [config.autoStart] - The player starts as soon as it is displayed
  * @param {Number} [config.autoStartAt] - The time position at which the player should start
