@@ -165,7 +165,7 @@ export default function (options) {
                         startNodeContainer: range.startContainer,
                         startOffset: range.startOffset,
 
-                        endNode: isElement(range.endContainer)
+                        endNode: isElement(range.endContainer) && range.endOffset > 0
                             ? range.endContainer.childNodes[range.endOffset - 1]
                             : range.endContainer,
                         endNodeContainer: range.endContainer,
@@ -311,7 +311,10 @@ export default function (options) {
 
                     // ... or continue deeper in the node tree
                 } else if (isElement(currentNode)) {
-                    wrapTextNodesInRange(currentNode, rangeInfos);
+                    //some selections end at the very start of the next node, we should end wrapping when we reach such node
+                    if (!currentNode.isSameNode(rangeInfos.endNode) || rangeInfos.endOffset > 0) {
+                        wrapTextNodesInRange(currentNode, rangeInfos);
+                    }
                 }
             }
 
@@ -648,8 +651,7 @@ export default function (options) {
                 nodeToRemove.remove();
             } else if (nodeToRemoveText) {
                 //keep text in a separate text node
-                const $wrapped = $(nodeToRemove);
-                $wrapped.replaceWith(nodeToRemoveText);
+                nodeToRemove.replaceWith(document.createTextNode(nodeToRemoveText));
             } else {
                 //text is empty, just remove it
                 nodeToRemove.remove();
@@ -794,7 +796,7 @@ export default function (options) {
      * For `keepEmptyNodes` option, creates data model of highlights.
      * Additionally returns array of hilghlight nodes. Traverses DOM tree.
      * @param {Node} rootNode
-     * @returns {HighlightEntryKeepEmpty[]|null} result
+     * @returns {BuildModelResultKeepEmpty|null} result
      */
     function buildHighlightModelKeepEmpty(rootNode) {
         const wrapperNodesSelector = Object.values(options.colors).map(cls => containerSelector + ' .' + cls).join(', ');
