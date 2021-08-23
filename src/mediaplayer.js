@@ -1218,13 +1218,16 @@ function mediaplayerFactory(config) {
 
         /**
          * Updates the displayed duration
-         * @param {Number} value
+         * @param {Number|String} value
          * @private
          */
         _updateDuration(value) {
-            this.duration = Math.abs(parseFloat(value));
-            this._updateDurationSlider(this.duration);
-            this._updateDurationLabel(this.duration);
+            const duration = Math.abs(parseFloat(value));
+            if (duration !== this.duration) {
+                this.duration = duration;
+                this._updateDurationSlider(this.duration);
+                this._updateDurationLabel(this.duration);
+            }
         },
 
         /**
