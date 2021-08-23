@@ -116,6 +116,7 @@ export default function (options) {
     /**
      * Attach data to wrapper node.
      * Use it when deleting this highlight to know if highlight content should be merged with neighbour text nodes or not.
+     * Use it when building/restoring index to know if restored highlight content should be split off neighbour text node or not.
      * Needed to keep markup the same as it was before highlighting.
      * @param {HTMLElement} node
      * @param {Boolean} beforeWasSplit
@@ -800,7 +801,8 @@ export default function (options) {
      * @returns {BuildModelResultKeepEmpty|null} result
      */
     function buildHighlightModelKeepEmpty(rootNode) {
-        const wrapperNodesSelector = Object.values(options.colors).map(cls => containerSelector + ' .' + cls).join(', ');
+        const classNames = options.colors ? Object.values(options.colors) : [className];
+        const wrapperNodesSelector = classNames.map(cls => containerSelector + ' .' + cls).join(', ');
         const wrapperNodes = document.querySelectorAll(wrapperNodesSelector);
 
         if (!wrapperNodes.length) {
