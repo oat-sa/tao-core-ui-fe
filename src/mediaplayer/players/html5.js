@@ -139,7 +139,6 @@ export default function html5PlayerFactory($container, config = {}) {
             $media = $(tpl({ cors, preload, poster, link }));
             $container.append($media);
 
-            media = void 0;
             playback = false;
             loaded = false;
             stalled = false;
