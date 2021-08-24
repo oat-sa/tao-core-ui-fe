@@ -63,15 +63,29 @@ define(['jquery', 'ui/previewer'], function($, previewer) {
 
         assert.ok($elt.length === 1, 'Test the fixture is available');
 
-        $elt.on('create.previewer', function() {
-            setTimeout(function() {
+        Promise
+            .all([
+                new Promise(resolve => {
+                    $elt.on('create.previewer', resolve);
+                }),
+                new Promise(resolve => {
+                    $elt.on('playerready', resolve);
+                })
+            ])
+            .then(() => {
                 assert.equal($elt.find('video').length, 1, 'The video element is created');
                 assert.equal($elt.find('video source').length, 1, 'The video source element is created');
                 assert.equal($elt.find('video source').attr('src'), options.url, 'The video src is set');
                 assert.equal($elt.find('.mediaplayer').length, 1, 'The media element player is set up');
-                ready();
-            }, 750);
-        });
+            })
+            .catch(err => {
+                assert.pushResult({
+                    result: false,
+                    message: err
+                });
+            })
+            .then(ready);
+
         previewer($fixture);
     });
 });

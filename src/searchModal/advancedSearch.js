@@ -49,7 +49,7 @@ export default function advancedSearchFactory(config) {
     let $criteriaSelect = null;
     let $advancedCriteriaContainer = null;
     let criteriaState = null;
-
+    let criteriaMapping = {};
     const criteriaTypes = {
         text: 'text',
         list: 'list'
@@ -74,7 +74,9 @@ export default function advancedSearchFactory(config) {
             $criteriaIcon.toggleClass('icon-add').toggleClass('icon-loop');
             return request(route)
                 .then(response => {
-                    const criteria = formatCriteria(response);
+                    criteriaMapping = response.criteriaMapping || {};
+                    const classTree = response.classDefinition ? response.classDefinition : response;
+                    const criteria = formatCriteria(classTree);
                     updateCriteria(criteria);
                     isCriteriaListUpdated = true;
                     $criteriaIcon.toggleClass('icon-add').toggleClass('icon-loop');
@@ -108,17 +110,18 @@ export default function advancedSearchFactory(config) {
             let query = '';
 
             advancedSearchCriteria.forEach(renderedCriterion => {
+                const queryParam = renderedCriterion.propertyUri;
                 if ((hasSearchInput || query.trim().length !== 0) && renderedCriterion.value) {
                     query += ' AND ';
                 }
                 if (renderedCriterion.type === criteriaTypes.text) {
                     if (renderedCriterion.value && renderedCriterion.value.trim() !== '') {
-                        query += `${renderedCriterion.label}:${renderedCriterion.value.trim()}`;
+                        query += `${queryParam}:${renderedCriterion.value.trim()}`;
                     }
                 } else if (renderedCriterion.type === criteriaTypes.list) {
                     if (renderedCriterion.value && renderedCriterion.value.length > 0) {
                         /* Temp replaced OR with AND. See ADF-7 for details */
-                        query += `${renderedCriterion.label}:${renderedCriterion.value.join(' AND ')}`;
+                        query += `${queryParam}:${renderedCriterion.value.join(' AND ')}`;
                     }
                 }
             });
@@ -277,7 +280,8 @@ export default function advancedSearchFactory(config) {
         $advancedCriteriaContainer.append(templateToUse({ criterion }));
 
         const $criterionContainer = $(`.${criterion.id}-filter`, $container);
-
+        const valueMapping = criteriaMapping[criterion.type];
+        
         /**
          * On criterion of type list with a uri endpoint to retrieve options, template includes a select
          * that is managed with select2, so we init it here
@@ -293,12 +297,9 @@ export default function advancedSearchFactory(config) {
                             subject: term
                         };
                     },
-                    results: function (response) {
-                        const res = response.data.map(option => {
-                            return { id: option.label, text: option.label };
-                        });
-                        return { results: res };
-                    }
+                    results: (response) => ({ 
+                          results: response.data.map(option => ({ id: valueMapping === 'uri' ? option.uri : option.label, text: option.label }))
+                    })
                 },
                 initSelection: function (element, callback) {
                     const data = [];
@@ -314,43 +315,76 @@ export default function advancedSearchFactory(config) {
     }
 
     /**
+     * Fetches initial criterion label from api in case the value mapping is uri
+     * @param {object} criterion - criterion to be managed
+     */
+    function getInitialCriterionLabel(criterion) {
+        const valueMapping = criteriaMapping[criterion.type];
+        if (valueMapping !== 'uri' || !criterion.value) {
+            return Promise.resolve({
+                id: criterion.value,
+                text: criterion.value
+            });
+        }
+        return $.ajax({
+            type: 'GET',
+            url: criterion.uri,
+            dataType: 'json',
+        }).then(({ data }) => {
+            if (Array.isArray(criterion.value)) {
+                return criterion.value.map(v => ({
+                    id: v,
+                    text: (data.find(d => d.uri === v) || {}).label
+                }))
+            }
+            let c = (data.find(d => d.uri === criterion.value) || {})
+            return {
+                text: c.label,
+                id: criterion.value,
+            }
+        })
+    }
+
+    /**
      * Sets initial value for rendered criterion and sets binding between view and state
      * @param {object} criterion - criterion to be managed
      * @param {object} $criterionContainer - rendered criterion
      */
     function bindCriterionValue(criterion, $criterionContainer) {
-        if (criterion.type === criteriaTypes.text) {
-            // set initial value
-            $('input', $criterionContainer).val(criterion.value);
-            // set event to bind input value to critariaState
-            $('input', $criterionContainer).on('change', function () {
-                criterion.value = $(this).val() || undefined;
-            });
-        } else if (criterion.type === criteriaTypes.list && criterion.uri) {
-            // set initial value
-            if (criterion.value) {
-                $(`input[name=${criterion.id}-select]`, $criterionContainer).select2('val', criterion.value);
-            }
-            // set event to bind input value to critariaState
-            $(`input[name=${criterion.id}-select]`, $criterionContainer).on('change', event => {
-                criterion.value = event.val;
-            });
-        } else {
-            // set initial value
-            if (criterion.value) {
-                criterion.value.forEach(selectedValue => {
-                    $(`input[value=${selectedValue}]`, $criterionContainer).prop('checked', true);
+        getInitialCriterionLabel(criterion).then(initialCriterion => {
+            if (criterion.type === criteriaTypes.text) {
+                // set initial value
+                $('input', $criterionContainer).val(criterion.value);
+                // set event to bind input value to critariaState
+                $('input', $criterionContainer).on('change', function () {
+                    criterion.value = $(this).val() || undefined;
+                });
+            } else if (criterion.type === criteriaTypes.list && criterion.uri) {
+                // set initial value
+                if (criterion.value) {
+                    $(`input[name=${criterion.id}-select]`, $criterionContainer).select2('data', initialCriterion);
+                }
+                // set event to bind input value to critariaState
+                $(`input[name=${criterion.id}-select]`, $criterionContainer).on('change', event => {
+                    criterion.value = event.val;
+                });
+            } else {
+                // set initial value
+                if (criterion.value) {
+                    criterion.value.forEach(selectedValue => {
+                        $(`input[value=${selectedValue}]`, $criterionContainer).prop('checked', true);
+                    });
+                }
+                // set event to bind input value to critariaState
+                $('input[type="checkbox"]', $criterionContainer).on('change', function () {
+                    criterion.value = $(this)
+                        .closest('.filter-container')
+                        .find('input[type=checkbox]:checked')
+                        .get()
+                        .map(element => element.value);
                 });
             }
-            // set event to bind input value to critariaState
-            $('input[type="checkbox"]', $criterionContainer).on('change', function () {
-                criterion.value = $(this)
-                    .closest('.filter-container')
-                    .find('input[type=checkbox]:checked')
-                    .get()
-                    .map(element => element.value);
-            });
-        }
+        });
     }
 
     /**

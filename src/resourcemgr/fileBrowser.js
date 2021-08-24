@@ -21,6 +21,7 @@ import request from 'core/request';
 import paginationComponent from 'ui/pagination';
 import rootFolderTpl from 'ui/resourcemgr/tpl/rootFolder';
 import folderTpl from 'ui/resourcemgr/tpl/folder';
+import updatePermissions  from './util/updatePermissions';
 
 const ns = 'resourcemgr';
 
@@ -105,6 +106,7 @@ export default function (options) {
                 subTree.children = [];
             }
             if (root !== 'local' || !_.find(subTree.children, { name: file.name })) {
+                updatePermissions(file);
                 subTree.children.push(file);
                 subTree.total++;
                 selectedClass.total++;
@@ -284,28 +286,6 @@ export default function (options) {
             return response;
         });
 
-    }
-
-    /**
-     * Update the permissions in HTML Tree
-     * @param {Object} item - the tree item
-     * @return {Object} - item with permissions
-     */
-    function updatePermissions(item) {
-        let permissions = {
-            read: true,
-            write: true
-        }
-        if (item.permissions) {
-            if (!item.permissions.includes('READ')) {
-                permissions.read = false;
-            }
-            if (!item.permissions.includes('WRITE')) {
-                permissions.write = false;
-            }
-        }
-        item.permissions = permissions;
-        return item;
     }
 
     /**

@@ -18,8 +18,9 @@ export default function(options) {
     let currentSelection = [];
 
     $container.on(`fileselect.${ns}`, function(e, file) {
-        if (file && file.file && $container[0].querySelector(`li[data-file='${file.file}'] .icon-download`)) {
-            startPreview(file);
+        const $listItem = $container[0].querySelector(`[data-file='${file.file}']`);
+        if (file && file.file && $listItem && $listItem.dataset) {
+            startPreview(file, $listItem.dataset.preview === 'true', $listItem.dataset.download === 'true');
             currentSelection = file;
         } else {
             stopPreview();
@@ -42,13 +43,20 @@ export default function(options) {
         $container.trigger(`select.${ns}`, [[data]]);
     });
 
-    function startPreview(file) {
-        $previewer.previewer(file);
-        $propType.text(`${file.type} (${file.mime})`);
-        $propSize.text(bytes.hrSize(file.size));
-        $link.attr('href', file.download).attr('download', file.file);
-        if ($link.hasClass('hidden')) {
-            $link.removeClass('hidden');
+    function startPreview(file, preview, download) {
+        if (preview) {
+            $previewer.previewer(file);
+            $propType.text(`${file.type} (${file.mime})`);
+            $propSize.text(bytes.hrSize(file.size));
+        }
+        if(download) {
+            $link.attr('href', file.download).attr('download', file.file);
+            if ($link.hasClass('hidden')) {
+                $link.removeClass('hidden');
+            }
+        } else {
+            $link.attr('href', '#').attr('download', '#');
+            $link.addClass('hidden');
         }
         $selectButton.removeAttr('disabled');
     }

@@ -67,15 +67,15 @@ var Incrementer = {
                         .after(
                             //set up controls
                             '<span class="ctrl ' +
-                                options.incrementerCtrlClass +
-                                '">' +
-                                '<a href="#" class="inc" title="+' +
-                                options.step +
-                                '" tabindex="-1"></a>' +
-                                '<a href="#" class="dec" title="-' +
-                                options.step +
-                                '" tabindex="-1"></a>' +
-                                '</span>'
+                            options.incrementerCtrlClass +
+                            '">' +
+                            '<a href="#" class="inc" title="+' +
+                            options.step +
+                            '" tabindex="-1"></a>' +
+                            '<a href="#" class="dec" title="-' +
+                            options.step +
+                            '" tabindex="-1"></a>' +
+                            '</span>'
                         )
                         .on('keydown', function(e) {
                             if (e.which === 38) {
@@ -98,7 +98,7 @@ var Incrementer = {
                                     options = $elt.data(dataNs);
 
                                 //sanitize the string by removing all invalid characters (only allow digit and dot)
-                                value = parseFloat(value.replace(/[^\d\.]/g, '')).toFixed(0);
+                                value = parseFloat(value.replace(/[^\d\.]/g, ''));
 
                                 if (isNaN(value)) {
                                     //allow empty input
