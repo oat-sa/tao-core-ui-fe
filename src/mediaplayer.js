@@ -1261,7 +1261,7 @@ function mediaplayerFactory(config) {
                 this.play();
             }
 
-            if (this.$container && this.config.height && this.config.height !== 'auto') {
+            if (this.config.preview && this.$container && this.config.height && this.config.height !== 'auto') {
                 this._setMaxHeight();
             }
 
