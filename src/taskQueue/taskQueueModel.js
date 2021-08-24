@@ -35,6 +35,7 @@
  */
 import $ from 'jquery';
 import _ from 'lodash';
+import __ from 'i18n';
 
 import eventifier from 'core/eventifier';
 import polling from 'core/polling';
@@ -69,6 +70,18 @@ function hasSameState(task1, task2) {
         return task2.status === 'created' || task2.status === 'in_progress';
     }
     return false;
+}
+
+function translateReportMessages(taskData) {
+    return taskData.map(item => {
+        if (item.interpolationMessage) {
+            item.message = __(item.interpolationMessage, ...item.interpolationData);
+        }
+        if (item.children.length > 0) {
+            translateReportMessages(item.children);
+        }
+        return item;
+    })
 }
 
 /**
@@ -145,6 +158,8 @@ export default function taskQueueModel(config) {
             }
 
             status = request(config.url.get, { taskId: taskId }, 'GET', {}, true).then(function(taskData) {
+                // Workaround for translations
+                taskData.report.children = translateReportMessages(taskData.report.children);
                 //check taskData
                 if (taskData && taskData.status) {
                     if (_cache) {
