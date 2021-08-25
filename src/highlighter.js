@@ -1059,7 +1059,10 @@ export default function (options) {
     }
 
     /**
-     * Check if the given node is, or is within, a blacklisted container
+     * Check if the given node is, or is within, a blacklisted container.
+     * With `keepEmptyNodes` option, node inside blacklisted container can be whitelisted too.
+     * Priority of blacklist or whitelist is decided by which selector is closest to the node.
+     * If no match found, node is considered whitelisted.
      * @param {Node} node
      * @returns {boolean}
      */
