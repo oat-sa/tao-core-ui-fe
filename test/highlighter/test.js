@@ -357,6 +357,22 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
             ]
         },
 
+        {
+            title: 'highlights a selection that ends in the start of the next element node',
+            input: '<div><h2>here</h2><p>there</p></div>',
+            selection: '<h2>here</h2><p></p>',
+            output: '<div><h2><span class="hl" data-hl-group="1">here</span></h2><p>there</p></div>',
+            buildRange: function (range, fixtureContainer) {
+                // usually selection like this is created when you triple-click on text
+                range.setStart(fixtureContainer.firstChild.firstChild.firstChild, 0); //div->h2->text
+                range.setEnd(fixtureContainer.firstChild.lastChild, 0); //div->p
+            },
+            highlightIndex: [
+                { highlighted: true, c: "hl", groupId: "1" },
+                { highlighted: false }
+            ]
+        },
+
         // ====================================
         // Ranges with partially selected nodes
         // ====================================
@@ -927,7 +943,8 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
         var highlighter = highlighterFactory({
             className: 'hl',
             containerSelector: '#qunit-fixture',
-            containersBlackList: data.blacklisted
+            containersBlackList: data.blacklisted,
+            containersWhiteList: data.whitelisted
         });
         var range = document.createRange();
         var highlightIndex;
@@ -1570,4 +1587,598 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
                 'highlight has been restored'
             );
         });
+
+    QUnit.module('with keepEmptyNodes option');
+
+    QUnit.test('highlightRanges: empty nodes are not removed', function (assert) {
+        const highlighter = highlighterFactory({
+            keepEmptyNodes: true,
+            className: 'hl',
+            containerSelector: '#qunit-fixture',
+            containersBlackList: ['.blacklist']
+        });
+        var range = document.createRange();
+        var fixtureContainer = document.getElementById('qunit-fixture');
+
+        assert.expect(3);
+
+        fixtureContainer.innerHTML = '<span>lorem</span>  <span>ipsum</span>\n<span>dolor</span>sit';
+        fixtureContainer.childNodes[5].splitText(0); //|sit
+        const emptyNodeOne = fixtureContainer.childNodes[5];
+        const emptyNodeTwo = fixtureContainer.childNodes[6].splitText(3); //|sit|
+
+        //Highlight all
+        range.selectNodeContents(fixtureContainer);
+        highlighter.highlightRanges([range]);
+
+        assert.equal(
+            fixtureContainer.innerHTML,
+            '<span><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">lorem</span></span>  ' +
+                '<span><span class="hl" data-hl-group="2" data-before-was-split="false" data-after-was-split="false">ipsum</span></span>\n' +
+                '<span><span class="hl" data-hl-group="3" data-before-was-split="false" data-after-was-split="false">dolor</span></span>' +
+                '<span class="hl" data-hl-group="4" data-before-was-split="false" data-after-was-split="false">sit</span>',
+            'Highlights were created and space-only nodes were not removed'
+        );
+        assert.equal(fixtureContainer.childNodes[5], emptyNodeOne, 'Empty nodes were not removed (1)');
+        assert.equal(fixtureContainer.childNodes[7], emptyNodeTwo, 'Empty nodes were not removed (2)');
+    });
+
+    QUnit.test('highlightRanges: merge adjacent', function (assert) {
+        const highlighter = highlighterFactory({
+            keepEmptyNodes: true,
+            className: 'hl',
+            containerSelector: '#qunit-fixture',
+            containersBlackList: []
+        });
+        var range = document.createRange();
+        var fixtureContainer = document.getElementById('qunit-fixture');
+
+        assert.expect(3);
+
+        fixtureContainer.innerHTML = 'Lorem Ipsum is';
+        const emptyNode = fixtureContainer.firstChild.splitText(14);
+
+        //Create three highlights: '[Lore]m Ipsu[m] [is]'
+        range.setStart(fixtureContainer.childNodes[0], 0);
+        range.setEnd(fixtureContainer.childNodes[0], 4);
+        highlighter.highlightRanges([range]);
+
+        range.setStart(fixtureContainer.childNodes[1], 6);
+        range.setEnd(fixtureContainer.childNodes[1], 7);
+        highlighter.highlightRanges([range]);
+
+        range.setStart(fixtureContainer.childNodes[3], 1);
+        range.setEnd(fixtureContainer.childNodes[3], 3);
+        highlighter.highlightRanges([range]);
+
+        assert.equal(
+            fixtureContainer.innerHTML,
+            '<span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="true">Lore</span>m Ipsu' +
+                '<span class="hl" data-hl-group="2" data-before-was-split="true" data-after-was-split="true">m</span> ' +
+                '<span class="hl" data-hl-group="3" data-before-was-split="true" data-after-was-split="false">is</span>',
+            'First highlights were created'
+        );
+        fixtureContainer.childNodes[0].dataset.beforeWasSplit = 'abc'; //to make testing easier
+        fixtureContainer.childNodes[0].dataset.afterWasSplit = 'def';
+        fixtureContainer.childNodes[2].dataset.beforeWasSplit = 'ghi';
+        fixtureContainer.childNodes[2].dataset.afterWasSplit = 'jkl';
+        fixtureContainer.childNodes[4].dataset.beforeWasSplit = 'mno';
+        fixtureContainer.childNodes[4].dataset.afterWasSplit = 'pqr';
+
+        //Create highlight over it: '[Lorem Ipsum is]'
+        var range2 = document.createRange();
+        range2.setStart(fixtureContainer.childNodes[1], 0);
+        range2.setEnd(fixtureContainer.childNodes[3], 1);
+        highlighter.highlightRanges([range2]);
+
+        assert.equal(
+            fixtureContainer.innerHTML,
+            '<span class="hl" data-hl-group="1" data-before-was-split="abc" data-after-was-split="pqr">Lorem Ipsum is</span>',
+            'Split data is recalculated on merging highlights'
+        );
+
+       assert.equal(fixtureContainer.childNodes[1], emptyNode, 'Empty nodes were not removed');
+    });
+
+    QUnit.test('clearHighlights: only nodes split by highlighter are merged back', function (assert) {
+        var highlighter = highlighterFactory({
+            keepEmptyNodes: true,
+            className: 'hl',
+            containerSelector: '#qunit-fixture',
+            containersBlackList: []
+        });
+        var range = document.createRange();
+
+        var fixtureContainer = document.getElementById('qunit-fixture');
+
+        function assertChildNodes(node, textContents, message) {
+            assert.equal(node.childNodes.length, textContents.length, message);
+            textContents.forEach((text, i) => {
+                assert.equal(node.childNodes[i].textContent, text, `${message} ${i+1}`);
+            });
+        }
+
+        assert.expect(9);
+
+        fixtureContainer.innerHTML = '<div>lorem</div>ipsum<div>dolor</div>sit<div>amet</div>';
+        fixtureContainer.childNodes[2].firstChild.splitText(2);
+        fixtureContainer.childNodes[2].lastChild.splitText(2); //do|lo|r
+        fixtureContainer.childNodes[4].lastChild.splitText(4); //amet|
+
+        // Create two separated higlights
+        range.setStart(fixtureContainer.childNodes[0].firstChild, 2);
+        range.setEnd(fixtureContainer.childNodes[0].firstChild, 4);
+        highlighter.highlightRanges([range]); //lo[re]m
+
+        range.setStart(fixtureContainer.childNodes[2].childNodes[1], 0);
+        range.setEnd(fixtureContainer.childNodes[2].childNodes[1], 2);
+        highlighter.highlightRanges([range]); //do[lo]r
+
+        assert.equal($(fixtureContainer).find('.hl').length, 2, 'Two higlights have been created');
+
+        // Clear all highlights
+        highlighter.clearHighlights();
+
+        assert.equal($(fixtureContainer).find('.hl').length, 0, 'All higlights have been discarded');
+
+        assertChildNodes(fixtureContainer.childNodes[0], ['lorem'], 'Nodes splitted by highlighter were merged back');
+        assertChildNodes(fixtureContainer.childNodes[2], ['do', 'lo', 'r'], 'Originally splitted nodes were not merged back');
+        assert.equal(fixtureContainer.childNodes[4].lastChild.textContent, '', 'Empty nodes were not removed');
+    });
+
+
+    QUnit.test('clearSingleHighlight: only nodes split by highlighter are merged back', function (assert) {
+        var highlighter = highlighterFactory({
+            keepEmptyNodes: true,
+            className: 'hl',
+            containerSelector: '#qunit-fixture',
+            containersBlackList: []
+        });
+        var range = document.createRange();
+
+        var fixtureContainer = document.getElementById('qunit-fixture');
+
+        function assertChildNodes(node, textContents, message) {
+            assert.equal(node.childNodes.length, textContents.length, message);
+            textContents.forEach((text, i) => {
+                assert.equal(node.childNodes[i].textContent, text, `${message} ${i+1}`);
+            });
+        }
+
+        assert.expect(27);
+
+        fixtureContainer.innerHTML = '<div>lorem</div><div>ipsum</div><div>dolor</div><div>sit</div><div>amet</div><div>consectetur</div><div>adipiscing</div>elit';
+        //'<div>lorem</div><div>ipsum</div><div>dolor</div><div>sit</div><div>am|et</div><div>consectet|ur</div><div>ad|i|piscing</div>';
+        fixtureContainer.childNodes[4].firstChild.splitText(2); //am|et
+        fixtureContainer.childNodes[5].firstChild.splitText(9); //consectet|ur
+        fixtureContainer.childNodes[6].firstChild.splitText(2);
+        fixtureContainer.childNodes[6].lastChild.splitText(1); //ad|i|piscing
+        fixtureContainer.childNodes[7].splitText(0); //|elit
+
+        // Create seven separated higlights
+        //'<div>[lorem]</div><div>[ip]sum</div><div>dol[or]</div><div>s[i]t</div><div>[am]et</div><div>consectet[ur]</div><div>ad[i]piscing</div>|elit';
+        range.setStart(fixtureContainer.childNodes[0].firstChild, 0);
+        range.setEnd(fixtureContainer.childNodes[0].firstChild, 5);
+        highlighter.highlightRanges([range]);
+
+        range.setStart(fixtureContainer.childNodes[1].firstChild, 0);
+        range.setEnd(fixtureContainer.childNodes[1].firstChild, 2);
+        highlighter.highlightRanges([range]);
+
+        range.setStart(fixtureContainer.childNodes[2].firstChild, 3);
+        range.setEnd(fixtureContainer.childNodes[2].firstChild, 5);
+        highlighter.highlightRanges([range]);
+
+        range.setStart(fixtureContainer.childNodes[3].firstChild, 1);
+        range.setEnd(fixtureContainer.childNodes[3].firstChild, 2);
+        highlighter.highlightRanges([range]);
+
+        range.setStart(fixtureContainer.childNodes[4].firstChild, 0);
+        range.setEnd(fixtureContainer.childNodes[4].firstChild, 2);
+        highlighter.highlightRanges([range]);
+
+        range.setStart(fixtureContainer.childNodes[5].lastChild, 0);
+        range.setEnd(fixtureContainer.childNodes[5].lastChild, 2);
+        highlighter.highlightRanges([range]);
+
+        range.setStart(fixtureContainer.childNodes[6].childNodes[1], 0);
+        range.setEnd(fixtureContainer.childNodes[6].childNodes[1], 1);
+        highlighter.highlightRanges([range]);
+
+        var higlights = $(fixtureContainer).find('.hl');
+        assert.equal(higlights.length, 7, 'Seven separated higlights have been created');
+
+        // Clear higlights one by one
+        highlighter.clearSingleHighlight({target: higlights[0]});
+        assert.equal($(fixtureContainer).find('.hl').length, 6, 'Higlight discarded: 1');
+        assertChildNodes(fixtureContainer.childNodes[0], ['lorem'], 'Higlight discarded: no adjacent text to merge with');
+
+        highlighter.clearSingleHighlight({target: higlights[1]});
+        assert.equal($(fixtureContainer).find('.hl').length, 5, 'Higlight discarded: 2');
+        assertChildNodes(fixtureContainer.childNodes[1], ['ipsum'], 'Higlight discarded: text merged with next');
+
+        highlighter.clearSingleHighlight({target: higlights[2]});
+        assert.equal($(fixtureContainer).find('.hl').length, 4, 'Higlight discarded: 3');
+        assertChildNodes(fixtureContainer.childNodes[2], ['dolor'], 'Higlight discarded: text merged with previous');
+
+        highlighter.clearSingleHighlight({target: higlights[3]});
+        assert.equal($(fixtureContainer).find('.hl').length, 3, 'Higlight discarded: 4');
+        assertChildNodes(fixtureContainer.childNodes[3], ['sit'], 'Higlight discarded: text merged with next and previous');
+
+        highlighter.clearSingleHighlight({target: higlights[4]});
+        assert.equal($(fixtureContainer).find('.hl').length, 2, 'Higlight discarded: 5');
+        assertChildNodes(fixtureContainer.childNodes[4], ['am', 'et'], 'Higlight discarded: text not merged with next');
+
+        highlighter.clearSingleHighlight({target: higlights[5]});
+        assert.equal($(fixtureContainer).find('.hl').length, 1, 'Higlight discarded: 6');
+        assertChildNodes(fixtureContainer.childNodes[5], ['consectet', 'ur'], 'Higlight discarded: text not merged with previous');
+
+        highlighter.clearSingleHighlight({target: higlights[6]});
+        assert.equal($(fixtureContainer).find('.hl').length, 0, 'Higlight discarded: 7');
+        assertChildNodes(fixtureContainer.childNodes[6], ['ad', 'i', 'piscing'], 'Higlight discarded: text not merged with next and previous');
+
+        assert.equal(fixtureContainer.childNodes[7].textContent, '', 'Empty nodes were not removed');
+    });
+
+    QUnit.cases
+        .init([{
+            title: 'Second splits first',
+            contentAfterApplyingHighlighter: 'Lorem <span class="pink" data-hl-group="1" data-before-was-split="abc" data-after-was-split="true">Ip</span>' +
+                '<span class="blue" data-hl-group="1" data-before-was-split="true" data-after-was-split="true">su</span>' +
+                '<span class="pink" data-hl-group="1" data-before-was-split="true" data-after-was-split="def">m</span> is',
+            buildRange: function (range, fixtureContainer) {
+                    range.setStart(fixtureContainer.childNodes[1].firstChild, 2);
+                    range.setEnd(fixtureContainer.childNodes[1].firstChild, 4);
+                }
+            }, {
+                title: 'Second covers first fully',
+                contentAfterApplyingHighlighter: '<span class="blue" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">Lorem Ipsum is</span>',
+                buildRange: function (range, fixtureContainer) {
+                        range.setStart(fixtureContainer.childNodes[0], 0);
+                        range.setEnd(fixtureContainer.childNodes[2], 3);
+                    }
+            }, {
+                title: 'Second cuts start of first',
+                contentAfterApplyingHighlighter: '<span class="blue" data-hl-group="1" data-before-was-split="false" data-after-was-split="true">Lorem Ip</span>' +
+                    '<span class="pink" data-hl-group="1" data-before-was-split="true" data-after-was-split="def">sum</span> is',
+                buildRange: function (range, fixtureContainer) {
+                        range.setStart(fixtureContainer.childNodes[0], 0);
+                        range.setEnd(fixtureContainer.childNodes[1].firstChild, 2);
+                    }
+            }, {
+                title: 'Second cuts end of first',
+                contentAfterApplyingHighlighter: 'Lorem <span class="pink" data-hl-group="1" data-before-was-split="abc" data-after-was-split="true">Ip</span>' +
+                '<span class="blue" data-hl-group="1" data-before-was-split="true" data-after-was-split="false">sum is</span>',
+                buildRange: function (range, fixtureContainer) {
+                        range.setStart(fixtureContainer.childNodes[1].firstChild, 2);
+                        range.setEnd(fixtureContainer.childNodes[2], 3);
+                    }
+            }
+        ])
+        .test('highlightRanges: multi colors', function (data, assert) {
+            const colors = {
+                pink: 'pink',
+                blue: 'blue'
+            };
+            const highlighter = highlighterFactory({
+                keepEmptyNodes: true,
+                className: colors.pink,
+                containerSelector: '#qunit-fixture',
+                containersBlackList: [],
+                colors: colors
+            });
+            var range = document.createRange();
+            var fixtureContainer = document.getElementById('qunit-fixture');
+
+            assert.expect(2);
+
+            fixtureContainer.innerHTML = 'Lorem Ipsum is';
+
+            //Create highlight in one color: 'Lorem [Ipsum] is'
+            range.setStart(fixtureContainer.childNodes[0], 6);
+            range.setEnd(fixtureContainer.childNodes[0], 11);
+            highlighter.highlightRanges([range]);
+
+            assert.equal(
+                fixtureContainer.innerHTML,
+                'Lorem <span class="pink" data-hl-group="1" data-before-was-split="true" data-after-was-split="true">Ipsum</span> is',
+                'Highlight in first color was created'
+            );
+            fixtureContainer.childNodes[1].dataset.beforeWasSplit = 'abc'; //to make testing easier
+            fixtureContainer.childNodes[1].dataset.afterWasSplit = 'def';
+
+            //Create highlight in another color
+            var range2 = document.createRange();
+            data.buildRange(range2, fixtureContainer);
+            highlighter.setActiveColor('blue');
+            highlighter.highlightRanges([range2]);
+
+            assert.equal(
+                fixtureContainer.innerHTML,
+                data.contentAfterApplyingHighlighter,
+                'split data is inherited on highlight with second color'
+            );
+        });
+
+    QUnit.test('highlightRanges: whitelisted nodes inside blacklisted container', function (assert) {
+        const data = {
+            blacklisted: ['.bl'],
+            whitelisted: ['.wh'],
+            input:
+                '<div class="bl">outside<div class="wh">inside</div></div>' +
+                '<div class="wh">inside</div>' +
+                '<div class="bl">outside<div class="wh">inside<div class="bl">outside</div></div></div>' +
+                '<div class="unrelated">inside</div>',
+            output:
+                '<div class="bl">outside<div class="wh"><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">inside</span></div></div>' +
+                '<div class="wh"><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">inside</span></div>' +
+                '<div class="bl">outside<div class="wh"><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">inside</span><div class="bl">outside</div></div></div>' +
+                '<div class="unrelated"><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">inside</span></div>',
+            buildRange: function (range, fixtureContainer) {
+                range.selectNodeContents(fixtureContainer);
+            },
+            highlightIndex: [
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' }
+            ]
+        };
+
+        var highlighter = highlighterFactory({
+            keepEmptyNodes: true,
+            className: 'hl',
+            containerSelector: '#qunit-fixture',
+            containersBlackList: data.blacklisted,
+            containersWhiteList: data.whitelisted
+        });
+        var range = document.createRange();
+        var fixtureContainer = document.getElementById('qunit-fixture');
+
+        assert.expect(1);
+
+        fixtureContainer.innerHTML = data.input;
+        data.buildRange(range, fixtureContainer);
+
+        highlighter.highlightRanges([range]);
+        assert.equal(fixtureContainer.innerHTML, data.output, 'highlights for whitelist was created, for blacklist not');
+    });
+
+    QUnit.test('highlightFromIndex: does nothing if index is empty', function (assert) {
+        var fixtureContainer = document.getElementById('qunit-fixture');
+
+        assert.expect(3);
+
+        const input1 = '<div>here</div>';
+        fixtureContainer.innerHTML = input1;
+        var highlighter1 = highlighterFactory({
+            keepEmptyNodes: true,
+            className: 'hl',
+            containerSelector: '#qunit-fixture'
+        });
+
+        const index = highlighter1.getHighlightIndex();
+        assert.equal(index, null, 'if no highlights, built index is "null"');
+
+        highlighter1.highlightFromIndex(null);
+        assert.equal(fixtureContainer.innerHTML, input1, 'on restore for "null" index, no error was thrown');
+
+        const input2 = '<div><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">here</span></div>';
+        fixtureContainer.innerHTML = input2;
+        var highlighter2 = highlighterFactory({
+            keepEmptyNodes: true,
+            className: 'hl',
+            containerSelector: '#qunit-fixture'
+        });
+
+        highlighter2.highlightFromIndex([]);
+        assert.equal(fixtureContainer.innerHTML, input2, 'on restore for empty array, no error was thrown');
+    });
+
+    QUnit.test('highlightFromIndex: builds index and restores highlights from it', function (assert) {
+        var fixtureContainer = document.getElementById('qunit-fixture');
+        var range = document.createRange();
+        var highlighter = highlighterFactory({
+            keepEmptyNodes: true,
+            className: 'hl',
+            colors: {h: 'hl', c: 'c2'},
+            containerSelector: '#qunit-fixture'
+        });
+
+        const input =
+            'midseason' +
+            '<div class="row">' +
+                '<div class="col-6">' +
+                    'spring' +
+                    '<p>autumn</p>' +
+                    'midwinter' +
+                '</div>' +
+                '<div class="col-6"><p><b>midsummer</b></p></div>' +
+            '</div>' +
+            '<div class="row">' +
+                '<div class="col-12">summer</div>' +
+            '</div>' +
+            'winter';
+
+        const output =
+            '<span class="c2" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">midseason</span>' +
+            '<div class="row">' +
+                '<div class="col-6">' +
+                    's<span class="hl" data-hl-group="2" data-before-was-split="true" data-after-was-split="true">prin</span>g' +
+                    '<p><span class="hl" data-hl-group="3" data-before-was-split="false" data-after-was-split="false">autumn</span></p>' +
+                    'midwinter' +
+                '</div>' +
+                '<div class="col-6"><p><b>midsumme<span class="hl" data-hl-group="4" data-before-was-split="true" data-after-was-split="false">r</span></b></p></div>' +
+            '</div>' +
+            '<div class="row">' +
+                '<div class="col-12"><span class="hl" data-hl-group="4" data-before-was-split="false" data-after-was-split="true">s</span>ummer</div>' +
+            '</div>' +
+            'wi<span class="hl" data-hl-group="5" data-before-was-split="true" data-after-was-split="true">nte</span>r';
+
+        const expectedIndex = [
+            {
+                //'[midseason]', color 2, top-level text node
+                groupId: '1',
+                c: 'c',
+                offsetBefore: 0,
+                textLength: 9,
+                beforeWasSplit: "false",
+                afterWasSplit: "false",
+                path: [0]
+            },
+            {
+                //'s[prin]g', nested node, split inside
+                groupId: '2',
+                c: 'h',
+                offsetBefore: 1,
+                textLength: 4,
+                beforeWasSplit: "true",
+                afterWasSplit: "true",
+                path: [1, 0, 1]
+            },
+            {
+                //'[autumn]', node after children created by highlight ('s[prin]g')
+                groupId: '3',
+                c: 'h',
+                offsetBefore: 0,
+                textLength: 6,
+                beforeWasSplit: "false",
+                afterWasSplit: "false",
+                path: [1, 0, 3, 0]
+            },
+            {
+                //'midsumme[r', nested node, split end
+                groupId: '4',
+                c: 'h',
+                offsetBefore: 8,
+                textLength: 1,
+                beforeWasSplit: "true",
+                afterWasSplit: "false",
+                path: [1, 1, 0, 0, 1]
+            },
+            {
+                //'s]ummer', nested node, split start
+                groupId: '4',
+                c: 'h',
+                offsetBefore: 0,
+                textLength: 1,
+                beforeWasSplit: "false",
+                afterWasSplit: "true",
+                path: [2, 0, 0]
+            },
+            {
+                //'wi[nte]r', group 2, split inside
+                groupId: '5',
+                c: 'h',
+                offsetBefore: 2,
+                textLength: 3,
+                beforeWasSplit: "true",
+                afterWasSplit: "true",
+                path: [4]
+            }
+        ]
+
+        assert.expect(8);
+
+        fixtureContainer.innerHTML = input;
+        fixtureContainer.lastChild.splitText('winter'.length); //create empty node in the end
+
+        range.selectNodeContents(fixtureContainer.childNodes[1].childNodes[0].childNodes[1]); //'[autumn]'
+        highlighter.highlightRanges([range]);
+
+        range.setStart(fixtureContainer.childNodes[1].childNodes[0].firstChild, 1); //'s[prin]g'
+        range.setEnd(fixtureContainer.childNodes[1].childNodes[0].firstChild, 5);
+        highlighter.highlightRanges([range]);
+
+        range.setStart(fixtureContainer.childNodes[1].childNodes[1].firstChild.firstChild.firstChild, 8); //'midsumme[r'
+        range.setEnd(fixtureContainer.childNodes[1].childNodes[1].firstChild.firstChild.firstChild, 9);
+        highlighter.highlightRanges([range]);
+
+        range.setStart(fixtureContainer.childNodes[2].firstChild.firstChild, 0); //'s]ummer'
+        range.setEnd(fixtureContainer.childNodes[2].firstChild.firstChild, 1);
+        highlighter.highlightRanges([range]);
+
+        range.setStart(fixtureContainer.childNodes[3], 2); //'wi[nte]r'
+        range.setEnd(fixtureContainer.childNodes[3], 5);
+        highlighter.highlightRanges([range]);
+
+        highlighter.setActiveColor('c');
+        range.selectNodeContents(fixtureContainer.childNodes[0]); //'[midseason]
+        highlighter.highlightRanges([range]);
+
+        assert.equal(fixtureContainer.innerHTML, output, 'highlights were created');
+
+        const actualIndex = highlighter.getHighlightIndex();
+        assert.deepEqual(actualIndex.highlightModel, expectedIndex, 'index was built: highlightModel');
+        assert.equal(actualIndex.wrapperNodes.length, 6, 'index was built: wrapperNodes (1)');
+        assert.equal(actualIndex.wrapperNodes[0], fixtureContainer.querySelector('.c2'), 'index was built: wrapperNodes (2)');
+        assert.equal(actualIndex.wrapperNodes[1], fixtureContainer.querySelector('.hl'), 'index was built: wrapperNodes (3)');
+
+        fixtureContainer.innerHTML = '';
+        assert.equal(fixtureContainer.innerHTML, '', 'html was reset');
+        fixtureContainer.innerHTML = input;
+        const emptyNode = fixtureContainer.lastChild.splitText('winter'.length); //create empty node in the end
+
+        highlighter.highlightFromIndex(actualIndex.highlightModel);
+        assert.equal(fixtureContainer.innerHTML, output, 'highlights were restored');
+        assert.equal(fixtureContainer.lastChild, emptyNode, 'on restore, empty nodes were not removed');
+    });
+
+    QUnit.test('highlightFromIndex: does not throw in case of html/index mismatches ', function (assert) {
+        var highlighter = highlighterFactory({
+            keepEmptyNodes: true,
+            className: 'hl',
+            containerSelector: '#qunit-fixture',
+            containersBlackList: ['.bl']
+        });
+        var fixtureContainer = document.getElementById('qunit-fixture');
+
+        assert.expect(1);
+
+        var input = '<div>cat</div>' +
+            '<div class="bl">dog</div>' +
+            '<div>age</div>' +
+            '<div>mix</div>' +
+            '<div>kin</div>' +
+            '<div>sad</div>' +
+            '<div>orb</div>' +
+            '<div>fox</div>' +
+            '<div>elk</div>';
+
+        const baseEntry = {
+            groupId: '1',
+            c: 'hl',
+            offsetBefore: 0,
+            textLength: 3,
+            beforeWasSplit: "false",
+            afterWasSplit: "false",
+            path: [0]
+        };
+        var index = [
+            { c: 'zz', path: [0, 0] }, //wrong color -> restores, but with default color
+            { path: [1, 0] }, //blacklist
+            { path: [2, 1, 2] }, //path not found
+            { path: [3, 2], offsetBefore: 1, textLength: 1, beforeWasSplit: "true" }, //path not found
+            { path: [4, 1], offsetBefore: 3, beforeWasSplit: "true"  }, //text offset
+            { path: [5, 1], offsetBefore: 1, textLength: 3, beforeWasSplit: "true"  }, //text length -> restores until the end of node
+            { path: [6, 0], offsetBefore: 0, textLength: 4 }, //text length -> restores until the end of node
+            { path: [7] }, //node is not text
+            { path: [8, 0] }, //correct one
+            { path: [9, 0] }, //path not found
+        ];
+        index = index.map(entry => Object.assign({}, baseEntry, entry));
+        fixtureContainer.innerHTML = input;
+
+        highlighter.highlightFromIndex(index);
+        const output = '<div><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">cat</span></div>' +
+            '<div class="bl">dog</div>' +
+            '<div>age</div>' +
+            '<div>mix</div>' +
+            '<div>kin</div>' +
+            '<div>s<span class="hl" data-hl-group="1" data-before-was-split="true" data-after-was-split="false">ad</span></div>' +
+            '<div><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">orb</span></div>' +
+            '<div>fox</div>' +
+            '<div><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">elk</span></div>';
+        assert.equal(fixtureContainer.innerHTML, output, 'for index that does not match, no error was thrown');
+    });
 });
