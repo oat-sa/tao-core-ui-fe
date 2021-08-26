@@ -361,7 +361,7 @@ $controlsHeight: 36px;
                 }
             }
 
-            &.youtube.ended {
+            &.youtube.ended, &:not(.preview) {
                 .player:hover {
                     [data-control="play"] {
                         display: none;
@@ -473,6 +473,14 @@ $controlsHeight: 36px;
         }
         .overlay {
             [data-control="reload"] {
+                display: inline-block;
+            }
+        }
+    }
+
+    &.video:not(.preview):not(.error) {
+        .overlay {
+            [data-control="start"] {
                 display: inline-block;
             }
         }

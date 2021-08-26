@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Ui Test - Media Player Sandbox</title>
+    <link type="text/css" rel="stylesheet" href="/css/basic.css">
+    <style>
+        .sandbox, .config {
+            display: flex;
+            flex-direction: row;
+        }
+        .controlboard {
+            font-family: "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial, sans-serif;
+        }
+        .controlboard input {
+            margin: 0 2px;
+        }
+        .source {
+            padding: 2px;
+        }
+        .source [name=source] {
+            width: 55rem;
+            max-width: none;
+        }
+        .config {
+            padding: 6px;
+            margin: 6px;
+            border: 1px solid #eee;
+        }
+        .edit {
+            padding: 10px;
+        }
+        .edit textarea {
+            font-family: 'Courier New', Courier, monospace;
+            width: 30rem;
+            height: 35rem;
+        }
+        .entries {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+        .entries label {
+            padding: 2px;
+        }
+        .entries label span {
+            display: inline-block;
+            width: 10rem;
+        }
+        .entries label input[type="radio"], .entries label input[type="checkbox"] {
+            position: relative;
+            left: 0;
+        }
+        .entries input[type=button] {
+            margin: 2px;
+        }
+        .content {
+            margin: 10px;
+        }
+        .player {
+            position: relative;
+            width: 640px;
+            height: 480px;
+        }
+    </style>
+</head>
+<body>
+    <script type="text/javascript" src="/environment/require.js"></script>
+    <script type="text/javascript">
+        require(['/environment/config.js'], function () {
+            require(['test/ui/mediaplayer/sandbox/sandbox'], function (sandboxFactory) {
+                sandboxFactory('body');
+            });
+        });
+    </script>
+</body>
+</html>
