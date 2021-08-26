@@ -11,11 +11,11 @@ import iframeNotifier from 'iframeNotifier';
 import documentViewer from 'ui/documentViewer';
 import pdfViewer from 'ui/documentViewer/providers/pdfViewer';
 
-var ns = 'previewer';
-var dataNs = 'ui.' + ns;
+const ns = 'previewer';
+const dataNs = `ui.${ns}`;
 
 //the plugin defaults
-var defaults = {
+const defaults = {
     containerClass: 'previewer'
 };
 
@@ -24,7 +24,7 @@ var defaults = {
  * @type {Object}
  * @private
  */
-var _defaultSize = {
+const _defaultSize = {
     video: {
         width: 480,
         height: 300
@@ -39,7 +39,7 @@ var _defaultSize = {
     }
 };
 
-var previewGenerator = {
+const previewGenerator = {
     placeHolder: _.template("<p class='nopreview' data-type='${type}'>${desc}</p>"),
     youtubeTemplate: _.template("<div data-src=${jsonurl} data-type='video/youtube'></div>"),
     videoTemplate: _.template("<div data-src=${jsonurl} data-type='${mime}'></div>"),
@@ -60,7 +60,7 @@ var previewGenerator = {
      * @returns {String} the tags
      */
     generate: function generate(type, data) {
-        var tmpl = this[type + 'Template'];
+        const tmpl = this[`${type}Template`];
         data.jsonurl = JSON.stringify(data.url);
         if (_.isFunction(tmpl)) {
             return tmpl(data);
@@ -73,7 +73,7 @@ documentViewer.registerProvider('pdf', pdfViewer);
 /**
  * @exports ui/previewer
  */
-var previewer = {
+const previewer = {
     /**
      * Initialize the plugin.
      *
@@ -84,28 +84,27 @@ var previewer = {
      * @constructor
      * @param {Object} [options] - the plugin options
      * @returns {jQueryElement} for chaining
+     * @fires playerready when the mediaplayer (video) is sucessfully loaded and configured
      */
     init: function(options) {
-        var self = previewer;
-
         //get options using default
         options = _.defaults(options || {}, defaults);
 
         return this.each(function() {
-            var $elt = $(this);
+            const $elt = $(this);
             if (!$elt.data(dataNs)) {
                 if (!$elt.hasClass(options.containerClass)) {
                     $elt.addClass(options.containerClass);
                 }
 
                 $elt.data(dataNs, options);
-                self._update($elt);
+                previewer._update($elt);
 
                 /**
                  * The plugin has been created.
                  * @event previewer#create.previewer
                  */
-                $elt.trigger('create.' + ns);
+                $elt.trigger(`create.${ns}`);
             } else {
                 $elt.previewer('update', options);
             }
@@ -120,14 +119,16 @@ var previewer = {
      */
     update: function(data) {
         return this.each(function() {
-            var $elt = $(this);
-            var options = $elt.data(dataNs);
+            const $elt = $(this);
+            const options = $elt.data(dataNs);
             $elt.data(dataNs, _.merge(options, data));
             previewer._update($elt);
         });
     },
     /**
      * Set the player
+     * @param {JQueryElement} $elt
+     * @param {Object} player
      * @private
      */
     _setPlayer: function($elt, player) {
@@ -135,6 +136,7 @@ var previewer = {
     },
     /**
      * Uninstalls the player if any
+     * @param {JQueryElement} $elt
      * @private
      */
     _clearPlayer: function($elt) {
@@ -149,13 +151,12 @@ var previewer = {
      * @param {jQueryElement} $elt - the current element
      */
     _update: function($elt) {
-        var self = previewer;
-        var player;
-        var $content, $controls;
-        var options = $elt.data(dataNs);
-        var content, type;
+        let player;
+        let $content, $controls;
+        let options = $elt.data(dataNs);
+        let content, type;
 
-        self._clearPlayer($elt);
+        previewer._clearPlayer($elt);
         if (options) {
             type = options.type || mimeType.getFileType({ mime: options.mime, name: options.url });
 
@@ -191,24 +192,30 @@ var previewer = {
             $elt.empty().html($content);
             if (options.url) {
                 if (type === 'audio' || type === 'video') {
+                    const defSize = _defaultSize[type] || _defaultSize.video;
+                    const width = options.width || defSize.width;
+                    const height = options.height || defSize.height;
                     player = mediaplayer({
                         url: options.url,
                         type: options.mime,
-                        renderTo: $content
-                    }).on('ready', function() {
-                        var defSize = _defaultSize[this.getType()] || _defaultSize.video;
-                        var width = options.width || defSize.width;
-                        var height = options.height || defSize.height;
-                        this.resize(width, height);
+                        renderTo: $content,
+                        width,
+                        height
+                    })
+                    .on('ready', function() {
+                        /**
+                         * @event playerready
+                         */
+                        $elt.trigger('playerready');
                     });
-                    self._setPlayer($elt, player);
+                    previewer._setPlayer($elt, player);
 
                     // stop video and free the socket on escape keypress(modal window hides)
                     $('body')
                         .off('keydown.mediaelement')
                         .on('keydown.mediaelement', function(event) {
                             if (event.keyCode === 27) {
-                                self._clearPlayer($elt);
+                                previewer._clearPlayer($elt);
                             }
                         });
 
@@ -223,7 +230,7 @@ var previewer = {
                         event.stopPropagation();
                         if (!$(this).closest('.mediaplayer').length) {
                             $controls.off('mousedown.mediaelement');
-                            self._clearPlayer($elt);
+                            previewer._clearPlayer($elt);
                         }
                     });
                 } else if (type === 'pdf') {
@@ -247,7 +254,7 @@ var previewer = {
              * The plugin has been created.
              * @event previewer#update.previewer
              */
-            $elt.trigger('update.' + ns);
+            $elt.trigger(`update.${ns}`);
         }
     },
     /**
@@ -259,13 +266,13 @@ var previewer = {
      */
     destroy: function() {
         this.each(function() {
-            var $elt = $(this);
+            const $elt = $(this);
             previewer._clearPlayer($elt);
             /**
              * The plugin has been destroyed.
              * @event previewer#destroy.previewer
              */
-            $elt.trigger('destroy.' + ns);
+            $elt.trigger(`destroy.${ns}`);
         });
     }
 };
@@ -282,7 +289,7 @@ Pluginifier.register(ns, previewer);
  */
 export default function listenDataAttr($container) {
     $container.find('[data-preview]').each(function() {
-        var $elt = $(this);
+        const $elt = $(this);
         $elt.previewer({
             url: $elt.data('preview'),
             type: $elt.data('preview-type'),
