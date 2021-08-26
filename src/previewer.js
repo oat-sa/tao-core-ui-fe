@@ -3,6 +3,7 @@
  */
 import $ from 'jquery';
 import _ from 'lodash';
+import __ from 'i18n';
 import mimeType from 'core/mimetype';
 import Pluginifier from 'core/pluginifier';
 import mediaplayer from 'ui/mediaplayer';
