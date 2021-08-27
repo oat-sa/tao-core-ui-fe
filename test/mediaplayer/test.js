@@ -110,7 +110,7 @@ define(['jquery', 'lodash', 'ui/mediaplayer', 'core/store'], function ($, _, med
         instance.on('render', $dom => {
             const $player = $dom.find('.player');
             const $controls = $dom.find('.controls');
-            const $overlay = $player.find('.overlay');
+            const $overlay = $player.find('.player-overlay');
             const $media = $player.find('.media');
             const $source = $media.find('.source');
 
@@ -226,7 +226,7 @@ define(['jquery', 'lodash', 'ui/mediaplayer', 'core/store'], function ($, _, med
         instance.on('render', $dom => {
             const $player = $dom.find('.player');
             const $controls = $dom.find('.controls');
-            const $overlay = $player.find('.overlay');
+            const $overlay = $player.find('.player-overlay');
             const $media = $player.find('.media');
             const $source = $media.find('.source');
 
@@ -343,7 +343,7 @@ define(['jquery', 'lodash', 'ui/mediaplayer', 'core/store'], function ($, _, med
         instance.on('render', $dom => {
             const $player = $dom.find('.player');
             const $controls = $dom.find('.controls');
-            const $overlay = $player.find('.overlay');
+            const $overlay = $player.find('.player-overlay');
             const $media = $player.find('.media');
             const $source = $player.find('.source');
 
