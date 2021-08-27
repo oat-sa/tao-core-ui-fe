@@ -1,6 +1,6 @@
 <div class="mediaplayer {{type}}">
     <div class="player">
-        <div class="overlay">
+        <div class="player-overlay">
             <a class="action play" data-control="play"><span class="icon icon-play" title="{{__ 'Play'}}"></span></a>
             <a class="action play" data-control="pause"><span class="icon icon-pause" title="{{__ 'Pause'}}"></span></a>
             <a class="action reload" data-control="start">
