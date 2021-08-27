@@ -62,7 +62,7 @@ $controlsHeight: 36px;
             max-height: 100%;
         }
 
-        .overlay {
+        .player-overlay {
             position: absolute;
             z-index: 1;
             top: 0;
@@ -351,7 +351,7 @@ $controlsHeight: 36px;
         }
 
         &.paused.canplay {
-            .overlay {
+            .player-overlay {
                 cursor: pointer;
             }
 
@@ -371,7 +371,7 @@ $controlsHeight: 36px;
         }
 
         &.playing.canpause {
-            .overlay {
+            .player-overlay {
                 cursor: pointer;
             }
 
@@ -419,7 +419,7 @@ $controlsHeight: 36px;
                 pointer-events: inherit;
             }
         }
-        .overlay {
+        .player-overlay {
             display: none !important;
         }
         .controls {
@@ -471,7 +471,7 @@ $controlsHeight: 36px;
             filter: blur(4px);
             opacity: 0.4;
         }
-        .overlay {
+        .player-overlay {
             [data-control="reload"] {
                 display: inline-block;
             }
@@ -479,7 +479,7 @@ $controlsHeight: 36px;
     }
 
     &.video:not(.preview):not(.error) {
-        .overlay {
+        .player-overlay {
             [data-control="start"] {
                 display: inline-block;
             }
