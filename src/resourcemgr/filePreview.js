@@ -20,7 +20,7 @@ export default function(options) {
     $container.on(`fileselect.${ns}`, function(e, file) {
         const $listItem = $container[0].querySelector(`[data-file='${file.file}']`);
         if (file && file.file && $listItem && $listItem.dataset) {
-            startPreview(file, $listItem.dataset.preview === 'true', $listItem.dataset.download === 'true');
+            startPreview(file, $listItem.dataset.preview === 'true', $listItem.dataset.download === 'true', $listItem.dataset.select === 'true');
             currentSelection = file;
         } else {
             stopPreview();
@@ -43,7 +43,7 @@ export default function(options) {
         $container.trigger(`select.${ns}`, [[data]]);
     });
 
-    function startPreview(file, preview, download) {
+    function startPreview(file, preview, download, select) {
         if (preview) {
             $previewer.previewer(file);
             $propType.text(`${file.type} (${file.mime})`);
@@ -58,7 +58,9 @@ export default function(options) {
             $link.attr('href', '#').attr('download', '#');
             $link.addClass('hidden');
         }
-        $selectButton.removeAttr('disabled');
+        if (select) {
+            $selectButton.removeAttr('disabled');
+        }
     }
 
     function stopPreview() {
