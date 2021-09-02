@@ -7,6 +7,7 @@
         data-url="{{viewUrl}}" 
         {{#if permissions.download}} data-download="true" {{/if}}
         {{#if permissions.preview}} data-preview="true" {{/if}}
+        {{#if permissions.read}} data-select="true" {{/if}}
         data-alt="{{alt}}">
         <span class="desc truncate">{{name}}</span>
         <div class="actions">

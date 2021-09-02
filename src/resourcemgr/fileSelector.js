@@ -141,7 +141,7 @@ export default function(options) {
         .off('click', '.files li')
         .on('click', '.files li', function(e) {
             const clickedItem = e.target;
-            if (clickedItem.hasAttribute('data-delete') || clickedItem.hasClass('icon-bin')) {
+            if (clickedItem.hasAttribute('data-delete') || $(clickedItem).hasClass('icon-bin')) {
                 return;
             }
             let $selected = $(this);
