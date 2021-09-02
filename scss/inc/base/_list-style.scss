@@ -1,5 +1,10 @@
 ul, ol {
     padding-left: 40px;
+    padding-right: 3px;
+    [dir="rtl"] & {
+        padding-left: 3px;
+        padding-right: 40px;
+    }
     &.plain, &.none {
         padding: 0;
         margin: 0;
