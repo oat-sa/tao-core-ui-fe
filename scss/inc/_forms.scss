@@ -435,7 +435,7 @@ label {
         left: -10000px;
         top: 0;
 
-        [dir="rtl"] & {
+        body[dir="rtl"] & {
             left: 10000px;
         }
         &:focus ~ [class^="icon-"],
