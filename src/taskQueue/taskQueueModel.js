@@ -159,8 +159,10 @@ export default function taskQueueModel(config) {
 
             status = request(config.url.get, { taskId: taskId }, 'GET', {}, true).then(function(taskData) {
                 // Workaround for translations
-                taskData.report.children = translateReportMessages(taskData.report.children);
-                //check taskData
+		if (taskData.report !== undefined && taskData.report.children !== undefined) {
+        		taskData.report.children = translateReportMessages(taskData.report.children);
+                }
+		//check taskData
                 if (taskData && taskData.status) {
                     if (_cache) {
                         //detect change
