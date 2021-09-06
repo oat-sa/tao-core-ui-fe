@@ -478,19 +478,17 @@ body {
         font-family: $regularFont;
         font-size: 1.4rem !important;
     }
-
-
-
-    // everything on list styles and counters
-    @import 'base/list-style';
-
-    // everything tables
-    @import 'base/table';
-
-    // everything svg
-    @import 'base/svg';
-
-    // everything user highlight
-    @import 'base/highlight';
-
 }
+
+// File may be used standalong, this is why you can not move imports to basic.scss easaly.
+// everything on list styles and counters
+@import 'base/list-style';
+
+// everything tables
+@import 'base/table';
+
+// everything svg
+@import 'base/svg';
+
+// everything user highlight
+@import 'base/highlight';
