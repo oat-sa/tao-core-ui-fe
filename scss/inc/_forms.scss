@@ -431,13 +431,10 @@ label {
     }
     input[type="radio"],
     input[type="checkbox"] {
+        visibility: hidden;
+        pointer-events: none;
         position: absolute;
-        left: -10000px;
-        top: 0;
 
-        body[dir="rtl"] & {
-            left: 10000px;
-        }
         &:focus ~ [class^="icon-"],
         &:focus ~ [class*=" icon-"],
         &:active ~ [class^="icon-"],
