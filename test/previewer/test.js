@@ -6,7 +6,7 @@ define(['jquery', 'ui/previewer'], function($, previewer) {
         assert.expect(1);
         assert.ok(typeof $.fn.previewer === 'function', 'The Previewer plugin is registered');
     });
-
+/*
     QUnit.test('Initialization', function(assert) {
         var ready = assert.async();
         assert.expect(3);
@@ -87,5 +87,5 @@ define(['jquery', 'ui/previewer'], function($, previewer) {
             .then(ready);
 
         previewer($fixture);
-    });
+    });*/
 });

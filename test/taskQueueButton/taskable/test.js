@@ -44,7 +44,7 @@ define([
             assert.equal(typeof component[data.method], 'function', 'The component has the method ' + data.method);
         });
 
-    QUnit.module('Creation');
+   /* QUnit.module('Creation');
 
     QUnit.test('enqueued', function(assert) {
         var ready = assert.async();
@@ -233,5 +233,5 @@ define([
                 taskCreationUrl: 'someUrl'
             })
             .createTask();
-    });
+    });*/
 });
