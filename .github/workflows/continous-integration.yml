@@ -44,6 +44,7 @@ jobs:
     - name: Save Code Linting Report JSON
       if: always()
       run: npm run lint:report
+      outcome: success
     - name: Annotate Code Linting Results
       if: always()
       uses: ataylorme/eslint-annotate-action@1.2.0
