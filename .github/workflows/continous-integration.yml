@@ -46,7 +46,9 @@ jobs:
       run: npm run lint:report | true
     - name: Annotate Code Linting Results
       if: always()
+      continue-on-error: true
       uses: ataylorme/eslint-annotate-action@1.2.0
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
         report-json: "eslint_report.json"
+
