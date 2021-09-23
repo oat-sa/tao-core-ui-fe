@@ -81,7 +81,7 @@ function translateReportMessages(taskData) {
             translateReportMessages(item.children);
         }
         return item;
-    })
+    });
 }
 
 /**
