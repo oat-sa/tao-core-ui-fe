@@ -3,16 +3,16 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; under version 2
  * of the License (non-upgradable).
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- * 
+ *
  * Copyright (c) 2019-2020 (original work) Open Assessment Technologies SA ;
  */
 
@@ -172,7 +172,7 @@ define([
             assert.equal($('[data-item-identifier="1"] button.disabled', $container).length, 3, 'All action buttons are disabled for readonly="true"');
             assert.ok($('[data-item-identifier="2"] button.disabled', $container).length === 1 && $('[data-item-identifier="2"] button.view', $container).hasClass('disabled'), 'Specific action button is disabled for readonly={ 2: { view: true}}');
             assert.equal($('[data-item-identifier="3"] button.disabled', $container).length, 0, 'No action buttons are disabled');
-           
+
             done();
         });
 
@@ -210,9 +210,9 @@ define([
                 email: 'tom.doe@mail.com'
             }],
             readonly: {
-                1: true, 
-                2: { 
-                    'view': true, 
+                1: true,
+                2: {
+                    'view': true,
                     'delete': false
                 },
                 3: false
@@ -254,7 +254,7 @@ define([
                             email: 'jane.doe@mail.com'
                         }]
                     });
-                    
+
                 })
             }
         });
@@ -574,7 +574,7 @@ define([
             $('[data-item-identifier="2"] button.pause:eq(0)', $elt).click();
             $('[data-item-identifier="1"] button.disabled', $elt).trigger('click');
             $('[data-item-identifier="1"] button.no-handles-provided', $elt).trigger('click');
-            
+
             ready();
         });
         $elt.on('query.datatable', function(event) {
@@ -674,15 +674,15 @@ define([
     QUnit.test('Render actions option from Object', function(assert) {
         const done = assert.async();
         const $container = $('#container-1');
-        
+
         assert.expect(4);
 
         $container.on('create.datatable', function() {
             const $firstRowActions = $('[data-item-identifier="1"] .actions')
-            
+
             assert.equal($firstRowActions.find('.edit, .delete').length, 2, 'Action buttons is rendered');
             assert.equal($firstRowActions.find('.icon-edit, .icon-delete').length, 2, 'Action buttons has icons');
-           
+
             $firstRowActions.find('.edit').trigger('click');
             $firstRowActions.find('.delete').trigger('click');
 
@@ -692,7 +692,7 @@ define([
             actions: {
                 edit: function() {
                     assert.ok(true, 'Click on edit button is triggered the handler');
-                }, 
+                },
                 delete: function(){
                     assert.ok(true, 'Click on delete button is triggered the handler');
                 }
@@ -780,7 +780,7 @@ define([
             return {
                 status: 404,
                 statusText: 'Not Found',
-            }    
+            }
         });
 
         $container.on('create.datatable', function() {
@@ -809,7 +809,7 @@ define([
                 status: 200,
                 statusText: 'OK',
                 responseText: undefined
-            }    
+            }
         });
 
         $container.on('create.datatable', function() {
@@ -946,7 +946,7 @@ define([
 
             assert.equal($massActionButton.length, 1, 'Mass action button is exist in tools');
             assert.ok($massActionButton.hasClass('invisible'), 'Mass action button is invisible');
-            
+
             $('td.checkboxes input', $container).first().trigger('click');
             assert.notOk($massActionButton.hasClass('invisible'), 'Mass action button is visible once one row is selected');
 
@@ -1372,7 +1372,7 @@ define([
         const $container = $('#container-1');
         const {
             paginationStrategyTop,
-            paginationStrategyBottom, 
+            paginationStrategyBottom,
             paginationTopChildrenLength,
             paginationBottomChildrenLength
         } = strategy;
@@ -1385,7 +1385,7 @@ define([
             done();
         });
 
-        
+
         $container.datatable({
             url: '/test/datatable/largedata.json',
             rows: 5,
@@ -1397,9 +1397,9 @@ define([
     QUnit.test('Pagination', function(assert) {
         const done = assert.async();
         const $container = $('#container-1');
-        
+
         assert.expect(4);
-     
+
         $container.on('create.datatable', function() {
             const $pagesButtons = $container.find('.pages .page');
             const $previousButton = $container.find('.previous');
@@ -1410,7 +1410,7 @@ define([
             $container.one('setpage.datatable', function() {
                 assert.ok($('.pages .page', $container).eq(2).hasClass('active'), 'The third page is active after click on pagination button');
             });
-            
+
             $container.one('backward.datatable', function() {
                 assert.ok($('.pages .page', $container).eq(1).hasClass('active'), 'The first page is active after click on next button');
             });
@@ -1419,7 +1419,7 @@ define([
                 assert.ok($('.pages .page', $container).eq(2).hasClass('active'), 'The second page is active after click on previous button');
                 done();
             });
-            
+
             $pagesButtons.eq(2).trigger('click');
             $previousButton.trigger('click');
             $nextButton.trigger('click');
@@ -1559,42 +1559,42 @@ define([
     QUnit.cases.init([
         {
             updateSortOptions: {
-                sortBy: 'id', 
-                asc: true, 
+                sortBy: 'id',
+                asc: true,
                 sortType: ''
             },
             expectedOptions: {
-                sortBy: 'id', 
-                sortOrder: 'asc', 
+                sortBy: 'id',
+                sortOrder: 'asc',
                 sortType: ''
             },
             message: 'Sort direction is set to true'
         },
         {
             updateSortOptions: {
-                sortBy: 'id', 
-                asc: false, 
+                sortBy: 'id',
+                asc: false,
                 sortType: ''
             },
             expectedOptions: {
-                sortBy: 'id', 
-                sortOrder: 'desc', 
+                sortBy: 'id',
+                sortOrder: 'desc',
                 sortType: ''
             },
             message: 'Sort direction is set to false'
-        },  
+        },
         {
             initSortOptions: {
                 sortorder: 'asd',
                 sortby: 'id'
             },
             updateSortOptions: {
-                sortBy: 'id', 
+                sortBy: 'id',
                 asc: undefined,
                 sortType: 'id'
             },
             expectedOptions: {
-                sortBy: 'id', 
+                sortBy: 'id',
                 sortOrder: 'desc',
                 sortType: 'id'
             },
@@ -1605,12 +1605,12 @@ define([
                 sortorder: 'desc',
             },
             updateSortOptions: {
-                sortBy: 'name', 
+                sortBy: 'name',
                 asc: undefined,
                 sortType: 'asc'
             },
             expectedOptions: {
-                sortBy: 'name', 
+                sortBy: 'name',
                 sortOrder: 'asc',
                 sortType: 'asc'
             },
@@ -1622,7 +1622,7 @@ define([
 
         $container.on('create.datatable', function() {
             const { sortBy, asc, sortType } = cases.updateSortOptions;
-            
+
             $container.datatable('sort', sortBy, asc, sortType);
         })
         .one('sort.datatable', function(e, sortBy, sortOrder, sortType) {
@@ -1904,12 +1904,12 @@ define([
                 $container.one('load.datatable', function(){
                     const firstStatusRow = $container.find('.status').get(0);
                     assert.notEqual(statusColumn1.get(0), firstStatusRow, 'Force update should be applied since number of rows is decreased');
-                    
+
                     $container.one('load.datatable', function(){
                         assert.notEqual(firstStatusRow, $container.find('.status').get(0), 'Force update should be applied since the order of rows is changed');
                         ready();
                     });
-    
+
                     $container.datatable('refresh', {
                         data: [
                         {
@@ -1937,8 +1937,8 @@ define([
                         status: 'awaiting'
                     }]
                 });
-                
-                
+
+
             });
 
             $container.datatable('refresh', param.newData);
@@ -2142,7 +2142,7 @@ define([
             $container.datatable('addRowClass', '1', 'fake-class');
             $container.datatable('addRowClass', '1', 'fake-class');
             $container.datatable('addRowClass', '1', 'fake-class');
-           
+
             assert.equal($firstRow.hasClass('fake-class'), true, 'Class is removed from the given row');
             assert.equal($firstRow.attr('class'), 'fake-class', 'Class is added once to the given row');
 
@@ -2238,4 +2238,52 @@ define([
             rows: 50,
         });
     })
+
+    QUnit.test('It does not render the element is removed while loading', function(assert) {
+        assert.expect(2);
+
+        var $container = $('#container-2');
+        var $elt = $('.table-container', $container);
+        assert.ok($elt.length === 1, 'Test the fixture is available');
+
+        var ready = assert.async();
+
+        $elt.on('query.datatable', () => {
+            assert.ok(true, 'The table starts loading');
+            $container.html('')
+        });
+        $elt.on('render', () => {
+            assert.ok(false, 'The datable');
+            ready();
+        });
+        $elt.datatable({
+            url: '/test/datatable/data.json',
+            'model': [{
+                id: 'login',
+                label: 'Login',
+                sortable: true
+            }, {
+                id: 'name',
+                label: 'Name',
+                sortable: true
+            }, {
+                id: 'email',
+                label: 'Email',
+                sortable: true
+            }, {
+                id: 'roles',
+                label: 'Roles',
+                sortable: false
+            }, {
+                id: 'dataLg',
+                label: 'Data Language',
+                sortable: true
+            }, {
+                id: 'guiLg',
+                label: 'Interface Language',
+                sortable: true
+            }]
+        });
+        setTimeout(() => ready(), 5);
+    });
 });
