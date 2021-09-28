@@ -25,10 +25,6 @@ label, .form_desc {
     margin-bottom: 5px;
     padding-right: 10px;
 
-    [dir="rtl"] & {
-        padding-right: 0;
-        padding-left: 10px;
-    }
     abbr {
         color: $info;
         border-bottom: none;
@@ -219,18 +215,9 @@ label, .form_desc {
         margin: 0;
         left: 0;
 
-        [dir="rtl"] & {
-            left: auto;
-            right: 0;
-        }
         & + div {
             cursor: pointer;
             margin-left: 24px;
-
-            [dir="rtl"] & {
-                margin-left: 0;
-                margin-right: 24px;
-            }
         }
     }
     abbr {
@@ -416,17 +403,11 @@ label {
         }
         &:before {
             z-index: 3;
-            [dir="rtl"] & {
-                right: -1em;
-            }
         }
         &:after {
             position: relative;
             z-index: 2;
             left: -1em;
-            [dir="rtl"] & {
-                left: auto;
-            }
         }
     }
     input[type="radio"],
@@ -710,14 +691,11 @@ label {
         width: 35%;
         display:inline-block;
         padding: 0 10px 0 0;
+        vertical-align: top;
 
-        [dir="rtl"] & {
-            padding: 0 0 0 10px;
-        }
         &.hidden-input-label {
             width: auto;
         }
-        vertical-align: top;
 
         & ~ .form-elt-container {
             display: inline-block;
