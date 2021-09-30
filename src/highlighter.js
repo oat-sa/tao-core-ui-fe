@@ -796,14 +796,17 @@ export default function (options) {
      */
     /**
      * For `keepEmptyNodes` option, creates data model of highlights.
-     * Additionally returns array of hilghlight nodes. Traverses DOM tree.
+     * Additionally returns array of highlight nodes. Traverses DOM tree.
      * @param {Node} rootNode
      * @returns {BuildModelResultKeepEmpty|null} result
      */
     function buildHighlightModelKeepEmpty(rootNode) {
         const classNames = options.colors ? Object.values(options.colors) : [className];
         const wrapperNodesSelector = classNames.map(cls => containerSelector + ' .' + cls).join(', ');
-        const wrapperNodes = document.querySelectorAll(wrapperNodesSelector);
+        const wrapperNodes = Array.from(document.querySelectorAll(wrapperNodesSelector))
+            .filter(node => {
+                return node.childNodes.length && !isBlacklisted(node.childNodes[0])
+            });
 
         if (!wrapperNodes.length) {
             return null;
