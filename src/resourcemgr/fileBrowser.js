@@ -53,11 +53,17 @@ export default function (options) {
             $rootNode.addClass('opened');
         }
         updateFolders(content, $innerList);
-        //internal event to set the file-selector content
-        $('.file-browser').find('li.active').removeClass('active');
-        updateSelectedClass(content.path, content.total, content.childrenLimit);
-        $container.trigger(`folderselect.${ns}`, [content.label, getPage(content.children), content.path]);
-        renderPagination();
+
+      if (content.permissions.read && !options.hasAlreadySelected) {
+          $$1('.file-browser').find('li.active').removeClass('active');
+          updateSelectedClass(content.path, content.total, content.childrenLimit);
+          $container.trigger("folderselect.".concat(ns), [content.label, getPage(content.children), content.path, content]);
+          renderPagination();
+
+          if (root !== 'local') {
+            options.hasAlreadySelected = true;
+          }
+      }
     });
 
     // by clicking on the tree (using a live binding  because content is not complete yet)
