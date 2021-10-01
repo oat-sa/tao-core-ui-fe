@@ -55,7 +55,7 @@ export default function (options) {
         updateFolders(content, $innerList);
 
       if (content.permissions.read && !options.hasAlreadySelected) {
-          $$1('.file-browser').find('li.active').removeClass('active');
+          $('.file-browser').find('li.active').removeClass('active');
           updateSelectedClass(content.path, content.total, content.childrenLimit);
           $container.trigger("folderselect.".concat(ns), [content.label, getPage(content.children), content.path, content]);
           renderPagination();
