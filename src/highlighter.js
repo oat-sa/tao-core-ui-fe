@@ -106,11 +106,13 @@ export default function (options) {
     }
 
     /**
-     * Returns all highlighted nodes
+     * Returns all highlighted nodes, excluding any inside blacklisted elements
      * @returns {JQuery<HTMLElement>}
      */
     function getHighlightedNodes() {
-        return $(containerSelector).find(`.${highlightingClasses.join(',.')}`);
+        return $(containerSelector)
+            .find(`.${highlightingClasses.join(',.')}`)
+            .filter((i, node) => !isBlacklisted(node));
     }
 
     /**
@@ -241,6 +243,17 @@ export default function (options) {
                 break;
             }
             currentNode = childNodes[i];
+
+            if (isBlacklisted(currentNode)) {
+                if (isElement(currentNode)) {
+                    if (!currentNode.isSameNode(rangeInfos.endNode) || rangeInfos.endOffset > 0) {
+                        //go deeper in case a descendant of the current blacklisted is whitelisted
+                        wrapTextNodesInRange(currentNode, rangeInfos);
+                    }
+                }
+                // and skip this node
+                continue;
+            }
 
             const isCurrentNodeTextInsideOfAnotherHighlightingWrapper =
                 isText(currentNode) &&
@@ -804,9 +817,7 @@ export default function (options) {
         const classNames = options.colors ? Object.values(options.colors) : [className];
         const wrapperNodesSelector = classNames.map(cls => containerSelector + ' .' + cls).join(', ');
         const wrapperNodes = Array.from(document.querySelectorAll(wrapperNodesSelector))
-            .filter(node => {
-                return node.childNodes.length && !isBlacklisted(node.childNodes[0])
-            });
+            .filter(node => !isBlacklisted(node));
 
         if (!wrapperNodes.length) {
             return null;
