@@ -417,6 +417,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
                 { highlighted: true, inlineRanges: [{ c: 'hl', groupId: '1', endOffset: ' even if I was'.length }] }
             ]
         },
+
         {
             title: 'Highlights a range containing multiples nodes, 1',
             input:
@@ -678,6 +679,30 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
             },
             highlightIndex: [
                 { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' },
+                { highlighted: true, c: 'hl', groupId: '1' }
+            ]
+        },
+
+        {
+            title: 'do not highlight blacklisted container children when selection spans from normal to blacklisted node',
+            blacklisted: ['.qti-include'],
+            input:
+                '<p>We <strong>all</strong> live in a </p>' +
+                '<div class="qti-include">blacklisted group</div>',
+            selection:
+                '<p>We <strong>all</strong> live in a </p>' +
+                '<div class="qti-include">blacklisted group</div>',
+            output:
+                '<p><span class="hl" data-hl-group="1">We </span>' +
+                '<strong><span class="hl" data-hl-group="1">all</span></strong>' +
+                '<span class="hl" data-hl-group="1"> live in a </span></p>' +
+                '<div class="qti-include">blacklisted group</div>',
+            buildRange: function (range, fixtureContainer) {
+                range.selectNodeContents(fixtureContainer);
+            },
+            highlightIndex: [
                 { highlighted: true, c: 'hl', groupId: '1' },
                 { highlighted: true, c: 'hl', groupId: '1' },
                 { highlighted: true, c: 'hl', groupId: '1' }
@@ -1901,28 +1926,23 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
         });
 
     QUnit.test('highlightRanges: whitelisted nodes inside blacklisted container', function (assert) {
+        // NOTE: to handle nested whitelisting, selection startNode must not be blacklisted. So, use a <section> wrapper here.
         const data = {
             blacklisted: ['.bl'],
             whitelisted: ['.wh'],
             input:
-                '<div class="bl">outside<div class="wh">inside</div></div>' +
-                '<div class="wh">inside</div>' +
-                '<div class="bl">outside<div class="wh">inside<div class="bl">outside</div></div></div>' +
-                '<div class="unrelated">inside</div>',
+                '<section><div class="bl">outside1<div class="wh">inside2</div></div>' +
+                '<div class="wh">inside3</div>' +
+                '<div class="bl">outside4<div class="wh">inside5<div class="bl">outside6</div></div></div>' +
+                '<div class="unrelated">inside7</div></section>',
             output:
-                '<div class="bl">outside<div class="wh"><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">inside</span></div></div>' +
-                '<div class="wh"><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">inside</span></div>' +
-                '<div class="bl">outside<div class="wh"><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">inside</span><div class="bl">outside</div></div></div>' +
-                '<div class="unrelated"><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">inside</span></div>',
+                '<section><div class="bl">outside1<div class="wh"><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">inside2</span></div></div>' +
+                '<div class="wh"><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">inside3</span></div>' +
+                '<div class="bl">outside4<div class="wh"><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">inside5</span><div class="bl">outside6</div></div></div>' +
+                '<div class="unrelated"><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">inside7</span></div></section>',
             buildRange: function (range, fixtureContainer) {
                 range.selectNodeContents(fixtureContainer);
-            },
-            highlightIndex: [
-                { highlighted: true, c: 'hl', groupId: '1' },
-                { highlighted: true, c: 'hl', groupId: '1' },
-                { highlighted: true, c: 'hl', groupId: '1' },
-                { highlighted: true, c: 'hl', groupId: '1' }
-            ]
+            }
         };
 
         var highlighter = highlighterFactory({
@@ -1942,6 +1962,40 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
 
         highlighter.highlightRanges([range]);
         assert.equal(fixtureContainer.innerHTML, data.output, 'highlights for whitelist was created, for blacklist not');
+    });
+
+    QUnit.test('highlightRanges: highlight across a blacklisted container without coloring its highlights', function (assert) {
+        const data = {
+            blacklisted: ['.bl'],
+            input:
+                '<section><div>Normal text</div>' +
+                '<div class="bl">black <span class="hl" data-hl-group="2" data-before-was-split="false" data-after-was-split="false">painted</span> black</div>' +
+                '<div>Normal text</div></section>',
+            output:
+                '<section><div><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">Normal text</span></div>' +
+                '<div class="bl">black <span class="hl" data-hl-group="2" data-before-was-split="false" data-after-was-split="false">painted</span> black</div>' +
+                '<div><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">Normal text</span></div></section>',
+            buildRange: function (range, fixtureContainer) {
+                range.selectNodeContents(fixtureContainer);
+            }
+        };
+
+        var highlighter = highlighterFactory({
+            keepEmptyNodes: true,
+            className: 'hl',
+            containerSelector: '#qunit-fixture',
+            containersBlackList: data.blacklisted
+        });
+        var range = document.createRange();
+        var fixtureContainer = document.getElementById('qunit-fixture');
+
+        assert.expect(1);
+
+        fixtureContainer.innerHTML = data.input;
+        data.buildRange(range, fixtureContainer);
+
+        highlighter.highlightRanges([range]);
+        assert.equal(fixtureContainer.innerHTML, data.output, 'no highlights affected inside blacklisted elt');
     });
 
     QUnit.test('highlightFromIndex: does nothing if index is empty', function (assert) {
