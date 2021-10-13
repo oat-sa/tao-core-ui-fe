@@ -1607,11 +1607,8 @@ function mediaplayerFactory(config) {
          * @private
          */
         execute(command, ...args) {
-            const ctx = this.player;
-            const method = ctx && ctx[command];
-
-            if (_.isFunction(method)) {
-                return method.apply(ctx, args);
+            if (this.player && 'function' === typeof this.player[command]) {
+                return this.player[command](...args);
             }
         }
     };
