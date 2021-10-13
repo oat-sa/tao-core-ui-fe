@@ -78,6 +78,7 @@ const defaults = {
         maxPlays: 0,
         replayTimeout: 0,
         stalledTimeout: 2000,
+        stalledUpdate: 5,
         canPause: true,
         canSeek: true,
         loop: false,
@@ -202,6 +203,7 @@ const isResponsiveSize = sizeProps => {
  * @param {Number} [config.maxPlays] - Sets a few number of plays (default: infinite)
  * @param {Number} [config.replayTimeout] - disable the possibility to replay a media after this timeout, in seconds (default: 0)
  * @param {Number} [config.stalledTimeout] - delay before considering stalled playback (default: 2000)
+ * @param {Number} [config.stalledUpdate] - the number of updates before considering stalled playback once the player declared a stalled event (default: 5)
  * @param {Number} [config.volume] - Sets the sound volume (default: 80)
  * @param {Number} [config.width] - Sets the width of the player (default: depends on media type)
  * @param {Number} [config.height] - Sets the height of the player (default: depends on media type)
@@ -1428,7 +1430,7 @@ function mediaplayerFactory(config) {
          * @private
          */
         _onStalled() {
-            this.stalledTimeUpdateCount = 0;
+            this.stalledUpdateCountdown = this.config.stalledUpdate;
             this.stalledTimer = window.setTimeout(() => {
                 const position = this.getPosition();
                 if (position) {
@@ -1445,11 +1447,11 @@ function mediaplayerFactory(config) {
          */
         _onTimeUpdate() {
             if (this.stalledTimer) {
-                if (this.stalledTimeUpdateCount === 5) {
+                if (this.stalledUpdateCountdown <= 0) {
                     window.clearTimeout(this.stalledTimer);
                     this.stalledTimer = null;
                 } else {
-                    this.stalledTimeUpdateCount++;
+                    this.stalledUpdateCountdown--;
                 }
             }
 
