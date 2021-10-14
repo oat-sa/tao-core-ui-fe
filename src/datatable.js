@@ -355,6 +355,9 @@ const dataTable = {
 
         $.ajax(ajaxConfig)
             .done(function (response) {
+                if($elt && typeof $elt.data(dataNs) !== 'object'){
+                    return $elt.trigger(`error.${ns}`, [new Error(`Unable to load data attached to the element`)]);
+                }
                 self._render($elt, response);
             })
             .fail(function (response, option, err) {
@@ -380,6 +383,10 @@ const dataTable = {
     _render($elt, dataset = {}) {
         const self = this;
         let options = _.cloneDeep($elt.data(dataNs));
+        if(typeof options === 'undefined') {
+            return $elt.trigger(`error.${ns}`, [new Error(`Unable to load data attached to the element`)]);
+        }
+
         const model = [];
         let $massActionBtns = $();
 
