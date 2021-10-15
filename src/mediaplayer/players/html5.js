@@ -212,10 +212,7 @@ export default function html5PlayerFactory($container, config = {}) {
                 });
             }
 
-            sources.forEach(source => {
-                const { src, type } = source;
-                this.addMedia(src, type);
-            });
+            sources.forEach(source => this.addMedia(source.src, source.type));
 
             return result;
         },
@@ -353,28 +350,28 @@ export default function html5PlayerFactory($container, config = {}) {
             return mute;
         },
 
-        addMedia(src, type) {
-            debug('api call', 'addMedia', src, type);
+        addMedia(src, srcType) {
+            debug('api call', 'addMedia', src, srcType);
 
             if (media) {
-                if (!support.checkSupport(media, type)) {
+                if (!support.checkSupport(media, srcType)) {
                     return false;
                 }
             }
 
             if (src && $media) {
-                $media.append(sourceTpl({ src, type }));
+                $media.append(sourceTpl({ src, type: srcType }));
                 return true;
             }
             return false;
         },
 
-        setMedia(src, type) {
-            debug('api call', 'setMedia', src, type);
+        setMedia(src, srcType) {
+            debug('api call', 'setMedia', src, srcType);
 
             if ($media) {
                 $media.empty();
-                return this.addMedia(src, type);
+                return this.addMedia(src, srcType);
             }
             return false;
         }
