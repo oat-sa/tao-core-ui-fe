@@ -246,89 +246,85 @@ export default function (options) {
 
             if (isBlacklisted(currentNode)) {
                 if (isElement(currentNode)) {
-                    if (!currentNode.isSameNode(rangeInfos.endNode) || rangeInfos.endOffset > 0) {
-                        //go deeper in case a descendant of the current blacklisted is whitelisted
-                        wrapTextNodesInRange(currentNode, rangeInfos);
-                    }
-                }
-                // and skip this node
-                continue;
-            }
-
-            const isCurrentNodeTextInsideOfAnotherHighlightingWrapper =
-                isText(currentNode) &&
-                isWrappingNode(currentNode.parentNode) &&
-                currentNode.parentNode.className !== className;
-
-            if (isCurrentNodeTextInsideOfAnotherHighlightingWrapper) {
-                const internalRange = new Range();
-                internalRange.selectNodeContents(currentNode);
-
-                if (rangeInfos.startNode === currentNode) {
-                    internalRange.setStart(currentNode, rangeInfos.startOffset);
-                }
-
-                if (rangeInfos.endNode === currentNode) {
-                    internalRange.setEnd(currentNode, rangeInfos.endOffset);
-                }
-
-                const isNodeInRange = rangeInfos.commonRange.isPointInRange(currentNode, internalRange.endOffset);
-
-                // Apply new highlighting color only for selected nodes
-                if (isNodeInRange) {
-                    isWrapping = true;
-                    highlightContainerNodes(currentNode, className, internalRange, currentGroupId);
+                    //go deeper in case a descendant of the current blacklisted is whitelisted
+                    wrapTextNodesInRange(currentNode, rangeInfos);
                 }
             } else {
-                // split current node in case the wrapping start/ends on a partially selected text node
-                if (currentNode.isSameNode(rangeInfos.startNode)) {
-                    if (isText(rangeInfos.startNodeContainer) && rangeInfos.startOffset !== 0) {
-                        // we defer the wrapping to the next iteration of the loop
-                        //end of node should be highlighted
-                        rangeInfos.startNode = currentNode.splitText(rangeInfos.startOffset);
-                        rangeInfos.startOffset = 0;
-                        splitDatas.push({ node: rangeInfos.startNode, beforeWasSplit: true, afterWasSplit: false });
-                    } else {
-                        //whole node should be highlighted
-                        isWrapping = true;
-                        splitDatas.push({ node: currentNode, beforeWasSplit: false, afterWasSplit: false });
-                    }
-                }
+                const isCurrentNodeTextInsideOfAnotherHighlightingWrapper =
+                    isText(currentNode) &&
+                    isWrappingNode(currentNode.parentNode) &&
+                    currentNode.parentNode.className !== className;
 
-                if (currentNode.isSameNode(rangeInfos.endNode) && isText(rangeInfos.endNodeContainer)) {
-                    if (rangeInfos.endOffset !== 0) {
-                        if (rangeInfos.endOffset < currentNode.textContent.length) {
-                            //start of node should be highlighted
-                            currentNode.splitText(rangeInfos.endOffset);
-                            splitDatas.push({ node: currentNode, beforeWasSplit: false, afterWasSplit: true });
+                if (isCurrentNodeTextInsideOfAnotherHighlightingWrapper) {
+                    const internalRange = new Range();
+                    internalRange.selectNodeContents(currentNode);
+
+                    if (rangeInfos.startNode === currentNode) {
+                        internalRange.setStart(currentNode, rangeInfos.startOffset);
+                    }
+
+                    if (rangeInfos.endNode === currentNode) {
+                        internalRange.setEnd(currentNode, rangeInfos.endOffset);
+                    }
+
+                    const isNodeInRange = rangeInfos.commonRange.isPointInRange(currentNode, internalRange.endOffset);
+
+                    // Apply new highlighting color only for selected nodes
+                    if (isNodeInRange) {
+                        isWrapping = true;
+                        highlightContainerNodes(currentNode, className, internalRange, currentGroupId);
+                    }
+                } else {
+                    // split current node in case the wrapping start/ends on a partially selected text node
+                    if (currentNode.isSameNode(rangeInfos.startNode)) {
+                        if (isText(rangeInfos.startNodeContainer) && rangeInfos.startOffset !== 0) {
+                            // we defer the wrapping to the next iteration of the loop
+                            //end of node should be highlighted
+                            rangeInfos.startNode = currentNode.splitText(rangeInfos.startOffset);
+                            rangeInfos.startOffset = 0;
+                            splitDatas.push({ node: rangeInfos.startNode, beforeWasSplit: true, afterWasSplit: false });
                         } else {
                             //whole node should be highlighted
+                            isWrapping = true;
                             splitDatas.push({ node: currentNode, beforeWasSplit: false, afterWasSplit: false });
                         }
-                    } else {
-                        isWrapping = false;
                     }
-                }
 
-                // wrap the current node...
-                if (isText(currentNode)) {
-                    if (!keepEmptyNodes) {
-                        wrapTextNode(currentNode, currentGroupId);
-                    } else if (willHighlightNotBeEmptyAfterMerge(currentNode)) {
-                        const wrapperNode = wrapTextNode(currentNode, currentGroupId);
-                        if (wrapperNode) {
-                            const splitData = splitDatas.find(d => d.node === currentNode);
-                            addSplitData(wrapperNode,
-                                splitData ? splitData.beforeWasSplit : false,
-                                splitData ? splitData.afterWasSplit : false);
+                    if (currentNode.isSameNode(rangeInfos.endNode) && isText(rangeInfos.endNodeContainer)) {
+                        if (rangeInfos.endOffset !== 0) {
+                            if (rangeInfos.endOffset < currentNode.textContent.length) {
+                                //start of node should be highlighted
+                                currentNode.splitText(rangeInfos.endOffset);
+                                splitDatas.push({ node: currentNode, beforeWasSplit: false, afterWasSplit: true });
+                            } else {
+                                //whole node should be highlighted
+                                splitDatas.push({ node: currentNode, beforeWasSplit: false, afterWasSplit: false });
+                            }
+                        } else {
+                            isWrapping = false;
                         }
                     }
 
-                    // ... or continue deeper in the node tree
-                } else if (isElement(currentNode)) {
-                    //some selections end at the very start of the next node, we should end wrapping when we reach such node
-                    if (!currentNode.isSameNode(rangeInfos.endNode) || rangeInfos.endOffset > 0) {
-                        wrapTextNodesInRange(currentNode, rangeInfos);
+                    // wrap the current node...
+                    if (isText(currentNode)) {
+                        if (!keepEmptyNodes) {
+                            wrapTextNode(currentNode, currentGroupId);
+                        } else if (willHighlightNotBeEmptyAfterMerge(currentNode)) {
+                            const wrapperNode = wrapTextNode(currentNode, currentGroupId);
+                            if (wrapperNode) {
+                                const splitData = splitDatas.find(d => d.node === currentNode);
+                                addSplitData(wrapperNode,
+                                    splitData ? splitData.beforeWasSplit : false,
+                                    splitData ? splitData.afterWasSplit : false);
+                            }
+                        }
+
+                        // ... or continue deeper in the node tree
+                    } else if (isElement(currentNode)) {
+                        //some selections end at the very start of the next node, we should end wrapping when we reach such node
+                        if (!currentNode.isSameNode(rangeInfos.endNode) || rangeInfos.endOffset > 0) {
+                            wrapTextNodesInRange(currentNode, rangeInfos);
+                        }
                     }
                 }
             }
