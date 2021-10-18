@@ -23,6 +23,8 @@ import support from 'ui/mediaplayer/support';
 import audioTpl from 'ui/mediaplayer/tpl/audio';
 import videoTpl from 'ui/mediaplayer/tpl/video';
 import sourceTpl from 'ui/mediaplayer/tpl/source';
+import reminderManagerFactory from 'ui/mediaplayer/utils/reminder';
+import timeObserverFactory from 'ui/mediaplayer/utils/timeObserver';
 
 /**
  * CSS namespace
@@ -73,18 +75,7 @@ const mediaEvents = [
  * List of player events that can be listened to for debugging
  * @type {String[]}
  */
-const playerEvents = [
-    'end',
-    'error',
-    'pause',
-    'play',
-    'playing',
-    'ready',
-    'recovererror',
-    'resize',
-    'stalled',
-    'timeupdate'
-];
+const playerEvents = ['end', 'error', 'pause', 'play', 'playing', 'ready', 'resize', 'stalled', 'timeupdate'];
 
 /**
  * Defines a player object dedicated to the native HTML5 player
@@ -99,6 +90,8 @@ const playerEvents = [
 export default function html5PlayerFactory($container, config = {}) {
     const type = config.type || 'video';
     const sources = config.sources || [];
+    const updateObserver = reminderManagerFactory();
+    const timeObserver = timeObserverFactory();
 
     let $media;
     let media;
@@ -114,7 +107,7 @@ export default function html5PlayerFactory($container, config = {}) {
     // eslint-disable-next-line
     const debug = (action, ...args) => config.debug && window.console.log(getDebugContext(action), ...args);
 
-    const player = {
+    return eventifier({
         init() {
             const tpl = 'audio' === type ? audioTpl : videoTpl;
             const page = new UrlParser(window.location);
@@ -151,26 +144,35 @@ export default function html5PlayerFactory($container, config = {}) {
                 $media.removeAttr('controls');
             }
 
+            // detect stalled video when the timer suddenly jump to the end
+            timeObserver.removeAllListeners().on('irregularity', () => {
+                if (playback && stalled) {
+                    this.trigger('stalled');
+                }
+            });
+
             $media
                 .on(`play${ns}`, () => {
                     playback = true;
+                    timeObserver.init(media.currentTime, media.duration);
                     this.trigger('play');
                 })
                 .on(`pause${ns}`, () => {
+                    updateObserver.stop();
                     this.trigger('pause');
                 })
                 .on(`ended${ns}`, () => {
+                    updateObserver.forget().stop();
+                    timeObserver.update(media.currentTime);
                     playback = false;
                     this.trigger('end');
                 })
                 .on(`timeupdate${ns}`, () => {
+                    updateObserver.start();
+                    timeObserver.update(media.currentTime);
                     this.trigger('timeupdate');
                 })
                 .on('loadstart', () => {
-                    if (stalled) {
-                        return;
-                    }
-
                     if (media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
                         this.trigger('error');
                     }
@@ -183,19 +185,21 @@ export default function html5PlayerFactory($container, config = {}) {
                     if (media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
                         this.trigger('error');
                     } else {
-                        this.trigger('recovererror', media.networkState === HTMLMediaElement.NETWORK_LOADING);
+                        this.handleError(media.error);
                     }
+                })
+                .on('loadedmetadata', () => {
+                    timeObserver.init(media.currentTime, media.duration);
                 })
                 .on(`canplay${ns}`, () => {
                     loaded = true;
                     this.trigger('ready');
                 })
                 .on(`stalled${ns}`, () => {
-                    stalled = true;
-                    this.trigger('stalled');
+                    this.handleError(media.error);
                 })
                 .on(`playing${ns}`, () => {
-                    stalled = false;
+                    updateObserver.forget().start();
                     this.trigger('playing');
                 });
 
@@ -217,11 +221,30 @@ export default function html5PlayerFactory($container, config = {}) {
             return result;
         },
 
+        handleError(error) {
+            stalled = true;
+            const delay = 2000;
+            updateObserver.remind(() => {
+                if (updateObserver.elapsed >= delay) {
+                    this.trigger('stalled');
+                }
+            }, delay);
+        },
+
+        recover() {
+            stalled = false;
+            if (media) {
+                media.load();
+            }
+        },
+
         destroy() {
             debug('api call', 'destroy');
 
             this.stop();
             this.removeAllListeners();
+            updateObserver.forget();
+            timeObserver.removeAllListeners();
 
             if ($media) {
                 $media.off(ns).remove();
@@ -302,6 +325,7 @@ export default function html5PlayerFactory($container, config = {}) {
 
             if (media) {
                 media.currentTime = parseFloat(time);
+                timeObserver.seek(media.currentTime);
                 if (!playback) {
                     this.play();
                 }
@@ -312,7 +336,10 @@ export default function html5PlayerFactory($container, config = {}) {
             debug('api call', 'play');
 
             if (media) {
-                media.play().catch(err => debug('playback error', err));
+                const startPlayPromise = media.play();
+                if ('undefined' !== typeof startPlayPromise) {
+                    startPlayPromise.catch(error => this.handleError(error));
+                }
             }
         },
 
@@ -375,7 +402,5 @@ export default function html5PlayerFactory($container, config = {}) {
             }
             return false;
         }
-    };
-
-    return eventifier(player);
+    });
 }
