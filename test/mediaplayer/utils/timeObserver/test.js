@@ -15,7 +15,7 @@
  *
  * Copyright (c) 2021 (original work) Open Assessment Technologies SA ;
  */
-define(['jquery', 'lodash', 'ui/mediaplayer/utils/timeObserver'], function ($, _, timeObserverFactory) {
+define(['ui/mediaplayer/utils/timeObserver'], function (timeObserverFactory) {
     'use strict';
 
     QUnit.module('timeObserver');
@@ -47,16 +47,16 @@ define(['jquery', 'lodash', 'ui/mediaplayer/utils/timeObserver'], function ($, _
 
     QUnit.test('Default values', assert => {
         const timeObserver = timeObserverFactory();
-        assert.equal(timeObserver.position, 0);
-        assert.equal(timeObserver.duration, 0);
+        assert.equal(timeObserver.position, 0, 'position is default value');
+        assert.equal(timeObserver.duration, 0, 'duration is default value');
     });
 
     QUnit.test('Init values', assert => {
         const timeObserver = timeObserverFactory();
         timeObserver.init(7, 11);
 
-        assert.equal(timeObserver.position, 7);
-        assert.equal(timeObserver.duration, 11);
+        assert.equal(timeObserver.position, 7, 'position is init value');
+        assert.equal(timeObserver.duration, 11, 'duration is init value');
     });
 
     QUnit.test('Update position value - seeking forward works', assert => {
@@ -71,8 +71,8 @@ define(['jquery', 'lodash', 'ui/mediaplayer/utils/timeObserver'], function ($, _
 
         // +1 sec
         timeObserver.update(8);
-        assert.equal(timeObserver.position, 8);
-        assert.equal(timeObserver.duration, 11);
+        assert.equal(timeObserver.position, 8, 'position is updated');
+        assert.equal(timeObserver.duration, 11, 'duration is unchanged');
     });
 
     QUnit.test('Update position value - seeking backward works', assert => {
@@ -87,8 +87,8 @@ define(['jquery', 'lodash', 'ui/mediaplayer/utils/timeObserver'], function ($, _
 
         // -1 sec
         timeObserver.update(6);
-        assert.equal(timeObserver.position, 6);
-        assert.equal(timeObserver.duration, 11);
+        assert.equal(timeObserver.position, 6, 'position is updated');
+        assert.equal(timeObserver.duration, 11, 'duration is unchanged');
     });
 
     QUnit.test('Update position value - seeking forward & exceeding interval', assert => {
@@ -98,7 +98,8 @@ define(['jquery', 'lodash', 'ui/mediaplayer/utils/timeObserver'], function ($, _
         timeObserver.init(7, 11);
 
         timeObserver.after('irregularity', function() {
-            assert.equal(timeObserver.position, 9);
+            assert.ok(true, 'fires irregularity');
+            assert.equal(timeObserver.position, 9, 'position is updated');
             done();
         });
 
@@ -114,7 +115,8 @@ define(['jquery', 'lodash', 'ui/mediaplayer/utils/timeObserver'], function ($, _
         timeObserver.init(7, 11);
 
         timeObserver.after('irregularity', function() {
-            assert.equal(timeObserver.position, 10);
+            assert.ok(true, 'fires irregularity');
+            assert.equal(timeObserver.position, 10, 'position is updated');
             done();
         });
 
@@ -129,10 +131,11 @@ define(['jquery', 'lodash', 'ui/mediaplayer/utils/timeObserver'], function ($, _
         timeObserver.init(7, 11);
 
         timeObserver.seek(5);
-        assert.equal(timeObserver.position, 5);
+        assert.equal(timeObserver.position, 5, 'position is updated by seek');
 
         timeObserver.after('irregularity', function() {
-            assert.equal(timeObserver.position, 7);
+            assert.ok(true, 'fires irregularity');
+            assert.equal(timeObserver.position, 7, 'position is updated');
             done();
         });
 
