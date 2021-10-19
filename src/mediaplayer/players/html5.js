@@ -147,7 +147,7 @@ export default function html5PlayerFactory($container, config = {}) {
             // detect stalled video when the timer suddenly jump to the end
             timeObserver.removeAllListeners().on('irregularity', () => {
                 if (playback && stalled) {
-                    this.trigger('stalled');
+                    this.stalled();
                 }
             });
 
@@ -158,6 +158,9 @@ export default function html5PlayerFactory($container, config = {}) {
                     this.trigger('play');
                 })
                 .on(`pause${ns}`, () => {
+                    if (stalled && updateObserver.running && updateObserver.elapsed < 100) {
+                        this.stalled();
+                    }
                     updateObserver.stop();
                     this.trigger('pause');
                 })
@@ -193,7 +196,9 @@ export default function html5PlayerFactory($container, config = {}) {
                 })
                 .on(`canplay${ns}`, () => {
                     loaded = true;
-                    this.trigger('ready');
+                    if (!stalled) {
+                        this.trigger('ready');
+                    }
                 })
                 .on(`stalled${ns}`, () => {
                     this.handleError(media.error);
@@ -222,13 +227,21 @@ export default function html5PlayerFactory($container, config = {}) {
         },
 
         handleError(error) {
+            debug('need to recover from error', error);
             stalled = true;
             const delay = 2000;
             updateObserver.remind(() => {
                 if (updateObserver.elapsed >= delay) {
-                    this.trigger('stalled');
+                    this.stalled();
                 }
             }, delay);
+
+            updateObserver.start();
+        },
+
+        stalled() {
+            this.pause();
+            this.trigger('stalled');
         },
 
         recover() {
@@ -338,7 +351,13 @@ export default function html5PlayerFactory($container, config = {}) {
             if (media) {
                 const startPlayPromise = media.play();
                 if ('undefined' !== typeof startPlayPromise) {
-                    startPlayPromise.catch(error => this.handleError(error));
+                    startPlayPromise.catch(error => {
+                        if (error.name === 'NotAllowedError') {
+                            debug('the autoplay is not allowed without a user interaction', error);
+                        } else {
+                            this.handleError(error);
+                        }
+                    });
                 }
             }
         },
