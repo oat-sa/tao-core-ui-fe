@@ -358,6 +358,17 @@ export default function html5PlayerFactory($container, config = {}) {
             state.stalled = false;
             state.stallDetection = false;
             if (media) {
+                // Special processing of video player to prevent visual glitch while reloading
+                if (media.tagName === 'VIDEO') {
+                    // Temporary fix the size of the media to prevent a shrink while reloading it
+                    $media.width($media.width());
+                    $media.height($media.height());
+                    $media.on('loadedmetadata.recover', () => {
+                        $media.off('loadedmetadata.recover');
+                        $media.css({ width: '', height: '' });
+                    });
+                }
+
                 media.load();
                 if (state.stalledAt) {
                     this.seek(state.stalledAt);
