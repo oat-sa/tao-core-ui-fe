@@ -28,19 +28,25 @@ import timeObserverFactory from 'ui/mediaplayer/utils/timeObserver';
 
 /**
  * CSS namespace
- * @type {String}
+ * @type {string}
  */
 const ns = '.mediaplayer';
 
 /**
  * Range value of the volume
- * @type {Number}
+ * @type {number}
  */
 const volumeRange = 100;
 
 /**
+ * Delay before considering a media stalled
+ * @type {number}
+ */
+const stalledDetectionDelay = 2000;
+
+/**
  * List of media events that can be listened to for debugging
- * @type {String[]}
+ * @type {string[]}
  */
 const mediaEvents = [
     'abort',
@@ -73,19 +79,19 @@ const mediaEvents = [
 
 /**
  * List of player events that can be listened to for debugging
- * @type {String[]}
+ * @type {string[]}
  */
 const playerEvents = ['end', 'error', 'pause', 'play', 'playing', 'ready', 'resize', 'stalled', 'timeupdate'];
 
 /**
  * Defines a player object dedicated to the native HTML5 player
  * @param {jQuery} $container - Where to render the player
- * @param {Object} config - The list of config entries
+ * @param {object} config - The list of config entries
  * @param {Array} config.sources - The list of media sources
- * @param {String} [config.type] - The type of player (video or audio) (default: video)
- * @param {Boolean} [config.preview] - Enables the media preview (load media metadata)
- * @param {Boolean} [config.debug] - Enables the debug mode
- * @returns {Object} player
+ * @param {string} [config.type] - The type of player (video or audio) (default: video)
+ * @param {boolean} [config.preview] - Enables the media preview (load media metadata)
+ * @param {boolean} [config.debug] - Enables the debug mode
+ * @returns {object} player
  */
 export default function html5PlayerFactory($container, config = {}) {
     const type = config.type || 'video';
@@ -96,8 +102,8 @@ export default function html5PlayerFactory($container, config = {}) {
     let $media;
     let media;
     let playback = false;
-    let loaded = false;
     let stalled = false;
+    let stalledAt = 0;
 
     const getDebugContext = action => {
         const networkState = media && media.networkState;
@@ -133,7 +139,6 @@ export default function html5PlayerFactory($container, config = {}) {
             $container.append($media);
 
             playback = false;
-            loaded = false;
             stalled = false;
 
             media = $media.get(0);
@@ -145,9 +150,9 @@ export default function html5PlayerFactory($container, config = {}) {
             }
 
             // detect stalled video when the timer suddenly jump to the end
-            timeObserver.removeAllListeners().on('irregularity', () => {
+            timeObserver.removeAllListeners().on('irregularity', position => {
                 if (playback && stalled) {
-                    this.stalled();
+                    this.stalled(position);
                 }
             });
 
@@ -195,7 +200,6 @@ export default function html5PlayerFactory($container, config = {}) {
                     timeObserver.init(media.currentTime, media.duration);
                 })
                 .on(`canplay${ns}`, () => {
-                    loaded = true;
                     if (!stalled) {
                         this.trigger('ready');
                     }
@@ -227,28 +231,42 @@ export default function html5PlayerFactory($container, config = {}) {
         },
 
         handleError(error) {
-            debug('need to recover from error', error);
+            debug('api call', 'handleError', error);
+
             stalled = true;
-            const delay = 2000;
             updateObserver.remind(() => {
-                if (updateObserver.elapsed >= delay) {
+                if (updateObserver.elapsed >= stalledDetectionDelay) {
                     this.stalled();
                 }
-            }, delay);
+            }, stalledDetectionDelay);
 
             updateObserver.start();
         },
 
-        stalled() {
+        stalled(position) {
+            debug('api call', 'stalled');
+
+            if (media) {
+                if ('undefined' !== typeof position) {
+                    stalledAt = position;
+                } else {
+                    stalledAt = media.currentTime;
+                }
+            }
             this.pause();
             this.trigger('stalled');
         },
 
         recover() {
-            stalled = false;
+            debug('api call', 'recover');
+
             if (media) {
                 media.load();
+                if (stalledAt) {
+                    this.seek(stalledAt);
+                }
             }
+            stalled = false;
         },
 
         destroy() {
@@ -266,7 +284,6 @@ export default function html5PlayerFactory($container, config = {}) {
             $media = void 0;
             media = void 0;
             playback = false;
-            loaded = false;
             stalled = false;
         },
 
@@ -353,7 +370,7 @@ export default function html5PlayerFactory($container, config = {}) {
                 if ('undefined' !== typeof startPlayPromise) {
                     startPlayPromise.catch(error => {
                         if (error.name === 'NotAllowedError') {
-                            debug('the autoplay is not allowed without a user interaction', error);
+                            debug('api call', 'play', 'the autoplay is not allowed without a user interaction', error);
                         } else {
                             this.handleError(error);
                         }
