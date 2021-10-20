@@ -120,8 +120,10 @@ export default function timeObserverFactory(interval = 1) {
                 /**
                  * Notifies an irregularity in in the time update
                  * @event irregularity
+                 * @param {number} position - last regular position
+                 * @param {number} newPosition - new irregular position
                  */
-                this.trigger('irregularity');
+                this.trigger('irregularity', position, newPosition);
             }
             position = newPosition;
             return this;
