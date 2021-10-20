@@ -207,7 +207,6 @@ const isResponsiveSize = sizeProps => {
  * @param {Boolean} [config.debug] - Enables the debug mode
  * @event render - Event triggered when the player is rendering
  * @event error - Event triggered when the player throws an unrecoverable error
- * @event recovererror - Event triggered when the player throws a recoverable error
  * @event ready - Event triggered when the player is fully ready
  * @event play - Event triggered when the playback is starting
  * @event update - Event triggered while the player is playing
@@ -343,23 +342,11 @@ function mediaplayerFactory(config) {
              */
             this.trigger('reload');
 
-            // destroy player
             if (this.player) {
-                this.player.destroy();
+                this.player.recover();
             }
-
-            // remove events and component
-            if (this.$component) {
-                this._unbindEvents();
-                this._destroySlider(this.$seekSlider);
-                this._destroySlider(this.$volumeSlider);
-
-                this.$component.remove();
-                this.$component = null;
-            }
-
-            // rerender
-            this.render();
+            this._setState('stalled', false);
+            this.setInitialStates();
         },
 
         /**
@@ -885,8 +872,7 @@ function mediaplayerFactory(config) {
                         .on('stalled', () => this._onStalled())
                         .on('playing', () => this._onPlaying())
                         .on('end', () => this._onEnd())
-                        .on('error', () => this._onError())
-                        .on('recovererror', fromLoading => this._onRecoverError(fromLoading));
+                        .on('error', () => this._onError());
                 }
 
                 if (this.player) {
@@ -1234,7 +1220,7 @@ function mediaplayerFactory(config) {
          */
         _onReady() {
             if (this.is('error')) {
-                this._onRecoverError();
+                this._setState('error', false);
             }
 
             const duration = this.player.getDuration();
@@ -1261,11 +1247,6 @@ function mediaplayerFactory(config) {
 
             if (this.config.preview && this.$container && this.config.height && this.config.height !== 'auto') {
                 this._setMaxHeight();
-            }
-
-            // seek back to the previous position after recover from stalled
-            if (this.is('stalled')) {
-                this.play(this.positionBeforeStalled);
             }
         },
 
@@ -1328,26 +1309,6 @@ function mediaplayerFactory(config) {
              * @event mediaplayer#error
              */
             this.trigger('error');
-        },
-
-        /**
-         * Event called when the media throws recoverable error
-         * @param {Boolean} fromLoading - recover from an error while loading the media
-         * @private
-         */
-        _onRecoverError(fromLoading = false) {
-            // recover from playing error
-            if (fromLoading && this.is('playing')) {
-                this.render();
-            }
-
-            this._setState('error', false);
-
-            /**
-             * Triggers a recoverable media error event
-             * @event mediaplayer#recovererror
-             */
-            this.trigger('recovererror');
         },
 
         /**
@@ -1426,10 +1387,6 @@ function mediaplayerFactory(config) {
          * @private
          */
         _onStalled() {
-            const position = this.getPosition();
-            if (position) {
-                this.positionBeforeStalled = position;
-            }
             this._setState('stalled', true);
             this._setState('ready', false);
         },
