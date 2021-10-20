@@ -141,12 +141,12 @@ export default function html5PlayerFactory($container, config = {}) {
             media = $media.get(0);
             result = !!(media && support.checkSupport(media));
 
-            // remove the browser native controls if we can use the API instead
+            // Remove the browser native controls if we can use the API instead
             if (support.canControl()) {
                 $media.removeAttr('controls');
             }
 
-            // detect stalled video when the timer suddenly jump to the end
+            // Detect stalled video when the timer suddenly jump to the end
             timeObserver.removeAllListeners().on('irregularity', position => {
                 if (state.playback && state.stallDetection) {
                     this.stalled(position);
@@ -156,6 +156,7 @@ export default function html5PlayerFactory($container, config = {}) {
             $media
                 .on(`play${ns}`, () => {
                     state.playback = true;
+                    state.playedViaApi = false;
                     timeObserver.init(media.currentTime, media.duration);
                     this.trigger('play');
                 })
@@ -166,12 +167,21 @@ export default function html5PlayerFactory($container, config = {}) {
                         updateObserver.running &&
                         updateObserver.elapsed < 100
                     ) {
+                        // The pause event may be triggered after a connectivity issue as the player is out of data
                         this.stalled();
                     }
                     state.pausedViaApi = false;
                     state.playing = false;
                     updateObserver.stop();
                     this.trigger('pause');
+                })
+                .on(`seeked${ns}`, () => {
+                    // When the user try changing the current playing position while the network is down,
+                    // the player will end the playback by moving straight to the end.
+                    if (state.seekedViaApi && state.seekAt !== media.currentTime) {
+                        state.stallDetection = true;
+                    }
+                    state.seekedViaApi = false;
                 })
                 .on(`ended${ns}`, () => {
                     updateObserver.forget().stop();
@@ -192,24 +202,24 @@ export default function html5PlayerFactory($container, config = {}) {
                     }
 
                     if (!config.preview && media.networkState === HTMLMediaElement.NETWORK_IDLE) {
-                        this.ready();
+                        this.trigger('ready');
                     }
+
+                    // The media may be unreachable straight from the beginning
+                    this.detectStalledNetwork();
                 })
                 .on(`waiting${ns}`, () => {
-                    setTimeout(() => {
-                        if (
-                            media &&
-                            media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE &&
-                            media.readyState === HTMLMediaElement.HAVE_NOTHING
-                        ) {
-                            this.stalled();
-                        }
-                    }, stalledDetectionDelay);
+                    // The "waiting" event means the player is pending data,
+                    // it may be the symptom of a connectivity issue
+                    this.detectStalledNetwork();
                 })
                 .on(`error${ns}`, () => {
                     if (media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
+                        // No source means the player does not support the supplied media,
+                        // there is nothing that we can do from this stage.
                         this.trigger('error');
                     } else {
+                        // Other errors need special attention as they can be recoverable
                         this.handleError(media.error);
                     }
                 })
@@ -219,15 +229,23 @@ export default function html5PlayerFactory($container, config = {}) {
                 })
                 .on(`canplay${ns}`, () => {
                     if (!state.stalled) {
+                        state.stallDetection = false;
                         this.ready();
                     }
                 })
                 .on(`stalled${ns}`, () => {
+                    // The "stalled" event may be triggered once the player is halted after initialisation,
+                    // but this does not mean the playback is actually stalled, hence we only take care of the playing state
                     if (state.playing) {
                         this.handleError(media.error);
                     }
                 })
                 .on(`playing${ns}`, () => {
+                    if (state.stallDetection) {
+                        // The "playing" event may occur after a connectivity issue.
+                        // For the sake of the stall detection, we need to discard this event
+                        return;
+                    }
                     updateObserver.forget().start();
                     state.playing = true;
                     this.trigger('playing');
@@ -252,10 +270,37 @@ export default function html5PlayerFactory($container, config = {}) {
         },
 
         handleError(error) {
+            // Discard legitimate and non-blocking errors
+            switch (error && error.name) {
+                case 'NotAllowedError':
+                    debug('api call', 'handleError', 'the autoplay is not allowed without a user interaction', error);
+                    return;
+
+                case 'AbortError':
+                    debug('api call', 'handleError', 'the action has been aborted for some reason', error);
+                    return;
+            }
+
             debug('api call', 'handleError', error);
 
+            // Detect if the playback can continue a bit
+            const canContinueTemporarily =
+                media &&
+                (media.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA ||
+                    media.readyState === HTMLMediaElement.HAVE_FUTURE_DATA ||
+                    media.readyState === HTMLMediaElement.HAVE_CURRENT_DATA);
+
+            // If a connectivity error occurs we may need to enter in stalled mode unless we can wait a bit
+            if (error instanceof MediaError && error.code === MediaError.MEDIA_ERR_NETWORK && !canContinueTemporarily) {
+                this.stalled();
+                return;
+            }
+
+            // To this point, there is a big chance the media is stalled.
+            // We start an observer to remind as soon as an irregularity occurs on the time update
             state.stallDetection = true;
             updateObserver.remind(() => {
+                // The last time update is a bit old, the media is most probably stalled now
                 if (updateObserver.elapsed >= stalledDetectionDelay) {
                     this.stalled();
                 }
@@ -267,10 +312,25 @@ export default function html5PlayerFactory($container, config = {}) {
         ready() {
             if (!state.ready) {
                 state.ready = true;
-                state.stalled = false;
-                state.stallDetection = false;
                 this.trigger('ready');
             }
+        },
+
+        detectStalledNetwork() {
+            // Install an observer that will watch the network state after a small delay.
+            // It is needed since the network state may need time to settle.
+            setTimeout(() => {
+                if (
+                    media &&
+                    media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE &&
+                    media.readyState === HTMLMediaElement.HAVE_NOTHING
+                ) {
+                    if (!state.ready) {
+                        this.trigger('ready');
+                    }
+                    this.stalled();
+                }
+            }, stalledDetectionDelay);
         },
 
         stalled(position) {
@@ -280,7 +340,7 @@ export default function html5PlayerFactory($container, config = {}) {
                 if ('undefined' !== typeof position) {
                     state.stalledAt = position;
                 } else {
-                    state.stalledAt = media.currentTime;
+                    state.stalledAt = timeObserver.position;
                 }
             }
             state.stalled = true;
@@ -301,7 +361,7 @@ export default function html5PlayerFactory($container, config = {}) {
                 if (state.stalledAt) {
                     this.seek(state.stalledAt);
                 }
-                if (state.playback && !state.playing) {
+                if ((state.playback && !state.playing) || state.playedViaApi) {
                     this.play();
                 }
             }
@@ -392,6 +452,8 @@ export default function html5PlayerFactory($container, config = {}) {
 
             if (media) {
                 media.currentTime = parseFloat(time);
+                state.seekedViaApi = true;
+                state.seekAt = media.currentTime;
                 timeObserver.seek(media.currentTime);
                 if (!state.playback) {
                     this.play();
@@ -403,15 +465,10 @@ export default function html5PlayerFactory($container, config = {}) {
             debug('api call', 'play');
 
             if (media) {
+                state.playedViaApi = true;
                 const startPlayPromise = media.play();
                 if ('undefined' !== typeof startPlayPromise) {
-                    startPlayPromise.catch(error => {
-                        if (error.name === 'NotAllowedError') {
-                            debug('api call', 'play', 'the autoplay is not allowed without a user interaction', error);
-                        } else {
-                            this.handleError(error);
-                        }
-                    });
+                    startPlayPromise.catch(error => this.handleError(error));
                 }
             }
         },
