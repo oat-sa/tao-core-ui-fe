@@ -30,20 +30,14 @@ define(['ui/mediaplayer/utils/timeObserver'], function (timeObserverFactory) {
         );
     });
 
-    QUnit.cases
-        .init([
-            { title: 'init' },
-            { title: 'update' },
-            { title: 'seek' }
-        ])
-        .test('API ', (data, assert) => {
-            const instance = timeObserverFactory();
-            assert.equal(
-                typeof instance[data.title],
-                'function',
-                `The timeObserver instance exposes a "${data.title}" function`
-            );
-        });
+    QUnit.cases.init([{ title: 'init' }, { title: 'update' }, { title: 'seek' }]).test('API ', (data, assert) => {
+        const instance = timeObserverFactory();
+        assert.equal(
+            typeof instance[data.title],
+            'function',
+            `The timeObserver instance exposes a "${data.title}" function`
+        );
+    });
 
     QUnit.test('Default values', assert => {
         const timeObserver = timeObserverFactory();
@@ -65,7 +59,7 @@ define(['ui/mediaplayer/utils/timeObserver'], function (timeObserverFactory) {
         const timeObserver = timeObserverFactory();
         timeObserver.init(7, 11);
 
-        timeObserver.on('irregularity', function() {
+        timeObserver.on('irregularity', function () {
             assert.ok(false, 'Should not report time irregularity!');
         });
 
@@ -81,7 +75,7 @@ define(['ui/mediaplayer/utils/timeObserver'], function (timeObserverFactory) {
         const timeObserver = timeObserverFactory();
         timeObserver.init(7, 11);
 
-        timeObserver.on('irregularity', function() {
+        timeObserver.on('irregularity', function () {
             assert.ok(false, 'Should not report time irregularity!');
         });
 
@@ -97,7 +91,12 @@ define(['ui/mediaplayer/utils/timeObserver'], function (timeObserverFactory) {
         const timeObserver = timeObserverFactory();
         timeObserver.init(7, 11);
 
-        timeObserver.after('irregularity', function() {
+        timeObserver.on('irregularity', function (lastPosition, newPosition) {
+            assert.equal(lastPosition, 7, 'last position is given');
+            assert.equal(newPosition, 9, 'new position is given');
+        });
+
+        timeObserver.after('irregularity', function () {
             assert.ok(true, 'fires irregularity');
             assert.equal(timeObserver.position, 9, 'position is updated');
             done();
@@ -114,7 +113,12 @@ define(['ui/mediaplayer/utils/timeObserver'], function (timeObserverFactory) {
         const timeObserver = timeObserverFactory(interval);
         timeObserver.init(7, 11);
 
-        timeObserver.after('irregularity', function() {
+        timeObserver.on('irregularity', function (lastPosition, newPosition) {
+            assert.equal(lastPosition, 7, 'last position is given');
+            assert.equal(newPosition, 10, 'new position is given');
+        });
+
+        timeObserver.after('irregularity', function () {
             assert.ok(true, 'fires irregularity');
             assert.equal(timeObserver.position, 10, 'position is updated');
             done();
@@ -133,7 +137,12 @@ define(['ui/mediaplayer/utils/timeObserver'], function (timeObserverFactory) {
         timeObserver.seek(5);
         assert.equal(timeObserver.position, 5, 'position is updated by seek');
 
-        timeObserver.after('irregularity', function() {
+        timeObserver.on('irregularity', function (lastPosition, newPosition) {
+            assert.equal(lastPosition, 5, 'last position is given');
+            assert.equal(newPosition, 7, 'new position is given');
+        });
+
+        timeObserver.after('irregularity', function () {
             assert.ok(true, 'fires irregularity');
             assert.equal(timeObserver.position, 7, 'position is updated');
             done();
@@ -145,11 +154,7 @@ define(['ui/mediaplayer/utils/timeObserver'], function (timeObserverFactory) {
 
     QUnit.test('Chaining', assert => {
         const timeObserver = timeObserverFactory();
-        timeObserver
-            .init(7, 11)
-            .seek(8)
-            .update(9)
-            .seek(10);
+        timeObserver.init(7, 11).seek(8).update(9).seek(10);
         assert.ok(true, 'No error thrown => timeObserver methods are chainable');
     });
 });
