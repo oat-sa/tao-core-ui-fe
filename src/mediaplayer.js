@@ -205,6 +205,7 @@ const isResponsiveSize = sizeProps => {
  * @param {Number} [config.height] - Sets the height of the player (default: depends on media type)
  * @param {Boolean} [config.preview] - Enables the media preview (load media metadata)
  * @param {Boolean} [config.debug] - Enables the debug mode
+ * @param {number} [config.config.stalledDetectionDelay] - The delay before considering a media is stalled
  * @event render - Event triggered when the player is rendering
  * @event error - Event triggered when the player throws an unrecoverable error
  * @event ready - Event triggered when the player is fully ready
@@ -857,7 +858,8 @@ function mediaplayerFactory(config) {
                         type: this.getType(),
                         sources: this.getSources(),
                         preview: this.config.preview,
-                        debug: this.config.debug
+                        debug: this.config.debug,
+                        stalledDetectionDelay: this.config.stalledDetectionDelay
                     };
                     this.player = playerFactory(this.$player, playerConfig)
                         .on('resize', (width, height) => {
