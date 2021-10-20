@@ -101,9 +101,7 @@ export default function html5PlayerFactory($container, config = {}) {
 
     let $media;
     let media;
-    let playback = false;
-    let stalled = false;
-    let stalledAt = 0;
+    let state = {};
 
     const getDebugContext = action => {
         const networkState = media && media.networkState;
@@ -123,6 +121,8 @@ export default function html5PlayerFactory($container, config = {}) {
             let link = '';
             let result = false;
 
+            state = {};
+
             sources.forEach(source => {
                 if (!page.sameDomain(source.src)) {
                     cors = true;
@@ -138,9 +138,6 @@ export default function html5PlayerFactory($container, config = {}) {
             $media = $(tpl({ cors, preload, poster, link }));
             $container.append($media);
 
-            playback = false;
-            stalled = false;
-
             media = $media.get(0);
             result = !!(media && support.checkSupport(media));
 
@@ -151,28 +148,36 @@ export default function html5PlayerFactory($container, config = {}) {
 
             // detect stalled video when the timer suddenly jump to the end
             timeObserver.removeAllListeners().on('irregularity', position => {
-                if (playback && stalled) {
+                if (state.playback && state.stallDetection) {
                     this.stalled(position);
                 }
             });
 
             $media
                 .on(`play${ns}`, () => {
-                    playback = true;
+                    state.playback = true;
                     timeObserver.init(media.currentTime, media.duration);
                     this.trigger('play');
                 })
                 .on(`pause${ns}`, () => {
-                    if (stalled && updateObserver.running && updateObserver.elapsed < 100) {
+                    if (
+                        state.stallDetection &&
+                        !state.pausedViaApi &&
+                        updateObserver.running &&
+                        updateObserver.elapsed < 100
+                    ) {
                         this.stalled();
                     }
+                    state.pausedViaApi = false;
+                    state.playing = false;
                     updateObserver.stop();
                     this.trigger('pause');
                 })
                 .on(`ended${ns}`, () => {
                     updateObserver.forget().stop();
                     timeObserver.update(media.currentTime);
-                    playback = false;
+                    state.playback = false;
+                    state.playing = false;
                     this.trigger('end');
                 })
                 .on(`timeupdate${ns}`, () => {
@@ -189,6 +194,17 @@ export default function html5PlayerFactory($container, config = {}) {
                         this.trigger('ready');
                     }
                 })
+                .on(`waiting${ns}`, () => {
+                    setTimeout(() => {
+                        if (
+                            media &&
+                            media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE &&
+                            media.readyState === HTMLMediaElement.HAVE_NOTHING
+                        ) {
+                            this.stalled();
+                        }
+                    }, stalledDetectionDelay);
+                })
                 .on(`error${ns}`, () => {
                     if (media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
                         this.trigger('error');
@@ -200,7 +216,8 @@ export default function html5PlayerFactory($container, config = {}) {
                     timeObserver.init(media.currentTime, media.duration);
                 })
                 .on(`canplay${ns}`, () => {
-                    if (!stalled) {
+                    if (!state.stalled) {
+                        state.stallDetection = false;
                         this.trigger('ready');
                     }
                 })
@@ -209,6 +226,7 @@ export default function html5PlayerFactory($container, config = {}) {
                 })
                 .on(`playing${ns}`, () => {
                     updateObserver.forget().start();
+                    state.playing = true;
                     this.trigger('playing');
                 });
 
@@ -233,7 +251,7 @@ export default function html5PlayerFactory($container, config = {}) {
         handleError(error) {
             debug('api call', 'handleError', error);
 
-            stalled = true;
+            state.stallDetection = true;
             updateObserver.remind(() => {
                 if (updateObserver.elapsed >= stalledDetectionDelay) {
                     this.stalled();
@@ -248,11 +266,15 @@ export default function html5PlayerFactory($container, config = {}) {
 
             if (media) {
                 if ('undefined' !== typeof position) {
-                    stalledAt = position;
+                    state.stalledAt = position;
                 } else {
-                    stalledAt = media.currentTime;
+                    state.stalledAt = media.currentTime;
                 }
             }
+            state.stalled = true;
+            state.stallDetection = false;
+            updateObserver.forget().stop();
+
             this.pause();
             this.trigger('stalled');
         },
@@ -260,13 +282,17 @@ export default function html5PlayerFactory($container, config = {}) {
         recover() {
             debug('api call', 'recover');
 
+            state.stalled = false;
+            state.stallDetection = false;
             if (media) {
                 media.load();
-                if (stalledAt) {
-                    this.seek(stalledAt);
+                if (state.stalledAt) {
+                    this.seek(state.stalledAt);
+                }
+                if (state.playback && !state.playing) {
+                    this.play();
                 }
             }
-            stalled = false;
         },
 
         destroy() {
@@ -283,8 +309,7 @@ export default function html5PlayerFactory($container, config = {}) {
 
             $media = void 0;
             media = void 0;
-            playback = false;
-            stalled = false;
+            state = {};
         },
 
         getMedia() {
@@ -356,7 +381,7 @@ export default function html5PlayerFactory($container, config = {}) {
             if (media) {
                 media.currentTime = parseFloat(time);
                 timeObserver.seek(media.currentTime);
-                if (!playback) {
+                if (!state.playback) {
                     this.play();
                 }
             }
@@ -383,6 +408,7 @@ export default function html5PlayerFactory($container, config = {}) {
             debug('api call', 'pause');
 
             if (media) {
+                state.pausedViaApi = true;
                 media.pause();
             }
         },
@@ -390,16 +416,16 @@ export default function html5PlayerFactory($container, config = {}) {
         stop() {
             debug('api call', 'stop');
 
-            if (media && playback) {
+            if (media && state.playback) {
                 media.currentTime = media.duration;
             }
         },
 
-        mute(state) {
-            debug('api call', 'mute', state);
+        mute(muted) {
+            debug('api call', 'mute', muted);
 
             if (media) {
-                media.muted = !!state;
+                media.muted = !!muted;
             }
         },
 
