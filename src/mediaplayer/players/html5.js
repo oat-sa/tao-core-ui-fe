@@ -181,6 +181,7 @@ export default function html5PlayerFactory($container, config = {}) {
                     this.trigger('end');
                 })
                 .on(`timeupdate${ns}`, () => {
+                    state.playing = true;
                     updateObserver.start();
                     timeObserver.update(media.currentTime);
                     this.trigger('timeupdate');
@@ -191,7 +192,7 @@ export default function html5PlayerFactory($container, config = {}) {
                     }
 
                     if (!config.preview && media.networkState === HTMLMediaElement.NETWORK_IDLE) {
-                        this.trigger('ready');
+                        this.ready();
                     }
                 })
                 .on(`waiting${ns}`, () => {
@@ -214,15 +215,17 @@ export default function html5PlayerFactory($container, config = {}) {
                 })
                 .on('loadedmetadata', () => {
                     timeObserver.init(media.currentTime, media.duration);
+                    this.ready();
                 })
                 .on(`canplay${ns}`, () => {
                     if (!state.stalled) {
-                        state.stallDetection = false;
-                        this.trigger('ready');
+                        this.ready();
                     }
                 })
                 .on(`stalled${ns}`, () => {
-                    this.handleError(media.error);
+                    if (state.playing) {
+                        this.handleError(media.error);
+                    }
                 })
                 .on(`playing${ns}`, () => {
                     updateObserver.forget().start();
@@ -259,6 +262,15 @@ export default function html5PlayerFactory($container, config = {}) {
             }, stalledDetectionDelay);
 
             updateObserver.start();
+        },
+
+        ready() {
+            if (!state.ready) {
+                state.ready = true;
+                state.stalled = false;
+                state.stallDetection = false;
+                this.trigger('ready');
+            }
         },
 
         stalled(position) {

@@ -118,7 +118,7 @@ export default function timeObserverFactory(interval = 1) {
         update(newPosition) {
             if (newPosition > seek && newPosition - position > interval) {
                 /**
-                 * Notifies an irregularity in in the time update
+                 * Notifies an irregularity in the time update
                  * @event irregularity
                  * @param {number} position - last regular position
                  * @param {number} newPosition - new irregular position
