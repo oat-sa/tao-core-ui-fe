@@ -91,6 +91,7 @@ const playerEvents = ['end', 'error', 'pause', 'play', 'playing', 'ready', 'resi
  * @param {string} [config.type] - The type of player (video or audio) (default: video)
  * @param {boolean} [config.preview] - Enables the media preview (load media metadata)
  * @param {boolean} [config.debug] - Enables the debug mode
+ * @param {number} [config.config.stalledDetectionDelay] - The delay before considering a media is stalled
  * @returns {object} player
  */
 export default function html5PlayerFactory($container, config = {}) {
@@ -98,6 +99,8 @@ export default function html5PlayerFactory($container, config = {}) {
     const sources = config.sources || [];
     const updateObserver = reminderManagerFactory();
     const timeObserver = timeObserverFactory();
+
+    config.stalledDetectionDelay = config.stalledDetectionDelay || stalledDetectionDelay;
 
     let $media;
     let media;
@@ -302,10 +305,10 @@ export default function html5PlayerFactory($container, config = {}) {
             state.stallDetection = true;
             updateObserver.remind(() => {
                 // The last time update is a bit old, the media is most probably stalled now
-                if (updateObserver.elapsed >= stalledDetectionDelay) {
+                if (updateObserver.elapsed >= config.stalledDetectionDelay) {
                     this.stalled();
                 }
-            }, stalledDetectionDelay);
+            }, config.stalledDetectionDelay);
 
             updateObserver.start();
         },
@@ -331,7 +334,7 @@ export default function html5PlayerFactory($container, config = {}) {
                     }
                     this.stalled();
                 }
-            }, stalledDetectionDelay);
+            }, config.stalledDetectionDelay);
         },
 
         stalled(position) {
