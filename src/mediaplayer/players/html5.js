@@ -237,7 +237,7 @@ export default function html5PlayerFactory($container, config = {}) {
                 .on(`stalled${ns}`, () => {
                     // The "stalled" event may be triggered once the player is halted after initialisation,
                     // but this does not mean the playback is actually stalled, hence we only take care of the playing state
-                    if (state.playing) {
+                    if (state.playing && !media.paused) {
                         this.handleError(media.error);
                     }
                 })
