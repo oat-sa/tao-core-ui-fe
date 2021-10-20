@@ -109,7 +109,8 @@ export default function html5PlayerFactory($container, config = {}) {
         return `[html5-${type}(networkState=${networkState},readyState=${readyState}):${action}]`;
     };
     // eslint-disable-next-line
-    const debug = (action, ...args) => config.debug && window.console.log(getDebugContext(action), ...args);
+    const debug = (action, ...args) =>
+        (config.debug === true || config.debug === action) && window.console.log(getDebugContext(action), ...args);
 
     return eventifier({
         init() {
