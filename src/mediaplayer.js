@@ -889,7 +889,11 @@ function mediaplayerFactory(config) {
             this._setState('error', error);
             this._setState('nogui', !support.canControl());
             this._setState('preview', this.config.preview);
-            this._setState('loading', true);
+            this._setState('loading', !error);
+            if (error) {
+                this._setState('ready', true);
+                this.trigger('ready');
+            }
         },
 
         /**
