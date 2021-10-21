@@ -218,9 +218,13 @@ export default function html5PlayerFactory($container, config = {}) {
                     this.detectStalledNetwork();
                 })
                 .on(`error${ns}`, () => {
-                    if (media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
-                        // No source means the player does not support the supplied media,
-                        // there is nothing that we can do from this stage.
+                    if (
+                        media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE ||
+                        (media.error instanceof MediaError && media.error === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED)
+                    ) {
+                        // No source means the player does not support the supplied media.
+                        // Or it can be more explicit with the not supported error.
+                        // There is nothing that we can do from this stage.
                         this.trigger('error');
                     } else {
                         // Other errors need special attention as they can be recoverable
@@ -295,7 +299,11 @@ export default function html5PlayerFactory($container, config = {}) {
                     media.readyState === HTMLMediaElement.HAVE_CURRENT_DATA);
 
             // If a connectivity error occurs we may need to enter in stalled mode unless we can wait a bit
-            if (error instanceof MediaError && error.code === MediaError.MEDIA_ERR_NETWORK && !canContinueTemporarily) {
+            if (
+                error instanceof MediaError &&
+                (error.code === MediaError.MEDIA_ERR_NETWORK || error.code === MediaError.MEDIA_ERR_DECODE) &&
+                !canContinueTemporarily
+            ) {
                 this.stalled();
                 return;
             }
@@ -363,7 +371,7 @@ export default function html5PlayerFactory($container, config = {}) {
             if (media) {
                 // Special processing of video player to prevent visual glitch while reloading
                 if (media.tagName === 'VIDEO') {
-                    // Temporary fix the size of the media to prevent a shrink while reloading it
+                    // Temporarily set the size of the media to prevent a shrink while reloading it
                     $media.width($media.width());
                     $media.height($media.height());
                     $media.on('loadedmetadata.recover', () => {
