@@ -272,7 +272,9 @@ export default function html5PlayerFactory($container, config = {}) {
                 });
             }
 
-            sources.forEach(source => this.addMedia(source.src, source.type));
+            result =
+                result &&
+                sources.reduce((supported, source) => this.addMedia(source.src, source.type) || supported, false);
 
             return result;
         },
