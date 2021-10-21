@@ -237,7 +237,6 @@ export default function html5PlayerFactory($container, config = {}) {
                 })
                 .on(`canplay${ns}`, () => {
                     if (!state.stalled) {
-                        state.stallDetection = false;
                         this.ready();
                     }
                 })
