@@ -182,7 +182,7 @@ export default function html5PlayerFactory($container, config = {}) {
                 .on(`seeked${ns}`, () => {
                     // When the user try changing the current playing position while the network is down,
                     // the player will end the playback by moving straight to the end.
-                    if (state.seekedViaApi && state.seekAt !== media.currentTime) {
+                    if (state.seekedViaApi && Math.floor(state.seekAt) !== Math.floor(media.currentTime)) {
                         state.stallDetection = true;
                     }
                     state.seekedViaApi = false;
