@@ -1082,12 +1082,12 @@ define(['jquery', 'lodash', 'ui/mediaplayer', 'core/store'], function ($, _, med
 
         assert.expect(5);
 
-        const stalledTimeout = 50;
+        const stalledDetectionDelay = 50;
         const instance = mediaplayer({
             url: 'samples/video.mp4',
             type: 'video',
             renderTo: '#qunit-fixture',
-            stalledTimeout
+            stalledDetectionDelay
         })
             .on('render.test', $dom => {
                 instance.off('.test');
@@ -1102,18 +1102,17 @@ define(['jquery', 'lodash', 'ui/mediaplayer', 'core/store'], function ($, _, med
 
                     //simulate user click to reload button
                     instance.reload();
-                }, stalledTimeout);
+                }, stalledDetectionDelay);
             })
             .on('reload', () => {
                 assert.ok(true, 'reload event is fired');
 
-                // add listener for rerender
-                instance.on('render', $dom => {
+                instance.on('play', () => {
                     assert.equal(instance.getTimesPlayed(), 1, 'timesPlayed is kept');
                     assert.equal(instance.is('stalled'), true, 'player still stalled after reload');
 
                     // simulate video start playing
-                    $dom.find('.media').trigger('playing');
+                    instance.$component.find('.media').trigger('playing');
                     assert.equal(instance.is('stalled'), false, 'player is not stalled anymore');
 
                     instance.destroy();
