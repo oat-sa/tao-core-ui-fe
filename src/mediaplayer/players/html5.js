@@ -502,7 +502,9 @@ export default function html5PlayerFactory($container, config = {}) {
             debug('api call', 'pause');
 
             if (media) {
-                state.pausedViaApi = true;
+                if (!media.paused) {
+                    state.pausedViaApi = true;
+                }
                 media.pause();
             }
         },
