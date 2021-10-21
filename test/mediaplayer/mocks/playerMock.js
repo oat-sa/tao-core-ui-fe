@@ -118,6 +118,10 @@ define([
                 stalled = false;
             },
 
+            recover() {
+                this.play();
+            },
+
             getMedia() {
                 return media;
             },
