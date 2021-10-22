@@ -394,7 +394,7 @@ export default function advancedSearchFactory(config) {
      */
     function removeCriterion(event) {
         const criterion = event.data.criterion;
-        const newOption = new Option(criterion.label, criterion.label, false, false);
+        const newOption = createCriteriaOption(criterion);
 
         // remove criterion and append new criterion to select options
         $(this).parent().remove();
@@ -512,10 +512,35 @@ export default function advancedSearchFactory(config) {
 
             // create new option element to criteria select
             if (createOption) {
-                const newOption = new Option(criterion.label, criterion.label, false, false);
-                $criteriaSelect.append(newOption);
+                $criteriaSelect.append(createCriteriaOption(criterion));
             }
         });
+    }
+
+    /**
+     * @param {Object} criterion
+     * @returns Option
+     */
+    function createCriteriaOption(criterion) {
+        const criterionLabel = getCriterionLabel(criterion);
+
+        return new Option(criterionLabel, criterionLabel, false, false);
+    }
+
+    /**
+     * @param {Object} criterion
+     * @returns String
+     */
+    function getCriterionStateId(criterion) {
+        return getCriterionLabel(criterion);
+    }
+
+    /**
+     * @param {Object} criterion
+     * @returns String
+     */
+    function getCriterionLabel(criterion) {
+        return criterion.alias ? (criterion.label + ' (' + criterion.alias + ')') : criterion.label;
     }
 
     // return initialized instance of searchModal
