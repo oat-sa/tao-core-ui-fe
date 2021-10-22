@@ -661,6 +661,314 @@ define([
         }, 50);
     });
 
+    QUnit.test('play/stalled at start by no playback', assert => {
+        assert.expect(1);
+        const ready = assert.async();
+        const $container = $('#qunit-fixture');
+        const config = { sources: [videoMP4], type: 'video', stalledDetectionDelay: 20 };
+        const player = playerFactory($container, config);
+
+        parseHTMLMock.install();
+
+        player
+            .on('play', () => {
+                assert.ok(false, 'The playback should not start');
+            })
+            .on('stalled', () => {
+                assert.ok(true, 'The playback is stalled');
+                player.destroy();
+                ready();
+            })
+            .on('ready', () => {
+                player.play();
+            })
+            .init();
+
+        mediaMock(player.getMedia(), mediaConfig);
+
+        Object.assign(player.getMedia(), {
+            play() {
+                return Promise.reject();
+            }
+        });
+    });
+
+    QUnit.cases
+        .init([
+            {
+                title: 'MEDIA_ERR_NETWORK',
+                code: MediaError.MEDIA_ERR_NETWORK,
+                readyState: HTMLMediaElement.HAVE_NOTHING
+            },
+            {
+                title: 'MEDIA_ERR_NETWORK',
+                code: MediaError.MEDIA_ERR_NETWORK,
+                readyState: HTMLMediaElement.HAVE_ENOUGH_DATA
+            },
+            { title: 'MEDIA_ERR_DECODE', code: MediaError.MEDIA_ERR_DECODE, readyState: HTMLMediaElement.HAVE_METADATA }
+        ])
+        .test('play/stalled at start by network', (data, assert) => {
+            assert.expect(1);
+            const ready = assert.async();
+            const $container = $('#qunit-fixture');
+            const config = { sources: [videoMP4], type: 'video', stalledDetectionDelay: 20 };
+            const player = playerFactory($container, config);
+
+            parseHTMLMock.install();
+
+            player
+                .on('play', () => {
+                    assert.ok(false, 'The playback should not start');
+                })
+                .on('stalled', () => {
+                    assert.ok(true, 'The playback is stalled');
+                    player.destroy();
+                    ready();
+                })
+                .on('ready', () => {
+                    player.play();
+                })
+                .init();
+
+            mediaMock(player.getMedia(), mediaConfig);
+
+            Object.assign(player.getMedia(), {
+                play() {
+                    const error = Object.create(MediaError);
+                    this.readyState = data.readyState;
+                    error.code = data.code;
+                    return Promise.reject();
+                }
+            });
+        });
+
+    QUnit.cases
+        .init([{ title: 'NotAllowedError' }, { title: 'AbortError' }])
+        .test('play/error preventing to play immediately ', (data, assert) => {
+            assert.expect(1);
+            const ready = assert.async();
+            const $container = $('#qunit-fixture');
+            const config = { sources: [videoMP4], type: 'video', stalledDetectionDelay: 20 };
+            const player = playerFactory($container, config);
+
+            parseHTMLMock.install();
+
+            player
+                .on('play', () => {
+                    assert.ok(false, 'The playback should not start');
+                })
+                .on('stalled', () => {
+                    assert.ok(false, 'The playback should not be stalled');
+                })
+                .on('ready', () => {
+                    player.play();
+                })
+                .init();
+
+            mediaMock(player.getMedia(), mediaConfig);
+
+            Object.assign(player.getMedia(), {
+                play() {
+                    const error = new Error('Cannot play');
+                    error.name = data.title;
+                    setTimeout(() => {
+                        assert.ok(true, 'The playback has not started');
+                        player.destroy();
+                        ready();
+                    }, config.stalledDetectionDelay * 2);
+                    return Promise.reject(error);
+                }
+            });
+        });
+
+    QUnit.cases
+        .init([
+            {
+                title: 'stalled after loadstart',
+                event: 'loadstart'
+            },
+            {
+                title: 'stalled after new load',
+                event: 'waiting'
+            }
+        ])
+        .test('play/playback stalled by network', (data, assert) => {
+            assert.expect(2);
+            const ready = assert.async();
+            const $container = $('#qunit-fixture');
+            const config = { sources: [videoMP4], type: 'video', stalledDetectionDelay: 20 };
+            const player = playerFactory($container, config);
+
+            parseHTMLMock.install();
+
+            player
+                .on('play', () => {
+                    assert.ok(true, 'The playback has started');
+                })
+                .on('stalled', () => {
+                    assert.ok(true, 'The playback is stalled');
+                    player.destroy();
+                    ready();
+                })
+                .on('ready', () => {
+                    player.play();
+                })
+                .init();
+
+            mediaMock(player.getMedia(), mediaConfig);
+
+            const play = player.getMedia().play;
+            Object.assign(player.getMedia(), {
+                play() {
+                    const res = play.call(this);
+                    setTimeout(() => {
+                        this.networkState = HTMLMediaElement.NETWORK_NO_SOURCE;
+                        this.readyState = HTMLMediaElement.HAVE_NOTHING;
+                        $(this).trigger(data.event);
+                    }, config.stalledDetectionDelay / 2);
+                    return res;
+                }
+            });
+        });
+
+    QUnit.test('play/playback stalled by no progress', assert => {
+        assert.expect(2);
+        const ready = assert.async();
+        const $container = $('#qunit-fixture');
+        const config = { sources: [videoMP4], type: 'video', stalledDetectionDelay: 20 };
+        const player = playerFactory($container, config);
+
+        parseHTMLMock.install();
+
+        player
+            .on('play', () => {
+                assert.ok(true, 'The playback has started');
+            })
+            .on('stalled', () => {
+                assert.ok(true, 'The playback is stalled');
+                player.destroy();
+                ready();
+            })
+            .on('timeupdate', () => {
+                player.getMedia().stopPolling();
+            })
+            .on('ready', () => {
+                player.play();
+                $(player.getMedia())
+                    .on('error', e => e.stopPropagation()) // prevent the error to be caught by the logger
+                    .trigger('error');
+            })
+            .init();
+
+        mediaMock(player.getMedia(), mediaConfig);
+    });
+
+    QUnit.test('play/playback stalled with jump to the end', assert => {
+        assert.expect(2);
+        const ready = assert.async();
+        const $container = $('#qunit-fixture');
+        const config = { sources: [videoMP4], type: 'video', stalledDetectionDelay: 20 };
+        const player = playerFactory($container, config);
+
+        parseHTMLMock.install();
+
+        player
+            .on('play', () => {
+                assert.ok(true, 'The playback has started');
+            })
+            .on('stalled', () => {
+                assert.ok(true, 'The playback is stalled');
+                player.destroy();
+                ready();
+            })
+            .after('timeupdate.test', () => {
+                player.off('timeupdate.test');
+                const media = player.getMedia();
+                media.currentTime = media.duration;
+            })
+            .on('ready', () => {
+                player.play();
+                $(player.getMedia())
+                    .on('error', e => e.stopPropagation()) // prevent the error to be caught by the logger
+                    .trigger('error');
+            })
+            .init();
+
+        mediaMock(player.getMedia(), mediaConfig);
+    });
+
+    QUnit.test('play/playback stalled with jump not applied', assert => {
+        assert.expect(2);
+        const ready = assert.async();
+        const $container = $('#qunit-fixture');
+        const config = { sources: [videoMP4], type: 'video', stalledDetectionDelay: 20 };
+        const player = playerFactory($container, config);
+
+        parseHTMLMock.install();
+
+        player
+            .on('play', () => {
+                assert.ok(true, 'The playback has started');
+            })
+            .on('stalled', () => {
+                assert.ok(true, 'The playback is stalled');
+                player.destroy();
+                ready();
+            })
+            .on('ready', () => {
+                player.play();
+                player.seek(10);
+                const media = player.getMedia();
+                media.currentTime = media.duration - 10;
+                $(media).trigger('seeked');
+            })
+            .init();
+
+        mediaMock(player.getMedia(), mediaConfig);
+    });
+
+    QUnit.test('play/playback stalled then recovered', assert => {
+        assert.expect(3);
+        const ready = assert.async();
+        const $container = $('#qunit-fixture');
+        const config = { sources: [videoMP4], type: 'video', stalledDetectionDelay: 20 };
+        const player = playerFactory($container, config);
+
+        parseHTMLMock.install();
+
+        player
+            .on('play', () => {
+                assert.ok(true, 'The playback has started');
+            })
+            .on('stalled', () => {
+                assert.ok(true, 'The playback is stalled');
+
+                player
+                    .off('play')
+                    .on('loadstart', () => {
+                        assert.ok(true, 'The media is reloaded');
+                    })
+                    .on('play', () => {
+                        assert.ok(true, 'The playback has resumed');
+                        player.destroy();
+                        ready();
+                    })
+                    .recover();
+            })
+            .on('timeupdate', () => {
+                player.getMedia().stopPolling();
+            })
+            .on('ready', () => {
+                player.play();
+                $(player.getMedia())
+                    .on('error', e => e.stopPropagation()) // prevent the error to be caught by the logger
+                    .trigger('error');
+            })
+            .init();
+
+        mediaMock(player.getMedia(), mediaConfig);
+    });
+
     QUnit.test('mute', assert => {
         assert.expect(6);
         const ready = assert.async();
