@@ -55,7 +55,7 @@ define([
     };
     const parseHTMLMock = parseHTMLMockFactory(parseHTMLFilter);
 
-    QUnit.module('players', {
+    QUnit.module('html5 player', {
         afterEach() {
             support.reset();
             UrlParser.reset();

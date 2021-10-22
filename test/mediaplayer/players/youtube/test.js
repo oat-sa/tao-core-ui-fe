@@ -23,7 +23,7 @@ define([
 ], function ($, playerFactory, youtubeManagerFactory, support) {
     'use strict';
 
-    QUnit.module('players', {
+    QUnit.module('youtube player', {
         afterEach() {
             support.reset();
         }
@@ -144,11 +144,7 @@ define([
                     videoSrc1,
                     'The player has been set with the right video source'
                 );
-                assert.equal(
-                    $media.attr('data-video-id'),
-                    videoId1,
-                    'The player has been set with the right video id'
-                );
+                assert.equal($media.attr('data-video-id'), videoId1, 'The player has been set with the right video id');
                 assert.equal(
                     $media.attr('data-video-list'),
                     `${videoId2},${videoId3}`,
@@ -498,11 +494,7 @@ define([
             .on('ready', () => {
                 const $media = $container.find('.media');
                 assert.equal($media.length, 1, 'The player has been rendered');
-                assert.equal(
-                    $media.attr('data-video-id'),
-                    videoId1,
-                    'The player has been set with the right video id'
-                );
+                assert.equal($media.attr('data-video-id'), videoId1, 'The player has been set with the right video id');
                 assert.equal(
                     $media.attr('data-video-list'),
                     videoId2,
@@ -541,11 +533,7 @@ define([
             .on('ready', () => {
                 const $media = $container.find('.media');
                 assert.equal($media.length, 1, 'The player has been rendered');
-                assert.equal(
-                    $media.attr('data-video-id'),
-                    videoId2,
-                    'The player has been set with the right video id'
-                );
+                assert.equal($media.attr('data-video-id'), videoId2, 'The player has been set with the right video id');
                 assert.equal(
                     $media.attr('data-video-list'),
                     videoId3,
