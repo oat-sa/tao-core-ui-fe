@@ -21,10 +21,10 @@ define(['ui/mediaplayer/utils/reminder'], function (reminderManagerFactory) {
     let performanceNow;
 
     QUnit.module('reminderManager', {
-        beforeEach: function() {
+        beforeEach: function () {
             performanceNow = performance.now;
         },
-        afterEach: function() {
+        afterEach: function () {
             performance.now = performanceNow;
         }
     });
@@ -40,12 +40,7 @@ define(['ui/mediaplayer/utils/reminder'], function (reminderManagerFactory) {
     });
 
     QUnit.cases
-        .init([
-            { title: 'start' },
-            { title: 'stop' },
-            { title: 'remind' },
-            { title: 'forget' }
-        ])
+        .init([{ title: 'start' }, { title: 'stop' }, { title: 'remind' }, { title: 'forget' }])
         .test('API ', (data, assert) => {
             const instance = reminderManagerFactory();
             assert.equal(
@@ -84,7 +79,7 @@ define(['ui/mediaplayer/utils/reminder'], function (reminderManagerFactory) {
         let timeoutPassed = false;
 
         const cb = () => {
-            assert.ok(timeoutPassed, 'Callback was called after expected time')
+            assert.ok(timeoutPassed, 'Callback was called after expected time');
             reminderManager.stop();
             assert.equal(reminderManager.running, false, 'reminderManager is stopped');
             done();
@@ -92,24 +87,135 @@ define(['ui/mediaplayer/utils/reminder'], function (reminderManagerFactory) {
 
         reminderManager.remind(cb, 20); // 20ms
         reminderManager.start();
-        setTimeout(() => timeoutPassed = true, 19);
+        setTimeout(() => (timeoutPassed = true), 19);
     });
 
-    // TODO: remind multiple
+    QUnit.test('Add multiple reminders', assert => {
+        const done = assert.async();
 
-    // TODO: forget named
+        const reminderManager = reminderManagerFactory();
 
-    // TODO: forget all
+        let timeout1Passed = false;
+        let timeout2Passed = false;
+
+        Promise.all([
+            new Promise(resolve => {
+                const cb = () => {
+                    assert.ok(timeout1Passed, 'Callback was called after expected time');
+                    resolve();
+                };
+                reminderManager.remind(cb, 20); // 20ms
+            }),
+            new Promise(resolve => {
+                const cb = () => {
+                    assert.ok(timeout2Passed, 'Callback was called after expected time');
+                    resolve();
+                };
+                reminderManager.remind(cb, 30); // 30ms
+            })
+        ]).then(() => {
+            reminderManager.stop();
+            assert.equal(reminderManager.running, false, 'reminderManager is stopped');
+            done();
+        });
+
+        reminderManager.start();
+        setTimeout(() => (timeout1Passed = true), 19);
+        setTimeout(() => (timeout2Passed = true), 29);
+    });
+
+    QUnit.test('Add reminders, then forget one', assert => {
+        const done = assert.async();
+
+        const reminderManager = reminderManagerFactory();
+
+        let timeout1Passed = false;
+        let reminder1Called = false;
+        let timeout2Passed = false;
+        let reminder2Called = false;
+
+        Promise.all([
+            new Promise(resolve => {
+                const cb = () => {
+                    reminder1Called = true;
+                    assert.ok(false, 'Callback should not have been called');
+                };
+                setTimeout(resolve, 30);
+                reminderManager.remind(cb, 20); // 20ms
+                reminderManager.forget(cb);
+            }),
+            new Promise(resolve => {
+                const cb = () => {
+                    reminder2Called = true;
+                    assert.ok(timeout2Passed, 'Callback was called after expected time');
+                    resolve();
+                };
+                reminderManager.remind(cb, 30); // 30ms
+            })
+        ]).then(() => {
+            assert.ok(!reminder1Called, 'Callback 1 should not have been called');
+            assert.ok(reminder2Called, 'Callback 2 should have been called');
+            assert.ok(timeout1Passed, 'Passed the expected time for callback 1');
+            assert.ok(timeout2Passed, 'Passed the expected time for callback 2');
+
+            reminderManager.stop();
+            assert.equal(reminderManager.running, false, 'reminderManager is stopped');
+            done();
+        });
+
+        reminderManager.start();
+        setTimeout(() => (timeout1Passed = true), 19);
+        setTimeout(() => (timeout2Passed = true), 29);
+    });
+
+    QUnit.test('Add reminders, then forget all', assert => {
+        const done = assert.async();
+
+        const reminderManager = reminderManagerFactory();
+
+        let timeout1Passed = false;
+        let reminder1Called = false;
+        let timeout2Passed = false;
+        let reminder2Called = false;
+
+        Promise.all([
+            new Promise(resolve => {
+                const cb = () => {
+                    reminder1Called = true;
+                    assert.ok(false, 'Callback should not have been called');
+                };
+                setTimeout(resolve, 30);
+                reminderManager.remind(cb, 20); // 20ms
+            }),
+            new Promise(resolve => {
+                const cb = () => {
+                    reminder2Called = true;
+                    assert.ok(false, 'Callback should not have been called');
+                };
+                setTimeout(resolve, 40);
+                reminderManager.remind(cb, 30); // 30ms
+            })
+        ]).then(() => {
+            assert.ok(!reminder1Called, 'Callback 1 should not have been called');
+            assert.ok(!reminder2Called, 'Callback 2 should not have been called');
+            assert.ok(timeout1Passed, 'Passed the expected time for callback 1');
+            assert.ok(timeout2Passed, 'Passed the expected time for callback 2');
+
+            reminderManager.stop();
+            assert.equal(reminderManager.running, false, 'reminderManager is stopped');
+            done();
+        });
+
+        reminderManager.start();
+        reminderManager.forget();
+        setTimeout(() => (timeout1Passed = true), 19);
+        setTimeout(() => (timeout2Passed = true), 29);
+    });
 
     QUnit.test('Chaining', assert => {
         const cb = () => {};
         const reminderManager = reminderManagerFactory();
-        reminderManager
-            .stop()
-            .start()
-            .remind(cb, 10)
-            .forget(cb)
-            .stop();
+        reminderManager.stop().start().remind(cb, 10).forget(cb).stop();
         assert.ok(true, 'No error thrown => reminderManager methods are chainable');
     });
 });
