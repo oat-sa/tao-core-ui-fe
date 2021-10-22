@@ -281,7 +281,7 @@ export default function advancedSearchFactory(config) {
 
         const $criterionContainer = $(`.${criterion.id}-filter`, $container);
         const valueMapping = criteriaMapping[criterion.type];
-        
+
         /**
          * On criterion of type list with a uri endpoint to retrieve options, template includes a select
          * that is managed with select2, so we init it here
@@ -297,7 +297,7 @@ export default function advancedSearchFactory(config) {
                             subject: term
                         };
                     },
-                    results: (response) => ({ 
+                    results: (response) => ({
                           results: response.data.map(option => ({ id: valueMapping === 'uri' ? option.uri : option.label, text: option.label }))
                     })
                 },
@@ -423,8 +423,6 @@ export default function advancedSearchFactory(config) {
         _.forEach(classTree, classInstance => {
             criteria.push(...classInstance.metadata);
         });
-
-        criteria = _.uniq(criteria, 'label');
 
         // extends each criterion with an id that can be use as a valid css class
         _.forEach(criteria, criterion => (criterion.id = criterion.label.replace(/^[^a-zA-Z]*|[^a-zA-Z0-9]*/g, '')));
