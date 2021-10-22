@@ -395,14 +395,15 @@ export default function advancedSearchFactory(config) {
     function removeCriterion(event) {
         const criterion = event.data.criterion;
         const newOption = createCriteriaOption(criterion);
+        const criterionKey = getCriterionStateId(criterion);
 
         // remove criterion and append new criterion to select options
         $(this).parent().remove();
         $criteriaSelect.append(newOption);
 
         // reset criterion values on criteriaState
-        criteriaState[criterion.label].rendered = false;
-        criteriaState[criterion.label].value = undefined;
+        criteriaState[criterionKey].rendered = false;
+        criteriaState[criterionKey].value = undefined;
 
         // check if advanced criteria container is no longer scrollable
         if ($advancedCriteriaContainer.get(0).scrollHeight <= $advancedCriteriaContainer.outerHeight()) {
@@ -475,12 +476,14 @@ export default function advancedSearchFactory(config) {
 
         _.forEach(criteriaState, oldCriterion => {
             const deprecatedCriterion = !criteria.find(newCriterion => newCriterion.label === oldCriterion.label);
+            const oldCriterionKey = getCriterionStateId(oldCriterion);
+
             if (deprecatedCriterion) {
-                if (criteriaState[oldCriterion.label].rendered) {
+                if (criteriaState[oldCriterionKey].rendered) {
                     $advancedCriteriaContainer.find(`.${oldCriterion.id}-filter`).remove();
                     invalidCriteria.push(oldCriterion.label);
                 }
-                delete criteriaState[oldCriterion.label];
+                delete criteriaState[oldCriterionKey];
             }
         });
 
@@ -495,9 +498,10 @@ export default function advancedSearchFactory(config) {
     function extendCriteria(criteria) {
         criteria.forEach(criterion => {
             let createOption = true;
+            const criterionKey = getCriterionStateId(criterion);
 
             // if new criterion was already on criteriaState and had to be rendered, we avoid creating an option for it and render it if it was not
-            if (criteriaState[criterion.label] && criteriaState[criterion.label].rendered === true) {
+            if (criteriaState[criterionKey] && criteriaState[criterionKey].rendered === true) {
                 createOption = false;
 
                 if ($advancedCriteriaContainer.find(`.${criterion.id}-filter`).length === 0) {
@@ -505,9 +509,9 @@ export default function advancedSearchFactory(config) {
                 }
             } else {
                 // if new criterion was not on criteriaState we add it
-                criteriaState[criterion.label] = criterion;
-                criteriaState[criterion.label].rendered = false;
-                criteriaState[criterion.label].value = undefined;
+                criteriaState[criterionKey] = criterion;
+                criteriaState[criterionKey].rendered = false;
+                criteriaState[criterionKey].value = undefined;
             }
 
             // create new option element to criteria select
