@@ -145,12 +145,18 @@ $invalidCriteriaBorder: #266d9c;
 
 // select2 appends dropdown options directly to body, so need a custom class to isolate custom styles
 .criteria-dropdown-select2 {
+    width: 240px !important;
     border: 1px solid $uiGeneralContentBorder;
     box-shadow: $uiGeneralContentBorder 1px 1px 1px;
     input {
         min-width: initial;
         background-image: initial;
     }
+}
+
+.criteria-dropdown-select2 .criteria-dropdown-select2-match-info {
+    color: #999;
+    font-size: 0.8em;
 }
 
 @keyframes rotating {

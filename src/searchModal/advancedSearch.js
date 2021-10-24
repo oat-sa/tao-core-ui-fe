@@ -170,7 +170,10 @@ export default function advancedSearchFactory(config) {
                 $criteriaSelect.select2({
                     containerCssClass: 'criteria-select2',
                     dropdownCssClass: 'criteria-dropdown-select2',
-                    sortResults: results => _.sortBy(results, ['text'])
+                    sortResults: results => _.sortBy(results, ['text']),
+                    escapeMarkup: function(markup) {
+                        return markup;
+                    }
                 });
 
                 // open dropdown when user clicks on add criteria input
@@ -529,8 +532,10 @@ export default function advancedSearchFactory(config) {
      * @returns Option
      */
     function createCriteriaOption(criterion) {
+        const infoText = criterion.isDuplicated ? ' <span class="criteria-dropdown-select2-match-info">/' + criterion.class.label + '</span>' : '';
+
         return new Option(
-            criterion.label,
+            criterion.label + infoText,
             getCriterionStateId(criterion),
             false,
             false
