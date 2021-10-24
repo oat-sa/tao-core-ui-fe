@@ -426,7 +426,10 @@ export default function advancedSearchFactory(config) {
         });
 
         // extends each criterion with an id that can be use as a valid css class
-        _.forEach(criteria, criterion => (criterion.id = criterion.label.replace(/^[^a-zA-Z]*|[^a-zA-Z0-9]*/g, '')));
+        _.forEach(criteria, criterion => {
+            criterion.label = getCriterionLabel(criterion);
+            criterion.id = criterion.label.replace(/^[^a-zA-Z]*|[^a-zA-Z0-9]*/g, '');
+        });
 
         return criteria;
     }
@@ -498,20 +501,20 @@ export default function advancedSearchFactory(config) {
     function extendCriteria(criteria) {
         criteria.forEach(criterion => {
             let createOption = true;
-            const criterionKey = getCriterionStateId(criterion);
+            const criteriaStateId = getCriterionStateId(criterion);
 
             // if new criterion was already on criteriaState and had to be rendered, we avoid creating an option for it and render it if it was not
-            if (criteriaState[criterionKey] && criteriaState[criterionKey].rendered === true) {
+            if (criteriaState[criteriaStateId] && criteriaState[criteriaStateId].rendered === true) {
                 createOption = false;
 
                 if ($advancedCriteriaContainer.find(`.${criterion.id}-filter`).length === 0) {
-                    addNewCriterion(criterion.label);
+                    addNewCriterion(criteriaStateId);
                 }
             } else {
                 // if new criterion was not on criteriaState we add it
-                criteriaState[criterionKey] = criterion;
-                criteriaState[criterionKey].rendered = false;
-                criteriaState[criterionKey].value = undefined;
+                criteriaState[criteriaStateId] = criterion;
+                criteriaState[criteriaStateId].rendered = false;
+                criteriaState[criteriaStateId].value = undefined;
             }
 
             // create new option element to criteria select
@@ -526,9 +529,12 @@ export default function advancedSearchFactory(config) {
      * @returns Option
      */
     function createCriteriaOption(criterion) {
-        const criterionLabel = getCriterionLabel(criterion);
-
-        return new Option(criterionLabel, criterionLabel, false, false);
+        return new Option(
+            criterion.label,
+            getCriterionStateId(criterion),
+            false,
+            false
+        );
     }
 
     /**
@@ -536,7 +542,7 @@ export default function advancedSearchFactory(config) {
      * @returns String
      */
     function getCriterionStateId(criterion) {
-        return getCriterionLabel(criterion);
+        return criterion.alias ? (criterion.label + '_' + criterion.alias) : criterion.label;
     }
 
     /**
@@ -544,7 +550,11 @@ export default function advancedSearchFactory(config) {
      * @returns String
      */
     function getCriterionLabel(criterion) {
-        return criterion.alias ? (criterion.label + ' (' + criterion.alias + ')') : criterion.label;
+        if (criterion.isDuplicated) {
+            return criterion.alias ? (criterion.label + ' (' + criterion.alias + ')') : criterion.label;
+        }
+
+        return criterion.label;
     }
 
     // return initialized instance of searchModal
