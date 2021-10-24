@@ -547,7 +547,11 @@ export default function advancedSearchFactory(config) {
      * @returns String
      */
     function getCriterionStateId(criterion) {
-        return criterion.alias ? (criterion.label + '_' + criterion.alias) : criterion.label;
+        if (criterion.isDuplicated) {
+            return criterion.label + '_' + criterion.class.label + (criterion.alias ? ('_' + criterion.alias) : '');
+        }
+
+        return criterion.label;
     }
 
     /**

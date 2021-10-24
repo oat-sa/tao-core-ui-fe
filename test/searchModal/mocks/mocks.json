@@ -105,7 +105,12 @@
                             "label": "in-both-text",
                             "uri": "in-both-text",
                             "propertyUri": "in-both-text",
-                            "type": "text"
+                            "type": "text",
+                            "alias": null,
+                            "class": {
+                                "label": "ParentClassLabel"
+                            },
+                            "isDuplicated": true
                         },
                         {
                             "id": "in-both-list",
@@ -118,20 +123,35 @@
                                 "value1",
                                 "value2",
                                 "value3"
-                            ]
+                            ],
+                            "alias": null,
+                            "class": {
+                                "label": "ParentClassLabel"
+                            },
+                            "isDuplicated": true
                         },
                         {
                             "id": "in-both-select",
                             "label": "in-both-select",
                             "type": "list",
                             "uri": "in-both-select",
-                            "propertyUri": "in-both-select"
+                            "propertyUri": "in-both-select",
+                            "alias": null,
+                            "class": {
+                                "label": "ParentClassLabel"
+                            },
+                            "isDuplicated": true
                         },
                         {
                             "id": "in-parent-text",
                             "label": "in-parent-text",
                             "type": "text",
-                            "uri": "in-parent-text-uri"
+                            "uri": "in-parent-text-uri",
+                            "alias": null,
+                            "class": {
+                                "label": "ParentClassLabel"
+                            },
+                            "isDuplicated": false
                         }
                     ]
                 },
@@ -141,7 +161,12 @@
                         {
                             "label": "in-both-text",
                             "type": "text",
-                            "uri": "in-both-text-uri"
+                            "uri": "in-both-text-uri",
+                            "alias": null,
+                            "class": {
+                                "label": "ChildClassLabel"
+                            },
+                            "isDuplicated": true
                         },
                         {
                             "label": "in-both-list",
@@ -152,17 +177,32 @@
                                 "value2",
                                 "value3"
                             ],
-                            "uri": "in-both-list-uri"
+                            "uri": "in-both-list-uri",
+                            "alias": null,
+                            "class": {
+                                "label": "ChildClassLabel"
+                            },
+                            "isDuplicated": true
                         },
                         {
                             "label": "in-both-select",
                             "type": "list",
-                            "uri": "foo"
+                            "uri": "foo",
+                            "alias": null,
+                            "class": {
+                                "label": "ChildClassLabel"
+                            },
+                            "isDuplicated": true
                         },
                         {
                             "label": "in-child-text",
                             "type": "text",
-                            "uri": "in-child-text-uri"
+                            "uri": "in-child-text-uri",
+                            "alias": null,
+                            "class": {
+                                "label": "ChildClassLabel"
+                            },
+                            "isDuplicated": false
                         }
                     ]
                 }
@@ -181,48 +221,68 @@
                 "metadata": [
                     {
                         "label": "in-both-text",
-                        "type": "text"
+                        "type": "text",
+                        "alias": null,
+                        "class": {
+                            "label": "ChildClassLabel"
+                        },
+                        "isDuplicated": true
                     },
                     {
                         "label": "in-both-list",
                         "type": "list",
-                        "values": ["value0", "value1", "value2", "value3"]
+                        "values": ["value0", "value1", "value2", "value3"],
+                        "alias": null,
+                        "class": {
+                            "label": "ChildClassLabel"
+                        },
+                        "isDuplicated": true
                     },
                     {
                         "label": "in-both-select",
                         "type": "list",
-                        "uri": "foo"
+                        "uri": "foo",
+                        "alias": null,
+                        "class": {
+                            "label": "ChildClassLabel"
+                        },
+                        "isDuplicated": true
                     },
                     {
                         "label": "in-child-text",
-                        "type": "text"
+                        "type": "text",
+                        "alias": null,
+                        "class": {
+                            "label": "ChildClassLabel"
+                        },
+                        "isDuplicated": false
                     }
                 ]
             }
         ]
     },
     "mockedCriteriaStore": {
-        "in-both-list": {
+        "in-both-list_ParentClassLabel": {
             "label": "in-both-list",
-            "id": "inbothlist",
+            "id": "inbothlistParentClassLabel",
             "type": "list",
             "values": ["easy", "medium", "hard"],
             "uri": "in-both-list",
             "rendered": true,
             "value": ["easy"]
         },
-        "in-both-text": {
+        "in-both-text_ParentClassLabel": {
             "label": "in-both-text",
-            "id": "inbothtext",
+            "id": "inbothtextParentClassLabel",
             "type": "text",
             "values": null,
             "uri": "in-both-text",
             "rendered": true,
             "value": "foo"
         },
-        "in-both-select": {
+        "in-both-select_ParentClassLabel": {
             "label": "in-both-select",
-            "id": "inbothselect",
+            "id": "inbothselectParentClassLabel",
             "type": "list",
             "values": null,
             "uri": "/tao/PropertyValues/get?propertyUri=https%3A%2F%2Ftao3.docker.localhost%2Fontologies%2Ftao.rdf%23i5f7dcc4e2e0a56945f7e59e65d0b990",
