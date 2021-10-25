@@ -532,7 +532,7 @@ export default function advancedSearchFactory(config) {
      * @returns Option
      */
     function createCriteriaOption(criterion) {
-        const infoText = criterion.isDuplicated ? ' <span class="criteria-dropdown-select2-match-info">/' + criterion.class.label + '</span>' : '';
+        const infoText = criterion.isDuplicated ? ' <span class="class-path">/' + criterion.class.label + '</span>' : '';
 
         return new Option(
             criterion.label + infoText,
