@@ -532,7 +532,7 @@ export default function advancedSearchFactory(config) {
      * @returns Option
      */
     function createCriteriaOption(criterion) {
-        const infoText = criterion.isDuplicated ? ' <span class="class-path">/' + criterion.class.label + '</span>' : '';
+        const infoText = criterion.isDuplicated ? ` <span class="class-path">/${criterion.class.label}</span>` : '';
 
         return new Option(
             criterion.label + infoText,
@@ -548,7 +548,7 @@ export default function advancedSearchFactory(config) {
      */
     function getCriterionStateId(criterion) {
         if (criterion.isDuplicated) {
-            return criterion.label + '_' + criterion.class.label + (criterion.alias ? ('_' + criterion.alias) : '');
+            return `${criterion.label}_${criterion.class.label}${criterion.alias ? ('_' + criterion.alias) : ''}`;
         }
 
         return criterion.label;
@@ -560,7 +560,7 @@ export default function advancedSearchFactory(config) {
      */
     function getCriterionLabel(criterion) {
         if (criterion.isDuplicated) {
-            return criterion.alias ? (criterion.label + ' (' + criterion.alias + ')') : criterion.label;
+            return criterion.alias ? `${criterion.label} (${criterion.alias})` : criterion.label;
         }
 
         return criterion.label;

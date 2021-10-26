@@ -164,6 +164,10 @@ $invalidCriteriaBorder: #266d9c;
     font-size: 0.8em;
 }
 
+.select2-highlighted .class-path {
+    color: #FFF;
+}
+
 @keyframes rotating {
     from {
         transform: rotate(0deg);
