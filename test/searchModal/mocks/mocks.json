@@ -104,7 +104,7 @@
                             "id": "in-both-text",
                             "label": "in-both-text",
                             "uri": "in-both-text",
-                            "propertyUri": "in-both-text",
+                            "propertyUri": "inBothTextParentUri",
                             "type": "text",
                             "alias": null,
                             "class": {
@@ -116,7 +116,7 @@
                             "id": "in-both-list",
                             "label": "in-both-list",
                             "uri": "in-both-list",
-                            "propertyUri": "in-both-list",
+                            "propertyUri": "inBothListParentUri",
                             "type": "list",
                             "values": [
                                 "value0",
@@ -135,7 +135,7 @@
                             "label": "in-both-select",
                             "type": "list",
                             "uri": "in-both-select",
-                            "propertyUri": "in-both-select",
+                            "propertyUri": "inBothSelectParentUri",
                             "alias": null,
                             "class": {
                                 "label": "ParentClassLabel"
@@ -147,6 +147,7 @@
                             "label": "in-parent-text",
                             "type": "text",
                             "uri": "in-parent-text-uri",
+                            "propertyUri": "inParentTextUri",
                             "alias": null,
                             "class": {
                                 "label": "ParentClassLabel"
@@ -162,6 +163,7 @@
                             "label": "in-both-text",
                             "type": "text",
                             "uri": "in-both-text-uri",
+                            "propertyUri": "inBothTextChildUri",
                             "alias": null,
                             "class": {
                                 "label": "ChildClassLabel"
@@ -178,6 +180,7 @@
                                 "value3"
                             ],
                             "uri": "in-both-list-uri",
+                            "propertyUri": "inBothListChildUri",
                             "alias": null,
                             "class": {
                                 "label": "ChildClassLabel"
@@ -188,6 +191,7 @@
                             "label": "in-both-select",
                             "type": "list",
                             "uri": "foo",
+                            "propertyUri": "inBothSelectChildUri",
                             "alias": null,
                             "class": {
                                 "label": "ChildClassLabel"
@@ -198,6 +202,7 @@
                             "label": "in-child-text",
                             "type": "text",
                             "uri": "in-child-text-uri",
+                            "propertyUri": "inChildTextUri",
                             "alias": null,
                             "class": {
                                 "label": "ChildClassLabel"
@@ -221,6 +226,8 @@
                 "metadata": [
                     {
                         "label": "in-both-text",
+                        "uri": "in-both-text-uri",
+                        "propertyUri": "inBothTextChildUri",
                         "type": "text",
                         "alias": null,
                         "class": {
@@ -230,6 +237,8 @@
                     },
                     {
                         "label": "in-both-list",
+                        "uri": "in-both-list-uri",
+                        "propertyUri": "inBothListChildUri",
                         "type": "list",
                         "values": ["value0", "value1", "value2", "value3"],
                         "alias": null,
@@ -242,6 +251,7 @@
                         "label": "in-both-select",
                         "type": "list",
                         "uri": "foo",
+                        "propertyUri": "inBothSelectChildUri",
                         "alias": null,
                         "class": {
                             "label": "ChildClassLabel"
@@ -250,6 +260,8 @@
                     },
                     {
                         "label": "in-child-text",
+                        "uri": "in-child-text-uri",
+                        "propertyUri": "inChildTextUri",
                         "type": "text",
                         "alias": null,
                         "class": {
@@ -262,27 +274,27 @@
         ]
     },
     "mockedCriteriaStore": {
-        "in-both-list_ParentClassLabel": {
+        "inBothListParentUri": {
             "label": "in-both-list",
-            "id": "inbothlistParentClassLabel",
+            "id": "inBothListParentUri",
             "type": "list",
             "values": ["easy", "medium", "hard"],
             "uri": "in-both-list",
             "rendered": true,
             "value": ["easy"]
         },
-        "in-both-text_ParentClassLabel": {
+        "inBothTextParentUri": {
             "label": "in-both-text",
-            "id": "inbothtextParentClassLabel",
+            "id": "inBothTextParentUri",
             "type": "text",
             "values": null,
             "uri": "in-both-text",
             "rendered": true,
             "value": "foo"
         },
-        "in-both-select_ParentClassLabel": {
+        "inBothSelectParentUri": {
             "label": "in-both-select",
-            "id": "inbothselectParentClassLabel",
+            "id": "inBothSelectParentUri",
             "type": "list",
             "values": null,
             "uri": "/tao/PropertyValues/get?propertyUri=https%3A%2F%2Ftao3.docker.localhost%2Fontologies%2Ftao.rdf%23i5f7dcc4e2e0a56945f7e59e65d0b990",

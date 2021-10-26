@@ -155,7 +155,7 @@
             const $addCriteria = $('.add-criteria-container', $container);
             const $addCriteriaInput = $('.add-criteria-container a', $container);
             const $criteriaSelect = $('.add-criteria-container select', $container);
-            let $optionToSelect = $criteriaSelect.find('option[value="in-both-text_ParentClassLabel"]');
+            let $optionToSelect = $criteriaSelect.find('option[value="inBothTextParentUri"]');
 
             // check initial state
             assert.equal($optionToSelect.length, 1, 'criterion to select is initially on select options');
@@ -163,23 +163,23 @@
             // select a criterion
             $addCriteriaInput.trigger('click');
             assert.equal($criteriaSelect.select2('opened'), true, 'critera select is opened on click');
-            $criteriaSelect.select2('val', 'in-both-text_ParentClassLabel').trigger('change');
+            $criteriaSelect.select2('val', 'inBothTextParentUri').trigger('change');
 
             // check state after criterion is select
-            $optionToSelect = $criteriaSelect.find('option[value="in-both-text_ParentClassLabel"]');
-            assert.equal($criteriaContainer.find('.inbothtext-filter').length, 1, 'criterion is added to DOM');
+            $optionToSelect = $criteriaSelect.find('option[value="inBothTextParentUri"]');
+            assert.equal($criteriaContainer.find('.inBothTextParentUri-filter').length, 1, 'criterion is added to DOM');
             assert.equal($criteriaSelect.select2('opened'), false, 'critera select is closed after adding a criteria');
             assert.equal($optionToSelect.length, 0, 'selected criterion is not longer on select options');
 
             // close added criterion
-            $criteriaContainer.find('.inbothtext-filter .icon-result-nok').trigger('click');
-            $optionToSelect = $criteriaSelect.find('option[value="in-both-text_ParentClassLabel"]');
-            assert.equal($criteriaContainer.find('.inbothtext-filter').length, 0, 'criterion was removed');
+            $criteriaContainer.find('.inBothTextParentUri-filter .icon-result-nok').trigger('click');
+            $optionToSelect = $criteriaSelect.find('option[value="inBothTextParentUri"]');
+            assert.equal($criteriaContainer.find('.inBothTextParentUri-filter').length, 0, 'criterion was removed');
             assert.equal($optionToSelect.length, 1, 'criterion is selectable again');
 
             // add a criterion that is not available on child class
-            $criteriaSelect.select2('val', 'in-parent-text').trigger('change');
-            assert.equal($criteriaContainer.find('.inparenttext-filter').length, 1, 'criterion is added to DOM');
+            $criteriaSelect.select2('val', 'inParentTextUri').trigger('change');
+            assert.equal($criteriaContainer.find('.inParentTextUri-filter').length, 1, 'criterion is added to DOM');
 
             // change current class and check that unavailable criterion has been removed
             const $qtiInteractionsClassNode = $('.class-tree [title="QTI Interactions"]');
@@ -191,8 +191,8 @@
                 assert.equal($container.find('.invalid-criteria-warning-container').length, 1, 'warning rendered');
 
                 // add a new criterion
-                $criteriaSelect.select2('val', 'in-child-text').trigger('change');
-                assert.equal($criteriaContainer.find('.inchildtext-filter').length, 1, 'criterion is added to DOM');
+                $criteriaSelect.select2('val', 'inChildTextUri').trigger('change');
+                assert.equal($criteriaContainer.find('.inChildTextUri-filter').length, 1, 'criterion is added to DOM');
                 assert.equal($container.find('.invalid-criteria-warning-container').length, 0, 'warning removed');
 
                 // clear current search
@@ -229,16 +229,16 @@
                 assert.equal($criteriaContainer.children().length, 0, 'container for criteria is empty');
 
                 // set a default value for each criterion
-                instance.getState()['in-both-text_ParentClassLabel'].value = 'default value0';
-                instance.getState()['in-both-select_ParentClassLabel'].value = ['value0'];
-                instance.getState()['in-both-list_ParentClassLabel'].value = ['value1'];
+                instance.getState()['inBothTextParentUri'].value = 'default value0';
+                instance.getState()['inBothSelectParentUri'].value = ['value0'];
+                instance.getState()['inBothListParentUri'].value = ['value1'];
 
                 // render a criterion from each type
-                $criteriaSelect.select2('val', 'in-both-text_ParentClassLabel').trigger('change');
-                $criteriaSelect.select2('val', 'in-both-select_ParentClassLabel').trigger('change');
-                $criteriaSelect.select2('val', 'in-both-list_ParentClassLabel').trigger('change');
-                const $criterionTextInput = $criteriaContainer.find('.inbothtext-filter input');
-                const $criterionSelectInput = $criteriaContainer.find('.inbothselect-filter input');
+                $criteriaSelect.select2('val', 'inBothTextParentUri').trigger('change');
+                $criteriaSelect.select2('val', 'inBothSelectParentUri').trigger('change');
+                $criteriaSelect.select2('val', 'inBothListParentUri').trigger('change');
+                const $criterionTextInput = $criteriaContainer.find('.inBothTextParentUri-filter input');
+                const $criterionSelectInput = $criteriaContainer.find('.inBothSelectParentUri-filter input');
 
                 // Checkboxes are temporary replaced with select2
                 // const $criterionListSelected = $criteriaContainer
@@ -248,7 +248,7 @@
                 //         return checkbox.value;
                 //     });
 
-                const $criterionListSelected = $criteriaContainer.find('.inbothlist-filter input');
+                const $criterionListSelected = $criteriaContainer.find('.inBothListParentUri-filter input');
 
                 // check default value on each criterion type
                 await nextTick();
@@ -256,7 +256,7 @@
                 assert.deepEqual(
                     $criterionSelectInput.select2('val'),
                     ['value0'],
-                    'select criterion correctly initialized ==>' + JSON.stringify($criterionSelectInput.select2('val'))
+                    'select criterion correctly initialized'
                 );
 
                 assert.deepEqual($criterionListSelected.select2('val'), ['value1'], 'list criterion correctly initialized');
@@ -266,17 +266,17 @@
 
                 // Checkboxes are temporary replaced with select2
                 // $criteriaContainer
-                //     .find('.inbothlist-filter input[type=checkbox][value=value2]')
+                //     .find('.inBothListParentUri-filter input[type=checkbox][value=value2]')
                 //     .prop('checked', true)
                 //     .trigger('change');
-                $criteriaContainer.find('.inbothlist-filter .select2-choices').click();
+                $criteriaContainer.find('.inBothListParentUri-filter .select2-choices').click();
                 await nextTick(200);
                 $('.select2-results .select2-selected + * .select2-result-label').mouseup();
                 await nextTick(200);
                 // check updated value on each criterion
-                assert.equal(instance.getState()['in-both-text_ParentClassLabel'].value, 'foo0', 'text criterion correctly updated');
+                assert.equal(instance.getState()['inBothTextParentUri'].value, 'foo0', 'text criterion correctly updated');
                 assert.deepEqual(
-                    instance.getState()['in-both-list_ParentClassLabel'].value,
+                    instance.getState()['inBothListParentUri'].value,
                     ['value1', 'value2'],
                     'list criteria correctly updated'
                 );
@@ -285,8 +285,8 @@
                 assert.equal(
                     query,
                     // TODO: change 2nd AND to OR when functionality is developed on BE
-                    'in-both-text:foo0 AND in-both-list:value1 AND value2 AND in-both-select:value0',
-                    'advanced search query is correctly built ==> ' + query
+                    'inBothTextParentUri:foo0 AND inBothListParentUri:value1 AND value2 AND inBothSelectParentUri:value0',
+                    'advanced search query is correctly built'
                 );
                 instance.destroy();
                 ready();

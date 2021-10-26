@@ -431,7 +431,7 @@ export default function advancedSearchFactory(config) {
         // extends each criterion with an id that can be use as a valid css class
         _.forEach(criteria, criterion => {
             criterion.label = getCriterionLabel(criterion);
-            criterion.id = criterion.label.replace(/^[^a-zA-Z]*|[^a-zA-Z0-9]*/g, '');
+            criterion.id = criterion.propertyUri.replace(/^[^a-zA-Z]*|[^a-zA-Z0-9]*/g, '');
         });
 
         return criteria;
@@ -547,11 +547,7 @@ export default function advancedSearchFactory(config) {
      * @returns String
      */
     function getCriterionStateId(criterion) {
-        if (criterion.isDuplicated) {
-            return `${criterion.label}_${criterion.class.label}${criterion.alias ? ('_' + criterion.alias) : ''}`;
-        }
-
-        return criterion.label;
+        return criterion.propertyUri;
     }
 
     /**
