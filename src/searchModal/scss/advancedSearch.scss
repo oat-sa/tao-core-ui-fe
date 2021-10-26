@@ -36,7 +36,7 @@ $invalidCriteriaBorder: #266d9c;
             visibility: hidden;
             position: absolute;
             left: 0;
-            width: 70%;
+            width: calc(100% - 20px);
         }
         &.disabled {
             display: none;
@@ -145,7 +145,6 @@ $invalidCriteriaBorder: #266d9c;
 
 // select2 appends dropdown options directly to body, so need a custom class to isolate custom styles
 .criteria-dropdown-select2 {
-    width: 240px !important;
     border: 1px solid $uiGeneralContentBorder;
     box-shadow: $uiGeneralContentBorder 1px 1px 1px;
     input {
