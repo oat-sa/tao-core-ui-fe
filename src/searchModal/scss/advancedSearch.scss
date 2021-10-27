@@ -36,7 +36,7 @@ $invalidCriteriaBorder: #266d9c;
             visibility: hidden;
             position: absolute;
             left: 0;
-            width: 70%;
+            width: calc(100% - 20px);
         }
         &.disabled {
             display: none;
@@ -151,6 +151,20 @@ $invalidCriteriaBorder: #266d9c;
         min-width: initial;
         background-image: initial;
     }
+}
+
+.advanced-search-container .class-path {
+    color: #616161;
+    font-size: 0.8em;
+}
+
+.criteria-dropdown-select2 .class-path {
+    color: #808080;
+    font-size: 0.8em;
+}
+
+.select2-highlighted .class-path {
+    color: #FFF;
 }
 
 @keyframes rotating {
