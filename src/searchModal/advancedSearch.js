@@ -173,6 +173,9 @@ export default function advancedSearchFactory(config) {
                     sortResults: results => _.sortBy(results, ['text']),
                     escapeMarkup: function(markup) {
                         return markup;
+                    },
+                    formatResult: function formatResult(result, container, query, escapedMarkup) {
+                        return result.text;
                     }
                 });
 
