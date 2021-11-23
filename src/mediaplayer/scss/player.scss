@@ -355,9 +355,11 @@ $controlsHeight: 36px;
                 cursor: pointer;
             }
 
-            .player:hover {
-                [data-control="play"] {
-                    display: inline-block;
+            &:not(.audio) {
+                .player:hover {
+                    [data-control="play"] {
+                        display: inline-block;
+                    }
                 }
             }
 
@@ -375,9 +377,11 @@ $controlsHeight: 36px;
                 cursor: pointer;
             }
 
-            .player:hover {
-                [data-control="pause"] {
-                    display: inline-block;
+            &:not(.audio) {
+                .player:hover {
+                    [data-control="pause"] {
+                        display: inline-block;
+                    }
                 }
             }
         }
