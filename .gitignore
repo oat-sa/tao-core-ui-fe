@@ -64,7 +64,10 @@ typings/
 /dist
 css/
 
-# phpstorm files
+# IDE files
 .idea/
+.vscode/
+
+.DS_Store
 
 eslint_report.json

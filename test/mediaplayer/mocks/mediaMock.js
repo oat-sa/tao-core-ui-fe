@@ -26,31 +26,10 @@ define(['jquery'], function ($) {
         let currentTime = 0;
         let pollingHandler;
         let playing = false;
-        const startPolling = () => {
-            if (!pollingHandler) {
-                pollingHandler = setInterval(() => {
-                    if (element.currentTime < duration) {
-                        element.currentTime += polling;
-                        $element.trigger('timeupdate');
-                    } else {
-                        stopPolling();
-                        if (playing) {
-                            $element.trigger('ended');
-                        }
-                    }
-                }, polling);
-            }
-        }
-        const stopPolling = () => {
-            if (pollingHandler) {
-                clearInterval(pollingHandler);
-            }
-            pollingHandler = null;
-        };
 
         Object.assign(element, {
-            networkState: 0,
-            readyState: 0,
+            networkState: HTMLMediaElement.NETWORK_IDLE,
+            readyState: HTMLMediaElement.HAVE_ENOUGH_DATA,
             currentSrc: '',
             videoWidth,
             videoHeight,
@@ -66,9 +45,8 @@ define(['jquery'], function ($) {
                 return currentTime;
             },
             set currentTime(value) {
-                console.log('update', value);
                 if (value >= duration) {
-                    stopPolling();
+                    this.stopPolling();
                     currentTime = duration;
                     playing = false;
                     $element.trigger('ended');
@@ -80,13 +58,37 @@ define(['jquery'], function ($) {
                 $element.trigger('play');
                 $element.trigger('playing');
                 playing = true;
-                startPolling();
+                this.startPolling();
                 return Promise.resolve();
             },
             pause() {
-                stopPolling();
+                this.stopPolling();
                 playing = false;
                 $element.trigger('pause');
+            },
+            load() {
+                $element.trigger('loadstart');
+            },
+            startPolling() {
+                if (!pollingHandler) {
+                    pollingHandler = setInterval(() => {
+                        if (element.currentTime < duration) {
+                            element.currentTime += polling;
+                            $element.trigger('timeupdate');
+                        } else {
+                            this.stopPolling();
+                            if (playing) {
+                                $element.trigger('ended');
+                            }
+                        }
+                    }, polling);
+                }
+            },
+            stopPolling() {
+                if (pollingHandler) {
+                    clearInterval(pollingHandler);
+                }
+                pollingHandler = null;
             }
         });
 

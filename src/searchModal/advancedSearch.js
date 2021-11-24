@@ -170,7 +170,13 @@ export default function advancedSearchFactory(config) {
                 $criteriaSelect.select2({
                     containerCssClass: 'criteria-select2',
                     dropdownCssClass: 'criteria-dropdown-select2',
-                    sortResults: results => _.sortBy(results, ['text'])
+                    sortResults: results => _.sortBy(results, ['text']),
+                    escapeMarkup: function(markup) {
+                        return markup;
+                    },
+                    formatResult: function formatResult(result, container, query, escapedMarkup) {
+                        return result.text;
+                    }
                 });
 
                 // open dropdown when user clicks on add criteria input
@@ -281,7 +287,7 @@ export default function advancedSearchFactory(config) {
 
         const $criterionContainer = $(`.${criterion.id}-filter`, $container);
         const valueMapping = criteriaMapping[criterion.type];
-        
+
         /**
          * On criterion of type list with a uri endpoint to retrieve options, template includes a select
          * that is managed with select2, so we init it here
@@ -297,7 +303,7 @@ export default function advancedSearchFactory(config) {
                             subject: term
                         };
                     },
-                    results: (response) => ({ 
+                    results: (response) => ({
                           results: response.data.map(option => ({ id: valueMapping === 'uri' ? option.uri : option.label, text: option.label }))
                     })
                 },
@@ -394,15 +400,16 @@ export default function advancedSearchFactory(config) {
      */
     function removeCriterion(event) {
         const criterion = event.data.criterion;
-        const newOption = new Option(criterion.label, criterion.label, false, false);
+        const newOption = createCriteriaOption(criterion);
+        const criterionKey = getCriterionStateId(criterion);
 
         // remove criterion and append new criterion to select options
         $(this).parent().remove();
         $criteriaSelect.append(newOption);
 
         // reset criterion values on criteriaState
-        criteriaState[criterion.label].rendered = false;
-        criteriaState[criterion.label].value = undefined;
+        criteriaState[criterionKey].rendered = false;
+        criteriaState[criterionKey].value = undefined;
 
         // check if advanced criteria container is no longer scrollable
         if ($advancedCriteriaContainer.get(0).scrollHeight <= $advancedCriteriaContainer.outerHeight()) {
@@ -424,10 +431,11 @@ export default function advancedSearchFactory(config) {
             criteria.push(...classInstance.metadata);
         });
 
-        criteria = _.uniq(criteria, 'label');
-
         // extends each criterion with an id that can be use as a valid css class
-        _.forEach(criteria, criterion => (criterion.id = criterion.label.replace(/^[^a-zA-Z]*|[^a-zA-Z0-9]*/g, '')));
+        _.forEach(criteria, criterion => {
+            criterion.label = getCriterionLabel(criterion);
+            criterion.id = criterion.propertyUri.replace(/^[^a-zA-Z]*|[^a-zA-Z0-9]*/g, '');
+        });
 
         return criteria;
     }
@@ -477,12 +485,14 @@ export default function advancedSearchFactory(config) {
 
         _.forEach(criteriaState, oldCriterion => {
             const deprecatedCriterion = !criteria.find(newCriterion => newCriterion.label === oldCriterion.label);
+            const oldCriterionKey = getCriterionStateId(oldCriterion);
+
             if (deprecatedCriterion) {
-                if (criteriaState[oldCriterion.label].rendered) {
+                if (criteriaState[oldCriterionKey].rendered) {
                     $advancedCriteriaContainer.find(`.${oldCriterion.id}-filter`).remove();
                     invalidCriteria.push(oldCriterion.label);
                 }
-                delete criteriaState[oldCriterion.label];
+                delete criteriaState[oldCriterionKey];
             }
         });
 
@@ -497,27 +507,62 @@ export default function advancedSearchFactory(config) {
     function extendCriteria(criteria) {
         criteria.forEach(criterion => {
             let createOption = true;
+            const criteriaStateId = getCriterionStateId(criterion);
 
             // if new criterion was already on criteriaState and had to be rendered, we avoid creating an option for it and render it if it was not
-            if (criteriaState[criterion.label] && criteriaState[criterion.label].rendered === true) {
+            if (criteriaState[criteriaStateId] && criteriaState[criteriaStateId].rendered === true) {
                 createOption = false;
 
                 if ($advancedCriteriaContainer.find(`.${criterion.id}-filter`).length === 0) {
-                    addNewCriterion(criterion.label);
+                    addNewCriterion(criteriaStateId);
                 }
             } else {
                 // if new criterion was not on criteriaState we add it
-                criteriaState[criterion.label] = criterion;
-                criteriaState[criterion.label].rendered = false;
-                criteriaState[criterion.label].value = undefined;
+                criteriaState[criteriaStateId] = criterion;
+                criteriaState[criteriaStateId].rendered = false;
+                criteriaState[criteriaStateId].value = undefined;
             }
 
             // create new option element to criteria select
             if (createOption) {
-                const newOption = new Option(criterion.label, criterion.label, false, false);
-                $criteriaSelect.append(newOption);
+                $criteriaSelect.append(createCriteriaOption(criterion));
             }
         });
+    }
+
+    /**
+     * @param {Object} criterion
+     * @returns Option
+     */
+    function createCriteriaOption(criterion) {
+        const infoText = criterion.isDuplicated ? ` <span class="class-path">/${criterion.class.label}</span>` : '';
+
+        return new Option(
+            criterion.label + infoText,
+            getCriterionStateId(criterion),
+            false,
+            false
+        );
+    }
+
+    /**
+     * @param {Object} criterion
+     * @returns String
+     */
+    function getCriterionStateId(criterion) {
+        return criterion.propertyUri;
+    }
+
+    /**
+     * @param {Object} criterion
+     * @returns String
+     */
+    function getCriterionLabel(criterion) {
+        if (criterion.isDuplicated) {
+            return criterion.alias ? `${criterion.label} (${criterion.alias})` : criterion.label;
+        }
+
+        return criterion.label;
     }
 
     // return initialized instance of searchModal
