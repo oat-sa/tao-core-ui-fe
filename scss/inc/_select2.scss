@@ -1,5 +1,10 @@
 @import 'inc/bootstrap';
 
+@mixin rtl() {
+    [dir=rtl] & {
+        @content;
+    }
+}
 
 .select2-container * {
     text-decoration: none !important
@@ -147,6 +152,9 @@
     border-top: 0;
 
     border-radius: 0 0 2px 2px;
+    @include rtl {
+        direction: rtl;
+    }
 }
 
 .select2-drop-auto-width {
@@ -615,7 +623,7 @@ disabled look for disabled choices in the results dropdown
         color: $textColor;
         opacity: .55 !important;
 
-        .select2-search-field, 
+        .select2-search-field,
         .select2-search-choice-close,
         .select2-arrow {
             display: none;
