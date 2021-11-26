@@ -191,6 +191,7 @@ const isResponsiveSize = sizeProps => {
  * @param {Object} config
  * @param {String} config.type - The type of media to play
  * @param {String|Array} config.url - The URL to the media
+ * @param {String} [config.mimeType] - The MIME type of the media
  * @param {String|jQuery|HTMLElement} [config.renderTo] - An optional container in which renders the player
  * @param {Boolean} [config.canSeek] - The player allows to reach an arbitrary position within the media using the duration bar
  * @param {Boolean} [config.loop] - The media will be played continuously
@@ -232,6 +233,9 @@ function mediaplayerFactory(config) {
             // load the config set, discard null values in order to allow defaults to be set
             this.config = _.omit(config || {}, value => typeof value === 'undefined' || value === null);
             _.defaults(this.config, defaults.options);
+            if (!this.config.mimeType && 'string' === typeof this.config.type && this.config.type.indexOf('/') > 0) {
+                this.config.mimeType = this.config.type;
+            }
             this._setType(this.config.type || defaults.type);
 
             this._reset();
@@ -774,8 +778,12 @@ function mediaplayerFactory(config) {
                 source = _.clone(src);
             }
 
-            if (this.is('youtube') && !source.type) {
-                source.type = defaults.type;
+            if (!source.type) {
+                if (this.is('youtube')) {
+                    source.type = defaults.type;
+                } else if (this.config.mimeType) {
+                    source.type = this.config.mimeType;
+                }
             }
 
             if (!source.type) {
