@@ -1,19 +1,5 @@
 @import 'inc/bootstrap';
 
-@mixin ltr() {
-    &,
-    body [dir=ltr] & {
-        @content;
-    }
-}
-
-@mixin rtl() {
-    &,
-    body [dir=rtl] & {
-        @content;
-    }
-}
-
 .select2-container * {
     text-decoration: none !important
 }
@@ -160,12 +146,6 @@
     border-top: 0;
 
     border-radius: 0 0 2px 2px;
-    @include rtl {
-        direction: rtl;
-    }
-    @include ltr {
-        direction: ltr;
-    }
 
     &.rtl {
         direction: rtl;
