@@ -571,6 +571,10 @@ label {
         text-align: right;
         margin: 30px 0 0 0;
         @extend %clearfix;
+
+        [dir="rtl"] & {
+            text-align: left;
+        }
     }
 
     .property-title {
@@ -710,6 +714,10 @@ label {
                 max-width: none;
                 @include simple-border();
             }
+        }
+
+        [dir="rtl"] & {
+            padding: 0 0 0 10px;
         }
     }
     input {
