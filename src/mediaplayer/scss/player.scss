@@ -22,6 +22,7 @@ $controlsHeight: 36px;
     max-width: 100%;
     min-height: $controlsHeight;
     min-width: 200px;
+    direction: ltr;
 
     &.youtube {
         .player {
@@ -328,7 +329,7 @@ $controlsHeight: 36px;
     &.video, &.youtube {
         .sound {
             .volume {
-                width: $playerActionSize;
+                width: 2.8rem;
                 bottom: $playerActionSize;
                 right: 0;
             }
