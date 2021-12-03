@@ -424,6 +424,12 @@ $controlsHeight: 36px;
         }
     }
 
+    &.disabled:not(.stalled):not(.error) {
+        .controls {
+            visibility: visible;
+        }
+    }
+
     &.playing.canpause {
         .controls {
             [data-control="pause"] {
