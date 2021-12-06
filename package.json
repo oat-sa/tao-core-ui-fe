@@ -1,6 +1,6 @@
 {
     "name": "@oat-sa/tao-core-ui",
-    "version": "1.44.0",
+    "version": "1.44.1",
     "displayName": "TAO Core UI",
     "description": "UI libraries of TAO",
     "scripts": {
@@ -104,6 +104,5 @@
     "bugs": {
         "url": "https://github.com/oat-sa/tao-core-ui-fe/issues"
     },
-    "homepage": "https://github.com/oat-sa/tao-core-ui-fe#readme",
-    "dependencies": {}
+    "homepage": "https://github.com/oat-sa/tao-core-ui-fe#readme"
 }
