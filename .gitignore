@@ -67,4 +67,7 @@ css/
 # IDE files
 .idea/
 .vscode/
+
 .DS_Store
+
+eslint_report.json

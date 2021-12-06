@@ -21,21 +21,21 @@
  *
  * @author Bertrand Chevrier <bertrand@taotesting.com>
  */
-define(['lodash', 'jquery', 'ui/pageStatus'], function(_, $, pageStatusFactory) {
+define(['lodash', 'jquery', 'ui/pageStatus'], function (_, $, pageStatusFactory) {
     'use strict';
 
-    var isHeadless = /HeadlessChrome/.test(navigator.userAgent);
+    const isHeadless = /HeadlessChrome/.test(navigator.userAgent);
 
     QUnit.module('pageStatus');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.expect(1);
         assert.equal(typeof pageStatusFactory, 'function', 'The pageStatus module exposes an function');
     });
 
-    QUnit.test('api', function(assert) {
+    QUnit.test('api', function (assert) {
         assert.expect(5);
-        var pageStatus = pageStatusFactory();
+        const pageStatus = pageStatusFactory();
 
         assert.equal(typeof pageStatus, 'object', 'The factory creates an object');
         assert.notEqual(pageStatus, pageStatusFactory(), 'The factory creates a new object');
@@ -45,11 +45,11 @@ define(['lodash', 'jquery', 'ui/pageStatus'], function(_, $, pageStatusFactory) 
     });
 
     if (isHeadless) {
-        QUnit.test('popup status', function(assert) {
-            var ready = assert.async();
-            var popup = window.open('/test/pageStatus/blank.html', 'test', 'width=300,height=300,visible=none');
+        QUnit.test('popup status', function (assert) {
+            const ready = assert.async();
+            const popup = window.open('/test/pageStatus/blank.html', 'test', 'width=300,height=300,visible=none');
 
-            var pageStatus = pageStatusFactory({
+            const pageStatus = pageStatusFactory({
                 window: popup
             });
             assert.expect(4);
@@ -57,48 +57,44 @@ define(['lodash', 'jquery', 'ui/pageStatus'], function(_, $, pageStatusFactory) 
             pageStatus
                 .on(
                     'statuschange',
-                    _.once(function(status) {
+                    _.once(function () {
                         assert.ok(true, 'The statuschange event is triggered');
                     })
                 )
                 .on(
                     'hide',
-                    _.once(function() {
+                    _.once(function () {
                         assert.ok(true, 'The hide event is triggered');
                     })
                 )
                 .on(
                     'load',
-                    _.once(function() {
+                    _.once(function () {
                         assert.ok(true, 'The load event is triggered');
                     })
                 )
                 .on(
                     'unload',
-                    _.once(function() {
+                    _.once(function () {
                         assert.ok(true, 'The unload event is triggered');
                     })
                 );
 
-            _.delay(function() {
+            setTimeout(function () {
                 popup && popup.close();
-            }, 200);
+            }, 300);
 
-            setTimeout(function() {
+            setTimeout(function () {
                 ready();
-            }, 500);
+            }, 600);
         });
     } else {
-        QUnit.test('popup status', function(assert) {
-            var ready = assert.async();
-            var popup = window.open(
-                '/test/pageStatus/blank.html',
-                'test',
-                'width=300,height=300,visible=none'
-            );
-            var secondPopup;
+        QUnit.test('popup status', function (assert) {
+            const ready = assert.async();
+            const popup = window.open('/test/pageStatus/blank.html', 'test', 'width=300,height=300,visible=none');
+            let secondPopup;
 
-            var pageStatus = pageStatusFactory({
+            const pageStatus = pageStatusFactory({
                 window: popup
             });
 
@@ -107,53 +103,49 @@ define(['lodash', 'jquery', 'ui/pageStatus'], function(_, $, pageStatusFactory) 
             pageStatus
                 .on(
                     'statuschange',
-                    _.once(function(status) {
+                    _.once(function () {
                         assert.ok(true, 'The statuschange event is triggered');
                     })
                 )
                 .on(
                     'focus',
-                    _.once(function() {
+                    _.once(function () {
                         assert.ok(true, 'The focus event is triggered');
                     })
                 )
                 .on(
                     'hide',
-                    _.once(function() {
+                    _.once(function () {
                         assert.ok(true, 'The hide event is triggered');
                     })
                 )
                 .on(
                     'load',
-                    _.once(function() {
+                    _.once(function () {
                         assert.ok(true, 'The load event is triggered');
                     })
                 )
                 .on(
                     'blur',
-                    _.once(function() {
+                    _.once(function () {
                         assert.ok(true, 'The blur event is triggered');
                     })
                 )
                 .on(
                     'unload',
-                    _.once(function() {
+                    _.once(function () {
                         assert.ok(true, 'The unload event is triggered');
                     })
                 );
 
-            _.delay(function() {
-                secondPopup = window.open(
-                    '/test/pageStatus/blank.html',
-                    'test2',
-                    'width=300,height=300'
-                );
-                _.delay(function() {
+            _.delay(function () {
+                secondPopup = window.open('/test/pageStatus/blank.html', 'test2', 'width=300,height=300');
+                _.delay(function () {
                     popup.close();
                 }, 200);
             }, 100);
 
-            setTimeout(function() {
+            setTimeout(function () {
                 secondPopup.close();
                 ready();
             }, 400);

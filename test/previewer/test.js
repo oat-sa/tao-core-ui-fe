@@ -8,10 +8,10 @@ define(['jquery', 'ui/previewer'], function($, previewer) {
     });
 
     QUnit.test('Initialization', function(assert) {
-        var ready = assert.async();
+        const ready = assert.async();
         assert.expect(3);
-        var $fixture = $('#qunit-fixture');
-        var $elt = $('#p1', $fixture);
+        const $fixture = $('#qunit-fixture');
+        const $elt = $('#p1', $fixture);
         assert.ok($elt.length === 1, 'Test the fixture is available');
 
         $elt.on('create.previewer', function() {
@@ -20,23 +20,23 @@ define(['jquery', 'ui/previewer'], function($, previewer) {
             ready();
         });
         $elt.previewer({
-            url: 'https://www.taotesting.com/wp-content/uploads/2019/04/video-poster-100x50.png',
+            url: '/test/previewer/samples/video-poster-100x50.png',
             type: 'image/png'
         });
     });
 
     QUnit.test('Image preview', function(assert) {
-        var ready = assert.async();
+        const ready = assert.async();
         assert.expect(5);
 
-        var options = {
-            url: 'https://www.taotesting.com/wp-content/uploads/2019/04/video-poster-100x50.png',
+        const options = {
+            url: '/test/previewer/samples/video-poster-100x50.png',
             mime: 'image/png',
             width: 50,
             height: 50
         };
-        var $fixture = $('#qunit-fixture');
-        var $elt = $('#p1', $fixture);
+        const $fixture = $('#qunit-fixture');
+        const $elt = $('#p1', $fixture);
 
         assert.ok($elt.length === 1, 'Test the fixture is available');
 
@@ -51,15 +51,15 @@ define(['jquery', 'ui/previewer'], function($, previewer) {
     });
 
     QUnit.test('Data Attribute', function(assert) {
-        var ready = assert.async();
-        assert.expect(5);
+        const ready = assert.async();
+        assert.expect(3);
 
-        var options = {
-            url: 'https://www.taotesting.com/wp-content/uploads/2019/04/tao-bg.mp4',
-            mime: 'video/mp4'
+        const options = {
+            url: '/test/previewer/samples/video-poster-100x50.png',
+            mime: 'image/png'
         };
-        var $fixture = $('body');
-        var $elt = $('#p2', $fixture);
+        const $fixture = $('#p2');
+        const $elt = $('[data-preview]', $fixture);
 
         assert.ok($elt.length === 1, 'Test the fixture is available');
 
@@ -69,14 +69,12 @@ define(['jquery', 'ui/previewer'], function($, previewer) {
                     $elt.on('create.previewer', resolve);
                 }),
                 new Promise(resolve => {
-                    $elt.on('playerready', resolve);
+                    $elt.on('update.previewer', resolve);
                 })
             ])
             .then(() => {
-                assert.equal($elt.find('video').length, 1, 'The video element is created');
-                assert.equal($elt.find('video source').length, 1, 'The video source element is created');
-                assert.equal($elt.find('video source').attr('src'), options.url, 'The video src is set');
-                assert.equal($elt.find('.mediaplayer').length, 1, 'The media element player is set up');
+                assert.equal($elt.find('img').length, 1, 'The video element is created');
+                assert.equal($elt.find('img').attr('src'), options.url, 'The video src is set');
             })
             .catch(err => {
                 assert.pushResult({
