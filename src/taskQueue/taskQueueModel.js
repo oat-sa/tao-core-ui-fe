@@ -81,7 +81,7 @@ function translateReportMessages(taskData) {
             translateReportMessages(item.children);
         }
         return item;
-    })
+    });
 }
 
 /**
@@ -159,10 +159,10 @@ export default function taskQueueModel(config) {
 
             status = request(config.url.get, { taskId: taskId }, 'GET', {}, true).then(function(taskData) {
                 // Workaround for translations
-		if (taskData.report !== undefined && taskData.report.children !== undefined) {
-		    taskData.report.children = translateReportMessages(taskData.report.children);
+                if (typeof taskData.report !== 'undefined' && typeof taskData.report.children !== 'undefined') {
+                    taskData.report.children = translateReportMessages(taskData.report.children);
                 }
-		//check taskData
+                //check taskData
                 if (taskData && taskData.status) {
                     if (_cache) {
                         //detect change

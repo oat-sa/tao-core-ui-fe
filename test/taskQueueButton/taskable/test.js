@@ -65,6 +65,8 @@ define([
         makeTaskable(componentFactory())
             .on('init', function() {
                 assert.deepEqual(this.config, taskableConfig, 'config correctly set');
+
+                this.createTask();
             })
             .on('error', function() {
                 assert.ok(false, 'should not have any error');
@@ -76,8 +78,7 @@ define([
                 assert.ok(true, 'task enqueued');
                 ready();
             })
-            .init(taskableConfig)
-            .createTask();
+            .init(taskableConfig);
     });
 
     QUnit.test('finished', function(assert) {
