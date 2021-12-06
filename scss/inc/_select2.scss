@@ -1,6 +1,5 @@
 @import 'inc/bootstrap';
 
-
 .select2-container * {
     text-decoration: none !important
 }
@@ -147,6 +146,13 @@
     border-top: 0;
 
     border-radius: 0 0 2px 2px;
+
+    &.rtl {
+        direction: rtl;
+    }
+    &.ltr {
+        direction: ltr;
+    }
 }
 
 .select2-drop-auto-width {
@@ -615,7 +621,7 @@ disabled look for disabled choices in the results dropdown
         color: $textColor;
         opacity: .55 !important;
 
-        .select2-search-field, 
+        .select2-search-field,
         .select2-search-choice-close,
         .select2-arrow {
             display: none;
