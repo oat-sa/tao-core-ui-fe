@@ -220,7 +220,8 @@ export default function html5PlayerFactory($container, config = {}) {
                 .on(`error${ns}`, () => {
                     if (
                         media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE ||
-                        (media.error instanceof MediaError && media.error === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED)
+                        (media.error instanceof MediaError &&
+                            media.error.code === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED)
                     ) {
                         // No source means the player does not support the supplied media.
                         // Or it can be more explicit with the not supported error.
@@ -511,7 +512,7 @@ export default function html5PlayerFactory($container, config = {}) {
         stop() {
             debug('api call', 'stop');
 
-            if (media && state.playback) {
+            if (media && media.duration && state.playback && !state.stalled) {
                 media.currentTime = media.duration;
             }
         },
