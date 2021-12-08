@@ -189,9 +189,14 @@ const isResponsiveSize = sizeProps => {
 /**
  * Builds a media player instance
  * @param {Object} config
- * @param {String} config.type - The type of media to play
- * @param {String|Array} config.url - The URL to the media
- * @param {String} [config.mimeType] - The MIME type of the media
+ * @param {String} config.type - The type of media to play, say `audio`, `video`, or `youtube`. The default is `video`.
+ * It might also contain the MIME type of the media as a shorthand.
+ * @param {String|Array} [config.url] - The URL to the media. If several media are proposed as alternatives,
+ * please look at the `sources` option instead.
+ * @param {String} [config.mimeType] - The MIME type of the media. If omitted, the player will try to extract it
+ * from the `type` property, otherwise it will request the server to get the content-type.
+ * @param {Array} [config.sources] - A list of URL if several media can be proposed. Each entry may be either a
+ * string (single URL), or an object containing both the URL and the MIME type ({src: string, type: string}).
  * @param {String|jQuery|HTMLElement} [config.renderTo] - An optional container in which renders the player
  * @param {Boolean} [config.canSeek] - The player allows to reach an arbitrary position within the media using the duration bar
  * @param {Boolean} [config.loop] - The media will be played continuously
