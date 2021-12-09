@@ -1368,10 +1368,11 @@ function mediaplayerFactory(config) {
             this._playingState(false, true);
             this._updatePosition(0);
 
-            // disable GUI when the play limit is reached
+            // disable when the play limit is reached
             if (this._playLimitReached()) {
-                this._disableGUI();
-
+                if (!this.is('disabled')) {
+                    this.disable();
+                }
                 /**
                  * Triggers a play limit reached event
                  * @event mediaplayer#limitreached
@@ -1435,19 +1436,9 @@ function mediaplayerFactory(config) {
             this.timerId = requestAnimationFrame(this._replayTimeout.bind(this));
 
             if (elapsedSeconds >= parseInt(this.config.replayTimeout, 10)) {
-                this._disableGUI();
                 this.disable();
                 cancelAnimationFrame(this.timerId);
             }
-        },
-
-        /**
-         * Disable the player GUI
-         * @private
-         */
-        _disableGUI() {
-            this._setState('ready', false);
-            this._setState('canplay', false);
         },
 
         /**
