@@ -9,8 +9,7 @@
             </a>
             <a class="action reload" data-control="reload">
                 <div class="icon icon-reload" title="{{__ 'Reload'}}"></div>
-                <div class="message">{{__ 'You are encountering a prolonged connectivity loss.'}}</div>
-                <div class="message">{{__ 'Click to reload.'}}</div>
+                <div class="message">{{__ 'You are encountering a prolonged connectivity loss.'}}<br />{{__ 'Click to reload.'}}</div>
             </a>
         </div>
     </div>

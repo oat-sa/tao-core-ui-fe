@@ -100,10 +100,11 @@ define(['jquery', 'lodash', 'ui/mediaplayer', 'core/store'], function ($, _, med
     QUnit.test('DOM [audio player]', assert => {
         const ready = assert.async();
         const url = 'samples/audio.mp3';
+        const type = 'audio/mp3';
         const $container = $('#qunit-fixture');
         const instance = mediaplayer({
-            url: url,
-            type: 'audio/mp3',
+            url,
+            type,
             renderTo: $container
         });
 
@@ -138,6 +139,7 @@ define(['jquery', 'lodash', 'ui/mediaplayer', 'core/store'], function ($, _, med
 
             assert.equal($source.length, 1, 'The rendered content contains an audio source');
             assert.equal($source.attr('data-src'), url, 'Audio source targets the right URL');
+            assert.equal($source.attr('data-type'), type, 'Audio source has the right type');
 
             assert.equal($overlay.length, 1, 'The rendered content contains an overlay element');
             assert.equal(
@@ -216,10 +218,11 @@ define(['jquery', 'lodash', 'ui/mediaplayer', 'core/store'], function ($, _, med
     QUnit.test('DOM [video player]', assert => {
         const ready = assert.async();
         const url = 'samples/video.mp4';
+        const type = 'video/mp4';
         const $container = $('#qunit-fixture');
         const instance = mediaplayer({
-            url: url,
-            type: 'video/mp4',
+            url,
+            type,
             renderTo: $container
         });
 
@@ -254,6 +257,7 @@ define(['jquery', 'lodash', 'ui/mediaplayer', 'core/store'], function ($, _, med
 
             assert.equal($source.length, 1, 'The rendered content contains a video source');
             assert.equal($source.attr('data-src'), url, 'Video source targets the right URL');
+            assert.equal($source.attr('data-type'), type, 'Video source has the right type');
 
             assert.equal($overlay.length, 1, 'The rendered content contains an overlay element');
             assert.equal(
@@ -333,10 +337,11 @@ define(['jquery', 'lodash', 'ui/mediaplayer', 'core/store'], function ($, _, med
         const ready = assert.async();
         const videoId = 'YJWSVUPSQqw';
         const url = `//www.youtube.com/watch?v=${videoId}`;
+        const type = 'video/youtube';
         const $container = $('#qunit-fixture');
         const instance = mediaplayer({
-            url: url,
-            type: 'video/youtube',
+            url,
+            type,
             renderTo: $container
         });
 
@@ -1076,6 +1081,66 @@ define(['jquery', 'lodash', 'ui/mediaplayer', 'core/store'], function ($, _, med
 
         instance.destroy();
     });
+
+    QUnit.cases
+        .init([
+            {
+                title: 'request mime type',
+                config: {
+                    type: 'audio',
+                    url: 'samples/audio.mp3'
+                },
+                mime: 'audio/mpeg'
+            },
+            {
+                title: 'use type',
+                config: {
+                    type: 'audio/mp3',
+                    url: 'samples/audio.mp3'
+                },
+                mime: 'audio/mp3'
+            },
+            {
+                title: 'specify type',
+                config: {
+                    type: 'audio/mpeg',
+                    mimeType: 'audio/mp3',
+                    url: 'samples/audio.mp3'
+                },
+                mime: 'audio/mp3'
+            },
+            {
+                title: 'youtube type',
+                config: {
+                    type: 'video/youtube',
+                    mimeType: 'video/webm',
+                    url: 'YJWSVUPSQqw'
+                },
+                mime: 'video/mp4'
+            }
+        ])
+        .test('Type management ', (data, assert) => {
+            const ready = assert.async();
+            const instance = mediaplayer(
+                Object.assign(
+                    {
+                        renderTo: '#qunit-fixture'
+                    },
+                    data.config
+                )
+            )
+                .on('render', () => {
+                    const sources = instance.getSources();
+
+                    assert.equal(sources.length, 1, 'The media player has one media in its list of sources');
+
+                    assert.equal(sources[0].src, data.config.url, 'The source URL is as expected');
+                    assert.equal(sources[0].type, data.mime, 'The source type is as expected');
+
+                    instance.destroy();
+                })
+                .on('destroy', ready);
+        });
 
     QUnit.test('stalled', assert => {
         const ready = assert.async();
