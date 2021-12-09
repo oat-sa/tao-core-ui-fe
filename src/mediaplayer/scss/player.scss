@@ -344,6 +344,32 @@ $controlsHeight: 36px;
                 bottom: 0;
             }
         }
+
+        &.stalled {
+            .player {
+                .player-overlay {
+                    [data-control="reload"] {
+                        margin-top: 0;
+
+                        display: flex;
+                        flex-direction: row;
+                        justify-content: center;
+
+                        &.reload {
+                            width: 100%;
+                            font-size: 20px;
+                            line-height: 20px;
+
+                            .message {
+                                font-size: 10px;
+                                line-height: 15px;
+                                margin-top: 2px;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     &.ready {
@@ -356,9 +382,11 @@ $controlsHeight: 36px;
                 cursor: pointer;
             }
 
-            .player:hover {
-                [data-control="play"] {
-                    display: inline-block;
+            &:not(.audio) {
+                .player:hover {
+                    [data-control="play"] {
+                        display: inline-block;
+                    }
                 }
             }
 
@@ -376,9 +404,11 @@ $controlsHeight: 36px;
                 cursor: pointer;
             }
 
-            .player:hover {
-                [data-control="pause"] {
-                    display: inline-block;
+            &:not(.audio) {
+                .player:hover {
+                    [data-control="pause"] {
+                        display: inline-block;
+                    }
                 }
             }
         }

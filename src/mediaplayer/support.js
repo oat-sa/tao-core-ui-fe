@@ -19,12 +19,14 @@
 /**
  * A Regex to detect Apple mobile browsers
  * @type {RegExp}
+ * @private
  */
 const reAppleMobiles = /ip(hone|od)/i;
 
 /**
  * A list of MIME types with codec declaration
  * @type {Object}
+ * @private
  */
 const supportedMimeTypes = {
     // video
@@ -39,6 +41,15 @@ const supportedMimeTypes = {
 };
 
 /**
+ * Checks support for a MIME type.
+ * @param {HTMLMediaElement} media The media element on which check support
+ * @param {String} mimeType A MIME type to check the support for
+ * @returns {string}
+ * @private
+ */
+const findSupport = (media, mimeType) => media.canPlayType(mimeType).replace(/no/, '');
+
+/**
  * Support detection
  * @type {Object}
  */
@@ -51,13 +62,15 @@ export default {
      * @private
      */
     checkSupport(media, mimeType) {
-        const support = !!media.canPlayType;
-
+        const support = media.canPlayType;
         if (support && mimeType) {
-            return !!media.canPlayType(supportedMimeTypes[mimeType] || mimeType).replace(/no/, '');
+            return !!(
+                (supportedMimeTypes[mimeType] && findSupport(media, supportedMimeTypes[mimeType])) ||
+                findSupport(media, mimeType)
+            );
         }
 
-        return support;
+        return !!support;
     },
 
     /**
