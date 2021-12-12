@@ -21,6 +21,7 @@ $.fn.groupValidator = function(options) {
     options = _.defaults(options || {}, $.fn.groupValidator.defaults);
 
     return this.each(function() {
+        console.log('group validator working check');
         var $container = (options.$container = $(this));
         var states = [];
         var callback = function(valid, results) {
