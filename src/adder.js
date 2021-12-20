@@ -11,13 +11,13 @@ import Handlebars from 'handlebars';
 import Pluginifier from 'core/pluginifier';
 import DataAttrHandler from 'core/dataattrhandler';
 
-var ns = 'adder';
-var dataNs = 'ui.' + ns;
+const ns = 'adder';
+const dataNs = 'ui.' + ns;
 
 //positions available must match jquery function {position}To (ie. appendTo)
-var positions = ['append', 'prepend'];
+const positions = ['append', 'prepend'];
 
-var defaults = {
+const defaults = {
     bindEvent: 'click',
     disableClass: 'disabled',
     position: 'append',
@@ -50,7 +50,32 @@ var defaults = {
          * @params {object} data - the data to be bound to the template
          */
         dataCallback({});
-    }
+    },
+    /**
+     * Async callback used to execute add
+     * @example checkAndCallAdd : function(executeAdd){
+     *       $.getJSON(url).done(function(executeAdd){
+     *           if(data.condition) {
+     *              executeAdd();
+     *           }
+     *       });
+     *
+     *       //or
+     *       if (noItems) {
+     *          executeAdd();
+     *       }
+     * }
+     *
+     * @callback checkAndCallAdd
+     * @params {executeAdd} - callback to run add function
+     */
+    checkAndCallAdd: function(executeAdd) {
+        /**
+         * This callback is used to populate template data
+         * @callback executeAdd
+         */
+        executeAdd();
+    },
 };
 
 /**
@@ -58,7 +83,7 @@ var defaults = {
  * from a DOM element or a template
  * @exports ui/adder
  */
-var Adder = {
+const Adder = {
     /**
      * Initialize the plugin.
      *
@@ -73,6 +98,7 @@ var Adder = {
      * @param {jQueryElement} [options.content] - a DOM Element or a 'text/template' script tag that contains the template
      * @param {string} [options.position = 'append'] - how to add the content regarding the target (the name of a valid jQUery maniuplation function)
      * @param {templateData} [options.templateData] - a callback used to populate the template
+     * @param {Object} [options.checkAndCallAdd] - a callback used to check conditions before call add
      * @fires Adder#create.adder
      * @returns {jQueryElement} for chaining
      */
@@ -83,7 +109,7 @@ var Adder = {
             //compiled template
             options._template = options.content;
         } else {
-            var $content = options.content;
+            const $content = options.content;
             if ($content.prop('tagName') === 'SCRIPT' && $content.attr('type') === 'text/template') {
                 //template element
                 options._template = Handlebars.compile($content.html());
@@ -98,7 +124,7 @@ var Adder = {
         }
 
         return this.each(function() {
-            var $elt = $(this);
+            const $elt = $(this);
 
             if (!$elt.data(dataNs)) {
                 //add data to the element
@@ -108,7 +134,7 @@ var Adder = {
                 if (options.bindEvent !== false) {
                     $elt.on(options.bindEvent, function(e) {
                         e.preventDefault();
-                        Adder._add($elt);
+                        options.checkAndCallAdd(() => Adder._add($elt));
                     });
                 }
 
@@ -131,13 +157,9 @@ var Adder = {
      * @fires Adder#add
      */
     _add: function($elt) {
-        var options = $elt.data(dataNs);
-        var $target = options.target;
+        const options = $elt.data(dataNs);
 
-        //call appendTo, prependTo, etc.
-        var position = options.position + 'To';
-
-        var applyTemplate = function applyTemplate($content, position, $target, data) {
+        const applyTemplate = function applyTemplate($content, position, $target, data) {
             $content[position]($target);
 
             /**
@@ -158,6 +180,9 @@ var Adder = {
             $elt.trigger('add.' + ns, [$target, $content, data]);
         };
 
+        const $target = options.target;
+        //call appendTo, prependTo, etc.
+        const position = options.position + 'To';
         //DOM element or template
         if (typeof options._template === 'function') {
             options.templateData(function templateDataCallback(data) {
@@ -178,8 +203,8 @@ var Adder = {
      */
     destroy: function() {
         this.each(function() {
-            var $elt = $(this);
-            var options = $elt.data(dataNs);
+            const $elt = $(this);
+            const options = $elt.data(dataNs);
             if (options.bindEvent !== false) {
                 $elt.off(options.bindEvent);
             }
