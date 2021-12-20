@@ -50,7 +50,32 @@ var defaults = {
          * @params {object} data - the data to be bound to the template
          */
         dataCallback({});
-    }
+    },
+    /**
+     * Async callback used to execute add
+     * @example checkAndCallAdd : function(executeAdd){
+     *       $.getJSON(url).done(function(executeAdd){
+     *           if(data.condition) {
+     *              executeAdd();
+     *           }
+     *       });
+     *
+     *       //or
+     *       if (noItems) {
+     *          executeAdd();
+     *       }
+     * }
+     *
+     * @callback checkAndCallAdd
+     * @params {executeAdd} - callback to run add function
+     */
+     checkAndCallAdd: function(executeAdd) {
+        /**
+         * This callback is used to populate template data
+         * @callback executeAdd
+         */
+         executeAdd();
+    },
 };
 
 /**
@@ -73,6 +98,7 @@ var Adder = {
      * @param {jQueryElement} [options.content] - a DOM Element or a 'text/template' script tag that contains the template
      * @param {string} [options.position = 'append'] - how to add the content regarding the target (the name of a valid jQUery maniuplation function)
      * @param {templateData} [options.templateData] - a callback used to populate the template
+     * @param {Object} [options.checkAndCallAdd] - a callback used to check conditions before call add
      * @fires Adder#create.adder
      * @returns {jQueryElement} for chaining
      */
@@ -108,7 +134,7 @@ var Adder = {
                 if (options.bindEvent !== false) {
                     $elt.on(options.bindEvent, function(e) {
                         e.preventDefault();
-                        Adder._add($elt);
+                        options.checkAndCallAdd(() => Adder._add($elt));
                     });
                 }
 
