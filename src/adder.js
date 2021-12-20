@@ -11,13 +11,13 @@ import Handlebars from 'handlebars';
 import Pluginifier from 'core/pluginifier';
 import DataAttrHandler from 'core/dataattrhandler';
 
-var ns = 'adder';
-var dataNs = 'ui.' + ns;
+const ns = 'adder';
+const dataNs = 'ui.' + ns;
 
 //positions available must match jquery function {position}To (ie. appendTo)
-var positions = ['append', 'prepend'];
+const positions = ['append', 'prepend'];
 
-var defaults = {
+const defaults = {
     bindEvent: 'click',
     disableClass: 'disabled',
     position: 'append',
@@ -69,12 +69,12 @@ var defaults = {
      * @callback checkAndCallAdd
      * @params {executeAdd} - callback to run add function
      */
-     checkAndCallAdd: function(executeAdd) {
+    checkAndCallAdd: function(executeAdd) {
         /**
          * This callback is used to populate template data
          * @callback executeAdd
          */
-         executeAdd();
+        executeAdd();
     },
 };
 
@@ -83,7 +83,7 @@ var defaults = {
  * from a DOM element or a template
  * @exports ui/adder
  */
-var Adder = {
+const Adder = {
     /**
      * Initialize the plugin.
      *
@@ -109,7 +109,7 @@ var Adder = {
             //compiled template
             options._template = options.content;
         } else {
-            var $content = options.content;
+            const $content = options.content;
             if ($content.prop('tagName') === 'SCRIPT' && $content.attr('type') === 'text/template') {
                 //template element
                 options._template = Handlebars.compile($content.html());
@@ -124,7 +124,7 @@ var Adder = {
         }
 
         return this.each(function() {
-            var $elt = $(this);
+            const $elt = $(this);
 
             if (!$elt.data(dataNs)) {
                 //add data to the element
@@ -157,13 +157,9 @@ var Adder = {
      * @fires Adder#add
      */
     _add: function($elt) {
-        var options = $elt.data(dataNs);
-        var $target = options.target;
+        const options = $elt.data(dataNs);
 
-        //call appendTo, prependTo, etc.
-        var position = options.position + 'To';
-
-        var applyTemplate = function applyTemplate($content, position, $target, data) {
+        const applyTemplate = function applyTemplate($content, position, $target, data) {
             $content[position]($target);
 
             /**
@@ -184,6 +180,9 @@ var Adder = {
             $elt.trigger('add.' + ns, [$target, $content, data]);
         };
 
+        const $target = options.target;
+        //call appendTo, prependTo, etc.
+        const position = options.position + 'To';
         //DOM element or template
         if (typeof options._template === 'function') {
             options.templateData(function templateDataCallback(data) {
@@ -204,8 +203,8 @@ var Adder = {
      */
     destroy: function() {
         this.each(function() {
-            var $elt = $(this);
-            var options = $elt.data(dataNs);
+            const $elt = $(this);
+            const options = $elt.data(dataNs);
             if (options.bindEvent !== false) {
                 $elt.off(options.bindEvent);
             }
