@@ -412,8 +412,6 @@ label {
     }
     input[type="radio"],
     input[type="checkbox"] {
-        visibility: hidden;
-        pointer-events: none;
         position: absolute;
 
         &:focus ~ [class^="icon-"],
