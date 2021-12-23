@@ -410,9 +410,14 @@ label {
             left: -1em;
         }
     }
+    input[type="radio"]:disabled,
+    input[type="checkbox"]:disabled {
+        opacity: 0;
+    }
     input[type="radio"],
     input[type="checkbox"] {
         position: absolute;
+        opacity: 0;
 
         &:focus ~ [class^="icon-"],
         &:focus ~ [class*=" icon-"],
