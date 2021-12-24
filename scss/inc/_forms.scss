@@ -413,6 +413,7 @@ label {
 
     input[type="radio"],
     input[type="checkbox"] {
+        /* based on "visually-hidden" mixin in LDS for accessibility goals */
         position: absolute;
         width: 1px;
         height: 1px;
