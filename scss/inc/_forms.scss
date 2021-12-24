@@ -413,14 +413,7 @@ label {
 
     input[type="radio"],
     input[type="checkbox"] {
-        /* based on "visually-hidden" mixin in LDS for accessibility goals */
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-        clip: rect(1px, 1px, 1px, 1px);
-        margin: 0;
-        padding: 0;
+        @include visuallyHidden;
 
         &:focus ~ [class^="icon-"],
         &:focus ~ [class*=" icon-"],

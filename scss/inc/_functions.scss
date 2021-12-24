@@ -270,3 +270,13 @@ Usage:
 @mixin disableSelect() {
     @include vendor-prefix(user-select, none, property);
 }
+
+/* based on "visually-hidden" mixin in LDS for accessibility goals */
+@mixin visuallyHidden() {
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(1px, 1px, 1px, 1px);
+    margin: 0;
+    padding: 0;
+}
