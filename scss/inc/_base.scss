@@ -382,6 +382,12 @@ body {
         float: left;
     }
 
+    body[dir="rtl"] {
+        & .content-wrap>header>.lft {
+            float: none;
+        }
+    }
+
     .rgt,
     .wrap-right {
         display: inline;
