@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Ui Test - ItemButtonList Component</title>
+        <script type="text/javascript" src="/environment/require.js"></script>
+        <script type="text/javascript">
+            require(['/environment/config.js'], function() {
+                require(['qunitEnv'], function() {
+                    require(['test/ui/itemButtonList/test'], function() {
+                        QUnit.start();
+                    });
+                });
+            });
+        </script>
+        <style>
+            #qunit {
+                position: relative !important;
+            }
+            #visual-test {
+                background: #EEE;
+                margin: 10px;
+                padding: 10px;
+            }
+            .test {
+                border: 1px solid rgba(0,0,0,0.3);
+                width: 300px;
+                overflow: hidden;
+                resize: both;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="visual-test">
+            <h2>Visual test</h2>
+            <div class="test"></div>
+        </div>
+        <div id="qunit"></div>
+        <div id="qunit-fixture">
+            <div id="fixture-render"></div>
+        </div>
+    </body>
+</html>
