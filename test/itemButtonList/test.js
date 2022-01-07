@@ -174,7 +174,7 @@ define([
         );
         // Check ariaLabel
         assert.equal(
-            instance.getElement().find('button')[0].ariaLabel,
+            instance.getElement().find('button')[0].getAttribute('aria-label'),
             basicItems[0].ariaLabel,
             'The itemButtonList instance has rendered the button with the correct ariaLabel'
         );
