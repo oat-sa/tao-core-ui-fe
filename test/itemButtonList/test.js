@@ -368,6 +368,7 @@ define([
             .on('click', function(event) {
                 /* eslint-disable-next-line no-alert */
                 alert(`clicked ${JSON.stringify(event)}`);
+                this.setActiveItem(event.id);
             })
             .render($container);
     });
