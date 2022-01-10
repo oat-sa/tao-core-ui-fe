@@ -193,9 +193,14 @@ $borderMedium: 0.25rem;
     }
 
     /****** keyboard focus styles *******/
+    /*
+     * .key-navigation-highlight and .buttonlist-item-focus:focus styles
+     * could be removed as soon as Safari properly supports :focus-visible
+     */
     .buttonlist-item {
         &.key-navigation-highlight .buttonlist-btn::before,
-        .buttonlist-btn.buttonlist-item-focus:focus::before {
+        .buttonlist-btn.buttonlist-item-focus:focus::before,
+        .buttonlist-btn:focus-visible::before {
             content: '';
             display: block;
             position: absolute;
@@ -211,19 +216,22 @@ $borderMedium: 0.25rem;
         }
 
         &.key-navigation-highlight.buttonlist-item-active .buttonlist-btn .indicator,
-        &.buttonlist-item-active .buttonlist-btn.buttonlist-item-focus:focus .indicator {
+        &.buttonlist-item-active .buttonlist-btn.buttonlist-item-focus:focus .indicator,
+        &.buttonlist-item-active .buttonlist-btn:focus-visible .indicator {
             color: $uiReviewPanelPrimaryHighlight;
         }
 
         &.key-navigation-highlight.viewed .buttonlist-btn,
-        &.viewed .buttonlist-btn.buttonlist-item-focus:focus {
+        &.viewed .buttonlist-btn.buttonlist-item-focus:focus,
+        &.viewed .buttonlist-btn:focus-visible {
             background-color: $uiReviewPanelBgDefault;
             color: $uiReviewPanelPrimaryHighlight;
             border-color: $uiReviewPanelPrimaryHighlight;
         }
 
         &.key-navigation-highlight.answered .buttonlist-btn,
-        &.answered .buttonlist-btn.buttonlist-item-focus:focus {
+        &.answered .buttonlist-btn.buttonlist-item-focus:focus,
+        &.answered .buttonlist-btn:focus-visible {
             background-color: $uiReviewPanelPrimaryHighlight;
             color: $uiReviewPanelTextInverted;
             border-color: $uiReviewPanelPrimaryHighlight;

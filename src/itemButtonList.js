@@ -15,6 +15,7 @@
  *
  * Copyright (c) 2022 Open Assessment Technologies SA ;
  */
+import $ from 'jquery';
 import autoscroll from 'ui/autoscroll';
 import componentFactory from 'ui/component';
 import itemButtonListTpl from 'ui/itemButtonList/tpl/itemButtonList';
@@ -26,7 +27,7 @@ import 'ui/itemButtonList/css/item-button-list.css';
  */
 const cssClasses = {
     active: 'buttonlist-item-active',
-    //keyfocused: 'buttonlist-item-focus'
+    keyfocused: 'buttonlist-item-focus'
 };
 
 /**
@@ -35,7 +36,7 @@ const cssClasses = {
  */
 const cssSelectors = {
     active: `.${cssClasses.active}`,
-    //keyfocused: `.${cssClasses.keyfocused}`,
+    keyfocused: `.${cssClasses.keyfocused}`,
     navigable: '.buttonlist-btn',
     itemById: (id) => `.buttonlist-item[data-id="${id}"]`,
     navigableById: (id) => `.buttonlist-btn[data-id="${id}"]`
@@ -93,19 +94,19 @@ function itemButtonListFactory(config = {}) {
         }
     };
 
-    // /**
-    //  * Demo example of 'tabfocus' styling
-    //  * @param {jQuery|null}  $target
-    //  */
-    // const setFocusStyle = $target => {
-    //     component.getElement()
-    //         .find(cssSelectors.keyfocused)
-    //         .removeClass(cssClasses.keyfocused);
+    /**
+     * 'tabfocus' styling, for Safari until :focus-visible supported
+     * @param {jQuery|null}  $target
+     */
+    const setFocusStyle = $target => {
+        component.getElement()
+            .find(cssSelectors.keyfocused)
+            .removeClass(cssClasses.keyfocused);
 
-    //     if ($target && $target.length) {
-    //         $target.addClass(cssClasses.keyfocused);
-    //     }
-    // };
+        if ($target && $target.length) {
+            $target.addClass(cssClasses.keyfocused);
+        }
+    };
 
     /**
      * Apply a callback on each navigable element
@@ -172,17 +173,17 @@ function itemButtonListFactory(config = {}) {
         .setTemplate(itemButtonListTpl)
         // renders the component
         .on('render', function onItemButtonListRender() {
-            //Demo example of 'tabfocus' detection
-            // this.getElement().on('keydown', cssSelectors.navigable, e => {
-            //     if (e.key === 'Tab') {
-            //         setFocusStyle(null);
-            //     }
-            // });
-            // this.getElement().on('keyup', cssSelectors.navigable, e => {
-            //     if (e.key === 'Tab') {
-            //         setFocusStyle($(e.target));
-            //     }
-            // });
+            // 'tabfocus' detection, for Safari until :focus-visible supported
+            this.getElement().on('keydown', cssSelectors.navigable, e => {
+                if (e.key === 'Tab') {
+                    setFocusStyle(null);
+                }
+            });
+            this.getElement().on('keyup', cssSelectors.navigable, e => {
+                if (e.key === 'Tab') {
+                    setFocusStyle($(e.target));
+                }
+            });
 
             component.getElement().on('click', cssSelectors.navigable, e => {
                 if (!this.is('disabled')) {
