@@ -27,7 +27,7 @@ import 'ui/itemButtonList/css/item-button-list.css';
  */
 const cssClasses = {
     active: 'buttonlist-item-active',
-    keyfocused: 'buttonlist-item-focus'
+    keyfocused: 'buttonlist-btn-focus'
 };
 
 /**
@@ -130,6 +130,7 @@ function itemButtonListFactory(config = {}) {
      */
     const disableKeyboard = () => {
         eachNavigable((index, el) => el.setAttribute('tabindex', -1));
+        setFocusStyle(null);
     };
 
     /**

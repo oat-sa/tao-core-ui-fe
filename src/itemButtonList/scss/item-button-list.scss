@@ -121,6 +121,8 @@ $borderMedium: 0.25rem;
 
     /****** step state styles *******/
     .buttonlist-item {
+        @include disableSelect();
+
         &.viewed {
             .buttonlist-btn {
                 border-width: $borderMedium;
@@ -128,7 +130,6 @@ $borderMedium: 0.25rem;
                 border-color: $uiReviewPanelTextDefault;
             }
         }
-
         &.answered {
             .buttonlist-btn {
                 border-width: $borderMedium;
@@ -137,7 +138,6 @@ $borderMedium: 0.25rem;
                 border-color: $uiReviewPanelBgInverted;
             }
         }
-
         &.buttonlist-item-active {
             .indicator {
                 position: absolute;
@@ -146,7 +146,6 @@ $borderMedium: 0.25rem;
                 color: $uiReviewPanelTextDefault;
                 height: 1.4rem;
                 min-width: 1.6rem;
-                // background-color: $uiReviewPanelBg;
                 top: unset;
                 bottom: -1.7rem;
                 padding: 0;
@@ -193,14 +192,9 @@ $borderMedium: 0.25rem;
     }
 
     /****** keyboard focus styles *******/
-    /*
-     * .key-navigation-highlight and .buttonlist-item-focus:focus styles
-     * could be removed as soon as Safari properly supports :focus-visible
-     */
     .buttonlist-item {
         &.key-navigation-highlight .buttonlist-btn::before,
-        .buttonlist-btn.buttonlist-item-focus:focus::before,
-        .buttonlist-btn:focus-visible::before {
+        .buttonlist-btn.buttonlist-btn-focus:focus::before {
             content: '';
             display: block;
             position: absolute;
@@ -216,22 +210,20 @@ $borderMedium: 0.25rem;
         }
 
         &.key-navigation-highlight.buttonlist-item-active .buttonlist-btn .indicator,
-        &.buttonlist-item-active .buttonlist-btn.buttonlist-item-focus:focus .indicator,
+        &.buttonlist-item-active .buttonlist-btn.buttonlist-btn-focus:focus .indicator,
         &.buttonlist-item-active .buttonlist-btn:focus-visible .indicator {
             color: $uiReviewPanelPrimaryHighlight;
         }
 
         &.key-navigation-highlight.viewed .buttonlist-btn,
-        &.viewed .buttonlist-btn.buttonlist-item-focus:focus,
-        &.viewed .buttonlist-btn:focus-visible {
+        &.viewed .buttonlist-btn.buttonlist-btn-focus:focus {
             background-color: $uiReviewPanelBgDefault;
             color: $uiReviewPanelPrimaryHighlight;
             border-color: $uiReviewPanelPrimaryHighlight;
         }
 
         &.key-navigation-highlight.answered .buttonlist-btn,
-        &.answered .buttonlist-btn.buttonlist-item-focus:focus,
-        &.answered .buttonlist-btn:focus-visible {
+        &.answered .buttonlist-btn.buttonlist-btn-focus:focus {
             background-color: $uiReviewPanelPrimaryHighlight;
             color: $uiReviewPanelTextInverted;
             border-color: $uiReviewPanelPrimaryHighlight;
