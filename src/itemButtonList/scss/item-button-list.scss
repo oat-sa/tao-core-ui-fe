@@ -41,8 +41,8 @@ $borderMedium: 0.25rem;
         justify-content: center; /* aligning left - cut focusing board for keyboard interacting */
         align-items: center;
         /* reset parent styles */
-        padding: 0 !important; /* instead of rewriting 6-classes selector on focusing */
-        border: none !important; /* instead of rewriting 6-classes selector on focusing */
+        padding: 0;
+        border: none;
     }
 
     .buttonlist-btn {
