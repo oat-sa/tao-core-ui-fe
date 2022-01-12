@@ -83,7 +83,7 @@
         "postcss-scss": "^2.0.0",
         "promise-limit": "^2.7.0",
         "qunit": "^2.17.2",
-        "raphael": "2.2.0",
+        "raphael": "2.3.0",
         "require-css": "^0.1.10",
         "requirejs-plugins": "^1.0.2",
         "rollup": "^1.12.1",
