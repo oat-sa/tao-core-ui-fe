@@ -1,6 +1,6 @@
 <ol class="buttonlist-items">
     {{#each items}}
-    <li class="buttonlist-item {{type}} {{#if scoreType}}{{scoreType}}{{/if}} {{#if ../disabled}}disabled{{/if}}" data-id="{{id}}">
+    <li class="buttonlist-item {{status}} {{#if scoreType}}{{scoreType}}{{/if}} {{#if ../disabled}}disabled{{/if}}" data-id="{{id}}">
         <button class="buttonlist-btn"
                 role="link"
                 aria-label="{{ariaLabel}}"
@@ -15,7 +15,7 @@
             {{#if icon}}
                 <span class="buttonlist-icon icon-{{icon}}" aria-hidden="true"></span>
             {{else}}
-                <span class="buttonlist-label" aria-hidden="true">{{label}}</span>
+                <span class="buttonlist-label" aria-hidden="true">{{numericLabel}}</span>
             {{/if}}
         </button>
     </li>

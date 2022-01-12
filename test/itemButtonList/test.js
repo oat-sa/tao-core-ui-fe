@@ -77,36 +77,36 @@ define([
     const basicItems = [
         {
             "id": "item-1",
-            "label": 1,
+            "numericLabel": "1",
             "position": 0,
-            "type": "answered",
+            "status": "answered",
             "icon": null,
             "ariaLabel": "Question 1",
             "scoreType": "correct"
         },
         {
             "id": "item-2",
-            "label": 2,
+            "numericLabel": "2",
             "position": 1,
-            "type": "answered",
+            "status": "answered",
             "icon": null,
             "ariaLabel": "Question 2",
             "scoreType": "incorrect"
         },
         {
             "id": "item-4",
-            "label": 4,
+            "numericLabel": "4",
             "position": 3,
-            "type": "viewed",
+            "status": "viewed",
             "icon": "info",
             "ariaLabel": "Question 4",
             "scoreType": null
         },
         {
             "id": "item-5",
-            "label": 5,
+            "numericLabel": "5",
             "position": 4,
-            "type": "unseen",
+            "status": "unseen",
             "icon": null,
             "ariaLabel": "Question 5",
             "scoreType": null
@@ -169,7 +169,7 @@ define([
         // Check label
         assert.equal(
             instance.getElement().find('button')[0].innerText,
-            basicItems[0].label,
+            basicItems[0].numericLabel,
             'The itemButtonList instance has rendered the button with the correct label'
         );
         // Check ariaLabel
@@ -295,56 +295,58 @@ define([
         const items = [
             {
                 "id": "item-1",
-                "label": 1,
+                "numericLabel": "1",
                 "position": 0,
-                "type": "answered",
+                "status": "answered",
                 "icon": null,
                 "ariaLabel": "Question 1",
                 "scoreType": "correct"
             },
             {
                 "id": "item-2",
-                "label": 2,
+                "numericLabel": "2",
                 "position": 1,
-                "type": "viewed",
+                "status": "viewed",
                 "icon": null,
                 "ariaLabel": "Question 2",
                 "scoreType": null
             },
             {
                 "id": "item-3",
-                "label": 3,
+                "numericLabel": "3",
                 "position": 2,
-                "type": "answered",
+                "status": "answered",
                 "icon": null,
                 "ariaLabel": "Question 3",
                 "scoreType": "incorrect"
             },
             {
                 "id": "item-4",
-                "label": 4,
+                "numericLabel": "",
                 "position": 3,
-                "type": "viewed",
+                "status": "viewed",
+                "informational": true,
                 "icon": "info",
-                "ariaLabel": "Question 4",
+                "ariaLabel": "Informational item",
                 "scoreType": null
             },
             {
                 "id": "item-5",
-                "label": 5,
+                "numericLabel": "4",
                 "position": 4,
-                "type": "unseen",
+                "status": "unseen",
                 "icon": null,
-                "ariaLabel": "Question 5",
+                "ariaLabel": "Question 4",
                 "scoreType": null
             },
             {
                 "id": "item-6",
-                "label": 6,
+                "numericLabel": "",
                 "position": 5,
-                "type": "unseen",
+                "status": "unseen",
+                "informational": true,
                 "icon": "info",
-                "ariaLabel": "Question 6",
+                "ariaLabel": "Informational item",
                 "scoreType": null
             }
         ];

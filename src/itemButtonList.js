@@ -44,15 +44,20 @@ const cssSelectors = {
 
 /**
  * @typedef {Object} ItemButton
- * @property {String} id - recommended to use item id
- * @property {Number} position - recommended to use 0-based list index
+ * @property {String} id - item id
+ * @property {Number} position - 0-based list index
  * @property {String} label - displayed text
+ * @property {String} numericLabel - displayed number (alternative to label)
  * @property {String} ariaLabel
- * @property {String} icon - 'info' or null - replaces label if set
- * @property {String} type - 'answered'/'viewed'/'unseen'
+ * @property {Number} score - the item's current score
+ * @property {Number} maxScore - the item's max possible score
+ * @property {Boolean} informational
+ * @property {Boolean} skipped
+ * @property {String} type - 'correct'/'incorrect'/'info'/'skipped'/'default'
+ * @property {String} status - 'answered'/'viewed'/'unseen'
  * @property {String} scoreType - 'correct'/'incorrect'/null
+ * @property {String} icon - 'info' or null
  */
-
 /**
  * Item Button List
  * Ordered list of buttons representing items from a testMap section
