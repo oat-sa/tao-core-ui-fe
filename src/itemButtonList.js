@@ -46,14 +46,8 @@ const cssSelectors = {
  * @typedef {Object} ItemButton
  * @property {String} id - item id
  * @property {Number} position - 0-based list index
- * @property {String} label - displayed text
- * @property {String} numericLabel - displayed number (alternative to label)
+ * @property {String} numericLabel - displayed number
  * @property {String} ariaLabel
- * @property {Number} score - the item's current score
- * @property {Number} maxScore - the item's max possible score
- * @property {Boolean} informational
- * @property {Boolean} skipped
- * @property {String} type - 'correct'/'incorrect'/'info'/'skipped'/'default'
  * @property {String} status - 'answered'/'viewed'/'unseen'
  * @property {String} scoreType - 'correct'/'incorrect'/null
  * @property {String} icon - 'info' or null
