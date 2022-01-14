@@ -1,0 +1,232 @@
+/**
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; under version 2
+ * of the License (non-upgradable).
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * Copyright (c) 2022 Open Assessment Technologies SA ;
+ */
+@import "inc/bootstrap";
+
+$correctColor: $success;
+$incorrectColor: $error;
+$hoverBgColor: hsl(208, 100%, 95%);
+
+$radiusCircular: 50%;
+$sizeDefault: 4rem;
+$hitboxSize: 6.25rem;
+$borderThin: 0.125rem;
+$borderMedium: 0.25rem;
+
+.buttonlist-items {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: start;
+    padding: 0;
+
+    /****** base styles *******/
+    .buttonlist-item {
+        height: $hitboxSize;
+        width: $hitboxSize;
+        display: flex;
+        justify-content: center; /* aligning left - cut focusing board for keyboard interacting */
+        align-items: center;
+        /* reset parent styles */
+        padding: 0;
+        border: none;
+    }
+
+    .buttonlist-btn {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: $sizeDefault;
+        width: $sizeDefault;
+        border-style: solid;
+        border-radius: $radiusCircular;
+        border-width: $borderThin;
+        border-color: $uiReviewPanelTextDisabled;
+        margin: 1.3rem 0.75rem 1rem 0.75rem;
+        padding: 0; /*Fixes firefox button jumps*/
+        font-weight: bold;
+        font-size: 1.6rem;
+        background-color: $uiReviewPanelBgDefault;
+        color: $uiReviewPanelTextDisabled;
+        text-shadow: none;
+        cursor: pointer;
+    }
+
+    .buttonlist-label {
+        font-family: 'Nunito Sans', 'Source Sans Pro', Arial, sans-serif;
+        max-width: 3.75rem;
+        overflow: hidden;
+        white-space: nowrap;
+        line-height: initial;
+    }
+
+    .buttonlist-icon {
+        padding: 0;
+        top: 0;
+        left: 0;
+    }
+
+    .indicator {
+        display: none;
+    }
+
+    .buttonlist-score-badge {
+        position: absolute;
+        top: -0.9rem;
+        right: -0.9rem;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 100%;
+        color: $uiReviewPanelTextInverted;
+        border: 0.1rem solid $uiReviewPanelTextInverted;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .buttonlist-score-icon {
+        font-size: 1.2rem;
+        padding: 0;
+        top: 0;
+        left: 0;
+    }
+
+    .icon-info::before {
+        @include icon-info-bare;
+    }
+    .icon-flagged::before {
+        @include icon-bookmark;
+    }
+    .icon-correct::before {
+        @include icon-result-ok;
+    }
+    .icon-incorrect::before {
+        @include icon-result-nok;
+    }
+
+
+    /****** step state styles *******/
+    .buttonlist-item {
+        @include disableSelect();
+
+        &.viewed {
+            .buttonlist-btn {
+                border-width: $borderMedium;
+                color: $uiReviewPanelTextDefault;
+                border-color: $uiReviewPanelTextDefault;
+            }
+        }
+        &.answered {
+            .buttonlist-btn {
+                border-width: $borderMedium;
+                background-color: $uiReviewPanelBgInverted;
+                color: $uiReviewPanelTextInverted;
+                border-color: $uiReviewPanelBgInverted;
+            }
+        }
+        &.buttonlist-item-active {
+            .indicator {
+                position: absolute;
+                display: block;
+                z-index: 1;
+                color: $uiReviewPanelTextDefault;
+                height: 1.4rem;
+                min-width: 1.6rem;
+                top: unset;
+                bottom: -1.7rem;
+                padding: 0;
+                /* centering horizontally */
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+
+        &.correct {
+            .buttonlist-score-badge {
+                background-color: $correctColor;
+            }
+        }
+
+        &.incorrect {
+            .buttonlist-score-badge {
+                background-color: $incorrectColor;
+            }
+        }
+
+    }
+
+    /* disabling is applied at the buttonlist-items level */
+    &:not(.disabled) {
+        .buttonlist-btn:hover {
+            background-color: $hoverBgColor;
+            color: $uiReviewPanelPrimaryHighlight;
+            border-color: $uiReviewPanelPrimaryHighlight;
+        }
+    }
+    &.disabled {
+         /* reset global styles */
+        background-color: unset !important;
+        opacity: 1 !important;
+        text-shadow: none !important;
+
+        .buttonlist-btn {
+            cursor: not-allowed;
+            /* reset global styles */
+            opacity: 0.5;
+            text-shadow: none;
+        }
+    }
+
+    /****** keyboard focus styles *******/
+    .buttonlist-item {
+        &.key-navigation-highlight .buttonlist-btn::before,
+        .buttonlist-btn.buttonlist-btn-focus:focus::before {
+            content: '';
+            display: block;
+            position: absolute;
+            width: 5.2rem;
+            height: 5.2rem;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border-width: $borderMedium;
+            border-color: $uiReviewPanelPrimaryHighlight;
+            border-style: dotted;
+            border-radius: $radiusCircular;
+        }
+
+        &.key-navigation-highlight.buttonlist-item-active .buttonlist-btn .indicator,
+        &.buttonlist-item-active .buttonlist-btn.buttonlist-btn-focus:focus .indicator,
+        &.buttonlist-item-active .buttonlist-btn:focus-visible .indicator {
+            color: $uiReviewPanelPrimaryHighlight;
+        }
+
+        &.key-navigation-highlight.viewed .buttonlist-btn,
+        &.viewed .buttonlist-btn.buttonlist-btn-focus:focus {
+            background-color: $uiReviewPanelBgDefault;
+            color: $uiReviewPanelPrimaryHighlight;
+            border-color: $uiReviewPanelPrimaryHighlight;
+        }
+
+        &.key-navigation-highlight.answered .buttonlist-btn,
+        &.answered .buttonlist-btn.buttonlist-btn-focus:focus {
+            background-color: $uiReviewPanelPrimaryHighlight;
+            color: $uiReviewPanelTextInverted;
+            border-color: $uiReviewPanelPrimaryHighlight;
+        }
+    }
+}
