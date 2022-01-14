@@ -1,6 +1,6 @@
 {
     "name": "@oat-sa/tao-core-ui",
-    "version": "1.48.0",
+    "version": "1.49.0",
     "displayName": "TAO Core UI",
     "description": "UI libraries of TAO",
     "scripts": {
@@ -51,7 +51,7 @@
         "@oat-sa/rollup-plugin-wildcard-external": "^0.1.0",
         "@oat-sa/tao-core-libs": "^0.4.4",
         "@oat-sa/tao-core-sdk": "^1.8.1",
-        "@oat-sa/tao-core-shared-libs": "1.0.0",
+        "@oat-sa/tao-core-shared-libs": "^1.0.4",
         "@oat-sa/tao-qunit-testrunner": "^1.0.3",
         "async": "^0.2.10",
         "autoprefixer": "^9.5.1",
@@ -61,7 +61,6 @@
         "dompurify": "^1.0.10",
         "eslint": "^7.32.0",
         "eslint-plugin-jsdoc": "^36.1.0",
-        "eve": "git+https://github.com/adobe-webplatform/eve.git#eef80ed",
         "flatpickr": "4.5.7",
         "fs-extra": "^8.0.1",
         "gamp": "^0.2.1",
