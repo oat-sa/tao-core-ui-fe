@@ -58,7 +58,7 @@
         "cross-env": "^7.0.2",
         "decimal.js": "10.1.1",
         "devbridge-autocomplete": "^1.2.20",
-        "dompurify": "^1.0.10",
+        "dompurify": "^2.0.17",
         "eslint": "^7.32.0",
         "eslint-plugin-jsdoc": "^36.1.0",
         "flatpickr": "4.5.7",
