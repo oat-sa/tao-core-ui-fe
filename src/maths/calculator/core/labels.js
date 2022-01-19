@@ -99,7 +99,7 @@ export default {
     ACOSH: __('cosh') + '<sup>\u207B1</sup>',
     ATANH: __('tanh') + '<sup>\u207B1</sup>',
     LN: 'ln',
-    LOG: 'log <sub>10</sub>',
+    LOG: 'log<sub>10</sub>',
     ABS: __('abs'),
     RAND: __('random'),
 
