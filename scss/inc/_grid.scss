@@ -17,9 +17,17 @@
     overflow-x: hidden; 
 }
 
-.grid-row, .fixed-grid-row {
+.grid-row, .fixed-grid-row, .colrow, .widget-block {
     @extend .clearfix;
     width: widthPerc(852, 840);
+    &:before {
+        @extend .clearfix:before;
+    }
+    &:after {
+        @extend .clearfix:after;
+    }
+    background: cornflowerblue;
+    //test
 }
 
 @for $i from 1 through 12 {
