@@ -17,7 +17,7 @@
     overflow-x: hidden; 
 }
 
-.grid-row, .fixed-grid-row, .colrow, .widget-block {
+.grid-row, .fixed-grid-row, .colrow {
     @extend .clearfix;
     width: widthPerc(852, 840);
     &:before {
@@ -26,8 +26,6 @@
     &:after {
         @extend .clearfix:after;
     }
-    background-color: cornflowerblue;
-    //test
 }
 
 @for $i from 1 through 12 {
