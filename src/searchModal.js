@@ -73,6 +73,7 @@ export default function searchModalFactory(config) {
 
     /**
      * Creates search modal, inits template selectors, inits search store, and once is created triggers initial search
+     * rootClassUri is sent to advancedSearch factory for disabling in whitelisted sections
      */
     function renderModal() {
         const promises = [];
@@ -80,7 +81,8 @@ export default function searchModalFactory(config) {
         initUiSelectors();
         advancedSearch = advancedSearchFactory({
             renderTo: $('.filters-container', $container),
-            advancedCriteria: instance.config.criterias.advancedCriteria
+            advancedCriteria: instance.config.criterias.advancedCriteria,
+            rootClassUri: rootClassUri
         });
         promises.push(initClassFilter());
         promises.push(initSearchStore());
