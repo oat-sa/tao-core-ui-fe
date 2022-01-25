@@ -85,7 +85,7 @@ export const initUpload = function (widget) {
                         cancel = confirmBox.find('.cancel');
                         save = confirmBox.find('.save');
 
-                        $('.alt-text', confirmBox).html(`"${$alt.val()}"<br>with<br>"${alt}" ?`);
+                        $('.alt-text', confirmBox).html(`"${$alt.val()}"<br>${__('with')}<br>"${alt}" ?`);
 
                         confirmBox.modal({ width: 500 });
 
