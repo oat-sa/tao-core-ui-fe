@@ -18,7 +18,6 @@
 
 import $ from 'jquery';
 import _ from 'lodash';
-import __ from 'i18n';
 import advancedSearchTpl from 'ui/searchModal/tpl/advanced-search';
 import textCriterionTpl from 'ui/searchModal/tpl/text-criterion';
 import invalidCriteriaWarningTpl from 'ui/searchModal/tpl/invalid-criteria-warning';
@@ -99,7 +98,7 @@ export default function advancedSearchFactory(config) {
             $advancedCriteriaContainer.empty();
             _.forEach(criteriaState, criterion => {
                 criterion.rendered = false;
-                criterion.value = undefined;
+                criterion.value = null;
             });
         },
         /**
@@ -155,6 +154,17 @@ export default function advancedSearchFactory(config) {
     }
 
     /**
+     * Lookup for characters in text to highlight
+     * @param {String} text - text to lookup
+     * @param {String} highlight - character(s) to be highlighted
+     * @param {regExp|String} match - match to be applied in the text
+     * @returns {String} - highlighted text
+     */
+    function highlightCharacter(text, highlight, match) {
+        return text.replace(match, `<b>${highlight}</b>`);
+    }
+
+    /**
      * Inits select2 on criteria select and its UX logic
      */
     function initAddCriteriaSelector() {
@@ -174,8 +184,18 @@ export default function advancedSearchFactory(config) {
                     escapeMarkup: function(markup) {
                         return markup;
                     },
-                    formatResult: function formatResult(result, container, query, escapedMarkup) {
-                        return result.text;
+                    formatResult: function formatResult(result, container, query) {
+                        const label = result.element[0].getAttribute('label');
+                        const sublabel = result.element[0].getAttribute('sublabel');
+                        const match = new RegExp(query.term, 'ig');
+                        let template = highlightCharacter(label, query.term, match);
+
+                        // Add sublabel
+                        if(sublabel && sublabel.length) {
+                            template = template + `<span class="class-path"> / ${highlightCharacter(sublabel, query.term, match)}</span>`;
+                        }
+
+                        return template;
                     }
                 });
 
@@ -209,12 +229,12 @@ export default function advancedSearchFactory(config) {
     /**
      * inits criteriaState loading it from the store (if present) or empty object.
      * If there is a stored criteriaState, those criteria that were rendered
-     * but with undefined value are updated to not being rendered
+     * but with null value are updated to not being rendered
      */
     function initCriteriaState() {
         if (instance.config.advancedCriteria) {
             _.forEach(instance.config.advancedCriteria, criterion => {
-                if (criterion.rendered === true && criterion.value === undefined) {
+                if (criterion.rendered === true && criterion.value === null) {
                     criterion.rendered = false;
                 }
             });
@@ -304,7 +324,7 @@ export default function advancedSearchFactory(config) {
                         };
                     },
                     results: (response) => ({
-                          results: response.data.map(option => ({ id: valueMapping === 'uri' ? option.uri : option.label, text: option.label }))
+                        results: response.data.map(option => ({ id: valueMapping === 'uri' ? option.uri : option.label, text: option.label }))
                     })
                 },
                 initSelection: function (element, callback) {
@@ -341,14 +361,14 @@ export default function advancedSearchFactory(config) {
                 return criterion.value.map(v => ({
                     id: v,
                     text: (data.find(d => d.uri === v) || {}).label
-                }))
+                }));
             }
-            let c = (data.find(d => d.uri === criterion.value) || {})
+            let c = (data.find(d => d.uri === criterion.value) || {});
             return {
                 text: c.label,
                 id: criterion.value,
-            }
-        })
+            };
+        });
     }
 
     /**
@@ -363,7 +383,7 @@ export default function advancedSearchFactory(config) {
                 $('input', $criterionContainer).val(criterion.value);
                 // set event to bind input value to critariaState
                 $('input', $criterionContainer).on('change', function () {
-                    criterion.value = $(this).val() || undefined;
+                    criterion.value = $(this).val() || null;
                 });
             } else if (criterion.type === criteriaTypes.list && criterion.uri) {
                 // set initial value
@@ -409,7 +429,7 @@ export default function advancedSearchFactory(config) {
 
         // reset criterion values on criteriaState
         criteriaState[criterionKey].rendered = false;
-        criteriaState[criterionKey].value = undefined;
+        criteriaState[criterionKey].value = null;
 
         // check if advanced criteria container is no longer scrollable
         if ($advancedCriteriaContainer.get(0).scrollHeight <= $advancedCriteriaContainer.outerHeight()) {
@@ -520,7 +540,7 @@ export default function advancedSearchFactory(config) {
                 // if new criterion was not on criteriaState we add it
                 criteriaState[criteriaStateId] = criterion;
                 criteriaState[criteriaStateId].rendered = false;
-                criteriaState[criteriaStateId].value = undefined;
+                criteriaState[criteriaStateId].value = null;
             }
 
             // create new option element to criteria select
@@ -531,18 +551,33 @@ export default function advancedSearchFactory(config) {
     }
 
     /**
+     * Creates a new option element
+     * with attributes to use in select2 markup
      * @param {Object} criterion
-     * @returns Option
+     * @returns {HTMLOptionElement} Single option criteria
      */
     function createCriteriaOption(criterion) {
-        const infoText = criterion.isDuplicated ? ` <span class="class-path">/${criterion.class.label}</span>` : '';
+        let label = criterion.label;
+        let sublabel = '';
+        let option;
+        let optionText = label;
 
-        return new Option(
-            criterion.label + infoText,
+        if(criterion.isDuplicated) {
+            sublabel = criterion.class.label;
+            optionText = `${label} / ${sublabel}`;
+        }
+
+        option = new Option(
+            optionText,
             getCriterionStateId(criterion),
             false,
             false
         );
+
+        option.setAttribute('label', label);
+        option.setAttribute('sublabel', sublabel);
+
+        return option;
     }
 
     /**
