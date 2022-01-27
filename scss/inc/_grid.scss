@@ -20,12 +20,6 @@
 .grid-row, .fixed-grid-row, .colrow {
     @extend .clearfix;
     width: widthPerc(852, 840);
-    &:before {
-        @extend .clearfix:before;
-    }
-    &:after {
-        @extend .clearfix:after;
-    }
 }
 
 @for $i from 1 through 12 {
