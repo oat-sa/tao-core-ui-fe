@@ -18,7 +18,6 @@
 
 import $ from 'jquery';
 import _ from 'lodash';
-import context from 'context';
 import advancedSearchTpl from 'ui/searchModal/tpl/advanced-search';
 import textCriterionTpl from 'ui/searchModal/tpl/text-criterion';
 import invalidCriteriaWarningTpl from 'ui/searchModal/tpl/invalid-criteria-warning';
@@ -38,6 +37,7 @@ import request from 'core/dataProvider/request';
  * @param {object} config
  * @param {object} config.renderTo - DOM element where component will be rendered to
  * @param {string} config.advancedCriteria - advanced criteria to be set on component creation
+ * @param {string} config.rootClassUri - rootClassUri to check for whitelist sections
  * @returns {advancedSearch}
  */
 export default function advancedSearchFactory(config) {
@@ -171,7 +171,7 @@ export default function advancedSearchFactory(config) {
         const route = urlUtil.route('status', 'AdvancedSearch', 'tao');
         return request(route)
             .then(function (response) {
-                if (!response.enabled || context.shownStructure === 'results') {
+                if (!response.enabled || response.whitelist.includes(config.rootClassUri)) {
                     isAdvancedSearchStatusEnabled = false;
                     return;
                 }
