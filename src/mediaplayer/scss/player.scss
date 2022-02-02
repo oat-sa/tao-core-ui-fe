@@ -343,6 +343,43 @@ $controlsHeight: 36px;
                 bottom: 0;
             }
         }
+
+        &.stalled {
+            .player {
+                .player-overlay {
+                    [data-control="reload"] {
+                        display: flex;
+                        align-items: center;
+                        background-color: #000;
+                        margin: 0;
+                        flex-wrap: wrap;
+                        padding: 5px 5px 5px 50px;
+                        text-align: left;
+                        line-height: 2.3rem;
+                        &.reload {
+                            width: calc(100% + 2px);
+                            font-size: 20px;
+                            line-height: 20px;
+                            min-height: 36px;
+
+                            .icon {
+                                text-shadow: none;
+                                position: absolute;
+                                left: 0;
+                                font-size: 2rem;
+                                font-weight: bold;
+                            }
+
+                            .message {
+                                text-shadow: none;
+                                font-size: 1.3rem;
+                                margin-right: 5px;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     &.ready {
@@ -355,9 +392,11 @@ $controlsHeight: 36px;
                 cursor: pointer;
             }
 
-            .player:hover {
-                [data-control="play"] {
-                    display: inline-block;
+            &:not(.audio) {
+                .player:hover {
+                    [data-control="play"] {
+                        display: inline-block;
+                    }
                 }
             }
 
@@ -375,9 +414,11 @@ $controlsHeight: 36px;
                 cursor: pointer;
             }
 
-            .player:hover {
-                [data-control="pause"] {
-                    display: inline-block;
+            &:not(.audio) {
+                .player:hover {
+                    [data-control="pause"] {
+                        display: inline-block;
+                    }
                 }
             }
         }

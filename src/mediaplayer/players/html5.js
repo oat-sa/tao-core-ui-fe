@@ -23,22 +23,30 @@ import support from 'ui/mediaplayer/support';
 import audioTpl from 'ui/mediaplayer/tpl/audio';
 import videoTpl from 'ui/mediaplayer/tpl/video';
 import sourceTpl from 'ui/mediaplayer/tpl/source';
+import reminderManagerFactory from 'ui/mediaplayer/utils/reminder';
+import timeObserverFactory from 'ui/mediaplayer/utils/timeObserver';
 
 /**
  * CSS namespace
- * @type {String}
+ * @type {string}
  */
 const ns = '.mediaplayer';
 
 /**
  * Range value of the volume
- * @type {Number}
+ * @type {number}
  */
 const volumeRange = 100;
 
 /**
+ * Delay before considering a media stalled
+ * @type {number}
+ */
+const stalledDetectionDelay = 2000;
+
+/**
  * List of media events that can be listened to for debugging
- * @type {String[]}
+ * @type {string[]}
  */
 const mediaEvents = [
     'abort',
@@ -71,40 +79,32 @@ const mediaEvents = [
 
 /**
  * List of player events that can be listened to for debugging
- * @type {String[]}
+ * @type {string[]}
  */
-const playerEvents = [
-    'end',
-    'error',
-    'pause',
-    'play',
-    'playing',
-    'ready',
-    'recovererror',
-    'resize',
-    'stalled',
-    'timeupdate'
-];
+const playerEvents = ['end', 'error', 'pause', 'play', 'playing', 'ready', 'resize', 'stalled', 'timeupdate'];
 
 /**
  * Defines a player object dedicated to the native HTML5 player
  * @param {jQuery} $container - Where to render the player
- * @param {Object} config - The list of config entries
+ * @param {object} config - The list of config entries
  * @param {Array} config.sources - The list of media sources
- * @param {String} [config.type] - The type of player (video or audio) (default: video)
- * @param {Boolean} [config.preview] - Enables the media preview (load media metadata)
- * @param {Boolean} [config.debug] - Enables the debug mode
- * @returns {Object} player
+ * @param {string} [config.type] - The type of player (video or audio) (default: video)
+ * @param {boolean} [config.preview] - Enables the media preview (load media metadata)
+ * @param {boolean} [config.debug] - Enables the debug mode
+ * @param {number} [config.config.stalledDetectionDelay] - The delay before considering a media is stalled
+ * @returns {object} player
  */
 export default function html5PlayerFactory($container, config = {}) {
     const type = config.type || 'video';
     const sources = config.sources || [];
+    const updateObserver = reminderManagerFactory();
+    const timeObserver = timeObserverFactory();
+
+    config.stalledDetectionDelay = config.stalledDetectionDelay || stalledDetectionDelay;
 
     let $media;
     let media;
-    let playback = false;
-    let loaded = false;
-    let stalled = false;
+    let state = {};
 
     const getDebugContext = action => {
         const networkState = media && media.networkState;
@@ -112,9 +112,10 @@ export default function html5PlayerFactory($container, config = {}) {
         return `[html5-${type}(networkState=${networkState},readyState=${readyState}):${action}]`;
     };
     // eslint-disable-next-line
-    const debug = (action, ...args) => config.debug && window.console.log(getDebugContext(action), ...args);
+    const debug = (action, ...args) =>
+        (config.debug === true || config.debug === action) && window.console.log(getDebugContext(action), ...args);
 
-    const player = {
+    return eventifier({
         init() {
             const tpl = 'audio' === type ? audioTpl : videoTpl;
             const page = new UrlParser(window.location);
@@ -123,6 +124,8 @@ export default function html5PlayerFactory($container, config = {}) {
             let poster = '';
             let link = '';
             let result = false;
+
+            state = {};
 
             sources.forEach(source => {
                 if (!page.sameDomain(source.src)) {
@@ -139,38 +142,65 @@ export default function html5PlayerFactory($container, config = {}) {
             $media = $(tpl({ cors, preload, poster, link }));
             $container.append($media);
 
-            playback = false;
-            loaded = false;
-            stalled = false;
-
             media = $media.get(0);
             result = !!(media && support.checkSupport(media));
 
-            // remove the browser native controls if we can use the API instead
+            // Remove the browser native controls if we can use the API instead
             if (support.canControl()) {
                 $media.removeAttr('controls');
             }
 
+            // Detect stalled video when the timer suddenly jump to the end
+            timeObserver.removeAllListeners().on('irregularity', position => {
+                if (state.playback && state.stallDetection) {
+                    this.stalled(position);
+                }
+            });
+
             $media
                 .on(`play${ns}`, () => {
-                    playback = true;
+                    state.playback = true;
+                    state.playedViaApi = false;
+                    timeObserver.init(media.currentTime, media.duration);
                     this.trigger('play');
                 })
                 .on(`pause${ns}`, () => {
+                    if (
+                        state.stallDetection &&
+                        !state.pausedViaApi &&
+                        updateObserver.running &&
+                        updateObserver.elapsed < 100
+                    ) {
+                        // The pause event may be triggered after a connectivity issue as the player is out of data
+                        this.stalled();
+                    }
+                    state.pausedViaApi = false;
+                    state.playing = false;
+                    updateObserver.stop();
                     this.trigger('pause');
                 })
+                .on(`seeked${ns}`, () => {
+                    // When the user try changing the current playing position while the network is down,
+                    // the player will end the playback by moving straight to the end.
+                    if (state.seekedViaApi && Math.floor(state.seekAt) !== Math.floor(media.currentTime)) {
+                        state.stallDetection = true;
+                    }
+                    state.seekedViaApi = false;
+                })
                 .on(`ended${ns}`, () => {
-                    playback = false;
+                    updateObserver.forget().stop();
+                    timeObserver.update(media.currentTime);
+                    state.playback = false;
+                    state.playing = false;
                     this.trigger('end');
                 })
                 .on(`timeupdate${ns}`, () => {
+                    state.playing = true;
+                    updateObserver.start();
+                    timeObserver.update(media.currentTime);
                     this.trigger('timeupdate');
                 })
                 .on('loadstart', () => {
-                    if (stalled) {
-                        return;
-                    }
-
                     if (media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
                         this.trigger('error');
                     }
@@ -178,24 +208,54 @@ export default function html5PlayerFactory($container, config = {}) {
                     if (!config.preview && media.networkState === HTMLMediaElement.NETWORK_IDLE) {
                         this.trigger('ready');
                     }
+
+                    // The media may be unreachable straight from the beginning
+                    this.detectStalledNetwork();
+                })
+                .on(`waiting${ns}`, () => {
+                    // The "waiting" event means the player is pending data,
+                    // it may be the symptom of a connectivity issue
+                    this.detectStalledNetwork();
                 })
                 .on(`error${ns}`, () => {
-                    if (media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
+                    if (
+                        media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE ||
+                        (media.error instanceof MediaError &&
+                            media.error.code === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED)
+                    ) {
+                        // No source means the player does not support the supplied media.
+                        // Or it can be more explicit with the not supported error.
+                        // There is nothing that we can do from this stage.
                         this.trigger('error');
                     } else {
-                        this.trigger('recovererror', media.networkState === HTMLMediaElement.NETWORK_LOADING);
+                        // Other errors need special attention as they can be recoverable
+                        this.handleError(media.error);
                     }
                 })
+                .on('loadedmetadata', () => {
+                    timeObserver.init(media.currentTime, media.duration);
+                    this.ready();
+                })
                 .on(`canplay${ns}`, () => {
-                    loaded = true;
-                    this.trigger('ready');
+                    if (!state.stalled) {
+                        this.ready();
+                    }
                 })
                 .on(`stalled${ns}`, () => {
-                    stalled = true;
-                    this.trigger('stalled');
+                    // The "stalled" event may be triggered once the player is halted after initialisation,
+                    // but this does not mean the playback is actually stalled, hence we only take care of the playing state
+                    if (state.playing && !media.paused) {
+                        this.handleError(media.error);
+                    }
                 })
                 .on(`playing${ns}`, () => {
-                    stalled = false;
+                    if (state.stallDetection) {
+                        // The "playing" event may occur after a connectivity issue.
+                        // For the sake of the stall detection, we need to discard this event
+                        return;
+                    }
+                    updateObserver.forget().start();
+                    state.playing = true;
                     this.trigger('playing');
                 });
 
@@ -212,12 +272,124 @@ export default function html5PlayerFactory($container, config = {}) {
                 });
             }
 
-            sources.forEach(source => {
-                const { src, type } = source;
-                this.addMedia(src, type);
-            });
+            result =
+                result &&
+                sources.reduce((supported, source) => this.addMedia(source.src, source.type) || supported, false);
 
             return result;
+        },
+
+        handleError(error) {
+            // Discard legitimate and non-blocking errors
+            switch (error && error.name) {
+                case 'NotAllowedError':
+                    debug('api call', 'handleError', 'the autoplay is not allowed without a user interaction', error);
+                    return;
+
+                case 'AbortError':
+                    debug('api call', 'handleError', 'the action has been aborted for some reason', error);
+                    return;
+            }
+
+            debug('api call', 'handleError', error);
+
+            // Detect if the playback can continue a bit
+            const canContinueTemporarily =
+                media &&
+                (media.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA ||
+                    media.readyState === HTMLMediaElement.HAVE_FUTURE_DATA ||
+                    media.readyState === HTMLMediaElement.HAVE_CURRENT_DATA);
+
+            // If a connectivity error occurs we may need to enter in stalled mode unless we can wait a bit
+            if (
+                error instanceof MediaError &&
+                (error.code === MediaError.MEDIA_ERR_NETWORK || error.code === MediaError.MEDIA_ERR_DECODE) &&
+                !canContinueTemporarily
+            ) {
+                this.stalled();
+                return;
+            }
+
+            // To this point, there is a big chance the media is stalled.
+            // We start an observer to remind as soon as an irregularity occurs on the time update
+            state.stallDetection = true;
+            updateObserver.remind(() => {
+                // The last time update is a bit old, the media is most probably stalled now
+                if (updateObserver.elapsed >= config.stalledDetectionDelay) {
+                    this.stalled();
+                }
+            }, config.stalledDetectionDelay);
+
+            updateObserver.start();
+        },
+
+        ready() {
+            if (!state.ready) {
+                state.ready = true;
+                this.trigger('ready');
+            }
+        },
+
+        detectStalledNetwork() {
+            // Install an observer that will watch the network state after a small delay.
+            // It is needed since the network state may need time to settle.
+            setTimeout(() => {
+                if (
+                    media &&
+                    media.networkState === HTMLMediaElement.NETWORK_NO_SOURCE &&
+                    media.readyState === HTMLMediaElement.HAVE_NOTHING
+                ) {
+                    if (!state.ready) {
+                        this.trigger('ready');
+                    }
+                    this.stalled();
+                }
+            }, config.stalledDetectionDelay);
+        },
+
+        stalled(position) {
+            debug('api call', 'stalled');
+
+            if (media) {
+                if ('undefined' !== typeof position) {
+                    state.stalledAt = position;
+                } else {
+                    state.stalledAt = timeObserver.position;
+                }
+            }
+            state.stalled = true;
+            state.stallDetection = false;
+            updateObserver.forget().stop();
+
+            this.pause();
+            this.trigger('stalled');
+        },
+
+        recover() {
+            debug('api call', 'recover');
+
+            state.stalled = false;
+            state.stallDetection = false;
+            if (media) {
+                // Special processing of video player to prevent visual glitch while reloading
+                if (media.tagName === 'VIDEO') {
+                    // Temporarily set the size of the media to prevent a shrink while reloading it
+                    $media.width($media.width());
+                    $media.height($media.height());
+                    $media.on('loadedmetadata.recover', () => {
+                        $media.off('loadedmetadata.recover');
+                        $media.css({ width: '', height: '' });
+                    });
+                }
+
+                media.load();
+                if (state.stalledAt) {
+                    this.seek(state.stalledAt);
+                }
+                if ((state.playback && !state.playing) || state.playedViaApi) {
+                    this.play();
+                }
+            }
         },
 
         destroy() {
@@ -225,6 +397,8 @@ export default function html5PlayerFactory($container, config = {}) {
 
             this.stop();
             this.removeAllListeners();
+            updateObserver.forget();
+            timeObserver.removeAllListeners();
 
             if ($media) {
                 $media.off(ns).remove();
@@ -232,9 +406,7 @@ export default function html5PlayerFactory($container, config = {}) {
 
             $media = void 0;
             media = void 0;
-            playback = false;
-            loaded = false;
-            stalled = false;
+            state = {};
         },
 
         getMedia() {
@@ -305,7 +477,10 @@ export default function html5PlayerFactory($container, config = {}) {
 
             if (media) {
                 media.currentTime = parseFloat(time);
-                if (!playback) {
+                state.seekedViaApi = true;
+                state.seekAt = media.currentTime;
+                timeObserver.seek(media.currentTime);
+                if (!state.playback) {
                     this.play();
                 }
             }
@@ -315,7 +490,11 @@ export default function html5PlayerFactory($container, config = {}) {
             debug('api call', 'play');
 
             if (media) {
-                media.play().catch(err => debug('playback error', err));
+                state.playedViaApi = true;
+                const startPlayPromise = media.play();
+                if ('undefined' !== typeof startPlayPromise) {
+                    startPlayPromise.catch(error => this.handleError(error));
+                }
             }
         },
 
@@ -323,6 +502,9 @@ export default function html5PlayerFactory($container, config = {}) {
             debug('api call', 'pause');
 
             if (media) {
+                if (!media.paused) {
+                    state.pausedViaApi = true;
+                }
                 media.pause();
             }
         },
@@ -330,16 +512,16 @@ export default function html5PlayerFactory($container, config = {}) {
         stop() {
             debug('api call', 'stop');
 
-            if (media && playback) {
+            if (media && media.duration && state.playback && !state.stalled) {
                 media.currentTime = media.duration;
             }
         },
 
-        mute(state) {
-            debug('api call', 'mute', state);
+        mute(muted) {
+            debug('api call', 'mute', muted);
 
             if (media) {
-                media.muted = !!state;
+                media.muted = !!muted;
             }
         },
 
@@ -353,32 +535,30 @@ export default function html5PlayerFactory($container, config = {}) {
             return mute;
         },
 
-        addMedia(src, type) {
-            debug('api call', 'addMedia', src, type);
+        addMedia(src, srcType) {
+            debug('api call', 'addMedia', src, srcType);
 
             if (media) {
-                if (!support.checkSupport(media, type)) {
+                if (!support.checkSupport(media, srcType)) {
                     return false;
                 }
             }
 
             if (src && $media) {
-                $media.append(sourceTpl({ src, type }));
+                $media.append(sourceTpl({ src, type: srcType }));
                 return true;
             }
             return false;
         },
 
-        setMedia(src, type) {
-            debug('api call', 'setMedia', src, type);
+        setMedia(src, srcType) {
+            debug('api call', 'setMedia', src, srcType);
 
             if ($media) {
                 $media.empty();
-                return this.addMedia(src, type);
+                return this.addMedia(src, srcType);
             }
             return false;
         }
-    };
-
-    return eventifier(player);
+    });
 }

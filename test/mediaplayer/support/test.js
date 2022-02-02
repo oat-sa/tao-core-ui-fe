@@ -38,7 +38,7 @@ define(['ui/mediaplayer/support', 'test/ui/mediaplayer/mocks/userAgentMock'], fu
                 return {
                     canPlayType(type) {
                         const supportList = {
-                            'video/webm; codecs="vp8, vorbis"': 'probably',
+                            'video/webm': 'probably',
                             'video/mp4; codecs="avc1.42E01E, mp4a.40.2"': 'maybe',
                             'video/mkv': 'no'
                         };

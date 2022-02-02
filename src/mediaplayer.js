@@ -77,7 +77,6 @@ const defaults = {
         startMuted: false,
         maxPlays: 0,
         replayTimeout: 0,
-        stalledTimeout: 2000,
         canPause: true,
         canSeek: true,
         loop: false,
@@ -190,8 +189,14 @@ const isResponsiveSize = sizeProps => {
 /**
  * Builds a media player instance
  * @param {Object} config
- * @param {String} config.type - The type of media to play
- * @param {String|Array} config.url - The URL to the media
+ * @param {String} config.type - The type of media to play, say `audio`, `video`, or `youtube`. The default is `video`.
+ * It might also contain the MIME type of the media as a shorthand.
+ * @param {String|Array} [config.url] - The URL to the media. If several media are proposed as alternatives,
+ * please look at the `sources` option instead.
+ * @param {String} [config.mimeType] - The MIME type of the media. If omitted, the player will try to extract it
+ * from the `type` property, otherwise it will request the server to get the content-type.
+ * @param {Array} [config.sources] - A list of URL if several media can be proposed. Each entry may be either a
+ * string (single URL), or an object containing both the URL and the MIME type ({src: string, type: string}).
  * @param {String|jQuery|HTMLElement} [config.renderTo] - An optional container in which renders the player
  * @param {Boolean} [config.canSeek] - The player allows to reach an arbitrary position within the media using the duration bar
  * @param {Boolean} [config.loop] - The media will be played continuously
@@ -201,15 +206,14 @@ const isResponsiveSize = sizeProps => {
  * @param {Number} [config.autoStartAt] - The time position at which the player should start
  * @param {Number} [config.maxPlays] - Sets a few number of plays (default: infinite)
  * @param {Number} [config.replayTimeout] - disable the possibility to replay a media after this timeout, in seconds (default: 0)
- * @param {Number} [config.stalledTimeout] - delay before considering stalled playback (default: 2000)
  * @param {Number} [config.volume] - Sets the sound volume (default: 80)
  * @param {Number} [config.width] - Sets the width of the player (default: depends on media type)
  * @param {Number} [config.height] - Sets the height of the player (default: depends on media type)
  * @param {Boolean} [config.preview] - Enables the media preview (load media metadata)
  * @param {Boolean} [config.debug] - Enables the debug mode
+ * @param {number} [config.config.stalledDetectionDelay] - The delay before considering a media is stalled
  * @event render - Event triggered when the player is rendering
  * @event error - Event triggered when the player throws an unrecoverable error
- * @event recovererror - Event triggered when the player throws a recoverable error
  * @event ready - Event triggered when the player is fully ready
  * @event play - Event triggered when the playback is starting
  * @event update - Event triggered while the player is playing
@@ -234,6 +238,9 @@ function mediaplayerFactory(config) {
             // load the config set, discard null values in order to allow defaults to be set
             this.config = _.omit(config || {}, value => typeof value === 'undefined' || value === null);
             _.defaults(this.config, defaults.options);
+            if (!this.config.mimeType && 'string' === typeof this.config.type && this.config.type.indexOf('/') > 0) {
+                this.config.mimeType = this.config.type;
+            }
             this._setType(this.config.type || defaults.type);
 
             this._reset();
@@ -345,23 +352,11 @@ function mediaplayerFactory(config) {
              */
             this.trigger('reload');
 
-            // destroy player
             if (this.player) {
-                this.player.destroy();
+                this.player.recover();
             }
-
-            // remove events and component
-            if (this.$component) {
-                this._unbindEvents();
-                this._destroySlider(this.$seekSlider);
-                this._destroySlider(this.$volumeSlider);
-
-                this.$component.remove();
-                this.$component = null;
-            }
-
-            // rerender
-            this.render();
+            this._setState('stalled', false);
+            this.setInitialStates();
         },
 
         /**
@@ -788,8 +783,12 @@ function mediaplayerFactory(config) {
                 source = _.clone(src);
             }
 
-            if (this.is('youtube') && !source.type) {
-                source.type = defaults.type;
+            if (!source.type) {
+                if (this.is('youtube')) {
+                    source.type = defaults.type;
+                } else if (this.config.mimeType) {
+                    source.type = this.config.mimeType;
+                }
             }
 
             if (!source.type) {
@@ -872,7 +871,8 @@ function mediaplayerFactory(config) {
                         type: this.getType(),
                         sources: this.getSources(),
                         preview: this.config.preview,
-                        debug: this.config.debug
+                        debug: this.config.debug,
+                        stalledDetectionDelay: this.config.stalledDetectionDelay
                     };
                     this.player = playerFactory(this.$player, playerConfig)
                         .on('resize', (width, height) => {
@@ -887,8 +887,7 @@ function mediaplayerFactory(config) {
                         .on('stalled', () => this._onStalled())
                         .on('playing', () => this._onPlaying())
                         .on('end', () => this._onEnd())
-                        .on('error', () => this._onError())
-                        .on('recovererror', fromLoading => this._onRecoverError(fromLoading));
+                        .on('error', () => this._onError());
                 }
 
                 if (this.player) {
@@ -903,7 +902,11 @@ function mediaplayerFactory(config) {
             this._setState('error', error);
             this._setState('nogui', !support.canControl());
             this._setState('preview', this.config.preview);
-            this._setState('loading', true);
+            this._setState('loading', !error);
+            if (error) {
+                this._setState('ready', true);
+                this.trigger('ready');
+            }
         },
 
         /**
@@ -1236,7 +1239,7 @@ function mediaplayerFactory(config) {
          */
         _onReady() {
             if (this.is('error')) {
-                this._onRecoverError();
+                this._setState('error', false);
             }
 
             const duration = this.player.getDuration();
@@ -1263,11 +1266,6 @@ function mediaplayerFactory(config) {
 
             if (this.config.preview && this.$container && this.config.height && this.config.height !== 'auto') {
                 this._setMaxHeight();
-            }
-
-            // seek back to the previous position after recover from stalled
-            if (this.is('stalled')) {
-                this.play(this.positionBeforeStalled);
             }
         },
 
@@ -1333,26 +1331,6 @@ function mediaplayerFactory(config) {
         },
 
         /**
-         * Event called when the media throws recoverable error
-         * @param {Boolean} fromLoading - recover from an error while loading the media
-         * @private
-         */
-        _onRecoverError(fromLoading = false) {
-            // recover from playing error
-            if (fromLoading && this.is('playing')) {
-                this.render();
-            }
-
-            this._setState('error', false);
-
-            /**
-             * Triggers a recoverable media error event
-             * @event mediaplayer#recovererror
-             */
-            this.trigger('recovererror');
-        },
-
-        /**
          * Event called when the media is played
          * @private
          */
@@ -1390,10 +1368,11 @@ function mediaplayerFactory(config) {
             this._playingState(false, true);
             this._updatePosition(0);
 
-            // disable GUI when the play limit is reached
+            // disable when the play limit is reached
             if (this._playLimitReached()) {
-                this._disableGUI();
-
+                if (!this.is('disabled')) {
+                    this.disable();
+                }
                 /**
                  * Triggers a play limit reached event
                  * @event mediaplayer#limitreached
@@ -1428,15 +1407,8 @@ function mediaplayerFactory(config) {
          * @private
          */
         _onStalled() {
-            this.stalledTimeUpdateCount = 0;
-            this.stalledTimer = window.setTimeout(() => {
-                const position = this.getPosition();
-                if (position) {
-                    this.positionBeforeStalled = position;
-                }
-                this._setState('stalled', true);
-                this._setState('ready', false);
-            }, this.config.stalledTimeout);
+            this._setState('stalled', true);
+            this._setState('ready', false);
         },
 
         /**
@@ -1444,15 +1416,6 @@ function mediaplayerFactory(config) {
          * @private
          */
         _onTimeUpdate() {
-            if (this.stalledTimer) {
-                if (this.stalledTimeUpdateCount === 5) {
-                    window.clearTimeout(this.stalledTimer);
-                    this.stalledTimer = null;
-                } else {
-                    this.stalledTimeUpdateCount++;
-                }
-            }
-
             this._updatePosition(this.player.getPosition());
 
             /**
@@ -1473,19 +1436,9 @@ function mediaplayerFactory(config) {
             this.timerId = requestAnimationFrame(this._replayTimeout.bind(this));
 
             if (elapsedSeconds >= parseInt(this.config.replayTimeout, 10)) {
-                this._disableGUI();
                 this.disable();
                 cancelAnimationFrame(this.timerId);
             }
-        },
-
-        /**
-         * Disable the player GUI
-         * @private
-         */
-        _disableGUI() {
-            this._setState('ready', false);
-            this._setState('canplay', false);
         },
 
         /**
@@ -1605,11 +1558,8 @@ function mediaplayerFactory(config) {
          * @private
          */
         execute(command, ...args) {
-            const ctx = this.player;
-            const method = ctx && ctx[command];
-
-            if (_.isFunction(method)) {
-                return method.apply(ctx, args);
+            if (this.player && 'function' === typeof this.player[command]) {
+                return this.player[command](...args);
             }
         }
     };
