@@ -101,3 +101,11 @@ legend.cke_voice_label {
   background: #FF6416;
   color: white;
 }
+
+.cke_editable:focus .cke_table-faked-selection {
+	/* We have to use !important here, as td might specify it's own background, thus table selection
+	would not be visible. */
+	background: #b3d4fc;
+  text-shadow: none;
+  color: $textColor;
+}
