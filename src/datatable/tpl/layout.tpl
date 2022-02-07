@@ -122,22 +122,18 @@
     PLEASE UPDATE shallowUpdate METHOD ACCORDINGLY}}
                         {{#each @root.options.actions}}
                         <td class="actions">
-                            {{!#each this}}
-                                {{#if id}}
-                                    {{!#with ../../../this}}
-                                        {{#unless hidden}}
+                            {{#if id}}
+                                {{#unless hidden}}
                             <button class="btn-info small {{id}}"
                                 {{#if title}} title="{{title}}"{{/if}}
                                 {{#if disabled}} disabled="disabled"{{/if}}>
                                 {{#if icon}}<span class="icon-{{icon}}"></span>{{/if}}
                                 {{label}}
                             </button>
-                                        {{/unless}}
-                                    {{!/with}}
-                                {{else}}
+                                {{/unless}}
+                            {{else}}
                             <button class="btn-info small {{@key}}"><span class="icon-{{@key}}"></span> {{@key}}</button>
-                                {{/if}}
-                            {{!/each}}
+                            {{/if}}
                         </td>
                         {{/each}}
                     </tr>
