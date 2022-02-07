@@ -32,22 +32,6 @@ const Handlebars = require('handlebars');
 
 const production = process.env.NODE_ENV === 'production';
 
-/**
- * Support of handlebars 1.3.0
- * TODO remove once migrated to hbs >= 3.0.0
- */
-const originalVisitor = Handlebars.Visitor;
-Handlebars.Visitor = function() {
-    return originalVisitor.call(this);
-};
-Handlebars.Visitor.prototype = Object.create(originalVisitor.prototype);
-Handlebars.Visitor.prototype.accept = function() {
-    try {
-        originalVisitor.prototype.accept.apply(this, arguments);
-    } catch (e) {}
-};
-/* --------------------------------------------------------- */
-
 const inputs = glob.sync(path.join(srcDir, '**', '*.js'));
 
 /**
@@ -116,8 +100,6 @@ export default inputs.map(input => {
                     module: Handlebars
                 },
                 helpers: ['build/tpl.js'],
-                isPartial : () => true,
-                partialRoot: srcDir,
                 templateExtension: '.tpl'
             }),
             /**
