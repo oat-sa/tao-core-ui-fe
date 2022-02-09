@@ -562,10 +562,6 @@ export default function advancedSearchFactory(config) {
         let option;
         let optionText = label;
 
-        if(criterion.isDuplicated) {
-            sublabel = criterion.class.label;
-            optionText = `${label} / ${sublabel}`;
-        }
         if (criterion.isDuplicated) {
             sublabel = criterion.class.label;
             optionText = `${label} (${criterion.alias}) /`;
