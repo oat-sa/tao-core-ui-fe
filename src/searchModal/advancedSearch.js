@@ -562,19 +562,19 @@ export default function advancedSearchFactory(config) {
         let option;
         let optionText = label;
 
-        if(criterion.isDuplicated) {
+        if (criterion.isDuplicated) {
             sublabel = criterion.class.label;
-            optionText = `${label} / ${sublabel}`;
+            optionText = `${label} (${criterion.alias}) /`;
         }
 
         option = new Option(
-            optionText,
+            label,
             getCriterionStateId(criterion),
             false,
             false
         );
 
-        option.setAttribute('label', label);
+        option.setAttribute('label', optionText);
         option.setAttribute('sublabel', sublabel);
 
         return option;
@@ -593,10 +593,6 @@ export default function advancedSearchFactory(config) {
      * @returns String
      */
     function getCriterionLabel(criterion) {
-        if (criterion.isDuplicated) {
-            return criterion.alias ? `${criterion.label} (${criterion.alias})` : criterion.label;
-        }
-
         return criterion.label;
     }
 
