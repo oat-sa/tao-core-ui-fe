@@ -171,7 +171,7 @@ export default function advancedSearchFactory(config) {
         const route = urlUtil.route('status', 'AdvancedSearch', 'tao');
         return request(route)
             .then(function (response) {
-                if (!response.enabled || response.whitelist.includes(config.rootClassUri)) {
+                if (!response.enabled || (response.whitelist && response.whitelist.includes(config.rootClassUri))) {
                     isAdvancedSearchStatusEnabled = false;
                     return;
                 }
