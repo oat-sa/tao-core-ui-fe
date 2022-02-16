@@ -6,7 +6,7 @@
 
         <!-- left section: items selection -->
         <section class="file-browser">
-            <h1>{{ __ 'Browse resources'}}</h1>
+            <h1>{{__ 'Browse resources'}}</h1>
             <div class="file-browser-wrapper"></div>
         </section>
 

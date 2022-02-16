@@ -272,7 +272,7 @@ export default function(options) {
                                     pathParam}`,
                                 function(response) {
                                     if (response && response.exists === true) {
-                                        result = window.confirm(`Do you want to override ${  file.name  }?`);
+                                        result = window.confirm(__('Do you want to override "%s"?', file.name));
                                     }
                                     cb(result);
                                 }
@@ -280,7 +280,7 @@ export default function(options) {
                         } else {
                             //fallback on client side check
                             if (_.contains(fileNames, file.name.toLowerCase())) {
-                                result = window.confirm(`Do you want to override ${  file.name  }?`);
+                                result = window.confirm(__('Do you want to override "%s"?', file.name));
                             }
                             cb(result);
                         }
