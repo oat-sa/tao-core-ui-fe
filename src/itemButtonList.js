@@ -50,7 +50,8 @@ const cssSelectors = {
  * @property {String} ariaLabel
  * @property {String} status - 'answered'/'viewed'/'unseen'
  * @property {String} scoreType - 'correct'/'incorrect'/null
- * @property {String} icon - 'info' or null
+ * @property {String} icon - 'info'/'flagged'/null
+ * @property {Boolean} disabled
  */
 /**
  * Item Button List
@@ -59,6 +60,7 @@ const cssSelectors = {
  *
  * @param {Object} config
  * @param {ItemButton[]} [config.items] - The list of entries to display
+ * @param {HTMLElement} [scrollContainer] - scroll container element, for autoscroll
  * @returns {component}
  * @fires ready - When the component is ready to work
  * @fires click When an item is selected by the user
@@ -66,6 +68,10 @@ const cssSelectors = {
 function itemButtonListFactory(config = {}) {
     let component;
     let activeItemId = null;
+
+    const getScrollContainer = () => {
+        return config.scrollContainer || component.getElement();
+    };
 
     /**
      * Selects the active item
@@ -75,7 +81,7 @@ function itemButtonListFactory(config = {}) {
         // first deactivate already active elements
         component.getElement().find(cssSelectors.active)
             .removeClass(cssClasses.active);
-        component.getElement().find(cssSelectors.navigable)
+        component.getElement().find(cssSelectors.navigable + '[aria-current]')
             .removeAttr('aria-current');
 
         // activate element
@@ -84,11 +90,41 @@ function itemButtonListFactory(config = {}) {
             if ($target.length) {
                 $target.addClass(cssClasses.active);
                 // finally make sure the item is visible
-                autoscroll($target, component.getElement());
+                autoscroll($target, getScrollContainer());
+
+                const $ariaTarget = component.getElement().find(cssSelectors.navigableById(itemId));
+                if ($ariaTarget.length) {
+                    $ariaTarget.attr('aria-current', 'location');
+                }
             }
-            const $ariaTarget = component.getElement().find(cssSelectors.navigableById(itemId));
-            if ($ariaTarget.length) {
-                $ariaTarget.attr('aria-current', 'location');
+        }
+    };
+
+    /**
+     * Update single item properties:
+     * Only `icon`, `numericLabel`, `ariaLabel` are supported
+     * @param {String} itemId
+     * @param {Object} itemData
+     */
+    const updateItem = (itemId, itemData) => {
+        const $target = component.getElement().find(cssSelectors.itemById(itemId));
+        if ($target.length) {
+            if (typeof itemData.icon !== 'undefined') {
+                const iconElem = $target.find('.buttonlist-icon').get(0);
+                for (let i = 0; i < iconElem.classList.length; i++) {
+                    if (iconElem.classList[i].indexOf('icon-') === 0) {
+                        iconElem.classList.remove(iconElem.classList[i]);
+                    }
+                }
+                if (itemData.icon) {
+                    iconElem.classList.add('icon-' + itemData.icon);
+                }
+            }
+            if (typeof itemData.numericLabel !== 'undefined') {
+                $target.find('.buttonlist-label').text(itemData.numericLabel || '');
+            }
+            if (typeof itemData.ariaLabel !== 'undefined') {
+                $target.find('.buttonlist-btn').attr('aria-label', itemData.ariaLabel);
             }
         }
     };
@@ -136,14 +172,15 @@ function itemButtonListFactory(config = {}) {
      * Emits the click event detailing the clicked item
      * The active item change should be handled by the consumer through the API, in case it is conditional or asynchronous
      * @param {String} itemId
+     * @param {Number} itemPosition
      */
-    const onClick = (itemId) => {
+    const onClick = (itemId, itemPosition) => {
         /**
          * @event click
          * @param {String} itemId
          * @param {Number} position
          */
-        component.trigger('click', { id: itemId });
+        component.trigger('click', { id: itemId, position: itemPosition });
     };
 
     /**
@@ -157,9 +194,25 @@ function itemButtonListFactory(config = {}) {
          * @returns {buttonList}
          */
         setActiveItem(itemId) {
+            //you should accept postion here too? otherwise data-position is close to pointless.
+            //after all, use position as id? misleading though...
             activeItemId = itemId;
             if (this.is('rendered')) {
                 selectItem(itemId);
+            }
+            return this;
+        },
+
+        /**
+         * Update single item properties:
+         * Only `icon`, `numericLabel`, `ariaLabel` are supported
+         * @param {String} itemId
+         * @param {Object} itemData
+         * @returns {buttonList}
+         */
+        updateItem(itemId, itemData) {
+            if (this.is('rendered')) {
+                updateItem(itemId, itemData);
             }
             return this;
         }
@@ -187,7 +240,7 @@ function itemButtonListFactory(config = {}) {
 
             component.getElement().on('click', cssSelectors.navigable, e => {
                 if (!this.is('disabled')) {
-                    onClick(e.currentTarget.dataset.id);
+                    onClick(e.currentTarget.dataset.id, parseInt(e.currentTarget.dataset.position));
                 }
             });
 
