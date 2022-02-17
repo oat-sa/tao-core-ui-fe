@@ -69,6 +69,10 @@ function itemButtonListFactory(config = {}) {
     let component;
     let activeItemId = null;
 
+    /**
+     * Get scroll container element
+     * @returns {HTMLElement}
+     */
     const getScrollContainer = () => {
         return config.scrollContainer || component.getElement();
     };
@@ -172,15 +176,13 @@ function itemButtonListFactory(config = {}) {
      * Emits the click event detailing the clicked item
      * The active item change should be handled by the consumer through the API, in case it is conditional or asynchronous
      * @param {String} itemId
-     * @param {Number} itemPosition
      */
-    const onClick = (itemId, itemPosition) => {
+    const onClick = (itemId) => {
         /**
          * @event click
          * @param {String} itemId
-         * @param {Number} position
          */
-        component.trigger('click', { id: itemId, position: itemPosition });
+        component.trigger('click', { id: itemId });
     };
 
     /**
@@ -239,8 +241,9 @@ function itemButtonListFactory(config = {}) {
             });
 
             component.getElement().on('click', cssSelectors.navigable, e => {
+                //does not check `disabled` property of clicked item, should be checked by consumer
                 if (!this.is('disabled')) {
-                    onClick(e.currentTarget.dataset.id, parseInt(e.currentTarget.dataset.position));
+                    onClick(e.currentTarget.dataset.id);
                 }
             });
 
