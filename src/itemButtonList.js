@@ -125,7 +125,7 @@ function itemButtonListFactory(config = {}) {
                 }
             }
             if (typeof itemData.numericLabel !== 'undefined') {
-                $target.find('.buttonlist-label').text(itemData.numericLabel || '');
+                $target.find('.buttonlist-label').text(itemData.numericLabel !== null ? itemData.numericLabel : '');
             }
             if (typeof itemData.ariaLabel !== 'undefined') {
                 $target.find('.buttonlist-btn').attr('aria-label', itemData.ariaLabel);
