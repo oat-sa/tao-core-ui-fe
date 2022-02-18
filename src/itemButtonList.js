@@ -110,7 +110,7 @@ function itemButtonListFactory(config = {}) {
      * @param {String} itemId
      * @param {Object} itemData
      */
-    const updateItem = (itemId, itemData) => {
+    const updateItemData = (itemId, itemData) => {
         const $target = component.getElement().find(cssSelectors.itemById(itemId));
         if ($target.length) {
             if (typeof itemData.icon !== 'undefined') {
@@ -196,8 +196,6 @@ function itemButtonListFactory(config = {}) {
          * @returns {buttonList}
          */
         setActiveItem(itemId) {
-            //you should accept postion here too? otherwise data-position is close to pointless.
-            //after all, use position as id? misleading though...
             activeItemId = itemId;
             if (this.is('rendered')) {
                 selectItem(itemId);
@@ -214,7 +212,7 @@ function itemButtonListFactory(config = {}) {
          */
         updateItem(itemId, itemData) {
             if (this.is('rendered')) {
-                updateItem(itemId, itemData);
+                updateItemData(itemId, itemData);
             }
             return this;
         }
