@@ -85,7 +85,7 @@ function itemButtonListFactory(config = {}) {
         // first deactivate already active elements
         component.getElement().find(cssSelectors.active)
             .removeClass(cssClasses.active);
-        component.getElement().find(cssSelectors.navigable + '[aria-current]')
+        component.getElement().find(`${cssSelectors.navigable}[aria-current]`)
             .removeAttr('aria-current');
 
         // activate element
@@ -116,12 +116,12 @@ function itemButtonListFactory(config = {}) {
             if (typeof itemData.icon !== 'undefined') {
                 const iconElem = $target.find('.buttonlist-icon').get(0);
                 for (let i = 0; i < iconElem.classList.length; i++) {
-                    if (iconElem.classList[i].indexOf('icon-') === 0) {
+                    if (iconElem.classList[i].startsWith('icon-')) {
                         iconElem.classList.remove(iconElem.classList[i]);
                     }
                 }
                 if (itemData.icon) {
-                    iconElem.classList.add('icon-' + itemData.icon);
+                    iconElem.classList.add(`icon-${itemData.icon}`);
                 }
             }
             if (typeof itemData.numericLabel !== 'undefined') {
