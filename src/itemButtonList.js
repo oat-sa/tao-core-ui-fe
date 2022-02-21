@@ -60,7 +60,7 @@ const cssSelectors = {
  *
  * @param {Object} config
  * @param {ItemButton[]} [config.items] - The list of entries to display
- * @param {HTMLElement} [scrollContainer] - scroll container element, for autoscroll
+ * @param {String|jQuery|HTMLElement} [scrollContainer] - scroll container element, for autoscroll
  * @returns {component}
  * @fires ready - When the component is ready to work
  * @fires click When an item is selected by the user
@@ -69,6 +69,7 @@ function itemButtonListFactory(config = {}) {
     let component;
     let activeItemId = null;
 
+    //jQuery or HTMLElement!
     /**
      * Get scroll container element
      * @returns {HTMLElement}

@@ -25,15 +25,25 @@
             .test {
                 border: 1px solid rgba(0,0,0,0.3);
                 width: 300px;
-                overflow: hidden;
+                overflow: scroll;
                 resize: both;
+            }
+            input[type="text"].api-index {
+                min-width: 50px;
+                width: 50px;
             }
         </style>
     </head>
     <body>
         <div id="visual-test">
             <h2>Visual test</h2>
-            <div class="test"></div>
+            <div class="test">
+                <div>
+                    <input class='api-index' type='text' placeholder="index">
+                    <a class='api-active'>|setActiveItem</a>
+                    <a class='api-update'>|updateItem</a>
+                </div>
+            </div>
         </div>
         <div id="qunit"></div>
         <div id="qunit-fixture">
