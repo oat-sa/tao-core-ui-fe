@@ -98,9 +98,7 @@ function itemButtonListFactory(config = {}) {
                 autoscroll($target, getScrollContainer());
 
                 const $ariaTarget = component.getElement().find(cssSelectors.navigableById(itemId));
-                if ($ariaTarget.length) {
-                    $ariaTarget.attr('aria-current', 'location');
-                }
+                $ariaTarget.attr('aria-current', 'location');
             }
         }
     };
