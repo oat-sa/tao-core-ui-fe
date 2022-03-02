@@ -73,11 +73,16 @@ $borderMedium: 0.25rem;
         white-space: nowrap;
         line-height: initial;
     }
-
     .buttonlist-icon {
         padding: 0;
         top: 0;
         left: 0;
+    }
+    .buttonlist-icon:not([class*="icon-"]) {
+        display: none;
+    }
+    .buttonlist-icon[class*="icon-"] ~ .buttonlist-label {
+        display: none;
     }
 
     .indicator {
@@ -97,7 +102,6 @@ $borderMedium: 0.25rem;
         justify-content: center;
         align-items: center;
     }
-
     .buttonlist-score-icon {
         font-size: 1.2rem;
         padding: 0;
@@ -166,30 +170,30 @@ $borderMedium: 0.25rem;
                 background-color: $incorrectColor;
             }
         }
-
     }
 
-    /* disabling is applied at the buttonlist-items level */
-    &:not(.disabled) {
+    /* disabling is applied at buttonlist-item or buttonlist-items level */
+    &:not(.disabled) .buttonlist-item:not(.disabled) {
         .buttonlist-btn:hover {
             background-color: $hoverBgColor;
             color: $uiReviewPanelPrimaryHighlight;
             border-color: $uiReviewPanelPrimaryHighlight;
         }
     }
-    &.disabled {
+    &.disabled,
+    .buttonlist-item.disabled {
          /* reset global styles */
-        background-color: unset !important;
-        opacity: 1 !important;
-        text-shadow: none !important;
+         background-color: unset !important;
+         opacity: 1 !important;
+         text-shadow: none !important;
 
         .buttonlist-btn {
             cursor: not-allowed;
             /* reset global styles */
-            opacity: 0.5;
             text-shadow: none;
         }
     }
+
 
     /****** keyboard focus styles *******/
     .buttonlist-item {

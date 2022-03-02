@@ -60,6 +60,19 @@ define([
     });
 
     QUnit.cases.init([
+        {title: 'setActiveItem'},
+        {title: 'updateItem'}
+    ]).test('own API ', function (data, assert) {
+        const instance = itemButtonList();
+        assert.expect(1);
+        assert.equal(
+            typeof instance[data.title],
+            'function',
+            `The itemButtonList instance exposes a "${data.title}" function`
+        );
+    });
+
+    QUnit.cases.init([
         {title: 'on'},
         {title: 'off'},
         {title: 'trigger'},
@@ -110,6 +123,16 @@ define([
             "icon": null,
             "ariaLabel": "Question 5",
             "scoreType": null
+        },
+        {
+            "id": "item-6",
+            "numericLabel": "6",
+            "position": 5,
+            "status": "viewed",
+            "icon": "flagged",
+            "ariaLabel": "Question 6",
+            "scoreType": null,
+            "disabled": true
         }
     ];
 
@@ -124,7 +147,7 @@ define([
         };
         let instance;
 
-        assert.expect(16);
+        assert.expect(18);
 
         // Create an instance with autorendering
         instance = itemButtonList(config);
@@ -164,6 +187,11 @@ define([
             instance.getElement().find('li').eq(1).hasClass('incorrect'),
             'The itemButtonList instance has rendered the button with the correct label'
         );
+        // Check li disabled
+        assert.ok(
+            instance.getElement().find('li').eq(4).hasClass('disabled'),
+            'The itemButtonList instance has rendered the button with the correct label'
+        );
 
         // Check buttons
         // Check label
@@ -189,6 +217,12 @@ define([
             instance.getElement().find('button .buttonlist-icon.icon-info').length,
             basicItems.filter(item => item.icon === 'info').length,
             'The itemButtonList instance has rendered the correct number of informational icon buttons'
+        );
+        // Check flagged icon
+        assert.equal(
+            instance.getElement().find('button .buttonlist-icon.icon-flagged').length,
+            basicItems.filter(item => item.icon === 'flagged').length,
+            'The itemButtonList instance has rendered the correct number of flagged icon buttons'
         );
 
         instance.destroy();
@@ -225,6 +259,163 @@ define([
         assert.notOk(
             $component.hasClass('disabled'),
             'The itemButtonList instance does not have the disabled class'
+        );
+
+        instance.destroy();
+    });
+
+    QUnit.test('api: setActiveItem', function (assert) {
+        const $container = $('#fixture-render');
+        const instance = itemButtonList({
+            renderTo: $container,
+            replace: true,
+            items: [basicItems[0], basicItems[1]]
+        });
+        const $component = instance.getElement();
+
+        assert.expect(8);
+        assert.equal(instance.is('rendered'), true, 'The itemButtonList instance must be rendered');
+        assert.equal($component.length, 1, 'The itemButtonList instance returns the rendered content');
+
+        //Initial state - no active
+        assert.equal(
+            instance.getElement().find('li.buttonlist-item-active').length,
+            0,
+            'The itemButtonList instance has no active items'
+        );
+        assert.equal(
+            instance.getElement().find('button[aria-current]').length,
+            0,
+            'The itemButtonList instance has no active items'
+        );
+
+        //Set active
+        instance.setActiveItem(basicItems[1].id);
+
+        assert.equal(
+            instance.getElement().find('li').eq(1).hasClass(`buttonlist-item-active`),
+            true,
+            'The itemButtonList instance has an active item'
+        );
+        assert.equal(
+            instance.getElement().find('button')[1].getAttribute('aria-current'),
+            'location',
+            'The itemButtonList instance has an active item'
+        );
+
+        // Remove active
+        instance.setActiveItem(null);
+
+        assert.equal(
+            instance.getElement().find('li.buttonlist-item-active').length,
+            0,
+            'The itemButtonList instance has no active items again'
+        );
+        assert.equal(
+            instance.getElement().find('button[aria-current]').length,
+            0,
+            'The itemButtonList instance has no active items again'
+        );
+
+        instance.destroy();
+    });
+
+    QUnit.test('api: updateItem', function (assert) {
+        const $container = $('#fixture-render');
+        const instance = itemButtonList({
+            renderTo: $container,
+            replace: true,
+            items: [basicItems[0], basicItems[1]]
+        });
+        const $component = instance.getElement();
+
+        assert.expect(13);
+        assert.equal(instance.is('rendered'), true, 'The itemButtonList instance must be rendered');
+        assert.equal($component.length, 1, 'The itemButtonList instance returns the rendered content');
+
+        const hasIconClass = (idx, iconClass) =>
+            instance.getElement().find('button .buttonlist-icon').eq(idx).hasClass(iconClass);
+        const getNumericLabel = idx => instance.getElement().find('button')[idx].innerText;
+        const getAriaLabel = idx => instance.getElement().find('button')[idx].getAttribute('aria-label');
+
+        //Initial state
+        assert.equal(
+            hasIconClass(0, 'icon-flagged'),
+            false,
+            'The itemButtonList instance has expected state before update'
+        );
+        assert.equal(
+            getNumericLabel(0),
+            basicItems[0].numericLabel,
+            'The itemButtonList instance has expected state before update'
+        );
+        assert.equal(
+            getAriaLabel(0),
+            basicItems[0].ariaLabel,
+            'The itemButtonList instance has expected state before update'
+        );
+
+        //Update: change icon, numericLabel, ariaLabel
+        const updateItemData0 = {
+            icon: 'flagged',
+            numericLabel: '',
+            ariaLabel: 'Bookmarked question 1'
+        };
+        instance.updateItem(basicItems[0].id, updateItemData0);
+
+        assert.equal(
+            hasIconClass(0, 'icon-flagged'),
+            true,
+            'The itemButtonList instance has expected state after update'
+        );
+        assert.equal(
+            getNumericLabel(0),
+            updateItemData0.numericLabel,
+            'The itemButtonList instance has expected state after update'
+        );
+        assert.equal(
+            getAriaLabel(0),
+            updateItemData0.ariaLabel,
+            'The itemButtonList instance has expected state after update'
+        );
+
+        //Next update: change icon
+        const updateItemData1 = {
+            icon: 'info'
+        };
+        instance.updateItem(basicItems[0].id, updateItemData1);
+
+        assert.equal(
+            hasIconClass(0, 'icon-flagged'),
+            false,
+            'The itemButtonList instance has expected state after changing icon'
+        );
+        assert.equal(
+            hasIconClass(0, 'icon-info'),
+            true,
+            'The itemButtonList instance has expected state after changing icon'
+        );
+        assert.equal(
+            getNumericLabel(0),
+            updateItemData0.numericLabel,
+            'The itemButtonList instance has expected state after changing icon'
+        );
+        assert.equal(
+            getAriaLabel(0),
+            updateItemData0.ariaLabel,
+            'The itemButtonList instance has expected state after changing icon'
+        );
+
+        //Next update: remove icon
+        const updateItemData2 = {
+            icon: null
+        };
+        instance.updateItem(basicItems[0].id, updateItemData2);
+
+        assert.equal(
+            hasIconClass(0, 'icon-info'),
+            false,
+            'The itemButtonList instance has expected state after removing icon'
         );
 
         instance.destroy();
@@ -337,7 +528,7 @@ define([
                 "status": "unseen",
                 "icon": null,
                 "ariaLabel": "Question 4",
-                "scoreType": null
+                "scoreType": null,
             },
             {
                 "id": "item-6",
@@ -348,30 +539,84 @@ define([
                 "icon": "info",
                 "ariaLabel": "Informational item",
                 "scoreType": null
+            },
+            {
+                "id": "item-7",
+                "numericLabel": "5",
+                "position": 6,
+                "status": "viewed",
+                "icon": "flagged",
+                "ariaLabel": "Bookmarked question 5",
+                "scoreType": null
+            },
+            {
+                "id": "item-8",
+                "numericLabel": "6",
+                "position": 7,
+                "status": "answered",
+                "icon": "flagged",
+                "ariaLabel": "Bookmarked question 6",
+                "scoreType": null
+            },
+            {
+                "id": "item-9",
+                "numericLabel": "7",
+                "position": 8,
+                "status": "unseen",
+                "icon": null,
+                "ariaLabel": "Question 7",
+                "scoreType": null,
+                "disabled": true
             }
         ];
 
+
         const $container = $('#visual-test .test');
-        $container.prepend(`<ol>
+        $container.append(`
+        <ol>
             <li>Answered Correct</li>
             <li>Viewed</li>
             <li>Answered Incorrect</li>
             <li>Viewed Informational (current)</li>
             <li>Unseen</li>
-            <li>Unseen Informational</li>
+            <li>Viewed Flagged</li>
+            <li>Answered Flagged</li>
+            <li>Unseen Disabled</li>
         </ol>`);
 
-        itemButtonList({ items })
+        const instance = itemButtonList({ items, scrollContainer: $container })
             .on('render', function() {
                 assert.ok(true, 'ItemButtonList is rendered');
 
                 this.setActiveItem(items[3].id);
             })
             .on('click', function(event) {
-                /* eslint-disable-next-line no-alert */
-                alert(`clicked ${JSON.stringify(event)}`);
+                /* eslint-disable-next-line no-console */
+                console.log(`clicked ${JSON.stringify(event)}`);
                 this.setActiveItem(event.id);
             })
             .render($container);
+
+        const getItemFromInput = () => {
+            const idx = $container.find('.api-index').val();
+            return idx ? items[idx] : null;
+        };
+        $container.find('.api-active').click(() => {
+            //check autoscroll: resize container and choose item in the bottom
+            const item = getItemFromInput();
+            if (item) {
+                instance.setActiveItem(item.id);
+            }
+        });
+        $container.find('.api-update').click(() => {
+            const item = getItemFromInput();
+            if (item) {
+                instance.updateItem(item.id, Object.assign({}, item, {
+                    icon: item.icon === 'flagged' ? null : 'flagged',
+                    numericLabel: item.numericLabel,
+                    ariaLabel: 'Updated item'
+                }));
+            }
+        });
     });
 });
