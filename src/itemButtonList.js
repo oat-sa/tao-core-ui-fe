@@ -50,7 +50,8 @@ const cssSelectors = {
  * @property {String} ariaLabel
  * @property {String} status - 'answered'/'viewed'/'unseen'
  * @property {String} scoreType - 'correct'/'incorrect'/null
- * @property {String} icon - 'info' or null
+ * @property {String} icon - 'info'/'flagged'/null
+ * @property {Boolean} disabled
  */
 /**
  * Item Button List
@@ -59,6 +60,7 @@ const cssSelectors = {
  *
  * @param {Object} config
  * @param {ItemButton[]} [config.items] - The list of entries to display
+ * @param {String|jQuery|HTMLElement} [scrollContainer] - scroll container element, for autoscroll
  * @returns {component}
  * @fires ready - When the component is ready to work
  * @fires click When an item is selected by the user
@@ -66,6 +68,15 @@ const cssSelectors = {
 function itemButtonListFactory(config = {}) {
     let component;
     let activeItemId = null;
+
+    //jQuery or HTMLElement!
+    /**
+     * Get scroll container element
+     * @returns {HTMLElement}
+     */
+    const getScrollContainer = () => {
+        return config.scrollContainer || component.getElement();
+    };
 
     /**
      * Selects the active item
@@ -75,7 +86,7 @@ function itemButtonListFactory(config = {}) {
         // first deactivate already active elements
         component.getElement().find(cssSelectors.active)
             .removeClass(cssClasses.active);
-        component.getElement().find(cssSelectors.navigable)
+        component.getElement().find(`${cssSelectors.navigable}[aria-current]`)
             .removeAttr('aria-current');
 
         // activate element
@@ -84,11 +95,39 @@ function itemButtonListFactory(config = {}) {
             if ($target.length) {
                 $target.addClass(cssClasses.active);
                 // finally make sure the item is visible
-                autoscroll($target, component.getElement());
-            }
-            const $ariaTarget = component.getElement().find(cssSelectors.navigableById(itemId));
-            if ($ariaTarget.length) {
+                autoscroll($target, getScrollContainer());
+
+                const $ariaTarget = component.getElement().find(cssSelectors.navigableById(itemId));
                 $ariaTarget.attr('aria-current', 'location');
+            }
+        }
+    };
+
+    /**
+     * Update single item properties:
+     * Only `icon`, `numericLabel`, `ariaLabel` are supported
+     * @param {String} itemId
+     * @param {Object} itemData
+     */
+    const updateItemData = (itemId, itemData) => {
+        const $target = component.getElement().find(cssSelectors.itemById(itemId));
+        if ($target.length) {
+            if (typeof itemData.icon !== 'undefined') {
+                const iconElem = $target.find('.buttonlist-icon').get(0);
+                for (let i = 0; i < iconElem.classList.length; i++) {
+                    if (iconElem.classList[i].startsWith('icon-')) {
+                        iconElem.classList.remove(iconElem.classList[i]);
+                    }
+                }
+                if (itemData.icon) {
+                    iconElem.classList.add(`icon-${itemData.icon}`);
+                }
+            }
+            if (typeof itemData.numericLabel !== 'undefined') {
+                $target.find('.buttonlist-label').text(itemData.numericLabel !== null ? itemData.numericLabel : '');
+            }
+            if (typeof itemData.ariaLabel !== 'undefined') {
+                $target.find('.buttonlist-btn').attr('aria-label', itemData.ariaLabel);
             }
         }
     };
@@ -141,7 +180,6 @@ function itemButtonListFactory(config = {}) {
         /**
          * @event click
          * @param {String} itemId
-         * @param {Number} position
          */
         component.trigger('click', { id: itemId });
     };
@@ -160,6 +198,20 @@ function itemButtonListFactory(config = {}) {
             activeItemId = itemId;
             if (this.is('rendered')) {
                 selectItem(itemId);
+            }
+            return this;
+        },
+
+        /**
+         * Update single item properties:
+         * Only `icon`, `numericLabel`, `ariaLabel` are supported
+         * @param {String} itemId
+         * @param {Object} itemData
+         * @returns {buttonList}
+         */
+        updateItem(itemId, itemData) {
+            if (this.is('rendered')) {
+                updateItemData(itemId, itemData);
             }
             return this;
         }
@@ -186,6 +238,7 @@ function itemButtonListFactory(config = {}) {
             });
 
             component.getElement().on('click', cssSelectors.navigable, e => {
+                //does not check `disabled` property of clicked item, should be checked by consumer
                 if (!this.is('disabled')) {
                     onClick(e.currentTarget.dataset.id);
                 }
