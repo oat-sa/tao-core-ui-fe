@@ -95,7 +95,8 @@ define([
             "status": "answered",
             "icon": null,
             "ariaLabel": "Question 1",
-            "scoreType": "correct"
+            "scoreType": "correct",
+            "title": "This is the first question"
         },
         {
             "id": "item-2",
@@ -147,7 +148,7 @@ define([
         };
         let instance;
 
-        assert.expect(18);
+        assert.expect(19);
 
         // Create an instance with autorendering
         instance = itemButtonList(config);
@@ -223,6 +224,12 @@ define([
             instance.getElement().find('button .buttonlist-icon.icon-flagged').length,
             basicItems.filter(item => item.icon === 'flagged').length,
             'The itemButtonList instance has rendered the correct number of flagged icon buttons'
+        );
+        //Check title tooltip
+        assert.equal(
+            instance.getElement().find('button')[0].title,
+            basicItems[0].title,
+            'The itemButtonList instance has rendered the button with the correct tooltip'
         );
 
         instance.destroy();
@@ -491,7 +498,8 @@ define([
                 "status": "answered",
                 "icon": null,
                 "ariaLabel": "Question 1",
-                "scoreType": "correct"
+                "scoreType": "correct",
+                "title": "This is the first question"
             },
             {
                 "id": "item-2",
@@ -500,7 +508,8 @@ define([
                 "status": "viewed",
                 "icon": null,
                 "ariaLabel": "Question 2",
-                "scoreType": null
+                "scoreType": null,
+                "title": "This is the second question"
             },
             {
                 "id": "item-3",
