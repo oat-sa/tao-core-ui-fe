@@ -3,6 +3,7 @@
     <li class="buttonlist-item {{status}}{{#if scoreType}} {{scoreType}}{{/if}}{{#if disabled}} disabled{{/if}}" data-id="{{id}}">
         <button class="buttonlist-btn"
                 role="link"
+                {{#if title}}title="{{title}}"{{/if}}
                 aria-label="{{ariaLabel}}"
                 {{#if disabled}}aria-disabled="true"{{/if}}
                 data-id="{{id}}">
