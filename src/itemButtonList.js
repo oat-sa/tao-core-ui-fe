@@ -52,6 +52,7 @@ const cssSelectors = {
  * @property {String} scoreType - 'correct'/'incorrect'/null
  * @property {String} icon - 'info'/'flagged'/null
  * @property {Boolean} disabled
+ * @property {String} [title] - optional tooltip
  */
 /**
  * Item Button List
