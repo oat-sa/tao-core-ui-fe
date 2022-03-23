@@ -438,7 +438,8 @@ label {
         }
         &.disabled, &[disabled], &[readonly] {
             & ~[class^="icon-"],
-            & ~[class*=" icon-"]{
+            & ~[class*=" icon-"],
+            & ~label {
                 cursor: not-allowed !important;
                 opacity: .4 !important;
                 color: #555;
