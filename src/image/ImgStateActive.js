@@ -20,18 +20,15 @@ import 'nouislider';
 import 'ui/resourcemgr';
 import 'ui/tooltip';
 import _ from 'lodash';
-import module from 'module';
 import initAll, { initAdvanced } from './ImgStateActive/initHelper';
 import initMediaEditor  from './ImgStateActive/initMediaEditor';
 
-const config = module.config() || {};
-const mediaAlignment = typeof config.mediaAlignment === "undefined" ? false : config.mediaAlignment;
 const options = {
     mediaDimension: {
         active: true
     },
     mediaAlignment: {
-        active: mediaAlignment
+        active: true
     }
 };
 
