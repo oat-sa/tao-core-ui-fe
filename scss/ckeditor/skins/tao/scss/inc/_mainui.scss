@@ -61,7 +61,8 @@ Special outer level classes used in this file:
 
   padding: 0;
   position: relative;
-  z-index: 0;
+  z-index: 10001;
+
 }
 
 /* Added to the outer boundary of the UI when in inline editing,
