@@ -53,7 +53,7 @@
         "@oat-sa/tao-core-sdk": "^1.8.1",
         "@oat-sa/tao-core-shared-libs": "^1.0.5",
         "@oat-sa/tao-qunit-testrunner": "^1.0.3",
-        "async": "^0.2.10",
+        "async": "^2.6.4",
         "autoprefixer": "^9.5.1",
         "cross-env": "^7.0.2",
         "decimal.js": "10.1.1",
