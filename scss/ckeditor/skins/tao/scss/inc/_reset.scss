@@ -37,6 +37,7 @@ http://docs.cksource.com/CKEditor_4.x/Skin_SDK/Reset
   box-sizing: content-box;
   position: static;
   transition: none;
+  z-index: 0 !important;
 }
 
 /* Reset for elements and their children. */
