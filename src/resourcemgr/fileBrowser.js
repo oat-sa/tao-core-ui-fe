@@ -113,7 +113,11 @@ export default function (options) {
             }
             if (root !== 'local' || !_.find(subTree.children, { name: file.name })) {
                 updatePermissions(file);
-                subTree.children.push(file);
+                if (subTree.children.length === subTree.total) {
+                    // all children loaded new file can be pushed to the end of tree
+                    // if not all, new file will be loaded with next page
+                    subTree.children.push(file);
+                }
                 subTree.total++;
                 selectedClass.total++;
                 $container.trigger(`folderselect.${ns}`, [subTree.label, getPage(subTree.children), path]);
