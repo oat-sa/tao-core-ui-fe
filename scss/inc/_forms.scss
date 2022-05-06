@@ -715,6 +715,10 @@ label {
                 @include simple-border();
             }
         }
+        & ~.form-error{
+            color: $error;
+            text-align: right;
+        }
 
         [dir="rtl"] & {
             padding: 0 0 0 10px;
