@@ -239,9 +239,7 @@ export default function (options) {
         if (tree) {
             if (tree.path === path) {
                 tree.children = tree.children ? tree.children.concat(data.children) : data.children;
-                if (data.total) {
-                    tree.total = data.total;
-                }
+                tree.total = data.total;
             } else if (tree.children) {
                 _.forEach(tree.children, function (child) {
                     done = setToPath(child, path, data);
