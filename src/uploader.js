@@ -147,6 +147,7 @@ var uploader = {
                     });
 
                     self._selectFiles($elt, finalFiles);
+                    $input.val('');
                 };
 
                 var dragOverHandler = function(e) {
