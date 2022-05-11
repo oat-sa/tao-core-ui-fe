@@ -37,7 +37,8 @@ const getMedia = (imgQtiElement, $imgNode, cb) => {
         typeof imgQtiElement.attr('type') !== 'undefined' &&
         typeof imgQtiElement.attr('src') !== 'undefined' &&
         typeof imgQtiElement.attr('width') !== 'undefined' &&
-        typeof imgQtiElement.attr('height') !== 'undefined'
+        typeof imgQtiElement.attr('height') !== 'undefined' &&
+        typeof imgQtiElement.attr('figcaption') !== 'undefined'
     ) {
         cb({
             $node: $imgNode,
@@ -45,6 +46,7 @@ const getMedia = (imgQtiElement, $imgNode, cb) => {
             src: imgQtiElement.attr('src'),
             width: imgQtiElement.attr('width'),
             height: imgQtiElement.attr('height'),
+            figcaption: imgQtiElement.attr('figcaption'),
             responsive: imgQtiElement.data('responsive')
         });
     } else {
@@ -56,7 +58,8 @@ const getMedia = (imgQtiElement, $imgNode, cb) => {
                 src: imgQtiElement.attr('src'),
                 width: imgQtiElement.attr('width'),
                 height: imgQtiElement.attr('height'),
-                responsive: imgQtiElement.data('responsive')
+                responsive: imgQtiElement.data('responsive'),
+                figcaption: imgQtiElement.attr('figcaption')
             });
         });
     }

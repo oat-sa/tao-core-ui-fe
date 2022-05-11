@@ -23,6 +23,7 @@
  * tools:
  *  - mediaSize - (change media size, responsive mode, sync width to heights, reset)
  *  - mediaAlignment - (position of the media)
+ *  - mediaCaption - (position of the media)
  *  to be implemented:
  *  *- cropper
  *  *- change colors
@@ -33,6 +34,7 @@ import _ from 'lodash';
 import component from 'ui/component';
 import mediaDimensionComponent from 'ui/mediaEditor/plugins/mediaDimension/mediaDimensionComponent';
 import mediaAlignmentComponent from 'ui/mediaEditor/plugins/mediaAlignment/mediaAlignmentComponent';
+import mediaCaptionComponent from 'ui/mediaEditor/plugins/mediaCaption/mediaCaptionComponent';
 import tpl from 'ui/mediaEditor/tpl/editor';
 
 /**
@@ -49,6 +51,7 @@ import tpl from 'ui/mediaEditor/tpl/editor';
  * @typedef {Object} mediaEditorConfig
  * @property mediaDimension {{active: boolean}}
  * @property mediaAlignment {{active: boolean}}
+ * @property mediaCaption {{active: boolean}}
  */
 
 /**
@@ -63,6 +66,9 @@ const defaultConfig = {
         active: false
     },
     mediaAlignment: {
+        active: false
+    },
+    mediaCaption: {
         active: false
     }
 };
@@ -100,8 +106,10 @@ export default function mediaEditorFactory($container, media, config) {
         .on('render', function () {
             const $dimensionTools = $('.media-dimension', this.getTemplate());
             const $alignmentTools = $('.media-align', this.getTemplate());
+            const $captionTools = $('.media-caption', this.getTemplate());
             let dimensionPlugin;
             let alignmentPlugin;
+            let captionPlugin;
             if (this.getConfig().mediaDimension.active) {
                 dimensionPlugin = mediaDimensionComponent($dimensionTools, media, {
                     responsive: media.responsive,
@@ -126,6 +134,11 @@ export default function mediaEditorFactory($container, media, config) {
                 alignmentPlugin = mediaAlignmentComponent($alignmentTools, media).spread(this, 'change');
                 plugins.push(alignmentPlugin);
             }
+            if (this.getConfig().mediaCaption.active) {
+                captionPlugin = mediaCaptionComponent($captionTools, media).spread(this, 'change');
+                plugins.push(captionPlugin);
+            }
+
         })
         .on('destroy', function () {
             _.forEach(plugins, function (plugin) {
