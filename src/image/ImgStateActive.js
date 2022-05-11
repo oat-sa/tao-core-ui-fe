@@ -21,13 +21,17 @@ import 'ui/resourcemgr';
 import 'ui/tooltip';
 import _ from 'lodash';
 import initAll, { initAdvanced } from './ImgStateActive/initHelper';
-import initMediaEditor  from './ImgStateActive/initMediaEditor';
+import initMediaEditor from './ImgStateActive/initMediaEditor';
+import captionHelper from 'ui/mediaEditor/plugins/mediaCaption/helper';
 
 const options = {
     mediaDimension: {
         active: true
     },
     mediaAlignment: {
+        active: true
+    },
+    mediaCaption: {
         active: true
     }
 };
@@ -56,6 +60,10 @@ const formCallbacks = ({ widget, formElement, mediaEditor, togglePlaceholder }) 
             img.attr('alt', value);
         },
         longdesc: formElement.getAttributeChangeCallback(),
+        figcaption: function (img, value) {
+            img.attr('figcaption', value);
+            captionHelper.updateCaption(widget, value);
+        }
     };
 };
 
