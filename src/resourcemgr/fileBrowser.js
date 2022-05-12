@@ -21,7 +21,7 @@ import request from 'core/request';
 import paginationComponent from 'ui/pagination';
 import rootFolderTpl from 'ui/resourcemgr/tpl/rootFolder';
 import folderTpl from 'ui/resourcemgr/tpl/folder';
-import updatePermissions  from './util/updatePermissions';
+import updatePermissions from './util/updatePermissions';
 
 const ns = 'resourcemgr';
 
@@ -54,16 +54,21 @@ export default function (options) {
         }
         updateFolders(content, $innerList);
 
-      if (content.permissions.read && !options.hasAlreadySelected) {
-          $('.file-browser').find('li.active').removeClass('active');
-          updateSelectedClass(content.path, content.total, content.childrenLimit);
-          $container.trigger("folderselect.".concat(ns), [content.label, getPage(content.children), content.path, content]);
-          renderPagination();
+        if (content.permissions.read && !options.hasAlreadySelected) {
+            $('.file-browser').find('li.active').removeClass('active');
+            updateSelectedClass(content.path, content.total, content.childrenLimit);
+            $container.trigger('folderselect.'.concat(ns), [
+                content.label,
+                getPage(content.children),
+                content.path,
+                content
+            ]);
+            renderPagination();
 
-          if (root !== 'local') {
-            options.hasAlreadySelected = true;
-          }
-      }
+            if (root !== 'local') {
+                options.hasAlreadySelected = true;
+            }
+        }
     });
 
     // by clicking on the tree (using a live binding  because content is not complete yet)
@@ -99,7 +104,12 @@ export default function (options) {
 
                 //internal event to set the file-selector content
                 updateSelectedClass(fullPath, subTree.total, $selected.data('children-limit'));
-                $container.trigger(`folderselect.${ns}`, [content.label, getPage(content.children), content.path, content]);
+                $container.trigger(`folderselect.${ns}`, [
+                    content.label,
+                    getPage(content.children),
+                    content.path,
+                    content
+                ]);
                 renderPagination();
             }
         });
@@ -113,7 +123,11 @@ export default function (options) {
             }
             if (root !== 'local' || !_.find(subTree.children, { name: file.name })) {
                 updatePermissions(file);
-                subTree.children.push(file);
+                if (subTree.children.length === subTree.total) {
+                    // all children loaded new file can be pushed to the end of tree
+                    // if not all, new file will be loaded with next page
+                    subTree.children.push(file);
+                }
                 subTree.total++;
                 selectedClass.total++;
                 $container.trigger(`folderselect.${ns}`, [subTree.label, getPage(subTree.children), path]);
@@ -173,14 +187,12 @@ export default function (options) {
                 return !!item.uri;
             });
             // if files less then total and need toload this page
-            if ((files.length < selectedClass.total) &&
-                (files.length < selectedClass.page * selectedClass.childrenLimit)
-            ) {
+            if (files.length < selectedClass.total && files.length < selectedClass.page * selectedClass.childrenLimit) {
                 loadContent(path).then(function (data) {
                     const loadedFiles = _.filter(data.children, function (item) {
                         return !!item.uri;
                     });
-                    setToPath(tree, path, {children: loadedFiles});
+                    setToPath(tree, path, { children: loadedFiles });
                     content = getByPath(tree, path);
                     cb(content);
                 });
@@ -227,9 +239,7 @@ export default function (options) {
         if (tree) {
             if (tree.path === path) {
                 tree.children = tree.children ? tree.children.concat(data.children) : data.children;
-                if (data.total) {
-                    tree.total = data.total;
-                }
+                tree.total = data.total;
             } else if (tree.children) {
                 _.forEach(tree.children, function (child) {
                     done = setToPath(child, path, data);
@@ -280,18 +290,19 @@ export default function (options) {
             url: options.browseUrl,
             method: 'GET',
             dataType: 'json',
-            data: _.merge(parameters, options.params, { childrenOffset: (selectedClass.page - 1) * selectedClass.childrenLimit }),
-            noToken: true,
+            data: _.merge(parameters, options.params, {
+                childrenOffset: (selectedClass.page - 1) * selectedClass.childrenLimit
+            }),
+            noToken: true
         })
-        .then(response => response.data)
-        .then(response => {
-            response = updatePermissions(response);
-            if (response.children && response.children.length > 0) {
-                response.children.map(responseChildren => updatePermissions(responseChildren));
-            }
-            return response;
-        });
-
+            .then(response => response.data)
+            .then(response => {
+                response = updatePermissions(response);
+                if (response.children && response.children.length > 0) {
+                    response.children.map(responseChildren => updatePermissions(responseChildren));
+                }
+                return response;
+            });
     }
 
     /**
@@ -302,7 +313,7 @@ export default function (options) {
      */
     function updateFolders(data, $parent, recurse) {
         if (recurse && data && data.path) {
-            if (data.relPath === undefined) {
+            if (typeof data.relPath === 'undefined') {
                 data.relPath = data.path;
             }
             $parent.append(folderTpl(data));
