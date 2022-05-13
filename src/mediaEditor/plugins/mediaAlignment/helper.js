@@ -23,12 +23,12 @@ export const positionFloat = function positionFloat(widget, position) {
     if (!position) {
         return;
     }
-    
+
     widget.$container.removeClass(`${FLOAT_LEFT_CLASS} ${FLOAT_RIGHT_CLASS}`);
     widget.$original.removeClass(`${FLOAT_LEFT_CLASS} ${FLOAT_RIGHT_CLASS}`);
 
     let className;
-    
+
     switch(position) {
         case 'right':
             className = FLOAT_RIGHT_CLASS;
@@ -43,16 +43,16 @@ export const positionFloat = function positionFloat(widget, position) {
     // Update DOM
     widget.$container.addClass(className);
     // Update model
-    widget.element.attr('class', className);
+    widget.$original.attr('class', className);
 
     widget.$original.trigger('contentChange.qti-widget');
 };
 
 export const initAlignment = function initAlignment(widget) {
-    if (widget.element.hasClass(FLOAT_LEFT_CLASS)) {
+    if (widget.$original.hasClass(FLOAT_LEFT_CLASS)) {
         return positionFloat(widget, 'left')
     }
-    if (widget.element.hasClass(FLOAT_RIGHT_CLASS)) {
+    if (widget.$original.hasClass(FLOAT_RIGHT_CLASS)) {
         return positionFloat(widget, 'right')
     }
 }
