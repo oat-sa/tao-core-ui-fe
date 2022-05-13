@@ -71,13 +71,6 @@ export default function mediaCaptionFactory($container, media) {
                 })
             );
             $template.appendTo(this.getContainer());
-
-            mediaCaptionComponent.update(media.figcaption);
-
-            const textarea = $template.find('textarea');
-            $template.on('change keyup input', '#figcaption', (event) => {
-                event.target.value && this.update(event.target.value);
-            }, false);
         })
         .on('destroy', function () {
             $template.remove();

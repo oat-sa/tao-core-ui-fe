@@ -16,22 +16,7 @@
  * Copyright (c) 2021  (original work) Open Assessment Technologies SA;
  */
 
-export const initCaption = function initCaption(widget) {
-    const figcaption = document.createElement('qh5:figcaption');
-    figcaption.id = 'figcaption';
-    const caption = document.createTextNode(widget.element.attr('figcaption'));
-    figcaption.appendChild(caption);
-    widget.$container.append(figcaption);
-};
-
 export const updateCaption = function updateCaption(widget, caption) {
-    // Update DOM
-    const figcaption = widget.$container.find('#figcaption');
-    const newCaption = document.createTextNode(caption);
-    figcaption.empty().append(newCaption);
 
-    // Update model
-    widget.element.attr('figcaption', caption);
-
-    widget.$original.trigger('contentChange.qti-widget');
+    widget.$container.trigger('contentChange.qti-widget');
 };
