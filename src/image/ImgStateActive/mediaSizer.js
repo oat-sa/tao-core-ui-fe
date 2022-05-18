@@ -40,8 +40,21 @@ export const mediaSizer = function mediaSizer(media, widget) {
             val = Math.round(media[sizeAttr]);
             if (media.responsive) {
                 val += '%';
-                img.attr(sizeAttr, val);
                 $img.attr(sizeAttr, '100%');
+            }
+            if (widget.$figure.length) {
+                if (media.responsive) {
+                    // <figure style="width: 30%"><img width="100%><figcaption/></figure>
+                    widget.$figure.css(sizeAttr, val);
+                    img.attr(sizeAttr, '100%');
+                } else {
+                    // <figure style="width: 300px"><img height="400px><figcaption/></figure>
+                    if (sizeAttr === 'width') {
+                        widget.$figure.css(sizeAttr, val);
+                    } else {
+                        img.attr(sizeAttr, val);
+                    }
+                }
             } else {
                 img.attr(sizeAttr, val);
             }

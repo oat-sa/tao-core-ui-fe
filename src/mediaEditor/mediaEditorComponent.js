@@ -23,7 +23,7 @@
  * tools:
  *  - mediaSize - (change media size, responsive mode, sync width to heights, reset)
  *  - mediaAlignment - (position of the media)
- *  - mediaCaption - (position of the media)
+ *  - mediaCaption - (caption for image)
  *  to be implemented:
  *  *- cropper
  *  *- change colors

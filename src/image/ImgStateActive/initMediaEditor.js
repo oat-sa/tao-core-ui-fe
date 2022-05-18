@@ -21,7 +21,9 @@ import alignmentHelper from 'ui/mediaEditor/plugins/mediaAlignment/helper';
 import mediaEditorComponent from 'ui/mediaEditor/mediaEditorComponent';
 import { mediaSizer } from './mediaSizer';
 
-const getMedia = (imgQtiElement, $imgNode, cb) => {
+const getMedia = (widget, cb) => {
+    const imgQtiElement = widget.element;
+    const $imgNode = widget.$original;
     //init data-responsive:
     if (typeof imgQtiElement.data('responsive') === 'undefined') {
         if (imgQtiElement.attr('width') && !/[0-9]+%/.test(imgQtiElement.attr('width'))) {
@@ -30,6 +32,10 @@ const getMedia = (imgQtiElement, $imgNode, cb) => {
             imgQtiElement.data('responsive', true);
         }
     }
+    //init figcaption
+    if (widget.$figcaption.length) {
+        imgQtiElement.data('figcaption', widget.$figcaption.text());
+    }
 
     if (
         typeof imgQtiElement.attr('original-width') !== 'undefined' &&
@@ -37,8 +43,7 @@ const getMedia = (imgQtiElement, $imgNode, cb) => {
         typeof imgQtiElement.attr('type') !== 'undefined' &&
         typeof imgQtiElement.attr('src') !== 'undefined' &&
         typeof imgQtiElement.attr('width') !== 'undefined' &&
-        typeof imgQtiElement.attr('height') !== 'undefined' &&
-        typeof imgQtiElement.attr('figcaption') !== 'undefined'
+        typeof imgQtiElement.attr('height') !== 'undefined'
     ) {
         cb({
             $node: $imgNode,
@@ -46,8 +51,8 @@ const getMedia = (imgQtiElement, $imgNode, cb) => {
             src: imgQtiElement.attr('src'),
             width: imgQtiElement.attr('width'),
             height: imgQtiElement.attr('height'),
-            figcaption: imgQtiElement.attr('figcaption'),
-            responsive: imgQtiElement.data('responsive')
+            responsive: imgQtiElement.data('responsive'),
+            figcaption: imgQtiElement.data('figcaption')
         });
     } else {
         mimeType.getResourceType($imgNode.attr('src'), function (err, type) {
@@ -59,7 +64,7 @@ const getMedia = (imgQtiElement, $imgNode, cb) => {
                 width: imgQtiElement.attr('width'),
                 height: imgQtiElement.attr('height'),
                 responsive: imgQtiElement.data('responsive'),
-                figcaption: imgQtiElement.attr('figcaption')
+                figcaption: imgQtiElement.data('figcaption')
             });
         });
     }
@@ -77,6 +82,10 @@ const getMediaCb = (media, widget, mediaEditor, options) => {
             alignmentHelper.positionFloat(widget, media.align);
             mediaSizer(media, widget);
             widget.$original.removeClass('hidden');
+            // if figcaption exists
+            if (widget.$figcaption.length) {
+                widget.$figcaption.text(media.figcaption);
+            }
         });
     }
 };
@@ -89,6 +98,8 @@ export default function initMediaEditor(widget, mediaEditor, options) {
     if (!widget.$form.find('input[name=src]').val()) {
         return;
     }
+    // Resets classes for dom elements: img and wrapper on initial load and in sleep / inactive mode
+    alignmentHelper.initAlignment(widget);
 
-    getMedia(widget.element, widget.$original, (m) => getMediaCb(m, widget, mediaEditor, options));
+    getMedia(widget, (m) => getMediaCb(m, widget, mediaEditor, options));
 }

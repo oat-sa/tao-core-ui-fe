@@ -49,9 +49,6 @@ export default function mediaCaptionFactory($container, media) {
          * Apply configurations to the view
          */
         update(caption) {
-            $template = $(tpl({
-                figcaption: caption
-            }));
             this.trigger('change', {
                 figcaption: caption
             });
@@ -71,6 +68,10 @@ export default function mediaCaptionFactory($container, media) {
                 })
             );
             $template.appendTo(this.getContainer());
+            const $figcaptionInput = $template.find('#figcaption');
+            $figcaptionInput.on('input', () => {
+                mediaCaptionComponent.update($figcaptionInput.val());
+            });
         })
         .on('destroy', function () {
             $template.remove();

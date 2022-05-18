@@ -22,7 +22,6 @@ import 'ui/tooltip';
 import _ from 'lodash';
 import initAll, { initAdvanced } from './ImgStateActive/initHelper';
 import initMediaEditor from './ImgStateActive/initMediaEditor';
-import captionHelper from 'ui/mediaEditor/plugins/mediaCaption/helper';
 
 const options = {
     mediaDimension: {
@@ -32,9 +31,11 @@ const options = {
         active: true
     },
     mediaCaption: {
-        active: true
+        active: false
     }
 };
+const figureSelector = 'qh5\\:figure, html5\\:figure, figure';
+const figcaptionSelector = 'qh5\\:figcaption, html5\\:figcaption, figcaption';
 
 const formCallbacks = ({ widget, formElement, mediaEditor, togglePlaceholder }) => {
     const $img = widget.$original;
@@ -59,11 +60,7 @@ const formCallbacks = ({ widget, formElement, mediaEditor, togglePlaceholder }) 
         alt: function (img, value) {
             img.attr('alt', value);
         },
-        longdesc: formElement.getAttributeChangeCallback(),
-        figcaption: function (img, value) {
-            img.attr('figcaption', value);
-            captionHelper.updateCaption(widget, value);
-        }
+        longdesc: formElement.getAttributeChangeCallback()
     };
 };
 
@@ -76,6 +73,13 @@ const initForm = ({ widget, formElement, formTpl, mediaEditor, togglePlaceholder
             alt: widget.element.attr('alt')
         })
     );
+
+    widget.$figure = widget.$original.closest(figureSelector);
+    widget.$figcaption = widget.$figure.find(figcaptionSelector);
+
+    if (widget.$figure.length) {
+        options.mediaCaption.active = true;
+    }
 
     // init upload, advanced and media editor
     initAll(widget, mediaEditor, options);

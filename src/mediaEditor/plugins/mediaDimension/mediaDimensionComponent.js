@@ -151,8 +151,6 @@ export default function mediaDimensionFactory($container, media, config) {
      */
     let initialConfig;
 
-    media.$node[0] = media.$node[0].childNodes[1];
-
     /**
      * Calculate propSizes to have correct sizes for the shown image
      * @param {Object} conf
