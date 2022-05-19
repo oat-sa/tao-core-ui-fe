@@ -196,7 +196,7 @@ function tabsFactory(container, config) {
         }
 
         if (component.getConfig().hideLoneTab && tabs.length === 1) {
-            hider.hide(component.getElement().parent());
+            component.hide();
         }
     };
 
