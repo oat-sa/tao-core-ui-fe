@@ -31,7 +31,6 @@
  */
 import $ from 'jquery';
 import _ from 'lodash';
-import hider from 'ui/hider';
 import componentFactory from 'ui/component';
 import tabsTpl from 'ui/tabs/tpl/tabs';
 import 'ui/tabs/css/tabs.css';
