@@ -24,10 +24,8 @@ export const positionFloat = function positionFloat(widget, position) {
         return;
     }
 
-    const $imageOrFigure = widget.$figure.length ? widget.$figure : widget.$original;
-
     widget.$container.removeClass(`${FLOAT_LEFT_CLASS} ${FLOAT_RIGHT_CLASS}`);
-    $imageOrFigure.removeClass(`${FLOAT_LEFT_CLASS} ${FLOAT_RIGHT_CLASS}`);
+    widget.$original.removeClass(`${FLOAT_LEFT_CLASS} ${FLOAT_RIGHT_CLASS}`);
 
     let className;
 
@@ -45,17 +43,16 @@ export const positionFloat = function positionFloat(widget, position) {
     // Update DOM
     widget.$container.addClass(className);
     // Update model
-    $imageOrFigure.attr('class', className);
+    widget.$original.attr('class', className);
 
     widget.$original.trigger('contentChange.qti-widget');
 };
 
 export const initAlignment = function initAlignment(widget) {
-    const $imageOrFigure = widget.$figure.length ? widget.$figure : widget.$original;
-    if ($imageOrFigure.hasClass(FLOAT_LEFT_CLASS)) {
+    if (widget.$original.hasClass(FLOAT_LEFT_CLASS)) {
         return positionFloat(widget, 'left');
     }
-    if ($imageOrFigure.hasClass(FLOAT_RIGHT_CLASS)) {
+    if (widget.$original.hasClass(FLOAT_RIGHT_CLASS)) {
         return positionFloat(widget, 'right');
     }
 };
