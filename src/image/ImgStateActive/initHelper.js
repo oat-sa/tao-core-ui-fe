@@ -24,7 +24,13 @@ import extractLabel from './extractLabel';
 
 export const initAdvanced = function (widget) {
     const $form = widget.$form;
-    const src = widget.element.attr('src');
+    let src = '';
+    if (widget.element.is('img')) {
+        src = widget.element.attr('src');
+    } else {
+        const img = _.find(widget.element.getBody().elements, elem => elem.is('img'));
+        src = img ? img.attr('src') : '';
+    }
 
     if (src) {
         $form.find('[data-role=advanced]').show();
@@ -36,7 +42,7 @@ export const initAdvanced = function (widget) {
 export const initUpload = function (widget) {
     const $form = widget.$form,
         options = widget.options,
-        img = widget.element,
+        img = widget.element.is('img') ? widget.element : _.find(widget.element.getBody().elements, elem => elem.is('img')),
         $uploadTrigger = $form.find('[data-role="upload-trigger"]'),
         $src = $form.find('input[name=src]'),
         $alt = $form.find('input[name=alt]');

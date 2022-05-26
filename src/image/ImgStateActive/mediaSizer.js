@@ -19,9 +19,13 @@ import 'jquery';
 import _ from 'lodash';
 
 export const mediaSizer = function mediaSizer(media, widget) {
-    const img = widget.element;
+    let img = widget.element;
+    let $img = widget.$original;
+    if (widget.element.is('figure')) {
+        img = _.find(widget.element.getBody().elements, elem => elem.is('img'));
+        $img = widget.$original.find('img');
+    }
     const $mediaSpan = widget.$container;
-    const $img = widget.$original;
 
     if (img.data('responsive') !== media.responsive) {
         img.data('responsive', media.responsive);
