@@ -60,7 +60,7 @@ const formCallbacks = ({ widget, formElement, mediaEditor, togglePlaceholder }) 
         },
         figcaption: function (elem, value) {
             $figcaption.text(value);
-            figcaptionElem.getBody().bdy = value;
+            figcaptionElem.body(value);
         },
         longdesc: formElement.getAttributeChangeCallback(),
     };
@@ -75,7 +75,7 @@ const initForm = ({ widget, formElement, formTpl, mediaEditor, togglePlaceholder
             baseUrl: widget.options.baseUrl || '',
             src: imageElem.attr('src'),
             alt: imageElem.attr('alt'),
-            figcaption: figcaptionElem.getBody().bdy
+            figcaption: figcaptionElem.body()
         })
     );
 
