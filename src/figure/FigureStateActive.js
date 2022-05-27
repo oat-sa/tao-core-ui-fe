@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2021 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
+ * Copyright (c) 2022 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
  */
 import 'jquery';
 import 'nouislider';
@@ -46,8 +46,8 @@ const formCallbacks = ({ widget, formElement, mediaEditor, togglePlaceholder }) 
 
             togglePlaceholder(widget);
 
-            initAdvanced(widget);
             if (widget.$form.find('[data-role=advanced]').is(":hidden")) {
+                initAdvanced(widget);
                 initMediaEditor(widget, mediaEditor, options);
             }
         }, 1000),
