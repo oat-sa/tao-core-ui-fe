@@ -40,18 +40,14 @@ const formCallbacks = ({ widget, formElement, mediaEditor, togglePlaceholder }) 
     return {
         src: _.throttle(function (elem, value) {
             imageElem.attr('src', value);
-            if (!$img.hasClass('hidden')) {
-                $img.addClass('hidden');
-            }
+
             $img.attr('src', widget.getAssetManager().resolve(value));
             $img.trigger('contentChange.qti-widget').change();
 
             togglePlaceholder(widget);
 
             initAdvanced(widget);
-            if (imageElem.attr('off-media-editor') === 1) {
-                imageElem.removeAttr('off-media-editor');
-            } else {
+            if (widget.$form.find('[data-role=advanced]').is(":hidden")) {
                 initMediaEditor(widget, mediaEditor, options);
             }
         }, 1000),
