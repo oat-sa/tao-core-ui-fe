@@ -16,11 +16,11 @@
  * Copyright (c) 2021 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
  */
 import 'jquery';
-import _ from 'lodash';
 import mimeType from 'core/mimetype';
 import alignmentHelper from 'ui/mediaEditor/plugins/mediaAlignment/helper';
 import mediaEditorComponent from 'ui/mediaEditor/mediaEditorComponent';
 import { mediaSizer } from './mediaSizer';
+import { getImage } from './helper';
 
 const getMedia = (imgQtiElement, $imgNode, cb) => {
     //init data-responsive:
@@ -87,12 +87,6 @@ export default function initMediaEditor(widget, mediaEditor, options) {
     if (!widget.$form.find('input[name=src]').val()) {
         return;
     }
-    let $img = widget.$original;
-    let imgElem = widget.element;
-    if (widget.element.is('figure')) {
-        $img = widget.$original.find('img');
-        imgElem = _.find(widget.element.getBody().elements, elem => elem.is('img'));
-    }
-
-    getMedia(imgElem, $img, (m) => getMediaCb(m, widget, mediaEditor, options));
+    const { img, $img } = getImage(widget);
+    getMedia(img, $img, (m) => getMediaCb(m, widget, mediaEditor, options));
 }

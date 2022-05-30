@@ -17,14 +17,10 @@
  */
 import 'jquery';
 import _ from 'lodash';
+import { getImage } from './helper';
 
 export const mediaSizer = function mediaSizer(media, widget) {
-    let img = widget.element;
-    let $img = widget.$original;
-    if (widget.element.is('figure')) {
-        img = _.find(widget.element.getBody().elements, elem => elem.is('img'));
-        $img = widget.$original.find('img');
-    }
+    const { img, $img } = getImage(widget);
     const $mediaSpan = widget.$container;
 
     if (img.data('responsive') !== media.responsive) {
