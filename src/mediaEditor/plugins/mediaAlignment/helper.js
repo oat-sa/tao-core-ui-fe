@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2021  (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2021-2022  (original work) Open Assessment Technologies SA;
  */
 
 export const FLOAT_LEFT_CLASS = 'wrap-left';
@@ -23,13 +23,13 @@ export const positionFloat = function positionFloat(widget, position) {
     if (!position) {
         return;
     }
-    
+
     widget.$container.removeClass(`${FLOAT_LEFT_CLASS} ${FLOAT_RIGHT_CLASS}`);
     widget.$original.removeClass(`${FLOAT_LEFT_CLASS} ${FLOAT_RIGHT_CLASS}`);
 
     let className;
-    
-    switch(position) {
+
+    switch (position) {
         case 'right':
             className = FLOAT_RIGHT_CLASS;
             break;
@@ -43,16 +43,20 @@ export const positionFloat = function positionFloat(widget, position) {
     // Update DOM
     widget.$container.addClass(className);
     // Update model
-    widget.element.attr('class', className);
+    if (className) {
+        widget.element.attr('class', className);
+    } else {
+        widget.element.removeAttr('class');
+    }
 
     widget.$original.trigger('contentChange.qti-widget');
 };
 
 export const initAlignment = function initAlignment(widget) {
     if (widget.element.hasClass(FLOAT_LEFT_CLASS)) {
-        return positionFloat(widget, 'left')
+        return positionFloat(widget, 'left');
     }
     if (widget.element.hasClass(FLOAT_RIGHT_CLASS)) {
-        return positionFloat(widget, 'right')
+        return positionFloat(widget, 'right');
     }
-}
+};

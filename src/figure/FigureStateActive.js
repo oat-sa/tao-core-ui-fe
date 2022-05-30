@@ -45,6 +45,7 @@ const formCallbacks = ({ widget, formElement, mediaEditor, togglePlaceholder }) 
             $img.trigger('contentChange.qti-widget').change();
 
             togglePlaceholder(widget);
+            imageElem.removeAttr('off-media-editor');
 
             if (widget.$form.find('[data-role=advanced]').is(":hidden")) {
                 initAdvanced(widget);
