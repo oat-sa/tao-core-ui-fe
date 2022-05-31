@@ -76,6 +76,10 @@ const initForm = ({ widget, formElement, formTpl, mediaEditor, togglePlaceholder
         })
     );
 
+    widget.$form.find('textarea#figcaption')
+        .on('focus', () => widget.$container.addClass('edit-figcaption'))
+        .on('blur', () => widget.$container.removeClass('edit-figcaption'));
+
     // init upload, advanced and media editor
     initAll(widget, mediaEditor, options);
 
