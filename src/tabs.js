@@ -31,7 +31,6 @@
  */
 import $ from 'jquery';
 import _ from 'lodash';
-import hider from 'ui/hider';
 import componentFactory from 'ui/component';
 import tabsTpl from 'ui/tabs/tpl/tabs';
 import 'ui/tabs/css/tabs.css';
@@ -196,7 +195,7 @@ function tabsFactory(container, config) {
         }
 
         if (component.getConfig().hideLoneTab && tabs.length === 1) {
-            hider.hide(component.getElement().find(tabSelector));
+            component.hide();
         }
     };
 
