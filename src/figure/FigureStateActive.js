@@ -21,7 +21,7 @@ import 'ui/resourcemgr';
 import 'ui/tooltip';
 import _ from 'lodash';
 import initAll, { initAdvanced } from '../image/ImgStateActive/initHelper';
-import initMediaEditor  from '../image/ImgStateActive/initMediaEditor';
+import initMediaEditor from '../image/ImgStateActive/initMediaEditor';
 
 const options = {
     mediaDimension: {
@@ -47,9 +47,19 @@ const formCallbacks = ({ widget, formElement, mediaEditor, togglePlaceholder }) 
             togglePlaceholder(widget);
             imageElem.removeAttr('off-media-editor');
 
-            if (widget.$form.find('[data-role=advanced]').is(":hidden")) {
-                initAdvanced(widget);
-                initMediaEditor(widget, mediaEditor, options);
+            if (widget.$form.find('[data-role=advanced]').is(':hidden')) {
+                const initPanel = () => {
+                    initAdvanced(widget);
+                    initMediaEditor(widget, mediaEditor, options);
+                };
+                if ($img[0].complete) {
+                    initPanel();
+                } else {
+                    $img.on('load.widget-panel', function () {
+                        initPanel();
+                        $img.off('.widget-panel');
+                    });
+                }
             }
         }, 1000),
         alt: function (elem, value) {
@@ -59,10 +69,9 @@ const formCallbacks = ({ widget, formElement, mediaEditor, togglePlaceholder }) 
             $figcaption.text(value);
             figcaptionElem.body(value);
         },
-        longdesc: formElement.getAttributeChangeCallback(),
+        longdesc: formElement.getAttributeChangeCallback()
     };
 };
-
 
 const initForm = ({ widget, formElement, formTpl, mediaEditor, togglePlaceholder }) => {
     const imageElem = _.find(widget.element.getBody().elements, elem => elem.is('img'));
@@ -76,7 +85,8 @@ const initForm = ({ widget, formElement, formTpl, mediaEditor, togglePlaceholder
         })
     );
 
-    widget.$form.find('textarea#figcaption')
+    widget.$form
+        .find('textarea#figcaption')
         .on('focus', () => widget.$container.addClass('edit-figcaption'))
         .on('blur', () => widget.$container.removeClass('edit-figcaption'));
 
@@ -94,8 +104,7 @@ const initForm = ({ widget, formElement, formTpl, mediaEditor, togglePlaceholder
     );
 };
 
-
-export default function(stateFactory, ActiveState, formTpl, formElement, inlineHelper) {
+export default function (stateFactory, ActiveState, formTpl, formElement, inlineHelper) {
     /**
      * media Editor instance if has been initialized
      * @type {null}
@@ -112,13 +121,13 @@ export default function(stateFactory, ActiveState, formTpl, formElement, inlineH
         }
     );
 
-    ImgStateActive.prototype.initForm = function() {
+    ImgStateActive.prototype.initForm = function () {
         initForm({
             widget: this.widget,
             formElement,
             formTpl,
             mediaEditor,
-            togglePlaceholder: inlineHelper.togglePlaceholder,
+            togglePlaceholder: inlineHelper.togglePlaceholder
         });
     };
 
