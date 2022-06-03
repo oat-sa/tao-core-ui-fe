@@ -15,7 +15,7 @@
  *
  * Copyright (c) 2022 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
  */
-import 'jquery';
+import $ from 'jquery';
 import 'nouislider';
 import 'ui/resourcemgr';
 import 'ui/tooltip';
@@ -32,11 +32,16 @@ const options = {
     }
 };
 
+const getImage = widget => widget.$original.find('img');
+const getCaption = widget => widget.$original.find('figcaption');
+const getImageElement = widget => _.find(widget.element.getBody().elements, elem => elem.is('img'));
+const getCaptionElement = widget => _.find(widget.element.getBody().elements, elem => elem.is('figcaption'));
+
 const formCallbacks = ({ widget, formElement, mediaEditor, togglePlaceholder }) => {
-    const $img = widget.$original.find('img');
-    const $figcaption = widget.$original.find('figcaption');
-    const imageElem = _.find(widget.element.getBody().elements, elem => elem.is('img'));
-    const figcaptionElem = _.find(widget.element.getBody().elements, elem => elem.is('figcaption'));
+    const $img = getImage(widget);
+    let $figcaption = getCaption(widget);
+    const imageElem = getImageElement(widget);
+    let figcaptionElem = getCaptionElement(widget);
     return {
         src: _.throttle(function (elem, value) {
             imageElem.attr('src', value);
@@ -66,22 +71,36 @@ const formCallbacks = ({ widget, formElement, mediaEditor, togglePlaceholder }) 
             imageElem.attr('alt', value);
         },
         figcaption: function (elem, value) {
-            $figcaption.text(value);
-            figcaptionElem.body(value);
+            if (figcaptionElem && value) {
+                // update existing capture
+                $figcaption.text(value);
+                figcaptionElem.body(value);
+            } else if (!figcaptionElem && value) {
+                // add capture
+                figcaptionElem = widget.element.addCaption(value);
+                $figcaption = $(`<figcaption>${value}</figcaption>`);
+                widget.$original.append($figcaption);
+            } else if (figcaptionElem && !value) {
+                widget.element.removeCaption();
+                $figcaption.remove();
+                $figcaption = null;
+                figcaptionElem = null;
+            }
+
         },
         longdesc: formElement.getAttributeChangeCallback()
     };
 };
 
 const initForm = ({ widget, formElement, formTpl, mediaEditor, togglePlaceholder }) => {
-    const imageElem = _.find(widget.element.getBody().elements, elem => elem.is('img'));
-    const figcaptionElem = _.find(widget.element.getBody().elements, elem => elem.is('figcaption'));
+    const imageElem = getImageElement(widget);
+    const figcaptionElem = getCaptionElement(widget);
     widget.$form.html(
         formTpl({
             baseUrl: widget.options.baseUrl || '',
             src: imageElem.attr('src'),
             alt: imageElem.attr('alt'),
-            figcaption: figcaptionElem.body()
+            figcaption: figcaptionElem ? figcaptionElem.body() : ''
         })
     );
 
