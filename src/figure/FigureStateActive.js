@@ -86,7 +86,6 @@ const formCallbacks = ({ widget, formElement, mediaEditor, togglePlaceholder }) 
                 $figcaption = null;
                 figcaptionElem = null;
             }
-
         },
         longdesc: formElement.getAttributeChangeCallback()
     };
@@ -106,8 +105,8 @@ const initForm = ({ widget, formElement, formTpl, mediaEditor, togglePlaceholder
 
     widget.$form
         .find('textarea#figcaption')
-        .on('focus', () => widget.$container.addClass('edit-figcaption'))
-        .on('blur', () => widget.$container.removeClass('edit-figcaption'));
+        .on('focus.qti-widget', () => widget.$container.addClass('edit-figcaption'))
+        .on('blur.qti-widget', () => widget.$container.removeClass('edit-figcaption'));
 
     // init upload, advanced and media editor
     initAll(widget, mediaEditor, options);
@@ -129,6 +128,8 @@ export default function (stateFactory, ActiveState, formTpl, formElement, inline
      * @type {null}
      */
     let mediaEditor = null;
+    let textareaObserver = null;
+    let texareaHTMLElem = null;
 
     const ImgStateActive = stateFactory.extend(
         ActiveState,
@@ -136,6 +137,10 @@ export default function (stateFactory, ActiveState, formTpl, formElement, inline
             this.initForm();
         },
         function () {
+            this.widget.$form.find('textarea#figcaption').off('.qti-widget');
+            if (textareaObserver) {
+                textareaObserver.unobserve(texareaHTMLElem);
+            }
             this.widget.$form.empty();
         }
     );
@@ -148,6 +153,18 @@ export default function (stateFactory, ActiveState, formTpl, formElement, inline
             mediaEditor,
             togglePlaceholder: inlineHelper.togglePlaceholder
         });
+        const figurelem = this.widget.element;
+        const $texarea = this.widget.$form.find('textarea#figcaption');
+        texareaHTMLElem = $texarea[0];
+        function outputsize() {
+            figurelem.data('heigthCaptionInput', $texarea.height());
+        }
+        if (typeof ResizeObserver !== 'undefined') {
+            textareaObserver = new ResizeObserver(outputsize).observe(texareaHTMLElem);
+            if (figurelem.data('heigthCaptionInput')) {
+                $texarea.height(figurelem.data('heigthCaptionInput'));
+            }
+        }
     };
 
     return ImgStateActive;
