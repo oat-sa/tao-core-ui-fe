@@ -22,6 +22,7 @@ import 'ui/tooltip';
 import _ from 'lodash';
 import initAll, { initAdvanced } from '../image/ImgStateActive/initHelper';
 import initMediaEditor from '../image/ImgStateActive/initMediaEditor';
+import tplCaptionText from './figcaption.tpl';
 
 const options = {
     mediaDimension: {
@@ -71,14 +72,16 @@ const formCallbacks = ({ widget, formElement, mediaEditor, togglePlaceholder }) 
             imageElem.attr('alt', value);
         },
         figcaption: function (elem, value) {
+            // using dompurify to clean <script> tags
+            const text = tplCaptionText({ text: value });
             if (figcaptionElem && value) {
                 // update existing capture
-                $figcaption.text(value);
-                figcaptionElem.body(value);
+                $figcaption.html(text);
+                figcaptionElem.body(text);
             } else if (!figcaptionElem && value) {
                 // add capture
-                figcaptionElem = widget.element.addCaption(value);
-                $figcaption = $(`<figcaption>${value}</figcaption>`);
+                figcaptionElem = widget.element.addCaption(text);
+                $figcaption = $(`<figcaption>${text}</figcaption>`);
                 widget.$original.append($figcaption);
             } else if (figcaptionElem && !value) {
                 widget.element.removeCaption();
