@@ -67,15 +67,15 @@ var Incrementer = {
                         .after(
                             //set up controls
                             '<span class="ctrl ' +
-                                options.incrementerCtrlClass +
-                                '">' +
-                                '<a href="#" class="inc" title="+' +
-                                options.step +
-                                '" tabindex="-1"></a>' +
-                                '<a href="#" class="dec" title="-' +
-                                options.step +
-                                '" tabindex="-1"></a>' +
-                                '</span>'
+                            options.incrementerCtrlClass +
+                            '">' +
+                            '<a href="#" class="inc" title="+' +
+                            options.step +
+                            '" tabindex="-1"></a>' +
+                            '<a href="#" class="dec" title="-' +
+                            options.step +
+                            '" tabindex="-1"></a>' +
+                            '</span>'
                         )
                         .on('keydown', function(e) {
                             if (e.which === 38) {

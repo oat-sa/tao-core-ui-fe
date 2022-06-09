@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2015 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2015-2020 (original work) Open Assessment Technologies SA ;
  */
 /**
  * Wraps a jQuery autocomplete plugin inside a component.
@@ -76,7 +76,7 @@ var defaults = {
 
     /**
      * Defines the name of the param providing the ontology URI
-     * @type {String}
+     * @type {String|String[]}
      */
     ontologyParam: 'rootNode',
 
@@ -307,7 +307,7 @@ var autocompleter = {
                 self.on(name.substr(2), value);
             } else {
                 // not a component option, forward it to the plugin instance
-                options[name] = value;
+                pluginOptions[name] = value;
             }
         });
 
@@ -620,7 +620,13 @@ var autocompleter = {
         }
 
         if (this.ontology) {
-            searchParams[this.ontologyParam] = this.ontology;
+            if (!Array.isArray(this.ontologyParam)) {
+              searchParams[this.ontologyParam] = this.ontology;
+            } else {
+              this.ontologyParam.forEach(p => {
+                searchParams[p] = this.ontology;
+              })
+            } 
         }
 
         return params;
@@ -661,7 +667,8 @@ var autocompleter = {
      * @returns {String}
      */
     getOntologyParam: function() {
-        return this.adjustParam(this.ontologyParam);
+        const p = Array.isArray(this.ontologyParam) ? this.ontologyParam[0] : this.ontologyParam;
+        return this.adjustParam(p);
     },
 
     /**

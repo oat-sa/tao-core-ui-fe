@@ -26,6 +26,8 @@
 import $ from 'jquery';
 import _ from 'lodash';
 import __ from 'i18n';
+import urlUtil from 'util/url';
+import UrlParser from 'util/urlParser';
 
 /**
  * Defines the validation callback
@@ -129,18 +131,11 @@ var validators = {
                     return;
                 }
 
-                //FIXME use util/url
-                //valid way to know if it is an url
-                var pattern = new RegExp(
-                    '^(https?:\\/\\/)?' + // protocol
-                    '((([a-z\\d]([a-z\\d-]*[a-z\\d])?)\\.)+[a-z]{2,}|' + // domain name
-                    '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
-                    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
-                    '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
-                        '(\\#[-a-z\\d_]*)?$',
-                    'i'
-                ); // fragment locator
-                if (!pattern.test(value) && !/^data:[^\/]+\/[^;]+(;charset=[\w]+)?;base64,/.test(value)) {
+                const parser = new UrlParser(value);
+                const protocol = parser.get('protocol');
+                const isHttp = protocol === 'http:' || protocol === 'https:';
+
+                if (!(urlUtil.isAbsolute(value) && isHttp) && !urlUtil.isBase64(value)) {
                     //request HEAD only for bandwidth saving
                     $.ajax({
                         type: 'HEAD',
@@ -205,7 +200,7 @@ var register = function registerValidator(name, validator, force) {
     if (!_.isObject(validator) || !_.isString(validator.message) || !_.isFunction(validator.validate)) {
         throw new Error(
             'A validator must be an object with a message and a validate method, but given : ' +
-                JSON.stringify(validator)
+            JSON.stringify(validator)
         );
     }
 

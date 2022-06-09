@@ -1,0 +1,177 @@
+@import 'inc/bootstrap';
+
+$invalidCriteriaBackground: #cfdfe9;
+$invalidCriteriaBorder: #266d9c;
+
+.advanced-search-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    &:not(:empty) {
+        padding: 0 0 32px 0;
+    }
+    .add-criteria-container {
+        padding-top: 16px;
+        padding-right: 20px;
+        position: relative;
+        .icon-add {
+            font-size: 1.6rem;
+            position: relative;
+            top: 2px;
+            margin-right: 8px;
+        }
+        .icon-loop {
+            font-size: 1.6rem;
+            position: relative;
+            top: 2px;
+            margin-right: 8px;
+            animation: rotating 2s linear infinite;
+            display: inline-block;
+        }
+        a {
+            text-decoration: none;
+        }
+        .criteria-select2 {
+            visibility: hidden;
+            position: absolute;
+            left: 0;
+            width: calc(100% - 20px);
+        }
+        &.disabled {
+            display: none;
+        }
+    }
+    .advanced-criteria-container {
+        overflow-y: auto;
+        padding-right: 20px;
+        max-height: 100%;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        &:not(:empty) {
+            padding-top: 16px;
+        }
+        .filter-container {
+            margin-bottom: 32px;
+            &:last-child {
+                margin-bottom: 16px;
+            }
+            .icon-result-nok {
+                right: 0;
+                top: 2px;
+                cursor: pointer;
+                position: absolute;
+                font-size: 1.6rem !important;
+                font-weight: 400;
+                padding: 0;
+                background: transparent;
+                box-shadow: none;
+                border: 0;
+                color: inherit;
+                height: 1.8rem;
+                z-index: 1;
+                border: 1px dashed transparent;
+                &:focus {
+                    border-color: $darkBar;
+                }
+            }
+            .filter-bool-group {
+                legend {
+                    padding-bottom: 4px;
+                }
+                input[type="checkbox"] {
+                    margin-left: 0;
+                }
+            }
+            label {
+                width: 100%;
+                padding: 0;
+                margin: 0;
+            }
+            .filter-label-text {
+                padding-bottom: 4px;
+                display: inline-block;
+                width: auto;
+                vertical-align: middle;
+            }
+            &[data-type='text'] {
+                input {
+                    padding-left: 4px;
+                    width: 100%;
+                }
+            }
+            &[data-type='list'] {
+                .select2-container {
+                    width: 100%;
+                }
+                ul {
+                    list-style: none;
+                    padding-left: 0;
+                }
+                input[type='checkbox'] {
+                    width: initial;
+                    vertical-align: top;
+                }
+                input[type='text'] {
+                    width: 100%;
+                }
+            }
+        }
+        .invalid-criteria-warning-container {
+            background-color: $invalidCriteriaBackground;
+            border: 1px solid $invalidCriteriaBorder;
+            padding: 10px;
+            p {
+                margin-bottom: 0;
+            }
+            ul {
+                list-style: none;
+                font-weight: bolder;
+                padding-left: 0;
+            }
+        }
+        &.scrollable {
+            padding-right: 10px;
+        }
+        &.scroll-separator-top {
+            border-top: 1px solid $uiGeneralContentBorder;
+        }
+        &.scroll-separator-bottom {
+            border-bottom: 1px solid $uiGeneralContentBorder;
+        }
+    }
+}
+
+// select2 appends dropdown options directly to body, so need a custom class to isolate custom styles
+.criteria-dropdown-select2 {
+    border: 1px solid $uiGeneralContentBorder;
+    box-shadow: $uiGeneralContentBorder 1px 1px 1px;
+    input {
+        min-width: initial;
+        background-image: initial;
+    }
+}
+
+.advanced-search-container .class-path {
+    color: #616161;
+    font-size: 0.8em;
+}
+
+.criteria-dropdown-select2 .class-path {
+    color: #808080;
+    font-size: 0.8em;
+}
+
+.select2-highlighted .class-path {
+    color: #FFF;
+}
+
+@keyframes rotating {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}

@@ -14,7 +14,7 @@ textarea {
     &:focus {
         outline: none;
     }
-    &:not(.error):focus {
+    &:not(.error):not(.select2-input):focus {
         @include focus-style;
     }
 }
@@ -22,8 +22,9 @@ textarea {
 label, .form_desc {
     display: inline-block;
     cursor: pointer;
-    padding-right: 10px;
     margin-bottom: 5px;
+    padding-right: 10px;
+
     abbr {
         color: $info;
         border-bottom: none;
@@ -211,8 +212,9 @@ label, .form_desc {
         width: 20px;
         position: absolute;
         top: 0;
-        left: 0;
         margin: 0;
+        left: 0;
+
         & + div {
             cursor: pointer;
             margin-left: 24px;
@@ -342,6 +344,14 @@ input[type="password"].viewable-hiddenbox-input {
         }
     }
 
+    &.error {
+        .select2-container {
+            > :first-child {
+                border-color: $error;
+            }
+        }
+    }
+
     + .form-error {
         color: $error;
         text-align: right;
@@ -395,16 +405,16 @@ label {
             z-index: 3;
         }
         &:after {
-            left:-1em;
             position: relative;
             z-index: 2;
+            left: -1em;
         }
     }
+
     input[type="radio"],
     input[type="checkbox"] {
-        position: absolute;
-        left: -10000px;
-        top: 0;
+        @include visuallyHidden;
+
         &:focus ~ [class^="icon-"],
         &:focus ~ [class*=" icon-"],
         &:active ~ [class^="icon-"],
@@ -428,7 +438,8 @@ label {
         }
         &.disabled, &[disabled], &[readonly] {
             & ~[class^="icon-"],
-            & ~[class*=" icon-"]{
+            & ~[class*=" icon-"],
+            & ~label {
                 cursor: not-allowed !important;
                 opacity: .4 !important;
                 color: #555;
@@ -539,7 +550,7 @@ label {
 
         }
         h3 {
-            margin: 0px 0px 12px;
+            margin: 0 0 12px;
         }
     }
 
@@ -560,6 +571,10 @@ label {
         text-align: right;
         margin: 30px 0 0 0;
         @extend %clearfix;
+
+        [dir="rtl"] & {
+            text-align: left;
+        }
     }
 
     .property-title {
@@ -676,14 +691,21 @@ label {
         }
     }
 
+    .form_disabled_message {
+        width: 65%;
+        margin-left: auto;
+        font-size: 12px;
+    }
+
     .form_desc {
         width: 35%;
         display:inline-block;
         padding: 0 10px 0 0;
+        vertical-align: top;
+
         &.hidden-input-label {
             width: auto;
         }
-        vertical-align: top;
 
         & ~ .form-elt-container {
             display: inline-block;
@@ -692,6 +714,14 @@ label {
                 max-width: none;
                 @include simple-border();
             }
+        }
+        & ~.form-error{
+            color: $error;
+            text-align: right;
+        }
+
+        [dir="rtl"] & {
+            padding: 0 0 0 10px;
         }
     }
     input {

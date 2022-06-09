@@ -1,4 +1,14 @@
 /* Do not edit */[class^="icon-"], [class*=" icon-"] { @include tao-icon-setup; }
+.icon-info-bare:before { @include icon-info-bare; }
+.icon-bookmark-outline:before { @include icon-bookmark-outline; }
+.icon-bookmark:before { @include icon-bookmark; }
+.icon-indicator:before { @include icon-indicator; }
+.icon-add-subsection:before { @include icon-add-subsection; }
+.icon-wrap-inline:before { @include icon-wrap-inline; }
+.icon-wrap-left:before { @include icon-wrap-left; }
+.icon-wrap-right:before { @include icon-wrap-right; }
+.icon-offline:before { @include icon-offline; }
+.icon-online:before { @include icon-online; }
 .icon-tab:before { @include icon-tab; }
 .icon-untab:before { @include icon-untab; }
 .icon-multi-select:before { @include icon-multi-select; }

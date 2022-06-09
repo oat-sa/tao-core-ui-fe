@@ -12,13 +12,25 @@ $playerSliderBackground: $uiGeneralContentBg;
 $playerSliderColor: $darkBar;
 $playerSliderHandle: whiten($playerSliderColor, .4);
 $playerSliderHightlight: whiten($playerSliderColor, .2);
+$controlsHeight: 36px;
 
 .mediaplayer {
     position: relative;
     @include simple-border($playerBorder);
     @include border-radius(2);
     background: $playerBackground;
+    max-width: 100%;
+    min-height: $controlsHeight;
+    min-width: 200px;
+    direction: ltr;
 
+    &.youtube {
+        .player {
+            width: 100%;
+            height: 0px;
+            padding-bottom: 56.25%; // 56.25% for widescreen 16:9 aspect ratio videos
+        }
+    }
     .icon-sound:before {
         @include icon-audio();
     }
@@ -32,12 +44,26 @@ $playerSliderHightlight: whiten($playerSliderColor, .2);
 
     .player {
         position: relative;
+        height: calc(100% - #{$controlsHeight});
+        width: 100%;
 
         iframe {
             pointer-events: none;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%
         }
 
-        .overlay {
+        .media:not(.youtube) {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: 100%;
+        }
+
+        .player-overlay {
             position: absolute;
             z-index: 1;
             top: 0;
@@ -53,10 +79,8 @@ $playerSliderHightlight: whiten($playerSliderColor, .2);
             z-index: 2;
             top: 50%;
             left: 50%;
-            width: 64px;
-            height: 64px;
+            transform: translate(-50%);
             margin-top: -32px;
-            margin-left: -32px;
             text-align: center;
             text-decoration: none;
             display: none;
@@ -73,6 +97,30 @@ $playerSliderHightlight: whiten($playerSliderColor, .2);
                     opacity: 0.6;
                 }
             }
+
+            &.reload {
+                width: 100%;
+                font-size: 50px;
+                line-height: 30px;
+
+                &:hover {
+                    .icon {
+                        opacity: 1;
+                    }
+                }
+
+                .icon {
+                    opacity: 0.6;
+                    background: none;
+                }
+                .message {
+                    font-size: 20px;
+                }
+
+                .icon, .message {
+                    text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+                }
+            }
         }
     }
 
@@ -84,6 +132,7 @@ $playerSliderHightlight: whiten($playerSliderColor, .2);
         table-layout: fixed;
         width: 100%;
         border-top: 1px solid $playerBorder;
+        height: $controlsHeight;
 
         .bar {
             display: table-row;
@@ -280,7 +329,7 @@ $playerSliderHightlight: whiten($playerSliderColor, .2);
     &.video, &.youtube {
         .sound {
             .volume {
-                width: $playerActionSize;
+                width: 2.8rem;
                 bottom: $playerActionSize;
                 right: 0;
             }
@@ -295,6 +344,43 @@ $playerSliderHightlight: whiten($playerSliderColor, .2);
                 bottom: 0;
             }
         }
+
+        &.stalled {
+            .player {
+                .player-overlay {
+                    [data-control="reload"] {
+                        display: flex;
+                        align-items: center;
+                        background-color: #000;
+                        margin: 0;
+                        flex-wrap: wrap;
+                        padding: 5px 5px 5px 50px;
+                        text-align: left;
+                        line-height: 2.3rem;
+                        &.reload {
+                            width: calc(100% + 2px);
+                            font-size: 20px;
+                            line-height: 20px;
+                            min-height: 36px;
+
+                            .icon {
+                                text-shadow: none;
+                                position: absolute;
+                                left: 0;
+                                font-size: 2rem;
+                                font-weight: bold;
+                            }
+
+                            .message {
+                                text-shadow: none;
+                                font-size: 1.3rem;
+                                margin-right: 5px;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     &.ready {
@@ -303,17 +389,19 @@ $playerSliderHightlight: whiten($playerSliderColor, .2);
         }
 
         &.paused.canplay {
-            .overlay {
+            .player-overlay {
                 cursor: pointer;
             }
 
-            .player:hover {
-                [data-control="play"] {
-                    display: inline-block;
+            &:not(.audio) {
+                .player:hover {
+                    [data-control="play"] {
+                        display: inline-block;
+                    }
                 }
             }
 
-            &.youtube.ended {
+            &.youtube.ended, &:not(.preview) {
                 .player:hover {
                     [data-control="play"] {
                         display: none;
@@ -323,13 +411,15 @@ $playerSliderHightlight: whiten($playerSliderColor, .2);
         }
 
         &.playing.canpause {
-            .overlay {
+            .player-overlay {
                 cursor: pointer;
             }
 
-            .player:hover {
-                [data-control="pause"] {
-                    display: inline-block;
+            &:not(.audio) {
+                .player:hover {
+                    [data-control="pause"] {
+                        display: inline-block;
+                    }
                 }
             }
         }
@@ -371,7 +461,7 @@ $playerSliderHightlight: whiten($playerSliderColor, .2);
                 pointer-events: inherit;
             }
         }
-        .overlay {
+        .player-overlay {
             display: none !important;
         }
         .controls {
@@ -379,7 +469,7 @@ $playerSliderHightlight: whiten($playerSliderColor, .2);
         }
     }
 
-    &.error {
+    &.error:not(.stalled) {
         .media, .controls {
             display: none;
         }
@@ -398,7 +488,7 @@ $playerSliderHightlight: whiten($playerSliderColor, .2);
         }
     }
 
-    &.loading::before {
+    &.loading:not(.stalled)::before {
         @keyframes spinner {
             to { transform: rotate(360deg); }
         }
@@ -416,5 +506,25 @@ $playerSliderHightlight: whiten($playerSliderColor, .2);
         border: 1px solid #ccc;
         border-top-color: #07d;
         animation: spinner .6s linear infinite;
+    }
+
+    &.stalled {
+        .video {
+            filter: blur(4px);
+            opacity: 0.4;
+        }
+        .player-overlay {
+            [data-control="reload"] {
+                display: inline-block;
+            }
+        }
+    }
+
+    &.video:not(.preview):not(.error) {
+        .player-overlay {
+            [data-control="start"] {
+                display: inline-block;
+            }
+        }
     }
 }

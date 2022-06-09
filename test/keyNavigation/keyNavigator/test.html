@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Test - Key Navigation - Key Navigator</title>
+        <script type="text/javascript" src="/environment/require.js"></script>
+        <script type="text/javascript">
+            require(['/environment/config.js'], function() {
+                require(['qunitEnv'], function() {
+                    require(['test/ui/keyNavigation/keyNavigator/test'], function() {
+                        QUnit.config.reorder = false;
+                        QUnit.start();
+                    });
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <div id="qunit"></div>
+        <div id="qunit-fixture">
+            <nav class="nav-1">
+                <div class="nav" data-id="A">A</div>
+                <div class="nav" data-id="B">B</div>
+                <div class="nav" data-id="C">C</div>
+            </nav>
+            <nav class="nav-2">
+                <div class="nav" data-id="A">A</div>
+                <div class="nav" data-id="B">B</div>
+                <div class="nav" data-id="C">
+                    C
+                    <div><textarea></textarea></div>
+                </div>
+            </nav>
+            <div class="nav-3 inputable">
+                <input type="checkbox" data-id="A" />
+                <input type="checkbox" data-id="B" />
+                <input type="checkbox" data-id="C" />
+            </div>
+            <nav class="interleaved">
+                <button class="nav group-2">Foo 1</button>
+                <span class="nav group-1">Foo 2</span>
+                <ul>
+                    <li class="nav group-1">Foo 3</li>
+                </ul>
+                <a class="nav group-1">Foo 4</a>
+                <input class="nav group-2" type="text" />
+            </nav>
+            <nav class="nav-4">
+                <div class="nav">A</div>
+            </nav>
+        </div>
+    </body>
+</html>

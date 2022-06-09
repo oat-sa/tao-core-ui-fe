@@ -16,6 +16,7 @@
  * Copyright (c) 2014 (original work) Open Assessment Technologies SA ;
  */
 import $ from 'jquery';
+import __ from 'i18n';
 import Pluginifier from 'core/pluginifier';
 import DataAttrHandler from 'core/dataattrhandler';
 
@@ -50,7 +51,7 @@ var modal = {
     /**
      * Initialize the modal dialog
      * @param {Object} [options] - plugin options
-     * @param {String} [options.modalClose = 'modal-close'] - the css class for the modal closer
+     * @param {String} [options.modalCloseClass = 'modal-close'] - the css class for the modal closer
      * @param {String} [options.modalOverlay = 'modal-bg'] - the css class for the modal overlay element
      * @param {Boolean} [options.disableClosing = false] - to disable the default closers
      * @param {Boolean} [options.disableEscape = false] - to disable the ability to escape close the dialog
@@ -101,9 +102,14 @@ var modal = {
             //Initialize the close button for the modal dialog
             if ($('.' + options.modalCloseClass, $modal).length === 0 && !options.disableClosing) {
                 $(
-                    '<button id="modal-close-btn" class="' +
-                        options.modalCloseClass +
-                        '"><span class="icon-close"></span></button>'
+                    `<button
+                        id="modal-close-btn"
+                        class="${options.modalCloseClass}"
+                        aria-label="${__('Close dialog')}"
+                        data-control="close"
+                    >
+                        <span class="icon-close"></span>
+                    </button>`
                 ).appendTo($modal);
             }
 

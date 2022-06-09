@@ -143,10 +143,10 @@ define(['jquery', 'lodash', 'interact', 'ui/interactUtils', 'core/mouseEvent'], 
             ready();
         });
 
-        triggerMouseEvent(document.body, 'mouseleave', {});
+        triggerMouseEvent(window, 'mouseleave', {});
 
         interactUtils.iFrameDragFixOff();
 
-        triggerMouseEvent(document.body, 'mouseleave', {}); // Triggers an error if event listener hasn\'t been removed
+        triggerMouseEvent(window, 'mouseleave', {}); // Triggers an error if event listener hasn\'t been removed
     });
 });

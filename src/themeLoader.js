@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2014 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
+ * Copyright (c) 2014-2021 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
  *
  */
 
@@ -26,15 +26,15 @@ import $ from 'jquery';
 import _ from 'lodash';
 
 //used to differentiate the stylesheets
-var prefix = 'custom-theme-';
+const prefix = 'custom-theme-';
 
 //where to attach the stylesheets
-var $container = $('head').length ? $('head') : $('body');
+const $container = $('head').length ? $('head') : $('body');
 
-var ns = 'themeloader';
+const ns = 'themeloader';
 
 /**
- * @typedef Theme
+ * @typedef {Object} Theme
  * @property {String} id - theme identifier (unique)
  * @property {String} path  - theme location
  * @property {String} [name] - name to display
@@ -46,20 +46,22 @@ var ns = 'themeloader';
  *
  * @param themeId
  */
-
-var triggerThemeChange = function triggerThemeChange(themeId) {
-    _.delay(function() {
-        $(document).trigger('themechange.' + ns, [themeId]);
+function triggerThemeChange(themeId) {
+    _.delay(() => {
+        $(document)
+            .trigger(`themechange.${ns}`, [themeId])
+            .trigger('themeapplied', [themeId]);
     }, 200);
-};
+}
 
 /**
  * Create a stylesheet tag
  * @param {Theme} theme - the theme
- * @return {jQueryElement} the link node
+ * @return {jQuery} the link node
  */
-var createStyleSheet = function createStyleSheet(theme) {
-    var type = theme.id === 'base' ? prefix + 'base' : prefix + 'theme';
+function createStyleSheet(theme) {
+    const suffix = theme.id === 'base' ? 'base' : 'theme';
+    const type = `${prefix}${suffix}`;
     return $('<link>').attr({
         rel: 'stylesheet',
         type: 'text/css',
@@ -68,44 +70,44 @@ var createStyleSheet = function createStyleSheet(theme) {
         'data-name': theme.name || theme.id,
         'data-id': theme.id
     });
-};
+}
 
 /**
  * Get the stylesheet
  * @param {String} id - the theme identifier
- * @returns {jQueryElement} the link
+ * @returns {jQuery} the link
  */
-var getLink = function getLink(id) {
-    return $('link[data-id="' + id + '"][data-type^="' + prefix + '"]', $container);
-};
+function getLink(id) {
+    return $(`link[data-id="${id}"][data-type^="${prefix}"]`, $container);
+}
 
 /**
  * Is the stylesheet attached to the container ?
  * @param {String} id - the theme identifier
  */
-var isAttached = function isAttached(id) {
+function isAttached(id) {
     return getLink(id).length > 0;
-};
+}
 
 /**
  * Enable some nodes
- * @param {jQueryElement} $nodes - the nodes to enable
- * @returns {jQueryElement}
+ * @param {jQuery} $nodes - the nodes to enable
+ * @returns {jQuery}
  */
-var enable = function enable($nodes) {
+function enable($nodes) {
     $nodes
         .prop('disabled', false)
         .removeAttr('disabled');
-};
+}
 
 /**
  * Disable some nodes
- * @param {jQueryElement} $nodes - the nodes to disable
- * @returns {jQueryElement}
+ * @param {jQuery} $nodes - the nodes to disable
+ * @returns {jQuery}
  */
-var disable = function disable($nodes) {
+function disable($nodes) {
     return $nodes.prop('disabled', true).attr('disabled', true); //add attr only for easiest inspection
-};
+}
 
 /**
  * The themeLoader is a factory that returns a loader. Configured to load the given styles.
@@ -117,12 +119,7 @@ var disable = function disable($nodes) {
  * @returns {Object} the loader
  * @throws TypeError if the config hasn't the correct form
  */
-var themeLoader = function themeLoader(config) {
-    var defaultTheme;
-    var activeTheme;
-    var styles = {};
-    var themes;
-    var i;
+function themeLoader(config) {
 
     /*
      * validate config
@@ -139,7 +136,7 @@ var themeLoader = function themeLoader(config) {
         throw new TypeError('No theme declared in the configuration');
     }
 
-    for (i in config.available) {
+    for (let i in config.available) {
         if (
             !_.isPlainObject(config.available[i]) ||
             _.isEmpty(config.available[i].id) ||
@@ -152,20 +149,19 @@ var themeLoader = function themeLoader(config) {
     /*
      * Extract data from config
      */
-    defaultTheme = config.default || _.first(_.pluck(config.available, 'id'));
+    const defaultTheme = config.default || _.first(_.pluck(config.available, 'id'));
 
-    activeTheme = defaultTheme;
+    let activeTheme = defaultTheme;
 
-    themes = [
-        {
-            id: 'base',
-            path: config.base,
-            name: 'TAO'
-        }
-    ];
-    themes = themes.concat(config.available);
+    const themes = [{
+        id: 'base',
+        path: config.base,
+        name: 'TAO'
+    }].concat(config.available);
 
-    _.forEach(themes, function(theme) {
+    const styles = {};
+
+    _.forEach(themes, theme => {
         if (isAttached(theme.id)) {
             styles[theme.id] = getLink(theme.id);
         } else {
@@ -182,13 +178,11 @@ var themeLoader = function themeLoader(config) {
          * @param {Boolean} [preload=false] - Only preload the themes without activating them
          * @returns {Object} chains
          */
-        load: function load(preload) {
-            _.forEach(styles, function($link, id) {
+        load(preload) {
+            _.forEach(styles, ($link, id) => {
                 if (!isAttached(id)) {
                     if (!preload && id === activeTheme) {
-                        $link.on('load', function() {
-                            triggerThemeChange(id);
-                        });
+                        $link.on('load', () => triggerThemeChange(id));
                     }
                     disable($link);
                     $container.append($link);
@@ -211,8 +205,8 @@ var themeLoader = function themeLoader(config) {
          * Unload the stylesheets (disable them)
          * @returns {Object} chains
          */
-        unload: function unload() {
-            disable($('link[data-type^="' + prefix + '"]', $container));
+        unload() {
+            disable($(`link[data-type^="${prefix}"]`, $container));
 
             return this;
         },
@@ -222,7 +216,7 @@ var themeLoader = function themeLoader(config) {
          * @param {String} id - the theme id to use
          * @returns {Object} chains
          */
-        change: function change(id) {
+        change(id) {
             //support to change to the "default" theme regardless it's id
             if (_.contains(['base', 'default'], id) && !isAttached(id)) {
                 id = defaultTheme;
@@ -230,7 +224,7 @@ var themeLoader = function themeLoader(config) {
 
             if (isAttached(id)) {
                 //disable all
-                disable($('link[data-type="' + prefix + 'theme"]', $container));
+                disable($(`link[data-type="${prefix}theme"]`, $container));
 
                 //enable the theme only
                 enable(getLink(id));
@@ -245,11 +239,11 @@ var themeLoader = function themeLoader(config) {
          * Return the current theme
          * @returns {String} activeTheme
          */
-        getActiveTheme: function getActiveTheme() {
+        getActiveTheme() {
             return activeTheme;
         }
     };
-};
+}
 
 /**
  * @exports ui/themeLoader

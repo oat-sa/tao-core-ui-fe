@@ -44,13 +44,36 @@
 }
 
 .undobox {
-    display : block;
-    position : fixed;
-    top : 50px;
-    left : 50%;
-    margin-left : -200px;
-    width : 400px;
+    border: 1px #266d9c solid;
+    display: block;
+    position: fixed;
+    top: 50px;
+    left: 50%;
+    margin-left: -200px;
+    width: 400px;
     z-index: 100005;
+    background-color: #cfdfe9;
+    padding: 20px 20px 20px 45px;
+    border-radius: 3px;
+    color: #222 !important;
+}
+
+.undobox > .icon-close {
+    right: 7px;
+    font-size: 1.5rem;
+    color: #999;
+    left: auto;
+    top: 5px;
+    cursor: pointer;
+    position: absolute;
+}
+
+.undobox .icon-info {
+    color: #0e5d91;
+    font-size: 2rem;
+    position: absolute;
+    top: 20px;
+    left: 15px;
 }
 
 /* Incrementer and duration */
@@ -199,7 +222,14 @@ ul.listbox {
     margin: auto;
     left: 0;
     right: 0;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-width: 100vw;
+    max-height: calc(100vh - 40px);
+
+    &:focus {
+        outline: none;
+    }
 
     .modal-close {
         position: absolute;
@@ -208,6 +238,12 @@ ul.listbox {
         cursor: pointer;
         font-weight: bold;
         color: $textColor;
+
+        [dir="rtl"] & {
+            right: auto;
+            left: 12px;
+        }
+
         &:hover{
             opacity: 0.6;
         }
@@ -226,6 +262,11 @@ ul.listbox {
         }
     }
 
+    .modal-close:focus {
+        outline: 3px solid $actionLinkColor;
+        outline-offset: 3px;
+    }
+
     .modal-body{
         h4 {
             @include font-size(16);
@@ -239,8 +280,14 @@ ul.listbox {
             top: 16px;
             position: relative;
 
+            [dir="rtl"] & {
+                float: left;
+                display: flex;
+                flex-direction: row-reverse;
+            }
+
             //flat button
-            button{
+            button {
                 @include border-radius(2);
                 margin-left: 8px;
                 height: 36px;
@@ -250,7 +297,15 @@ ul.listbox {
                 background: none;
                 &:focus, &:hover{
                     background: whiten($info, .85);
+                    outline: 3px solid $actionLinkColor;
+                    outline-offset: 3px;
                 }
+            }
+        }
+        input[type="checkbox"] {
+            &:focus ~ [class^="icon-"],
+            &:focus ~ [class*=" icon-"] {
+                outline: 3px solid $actionLinkColor;
             }
         }
     }
@@ -393,16 +448,23 @@ ul[data-button-group], ul.button-group {
     margin: 5px;
     min-width: 280px;
     min-height: 200px;
-    text-align: center;
+    display: -webkit-flexbox;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+    justify-content: center;
+
     .nopreview {
         color: $uiGeneralContentBorder;
-        text-align: center;
         @include font-size(20);
         &:before {
             @include font-size(60);
             @include tao-icon-setup;
             @include icon-media;
-            display: block !important;
         }
     }
 }

@@ -51,11 +51,10 @@ other files.
 /* Icon set */
 @import 'inc/ck-icons';
 
-
 /* Important!
    To avoid showing the editor UI while its styles are still not available, the
    editor creates it with visibility:hidden. Here, we restore the UI visibility. */
-.cke_chrome{
+.cke_chrome {
 	visibility: inherit;
 }
 
@@ -63,29 +62,50 @@ other files.
    These are usually <span> elements that show not be visible, but that are
    used by screen-readers to announce other elements. Here, we hide these
    <spans>, in fact. */
-.cke_voice_label{
+.cke_voice_label {
 	display: none;
 }
 
-legend.cke_voice_label{
+legend.cke_voice_label {
 	display: none;
 }
 
-/*
-.cke:before,
-.cke:after {
-  content: " ";
-  display: table;
-}
-
-.cke:after {
-  clear: both;
-}
-
-.cke {
-  *zoom: 1;
-}
-*/
 .cke_top {
   display:table;
+}
+
+.txt-ctr {
+  text-align: center;
+}
+
+.txt-lft {
+  text-align: left;
+}
+
+.txt-rgt {
+  text-align: right;
+}
+
+.txt-jty {
+  text-align: justify;
+}
+
+// added to make _u_ in ck QTI compatible
+.txt-underline {
+  text-decoration: underline;
+  font-size : inherit;
+}
+
+.txt-highlight {
+  padding: 0 5px;
+  background: #FF6416;
+  color: white;
+}
+
+.cke_editable:focus .qti-table .cke_table-faked-selection {
+	/* We have to use !important here, as td might specify it's own background, thus table selection
+	would not be visible. */
+	background: #b3d4fc !important;
+  text-shadow: none;
+  color: $textColor;
 }

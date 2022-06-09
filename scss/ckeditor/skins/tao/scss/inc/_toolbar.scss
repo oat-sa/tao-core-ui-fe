@@ -60,6 +60,13 @@ Special outer level classes used in this file:
   float: right;
 }
 
+@media (pointer:coarse) {
+  .cke .cke_toolbar .cke_button_off.cke_button_off:hover {
+    background: white !important;
+    color: $textColor !important;
+  }
+}
+
 /* The box that holds buttons. */
 .cke_toolgroup {
   float: left;
@@ -76,14 +83,6 @@ Special outer level classes used in this file:
   margin-bottom: 10px;
 }
 
-.cke_rtl .cke_toolgroup *:first-child {
-
-}
-
-.cke_rtl .cke_toolgroup *:last-child {
-
-}
-
 .cke_rtl .cke_toolgroup {
   float: right;
   margin-left: 6px;
@@ -97,7 +96,6 @@ Special outer level classes used in this file:
   padding: 4px 6px;
   outline: none;
   cursor: pointer;
-  float: left;
   border: 0;
   color: $textColor;
 }
@@ -105,13 +103,11 @@ Special outer level classes used in this file:
 .cke .cke_toolbar .cke_button:hover {
   background: $uiClickableHoverBg !important;
   color: $textHighlight !important;
-  // text-shadow: 1px 1px 0 black(.2)
 }
 
 .cke_reset_all, .cke_reset_all *
 .cke .cke_top .cke_toolbar .cke_button_disabled:hover {
   background: white !important;
-  //color: $textColor !important;
   cursor: default !important;
 }
 
@@ -130,31 +126,9 @@ Special outer level classes used in this file:
 /* This class is applied to the button when it is "active" (pushed).
    This style indicates that the feature associated with the button is active
    i.e. currently writing in bold or when spell checking is enabled. */
-a.cke_button_on {
+.cke .cke_toolbar a.cke_button_on {
   background-color: $info;
-  color: $textHighlight !important;
-  // text-shadow: 1px 1px 0 black(.2)
-}
-
-.cke_hc .cke_button_on,
-.cke_hc a.cke_button_off:hover,
-.cke_hc a.cke_button_off:focus,
-.cke_hc a.cke_button_off:active,
-.cke_hc a.cke_button_disabled:hover,
-.cke_hc a.cke_button_disabled:focus,
-.cke_hc a.cke_button_disabled:active {
-  //border-width: 3px;
-
-  /* Compensate the border change */
-  //padding: 1px 3px;
-}
-
-/* This class is applied to the button when the feature associated with the
-   button cannot be used (grayed-out).
-   i.e. paste button remains disabled when there is nothing in the clipboard to
-   be pasted. */
-.cke_button_disabled .cke_button_icon {
-  //opacity: 0.4;
+  color: $textHighlight;
 }
 
 .cke_button_disabled span {
@@ -285,19 +259,10 @@ a.cke_button_disabled:active {
   font-size: 0;
   cursor: default;
   text-align: center;
-
   border: 1px solid #a6a6a6;
   border-bottom-color: #979797;
-
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
   border-radius: 3px;
-
   background: #fff;
-}
-
-.cke_toolbox_collapser:hover {
-
 }
 
 .cke_toolbox_collapser.cke_toolbox_collapser_min {
@@ -311,7 +276,6 @@ a.cke_button_disabled:active {
 /* The CSS arrow, which belongs to the toolbar collapser. */
 .cke_toolbox_collapser .cke_arrow {
   display: inline-block;
-
   height: 0;
   width: 0;
   font-size: 0;
