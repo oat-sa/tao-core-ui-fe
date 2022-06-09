@@ -97,7 +97,6 @@ function isAttached(id) {
 function enable($nodes) {
     $nodes
         .prop('disabled', false)
-        .removeProp('disabled')
         .removeAttr('disabled');
 }
 

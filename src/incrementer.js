@@ -143,7 +143,7 @@ var Incrementer = {
                             $elt.prop('disabled', false).removeClass('disabled');
                             $ctrl
                                 .find('.inc,.dec')
-                                .removeProp('disabled')
+                                .prop('disabled', false)
                                 .removeClass('disabled');
                         });
 
