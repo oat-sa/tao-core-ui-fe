@@ -21,10 +21,12 @@ import _ from 'lodash';
 import __ from 'i18n';
 import initMediaEditor from './initMediaEditor';
 import extractLabel from './extractLabel';
+import { getImage } from './helper';
 
 export const initAdvanced = function (widget) {
     const $form = widget.$form;
-    const src = widget.element.attr('src');
+    const { img } = getImage(widget);
+    let src = img ? img.attr('src') : '';
 
     if (src) {
         $form.find('[data-role=advanced]').show();
@@ -34,12 +36,12 @@ export const initAdvanced = function (widget) {
 };
 
 export const initUpload = function (widget) {
-    const $form = widget.$form,
-        options = widget.options,
-        img = widget.element,
-        $uploadTrigger = $form.find('[data-role="upload-trigger"]'),
-        $src = $form.find('input[name=src]'),
-        $alt = $form.find('input[name=alt]');
+    const $form = widget.$form;
+    const options = widget.options;
+    const { img } = getImage(widget);
+    const $uploadTrigger = $form.find('[data-role="upload-trigger"]');
+    const $src = $form.find('input[name=src]');
+    const $alt = $form.find('input[name=alt]');
 
     const _openResourceMgr = function () {
         $uploadTrigger.resourcemgr({

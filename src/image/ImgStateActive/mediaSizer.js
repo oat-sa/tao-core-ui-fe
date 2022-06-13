@@ -17,14 +17,20 @@
  */
 import 'jquery';
 import _ from 'lodash';
+import { getImage } from './helper';
 
 export const mediaSizer = function mediaSizer(media, widget) {
-    const img = widget.element;
+    const { img, $img } = getImage(widget);
     const $mediaSpan = widget.$container;
-    const $img = widget.$original;
 
     if (img.data('responsive') !== media.responsive) {
+        // switch between responsive and absolute values
         img.data('responsive', media.responsive);
+        // clean styles from prev mode
+        $img.removeAttr('width');
+        $img.removeAttr('height');
+        $mediaSpan[0].removeAttribute('style');
+
     }
 
     _(['width', 'height']).each(function (sizeAttr) {
@@ -35,6 +41,7 @@ export const mediaSizer = function mediaSizer(media, widget) {
             media[sizeAttr] === null
         ) {
             img.removeAttr(sizeAttr);
+            $img.removeAttr(sizeAttr);
             $mediaSpan.css(sizeAttr, '');
         } else {
             val = Math.round(media[sizeAttr]);
@@ -44,8 +51,11 @@ export const mediaSizer = function mediaSizer(media, widget) {
                 $img.attr(sizeAttr, '100%');
             } else {
                 img.attr(sizeAttr, val);
+                $img.attr(sizeAttr, val);
             }
-            $mediaSpan.css(sizeAttr, val);
+            if (media.responsive || sizeAttr === 'width') {
+                $mediaSpan.css(sizeAttr, val);
+            }
         }
         //trigger choice container size adaptation
         widget.$container.trigger('contentChange.qti-widget');
