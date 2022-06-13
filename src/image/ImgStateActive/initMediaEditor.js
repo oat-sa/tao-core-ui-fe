@@ -20,6 +20,7 @@ import mimeType from 'core/mimetype';
 import alignmentHelper from 'ui/mediaEditor/plugins/mediaAlignment/helper';
 import mediaEditorComponent from 'ui/mediaEditor/mediaEditorComponent';
 import { mediaSizer } from './mediaSizer';
+import { getImage } from './helper';
 
 const getMedia = (imgQtiElement, $imgNode, cb) => {
     //init data-responsive:
@@ -86,6 +87,6 @@ export default function initMediaEditor(widget, mediaEditor, options) {
     if (!widget.$form.find('input[name=src]').val()) {
         return;
     }
-
-    getMedia(widget.element, widget.$original, (m) => getMediaCb(m, widget, mediaEditor, options));
+    const { img, $img } = getImage(widget);
+    getMedia(img, $img, (m) => getMediaCb(m, widget, mediaEditor, options));
 }
