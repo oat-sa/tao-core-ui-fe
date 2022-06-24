@@ -19,11 +19,13 @@ import $ from 'jquery';
 import _ from 'lodash';
 import dtdHandler from 'ui/ckeditor/dtdHandler';
 import 'ckeditor';
+import module from 'module';
 
 /**
  * Cache original config
  */
 const originalConfig = _.cloneDeep(window.CKEDITOR.config);
+const moduleConfig = module.config();
 
 function getUserLanguage() {
     const documentLang = window.document.documentElement.getAttribute('lang');
@@ -430,6 +432,11 @@ const ckConfigurator = (function () {
         ],
         disableNativeTableHandles: true
     };
+
+    //update default specialChars if config for it exists
+    if(moduleConfig && moduleConfig.specialChars) {
+        ckConfigDefault.specialChars = moduleConfig.specialChars;
+    }
 
     /**
      * Insert positioned plugins at position specified in options.positionedPlugins
