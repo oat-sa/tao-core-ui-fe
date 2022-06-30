@@ -433,7 +433,6 @@ const ckConfigurator = (function () {
         disableNativeTableHandles: true
     };
 
-    //update default specialChars if config for it exists
     if(moduleConfig && moduleConfig.specialChars) {
         ckConfigDefault.specialChars = moduleConfig.specialChars;
     }
