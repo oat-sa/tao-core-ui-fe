@@ -75,7 +75,7 @@ const ckConfigurator = (function () {
             },
             {
                 name: 'insert',
-                items: ['Image', 'SpecialChar', 'TaoQtiTable', 'TaoTooltip']
+                items: ['Image', 'SpecialChar', 'TaoQtiTable', 'TaoTooltip', 'HorizontalRule']
             },
             {
                 name: 'links',
@@ -550,6 +550,7 @@ const ckConfigurator = (function () {
      * @param {Boolean} [options.underline] - enables the underline plugin
      * @param {Boolean} [options.highlight] - enables the highlight plugin
      * @param {Boolean} [options.mathJax] - enables the mathJax plugin
+     * @param {Boolean} [options.horizontalRule] - enables the horizontalRule plugin
      * @param {String} [options.removePlugins] - a coma-separated list of plugins that should not be loaded: 'plugin1,plugin2,plugin3'
      *
      * @see http://docs.ckeditor.com/#!/api/CKEDITOR.config
@@ -607,6 +608,9 @@ const ckConfigurator = (function () {
             }
             if (options.mathJax) {
                 positionedPlugins.TaoQtiMaths = { insertAfter: 'SpecialChar' };
+            }
+            if (options.horizontalRule) {
+                positionedPlugins.HorizontalRule = { insertAfter: 'SpecialChar' };
             }
         }
 
