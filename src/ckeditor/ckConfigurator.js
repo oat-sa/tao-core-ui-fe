@@ -75,7 +75,7 @@ const ckConfigurator = (function () {
             },
             {
                 name: 'insert',
-                items: ['Image', 'SpecialChar', 'TaoQtiTable', 'TaoTooltip', 'HorizontalRule']
+                items: ['Image', 'SpecialChar', 'TaoQtiTable', 'TaoTooltip']
             },
             {
                 name: 'links',
@@ -609,8 +609,8 @@ const ckConfigurator = (function () {
             if (options.mathJax) {
                 positionedPlugins.TaoQtiMaths = { insertAfter: 'SpecialChar' };
             }
-            if (options.horizontalRule) {
-                positionedPlugins.HorizontalRule = { insertAfter: 'SpecialChar' };
+            if (options.horizontalRule && ['flow', 'block'].includes(toolbarType)) {
+                positionedPlugins.HorizontalRule = { insertAfter: 'TaoTooltip' };
             }
         }
 
