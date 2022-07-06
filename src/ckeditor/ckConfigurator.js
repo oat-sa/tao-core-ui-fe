@@ -609,7 +609,7 @@ const ckConfigurator = (function () {
             if (options.mathJax) {
                 positionedPlugins.TaoQtiMaths = { insertAfter: 'SpecialChar' };
             }
-            if (options.horizontalRule && ['flow', 'block'].includes(toolbarType)) {
+            if (options.horizontalRule && ['block', 'inline'].includes(toolbarType)) {
                 positionedPlugins.HorizontalRule = { insertAfter: 'TaoTooltip' };
             }
         }
