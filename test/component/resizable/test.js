@@ -357,7 +357,13 @@ define([
     QUnit.test('display and play', function(assert) {
         var ready = assert.async();
         var component = componentFactory(),
-            $container = $('#outside');
+            $container = $('#outside'),
+            template = `<div class="component">
+                <h2>Resizable box</h2>
+                <div class="no-drag no-resize">
+                    <textarea>Resize events don't bother me</textarea>
+                </div>
+            </div>`;
 
         assert.expect(1);
 
@@ -375,6 +381,7 @@ define([
                 minHeight: 150,
                 maxHeight: 450
             })
+            .setTemplate(template)
             .render($container)
             .setSize(500, 300)
             .center();
