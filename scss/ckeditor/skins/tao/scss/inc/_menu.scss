@@ -52,19 +52,49 @@ Special outer level classes used in this file:
   /* The "button" inside a menu item is a <a> element.
      Transforms it into a block. */
   display: block;
+  color: rgb(34, 34, 34);
+  padding: 3px 7px 4px;
 }
 
 .cke_menuitem span {
   /* Avoid the text selection cursor inside menu items. */
   cursor: default;
-  font-size: 12px
 }
 
 .cke_menubutton:hover,
 .cke_menubutton:focus,
 .cke_menubutton:active {
-  background-color: #D3D3D3;
+  background: #3e7da7;
+  color: #fff;
   display: block;
+  outline: none;
+  &:after {
+    color: #fff;
+    border-color: #fff;
+  }
+}
+
+.cke_menubutton__language_ckb-ir,
+.cke_menubutton__language_ar-arb,
+.cke_menubutton__language_fa-af,
+.cke_menubutton__language_fa-ir,
+.cke_menubutton__language_he-il,
+.cke_menubutton__language_ps-af,
+.cke_menubutton__language_ur-in {
+  padding-right: 40px;
+  &:after {
+    content: 'RTL';
+    display: block;
+    color: rgb(173, 161, 148);
+    border: rgb(173, 161, 148) 1px solid;
+    border-radius: 2px;
+    font-size: 10px;
+    top: 4px;
+    right: 5px;
+    line-height: 12px;
+    padding: 0 4px;
+    position: absolute;
+  }
 }
 
 .cke_hc .cke_menubutton {
@@ -90,6 +120,7 @@ Special outer level classes used in this file:
 
 /* The menu item icon. */
 .cke_menubutton_icon {
+  display: none;
   background-color: #D7D8D7;
   opacity: 0.70; /* Safari, Opera and Mozilla */
   filter: alpha(opacity=70); /* IE */
@@ -105,7 +136,8 @@ Special outer level classes used in this file:
 .cke_menubutton:hover .cke_menubutton_icon,
 .cke_menubutton:focus .cke_menubutton_icon,
 .cke_menubutton:active .cke_menubutton_icon {
-  background-color: #D0D2D0;
+  // TODO: to be dbchecked
+  // background-color: #D0D2D0;
 }
 
 .cke_menubutton_disabled:hover .cke_menubutton_icon,
@@ -122,6 +154,7 @@ Special outer level classes used in this file:
   background-color: transparent;
   width: 100%;
   vertical-align: middle;
+  font-size: 14px;
 }
 
 .cke_menubutton_disabled .cke_menubutton_label {
@@ -138,12 +171,6 @@ Special outer level classes used in this file:
 
 .cke_menubutton_on .cke_menubutton_icon {
   padding-right: 3px;
-}
-
-.cke_menubutton:hover,
-.cke_menubutton:focus,
-.cke_menubutton:active {
-  background-color: #EFF0EF;
 }
 
 .cke_panel_frame .cke_menubutton_label {

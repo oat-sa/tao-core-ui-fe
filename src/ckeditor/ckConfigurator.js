@@ -52,6 +52,9 @@ const ckConfigurator = (function () {
             {
                 name: 'links',
                 items: ['Link']
+            },{
+                name: 'language',
+                items: ['Language']
             }
         ],
         flow: [
@@ -195,7 +198,7 @@ const ckConfigurator = (function () {
         entities: false,
         entities_processNumerical: true,
         autoParagraph: false,
-        extraPlugins: 'confighelper',
+        extraPlugins: 'confighelper, language',
         floatSpaceDockedOffsetY: 0,
         forcePasteAsPlainText: true,
         skin: 'tao',

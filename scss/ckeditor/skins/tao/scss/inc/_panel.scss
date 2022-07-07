@@ -56,13 +56,17 @@ panel contents and color panels check menu.css and colorpanel.css.
     border-radius: 3px;
 
     box-shadow: 0 0 3px rgba(0, 0, 0, .15);
+    font-size: 14px;
 }
 
 /* This class represents panels which are used as context menus. */
 .cke_menu_panel {
     padding: 0;
     margin: 0;
-    visibility: hidden;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 2px;
+    box-shadow: none;
 }
 
 /* This class represents panels which are used by rich combos. */
