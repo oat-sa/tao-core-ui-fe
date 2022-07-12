@@ -81,7 +81,7 @@ const writeOutResult = async result => {
 
     // write out map if exist
     if (result.map) {
-        await writeFile(`${outputFile}.map`, result.map, { flag: 'w' });
+        await writeFile(`${outputFile}.map`, result.map.toString(), { flag: 'w' });
     }
 };
 
