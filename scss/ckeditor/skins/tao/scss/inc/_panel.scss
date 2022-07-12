@@ -68,10 +68,11 @@ panel contents and color panels check menu.css and colorpanel.css.
 .cke_menu_panel {
     padding: 0;
     margin: 0;
-    background-color: #fff;
-    border: 1px solid #ddd;
+    background-color: $textHighlight;
+    border: 1px solid $uiGeneralContentBorder;
     border-radius: 2px;
     box-shadow: none;
+    max-height: 60vh;
 }
 
 /* This class represents panels which are used by rich combos. */
@@ -92,7 +93,8 @@ panel contents and color panels check menu.css and colorpanel.css.
 
 /* The HTML document which is a direct descendant of the IFRAME */
 .cke_panel_container {
-    overflow: hidden;
+    // override inline styles to add scrollbars to the dropdown menu
+    overflow-y: scroll !important;
 }
 
 /*
