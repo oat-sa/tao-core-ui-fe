@@ -75,6 +75,7 @@ Special outer level classes used in this file:
   @include border-radius(1);
 
   background: white();
+  display: flex;
 }
 
 .cke_hc .cke_toolgroup {
@@ -183,11 +184,15 @@ a.cke_button_disabled:active {
   vertical-align: middle;
   float: left;
   cursor: default;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, .5);
 
   &.cke_button__language_label {
     display: block;
+    cursor: pointer;
   }
+}
+
+.cke_button__language {
+  cursor: pointer;
 }
 
 .cke_button__language_icon {

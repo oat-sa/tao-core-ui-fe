@@ -53,12 +53,12 @@ Special outer level classes used in this file:
      Transforms it into a block. */
   display: block;
   color: rgb(34, 34, 34);
-  padding: 3px 7px 4px;
-}
-
-.cke_menuitem span {
-  /* Avoid the text selection cursor inside menu items. */
-  cursor: default;
+  padding: 5px 7px;
+  cursor: pointer;
+  // override .cke_reset_all *
+  .cke_menubutton_label {
+    cursor: pointer;
+  }
 }
 
 .cke_menubutton:hover,
@@ -68,6 +68,7 @@ Special outer level classes used in this file:
   color: #fff;
   display: block;
   outline: none;
+  cursor: pointer;
   &:after {
     color: #fff;
     border-color: #fff;
@@ -89,7 +90,7 @@ Special outer level classes used in this file:
     border: rgb(173, 161, 148) 1px solid;
     border-radius: 2px;
     font-size: 10px;
-    top: 4px;
+    top: 6px;
     right: 5px;
     line-height: 12px;
     padding: 0 4px;
@@ -131,13 +132,6 @@ Special outer level classes used in this file:
   height: 16px;
   width: 0;
   padding: 4px 0;
-}
-
-.cke_menubutton:hover .cke_menubutton_icon,
-.cke_menubutton:focus .cke_menubutton_icon,
-.cke_menubutton:active .cke_menubutton_icon {
-  // TODO: to be dbchecked
-  // background-color: #D0D2D0;
 }
 
 .cke_menubutton_disabled:hover .cke_menubutton_icon,

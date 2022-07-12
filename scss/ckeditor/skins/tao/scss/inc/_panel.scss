@@ -57,6 +57,11 @@ panel contents and color panels check menu.css and colorpanel.css.
 
     box-shadow: 0 0 3px rgba(0, 0, 0, .15);
     font-size: 14px;
+
+    visibility: hidden;
+}
+.cke_panel_visible {
+    visibility: visible;
 }
 
 /* This class represents panels which are used as context menus. */
