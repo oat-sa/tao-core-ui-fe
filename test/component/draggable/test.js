@@ -45,7 +45,13 @@ define(['jquery', 'ui/component', 'ui/component/placeable', 'ui/component/dragga
     QUnit.test('Display and play', function(assert) {
         var ready = assert.async();
         var component = componentFactory({}, { width: 200, height: 300 }),
-            $container = $('#outside');
+            $container = $('#outside'),
+            template = `<div class="component">
+                <h2>Draggable box</h2>
+                <div class="no-drag no-resize">
+                    <textarea>Drag events don't bother me</textarea>
+                </div>
+            </div>`;
 
         assert.expect(1);
 
@@ -57,6 +63,7 @@ define(['jquery', 'ui/component', 'ui/component/placeable', 'ui/component/dragga
                 ready();
             })
             .init()
+            .setTemplate(template)
             .render($container)
             .center();
     });
