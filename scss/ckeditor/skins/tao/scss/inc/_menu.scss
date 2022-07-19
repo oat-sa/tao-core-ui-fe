@@ -61,6 +61,25 @@ Special outer level classes used in this file:
   }
 }
 
+.cke_menubutton__rtl {
+  padding-right: 40px;
+  position: relative;
+  &:after {
+    content: 'RTL';
+    display: block;
+    color: $grey;
+    border: $grey 1px solid;
+    border-radius: 2px;
+    font-size: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 5px;
+    line-height: 12px;
+    padding: 0 4px;
+    position: absolute;
+  }
+}
+
 .cke_menubutton:active,
 .cke_menubutton:focus {
   outline: none;
@@ -80,34 +99,13 @@ Special outer level classes used in this file:
   display: block;
   outline: none;
   cursor: pointer;
+
   &:after {
     color: $textHighlight;
     border-color: $textHighlight;
   }
 }
 
-.cke_menubutton__language_ckb-ir,
-.cke_menubutton__language_ar-arb,
-.cke_menubutton__language_fa-af,
-.cke_menubutton__language_fa-ir,
-.cke_menubutton__language_he-il,
-.cke_menubutton__language_ps-af,
-.cke_menubutton__language_ur-in {
-  padding-right: 40px;
-  &:after {
-    content: 'RTL';
-    display: block;
-    color: $grey;
-    border: $grey 1px solid;
-    border-radius: 2px;
-    font-size: 10px;
-    top: 7px;
-    right: 5px;
-    line-height: 12px;
-    padding: 0 4px;
-    position: absolute;
-  }
-}
 
 .cke_hc .cke_menubutton {
   padding: 2px;

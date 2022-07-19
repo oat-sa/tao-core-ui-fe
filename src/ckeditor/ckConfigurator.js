@@ -141,10 +141,6 @@ const ckConfigurator = (function () {
             {
                 name: 'fontsize',
                 items: ['FontSize']
-            },
-            {
-                name: 'language',
-                items: ['Language']
             }
         ],
         htmlField: [
@@ -217,7 +213,7 @@ const ckConfigurator = (function () {
         entities: false,
         entities_processNumerical: true,
         autoParagraph: false,
-        extraPlugins: 'confighelper, language',
+        extraPlugins: 'confighelper, taolanguage',
         floatSpaceDockedOffsetY: 0,
         forcePasteAsPlainText: true,
         skin: 'tao',
@@ -596,7 +592,6 @@ const ckConfigurator = (function () {
         dtdMode = options.dtdMode || 'html';
 
         const ckConfig = _.clone(ckConfigDefault, true);
-        const disableLanguages = options.removePlugins && options.removePlugins.indexOf('language') > -1 || false;
 
         // modify DTD to either comply with QTI or XHTML
         if (dtdMode === 'qti' || toolbarType.indexOf('qti') === 0) {
@@ -694,17 +689,6 @@ const ckConfigurator = (function () {
         editor.on('instanceReady', function (e) {
             $(e.editor.element.$).removeAttr('title');
         });
-
-        // Enabling popup menu for Language plugin
-        if(!disableLanguages) {
-            editor.on('menuShow', function() {
-                const $languages = $('.cke_panel_frame').contents().find("[class*='cke_menubutton__language']");
-                const $languageMenu = $languages.parents('.cke_panel_block');
-                const isLanguage = $languageMenu.css('display') === 'block' && $languages.length > 0;
-
-                $('.cke_panel').toggleClass('cke_panel_visible', isLanguage);
-            });
-        }
 
         // This fixes bug #2855. Unfortunately this can be done on the global object only, not on the instance
         window.CKEDITOR.on('dialogDefinition', function (e) {
