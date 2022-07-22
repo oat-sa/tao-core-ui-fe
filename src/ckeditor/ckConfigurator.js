@@ -54,6 +54,9 @@ const ckConfigurator = (function () {
             {
                 name: 'links',
                 items: ['Link']
+            },{
+                name: 'language',
+                items: ['Language']
             }
         ],
         flow: [
@@ -68,6 +71,10 @@ const ckConfigurator = (function () {
             {
                 name: 'links',
                 items: ['Link']
+            },
+            {
+                name: 'language',
+                items: ['Language']
             }
         ],
         block: [
@@ -82,6 +89,10 @@ const ckConfigurator = (function () {
             {
                 name: 'links',
                 items: ['Link']
+            },
+            {
+                name: 'language',
+                items: ['Language']
             },
             {
                 name: 'styles',
@@ -167,6 +178,10 @@ const ckConfigurator = (function () {
             {
                 name: 'insert',
                 items: ['Link', 'SpecialChar']
+            },
+            {
+                name: 'language',
+                items: ['Language']
             }
         ],
         table: [
@@ -185,6 +200,10 @@ const ckConfigurator = (function () {
             {
                 name: 'paragraph',
                 items: ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock']
+            },
+            {
+                name: 'language',
+                items: ['Language']
             }
         ]
     };
@@ -197,7 +216,7 @@ const ckConfigurator = (function () {
         entities: false,
         entities_processNumerical: true,
         autoParagraph: false,
-        extraPlugins: 'confighelper',
+        extraPlugins: 'confighelper, taolanguage',
         floatSpaceDockedOffsetY: 0,
         forcePasteAsPlainText: true,
         skin: 'tao',
