@@ -141,7 +141,8 @@ export default inputs.map(input => {
                     [
                         '@babel/env',
                         {
-                            useBuiltIns: false
+                            useBuiltIns: false,
+                            include: ['@babel/plugin-proposal-object-rest-spread']
                         }
                     ]
                 ]
