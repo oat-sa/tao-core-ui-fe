@@ -144,6 +144,9 @@ export default inputs.map(input => {
                             useBuiltIns: false
                         }
                     ]
+                ],
+                plugins: [
+                    "@babel/plugin-proposal-object-rest-spread"
                 ]
             })
         ]
