@@ -33,6 +33,7 @@ import makePlaceable from 'ui/component/placeable';
  * @param {Component} component - an instance of ui/component
  * @param {Object} config
  * @param {jQuery|Element} config.dragRestriction - interact restriction property. See {@link http://interactjs.io/docs/restriction/#restriction}
+ * @param {String} config.ignoreFrom - selectors of elements to ignore pointer events from (interactjs)
  */
 export default function makeDraggable(component, config) {
     if (!makePlaceable.isPlaceable(component)) {
@@ -55,6 +56,9 @@ export default function makeDraggable(component, config) {
             if (!this.config.dragRestriction) {
                 this.config.dragRestriction = this.getContainer()[0];
             }
+            if (!this.config.ignoreFrom) {
+                this.config.ignoreFrom = '.no-drag'; // goal: to preserve text selectability in these form elements
+            }
 
             interact(element)
                 .draggable({
@@ -63,6 +67,7 @@ export default function makeDraggable(component, config) {
                         restriction: this.config.dragRestriction,
                         elementRect: { left: 0, right: 1, top: 0, bottom: 1 }
                     },
+                    ignoreFrom: this.config.ignoreFrom,
                     onmove: function onMove(event) {
                         var xOffset = Math.round(event.dx),
                             yOffset = Math.round(event.dy);

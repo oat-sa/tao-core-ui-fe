@@ -1,6 +1,6 @@
 {
     "name": "@oat-sa/tao-core-ui",
-    "version": "1.56.0",
+    "version": "1.58.0",
     "displayName": "TAO Core UI",
     "description": "UI libraries of TAO",
     "scripts": {
@@ -50,8 +50,8 @@
         "@oat-sa/prettier-config": "^0.1.1",
         "@oat-sa/rollup-plugin-wildcard-external": "^0.1.0",
         "@oat-sa/tao-core-libs": "^0.4.4",
-        "@oat-sa/tao-core-sdk": "^1.8.1",
-        "@oat-sa/tao-core-shared-libs": "https://github.com/oat-sa/tao-core-shared-libs-fe#feature/AUT-2473/horizontal-rule-ck-plugin",
+        "@oat-sa/tao-core-sdk": "^1.20.0",
+        "@oat-sa/tao-core-shared-libs": "^1.4.0",
         "@oat-sa/tao-qunit-testrunner": "^1.0.3",
         "async": "^0.2.10",
         "autoprefixer": "^9.5.1",

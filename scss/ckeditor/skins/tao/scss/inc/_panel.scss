@@ -47,7 +47,8 @@ panel contents and color panels check menu.css and colorpanel.css.
     visibility: visible;
     width: 120px;
     height: 100px;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
 
     background-color: #fff;
     border: 1px solid #b6b6b6;
@@ -56,25 +57,34 @@ panel contents and color panels check menu.css and colorpanel.css.
     border-radius: 3px;
 
     box-shadow: 0 0 3px rgba(0, 0, 0, .15);
+    font-size: 14px;
 }
-
+.cke_panel_visible .cke_panel {
+    visibility: visible;
+}
 /* This class represents panels which are used as context menus. */
 .cke_menu_panel {
     padding: 0;
     margin: 0;
     visibility: hidden;
+    background-color: $textHighlight;
+    border: 1px solid $uiGeneralContentBorder;
+    border-radius: 2px;
+    box-shadow: none;
+    max-height: 60vh;
 }
 
 /* This class represents panels which are used by rich combos. */
 .cke_combopanel {
     width: 150px;
     height: 170px;
+    overflow: hidden;
 }
 
 /* The IFRAME the panel is wrapped into. */
 .cke_panel_frame {
     width: 100%;
-    height: 100%;
+    height: inherit;
     font-size: 12px;
 
     overflow: auto;
@@ -136,7 +146,7 @@ is its visual representation:
     padding: 3px 4px;
     display: block;
     border: 1px solid #fff;
-    color: inherit !important;
+    color: inherit;
     text-decoration: none;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -165,8 +175,9 @@ is its visual representation:
 .cke_panel_listItem a:hover,
 .cke_panel_listItem a:focus,
 .cke_panel_listItem a:active {
-
+    color: $textHighlight;
     background-color: $uiClickableHoverBg;
+    outline: none;
 }
 
 .cke_hc .cke_panel_listItem a {

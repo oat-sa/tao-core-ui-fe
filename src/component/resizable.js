@@ -140,6 +140,7 @@ var resizableComponent = {
  * @param {Number} config.maxWidth
  * @param {Number} config.maxHeight
  * @param {jQuery|Element} config.resizeRestriction - interact restriction property. See {@link http://interactjs.io/docs/restriction/#restriction}
+ * @param {String} config.ignoreFrom - selectors of elements to ignore pointer events from (interactjs)
  * @param {Object} config.edges
  * @param {Object} config.edges.top - is resizing from the top allowed
  * @param {Object} config.edges.right - is resizing from the right allowed
@@ -166,6 +167,9 @@ export default function makeResizable(component, config) {
             if (!this.config.resizeRestriction) {
                 this.config.resizeRestriction = this.getContainer()[0];
             }
+            if (!this.config.ignoreFrom) {
+                this.config.ignoreFrom = '.no-resize'; // goal: to preserve text selectability in these form elements
+            }
 
             interact(element)
                 .resizable({
@@ -173,6 +177,7 @@ export default function makeResizable(component, config) {
                     restrict: {
                         restriction: this.config.resizeRestriction
                     },
+                    ignoreFrom: this.config.ignoreFrom,
                     edges: this.config.edges
                 })
                 .on('resizemove', function(event) {
