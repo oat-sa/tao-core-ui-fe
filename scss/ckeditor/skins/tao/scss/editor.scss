@@ -109,3 +109,10 @@ legend.cke_voice_label {
   text-shadow: none;
   color: $textColor;
 }
+
+.cke_taolanguage_enabled.cke_focus {
+  span[lang][dir] {
+    background-color: #BFBFBF;
+    border-bottom: 2px solid $darkBar;
+  }
+}

@@ -83,12 +83,7 @@ Special outer level classes used in this file:
 .cke_menubutton:active,
 .cke_menubutton:focus {
   outline: none;
-  background-color: $uiReviewPanelBg;
-  color: $textColor;
-  &:after {
-    color: $grey;
-    border-color: $grey;
-  }
+  background: none;
 }
 
 .cke_menubutton:hover,
