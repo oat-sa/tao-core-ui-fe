@@ -135,7 +135,8 @@ var resourceMgr = {
             //generate
             options.$target = $(
                 layout({
-                    title: options.title || ''
+                    title: options.title || '',
+                    className: options.className || ''
                 })
             );
 
