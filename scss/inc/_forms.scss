@@ -410,11 +410,10 @@ label {
             left: -1em;
         }
     }
+
     input[type="radio"],
     input[type="checkbox"] {
-        visibility: hidden;
-        pointer-events: none;
-        position: absolute;
+        @include visuallyHidden;
 
         &:focus ~ [class^="icon-"],
         &:focus ~ [class*=" icon-"],
