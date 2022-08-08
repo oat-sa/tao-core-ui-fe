@@ -109,3 +109,20 @@ legend.cke_voice_label {
   text-shadow: none;
   color: $textColor;
 }
+
+.cke_taolanguage_enabled.cke_focus {
+  // beware in may contains multiple level between, do not use '>'
+  span[lang][dir] {
+    border-right: 1px solid transparent;
+    border-left: 1px solid transparent;
+    box-shadow: inset 0px 0px 0px 1px $textColor;
+    padding: 0 4px;
+
+    // Avoid inherited languages block to be styled.
+    span[lang][dir] {
+      border: none;
+      box-shadow: none;
+      padding: 0;
+    }
+  }
+}
