@@ -39,7 +39,7 @@ var resourceMgr = {
      * @returns {jQueryElement} for chaining
      */
     init: function(options) {
-        var self = resourceMgr;
+        var that = resourceMgr;
 
         //get options using default
         options = _.defaults(options, defaults);
@@ -59,7 +59,7 @@ var resourceMgr = {
                     });
                 });
 
-                $target = options.$target || self._createTarget($elt);
+                $target = options.$target || that._createTarget($elt);
 
                 $target.modal({
                     startClosed: true,
@@ -68,19 +68,19 @@ var resourceMgr = {
 
                 //rethrow some events
                 $target.on('select.' + ns, function(e, files) {
-                    self._close($elt);
+                    that._close($elt);
                     $elt.trigger(e, [files]);
                 });
                 $target.on('closed.modal', function() {
                     $elt.trigger('close.' + ns);
                 });
                 //initialize the components
-                var $fileBrowser = $('.file-browser .file-browser-wrapper', $target);
+                const $fileBrowser = $('.file-browser .file-browser-wrapper', $target);
                 if (options.mediaSourcesUrl) {
                     $.getJSON(options.mediaSourcesUrl)
                         .done(function(data) {
-                            var mediaSources = data || defaults.mediaSources;
-                            for (var i = 0; i < mediaSources.length; i++) {
+                            const mediaSources = data || defaults.mediaSources;
+                            for (let i = 0; i < mediaSources.length; i++) {
                                 options.root = mediaSources[i].root;
                                 options.path = mediaSources[i].path;
                                 $fileBrowser.append(
@@ -90,7 +90,7 @@ var resourceMgr = {
                             }
                         })
                         .fail(function() {
-                            for (var i = 0; i < defaults.mediaSources.length; i++) {
+                            for (let i = 0; i < defaults.mediaSources.length; i++) {
                                 options.root = defaults.mediaSources[i].root;
                                 options.path = defaults.mediaSources[i].path;
                                 $fileBrowser.append(
@@ -115,12 +115,12 @@ var resourceMgr = {
                 $elt.trigger('create.' + ns, [$target[0]]);
 
                 if (options.open) {
-                    self._open($elt);
+                    that._open($elt);
                 }
             } else {
                 options = $elt.data(dataNs);
                 if (options.open) {
-                    self._open($elt);
+                    that._open($elt);
                 }
             }
         });
@@ -182,7 +182,8 @@ var resourceMgr = {
             var $elt = $(this);
             var options = $elt.data(dataNs);
             $elt.data(dataNs, null);
-            if (options.bindEvent !== undefined && options.bindEvent !== false) {
+            /*eslint no-undefined: "error"*/
+            if (typeof options.bindEvent !== 'undefined' && options.bindEvent !== false) {
                 $elt.off(options.bindEvent);
             }
 
