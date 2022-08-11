@@ -257,42 +257,51 @@ $controlsHeight: 36px;
             width: $playerActionSize;
             height: $playerActionSize;
 
-
+            .action {
+                z-index: 5;
+            }
             .volume {
                 cursor: default;
                 position: absolute;
-                z-index: 3;
+                z-index: 1000;
                 background-color: $playerBackground;
-                padding: 0 10px 0 10px;
+                margin: 1px 2px;
+                padding: 10px 0;
+                width: 100%;
                 height: 0;
                 top: 0;
                 left: -1px;
                 opacity : 0;
+                text-align: center;
                 border: solid 1px $playerBorder;
+                pointer-events: none;
+                overflow: hidden;
                 @include vendor-prefix(transition, 'height 300ms ease-out, top 300ms ease-out, opacity 50ms linear 250ms', property);
 
                 &.up, &.down {
                     height: 120px;
-                    padding: 10px 10px 5px 10px;
                     opacity : 1;
+                    pointer-events: auto;
                     .slider {
+                        display: inline-block;
                         opacity : 1;
                         transition: opacity 50ms linear 200ms;
                         @include vendor-prefix(transition, 'opacity 50ms linear 200ms', property);
                     }
                 }
                 &.up {
-                    top: -125px;
+                    top: -127px;
                      @include vendor-prefix(transition, 'height 300ms ease-out 50ms, top 300ms ease-out 50ms, opacity 50ms linear', property);
                 }
                 &.down {
-                    top: 29px;
+                    top: 30px;
                      @include vendor-prefix(transition, 'height 300ms ease-out 50ms, opacity 50ms linear', property);
                 }
             }
 
             .slider {
                 opacity : 0;
+                display: none;
                 .noUi-handle {
                     cursor: pointer;
                     width: 9px;
