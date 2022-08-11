@@ -258,7 +258,8 @@ $controlsHeight: 36px;
             height: $playerActionSize;
 
             .action {
-                z-index: 5;
+                position: relative;
+                z-index: 1001;
             }
             .volume {
                 cursor: default;
