@@ -1,4 +1,4 @@
-<div class="resourcemgr modal">
+<div class="resourcemgr modal {{#if className}}{{className}}{{/if}}">
 
     <h2>{{title}}</h2>
 
