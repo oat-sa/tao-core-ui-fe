@@ -23,7 +23,6 @@
 }
 .colrow {
     @extend .clearfix;
-    width: revert;
 }
 @for $i from 1 through 12 {
     .col-#{$i} {
