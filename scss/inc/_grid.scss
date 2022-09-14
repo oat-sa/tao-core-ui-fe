@@ -14,14 +14,16 @@
 }
 
 .grid-container {
-    overflow-x: hidden; 
+    overflow-x: hidden;
 }
 
-.grid-row, .fixed-grid-row, .colrow {
+.grid-row, .fixed-grid-row {
     @extend .clearfix;
     width: widthPerc(852, 840);
 }
-
+.colrow {
+    @extend .clearfix;
+}
 @for $i from 1 through 12 {
     .col-#{$i} {
         @include grid-unit($i, 12, 12);
