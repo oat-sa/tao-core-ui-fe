@@ -76,7 +76,7 @@ export default function propertySelectorFactory(config) {
                 $propertyListContaner.empty();
                 availableProperties.forEach(property => {
                     property.selected = selectedProperties.has(property.id);
-                    if(search === '' || property.label.includes(search)) {
+                    if(search === '' || property.label.toLowerCase().includes(search.toLowerCase())) {
                         $propertyListContaner.append(createPropertyOption(property))
                     }
                 })
@@ -99,7 +99,7 @@ export default function propertySelectorFactory(config) {
                 label: "Save",
                 type: "info",
             }).on('click', () => {
-                this.trigger('update', [...selectedProperties]);
+                this.trigger('select', [...selectedProperties]);
             });
                 
             cancelButton.render($buttonsContainer)
