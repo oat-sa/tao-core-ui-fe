@@ -15,9 +15,9 @@ export default function propertySelectorFactory(config) {
 
     function createPropertyOption(property) {
         
-        const $propertyDescription =  propertyDescriptionTpl({ property });
-        const checkboxContainer = $('.checkbox-container', $propertyDescription);
-        checkboxContainer.append(checkBoxTpl({ id: property.id, checked: property.selected, text: property.label }))
+        const $propertyDescription =  $(propertyDescriptionTpl({ property }));
+        const $checkboxContainer = $('.checkbox-container', $propertyDescription);
+        $checkboxContainer.append(checkBoxTpl({ id: property.id, checked: property.selected }));
 
         return $propertyDescription;
 
