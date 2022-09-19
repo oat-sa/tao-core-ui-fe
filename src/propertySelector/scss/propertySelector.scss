@@ -1,0 +1,57 @@
+@import 'inc/bootstrap';
+
+.property-selector-container {
+    background-color: #fff;
+    border: 1px solid #DDDFE2;
+    display: flex;
+    
+    flex-direction: column;
+    width: 35rem;
+    height: 40rem;
+
+    input.search-property {
+        flex: 0 0 auto;
+        border: 0.125rem solid #ddd;
+        max-width: none;
+        height: 3.25rem;
+        margin: 0.5rem;
+
+    }
+
+    .property-list-container {
+        flex: 0 1 100%;
+        max-height: 32rem;
+        overflow: scroll;
+        border-bottom: 1px solid #DDDFE2;
+        padding: 0.5rem;
+
+        .property-description-container {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            padding: 1rem 0.5rem;
+            gap: 1rem;
+            
+        }
+    }
+
+    .control-buttons-container {
+        display: flex;
+        flex: 0 0 4.75rem;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.5rem;
+
+        button {
+            flex-grow: 1;
+            text-align: center;
+
+            span.label {
+                display: inline-block;
+            }
+        }
+    }
+
+    
+}
