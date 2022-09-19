@@ -16,12 +16,11 @@
  * Copyright (c) 2022 (original work) Open Assessment Technologies SA;
  */
 
-define([
-    'jquery',
-    'ui/propertySelector/propertySelector',
-    'json!test/ui/propertySelector/mocks/mocks.json'
-], function ($, propertySelectorFactory, mockData) {
-
+define(['jquery', 'ui/propertySelector/propertySelector', 'json!test/ui/propertySelector/mocks/mocks.json'], function (
+    $,
+    propertySelectorFactory,
+    mockData
+) {
     QUnit.module('propertySelector');
     QUnit.test('module', function (assert) {
         assert.expect(1);
@@ -48,17 +47,32 @@ define([
                 instance.getContainer()[0],
                 'propertySelector component is created'
             );
-            assert.equal($container.css('top'), `${mockData.position.top}px`, 'position props are applied to container');
-            assert.equal($container.css('left'), `${mockData.position.left}px`, 'position props are applied to container');
+            assert.equal(
+                $container.css('top'),
+                `${mockData.position.top}px`,
+                'position props are applied to container'
+            );
+            assert.equal(
+                $container.css('left'),
+                `${mockData.position.left}px`,
+                'position props are applied to container'
+            );
             assert.equal($searchInput.val(), '', 'search input value is correctly initialized');
-            assert.equal($listContainer.children().size(), Object.keys(mockData.available).length, 'list of properties is initialized with correct aount of entries');
-            assert.equal($listContainer.find("input:checked").size(), mockData.selected.length, 'list of selected properties is initialized correctly');
-            assert.equal($buttonContainer.find("button").size(), 2, 'control buttons are rendered');
+            assert.equal(
+                $listContainer.children().size(),
+                Object.keys(mockData.available).length,
+                'list of properties is initialized with correct aount of entries'
+            );
+            assert.equal(
+                $listContainer.find('input:checked').size(),
+                mockData.selected.length,
+                'list of selected properties is initialized correctly'
+            );
+            assert.equal($buttonContainer.find('button').size(), 2, 'control buttons are rendered');
 
             instance.destroy();
             ready();
-        })
-
+        });
     });
 
     QUnit.module('search operation');
@@ -83,7 +97,7 @@ define([
 
             instance.destroy();
             ready();
-        })
+        });
     });
 
     QUnit.module('button operation');
@@ -103,22 +117,20 @@ define([
             const $cancelButton = $buttons[0];
             const $saveButton = $buttons[1];
 
-            
-            instance.on('select', (e) => {
-                assert.equal(e.length, mockData.selected.length, "Select event fired with correct selected")
-            })
+            instance.on('select', e => {
+                assert.equal(e.length, mockData.selected.length, 'Select event fired with correct selected');
+            });
             $saveButton.click();
-            
+
             instance.on('cancel', () => {
-                assert.ok(true, "Cancel event fired")
-            })
+                assert.ok(true, 'Cancel event fired');
+            });
             $cancelButton.click();
 
             instance.destroy();
             ready();
-        })
+        });
     });
-
 
     QUnit.module('visual');
     QUnit.test('Visual test', function (assert) {

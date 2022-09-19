@@ -2,11 +2,11 @@
 
 .property-selector-container {
     background-color: #fff;
-    border: 1px solid #DDDFE2;
+    border: 1px solid #dddfe2;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
     display: flex;
     z-index: 1;
-    
+
     flex-direction: column;
     width: 35rem;
     position: absolute;
@@ -17,13 +17,12 @@
         max-width: none;
         height: 3.25rem;
         margin: 0.5rem;
-
     }
 
     .property-list-container {
         flex: 0 1 100%;
         overflow: scroll;
-        border-bottom: 1px solid #DDDFE2;
+        border-bottom: 1px solid #dddfe2;
         padding: 0.5rem 0;
 
         .property-description-container {
@@ -32,7 +31,6 @@
             align-items: flex-start;
             padding: 1rem 0;
             gap: 1rem;
-            
         }
     }
 
@@ -53,6 +51,4 @@
             }
         }
     }
-
-    
 }
