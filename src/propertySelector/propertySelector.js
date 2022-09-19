@@ -4,20 +4,28 @@ import propertyDescriptionTpl from 'ui/propertySelector/tpl/property-description
 import checkBoxTpl from 'ui/dialog/tpl/checkbox';
 import buttonFactory from 'ui/button';
 import 'ui/propertySelector/css/propertySelector.css';
+import { data } from 'jquery';
 
 
 export default function propertySelectorFactory(config) {
 
-
+    //element references
     let $container;
     let $buttonsContainer;
     let $propertyListContaner;
+    let $searchInput;
+    let availableProperties = [];
+    let selectedProperties = [];
+    let search = '';
 
     function createPropertyOption(property) {
-        
-        const $propertyDescription =  $(propertyDescriptionTpl({ property }));
+        const descriptionData = Object.assign({}, property);
+        if(search !== '') {
+            descriptionData.label = highlightCharacter(descriptionData.label, search, search);
+        }
+        const $propertyDescription =  $(propertyDescriptionTpl({ property: descriptionData }));
         const $checkboxContainer = $('.checkbox-container', $propertyDescription);
-        $checkboxContainer.append(checkBoxTpl({ id: property.id, checked: property.selected }));
+        $checkboxContainer.append(checkBoxTpl({ id: descriptionData.id, checked: descriptionData.selected }));
 
         return $propertyDescription;
 
@@ -27,58 +35,80 @@ export default function propertySelectorFactory(config) {
 
 
    const instance = component({
-        setData: function setData($select, data) {
-            let properties = [];
-            if(data.available) {
-                if(!Array.isArray(data.available)) {
-                    properties = Object.values(data.available)
-                }else{
-                    properties = data.available;
-                }
-                data.selected = data.selected || [];
-                properties.forEach(property => {
-                    property.selected = data.selected.includes(property.id);
-                    $select.append(createPropertyOption(property))
+        setData: function setData() {
+                $propertyListContaner.empty();
+                availableProperties.forEach(property => {
+                    property.selected = selectedProperties.includes(property.id);
+                    if(search === '' || property.label.includes(search)) {
+                        $propertyListContaner.append(createPropertyOption(property))
+                    }
                 })
+        },
+
+        addButtons: function addButtons() {
+            const cancelButton = buttonFactory({
+                id: "cancel",
+                label: "Cancel",
+                type: "info",
+                cls: "btn-secondary"
+            }).on('click', () => {
+                this.trigger('cancel');
+            });
+    
+            const saveButton = buttonFactory({
+                id: "save",
+                label: "Save",
+                type: "info",
+            }).on('click', () => {
+                this.trigger('update', selectedProperties);
+            });
                 
-            }
+            cancelButton.render($buttonsContainer)
+            saveButton.render($buttonsContainer)    
+        },
+
+        setupSearch: function setupSearch($container) {
+            $searchInput = $('input.search-property', $container);
+            $searchInput.on('input', function() {
+                search = $(this).val();
+                instance.setData();
+            })
         }
+
+
    })
    .setTemplate(propertySelectorTpl)
    .on("render", function() {
-        console.log("render is done")
+
+        //component parts reference assignments
         $container = instance.getElement();
         $propertyListContaner = $('.property-list-container', $container);
         $buttonsContainer = $('.control-buttons-container', $container);
+    
+        //initial setup of data
+        this.setData();
 
-        this.setData($propertyListContaner, instance.config.data);
+        //setup search behaviour
+        this.setupSearch();
 
-        //buttons
-        const cancelButton = buttonFactory({
-            id: "cancel",
-            label: "Cancel",
-            type: "info",
-            cls: "btn-secondary"
-        }).on('click', () => {
-            console.log('cancel click')
-        });
-
-        const saveButton = buttonFactory({
-            id: "save",
-            label: "Save",
-            type: "info",
-        }).on('click', () => {
-            console.log('cancel click')
-        });
-            
-        cancelButton.render($buttonsContainer)
-        saveButton.render($buttonsContainer)
-
+        //add and setup buttons
+        this.addButtons();
         
         this.trigger("ready")
    })
    .on("init", function() {
-        console.log("init done")
+        //setup data 
+        const data  = instance.config.data;
+        if(data.available) {
+            if(!Array.isArray(data.available)) {
+                availableProperties = Object.values(data.available)
+            }else{
+                availableProperties = data.available;
+            }
+        }
+        if(data.selected) {
+            selectedProperties = data.selected;
+        }
    });
 
     /**
