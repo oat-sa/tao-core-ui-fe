@@ -14,8 +14,10 @@ export default function propertySelectorFactory(config) {
     let $propertyListContaner;
     let $searchInput;
     let availableProperties = [];
-    let selectedProperties = [];
+    let selectedProperties;
     let search = '';
+
+    const parentGap = 20;
 
     /**
      * Lookup for characters in text to highlight
@@ -41,19 +43,39 @@ export default function propertySelectorFactory(config) {
         const $propertyDescription =  $(propertyDescriptionTpl({ property: descriptionData }));
         const $checkboxContainer = $('.checkbox-container', $propertyDescription);
         $checkboxContainer.append(checkBoxTpl({ id: descriptionData.id, checked: descriptionData.selected }));
-
+        const $checkbox = $("input", $checkboxContainer);
+        $checkbox.on('change', function() {
+            if(this.checked) {
+                selectedProperties.add(property.id);
+            }else{
+                selectedProperties.delete(property.id);
+            }
+        })
         return $propertyDescription;
 
     }
 
    const instance = component({
+
+        positionContainer: function positionContainer() {
+            let {top, left, right, bottom} = this.config.data.position;
+            let maxHeight;
+            if(typeof bottom === 'undefined') {
+                maxHeight = $container.parent().height() - top - parentGap;
+            }
+            if(typeof top === 'undefined') {
+                maxHeight = $container.parent().height() - bottom - parentGap;
+            }
+            $container.css({top, left, right, bottom, maxHeight});
+        },
+
         /**
          * Updates the list
          */
         redrawList: function redrawList() {
                 $propertyListContaner.empty();
                 availableProperties.forEach(property => {
-                    property.selected = selectedProperties.includes(property.id);
+                    property.selected = selectedProperties.has(property.id);
                     if(search === '' || property.label.includes(search)) {
                         $propertyListContaner.append(createPropertyOption(property))
                     }
@@ -77,7 +99,7 @@ export default function propertySelectorFactory(config) {
                 label: "Save",
                 type: "info",
             }).on('click', () => {
-                this.trigger('update', selectedProperties);
+                this.trigger('update', [...selectedProperties]);
             });
                 
             cancelButton.render($buttonsContainer)
@@ -103,7 +125,9 @@ export default function propertySelectorFactory(config) {
         $container = instance.getElement();
         $propertyListContaner = $('.property-list-container', $container);
         $buttonsContainer = $('.control-buttons-container', $container);
-    
+
+        this.positionContainer()
+        
         this.redrawList();
 
         this.setupSearch();
@@ -123,7 +147,7 @@ export default function propertySelectorFactory(config) {
             }
         }
         if(data.selected) {
-            selectedProperties = data.selected;
+            selectedProperties = new Set(data.selected);
         }
    });
 

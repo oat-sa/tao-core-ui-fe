@@ -1,4 +1,8 @@
-{
+{   
+    "position": {
+        "top": "10",
+        "left": "20"
+    },
     "available": {
         "sort_text":{
         "id":"https:\/\/advanced-search-tao.docker.localhost\/ontologies\/tao.rdf#i631f4410eaf9e13462b8866f1bae6d15a",

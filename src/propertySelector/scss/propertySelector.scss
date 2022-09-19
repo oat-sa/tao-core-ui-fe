@@ -4,10 +4,11 @@
     background-color: #fff;
     border: 1px solid #DDDFE2;
     display: flex;
+    z-index: 1;
     
     flex-direction: column;
     width: 35rem;
-    height: 40rem;
+    position: absolute;
 
     input.search-property {
         flex: 0 0 auto;
@@ -20,16 +21,15 @@
 
     .property-list-container {
         flex: 0 1 100%;
-        max-height: 32rem;
         overflow: scroll;
         border-bottom: 1px solid #DDDFE2;
-        padding: 0.5rem;
+        padding: 0.5rem 0;
 
         .property-description-container {
             display: flex;
             flex-direction: row;
             align-items: flex-start;
-            padding: 1rem 0.5rem;
+            padding: 1rem 0;
             gap: 1rem;
             
         }
