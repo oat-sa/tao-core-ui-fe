@@ -4,7 +4,6 @@ import propertyDescriptionTpl from 'ui/propertySelector/tpl/property-description
 import checkBoxTpl from 'ui/dialog/tpl/checkbox';
 import buttonFactory from 'ui/button';
 import 'ui/propertySelector/css/propertySelector.css';
-import { data } from 'jquery';
 
 
 export default function propertySelectorFactory(config) {
@@ -18,6 +17,22 @@ export default function propertySelectorFactory(config) {
     let selectedProperties = [];
     let search = '';
 
+    /**
+     * Lookup for characters in text to highlight
+     * @param {String} text - text to lookup
+     * @param {String} highlight - character(s) to be highlighted
+     * @param {regExp|String} match - match to be applied in the text
+     * @returns {String} - highlighted text
+     */
+    function highlightCharacter(text, highlight, match) {
+        return text.replace(match, `<b>${highlight}</b>`);
+    }
+
+    /**
+     * Creates property description list element
+     * @param {*} property 
+     * @returns JQuery element containing property description
+     */
     function createPropertyOption(property) {
         const descriptionData = Object.assign({}, property);
         if(search !== '') {
@@ -31,11 +46,11 @@ export default function propertySelectorFactory(config) {
 
     }
 
-    
-
-
    const instance = component({
-        setData: function setData() {
+        /**
+         * Updates the list
+         */
+        redrawList: function redrawList() {
                 $propertyListContaner.empty();
                 availableProperties.forEach(property => {
                     property.selected = selectedProperties.includes(property.id);
@@ -44,7 +59,9 @@ export default function propertySelectorFactory(config) {
                     }
                 })
         },
-
+        /**
+         * Adds and setups buttons to button container
+         */
         addButtons: function addButtons() {
             const cancelButton = buttonFactory({
                 id: "cancel",
@@ -66,12 +83,14 @@ export default function propertySelectorFactory(config) {
             cancelButton.render($buttonsContainer)
             saveButton.render($buttonsContainer)    
         },
-
-        setupSearch: function setupSearch($container) {
+        /**
+         * Setups search input event listners
+         */
+         setupSearch: function setupSearch($container) {
             $searchInput = $('input.search-property', $container);
             $searchInput.on('input', function() {
                 search = $(this).val();
-                instance.setData();
+                instance.redrawList();
             })
         }
 
@@ -85,13 +104,10 @@ export default function propertySelectorFactory(config) {
         $propertyListContaner = $('.property-list-container', $container);
         $buttonsContainer = $('.control-buttons-container', $container);
     
-        //initial setup of data
-        this.setData();
+        this.redrawList();
 
-        //setup search behaviour
         this.setupSearch();
 
-        //add and setup buttons
         this.addButtons();
         
         this.trigger("ready")
@@ -110,18 +126,6 @@ export default function propertySelectorFactory(config) {
             selectedProperties = data.selected;
         }
    });
-
-    /**
-     * Lookup for characters in text to highlight
-     * @param {String} text - text to lookup
-     * @param {String} highlight - character(s) to be highlighted
-     * @param {regExp|String} match - match to be applied in the text
-     * @returns {String} - highlighted text
-     */
-     function highlightCharacter(text, highlight, match) {
-        return text.replace(match, `<b>${highlight}</b>`);
-    }
-
 
    setTimeout(()=>instance.init(config), 0);
    return instance;
