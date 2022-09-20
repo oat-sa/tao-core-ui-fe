@@ -72,7 +72,7 @@ export default function propertySelectorFactory(config) {
     let selectedProperties;
     let search = '';
 
-    const searchRedrawTimeout = 200;
+    const searchRedrawTimeout = 500;
     let searchRedrawTimeoutId;
 
     const parentGap = 20;

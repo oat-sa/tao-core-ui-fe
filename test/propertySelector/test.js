@@ -98,8 +98,6 @@ define(['jquery', 'ui/propertySelector/propertySelector', 'json!test/ui/property
                 instance.destroy();
                 ready();
             })
-
-
         });
     });
 
