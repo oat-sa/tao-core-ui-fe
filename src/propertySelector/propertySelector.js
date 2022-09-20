@@ -44,7 +44,7 @@ function highlightCharacter(text, highlight, match) {
 function createPropertyOption(property, search) {
     const descriptionData = Object.assign({}, property);
     if (search !== '') {
-        descriptionData.label = highlightCharacter(descriptionData.label, search, search);
+        descriptionData.label = descriptionData.label && highlightCharacter(descriptionData.label, search, search);
         descriptionData.alias = descriptionData.alias && highlightCharacter(descriptionData.alias, search, search);
     }
     const $propertyDescription = $(propertyDescriptionTpl({ property: descriptionData }));
@@ -105,7 +105,7 @@ export default function propertySelectorFactory(config) {
                 property.selected = selectedProperties.has(property.id);
                 if (
                     search === '' ||
-                    property.label.toLowerCase().includes(search.toLowerCase()) ||
+                    (property.label && property.label.toLowerCase().includes(search.toLowerCase())) ||
                     (property.alias && property.alias.toLowerCase().includes(search.toLowerCase()))
                 ) {
                     propertiesToRender.push(createPropertyOption(property, search));
