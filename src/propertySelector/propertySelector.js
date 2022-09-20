@@ -72,6 +72,9 @@ export default function propertySelectorFactory(config) {
     let selectedProperties;
     let search = '';
 
+    const searchRedrawTimeout = 200;
+    let searchRedrawTimeoutId;
+
     const parentGap = 20;
 
     const instance = component({
@@ -110,6 +113,7 @@ export default function propertySelectorFactory(config) {
                     }
             });
             $propertyListContaner.append(propertiesToRender);
+            this.trigger('redraw');
         },
         /**
          * Adds and setups buttons to button container
@@ -142,7 +146,10 @@ export default function propertySelectorFactory(config) {
             $searchInput = $('input.search-property', $container);
             $searchInput.on('input', function () {
                 search = $(this).val();
-                instance.redrawList();
+                if(searchRedrawTimeoutId) {
+                    clearTimeout(searchRedrawTimeoutId)
+                }
+                searchRedrawTimeoutId = setTimeout(instance.redrawList, searchRedrawTimeout)
             });
         }
     })
