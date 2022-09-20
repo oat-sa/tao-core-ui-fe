@@ -1,4 +1,4 @@
-<div class="property-description-container">
+<li class="property-description-container">
     <div class="checkbox-container"></div>
     <div class="property-description">
         <span class="property-description-label">
@@ -12,4 +12,4 @@
             <span class="property-description-alias">/{{{property.alias}}}</span>
         {{/if}}
     </div>
-</div>
+</li>
