@@ -28,7 +28,6 @@ import component from 'ui/component';
 import 'ui/modal';
 import 'ui/datatable';
 import 'select2';
-import urlUtil from 'util/url';
 import request from 'core/dataProvider/request';
 
 /**
@@ -38,6 +37,7 @@ import request from 'core/dataProvider/request';
  * @param {object} config.renderTo - DOM element where component will be rendered to
  * @param {string} config.advancedCriteria - advanced criteria to be set on component creation
  * @param {string} config.rootClassUri - rootClassUri to check for whitelist sections
+ * @param {string} config.statusUrl - the URL to the status API (usually '/tao/AdvancedSearch/status')
  * @returns {advancedSearch}
  */
 export default function advancedSearchFactory(config) {
@@ -168,8 +168,7 @@ export default function advancedSearchFactory(config) {
      * Inits select2 on criteria select and its UX logic
      */
     function initAddCriteriaSelector() {
-        const route = urlUtil.route('status', 'AdvancedSearch', 'tao');
-        return request(route)
+        return request(instance.config.statusUrl)
             .then(function (response) {
                 if (!response.enabled || (response.whitelist && response.whitelist.includes(config.rootClassUri))) {
                     isAdvancedSearchStatusEnabled = false;

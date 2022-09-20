@@ -45,10 +45,17 @@ import shortcutRegistry from 'util/shortcut/registry';
  * @param {string} config.rootClassUri - Uri for the root class of current context, required to init the class filter
  * @param {bool} config.hideResourceSelector - if resourceSelector must be hidden
  * @param {string} config.placeholder - placeholder for input in template
+ * @param {string} config.classesUrl - the URL to the classes API (usually '/tao/RestResource/getAll')
+ * @param {string} config.classMappingUrl - the URL to the class mapping API (usually '/tao/ClassMetadata/getWithMapping')
+ * @param {string} config.statusUrl - the URL to the status API (usually '/tao/AdvancedSearch/status')
  * @returns {searchModal}
  */
 export default function searchModalFactory(config) {
+    // @TODO: The consumer must be responsible for supplying the routes. The component must not hardcode endpoints.
     const defaults = {
+        classesUrl: urlUtil.route('getAll', 'RestResource', 'tao'),
+        classMappingUrl: urlUtil.route('getWithMapping', 'ClassMetadata', 'tao'),
+        statusUrl: urlUtil.route('status', 'AdvancedSearch', 'tao'),
         renderTo: 'body',
         criterias: {},
         searchOnInit: true,
@@ -82,6 +89,7 @@ export default function searchModalFactory(config) {
         advancedSearch = advancedSearchFactory({
             renderTo: $('.filters-container', $container),
             advancedCriteria: instance.config.criterias.advancedCriteria,
+            statusUrl: instance.config.statusUrl,
             rootClassUri: rootClassUri
         });
         promises.push(initClassFilter());
@@ -149,7 +157,7 @@ export default function searchModalFactory(config) {
             // when a class query is triggered, update selector options with received resources
             resourceSelector.on('query', params => {
                 const classOnlyParams = { ...params, classOnly: true };
-                const route = urlUtil.route('getAll', 'RestResource', 'tao');
+                const route = instance.config.classesUrl;
                 request(route, classOnlyParams)
                     .then(response => {
                         if (
@@ -189,7 +197,7 @@ export default function searchModalFactory(config) {
                 const classUri = _.map(selectedValue, 'classUri')[0];
                 const label = _.map(selectedValue, 'label')[0];
                 const uri = _.map(selectedValue, 'uri')[0];
-                const route = urlUtil.route('getWithMapping', 'ClassMetadata', 'tao', {
+                const route = urlUtil.build(instance.config.classMappingUrl, {
                     classUri,
                     maxListSize: instance.config.maxListSize
                 });
