@@ -107,30 +107,6 @@ export default function propertySelectorFactory(config) {
             this.trigger('redraw');
         },
         /**
-         * Adds and setups buttons to button container
-         */
-        addButtons() {
-            const cancelButton = buttonFactory({
-                id: 'cancel',
-                label: 'Cancel',
-                type: 'info',
-                cls: 'btn-secondary'
-            }).on('click', () => {
-                this.trigger('cancel');
-            });
-
-            const saveButton = buttonFactory({
-                id: 'save',
-                label: 'Save',
-                type: 'info'
-            }).on('click', () => {
-                this.trigger('select', [...selectedProperties]);
-            });
-
-            cancelButton.render($buttonsContainer);
-            saveButton.render($buttonsContainer);
-        },
-        /**
          * Setups search input event listners
          */
         setupSearch() {
@@ -167,7 +143,25 @@ export default function propertySelectorFactory(config) {
 
             this.setupSearch();
 
-            this.addButtons();
+            const cancelButton = buttonFactory({
+                id: 'cancel',
+                label: 'Cancel',
+                type: 'info',
+                cls: 'btn-secondary'
+            }).on('click', () => {
+                this.trigger('cancel');
+            });
+
+            const saveButton = buttonFactory({
+                id: 'save',
+                label: 'Save',
+                type: 'info'
+            }).on('click', () => {
+                this.trigger('select', [...selectedProperties]);
+            });
+
+            cancelButton.render($buttonsContainer);
+            saveButton.render($buttonsContainer);
 
             this.trigger('ready');
         })
