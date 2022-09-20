@@ -7,6 +7,7 @@
         "sort_text": {
             "id": "https://advanced-search-tao.docker.localhost/ontologies/tao.rdf#i631f4410eaf9e13462b8866f1bae6d15a",
             "label": "sort_text",
+            "alias": "Sort text",
             "type": "text"
         },
         "sort_list_single": {
@@ -22,6 +23,7 @@
         "prop4": {
             "id": "https://advanced-search-tao.docker.localhost/ontologies/tao.rdf#i631ad7d58b80013469570d88acb98ffaf",
             "label": "prop4",
+            "alias": "Property number four",
             "type": "list"
         },
         "prop3": {

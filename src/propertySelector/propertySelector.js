@@ -19,6 +19,7 @@
 import component from 'ui/component';
 import propertySelectorTpl from 'ui/propertySelector/tpl/property-selector';
 import propertyDescriptionTpl from 'ui/propertySelector/tpl/property-description';
+import highlightedTextTpl from 'ui/propertySelector/tpl/highlighted-text';
 import checkBoxTpl from 'ui/dialog/tpl/checkbox';
 import buttonFactory from 'ui/button';
 import 'ui/propertySelector/css/propertySelector.css';
@@ -33,7 +34,7 @@ import $ from 'jquery';
  * @returns {String} - highlighted text
  */
     function highlightCharacter(text, highlight, match) {
-    return text.replace(match, `<b>${highlight}</b>`);
+    return text.replace(match, highlightedTextTpl({text: highlight}));
 }
 
 /**
