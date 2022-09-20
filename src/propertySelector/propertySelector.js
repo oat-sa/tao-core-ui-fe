@@ -50,14 +50,6 @@ function createPropertyOption(property, search) {
     const $propertyDescription = $(propertyDescriptionTpl({ property: descriptionData }));
     const $checkboxContainer = $('.checkbox-container', $propertyDescription);
     $checkboxContainer.append(checkBoxTpl({ id: descriptionData.id, checked: descriptionData.selected }));
-    const $checkbox = $('input', $checkboxContainer);
-    $checkbox.on('change', function () {
-        if (this.checked) {
-            selectedProperties.add(property.id);
-        } else {
-            selectedProperties.delete(property.id);
-        }
-    });
     return $propertyDescription;
 }
 
@@ -158,6 +150,16 @@ export default function propertySelectorFactory(config) {
             $container = instance.getElement();
             $propertyListContaner = $('.property-list-container', $container);
             $buttonsContainer = $('.control-buttons-container', $container);
+        
+            $propertyListContaner.on('click', (e) => {
+                if(e.target.dataset.propertyId){
+                    if (e.target.checked) {
+                        selectedProperties.add(e.target.dataset.propertyId);
+                    } else {
+                        selectedProperties.delete(e.target.dataset.propertyId);
+                    }
+                }
+            })
 
             this.positionContainer();
 
