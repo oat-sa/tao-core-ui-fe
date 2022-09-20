@@ -25,7 +25,6 @@ import buttonFactory from 'ui/button';
 import 'ui/propertySelector/css/propertySelector.css';
 import $ from 'jquery';
 
-
 /**
  * Lookup for characters in text to highlight
  * @param {String} text - text to lookup
@@ -33,8 +32,8 @@ import $ from 'jquery';
  * @param {regExp|String} match - match to be applied in the text
  * @returns {String} - highlighted text
  */
-    function highlightCharacter(text, highlight, match) {
-    return text.replace(match, highlightedTextTpl({text: highlight}));
+function highlightCharacter(text, highlight, match) {
+    return text.replace(match, highlightedTextTpl({ text: highlight }));
 }
 
 /**
@@ -105,12 +104,12 @@ export default function propertySelectorFactory(config) {
             availableProperties.forEach(property => {
                 property.selected = selectedProperties.has(property.id);
                 if (
-                        search === '' || 
-                        property.label.toLowerCase().includes(search.toLowerCase()) || 
-                        (property.alias && property.alias.toLowerCase().includes(search.toLowerCase()))
-                    ) {
-                        propertiesToRender.push(createPropertyOption(property, search));
-                    }
+                    search === '' ||
+                    property.label.toLowerCase().includes(search.toLowerCase()) ||
+                    (property.alias && property.alias.toLowerCase().includes(search.toLowerCase()))
+                ) {
+                    propertiesToRender.push(createPropertyOption(property, search));
+                }
             });
             $propertyListContaner.append(propertiesToRender);
             this.trigger('redraw');
@@ -146,10 +145,10 @@ export default function propertySelectorFactory(config) {
             $searchInput = $('input.search-property', $container);
             $searchInput.on('input', function () {
                 search = $(this).val();
-                if(searchRedrawTimeoutId) {
-                    clearTimeout(searchRedrawTimeoutId)
+                if (searchRedrawTimeoutId) {
+                    clearTimeout(searchRedrawTimeoutId);
                 }
-                searchRedrawTimeoutId = setTimeout(instance.redrawList, searchRedrawTimeout)
+                searchRedrawTimeoutId = setTimeout(instance.redrawList, searchRedrawTimeout);
             });
         }
     })

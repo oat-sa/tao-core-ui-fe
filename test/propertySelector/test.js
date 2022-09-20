@@ -94,10 +94,14 @@ define(['jquery', 'ui/propertySelector/propertySelector', 'json!test/ui/property
             $searchInput.trigger('input');
 
             instance.on('redraw', () => {
-                assert.equal($listContainer.children().size(), 4, 'list of properties is filtered by search input value');
+                assert.equal(
+                    $listContainer.children().size(),
+                    4,
+                    'list of properties is filtered by search input value'
+                );
                 instance.destroy();
                 ready();
-            })
+            });
         });
     });
 
@@ -118,27 +122,25 @@ define(['jquery', 'ui/propertySelector/propertySelector', 'json!test/ui/property
             const $cancelButton = $buttons[0];
             const $saveButton = $buttons[1];
 
-            const selectPromise = new Promise(selectHandled=>{
+            const selectPromise = new Promise(selectHandled => {
                 instance.on('select', e => {
                     assert.equal(e.length, mockData.selected.length, 'Select event fired with correct selected');
-                    selectHandled()
+                    selectHandled();
                 });
                 $saveButton.click();
             });
-            const cancelPromise = new Promise(cancelHandled=>{
+            const cancelPromise = new Promise(cancelHandled => {
                 instance.on('cancel', () => {
                     assert.ok(true, 'Cancel event fired');
-                    cancelHandled()
+                    cancelHandled();
                 });
                 $cancelButton.click();
-            });    
+            });
 
-            Promise.all([selectPromise, cancelPromise]).then(()=>{
-    
+            Promise.all([selectPromise, cancelPromise]).then(() => {
                 instance.destroy();
                 ready();
-
-            })
+            });
         });
     });
 
