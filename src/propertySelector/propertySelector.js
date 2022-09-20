@@ -46,6 +46,7 @@ function createPropertyOption(property, search) {
     const descriptionData = Object.assign({}, property);
     if (search !== '') {
         descriptionData.label = highlightCharacter(descriptionData.label, search, search);
+        descriptionData.alias = descriptionData.alias && highlightCharacter(descriptionData.alias, search, search);
     }
     const $propertyDescription = $(propertyDescriptionTpl({ property: descriptionData }));
     const $checkboxContainer = $('.checkbox-container', $propertyDescription);
@@ -97,12 +98,18 @@ export default function propertySelectorFactory(config) {
          */
         redrawList: function redrawList() {
             $propertyListContaner.empty();
+            const propertiesToRender = [];
             availableProperties.forEach(property => {
                 property.selected = selectedProperties.has(property.id);
-                if (search === '' || property.label.toLowerCase().includes(search.toLowerCase())) {
-                    $propertyListContaner.append(createPropertyOption(property, search));
-                }
+                if (
+                        search === '' || 
+                        property.label.toLowerCase().includes(search.toLowerCase()) || 
+                        (property.alias && property.alias.toLowerCase().includes(search.toLowerCase()))
+                    ) {
+                        propertiesToRender.push(createPropertyOption(property, search));
+                    }
             });
+            $propertyListContaner.append(propertiesToRender);
         },
         /**
          * Adds and setups buttons to button container
