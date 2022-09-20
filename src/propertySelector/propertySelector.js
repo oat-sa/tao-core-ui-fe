@@ -69,7 +69,7 @@ export default function propertySelectorFactory(config) {
     const parentGap = 20;
 
     const instance = component({
-        positionContainer: function positionContainer() {
+        positionContainer() {
             let { top, left, right, bottom } = this.config.data.position;
             let maxHeight;
             if (typeof bottom === 'undefined') {
@@ -90,7 +90,7 @@ export default function propertySelectorFactory(config) {
         /**
          * Updates the list
          */
-        redrawList: function redrawList() {
+        redrawList() {
             $propertyListContaner.empty();
             const propertiesToRender = [];
             availableProperties.forEach(property => {
@@ -109,7 +109,7 @@ export default function propertySelectorFactory(config) {
         /**
          * Adds and setups buttons to button container
          */
-        addButtons: function addButtons() {
+        addButtons() {
             const cancelButton = buttonFactory({
                 id: 'cancel',
                 label: 'Cancel',
@@ -133,7 +133,7 @@ export default function propertySelectorFactory(config) {
         /**
          * Setups search input event listners
          */
-        setupSearch: function setupSearch() {
+        setupSearch() {
             $searchInput = $('input.search-property', $container);
             $searchInput.on('input', function () {
                 search = $(this).val();
