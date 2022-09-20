@@ -118,18 +118,27 @@ define(['jquery', 'ui/propertySelector/propertySelector', 'json!test/ui/property
             const $cancelButton = $buttons[0];
             const $saveButton = $buttons[1];
 
-            instance.on('select', e => {
-                assert.equal(e.length, mockData.selected.length, 'Select event fired with correct selected');
+            const selectPromise = new Promise(selectHandled=>{
+                instance.on('select', e => {
+                    assert.equal(e.length, mockData.selected.length, 'Select event fired with correct selected');
+                    selectHandled()
+                });
+                $saveButton.click();
             });
-            $saveButton.click();
+            const cancelPromise = new Promise(cancelHandled=>{
+                instance.on('cancel', () => {
+                    assert.ok(true, 'Cancel event fired');
+                    cancelHandled()
+                });
+                $cancelButton.click();
+            });    
 
-            instance.on('cancel', () => {
-                assert.ok(true, 'Cancel event fired');
-            });
-            $cancelButton.click();
+            Promise.all([selectPromise, cancelPromise]).then(()=>{
+    
+                instance.destroy();
+                ready();
 
-            instance.destroy();
-            ready();
+            })
         });
     });
 
