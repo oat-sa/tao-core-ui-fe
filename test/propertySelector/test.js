@@ -61,7 +61,7 @@ define(['jquery', 'ui/propertySelector/propertySelector', 'json!test/ui/property
             assert.equal(
                 $listContainer.children().size(),
                 Object.keys(mockData.available).length,
-                'list of properties is initialized with correct aount of entries'
+                'list of properties is initialized with the correct count of entries'
             );
             assert.equal(
                 $listContainer.find('input:checked').size(),
