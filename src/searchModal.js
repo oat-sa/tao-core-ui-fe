@@ -311,32 +311,50 @@ export default function searchModalFactory(config) {
     }
 
     /**
+     * Performs a search query
+     * @param query - The searched terms
+     * @param classFilterUri - The URI of the node class
+     * @param [params] - Additional parameters
+     * @returns {Promise}
+     */
+    const searchQuery = (query, classFilterUri, params = {}) => {
+        running = true;
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: instance.config.url,
+                type: 'POST',
+                data: { ...params, query: query, parentNode: classFilterUri, structure: context.shownStructure },
+                dataType: 'json'
+            })
+                .done(resolve)
+                .fail(reject)
+                .always(() => (running = false));
+        });
+    };
+
+    /**
+     * Performs the search query, throttling and controlling to prevent sending too many requests
+     * @param query - The searched terms
+     * @param classFilterUri - The URI of the node class
+     * @param [params] - Additional parameters
+     */
+    const searchHandler = _.throttle((query, classFilterUri, params={}) => {
+        if (running === false) {
+            searchQuery(query, classFilterUri, params)
+                .then(data => appendDefaultDatasetToDatatable(data.data))
+                .then(data => buildSearchResultsDatatable(data))
+                .catch(e => instance.trigger('error', e));
+        }
+    }, 100);
+
+    /**
      * Request search results and manages its results
      */
     function search() {
         const query = buildComplexQuery();
         const classFilterUri = isResourceSelector ? $classFilterInput.data('uri').trim() : rootClassUri;
 
-        //throttle and control to prevent sending too many requests
-        const searchHandler = _.throttle(query => {
-            if (running === false) {
-                running = true;
-                $.ajax({
-                    url: instance.config.url,
-                    type: 'POST',
-                    data: { query: query, parentNode: classFilterUri, structure: context.shownStructure },
-                    dataType: 'json'
-                })
-                    .done(data => {
-                        appendDefaultDatasetToDatatable(data.data)
-                            .then(() => buildSearchResultsDatatable(data.data))
-                            .catch(e => instance.trigger('error', e));
-                    })
-                    .always(() => (running = false));
-            }
-        }, 100);
-
-        searchHandler(query);
+        searchHandler(query, classFilterUri);
     }
 
     /**
@@ -365,14 +383,14 @@ export default function searchModalFactory(config) {
                     .then(storedSearchResults => {
                         instance.config.searchOnInit = true;
                         data.storedSearchResults = storedSearchResults;
-                        resolve();
+                        resolve(data);
                     })
                     .catch(e => {
                         instance.trigger('error', e);
                         reject(new Error('Error appending default dataset from searchStore to datatable'));
                     });
             } else {
-                resolve();
+                resolve(data);
             }
         });
     }
