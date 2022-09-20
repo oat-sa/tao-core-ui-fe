@@ -63,6 +63,12 @@ export default function propertySelectorFactory(config) {
             if (typeof top === 'undefined') {
                 maxHeight = $container.parent().height() - bottom - parentGap;
             }
+            if (typeof top === 'undefined' && typeof bottom === 'undefined') {
+                top = 0;
+                bottom = 0;
+                maxHeight = $container.parent().height();
+            }
+
             $container.css({ top, left, right, bottom, maxHeight });
         },
 
