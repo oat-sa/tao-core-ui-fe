@@ -93,7 +93,7 @@ define(['jquery', 'ui/propertySelector/propertySelector', 'json!test/ui/property
             $searchInput.val('prop');
             $searchInput.trigger('input');
 
-            assert.equal($listContainer.children().size(), 4, 'list of properties is filtered by serach input value');
+            assert.equal($listContainer.children().size(), 4, 'list of properties is filtered by search input value');
 
             instance.destroy();
             ready();
