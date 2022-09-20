@@ -24,6 +24,42 @@ import buttonFactory from 'ui/button';
 import 'ui/propertySelector/css/propertySelector.css';
 import $ from 'jquery';
 
+
+/**
+ * Lookup for characters in text to highlight
+ * @param {String} text - text to lookup
+ * @param {String} highlight - character(s) to be highlighted
+ * @param {regExp|String} match - match to be applied in the text
+ * @returns {String} - highlighted text
+ */
+    function highlightCharacter(text, highlight, match) {
+    return text.replace(match, `<b>${highlight}</b>`);
+}
+
+/**
+ * Creates property description list element
+ * @param {Object} property
+ * @returns JQuery element containing property description
+ */
+function createPropertyOption(property, search) {
+    const descriptionData = Object.assign({}, property);
+    if (search !== '') {
+        descriptionData.label = highlightCharacter(descriptionData.label, search, search);
+    }
+    const $propertyDescription = $(propertyDescriptionTpl({ property: descriptionData }));
+    const $checkboxContainer = $('.checkbox-container', $propertyDescription);
+    $checkboxContainer.append(checkBoxTpl({ id: descriptionData.id, checked: descriptionData.selected }));
+    const $checkbox = $('input', $checkboxContainer);
+    $checkbox.on('change', function () {
+        if (this.checked) {
+            selectedProperties.add(property.id);
+        } else {
+            selectedProperties.delete(property.id);
+        }
+    });
+    return $propertyDescription;
+}
+
 export default function propertySelectorFactory(config) {
     //element references
     let $container;
@@ -35,41 +71,6 @@ export default function propertySelectorFactory(config) {
     let search = '';
 
     const parentGap = 20;
-
-    /**
-     * Lookup for characters in text to highlight
-     * @param {String} text - text to lookup
-     * @param {String} highlight - character(s) to be highlighted
-     * @param {regExp|String} match - match to be applied in the text
-     * @returns {String} - highlighted text
-     */
-    function highlightCharacter(text, highlight, match) {
-        return text.replace(match, `<b>${highlight}</b>`);
-    }
-
-    /**
-     * Creates property description list element
-     * @param {*} property
-     * @returns JQuery element containing property description
-     */
-    function createPropertyOption(property) {
-        const descriptionData = Object.assign({}, property);
-        if (search !== '') {
-            descriptionData.label = highlightCharacter(descriptionData.label, search, search);
-        }
-        const $propertyDescription = $(propertyDescriptionTpl({ property: descriptionData }));
-        const $checkboxContainer = $('.checkbox-container', $propertyDescription);
-        $checkboxContainer.append(checkBoxTpl({ id: descriptionData.id, checked: descriptionData.selected }));
-        const $checkbox = $('input', $checkboxContainer);
-        $checkbox.on('change', function () {
-            if (this.checked) {
-                selectedProperties.add(property.id);
-            } else {
-                selectedProperties.delete(property.id);
-            }
-        });
-        return $propertyDescription;
-    }
 
     const instance = component({
         positionContainer: function positionContainer() {
@@ -98,7 +99,7 @@ export default function propertySelectorFactory(config) {
             availableProperties.forEach(property => {
                 property.selected = selectedProperties.has(property.id);
                 if (search === '' || property.label.toLowerCase().includes(search.toLowerCase())) {
-                    $propertyListContaner.append(createPropertyOption(property));
+                    $propertyListContaner.append(createPropertyOption(property, search));
                 }
             });
         },
