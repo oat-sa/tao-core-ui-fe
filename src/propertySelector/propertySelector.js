@@ -150,16 +150,16 @@ export default function propertySelectorFactory(config) {
             $container = instance.getElement();
             $propertyListContaner = $('.property-list-container', $container);
             $buttonsContainer = $('.control-buttons-container', $container);
-        
-            $propertyListContaner.on('click', (e) => {
-                if(e.target.dataset.propertyId){
+
+            $propertyListContaner.on('click', e => {
+                if (e.target.dataset.propertyId) {
                     if (e.target.checked) {
                         selectedProperties.add(e.target.dataset.propertyId);
                     } else {
                         selectedProperties.delete(e.target.dataset.propertyId);
                     }
                 }
-            })
+            });
 
             this.positionContainer();
 
@@ -181,9 +181,8 @@ export default function propertySelectorFactory(config) {
                     availableProperties = data.available;
                 }
             }
-            if (data.selected) {
-                selectedProperties = new Set(data.selected);
-            }
+
+            selectedProperties = new Set(data.selected);
         });
 
     setTimeout(() => instance.init(config), 0);

@@ -65,7 +65,7 @@ define(['jquery', 'ui/propertySelector/propertySelector', 'json!test/ui/property
             );
             assert.equal(
                 $listContainer.find('input:checked').size(),
-                mockData.selected.length,
+                mockData.selected ? mockData.selected.length : 0,
                 'list of selected properties is initialized correctly'
             );
             assert.equal($buttonContainer.find('button').size(), 2, 'control buttons are rendered');
