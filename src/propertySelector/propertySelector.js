@@ -29,95 +29,6 @@ import 'ui/propertySelector/css/propertySelector.css';
 import $ from 'jquery';
 
 
-const parentGap = 20;
-
-/**
- * Lookup for characters in text to highlight
- * @param {String} text - text to lookup
- * @param {String} search - match to be applied in the text
- * @returns {String} - highlighted text
- */
-function highlightCharacter(text, search) {
-    const reg = new RegExp(search, 'gi');
-    console.log(text.matchAll(reg))
-    return text.replace(reg, (str) => highlightedTextTpl({ text: str }));
-}
-
-/**
- * Creates property description list element
- * @param {Object} property
- * @returns JQuery element containing property description
- */
-function createPropertyOption(property, search) {
-    const descriptionData = Object.assign({}, property);
-    if (search !== '') {
-        descriptionData.label = descriptionData.label && highlightCharacter(DOMPurify.sanitize(descriptionData.label), search);
-        descriptionData.alias = descriptionData.alias && highlightCharacter(DOMPurify.sanitize(descriptionData.alias), search);
-    }
-    const $propertyDescription = $(propertyDescriptionTpl());
-    if(descriptionData.alias) {
-        $('.property-description', $propertyDescription).append(labelTpl({text: descriptionData.label, alias: true}));
-        $('.property-description', $propertyDescription).append(aliasTpl({text: descriptionData.label}));
-    }else{
-        $('.property-description', $propertyDescription).append(labelTpl({text: descriptionData.label}));
-    }
-
-    const $checkboxContainer = $('.checkbox-container', $propertyDescription);
-    $checkboxContainer.append(checkBoxTpl({ id: descriptionData.id, checked: descriptionData.selected }));
-    return $propertyDescription;
-}
-
-/**
- * Adds buttons to container
- * @param {jQuery} $targetContainer 
- */
-function addButtons($targetContainer) {
-    const cancelButton = buttonFactory({
-        id: 'cancel',
-        label: 'Cancel',
-        type: 'info',
-        cls: 'btn-secondary'
-    }).on('click', () => {
-        this.trigger('cancel');
-    });
-
-    const saveButton = buttonFactory({
-        id: 'save',
-        label: 'Save',
-        type: 'info'
-    }).on('click', () => {
-        this.trigger('select', [...selectedProperties]);
-    });
-
-    cancelButton.render($targetContainer);
-    saveButton.render($targetContainer);
-
-}
-
-/**
- * Positions element inside parent
- * @param {jQuery} $el element to apply positioning
- * @param {Object} position object  { top, left, right, bottom } top OR bottom is required 
- */
-function positionContainer($el, position) {
-    let { top, left, right, bottom } = position;
-    let maxHeight;
-    if (typeof bottom === 'undefined') {
-        maxHeight = $el.parent().height() - top - parentGap;
-    }
-    if (typeof top === 'undefined') {
-        maxHeight = $el.parent().height() - bottom - parentGap;
-    }
-    if (typeof top === 'undefined' && typeof bottom === 'undefined') {
-        top = 0;
-        bottom = 0;
-        maxHeight = $el.parent().height();
-    }
-
-    $el.css({ top, left, right, bottom, maxHeight });
-}
-
-
 export default function propertySelectorFactory(config) {
     //element references
     let $container;
@@ -127,9 +38,10 @@ export default function propertySelectorFactory(config) {
     let availableProperties = [];
     let selectedProperties;
     let search = '';
-
-    const searchRedrawTimeout = 500;
     let searchRedrawTimeoutId;
+    
+    const parentGap = 20;
+    const searchRedrawTimeout = 500;
 
     const instance = component({
         /**
@@ -152,54 +64,142 @@ export default function propertySelectorFactory(config) {
             this.trigger('redraw');
         },
     })
-        .setTemplate(propertySelectorTpl)
-        .on('render', function () {
-            //component parts reference assignments
-            $container = instance.getElement();
-            $propertyListContaner = $('.property-list-container', $container);
-            $buttonsContainer = $('.control-buttons-container', $container);
+    .setTemplate(propertySelectorTpl)
+    .on('render', function () {
+        //component parts reference assignments
+        $container = instance.getElement();
+        $propertyListContaner = $('.property-list-container', $container);
+        $buttonsContainer = $('.control-buttons-container', $container);
 
-            $propertyListContaner.on('click', e => {
-                if (e.target.dataset.propertyId) {
-                    if (e.target.checked) {
-                        selectedProperties.add(e.target.dataset.propertyId);
-                    } else {
-                        selectedProperties.delete(e.target.dataset.propertyId);
-                    }
-                }
-            });
-
-            positionContainer($container, this.config.data.position);
-            addButtons($buttonsContainer)
-
-            this.redrawList();
-
-            //search event setup
-            $searchInput = $('input.search-property', $container);
-            $searchInput.on('input', function () {
-                search = $(this).val();
-                if (searchRedrawTimeoutId) {
-                    clearTimeout(searchRedrawTimeoutId);
-                }
-                searchRedrawTimeoutId = setTimeout(instance.redrawList, searchRedrawTimeout);
-            });
-
-            this.trigger('ready');
-        })
-        .on('init', function () {
-            //setup data
-            const data = instance.config.data;
-            if (data.available) {
-                if (!Array.isArray(data.available)) {
-                    availableProperties = Object.values(data.available);
+        $propertyListContaner.on('click', e => {
+            if (e.target.dataset.propertyId) {
+                if (e.target.checked) {
+                    selectedProperties.add(e.target.dataset.propertyId);
                 } else {
-                    availableProperties = data.available;
+                    selectedProperties.delete(e.target.dataset.propertyId);
                 }
             }
-
-            selectedProperties = new Set(data.selected);
         });
 
+        positionContainer($container, this.config.data.position);
+        addButtons($buttonsContainer, this)
+
+        this.redrawList();
+
+        //search event setup
+        $searchInput = $('input.search-property', $container);
+        $searchInput.on('input', function () {
+            search = $(this).val();
+            if (searchRedrawTimeoutId) {
+                clearTimeout(searchRedrawTimeoutId);
+            }
+            searchRedrawTimeoutId = setTimeout(instance.redrawList, searchRedrawTimeout);
+        });
+
+        this.trigger('ready');
+    })
+    .on('init', function () {
+        //setup data
+        const data = instance.config.data;
+        if (data.available) {
+            if (!Array.isArray(data.available)) {
+                availableProperties = Object.values(data.available);
+            } else {
+                availableProperties = data.available;
+            }
+        }
+
+        selectedProperties = new Set(data.selected);
+    });
+
+
+    /**
+     * Lookup for characters in text to highlight
+     * @param {String} text - text to lookup
+     * @param {String} search - match to be applied in the text
+     * @returns {String} - highlighted text
+     */
+    function highlightCharacter(text, search) {
+        const reg = new RegExp(search, 'gi');
+        console.log(text.matchAll(reg))
+        return text.replace(reg, (str) => highlightedTextTpl({ text: str }));
+    }
+    
+    /**
+     * Creates property description list element
+     * @param {Object} property
+     * @returns JQuery element containing property description
+     */
+    function createPropertyOption(property, search) {
+        const descriptionData = Object.assign({}, property);
+        if (search !== '') {
+            descriptionData.label = descriptionData.label && highlightCharacter(DOMPurify.sanitize(descriptionData.label), search);
+            descriptionData.alias = descriptionData.alias && highlightCharacter(DOMPurify.sanitize(descriptionData.alias), search);
+        }
+        const $propertyDescription = $(propertyDescriptionTpl());
+        if(descriptionData.alias) {
+            $('.property-description', $propertyDescription).append(labelTpl({text: descriptionData.label, alias: true}));
+            $('.property-description', $propertyDescription).append(aliasTpl({text: descriptionData.label}));
+        }else{
+            $('.property-description', $propertyDescription).append(labelTpl({text: descriptionData.label}));
+        }
+    
+        const $checkboxContainer = $('.checkbox-container', $propertyDescription);
+        $checkboxContainer.append(checkBoxTpl({ id: descriptionData.id, checked: descriptionData.selected }));
+        return $propertyDescription;
+    }
+    
+    /**
+     * Adds buttons to container
+     * @param {jQuery} $targetContainer 
+     */
+    function addButtons($targetContainer) {
+        const cancelButton = buttonFactory({
+            id: 'cancel',
+            label: 'Cancel',
+            type: 'info',
+            cls: 'btn-secondary'
+        }).on('click', () => {
+            instance.trigger('cancel');
+        });
+    
+        const saveButton = buttonFactory({
+            id: 'save',
+            label: 'Save',
+            type: 'info'
+        }).on('click', () => {
+            instance.trigger('select', [...selectedProperties]);
+        });
+    
+        cancelButton.render($targetContainer);
+        saveButton.render($targetContainer);
+    
+    }
+    
+    /**
+     * Positions element inside parent
+     * @param {jQuery} $el element to apply positioning
+     * @param {Object} position object  { top, left, right, bottom } top OR bottom is required 
+     */
+    function positionContainer($el, position) {
+        let { top, left, right, bottom } = position;
+        let maxHeight;
+        if (typeof bottom === 'undefined') {
+            maxHeight = $el.parent().height() - top - parentGap;
+        }
+        if (typeof top === 'undefined') {
+            maxHeight = $el.parent().height() - bottom - parentGap;
+        }
+        if (typeof top === 'undefined' && typeof bottom === 'undefined') {
+            top = 0;
+            bottom = 0;
+            maxHeight = $el.parent().height();
+        }
+    
+        $el.css({ top, left, right, bottom, maxHeight });
+    }
+        
+        
     setTimeout(() => instance.init(config), 0);
     return instance;
 }
