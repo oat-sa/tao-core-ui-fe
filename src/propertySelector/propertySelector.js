@@ -61,8 +61,24 @@ export default function propertySelectorFactory(config) {
                 }
             });
             $propertyListContaner.append(propertiesToRender);
+            
             this.trigger('redraw');
         },
+
+        /**
+         * Sets data
+         */
+        setData(data) {
+            if (data.available) {
+                if (!Array.isArray(data.available)) {
+                    availableProperties = Object.values(data.available);
+                } else {
+                    availableProperties = data.available;
+                }
+            }
+            selectedProperties = new Set(data.selected);
+            this.redrawList();
+        }
     })
     .setTemplate(propertySelectorTpl)
     .on('render', function () {
@@ -84,7 +100,7 @@ export default function propertySelectorFactory(config) {
         positionContainer($container, this.config.data.position);
         addButtons($buttonsContainer, this)
 
-        this.redrawList();
+        this.setData(this.config.data);
 
         //search event setup
         $searchInput = $('input.search-property', $container);
@@ -97,19 +113,6 @@ export default function propertySelectorFactory(config) {
         });
 
         this.trigger('ready');
-    })
-    .on('init', function () {
-        //setup data
-        const data = instance.config.data;
-        if (data.available) {
-            if (!Array.isArray(data.available)) {
-                availableProperties = Object.values(data.available);
-            } else {
-                availableProperties = data.available;
-            }
-        }
-
-        selectedProperties = new Set(data.selected);
     });
 
 

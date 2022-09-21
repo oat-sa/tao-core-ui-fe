@@ -16,10 +16,11 @@
  * Copyright (c) 2022 (original work) Open Assessment Technologies SA;
  */
 
-define(['jquery', 'ui/propertySelector/propertySelector', 'json!test/ui/propertySelector/mocks/mocks.json'], function (
+define(['jquery', 'ui/propertySelector/propertySelector', 'json!test/ui/propertySelector/mocks/mocks.json', 'lodash'], function (
     $,
     propertySelectorFactory,
-    mockData
+    mockData,
+    _
 ) {
     QUnit.module('propertySelector');
     QUnit.test('module', function (assert) {
@@ -75,6 +76,64 @@ define(['jquery', 'ui/propertySelector/propertySelector', 'json!test/ui/property
         });
     });
 
+    QUnit.module('api');
+    QUnit.test('propertySelector component as setData and redrawList api', function (assert) {
+        const instance = propertySelectorFactory({
+            renderTo: '#testable-container',
+            data: mockData
+        });
+
+        const ready = assert.async();
+        assert.expect(2);
+            
+
+        instance.on('ready', () => {
+            assert.ok(typeof instance.setData === 'function', 'The component api has setData a function')
+            assert.ok(typeof instance.redrawList === 'function', 'The component api has redrawList a function')
+            instance.destroy();
+            ready();
+        })
+    })
+
+    QUnit.test('propertySelector component can be managed py setting data from outside', function (assert) {
+        const ready = assert.async();
+        assert.expect(2);
+            
+        const instance = propertySelectorFactory({
+            renderTo: '#testable-container',
+            data: mockData
+        });
+
+        instance.on('ready', () => {
+            const $container = $('.property-selector-container');
+            const $listContainer = $container.find('.property-list-container');
+
+            const mockDataCopy = _.cloneDeep(mockData);
+            mockDataCopy.selected = [];
+            mockDataCopy.available = [
+                {
+                    "id":"label",
+                    "label":"Label",
+                    "alias":null,
+                 }
+            ];
+            
+            instance.on('redraw', () => {
+                assert.equal($listContainer.find('input:checked').size(), 0, 'Selected props are updated')
+                assert.equal($listContainer.find('li').size(), 1, 'List items are updated')
+                
+                instance.destroy();
+                ready();
+            })
+
+            instance.setData(mockDataCopy);
+
+        })
+    });
+
+
+
+
     QUnit.module('search operation');
     QUnit.test('propertySelector list is filtered by search input', function (assert) {
         const ready = assert.async();
@@ -84,15 +143,11 @@ define(['jquery', 'ui/propertySelector/propertySelector', 'json!test/ui/property
             renderTo: '#testable-container',
             data: mockData
         });
-
         instance.on('ready', () => {
             const $container = $('.property-selector-container');
             const $searchInput = $container.find('input.search-property');
             const $listContainer = $container.find('.property-list-container');
-
-            $searchInput.val('prop');
-            $searchInput.trigger('input');
-
+                        
             instance.on('redraw', () => {
                 assert.equal(
                     $listContainer.children().size(),
@@ -102,6 +157,10 @@ define(['jquery', 'ui/propertySelector/propertySelector', 'json!test/ui/property
                 instance.destroy();
                 ready();
             });
+
+            $searchInput.val('prop');
+            $searchInput.trigger('input');
+
         });
     });
 
