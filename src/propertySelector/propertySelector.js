@@ -139,19 +139,6 @@ export default function propertySelectorFactory(config) {
             $propertyListContaner.append(propertiesToRender);
             this.trigger('redraw');
         },
-        /**
-         * Setups search input event listners
-         */
-        setupSearch() {
-            $searchInput = $('input.search-property', $container);
-            $searchInput.on('input', function () {
-                search = $(this).val();
-                if (searchRedrawTimeoutId) {
-                    clearTimeout(searchRedrawTimeoutId);
-                }
-                searchRedrawTimeoutId = setTimeout(instance.redrawList, searchRedrawTimeout);
-            });
-        }
     })
         .setTemplate(propertySelectorTpl)
         .on('render', function () {
@@ -175,8 +162,15 @@ export default function propertySelectorFactory(config) {
 
             this.redrawList();
 
-            this.setupSearch();
-
+            //search event setup
+            $searchInput = $('input.search-property', $container);
+            $searchInput.on('input', function () {
+                search = $(this).val();
+                if (searchRedrawTimeoutId) {
+                    clearTimeout(searchRedrawTimeoutId);
+                }
+                searchRedrawTimeoutId = setTimeout(instance.redrawList, searchRedrawTimeout);
+            });
 
             this.trigger('ready');
         })
