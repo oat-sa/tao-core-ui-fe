@@ -19,21 +19,24 @@
 import component from 'ui/component';
 import propertySelectorTpl from 'ui/propertySelector/tpl/property-selector';
 import propertyDescriptionTpl from 'ui/propertySelector/tpl/property-description';
+import labelTpl from 'ui/propertySelector/tpl/label-text';
+import aliasTpl from 'ui/propertySelector/tpl/alias-text';
 import highlightedTextTpl from 'ui/propertySelector/tpl/highlighted-text';
 import checkBoxTpl from 'ui/propertySelector/tpl/checkbox';
 import buttonFactory from 'ui/button';
+import DOMPurify from 'dompurify'
 import 'ui/propertySelector/css/propertySelector.css';
 import $ from 'jquery';
 
 /**
  * Lookup for characters in text to highlight
  * @param {String} text - text to lookup
- * @param {String} highlight - character(s) to be highlighted
- * @param {regExp|String} match - match to be applied in the text
+ * @param {String} search - match to be applied in the text
  * @returns {String} - highlighted text
  */
-function highlightCharacter(text, highlight, match) {
-    return text.replace(match, highlightedTextTpl({ text: highlight }));
+function highlightCharacter(text, search) {
+    const reg = new RegExp(search, 'gi');
+    return text.replace(reg, (str) => highlightedTextTpl({ text: str }));
 }
 
 /**
@@ -44,10 +47,17 @@ function highlightCharacter(text, highlight, match) {
 function createPropertyOption(property, search) {
     const descriptionData = Object.assign({}, property);
     if (search !== '') {
-        descriptionData.label = descriptionData.label && highlightCharacter(descriptionData.label, search, search);
-        descriptionData.alias = descriptionData.alias && highlightCharacter(descriptionData.alias, search, search);
+        descriptionData.label = descriptionData.label && highlightCharacter(DOMPurify.sanitize(descriptionData.label), search);
+        descriptionData.alias = descriptionData.alias && highlightCharacter(DOMPurify.sanitize(descriptionData.alias), search);
     }
-    const $propertyDescription = $(propertyDescriptionTpl({ property: descriptionData }));
+    const $propertyDescription = $(propertyDescriptionTpl());
+    if(descriptionData.alias) {
+        $propertyDescription.append($(`${labelTpl({label: descriptionData.label})}/`));
+        $propertyDescription.append($(`/${aliasTpl({label: descriptionData.label})}`));
+    }else{
+        $propertyDescription.append(labelTpl({label: descriptionData.label}));
+    }
+
     const $checkboxContainer = $('.checkbox-container', $propertyDescription);
     $checkboxContainer.append(checkBoxTpl({ id: descriptionData.id, checked: descriptionData.selected }));
     return $propertyDescription;
