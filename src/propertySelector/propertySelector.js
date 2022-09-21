@@ -53,6 +53,57 @@ function createPropertyOption(property, search) {
     return $propertyDescription;
 }
 
+/**
+ * Adds buttons to container
+ * @param {jQuery} $targetContainer 
+ */
+function addButtons($targetContainer) {
+    const cancelButton = buttonFactory({
+        id: 'cancel',
+        label: 'Cancel',
+        type: 'info',
+        cls: 'btn-secondary'
+    }).on('click', () => {
+        this.trigger('cancel');
+    });
+
+    const saveButton = buttonFactory({
+        id: 'save',
+        label: 'Save',
+        type: 'info'
+    }).on('click', () => {
+        this.trigger('select', [...selectedProperties]);
+    });
+
+    cancelButton.render($targetContainer);
+    saveButton.render($targetContainer);
+
+}
+
+/**
+ * Positions element inside parent
+ * @param {jQuery} $el element to apply positioning
+ * @param {Object} position object  { top, left, right, bottom } top OR bottom is required 
+ */
+function positionContainer($el, position) {
+    let { top, left, right, bottom } = position;
+    let maxHeight;
+    if (typeof bottom === 'undefined') {
+        maxHeight = $el.parent().height() - top - parentGap;
+    }
+    if (typeof top === 'undefined') {
+        maxHeight = $el.parent().height() - bottom - parentGap;
+    }
+    if (typeof top === 'undefined' && typeof bottom === 'undefined') {
+        top = 0;
+        bottom = 0;
+        maxHeight = $el.parent().height();
+    }
+
+    $container.css({ top, left, right, bottom, maxHeight });
+}
+
+
 export default function propertySelectorFactory(config) {
     //element references
     let $container;
@@ -69,24 +120,6 @@ export default function propertySelectorFactory(config) {
     const parentGap = 20;
 
     const instance = component({
-        positionContainer() {
-            let { top, left, right, bottom } = this.config.data.position;
-            let maxHeight;
-            if (typeof bottom === 'undefined') {
-                maxHeight = $container.parent().height() - top - parentGap;
-            }
-            if (typeof top === 'undefined') {
-                maxHeight = $container.parent().height() - bottom - parentGap;
-            }
-            if (typeof top === 'undefined' && typeof bottom === 'undefined') {
-                top = 0;
-                bottom = 0;
-                maxHeight = $container.parent().height();
-            }
-
-            $container.css({ top, left, right, bottom, maxHeight });
-        },
-
         /**
          * Updates the list
          */
@@ -137,31 +170,13 @@ export default function propertySelectorFactory(config) {
                 }
             });
 
-            this.positionContainer();
+            positionContainer($container, this.config.data.position);
+            addButtons($buttonsContainer)
 
             this.redrawList();
 
             this.setupSearch();
 
-            const cancelButton = buttonFactory({
-                id: 'cancel',
-                label: 'Cancel',
-                type: 'info',
-                cls: 'btn-secondary'
-            }).on('click', () => {
-                this.trigger('cancel');
-            });
-
-            const saveButton = buttonFactory({
-                id: 'save',
-                label: 'Save',
-                type: 'info'
-            }).on('click', () => {
-                this.trigger('select', [...selectedProperties]);
-            });
-
-            cancelButton.render($buttonsContainer);
-            saveButton.render($buttonsContainer);
 
             this.trigger('ready');
         })
