@@ -121,7 +121,6 @@ export default function propertySelectorFactory(config) {
      */
     function highlightCharacter(text, search) {
         const reg = new RegExp(search, 'gi');
-        console.log(text.matchAll(reg))
         return text.replace(reg, (str) => highlightedTextTpl({ text: str }));
     }
     
@@ -184,18 +183,15 @@ export default function propertySelectorFactory(config) {
     function positionContainer($el, position) {
         let { top, left, right, bottom } = position;
         let maxHeight;
-        if (typeof bottom === 'undefined') {
-            maxHeight = $el.parent().height() - top - parentGap;
-        }
-        if (typeof top === 'undefined') {
-            maxHeight = $el.parent().height() - bottom - parentGap;
-        }
         if (typeof top === 'undefined' && typeof bottom === 'undefined') {
             top = 0;
             bottom = 0;
             maxHeight = $el.parent().height();
+        }else if (typeof bottom === 'undefined') {
+                maxHeight = $el.parent().height() - top - parentGap;
+        } else if (typeof top === 'undefined') {
+                maxHeight = $el.parent().height() - bottom - parentGap;
         }
-    
         $el.css({ top, left, right, bottom, maxHeight });
     }
         
