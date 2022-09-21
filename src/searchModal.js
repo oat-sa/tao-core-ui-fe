@@ -318,7 +318,6 @@ export default function searchModalFactory(config) {
      * @returns {Promise}
      */
     const searchQuery = (query, classFilterUri, params = {}) => {
-        running = true;
         return new Promise((resolve, reject) => {
             $.ajax({
                 url: instance.config.url,
@@ -327,25 +326,26 @@ export default function searchModalFactory(config) {
                 dataType: 'json'
             })
                 .done(resolve)
-                .fail(reject)
-                .always(() => (running = false));
+                .fail(reject);
         });
     };
 
     /**
-     * Performs the search query, throttling and controlling to prevent sending too many requests
+     * Performs the search query, preventing to send too many requests
      * @param query - The searched terms
      * @param classFilterUri - The URI of the node class
      * @param [params] - Additional parameters
      */
-    const searchHandler = _.throttle((query, classFilterUri, params={}) => {
+    const searchHandler = (query, classFilterUri, params={}) => {
         if (running === false) {
+            running = true;
             searchQuery(query, classFilterUri, params)
                 .then(data => appendDefaultDatasetToDatatable(data.data))
                 .then(data => buildSearchResultsDatatable(data))
-                .catch(e => instance.trigger('error', e));
+                .catch(e => instance.trigger('error', e))
+                .then(() => (running = false));
         }
-    }, 100);
+    };
 
     /**
      * Request search results and manages its results
