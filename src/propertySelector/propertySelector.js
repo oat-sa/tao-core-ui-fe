@@ -139,7 +139,7 @@ export default function propertySelectorFactory(config) {
         const $propertyDescription = $(propertyDescriptionTpl());
         if(descriptionData.alias) {
             $('.property-description', $propertyDescription).append(labelTpl({text: descriptionData.label, alias: true}));
-            $('.property-description', $propertyDescription).append(aliasTpl({text: descriptionData.label}));
+            $('.property-description', $propertyDescription).append(aliasTpl({text: descriptionData.alias}));
         }else{
             $('.property-description', $propertyDescription).append(labelTpl({text: descriptionData.label}));
         }
