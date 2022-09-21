@@ -28,6 +28,9 @@ import DOMPurify from 'dompurify'
 import 'ui/propertySelector/css/propertySelector.css';
 import $ from 'jquery';
 
+
+const parentGap = 20;
+
 /**
  * Lookup for characters in text to highlight
  * @param {String} text - text to lookup
@@ -36,6 +39,7 @@ import $ from 'jquery';
  */
 function highlightCharacter(text, search) {
     const reg = new RegExp(search, 'gi');
+    console.log(text.matchAll(reg))
     return text.replace(reg, (str) => highlightedTextTpl({ text: str }));
 }
 
@@ -52,10 +56,10 @@ function createPropertyOption(property, search) {
     }
     const $propertyDescription = $(propertyDescriptionTpl());
     if(descriptionData.alias) {
-        $propertyDescription.append($(`${labelTpl({label: descriptionData.label})}/`));
-        $propertyDescription.append($(`/${aliasTpl({label: descriptionData.label})}`));
+        $('.property-description', $propertyDescription).append(labelTpl({text: descriptionData.label, alias: true}));
+        $('.property-description', $propertyDescription).append(aliasTpl({text: descriptionData.label}));
     }else{
-        $propertyDescription.append(labelTpl({label: descriptionData.label}));
+        $('.property-description', $propertyDescription).append(labelTpl({text: descriptionData.label}));
     }
 
     const $checkboxContainer = $('.checkbox-container', $propertyDescription);
@@ -110,7 +114,7 @@ function positionContainer($el, position) {
         maxHeight = $el.parent().height();
     }
 
-    $container.css({ top, left, right, bottom, maxHeight });
+    $el.css({ top, left, right, bottom, maxHeight });
 }
 
 
@@ -126,8 +130,6 @@ export default function propertySelectorFactory(config) {
 
     const searchRedrawTimeout = 500;
     let searchRedrawTimeoutId;
-
-    const parentGap = 20;
 
     const instance = component({
         /**

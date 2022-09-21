@@ -1,1 +1,1 @@
-<span class="property-description-label">{{label}}</span>
+<span class="property-description-label">{{text}}{{#if alias}}/{{/if}}</span>

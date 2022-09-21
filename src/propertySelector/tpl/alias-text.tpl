@@ -1,1 +1,1 @@
-<span class="property-description-alias"></span>
+<span class="property-description-alias">/{{text}}</span>
