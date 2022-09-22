@@ -341,7 +341,8 @@ export default function searchModalFactory(config) {
             running = true;
             searchQuery(query, classFilterUri, params)
                 .then(data => appendDefaultDatasetToDatatable(data.data))
-                .then(data => buildSearchResultsDatatable(data))
+                .then(buildDataModel)
+                .then(buildSearchResultsDatatable)
                 .catch(e => instance.trigger('error', e))
                 .then(() => (running = false));
         }
@@ -396,6 +397,38 @@ export default function searchModalFactory(config) {
     }
 
     /**
+     * Refines the columns to be compatible with the datatable model
+     * @param {object[]} columns
+     * @returns {object[]}
+     */
+    function columnsToModel(columns) {
+        if (!Array.isArray(columns)) {
+            return [];
+        }
+
+        return columns.map(column => {
+            const { id, sortId, label, alias, classLabel, type: dataType, sortable } = column;
+            return { id, sortId, label, alias, classLabel, dataType, sortable };
+        });
+    }
+
+    /**
+     * Refines the data model for the datatable
+     * @param {object} data - search configuration including model and endpoint for datatable
+     * @returns {object} The data configuration refined with the data model for the datatrable
+     */
+    function buildDataModel(data) {
+        if (data.settings) {
+            // @todo: use the selected columns instead. It can use a promise as it takes place insise a promise chain
+            data.model = columnsToModel(data.settings.availableColumns);
+        } else {
+            data.model = columnsToModel(_.values(data.model));
+        }
+
+        return data;
+    }
+
+    /**
      * Creates a datatable with search results
      * @param {object} data - search configuration including model and endpoint for datatable
      */
@@ -411,7 +444,7 @@ export default function searchModalFactory(config) {
         $tableContainer.datatable(
             {
                 url: data.url,
-                model: _.values(data.model),
+                model: data.model,
                 labels: {
                     actions: ''
                 },
