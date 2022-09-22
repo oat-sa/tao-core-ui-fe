@@ -1,0 +1,1 @@
+<a><span class="icon-add"></span>{{__ "manage columns"}}</a>
