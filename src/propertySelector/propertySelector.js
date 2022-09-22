@@ -33,13 +33,13 @@ export default function propertySelectorFactory(config) {
     //element references
     let $container;
     let $buttonsContainer;
-    let $propertyListContaner;
+    let $propertyListContainer;
     let $searchInput;
     let availableProperties = [];
     let selectedProperties;
     let search = '';
     let searchRedrawTimeoutId;
-    
+
     const parentGap = 20;
     const searchRedrawTimeout = 500;
 
@@ -48,7 +48,7 @@ export default function propertySelectorFactory(config) {
          * Updates the list
          */
         redrawList() {
-            $propertyListContaner.empty();
+            $propertyListContainer.empty();
             const propertiesToRender = [];
             availableProperties.forEach(property => {
                 property.selected = selectedProperties.has(property.id);
@@ -60,100 +60,119 @@ export default function propertySelectorFactory(config) {
                     propertiesToRender.push(createPropertyOption(property, search));
                 }
             });
-            $propertyListContaner.append(propertiesToRender);
-            
+            $propertyListContainer.append(propertiesToRender);
+
             this.trigger('redraw');
         },
 
         /**
+         * @typedef propertySelectorPosition
+         * @property {number} top top position of container element from parent
+         * @property {number} right right position of container element from parent
+         * @property {number} bottom bottom position of container element from parent
+         * @property {number} left left position of container element from parent
+         */
+        /**
+         * @typedef propertyDescription
+         * @property {string} id id of property
+         * @property {string} label label of the property
+         * @property {string} alias alias of the property
+         */
+        /**
+         * @typedef propertySelectorData
+         * @property {propertySelectorPosition} position position of the property selector modal top, right, bottom, left
+         * @property {Array<string>} selected array of selected property id
+         * @property {Array<propertyDescription>} available array of available proprty descriptions
+         */
+        /**
          * Sets data
+         * @param {propertySelectorData} data
          */
         setData(data) {
             if (data.available) {
-                if (!Array.isArray(data.available)) {
-                    availableProperties = Object.values(data.available);
-                } else {
-                    availableProperties = data.available;
-                }
+                availableProperties = data.available;
             }
             selectedProperties = new Set(data.selected);
             this.redrawList();
         }
     })
-    .setTemplate(propertySelectorTpl)
-    .on('render', function () {
-        //component parts reference assignments
-        $container = instance.getElement();
-        $propertyListContaner = $('.property-list-container', $container);
-        $buttonsContainer = $('.control-buttons-container', $container);
+        .setTemplate(propertySelectorTpl)
+        .on('render', function () {
+            //component parts reference assignments
+            $container = instance.getElement();
+            $propertyListContainer = $('.property-list-container', $container);
+            $buttonsContainer = $('.control-buttons-container', $container);
 
-        $propertyListContaner.on('click', e => {
-            if (e.target.dataset.propertyId) {
-                if (e.target.checked) {
-                    selectedProperties.add(e.target.dataset.propertyId);
-                } else {
-                    selectedProperties.delete(e.target.dataset.propertyId);
+            $propertyListContainer.on('click', e => {
+                if (e.target.dataset.propertyId) {
+                    if (e.target.checked) {
+                        selectedProperties.add(e.target.dataset.propertyId);
+                    } else {
+                        selectedProperties.delete(e.target.dataset.propertyId);
+                    }
                 }
-            }
+            });
+
+            positionContainer($container, this.config.data.position);
+            addButtons($buttonsContainer, this);
+
+            this.setData(this.config.data);
+
+            //search event setup
+            $searchInput = $('input.search-property', $container);
+            $searchInput.on('input', function () {
+                search = $(this).val();
+                if (searchRedrawTimeoutId) {
+                    clearTimeout(searchRedrawTimeoutId);
+                }
+                searchRedrawTimeoutId = setTimeout(instance.redrawList, searchRedrawTimeout);
+            });
+
+            this.trigger('ready');
         });
-
-        positionContainer($container, this.config.data.position);
-        addButtons($buttonsContainer, this)
-
-        this.setData(this.config.data);
-
-        //search event setup
-        $searchInput = $('input.search-property', $container);
-        $searchInput.on('input', function () {
-            search = $(this).val();
-            if (searchRedrawTimeoutId) {
-                clearTimeout(searchRedrawTimeoutId);
-            }
-            searchRedrawTimeoutId = setTimeout(instance.redrawList, searchRedrawTimeout);
-        });
-
-        this.trigger('ready');
-    });
-
 
     /**
      * Lookup for characters in text to highlight
      * @param {String} text - text to lookup
-     * @param {String} search - match to be applied in the text
+     * @param {String} searchString - match to be applied in the text
      * @returns {String} - highlighted text
      */
-    function highlightCharacter(text, search) {
-        const reg = new RegExp(search, 'gi');
-        return text.replace(reg, (str) => highlightedTextTpl({ text: str }));
+    function highlightCharacter(text, searchString) {
+        const reg = new RegExp(searchString, 'gi');
+        return text.replace(reg, str => highlightedTextTpl({ text: str }));
     }
-    
+
     /**
      * Creates property description list element
      * @param {Object} property
      * @returns JQuery element containing property description
      */
-    function createPropertyOption(property, search) {
+    function createPropertyOption(property, searchString) {
         const descriptionData = Object.assign({}, property);
-        if (search !== '') {
-            descriptionData.label = descriptionData.label && highlightCharacter(DOMPurify.sanitize(descriptionData.label), search);
-            descriptionData.alias = descriptionData.alias && highlightCharacter(DOMPurify.sanitize(descriptionData.alias), search);
+        if (searchString !== '') {
+            descriptionData.label =
+                descriptionData.label && highlightCharacter(DOMPurify.sanitize(descriptionData.label), searchString);
+            descriptionData.alias =
+                descriptionData.alias && highlightCharacter(DOMPurify.sanitize(descriptionData.alias), searchString);
         }
         const $propertyDescription = $(propertyDescriptionTpl());
-        if(descriptionData.alias) {
-            $('.property-description', $propertyDescription).append(labelTpl({text: descriptionData.label, alias: true}));
-            $('.property-description', $propertyDescription).append(aliasTpl({text: descriptionData.alias}));
-        }else{
-            $('.property-description', $propertyDescription).append(labelTpl({text: descriptionData.label}));
+        if (descriptionData.alias) {
+            $('.property-description', $propertyDescription).append(
+                labelTpl({ text: descriptionData.label, alias: true })
+            );
+            $('.property-description', $propertyDescription).append(aliasTpl({ text: descriptionData.alias }));
+        } else {
+            $('.property-description', $propertyDescription).append(labelTpl({ text: descriptionData.label }));
         }
-    
+
         const $checkboxContainer = $('.checkbox-container', $propertyDescription);
         $checkboxContainer.append(checkBoxTpl({ id: descriptionData.id, checked: descriptionData.selected }));
         return $propertyDescription;
     }
-    
+
     /**
      * Adds buttons to container
-     * @param {jQuery} $targetContainer 
+     * @param {jQuery} $targetContainer
      */
     function addButtons($targetContainer) {
         const cancelButton = buttonFactory({
@@ -164,7 +183,7 @@ export default function propertySelectorFactory(config) {
         }).on('click', () => {
             instance.trigger('cancel');
         });
-    
+
         const saveButton = buttonFactory({
             id: 'save',
             label: 'Save',
@@ -172,16 +191,15 @@ export default function propertySelectorFactory(config) {
         }).on('click', () => {
             instance.trigger('select', [...selectedProperties]);
         });
-    
+
         cancelButton.render($targetContainer);
         saveButton.render($targetContainer);
-    
     }
-    
+
     /**
      * Positions element inside parent
      * @param {jQuery} $el element to apply positioning
-     * @param {Object} position object  { top, left, right, bottom } top OR bottom is required 
+     * @param {Object} position object  { top, left, right, bottom } top OR bottom is required
      */
     function positionContainer($el, position) {
         let { top, left, right, bottom } = position;
@@ -190,15 +208,14 @@ export default function propertySelectorFactory(config) {
             top = 0;
             bottom = 0;
             maxHeight = $el.parent().height();
-        }else if (typeof bottom === 'undefined') {
-                maxHeight = $el.parent().height() - top - parentGap;
+        } else if (typeof bottom === 'undefined') {
+            maxHeight = $el.parent().height() - top - parentGap;
         } else if (typeof top === 'undefined') {
-                maxHeight = $el.parent().height() - bottom - parentGap;
+            maxHeight = $el.parent().height() - bottom - parentGap;
         }
         $el.css({ top, left, right, bottom, maxHeight });
     }
-        
-        
+
     setTimeout(() => instance.init(config), 0);
     return instance;
 }
