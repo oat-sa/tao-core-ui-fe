@@ -22,12 +22,14 @@ import __ from 'i18n';
 import context from 'context';
 import layoutTpl from 'ui/searchModal/tpl/layout';
 import infoMessageTpl from 'ui/searchModal/tpl/info-message';
+import propertySelectButtonTpl from 'ui/searchModal/tpl/property-select-button';
 import 'ui/searchModal/css/searchModal.css';
 import component from 'ui/component';
 import 'ui/modal';
 import 'ui/datatable';
 import store from 'core/store';
 import resourceSelectorFactory from 'ui/resource/selector';
+import propertySelectorFactory from 'ui/propertySelector/propertySelector';
 import advancedSearchFactory from 'ui/searchModal/advancedSearch';
 import request from 'core/dataProvider/request';
 import urlUtil from 'util/url';
@@ -415,6 +417,23 @@ export default function searchModalFactory(config) {
      * @param {object} dataset - datatable dataset
      */
     function searchResultsLoaded(e, dataset) {
+        const $actionsHeader = $('th.actions', $container);
+        const $manageColumnsBtn = $(propertySelectButtonTpl());
+        $actionsHeader.append($manageColumnsBtn);
+        const { bottom: btnBottom, right: btnRight } = $manageColumnsBtn.get(0).getBoundingClientRect();
+        const { top: containerTop, right: containerRight } = $container.get(0).getBoundingClientRect();
+        $manageColumnsBtn.on('click', () => {
+            propertySelectorFactory({
+                renderTo: $container,
+                data: {
+                    position: {
+                        top: btnBottom - containerTop,
+                        right: containerRight - btnRight
+                    }
+                }
+            });
+        });
+
         if (dataset.records === 0) {
             replaceSearchResultsDatatableWithMessage('no-matches');
         }
