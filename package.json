@@ -5,7 +5,7 @@
     "description": "UI libraries of TAO",
     "scripts": {
         "test": "npx qunit-testrunner",
-        "test:keepAlive": "npx qunit-testrunner --keepalive",
+        "test:keepAlive": "npx qunit-testrunner --keepalive --port 5400",
         "test:cov": "npm run build:cov && npx qunit-testrunner --cov",
         "test:dev": "run-p test:keepAlive build:watch",
         "coverage": "nyc report",
