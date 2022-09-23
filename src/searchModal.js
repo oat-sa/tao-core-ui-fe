@@ -84,7 +84,6 @@ export default function searchModalFactory(config) {
     // resorce selector
     const isResourceSelector = !config.hideResourceSelector;
     const rootClassUri = config.rootClassUri;
-    const defaultSelectedColumns = ['http://www.w3.org/2000/01/rdf-schema#label', 'location', 'updated_at'];
 
     /**
      * Creates search modal, inits template selectors, inits search store, and once is created triggers initial search
@@ -445,15 +444,18 @@ export default function searchModalFactory(config) {
             return selectedColumnsStore
                 .getItem(classFilterUri)
                 .then(storedSelectedColumnIds => {
-                    //save selectedColumns to memory
-                    if (storedSelectedColumnIds) {
-                        selectedColumns = [...defaultSelectedColumns, ...storedSelectedColumnIds];
+                    let columnsToDisplay;
+
+                    if (storedSelectedColumnIds && storedSelectedColumnIds.length) {
+                        selectedColumns = [...storedSelectedColumnIds];
+                        columnsToDisplay = data.settings.availableColumns.filter(column =>
+                            selectedColumns.includes(column.id)
+                        );
                     } else {
-                        selectedColumns = [...defaultSelectedColumns];
+                        columnsToDisplay = data.settings.availableColumns.filter(column => column.default);
+                        selectedColumns = columnsToDisplay.map(column => column.id);
                     }
-                    data.model = columnsToModel(
-                        data.settings.availableColumns.filter(column => selectedColumns.includes(column.id))
-                    );
+                    data.model = columnsToModel(columnsToDisplay);
                     return data;
                 })
                 .catch(e => {
@@ -562,11 +564,16 @@ export default function searchModalFactory(config) {
             });
 
             propertySelectorInstance.on('select', e => {
-                updateSelectedStore(getClassFilterUri(), e);
+                if (e.length !== selectedColumns.length || e.some(columnId => !selectedColumns.includes(columnId))) {
+                    //update table
+                    updateSelectedStore(getClassFilterUri(), e);
+                    search();
+                }
                 propertySelectorInstance.hide();
             });
         } else {
             if (propertySelectorInstanceHidden) {
+                propertySelectorInstance.setData({ selected: selectedColumns });
                 propertySelectorInstance.show();
             } else {
                 propertySelectorInstance.hide();
