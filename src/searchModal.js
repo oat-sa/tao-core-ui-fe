@@ -121,6 +121,7 @@ export default function searchModalFactory(config) {
     // Creates new component
     const instance = component({}, defaults)
         .setTemplate(layoutTpl)
+        .on('selected-store-updated', recreateDatatable)
         .on('render', renderModal)
         .on('destroy', destroyModal);
 
@@ -356,7 +357,8 @@ export default function searchModalFactory(config) {
             running = true;
             searchQuery(query, classFilterUri, params)
                 .then(data => appendDefaultDatasetToDatatable(data.data))
-                .then(data => buildDataModel(classFilterUri, data))
+                .then(buildDataModel)
+                .then(filterSelectedColumns)
                 .then(buildSearchResultsDatatable)
                 .catch(e => instance.trigger('error', e))
                 .then(() => (running = false));
@@ -437,38 +439,53 @@ export default function searchModalFactory(config) {
      * @param {object} data - search configuration including model and endpoint for datatable
      * @returns {object} The data configuration refined with the data model for the datatrable
      */
-    function buildDataModel(classFilterUri, data) {
+    function buildDataModel(data) {
         if (data.settings) {
             //save availableColumns to memory
             availableColumns = data.settings.availableColumns;
             // @todo: use the selected columns instead. It can use a promise as it takes place insise a promise chain
-            return selectedColumnsStore
-                .getItem(classFilterUri)
-                .then(storedSelectedColumnIds => {
-                    let columnsToDisplay;
-
-                    if (storedSelectedColumnIds && storedSelectedColumnIds.length) {
-                        selectedColumns = [...storedSelectedColumnIds];
-                        columnsToDisplay = data.settings.availableColumns.filter(column =>
-                            selectedColumns.includes(column.id)
-                        );
-                    } else {
-                        columnsToDisplay = data.settings.availableColumns.filter(column => column.default);
-                        selectedColumns = columnsToDisplay.map(column => column.id);
-                    }
-                    data.model = columnsToModel(columnsToDisplay);
-                    dataCache = data;
-                    return data;
-                })
-                .catch(e => {
-                    instance.trigger('error', e);
-                    reject(new Error('Error getting selected columns'));
-                });
+            data.model = columnsToModel(availableColumns);
+            dataCache = _.cloneDeep(data);
+            return data;
         } else {
             data.model = columnsToModel(_.values(data.model));
-            dataCache = data;
+            dataCache = _.cloneDeep(data);
             return data;
         }
+    }
+
+    /**
+     * Filters datatble model based on stored selected columns
+     * @param {Object} data data containing available columns and model for datatable
+     * @returns {Promise} promise which resolves with filtered data.model
+     */
+    function filterSelectedColumns(data) {
+        console.log(data);
+        return selectedColumnsStore
+            .getItem(getClassFilterUri())
+            .then(storedSelectedColumnIds => {
+                //let columnsToDisplay;
+                if (storedSelectedColumnIds && storedSelectedColumnIds.length) {
+                    selectedColumns = [...storedSelectedColumnIds];
+                    //columnsToDisplay = data.settings.availableColumns.filter(column =>
+                    // selectedColumns.includes(column.id)
+                    //);
+                } else {
+                    selectedColumns = data.settings.availableColumns.reduce((acc, column) => {
+                        if (column.default) {
+                            acc.push(column.id);
+                        }
+                    }, []);
+                }
+
+                data.model = data.model.filter(column => selectedColumns.includes(column.id));
+
+                return data;
+            })
+            .catch(e => {
+                instance.trigger('error', e);
+                reject(new Error('Error getting selected columns'));
+            });
     }
 
     /**
@@ -476,10 +493,6 @@ export default function searchModalFactory(config) {
      * @param {object} data - search configuration including model and endpoint for datatable
      */
     function buildSearchResultsDatatable(data) {
-        //if we just reinit ui
-        if (typeof data === 'undefined') {
-            data = dataCache;
-        }
         //update the section container
         const $tableContainer = $('<div class="flex-container-full"></div>');
         const section = $('.content-container', $container);
@@ -513,6 +526,14 @@ export default function searchModalFactory(config) {
             },
             data.storedSearchResults
         );
+    }
+
+    /**
+     * Filters data from cache by selected and recreates datatable
+     */
+    function recreateDatatable() {
+        const data = _.cloneDeep(dataCache);
+        filterSelectedColumns(data).then(buildSearchResultsDatatable);
     }
 
     /**
@@ -573,8 +594,8 @@ export default function searchModalFactory(config) {
             propertySelectorInstance.on('select', e => {
                 if (e.length !== selectedColumns.length || e.some(columnId => !selectedColumns.includes(columnId))) {
                     //update table
+                    selectedColumns = e;
                     updateSelectedStore(getClassFilterUri(), e);
-                    buildSearchResultsDatatable();
                 }
                 propertySelectorInstance.hide();
             });
@@ -613,9 +634,15 @@ export default function searchModalFactory(config) {
             .catch(e => instance.trigger('error', e));
     }
 
+    /**
+     *
+     * @param {string} classFilterUri class will be used as key
+     * @param {Array<string>} selected array of column ids to display
+     * @returns
+     */
     function updateSelectedStore(classFilterUri, selected) {
         return selectedColumnsStore
-            .setItem(getClassFilterUri(), selected)
+            .setItem(classFilterUri, selected)
             .then(() => instance.trigger(`selected-store-updated`))
             .catch(e => instance.trigger('error', e));
     }
