@@ -45,10 +45,17 @@ import shortcutRegistry from 'util/shortcut/registry';
  * @param {string} config.rootClassUri - Uri for the root class of current context, required to init the class filter
  * @param {bool} config.hideResourceSelector - if resourceSelector must be hidden
  * @param {string} config.placeholder - placeholder for input in template
+ * @param {string} config.classesUrl - the URL to the classes API (usually '/tao/RestResource/getAll')
+ * @param {string} config.classMappingUrl - the URL to the class mapping API (usually '/tao/ClassMetadata/getWithMapping')
+ * @param {string} config.statusUrl - the URL to the status API (usually '/tao/AdvancedSearch/status')
  * @returns {searchModal}
  */
 export default function searchModalFactory(config) {
+    // @TODO: The consumer must be responsible for supplying the routes. The component must not hardcode endpoints.
     const defaults = {
+        classesUrl: urlUtil.route('getAll', 'RestResource', 'tao'),
+        classMappingUrl: urlUtil.route('getWithMapping', 'ClassMetadata', 'tao'),
+        statusUrl: urlUtil.route('status', 'AdvancedSearch', 'tao'),
         renderTo: 'body',
         criterias: {},
         searchOnInit: true,
@@ -82,6 +89,7 @@ export default function searchModalFactory(config) {
         advancedSearch = advancedSearchFactory({
             renderTo: $('.filters-container', $container),
             advancedCriteria: instance.config.criterias.advancedCriteria,
+            statusUrl: instance.config.statusUrl,
             rootClassUri: rootClassUri
         });
         promises.push(initClassFilter());
@@ -149,7 +157,7 @@ export default function searchModalFactory(config) {
             // when a class query is triggered, update selector options with received resources
             resourceSelector.on('query', params => {
                 const classOnlyParams = { ...params, classOnly: true };
-                const route = urlUtil.route('getAll', 'RestResource', 'tao');
+                const route = instance.config.classesUrl;
                 request(route, classOnlyParams)
                     .then(response => {
                         if (
@@ -189,7 +197,7 @@ export default function searchModalFactory(config) {
                 const classUri = _.map(selectedValue, 'classUri')[0];
                 const label = _.map(selectedValue, 'label')[0];
                 const uri = _.map(selectedValue, 'uri')[0];
-                const route = urlUtil.route('getWithMapping', 'ClassMetadata', 'tao', {
+                const route = urlUtil.build(instance.config.classMappingUrl, {
                     classUri,
                     maxListSize: instance.config.maxListSize
                 });
@@ -303,32 +311,51 @@ export default function searchModalFactory(config) {
     }
 
     /**
+     * Performs a search query
+     * @param query - The searched terms
+     * @param classFilterUri - The URI of the node class
+     * @param [params] - Additional parameters
+     * @returns {Promise}
+     */
+    const searchQuery = (query, classFilterUri, params = {}) => {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: instance.config.url,
+                type: 'POST',
+                data: { ...params, query: query, parentNode: classFilterUri, structure: context.shownStructure },
+                dataType: 'json'
+            })
+                .done(resolve)
+                .fail(reject);
+        });
+    };
+
+    /**
+     * Performs the search query, preventing to send too many requests
+     * @param query - The searched terms
+     * @param classFilterUri - The URI of the node class
+     * @param [params] - Additional parameters
+     */
+    const searchHandler = (query, classFilterUri, params={}) => {
+        if (running === false) {
+            running = true;
+            searchQuery(query, classFilterUri, params)
+                .then(data => appendDefaultDatasetToDatatable(data.data))
+                .then(buildDataModel)
+                .then(buildSearchResultsDatatable)
+                .catch(e => instance.trigger('error', e))
+                .then(() => (running = false));
+        }
+    };
+
+    /**
      * Request search results and manages its results
      */
     function search() {
         const query = buildComplexQuery();
         const classFilterUri = isResourceSelector ? $classFilterInput.data('uri').trim() : rootClassUri;
 
-        //throttle and control to prevent sending too many requests
-        const searchHandler = _.throttle(query => {
-            if (running === false) {
-                running = true;
-                $.ajax({
-                    url: instance.config.url,
-                    type: 'POST',
-                    data: { query: query, parentNode: classFilterUri, structure: context.shownStructure },
-                    dataType: 'json'
-                })
-                    .done(data => {
-                        appendDefaultDatasetToDatatable(data.data)
-                            .then(() => buildSearchResultsDatatable(data.data))
-                            .catch(e => instance.trigger('error', e));
-                    })
-                    .always(() => (running = false));
-            }
-        }, 100);
-
-        searchHandler(query);
+        searchHandler(query, classFilterUri);
     }
 
     /**
@@ -357,16 +384,48 @@ export default function searchModalFactory(config) {
                     .then(storedSearchResults => {
                         instance.config.searchOnInit = true;
                         data.storedSearchResults = storedSearchResults;
-                        resolve();
+                        resolve(data);
                     })
                     .catch(e => {
                         instance.trigger('error', e);
                         reject(new Error('Error appending default dataset from searchStore to datatable'));
                     });
             } else {
-                resolve();
+                resolve(data);
             }
         });
+    }
+
+    /**
+     * Refines the columns to be compatible with the datatable model
+     * @param {object[]} columns
+     * @returns {object[]}
+     */
+    function columnsToModel(columns) {
+        if (!Array.isArray(columns)) {
+            return [];
+        }
+
+        return columns.map(column => {
+            const { id, sortId, label, alias, classLabel, type: dataType, sortable } = column;
+            return { id, sortId, label, alias, classLabel, dataType, sortable };
+        });
+    }
+
+    /**
+     * Refines the data model for the datatable
+     * @param {object} data - search configuration including model and endpoint for datatable
+     * @returns {object} The data configuration refined with the data model for the datatrable
+     */
+    function buildDataModel(data) {
+        if (data.settings) {
+            // @todo: use the selected columns instead. It can use a promise as it takes place insise a promise chain
+            data.model = columnsToModel(data.settings.availableColumns);
+        } else {
+            data.model = columnsToModel(_.values(data.model));
+        }
+
+        return data;
     }
 
     /**
@@ -385,7 +444,7 @@ export default function searchModalFactory(config) {
         $tableContainer.datatable(
             {
                 url: data.url,
-                model: _.values(data.model),
+                model: data.model,
                 labels: {
                     actions: ''
                 },

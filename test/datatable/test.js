@@ -1615,6 +1615,22 @@ define([
                 sortType: 'asc'
             },
             message: 'First time sort by "name"'
+        },
+        {
+            initSortOptions: {
+                sortorder: 'desc',
+            },
+            updateSortOptions: {
+                sortBy: 'username',
+                asc: undefined,
+                sortType: 'asc'
+            },
+            expectedOptions: {
+                sortBy: 'username',
+                sortOrder: 'asc',
+                sortType: 'asc'
+            },
+            message: 'Sort login using the sort identifier "username"'
         }
     ]).test('Sort options', (cases, assert) => {
         const done = assert.async();
@@ -1631,7 +1647,13 @@ define([
         })
         .datatable(Object.assign({
             url: '/test/datatable/data.json',
-            'model': [ {
+            'model': [{
+                id: 'login',
+                sortId: 'username',
+                label: 'Login',
+                sortable: true,
+                sorttype: 'string'
+            }, {
                 id: 'name',
                 label: 'Name',
                 sortable: true
@@ -1639,7 +1661,45 @@ define([
         }, cases.initSortOptions));
     });
 
-    QUnit.test('Sortable headers', function(assert) {
+    QUnit.cases.init([
+        {
+            title: "regular sort options",
+            sortBy: 'login',
+            model: [{
+                id: 'login',
+                label: 'Login',
+                sortable: true,
+                sorttype: 'string'
+            }, {
+                id: 'name',
+                label: 'Name',
+                sortable: true
+            }, {
+                id: 'email',
+                label: 'Email',
+                sortable: false
+            }]
+        },
+        {
+            title: "using a different sort identifier",
+            sortBy: 'username',
+            model: [{
+                id: 'login',
+                sortId: 'username',
+                label: 'Login',
+                sortable: true,
+                sorttype: 'string'
+            }, {
+                id: 'name',
+                label: 'Name',
+                sortable: true
+            }, {
+                id: 'email',
+                label: 'Email',
+                sortable: false
+            }]
+        }
+    ]).test('Sortable headers', function(data, assert) {
         var ready = assert.async();
         var $container = $('#container-1');
 
@@ -1657,7 +1717,7 @@ define([
             assert.equal($loginHead.length, 1, 'The login head exists');
             assert.equal($loginHead.text().trim(), 'Login', 'The login head contains the right text');
             assert.ok($loginHead.hasClass('sortable'), 'The login column is sortable');
-            assert.equal($loginHead.data('sort-by'), 'login', 'The sort by data is correct');
+            assert.equal($loginHead.data('sort-by'), data.sortBy, 'The sort by data is correct');
             assert.equal($loginHead.data('sort-type'), 'string', 'The sort type is correct');
 
             assert.equal($emailHead.length, 1, 'The email head exists');
@@ -1669,7 +1729,7 @@ define([
         })
         .on('sort.datatable', function(e, sortby, sortorder, sorttype) {
 
-            assert.equal(sortby, 'login', 'The sort by data passed via event');
+            assert.equal(sortby, data.sortBy, 'The sort by data passed via event');
             assert.notEqual(sortorder, undefined, 'The sort order passed via event');
             assert.equal(sorttype, 'string', 'The sort type passed via event');
 
@@ -1678,20 +1738,7 @@ define([
         .datatable({
             url: '/test/datatable/data.json',
             sortby: false,
-            'model': [{
-                id: 'login',
-                label: 'Login',
-                sortable: true,
-                sorttype: 'string'
-            }, {
-                id: 'name',
-                label: 'Name',
-                sortable: true
-            }, {
-                id: 'email',
-                label: 'Email',
-                sortable: false
-            }]
+            model: data.model
         });
     });
 

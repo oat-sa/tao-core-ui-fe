@@ -214,7 +214,8 @@
     });
     QUnit.test('bind between view and model is correctly set', function (assert) {
         const instance = advancedSearchFactory({
-            renderTo: '#testable-container'
+            renderTo: '#testable-container',
+            statusUrl: 'undefined/tao/AdvancedSearch/status'
         });
         const ready = assert.async();
         assert.expect(8);
