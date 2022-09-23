@@ -1,6 +1,21 @@
 {
     "data": {
         "url": "/test/searchModal/mocks/with-occurrences/dataset.json",
+        "settings": {
+            "availableColumns": [
+                {
+                    "id": "http://www.w3.org/2000/01/rdf-schema#label",
+                    "sortId": "label",
+                    "label": "Label",
+                    "type": "text",
+                    "alias": null,
+                    "classLabel": null,
+                    "isDuplicated": false,
+                    "default": true,
+                    "sortable": true
+                }
+            ]
+        },
         "model": {
             "http://www.w3.org/2000/01/rdf-schema#label": {
                 "id": "http://www.w3.org/2000/01/rdf-schema#label",

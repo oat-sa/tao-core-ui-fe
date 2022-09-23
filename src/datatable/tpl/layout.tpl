@@ -61,7 +61,7 @@
                         <div
                             {{#if sortable}}
                                 class="sortable"
-                                data-sort-by="{{id}}"
+                                data-sort-by="{{#if sortId}}{{sortId}}{{else}}{{id}}{{/if}}"
                                 {{#if sorttype}}data-sort-type="{{sorttype}}"{{/if}}
                                 tabindex="0"
                             {{/if}}>{{label}}</div>
@@ -88,7 +88,7 @@
                         {{#if ../options.selectable}}
                         <td class="checkboxes"><input type="checkbox" name="cb[{{id}}]" value="1" /></td>
                         {{/if}}
-{{! IMPORTANT:START IF YOU'RE GOING TO MAKE CHANGES TO THIS SECTION, 
+{{! IMPORTANT:START IF YOU'RE GOING TO MAKE CHANGES TO THIS SECTION,
     PLEASE UPDATE shallowUpdate METHOD ACCORDINGLY}}
                         {{#each ../options.model}}
                             {{#if type}}
@@ -120,7 +120,7 @@
                             {{/if}}
 
                         {{/each}}
-{{! IMPORTANT:END IF YOU'RE GOING TO MAKE CHANGES TO THIS SECTION, 
+{{! IMPORTANT:END IF YOU'RE GOING TO MAKE CHANGES TO THIS SECTION,
     PLEASE UPDATE shallowUpdate METHOD ACCORDINGLY}}
                         {{#with ../options.actions}}
                         <td class="actions">
