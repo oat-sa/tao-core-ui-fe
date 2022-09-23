@@ -75,6 +75,8 @@ export default function searchModalFactory(config) {
     let $classFilterInput = null;
     let $classTreeContainer = null;
     let advancedSearch = null;
+    let propertySelectorInstance;
+    let propertySelectorInstanceHidden;
 
     // resorce selector
     const isResourceSelector = !config.hideResourceSelector;
@@ -338,7 +340,7 @@ export default function searchModalFactory(config) {
      * @param classFilterUri - The URI of the node class
      * @param [params] - Additional parameters
      */
-    const searchHandler = (query, classFilterUri, params={}) => {
+    const searchHandler = (query, classFilterUri, params = {}) => {
         if (running === false) {
             running = true;
             searchQuery(query, classFilterUri, params)
@@ -479,19 +481,7 @@ export default function searchModalFactory(config) {
         const $actionsHeader = $('th.actions', $container);
         const $manageColumnsBtn = $(propertySelectButtonTpl());
         $actionsHeader.append($manageColumnsBtn);
-        const { bottom: btnBottom, right: btnRight } = $manageColumnsBtn.get(0).getBoundingClientRect();
-        const { top: containerTop, right: containerRight } = $container.get(0).getBoundingClientRect();
-        $manageColumnsBtn.on('click', () => {
-            propertySelectorFactory({
-                renderTo: $container,
-                data: {
-                    position: {
-                        top: btnBottom - containerTop,
-                        right: containerRight - btnRight
-                    }
-                }
-            });
-        });
+        $manageColumnsBtn.on('click', handleManageColumnsBtnClick);
 
         if (dataset.records === 0) {
             replaceSearchResultsDatatableWithMessage('no-matches');
@@ -508,6 +498,36 @@ export default function searchModalFactory(config) {
             }
         });
     }
+
+    function handleManageColumnsBtnClick(e) {
+        const { bottom: btnBottom, right: btnRight } = $(this).get(0).getBoundingClientRect();
+        const { top: containerTop, right: containerRight } = $container.get(0).getBoundingClientRect();
+
+        if (!propertySelectorInstance) {
+            propertySelectorInstance = propertySelectorFactory({
+                renderTo: $container,
+                data: {
+                    position: {
+                        top: btnBottom - containerTop,
+                        right: containerRight - btnRight
+                    }
+                }
+            });
+            propertySelectorInstance.on('hide', () => {
+                propertySelectorInstanceHidden = true;
+            });
+            propertySelectorInstance.on('show', () => {
+                propertySelectorInstanceHidden = false;
+            });
+        } else {
+            if (propertySelectorInstanceHidden) {
+                propertySelectorInstance.show();
+            } else {
+                propertySelectorInstance.hide();
+            }
+        }
+    }
+
 
     /**
      * Updates searchStore. If action is 'clear', searchStore is claread. If not, received
