@@ -78,11 +78,13 @@ export default function searchModalFactory(config) {
     let advancedSearch = null;
     let propertySelectorInstance;
     let propertySelectorInstanceHidden;
+    let availableColumns = [];
+    let selectedColumns = [];
 
     // resorce selector
     const isResourceSelector = !config.hideResourceSelector;
     const rootClassUri = config.rootClassUri;
-    const defaultSelectedColumns = ['label', 'location', 'updated_at'];
+    const defaultSelectedColumns = ['http://www.w3.org/2000/01/rdf-schema#label', 'location', 'updated_at'];
 
     /**
      * Creates search modal, inits template selectors, inits search store, and once is created triggers initial search
@@ -366,9 +368,14 @@ export default function searchModalFactory(config) {
      */
     function search() {
         const query = buildComplexQuery();
-        const classFilterUri = isResourceSelector ? $classFilterInput.data('uri').trim() : rootClassUri;
+        searchHandler(query, getClassFilterUri());
+    }
 
-        searchHandler(query, classFilterUri);
+    /**
+     * Returns selected class filter of rootClassUri
+     */
+    function getClassFilterUri() {
+        return isResourceSelector ? $classFilterInput.data('uri').trim() : rootClassUri;
     }
 
     /**
@@ -432,16 +439,20 @@ export default function searchModalFactory(config) {
      */
     function buildDataModel(classFilterUri, data) {
         if (data.settings) {
+            //save availableColumns to memory
+            availableColumns = data.settings.availableColumns;
             // @todo: use the selected columns instead. It can use a promise as it takes place insise a promise chain
             return selectedColumnsStore
                 .getItem(classFilterUri)
-                .then(selectedColumns => {
-                    let displayedColumns = [...defaultSelectedColumns];
-                    if (selectedColumns) {
-                        displayedColumns = [...defaultSelectedColumns, ...selectedColumns];
+                .then(storedSelectedColumnIds => {
+                    //save selectedColumns to memory
+                    if (storedSelectedColumnIds) {
+                        selectedColumns = [...defaultSelectedColumns, ...storedSelectedColumnIds];
+                    } else {
+                        selectedColumns = [...defaultSelectedColumns];
                     }
-                    data.model = columnsToModel(data.settings.availableColumns).filter(column =>
-                        displayedColumns.includes(column.id)
+                    data.model = columnsToModel(
+                        data.settings.availableColumns.filter(column => selectedColumns.includes(column.id))
                     );
                     return data;
                 })
@@ -522,6 +533,10 @@ export default function searchModalFactory(config) {
         });
     }
 
+    /**
+     * Handler for manage columns button click
+     * @param {Event} e
+     */
     function handleManageColumnsBtnClick(e) {
         const { bottom: btnBottom, right: btnRight } = $(this).get(0).getBoundingClientRect();
         const { top: containerTop, right: containerRight } = $container.get(0).getBoundingClientRect();
@@ -533,14 +548,22 @@ export default function searchModalFactory(config) {
                     position: {
                         top: btnBottom - containerTop,
                         right: containerRight - btnRight
-                    }
+                    },
+                    available: availableColumns,
+                    selected: selectedColumns
                 }
             });
+            propertySelectorInstance.on('cancel', propertySelectorInstance.hide);
             propertySelectorInstance.on('hide', () => {
                 propertySelectorInstanceHidden = true;
             });
             propertySelectorInstance.on('show', () => {
                 propertySelectorInstanceHidden = false;
+            });
+
+            propertySelectorInstance.on('select', e => {
+                updateSelectedStore(getClassFilterUri(), e);
+                propertySelectorInstance.hide();
             });
         } else {
             if (propertySelectorInstanceHidden) {
@@ -576,9 +599,9 @@ export default function searchModalFactory(config) {
             .catch(e => instance.trigger('error', e));
     }
 
-    function updateSelectedStore(data) {
+    function updateSelectedStore(classFilterUri, selected) {
         return selectedColumnsStore
-            .setItem(data.entityId, data.selected)
+            .setItem(getClassFilterUri(), selected)
             .then(() => instance.trigger(`selected-store-updated`))
             .catch(e => instance.trigger('error', e));
     }

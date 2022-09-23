@@ -13,6 +13,17 @@
                     "isDuplicated": false,
                     "default": true,
                     "sortable": true
+                },
+                {
+                    "id": "custom_prop",
+                    "sortId": "custom_prop",
+                    "label": "Custom property",
+                    "type": "text",
+                    "alias": null,
+                    "classLabel": null,
+                    "isDuplicated": false,
+                    "default": false,
+                    "sortable": true
                 }
             ]
         },
