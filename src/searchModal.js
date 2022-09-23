@@ -80,6 +80,7 @@ export default function searchModalFactory(config) {
     let propertySelectorInstanceHidden;
     let availableColumns = [];
     let selectedColumns = [];
+    let dataCache;
 
     // resorce selector
     const isResourceSelector = !config.hideResourceSelector;
@@ -456,6 +457,7 @@ export default function searchModalFactory(config) {
                         selectedColumns = columnsToDisplay.map(column => column.id);
                     }
                     data.model = columnsToModel(columnsToDisplay);
+                    dataCache = data;
                     return data;
                 })
                 .catch(e => {
@@ -464,6 +466,7 @@ export default function searchModalFactory(config) {
                 });
         } else {
             data.model = columnsToModel(_.values(data.model));
+            dataCache = data;
             return data;
         }
     }
@@ -473,6 +476,10 @@ export default function searchModalFactory(config) {
      * @param {object} data - search configuration including model and endpoint for datatable
      */
     function buildSearchResultsDatatable(data) {
+        //if we just reinit ui
+        if (typeof data === 'undefined') {
+            data = dataCache;
+        }
         //update the section container
         const $tableContainer = $('<div class="flex-container-full"></div>');
         const section = $('.content-container', $container);
@@ -567,7 +574,7 @@ export default function searchModalFactory(config) {
                 if (e.length !== selectedColumns.length || e.some(columnId => !selectedColumns.includes(columnId))) {
                     //update table
                     updateSelectedStore(getClassFilterUri(), e);
-                    search();
+                    buildSearchResultsDatatable();
                 }
                 propertySelectorInstance.hide();
             });
