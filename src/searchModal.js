@@ -70,6 +70,7 @@ export default function searchModalFactory(config) {
     let $clearButton = null;
     let running = false;
     let searchStore = null;
+    let selectedColumnsStore = null;
     let resourceSelector = null;
     let $classFilterContainer = null;
     let $classFilterInput = null;
@@ -81,6 +82,7 @@ export default function searchModalFactory(config) {
     // resorce selector
     const isResourceSelector = !config.hideResourceSelector;
     const rootClassUri = config.rootClassUri;
+    const defaultSelectedColumns = ['label', 'location', 'updated_at'];
 
     /**
      * Creates search modal, inits template selectors, inits search store, and once is created triggers initial search
@@ -97,7 +99,7 @@ export default function searchModalFactory(config) {
             rootClassUri: rootClassUri
         });
         promises.push(initClassFilter());
-        promises.push(initSearchStore());
+        promises.push(initStores());
         Promise.all(promises)
             .then(() => {
                 instance.trigger('ready');
@@ -306,12 +308,19 @@ export default function searchModalFactory(config) {
      * Loads search store so it is accessible in the component
      * @returns {Promise}
      */
-    function initSearchStore() {
-        return store('search')
-            .then(function (store) {
-                searchStore = store;
-            })
-            .catch(e => instance.trigger('error', e));
+    function initStores() {
+        return Promise.all([
+            store('search')
+                .then(function (store) {
+                    searchStore = store;
+                })
+                .catch(e => instance.trigger('error', e)),
+            store('selectedColumns')
+                .then(function (store) {
+                    selectedColumnsStore = store;
+                })
+                .catch(e => instance.trigger('error', e))
+        ]);
     }
 
     /**
@@ -345,7 +354,7 @@ export default function searchModalFactory(config) {
             running = true;
             searchQuery(query, classFilterUri, params)
                 .then(data => appendDefaultDatasetToDatatable(data.data))
-                .then(buildDataModel)
+                .then(data => buildDataModel(classFilterUri, data))
                 .then(buildSearchResultsDatatable)
                 .catch(e => instance.trigger('error', e))
                 .then(() => (running = false));
@@ -421,15 +430,29 @@ export default function searchModalFactory(config) {
      * @param {object} data - search configuration including model and endpoint for datatable
      * @returns {object} The data configuration refined with the data model for the datatrable
      */
-    function buildDataModel(data) {
+    function buildDataModel(classFilterUri, data) {
         if (data.settings) {
             // @todo: use the selected columns instead. It can use a promise as it takes place insise a promise chain
-            data.model = columnsToModel(data.settings.availableColumns);
+            return selectedColumnsStore
+                .getItem(classFilterUri)
+                .then(selectedColumns => {
+                    let displayedColumns = [...defaultSelectedColumns];
+                    if (selectedColumns) {
+                        displayedColumns = [...defaultSelectedColumns, ...selectedColumns];
+                    }
+                    data.model = columnsToModel(data.settings.availableColumns).filter(column =>
+                        displayedColumns.includes(column.id)
+                    );
+                    return data;
+                })
+                .catch(e => {
+                    instance.trigger('error', e);
+                    reject(new Error('Error getting selected columns'));
+                });
         } else {
             data.model = columnsToModel(_.values(data.model));
+            return data;
         }
-
-        return data;
     }
 
     /**
@@ -528,7 +551,6 @@ export default function searchModalFactory(config) {
         }
     }
 
-
     /**
      * Updates searchStore. If action is 'clear', searchStore is claread. If not, received
      * data is assigned to searchStore. Once all actions have been done,
@@ -551,6 +573,13 @@ export default function searchModalFactory(config) {
 
         Promise.all(promises)
             .then(() => instance.trigger(`store-updated`))
+            .catch(e => instance.trigger('error', e));
+    }
+
+    function updateSelectedStore(data) {
+        return selectedColumnsStore
+            .setItem(data.entityId, data.selected)
+            .then(() => instance.trigger(`selected-store-updated`))
             .catch(e => instance.trigger('error', e));
     }
 
