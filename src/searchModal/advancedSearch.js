@@ -36,6 +36,7 @@ import request from 'core/dataProvider/request';
  * @param {object} config
  * @param {object} config.renderTo - DOM element where component will be rendered to
  * @param {string} config.advancedCriteria - advanced criteria to be set on component creation
+ * @param {bool} config.hideCriteria - if the criteria must be hidden
  * @param {string} config.rootClassUri - rootClassUri to check for whitelist sections
  * @param {string} config.statusUrl - the URL to the status API (usually '/tao/AdvancedSearch/status')
  * @returns {advancedSearch}
@@ -170,7 +171,7 @@ export default function advancedSearchFactory(config) {
     function initAddCriteriaSelector() {
         return request(instance.config.statusUrl)
             .then(function (response) {
-                if (!response.enabled || (response.whitelist && response.whitelist.includes(config.rootClassUri))) {
+                if (config.hideCriteria || !response.enabled || (response.whitelist && response.whitelist.includes(config.rootClassUri))) {
                     isAdvancedSearchStatusEnabled = false;
                     return;
                 }
