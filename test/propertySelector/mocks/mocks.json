@@ -1,0 +1,64 @@
+{
+    "position": {
+        "top": 10,
+        "left": 20
+    },
+    "available": [
+        {
+            "id": "https://advanced-search-tao.docker.localhost/ontologies/tao.rdf#i631f4410eaf9e13462b8866f1bae6d15a",
+            "label": "sort_text",
+            "alias": "Sort text",
+            "type": "text"
+        },
+        {
+            "id": "https://advanced-search-tao.docker.localhost/ontologies/tao.rdf#i631f4428b8274148439428be999d26857",
+            "label": "sort_list_single",
+            "type": "list"
+        },
+        {
+            "id": "https://advanced-search-tao.docker.localhost/ontologies/tao.rdf#i631f4456deed914841513eff0de592691",
+            "label": "sort_list_multiple",
+            "type": "list"
+        },
+        {
+            "id": "https://advanced-search-tao.docker.localhost/ontologies/tao.rdf#i631ad7d58b80013469570d88acb98ffaf",
+            "label": "prop4",
+            "alias": "Property number four",
+            "type": "list"
+        },
+        {
+            "id": "https://advanced-search-tao.docker.localhost/ontologies/tao.rdf#i620cfffd01bb94741892f8945c24afac7",
+            "label": "prop3",
+            "type": "list"
+        },
+        {
+            "id": "https://advanced-search-tao.docker.localhost/ontologies/tao.rdf#i620ca0edd368f78df5a1ef36062c22",
+            "label": "prop2",
+            "type": "text"
+        },
+        {
+            "id": "https://advanced-search-tao.docker.localhost/ontologies/tao.rdf#i620ca0d7be7e54522c9038af8e8efa82d",
+            "label": "prop1",
+            "type": "list"
+        },
+        {
+            "id": "location",
+            "label": "Location",
+            "type": "text"
+        },
+        {
+            "id": "https://advanced-search-tao.docker.localhost/ontologies/tao.rdf#i63203a8d970401490df11291df89ceca8",
+            "label": "foo",
+            "type": "text"
+        },
+        {
+            "id": "http://www.w3.org/2000/01/rdf-schema#label",
+            "label": "Label",
+            "type": "text"
+        }
+    ],
+    "selected": [
+        "location",
+        "https://advanced-search-tao.docker.localhost/ontologies/tao.rdf#i631f4410eaf9e13462b8866f1bae6d15a"
+    ]
+}

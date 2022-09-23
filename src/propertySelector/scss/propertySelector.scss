@@ -1,0 +1,58 @@
+@import 'inc/bootstrap';
+
+.property-selector-container {
+    background-color: $uiGeneralContentBg;
+    border: 1px solid $modalBorderColor;
+    box-shadow: 0px 4px 8px $shadowColor;
+    display: flex;
+    z-index: 1;
+
+    flex-direction: column;
+    width: 35rem;
+    position: absolute;
+
+    .search-property {
+        flex: 0 0 auto;
+        max-width: none;
+        height: 3.25rem;
+        margin: 0.5rem;
+    }
+
+    .property-list-container {
+        flex: 0 1 100%;
+        overflow-y: scroll;
+        border-bottom: 1px solid $modalBorderColor;
+        padding: 0.5rem 0;
+        margin: 0;
+
+        .property-description-container {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            padding: 1rem 0;
+            gap: 1rem;
+
+            .property-description-alias {
+                color: $grey;
+            }
+        }
+    }
+
+    .control-buttons-container {
+        display: flex;
+        flex: 0 0 4.75rem;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.5rem;
+
+        button {
+            flex-grow: 1;
+            text-align: center;
+
+            span.label {
+                display: inline-block;
+            }
+        }
+    }
+}
