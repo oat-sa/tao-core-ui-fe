@@ -469,7 +469,6 @@ export default function searchModalFactory(config) {
             })
             .catch(e => {
                 instance.trigger('error', e);
-                reject(new Error('Error getting selected columns'));
             });
     }
 
