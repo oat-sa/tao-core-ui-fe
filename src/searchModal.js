@@ -314,7 +314,7 @@ export default function searchModalFactory(config) {
     function initStores() {
         return Promise.all([
             store('search').then(store => (searchStore = store)),
-            store('selectedColumns').then(store => (selectedColumnsStore = store))                
+            store('selectedColumns').then(store => (selectedColumnsStore = store))
         ]).catch(e => instance.trigger('error', e));
     }
 
@@ -435,7 +435,6 @@ export default function searchModalFactory(config) {
         if (data.settings) {
             //save availableColumns to memory
             availableColumns = data.settings.availableColumns;
-            // @todo: use the selected columns instead. It can use a promise as it takes place insise a promise chain
             data.model = columnsToModel(availableColumns);
             dataCache = _.cloneDeep(data);
             return data;
@@ -466,7 +465,6 @@ export default function searchModalFactory(config) {
                 }
 
                 data.model = data.model.filter(column => selectedColumns.includes(column.id));
-
                 return data;
             })
             .catch(e => {
