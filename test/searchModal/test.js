@@ -97,7 +97,7 @@ define([
             rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
         });
         const ready = assert.async();
-        assert.expect(4);
+        assert.expect(9);
 
         instance.on('ready', function () {
             const $container = $('.search-modal');
@@ -110,6 +110,11 @@ define([
         instance.on('datatable-loaded', function () {
             const $datatable = $('table.datatable');
             assert.equal($datatable.length, 1, 'datatable has been created');
+            assert.equal($datatable.find('thead th').length, 3, 'datatable display the correct number of columns');
+            assert.equal($datatable.find('thead [data-sort-by="label"]').length, 1, 'The default column is displayed');
+            assert.equal($datatable.find('thead [data-sort-by="label"] .alias').length, 0, 'The default column has no alias');
+            assert.equal($datatable.find('thead [data-sort-by="custom_prop"]').length, 1, 'The additional column for the custom property is displayed');
+            assert.equal($datatable.find('thead [data-sort-by="custom_prop"] .alias').length, 1, 'The alias for the custom property is displayed');
             assert.equal($datatable.find('tbody tr').length, 9, 'datatable display the correct number of matches');
 
             instance.destroy();
