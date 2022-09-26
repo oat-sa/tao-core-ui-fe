@@ -64,7 +64,7 @@
                                 data-sort-by="{{#if sortId}}{{sortId}}{{else}}{{id}}{{/if}}"
                                 {{#if sorttype}}data-sort-type="{{sorttype}}"{{/if}}
                                 tabindex="0"
-                            {{/if}}>{{label}}</div>
+                                {{/if}}>{{label}}{{#if alias}} /<span class="alias">/ {{alias}}</span>{{/if}}</div>
                         {{#if filterable}}
                         <aside data-column="{{id}}" class="filter column
                             {{#if customFilter}} customInput" >
