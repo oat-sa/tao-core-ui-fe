@@ -575,29 +575,15 @@ export default function searchModalFactory(config) {
                     selected: selectedColumns
                 }
             });
-            propertySelectorInstance.on('cancel', propertySelectorInstance.hide);
-            propertySelectorInstance.on('hide', () => {
-                propertySelectorInstanceHidden = true;
-            });
-            propertySelectorInstance.on('show', () => {
-                propertySelectorInstanceHidden = false;
-            });
-
             propertySelectorInstance.on('select', e => {
                 if (e.length !== selectedColumns.length || e.some(columnId => !selectedColumns.includes(columnId))) {
                     //update table
                     selectedColumns = e;
                     updateSelectedStore(getClassFilterUri(), e);
                 }
-                propertySelectorInstance.hide();
             });
         } else {
-            if (propertySelectorInstanceHidden) {
-                propertySelectorInstance.setData({ selected: selectedColumns });
-                propertySelectorInstance.show();
-            } else {
-                propertySelectorInstance.hide();
-            }
+            propertySelectorInstance.toggle();
         }
     }
 

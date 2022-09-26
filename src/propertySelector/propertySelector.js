@@ -94,10 +94,18 @@ export default function propertySelectorFactory(config) {
             }
             selectedProperties = new Set(data.selected);
             this.redrawList();
+        },
+        toggle() {
+            if (this.shown) {
+                this.hide();
+            } else {
+                this.show();
+            }
         }
     })
         .setTemplate(propertySelectorTpl)
         .on('render', function () {
+            this.shown = true;
             //component parts reference assignments
             $container = instance.getElement();
             $propertyListContainer = $('.property-list-container', $container);
@@ -129,6 +137,12 @@ export default function propertySelectorFactory(config) {
             });
 
             this.trigger('ready');
+        })
+        .on('hide', function () {
+            this.shown = false;
+        })
+        .on('show', function () {
+            this.shown = true;
         });
 
     /**
@@ -182,6 +196,7 @@ export default function propertySelectorFactory(config) {
             cls: 'btn-secondary'
         }).on('click', () => {
             instance.trigger('cancel');
+            instance.hide();
         });
 
         const saveButton = buttonFactory({
@@ -190,6 +205,7 @@ export default function propertySelectorFactory(config) {
             type: 'info'
         }).on('click', () => {
             instance.trigger('select', [...selectedProperties]);
+            instance.hide();
         });
 
         cancelButton.render($targetContainer);
