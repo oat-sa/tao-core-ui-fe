@@ -487,6 +487,13 @@ export default function searchModalFactory(config) {
         section.append($tableContainer);
         $tableContainer.on('load.datatable', searchResultsLoaded);
 
+        $tableContainer.on('create.datatable', () => {
+            const $actionsHeader = $('th.actions', $container);
+            const $manageColumnsBtn = $(propertySelectButtonTpl());
+            $actionsHeader.append($manageColumnsBtn);
+            $manageColumnsBtn.click(handleManageColumnsBtnClick);
+        });
+
         //create datatable
         $tableContainer.datatable(
             {
@@ -529,11 +536,6 @@ export default function searchModalFactory(config) {
      * @param {object} dataset - datatable dataset
      */
     function searchResultsLoaded(e, dataset) {
-        const $actionsHeader = $('th.actions', $container);
-        const $manageColumnsBtn = $(propertySelectButtonTpl());
-        $actionsHeader.append($manageColumnsBtn);
-        $manageColumnsBtn.on('click', handleManageColumnsBtnClick);
-
         if (dataset.records === 0) {
             replaceSearchResultsDatatableWithMessage('no-matches');
         }
