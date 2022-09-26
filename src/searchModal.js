@@ -452,7 +452,6 @@ export default function searchModalFactory(config) {
      * @returns {Promise} promise which resolves with filtered data.model
      */
     function filterSelectedColumns(data) {
-        console.log(data);
         return selectedColumnsStore
             .getItem(getClassFilterUri())
             .then(storedSelectedColumnIds => {
