@@ -455,12 +455,8 @@ export default function searchModalFactory(config) {
         return selectedColumnsStore
             .getItem(getClassFilterUri())
             .then(storedSelectedColumnIds => {
-                //let columnsToDisplay;
                 if (storedSelectedColumnIds && storedSelectedColumnIds.length) {
                     selectedColumns = [...storedSelectedColumnIds];
-                    //columnsToDisplay = data.settings.availableColumns.filter(column =>
-                    // selectedColumns.includes(column.id)
-                    //);
                 } else {
                     selectedColumns = data.settings.availableColumns.reduce((acc, column) => {
                         if (column.default) {
@@ -574,11 +570,14 @@ export default function searchModalFactory(config) {
                     selected: selectedColumns
                 }
             });
-            propertySelectorInstance.on('select', e => {
-                if (e.length !== selectedColumns.length || e.some(columnId => !selectedColumns.includes(columnId))) {
+            propertySelectorInstance.on('select', propertySelectorColumns => {
+                if (
+                    propertySelectorColumns.length !== selectedColumns.length ||
+                    propertySelectorColumns.some(columnId => !selectedColumns.includes(columnId))
+                ) {
                     //update table
-                    selectedColumns = e;
-                    updateSelectedStore(getClassFilterUri(), e);
+                    selectedColumns = propertySelectorColumns;
+                    updateSelectedStore(getClassFilterUri(), propertySelectorColumns);
                 }
             });
         } else {
