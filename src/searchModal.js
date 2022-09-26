@@ -313,17 +313,9 @@ export default function searchModalFactory(config) {
      */
     function initStores() {
         return Promise.all([
-            store('search')
-                .then(function (store) {
-                    searchStore = store;
-                })
-                .catch(e => instance.trigger('error', e)),
-            store('selectedColumns')
-                .then(function (store) {
-                    selectedColumnsStore = store;
-                })
-                .catch(e => instance.trigger('error', e))
-        ]);
+            store('search').then(store => (searchStore = store)),
+            store('selectedColumns').then(store => (selectedColumnsStore = store))                
+        ]).catch(e => instance.trigger('error', e));
     }
 
     /**
