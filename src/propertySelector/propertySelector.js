@@ -195,6 +195,11 @@ export default function propertySelectorFactory(config) {
             type: 'info',
             cls: 'btn-secondary'
         }).on('click', () => {
+            //clear search
+            $searchInput.val('');
+            search = '';
+            instance.redrawList();
+
             instance.trigger('cancel');
             instance.hide();
         });
