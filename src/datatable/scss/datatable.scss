@@ -109,6 +109,9 @@ table.datatable {
         .sorted.sorted_desc:after{
             @include icon-up;
         }
+        .alias {
+            color: $textSecondary;
+        }
     }
     tr{
         &.selected {
