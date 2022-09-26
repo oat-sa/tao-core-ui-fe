@@ -461,6 +461,7 @@ export default function searchModalFactory(config) {
                         if (column.default) {
                             acc.push(column.id);
                         }
+                        return acc;
                     }, []);
                 }
 
