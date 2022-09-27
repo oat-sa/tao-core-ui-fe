@@ -24,6 +24,17 @@
                     "isDuplicated": false,
                     "default": true,
                     "sortable": true
+                },
+                {
+                    "id": "custom_label",
+                    "sortId": "custom_label",
+                    "label": "Label",
+                    "type": "text",
+                    "alias": "Custom label",
+                    "classLabel": "Custom properties",
+                    "isDuplicated": true,
+                    "default": true,
+                    "sortable": true
                 }
             ]
         },

@@ -407,7 +407,12 @@ export default function searchModalFactory(config) {
         }
 
         return columns.map(column => {
-            const { id, sortId, label, alias, classLabel: comment, type: dataType, sortable } = column;
+            const { id, sortId, label, type: dataType, sortable, isDuplicated } = column;
+            let alias, comment;
+            if (isDuplicated) {
+                alias = column.alias;
+                comment = column.comment;
+            }
             return { id, sortId, label, alias, comment, dataType, sortable };
         });
     }
