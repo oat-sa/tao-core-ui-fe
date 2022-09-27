@@ -22,12 +22,14 @@ import __ from 'i18n';
 import context from 'context';
 import layoutTpl from 'ui/searchModal/tpl/layout';
 import infoMessageTpl from 'ui/searchModal/tpl/info-message';
+import propertySelectButtonTpl from 'ui/searchModal/tpl/property-select-button';
 import 'ui/searchModal/css/searchModal.css';
 import component from 'ui/component';
 import 'ui/modal';
 import 'ui/datatable';
 import store from 'core/store';
 import resourceSelectorFactory from 'ui/resource/selector';
+import propertySelectorFactory from 'ui/propertySelector/propertySelector';
 import advancedSearchFactory from 'ui/searchModal/advancedSearch';
 import request from 'core/dataProvider/request';
 import urlUtil from 'util/url';
@@ -68,11 +70,16 @@ export default function searchModalFactory(config) {
     let $clearButton = null;
     let running = false;
     let searchStore = null;
+    let selectedColumnsStore = null;
     let resourceSelector = null;
     let $classFilterContainer = null;
     let $classFilterInput = null;
     let $classTreeContainer = null;
     let advancedSearch = null;
+    let propertySelectorInstance;
+    let availableColumns = [];
+    let selectedColumns = [];
+    let dataCache;
 
     // resorce selector
     const isResourceSelector = !config.hideResourceSelector;
@@ -93,7 +100,7 @@ export default function searchModalFactory(config) {
             rootClassUri: rootClassUri
         });
         promises.push(initClassFilter());
-        promises.push(initSearchStore());
+        promises.push(initStores());
         Promise.all(promises)
             .then(() => {
                 instance.trigger('ready');
@@ -107,12 +114,16 @@ export default function searchModalFactory(config) {
      */
     function destroyModal() {
         $container.removeClass('modal').modal('destroy');
+        if (propertySelectorInstance) {
+            propertySelectorInstance.destroy();
+        }
         $('.modal-bg').remove();
     }
 
     // Creates new component
     const instance = component({}, defaults)
         .setTemplate(layoutTpl)
+        .on('selected-store-updated', recreateDatatable)
         .on('render', renderModal)
         .on('destroy', destroyModal);
 
@@ -302,12 +313,11 @@ export default function searchModalFactory(config) {
      * Loads search store so it is accessible in the component
      * @returns {Promise}
      */
-    function initSearchStore() {
-        return store('search')
-            .then(function (store) {
-                searchStore = store;
-            })
-            .catch(e => instance.trigger('error', e));
+    function initStores() {
+        return Promise.all([
+            store('search').then(store => (searchStore = store)),
+            store('selectedColumns').then(store => (selectedColumnsStore = store))
+        ]).catch(e => instance.trigger('error', e));
     }
 
     /**
@@ -336,12 +346,13 @@ export default function searchModalFactory(config) {
      * @param classFilterUri - The URI of the node class
      * @param [params] - Additional parameters
      */
-    const searchHandler = (query, classFilterUri, params={}) => {
+    const searchHandler = (query, classFilterUri, params = {}) => {
         if (running === false) {
             running = true;
             searchQuery(query, classFilterUri, params)
                 .then(data => appendDefaultDatasetToDatatable(data.data))
                 .then(buildDataModel)
+                .then(filterSelectedColumns)
                 .then(buildSearchResultsDatatable)
                 .catch(e => instance.trigger('error', e))
                 .then(() => (running = false));
@@ -353,9 +364,14 @@ export default function searchModalFactory(config) {
      */
     function search() {
         const query = buildComplexQuery();
-        const classFilterUri = isResourceSelector ? $classFilterInput.data('uri').trim() : rootClassUri;
+        searchHandler(query, getClassFilterUri());
+    }
 
-        searchHandler(query, classFilterUri);
+    /**
+     * Returns selected class filter of rootClassUri
+     */
+    function getClassFilterUri() {
+        return isResourceSelector ? $classFilterInput.data('uri').trim() : rootClassUri;
     }
 
     /**
@@ -406,9 +422,13 @@ export default function searchModalFactory(config) {
             return [];
         }
 
+        const emptyValueTransform = value => {
+            return value === '' || value === null || typeof value === 'undefined' ? '-' : value;
+        };
+
         return columns.map(column => {
             const { id, sortId, label, alias, classLabel, type: dataType, sortable } = column;
-            return { id, sortId, label, alias, classLabel, dataType, sortable };
+            return { id, sortId, label, alias, classLabel, dataType, sortable, transform: emptyValueTransform };
         });
     }
 
@@ -419,13 +439,44 @@ export default function searchModalFactory(config) {
      */
     function buildDataModel(data) {
         if (data.settings) {
-            // @todo: use the selected columns instead. It can use a promise as it takes place insise a promise chain
-            data.model = columnsToModel(data.settings.availableColumns);
+            //save availableColumns to memory
+            availableColumns = data.settings.availableColumns;
+            data.model = columnsToModel(availableColumns);
+            dataCache = _.cloneDeep(data);
+            return data;
         } else {
             data.model = columnsToModel(_.values(data.model));
+            dataCache = _.cloneDeep(data);
+            return data;
         }
+    }
 
-        return data;
+    /**
+     * Filters datatble model based on stored selected columns
+     * @param {Object} data data containing available columns and model for datatable
+     * @returns {Promise} promise which resolves with filtered data.model
+     */
+    function filterSelectedColumns(data) {
+        return selectedColumnsStore
+            .getItem(getClassFilterUri())
+            .then(storedSelectedColumnIds => {
+                if (storedSelectedColumnIds && storedSelectedColumnIds.length) {
+                    selectedColumns = [...storedSelectedColumnIds];
+                } else {
+                    selectedColumns = data.settings.availableColumns.reduce((acc, column) => {
+                        if (column.default) {
+                            acc.push(column.id);
+                        }
+                        return acc;
+                    }, []);
+                }
+
+                data.model = data.model.filter(column => selectedColumns.includes(column.id));
+                return data;
+            })
+            .catch(e => {
+                instance.trigger('error', e);
+            });
     }
 
     /**
@@ -439,7 +490,6 @@ export default function searchModalFactory(config) {
         section.empty();
         section.append($tableContainer);
         $tableContainer.on('load.datatable', searchResultsLoaded);
-
         //create datatable
         $tableContainer.datatable(
             {
@@ -469,11 +519,24 @@ export default function searchModalFactory(config) {
     }
 
     /**
+     * Filters data from cache by selected and recreates datatable
+     */
+    function recreateDatatable() {
+        const data = _.cloneDeep(dataCache);
+        filterSelectedColumns(data).then(buildSearchResultsDatatable);
+    }
+
+    /**
      * Triggered on load.datatable event, it updates searchStore and manages possible exceptions
      * @param {object} e - load.datatable event
      * @param {object} dataset - datatable dataset
      */
     function searchResultsLoaded(e, dataset) {
+        const $actionsHeader = $('th.actions', $container);
+        const $manageColumnsBtn = $(propertySelectButtonTpl());
+        $actionsHeader.append($manageColumnsBtn);
+        $manageColumnsBtn.on('click', handleManageColumnsBtnClick);
+
         if (dataset.records === 0) {
             replaceSearchResultsDatatableWithMessage('no-matches');
         }
@@ -488,6 +551,42 @@ export default function searchModalFactory(config) {
                 advancedCriteria: advancedSearch.getState()
             }
         });
+    }
+
+    /**
+     * Handler for manage columns button click
+     * @param {Event} e
+     */
+    function handleManageColumnsBtnClick(e) {
+        const { bottom: btnBottom, right: btnRight } = $(this).get(0).getBoundingClientRect();
+        const { top: containerTop, right: containerRight } = $container.get(0).getBoundingClientRect();
+
+        if (!propertySelectorInstance) {
+            propertySelectorInstance = propertySelectorFactory({
+                renderTo: $container,
+                data: {
+                    position: {
+                        top: btnBottom - containerTop,
+                        right: containerRight - btnRight
+                    },
+                    available: availableColumns,
+                    selected: selectedColumns
+                }
+            });
+            propertySelectorInstance.on('select', propertySelectorColumns => {
+                if (
+                    propertySelectorColumns.length !== selectedColumns.length ||
+                    propertySelectorColumns.some(columnId => !selectedColumns.includes(columnId))
+                ) {
+                    //update table
+                    selectedColumns = propertySelectorColumns;
+                    updateSelectedStore(getClassFilterUri(), propertySelectorColumns);
+                }
+            });
+        } else {
+            propertySelectorInstance.setData({ selected: selectedColumns });
+            propertySelectorInstance.toggle();
+        }
     }
 
     /**
@@ -512,6 +611,19 @@ export default function searchModalFactory(config) {
 
         Promise.all(promises)
             .then(() => instance.trigger(`store-updated`))
+            .catch(e => instance.trigger('error', e));
+    }
+
+    /**
+     *
+     * @param {string} classFilterUri class will be used as key
+     * @param {Array<string>} selected array of column ids to display
+     * @returns
+     */
+    function updateSelectedStore(classFilterUri, selected) {
+        return selectedColumnsStore
+            .setItem(classFilterUri, selected)
+            .then(() => instance.trigger(`selected-store-updated`))
             .catch(e => instance.trigger('error', e));
     }
 
