@@ -77,7 +77,6 @@ export default function searchModalFactory(config) {
     let $classTreeContainer = null;
     let advancedSearch = null;
     let propertySelectorInstance;
-    let propertySelectorInstanceHidden;
     let availableColumns = [];
     let selectedColumns = [];
     let dataCache;
@@ -578,6 +577,7 @@ export default function searchModalFactory(config) {
                 }
             });
         } else {
+            propertySelectorInstance.setData({ selected: selectedColumns });
             propertySelectorInstance.toggle();
         }
     }
