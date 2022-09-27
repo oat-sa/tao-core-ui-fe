@@ -407,8 +407,8 @@ export default function searchModalFactory(config) {
         }
 
         return columns.map(column => {
-            const { id, sortId, label, alias, classLabel, type: dataType, sortable } = column;
-            return { id, sortId, label, alias, classLabel, dataType, sortable };
+            const { id, sortId, label, alias, classLabel: comment, type: dataType, sortable } = column;
+            return { id, sortId, label, alias, comment, dataType, sortable };
         });
     }
 
