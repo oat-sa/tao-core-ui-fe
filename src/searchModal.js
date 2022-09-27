@@ -114,6 +114,9 @@ export default function searchModalFactory(config) {
      */
     function destroyModal() {
         $container.removeClass('modal').modal('destroy');
+        if (propertySelectorInstance) {
+            propertySelectorInstance.destroy();
+        }
         $('.modal-bg').remove();
     }
 
