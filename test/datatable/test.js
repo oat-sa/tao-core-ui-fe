@@ -1808,7 +1808,7 @@ define([
             var $headerCells = $('.datatable thead th', $container);
 
             assert.equal($headerCells.length, 3, 'The login header exists');
-            assert.equal($headerCells.eq(0).text().trim(), 'Login // username');
+            assert.equal($headerCells.eq(0).text().trim(), 'Login (username)');
             assert.equal($headerCells.eq(1).text().trim(), 'Name');
             assert.equal($headerCells.eq(2).text().trim(), 'Email');
 
@@ -1823,6 +1823,49 @@ define([
                     id: 'login',
                     label: 'Login',
                     alias: 'username',
+                    sortable: true,
+                    visible: true
+                }, {
+                    id: 'name',
+                    label: 'Name',
+                    sortable: true,
+                    visible: true
+                }, {
+                    id: 'email',
+                    label: 'Email',
+                    sortable: false
+                }]
+            });
+    });
+
+    QUnit.test('Columns with comment', function(assert) {
+        var ready = assert.async();
+        var $container = $('#container-1');
+
+        assert.expect(7);
+
+        assert.equal($container.length, 1, 'Test the fixture is available');
+
+        $container.on('create.datatable', function() {
+
+            var $headerCells = $('.datatable thead th', $container);
+
+            assert.equal($headerCells.length, 3, 'The login header exists');
+            assert.equal($headerCells.eq(0).text().trim(), 'Login // username');
+            assert.equal($headerCells.eq(1).text().trim(), 'Name');
+            assert.equal($headerCells.eq(2).text().trim(), 'Email');
+
+            assert.equal($('.datatable thead [data-sort-by="login"] .comment', $container).length, 1, 'The column comment is rendered');
+            assert.equal($('.datatable thead [data-sort-by="email"] .comment', $container).length, 0, 'Column without comment does not show comment');
+
+            ready();
+        })
+            .datatable({
+                url: '/test/datatable/data.json',
+                'model': [{
+                    id: 'login',
+                    label: 'Login',
+                    comment: 'username',
                     sortable: true,
                     visible: true
                 }, {
