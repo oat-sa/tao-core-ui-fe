@@ -24,7 +24,7 @@ import aliasTpl from 'ui/propertySelector/tpl/alias-text';
 import highlightedTextTpl from 'ui/propertySelector/tpl/highlighted-text';
 import checkBoxTpl from 'ui/propertySelector/tpl/checkbox';
 import buttonFactory from 'ui/button';
-import DOMPurify from 'dompurify'
+import DOMPurify from 'dompurify';
 import 'ui/propertySelector/css/propertySelector.css';
 import $ from 'jquery';
 
