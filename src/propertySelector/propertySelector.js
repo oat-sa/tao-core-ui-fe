@@ -19,12 +19,8 @@
 import component from 'ui/component';
 import propertySelectorTpl from 'ui/propertySelector/tpl/property-selector';
 import propertyDescriptionTpl from 'ui/propertySelector/tpl/property-description';
-import labelTpl from 'ui/propertySelector/tpl/label-text';
-import aliasTpl from 'ui/propertySelector/tpl/alias-text';
 import highlightedTextTpl from 'ui/propertySelector/tpl/highlighted-text';
-import checkBoxTpl from 'ui/propertySelector/tpl/checkbox';
 import buttonFactory from 'ui/button';
-import DOMPurify from 'dompurify'
 import 'ui/propertySelector/css/propertySelector.css';
 import $ from 'jquery';
 
@@ -150,24 +146,13 @@ export default function propertySelectorFactory(config) {
     function createPropertyOption(property, searchString) {
         const descriptionData = Object.assign({}, property);
         if (searchString !== '') {
-            descriptionData.label =
-                descriptionData.label && highlightCharacter(DOMPurify.sanitize(descriptionData.label), searchString);
-            descriptionData.alias =
-                descriptionData.alias && highlightCharacter(DOMPurify.sanitize(descriptionData.alias), searchString);
+            ['label', 'alias'].forEach(prop => {
+                if (descriptionData[prop]) {
+                    descriptionData[prop] = highlightCharacter(descriptionData[prop], searchString);
+                }
+            });
         }
-        const $propertyDescription = $(propertyDescriptionTpl());
-        if (descriptionData.alias) {
-            $('.property-description', $propertyDescription).append(
-                labelTpl({ text: descriptionData.label, alias: true })
-            );
-            $('.property-description', $propertyDescription).append(aliasTpl({ text: descriptionData.alias }));
-        } else {
-            $('.property-description', $propertyDescription).append(labelTpl({ text: descriptionData.label }));
-        }
-
-        const $checkboxContainer = $('.checkbox-container', $propertyDescription);
-        $checkboxContainer.append(checkBoxTpl({ id: descriptionData.id, checked: descriptionData.selected }));
-        return $propertyDescription;
+        return $(propertyDescriptionTpl(descriptionData));
     }
 
     /**
