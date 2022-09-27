@@ -7,7 +7,7 @@
         <span class="property-description-label">
             {{{dompurify label}}}
             {{#if alias}}<span class="property-description-alias">({{{dompurify alias}}})</span>{{/if}}
-            {{#if className}}/<span class="property-description-class">/ {{{dompurify className}}}</span>{{/if}}
+            {{#if className}}<span class="property-description-class">/ {{{dompurify className}}}</span>{{/if}}
         </span>
     </label>
 </li>
