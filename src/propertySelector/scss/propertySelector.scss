@@ -32,6 +32,14 @@
             padding: 1rem 0;
             gap: 1rem;
 
+            .property-description {
+                padding-right: 0;
+            }
+
+            .property-description-checkbox {
+                padding-right: 8px;
+            }
+
             .property-description-class {
                 color: $textSecondary;
             }
