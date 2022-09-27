@@ -1,1 +1,1 @@
-<a><span class="icon-add"></span>{{__ "manage columns"}}</a>
+<a class="toggle-modal-button"><span class="icon-add"></span>{{__ "manage columns"}}</a>
