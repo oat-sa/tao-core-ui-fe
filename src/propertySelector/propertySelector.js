@@ -24,6 +24,13 @@ import buttonFactory from 'ui/button';
 import 'ui/propertySelector/css/propertySelector.css';
 import $ from 'jquery';
 
+/**
+ * A list of fields in which we can search a term.
+ * @type {string[]}
+ * @private
+ */
+const searchableFields = ['label', 'alias', 'className'];
+
 
 export default function propertySelectorFactory(config) {
     //element references
@@ -48,11 +55,7 @@ export default function propertySelectorFactory(config) {
             const propertiesToRender = [];
             availableProperties.forEach(property => {
                 property.selected = selectedProperties.has(property.id);
-                if (
-                    search === '' ||
-                    (property.label && property.label.toLowerCase().includes(search.toLowerCase())) ||
-                    (property.alias && property.alias.toLowerCase().includes(search.toLowerCase()))
-                ) {
+                if (search === '' || includeSearch(property, search)) {
                     propertiesToRender.push(createPropertyOption(property, search));
                 }
             });
@@ -128,6 +131,19 @@ export default function propertySelectorFactory(config) {
         });
 
     /**
+     * Checks if a searchable field contains the searched term.
+     * @param {object} property
+     * @param {string} search
+     * @returns {boolean}
+     */
+    function includeSearch(property, search) {
+        const searchedTerm = search.toLowerCase();
+        return searchableFields.some(
+            field => 'string' === typeof property[field] && property[field].toLowerCase().includes(searchedTerm)
+        );
+    }
+
+    /**
      * Lookup for characters in text to highlight
      * @param {String} text - text to lookup
      * @param {String} searchString - match to be applied in the text
@@ -146,9 +162,9 @@ export default function propertySelectorFactory(config) {
     function createPropertyOption(property, searchString) {
         const descriptionData = Object.assign({}, property);
         if (searchString !== '') {
-            ['label', 'alias'].forEach(prop => {
-                if (descriptionData[prop]) {
-                    descriptionData[prop] = highlightCharacter(descriptionData[prop], searchString);
+            searchableFields.forEach(field => {
+                if (descriptionData[field]) {
+                    descriptionData[field] = highlightCharacter(descriptionData[field], searchString);
                 }
             });
         }

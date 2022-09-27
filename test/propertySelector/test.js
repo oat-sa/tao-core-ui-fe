@@ -85,7 +85,7 @@ define(['jquery', 'ui/propertySelector/propertySelector', 'json!test/ui/property
 
         const ready = assert.async();
         assert.expect(2);
-            
+
 
         instance.on('ready', () => {
             assert.ok(typeof instance.setData === 'function', 'The component api has setData a function')
@@ -95,10 +95,10 @@ define(['jquery', 'ui/propertySelector/propertySelector', 'json!test/ui/property
         })
     })
 
-    QUnit.test('propertySelector component can be managed py setting data from outside', function (assert) {
+    QUnit.test('propertySelector component can be managed by setting data from outside', function (assert) {
         const ready = assert.async();
         assert.expect(2);
-            
+
         const instance = propertySelectorFactory({
             renderTo: '#testable-container',
             data: mockData
@@ -117,11 +117,11 @@ define(['jquery', 'ui/propertySelector/propertySelector', 'json!test/ui/property
                     "alias":null,
                  }
             ];
-            
+
             instance.on('redraw', () => {
                 assert.equal($listContainer.find('input:checked').size(), 0, 'Selected props are updated')
                 assert.equal($listContainer.find('li').size(), 1, 'List items are updated')
-                
+
                 instance.destroy();
                 ready();
             })
@@ -131,13 +131,10 @@ define(['jquery', 'ui/propertySelector/propertySelector', 'json!test/ui/property
         })
     });
 
-
-
-
     QUnit.module('search operation');
     QUnit.test('propertySelector list is filtered by search input', function (assert) {
         const ready = assert.async();
-        assert.expect(1);
+        assert.expect(2);
 
         const instance = propertySelectorFactory({
             renderTo: '#testable-container',
@@ -147,12 +144,17 @@ define(['jquery', 'ui/propertySelector/propertySelector', 'json!test/ui/property
             const $container = $('.property-selector-container');
             const $searchInput = $container.find('input.search-property');
             const $listContainer = $container.find('.property-list-container');
-                        
+
             instance.on('redraw', () => {
                 assert.equal(
                     $listContainer.children().size(),
                     4,
                     'list of properties is filtered by search input value'
+                );
+                assert.equal(
+                    $listContainer.find('b').size(),
+                    6,
+                    'the found properties highlight the searched terms'
                 );
                 instance.destroy();
                 ready();
