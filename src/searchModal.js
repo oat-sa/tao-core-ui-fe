@@ -419,9 +419,13 @@ export default function searchModalFactory(config) {
             return [];
         }
 
+        const emptyValueTransform = value => {
+            return value === '' || value === null || typeof value === 'undefined' ? '-' : value;
+        };
+
         return columns.map(column => {
             const { id, sortId, label, alias, classLabel, type: dataType, sortable } = column;
-            return { id, sortId, label, alias, classLabel, dataType, sortable };
+            return { id, sortId, label, alias, classLabel, dataType, sortable, transform: emptyValueTransform };
         });
     }
 
