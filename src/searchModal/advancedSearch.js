@@ -579,7 +579,7 @@ export default function advancedSearchFactory(config) {
 
         if (criterion.isDuplicated) {
             sublabel = criterion.class.label;
-            optionText = `${label} (${criterion.alias}) /`;
+            optionText = `${label} (${criterion.alias})`;
         }
 
         option = new Option(
