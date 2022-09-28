@@ -16,7 +16,7 @@
  * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
  */
 
- define([
+define([
     'jquery',
     'lodash',
     'ui/searchModal',
@@ -25,7 +25,9 @@
     'json!test/ui/searchModal/mocks/mocks.json',
     'jquery.mockjax'
 ], function ($, _, searchModalFactory, advancedSearchFactory, store, mocks) {
-    const nextTick = (wait = 0) => new Promise((r) => setTimeout(r, wait));
+    const nextTick = (wait = 0) => new Promise(resolve => setTimeout(resolve, wait));
+    let advancedSearchEnabled = true;
+
     // Prevent the AJAX mocks to pollute the logs
     $.mockjaxSettings.logger = null;
     $.mockjaxSettings.responseTime = 1;
@@ -52,7 +54,9 @@
     $.mockjax({
         url: 'undefined/tao/AdvancedSearch/status',
         dataType: 'json',
-        responseText: mocks.mockedStatusEnabled
+        response() {
+            this.responseText = advancedSearchEnabled ? mocks.mockedStatusEnabled : mocks.mockedStatusDisabled;
+        }
     });
 
     QUnit.module('advancedSearch');
@@ -61,7 +65,11 @@
         assert.ok(typeof advancedSearchFactory === 'function', 'The module expose a function');
     });
 
-    QUnit.module('init');
+    QUnit.module('init', {
+        beforeEach() {
+            advancedSearchEnabled = true;
+        }
+    });
     QUnit.test('advancedSearch component is correctly initialized using stored criteria', function (assert) {
         const ready = assert.async();
         // before creating component instance, manipulate searchStore to store a mocked dataset to check on datatable-loaded event
@@ -79,6 +87,7 @@
                     const $container = $('.advanced-search-container');
                     const $invalidCriteriaContainer = $container.find('.invalid-criteria-warning-container');
 
+                    assert.ok(instance.isAdvancedSearchEnabled(), 'the advanced search is enabled');
                     assert.equal($invalidCriteriaContainer.length, 0, 'invalid criteria is not initially rendered');
                     _.forEach(mocks.mockedCriteriaStore, criterionToRender => {
                         // check for each stored criterion if it is rendered when criterion.rendered is true, and viceversa
@@ -104,12 +113,13 @@
             rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
         });
         const ready = assert.async();
-        assert.expect(2);
+        assert.expect(3);
 
         instance.on('ready', function () {
             const $container = $('.advanced-search-container');
             const $criteriaContainer = $container.find('.advanced-criteria-container');
 
+            assert.ok(instance.isAdvancedSearchEnabled(), 'the advanced search is enabled');
             assert.equal($criteriaContainer.length, 1, 'container for criteria is rendered');
             assert.equal($criteriaContainer.children().length, 0, 'container for criteria is empty');
             instance.destroy();
@@ -117,29 +127,57 @@
         });
     });
 
-     QUnit.test('advancedSearch component is correctly initialized with criteria disabled', function (assert) {
-         const instance = searchModalFactory({
-             criterias: { search: 'example' },
-             url: '/test/searchModal/mocks/with-occurrences/search.json',
-             renderTo: '#testable-container',
-             rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
-             hideCriteria: true
-         });
-         const ready = assert.async();
-         assert.expect(2);
+    QUnit.test('advancedSearch component is correctly initialized when disabled', function (assert) {
+        advancedSearchEnabled = false
+        const instance = searchModalFactory({
+            criterias: { search: 'example' },
+            url: '/test/searchModal/mocks/with-occurrences/search.json',
+            renderTo: '#testable-container',
+            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
+        });
+        const ready = assert.async();
+        assert.expect(3);
 
-         instance.on('ready', function () {
-             const $container = $('.advanced-search-container');
-             const $criteriaContainer = $container.find('.add-criteria-container');
+        instance.on('ready', function () {
+            const $container = $('.advanced-search-container');
+            const $criteriaContainer = $container.find('.add-criteria-container');
 
-             assert.equal($criteriaContainer.length, 1, 'container for criteria is rendered');
-             assert.ok($criteriaContainer.hasClass('disabled'), 'container for criteria is disabled');
-             instance.destroy();
-             ready();
-         });
-     });
+            assert.ok(!instance.isAdvancedSearchEnabled(), 'the advanced search is disabled');
+            assert.equal($criteriaContainer.length, 1, 'container for criteria is rendered');
+            assert.ok($criteriaContainer.hasClass('disabled'), 'container for criteria is disabled');
+            instance.destroy();
+            ready();
+        });
+    });
 
-    QUnit.module('advanced search logic');
+    QUnit.test('advancedSearch component is correctly initialized with criteria disabled', function (assert) {
+        const instance = searchModalFactory({
+            criterias: { search: 'example' },
+            url: '/test/searchModal/mocks/with-occurrences/search.json',
+            renderTo: '#testable-container',
+            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
+            hideCriteria: true
+        });
+        const ready = assert.async();
+        assert.expect(3);
+
+        instance.on('ready', function () {
+            const $container = $('.advanced-search-container');
+            const $criteriaContainer = $container.find('.add-criteria-container');
+
+            assert.ok(!instance.isAdvancedSearchEnabled(), 'the advanced search is disabled');
+            assert.equal($criteriaContainer.length, 1, 'container for criteria is rendered');
+            assert.ok($criteriaContainer.hasClass('disabled'), 'container for criteria is disabled');
+            instance.destroy();
+            ready();
+        });
+    });
+
+    QUnit.module('advanced search logic', {
+        beforeEach() {
+            advancedSearchEnabled = true;
+        }
+    });
     QUnit.cases.init([
         {
             response: {
@@ -160,7 +198,7 @@
         });
 
         const ready = assert.async();
-        assert.expect(13);
+        assert.expect(14);
 
         $.mockjax({
             url: 'undefined/tao/AdvancedSearch/status',
@@ -180,6 +218,7 @@
             let $optionToSelect = $criteriaSelect.find('option[value="inBothTextParentUri"]');
 
             // check initial state
+            assert.ok(instance.isAdvancedSearchEnabled(), 'the advanced search is enabled');
             assert.equal($optionToSelect.length, 1, 'criterion to select is initially on select options');
 
             // select a criterion
@@ -240,9 +279,11 @@
             statusUrl: 'undefined/tao/AdvancedSearch/status'
         });
         const ready = assert.async();
-        assert.expect(8);
+        assert.expect(9);
 
         instance.on('ready', function () {
+            assert.ok(instance.isEnabled(), 'the advanced search is enabled');
+
             instance.updateCriteria('undefined/tao/ClassMetadata/').then(async function () {
                 const $container = $('.advanced-search-container');
                 const $criteriaContainer = $container.find('.advanced-criteria-container');
@@ -317,7 +358,11 @@
         });
     });
 
-    QUnit.module('visual');
+    QUnit.module('visual', {
+        beforeEach() {
+            advancedSearchEnabled = true;
+        }
+    });
     QUnit.test('Visual test', function (assert) {
         const instance = searchModalFactory({
             criterias: { search: 'example' },

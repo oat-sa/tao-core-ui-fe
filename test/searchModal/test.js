@@ -23,6 +23,8 @@ define([
     'json!test/ui/searchModal/mocks/mocks.json',
     'jquery.mockjax'
 ], function ($, searchModalFactory, store, mocks) {
+    let advancedSearchEnabled = false;
+
     // Prevent the AJAX mocks to pollute the logs
     $.mockjaxSettings.logger = null;
     $.mockjaxSettings.responseTime = 1;
@@ -39,7 +41,9 @@ define([
     $.mockjax({
         url: 'undefined/tao/AdvancedSearch/status',
         dataType: 'json',
-        responseText: mocks.mockedStatusEnabled
+        response() {
+            this.responseText = advancedSearchEnabled ? mocks.mockedStatusEnabled : mocks.mockedStatusDisabled;
+        }
     });
 
     QUnit.module('searchModal');
@@ -48,10 +52,14 @@ define([
         assert.ok(typeof searchModalFactory === 'function', 'The module expose a function');
     });
 
-    QUnit.module('init');
+    QUnit.module('init', {
+        beforeEach() {
+            advancedSearchEnabled = false;
+        }
+    });
     QUnit.test('searchModal component is correctly initialized using stored search results', function (assert) {
         const ready = assert.async();
-        assert.expect(5);
+        assert.expect(7);
         // before creating component instance, manipulate searchStore to store a mocked dataset to check on datatable-loaded event
         Promise.all([store('search'), store('selectedColumns')]).then(stores => {
             const searchStore = stores[0];
@@ -80,6 +88,7 @@ define([
                             'searchModal component is created'
                         );
                         assert.equal($searchInput.val(), 'example', 'search input value is correctly initialized');
+                        assert.ok(!instance.isAdvancedSearchEnabled(), 'the advanced search is disabled');
                     });
 
                     instance.on('datatable-loaded', function () {
@@ -96,6 +105,8 @@ define([
                             'datatable displays all selected props + actions column'
                         );
 
+                        assert.equal($datatable.find('.toggle-modal-button').length, 0, 'The columns manager is not added');
+
                         instance.destroy();
                         ready();
                     });
@@ -104,7 +115,7 @@ define([
     });
     QUnit.test('searchModal component is correctly initialized triggering initial search', function (assert) {
         const ready = assert.async();
-        assert.expect(13);
+        assert.expect(15);
 
         Promise.all([store('search'), store('selectedColumns')]).then(stores => {
             const searchStore = stores[0];
@@ -130,6 +141,7 @@ define([
 
                         assert.equal($('#testable-container')[0], instance.getContainer()[0], 'searchModal component is created');
                         assert.equal($searchInput.val(), 'example', 'search input value is correctly initialized');
+                        assert.ok(!instance.isAdvancedSearchEnabled(), 'the advanced search is disabled');
                     });
 
                     instance.on('datatable-loaded', function () {
@@ -146,6 +158,8 @@ define([
                         assert.equal($datatable.find('thead [data-sort-by="custom_label"] .comment').length, 1, 'The class name for the custom label is displayed');
                         assert.equal($datatable.find('tbody tr').length, 9, 'datatable display the correct number of matches');
 
+                        assert.equal($datatable.find('.toggle-modal-button').length, 0, 'The columns manager is not added');
+
                         instance.destroy();
                         ready();
                     });
@@ -153,7 +167,66 @@ define([
         });
     });
 
-    QUnit.module('destroy');
+    QUnit.test('searchModal component is correctly set with advanced search enabled', function (assert) {
+        const ready = assert.async();
+        assert.expect(15);
+
+        Promise.all([store('search'), store('selectedColumns')]).then(stores => {
+            const searchStore = stores[0];
+            const selectedColumnsStore = stores[1];
+            selectedColumnsStore
+                .setItem('http://www.tao.lu/Ontologies/TAOItem.rdf#Item', [
+                    'http://www.w3.org/2000/01/rdf-schema#label',
+                    'custom_prop',
+                    'custom_label'
+                ])
+                .then(() => searchStore.setItem('results', mocks.mockedResults))
+                .then(() => {
+                    advancedSearchEnabled = true;
+                    const instance = searchModalFactory({
+                        criterias: { search: 'example' },
+                        url: '/test/searchModal/mocks/with-occurrences/search.json',
+                        renderTo: '#testable-container',
+                        rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
+                    });
+
+                    instance.on('ready', function () {
+                        const $container = $('.search-modal');
+                        const $searchInput = $container.find('.generic-search-input');
+
+                        assert.equal($('#testable-container')[0], instance.getContainer()[0], 'searchModal component is created');
+                        assert.equal($searchInput.val(), 'example', 'search input value is correctly initialized');
+                        assert.ok(instance.isAdvancedSearchEnabled(), 'the advanced search is enabled');
+                    });
+
+                    instance.on('datatable-loaded', function () {
+                        const $datatable = $('table.datatable');
+                        assert.equal($datatable.length, 1, 'datatable has been created');
+                        assert.equal($datatable.find('thead th').length, 4, 'datatable display the correct number of columns');
+                        assert.equal($datatable.find('thead [data-sort-by="label"]').length, 1, 'The default column is displayed');
+                        assert.equal($datatable.find('thead [data-sort-by="label"] .alias').length, 0, 'The default column has no alias');
+                        assert.equal($datatable.find('thead [data-sort-by="custom_prop"]').length, 1, 'The additional column for the custom property is displayed');
+                        assert.equal($datatable.find('thead [data-sort-by="custom_prop"] .alias').length, 0, 'The alias for the custom property is not displayed because it is not duplicated');
+                        assert.equal($datatable.find('thead [data-sort-by="custom_prop"] .comment').length, 0, 'The class name for the custom property is not displayed because it is not duplicated');
+                        assert.equal($datatable.find('thead [data-sort-by="custom_label"]').length, 1, 'The additional column for the custom label is displayed');
+                        assert.equal($datatable.find('thead [data-sort-by="custom_label"] .alias').length, 1, 'The alias for the custom label is displayed');
+                        assert.equal($datatable.find('thead [data-sort-by="custom_label"] .comment').length, 1, 'The class name for the custom label is displayed');
+                        assert.equal($datatable.find('tbody tr').length, 9, 'datatable display the correct number of matches');
+
+                        assert.equal($datatable.find('.toggle-modal-button').length, 1, 'The columns manager is reachable');
+
+                        instance.destroy();
+                        ready();
+                    });
+                });
+        });
+    });
+
+    QUnit.module('destroy', {
+        beforeEach() {
+            advancedSearchEnabled = false;
+        }
+    });
     QUnit.test('searchModal component is correctly destroyed on close button click', function (assert) {
         searchModalFactory({
             criterias: { search: '' },
@@ -199,7 +272,11 @@ define([
         });
     });
 
-    QUnit.module('clear button');
+    QUnit.module('clear button', {
+        beforeEach() {
+            advancedSearchEnabled = false;
+        }
+    });
     QUnit.test('Clear button work as expected', function (assert) {
         const instance = searchModalFactory({
             criterias: { search: 'example' },
@@ -234,7 +311,11 @@ define([
         });
     });
 
-    QUnit.module('search button');
+    QUnit.module('search button', {
+        beforeEach() {
+            advancedSearchEnabled = false;
+        }
+    });
     QUnit.test('Search button work as expected when there are occurrences', function (assert) {
         const instance = searchModalFactory({
             criterias: { search: '' },
@@ -296,7 +377,11 @@ define([
         });
     });
 
-    QUnit.module('class filter');
+    QUnit.module('class filter', {
+        beforeEach() {
+            advancedSearchEnabled = false;
+        }
+    });
     QUnit.test('class filter workflow is correct', function (assert) {
         const ready = assert.async();
         assert.expect(7);
@@ -354,7 +439,11 @@ define([
         });
     });
 
-    QUnit.module('searchStore');
+    QUnit.module('searchStore', {
+        beforeEach() {
+            advancedSearchEnabled = false;
+        }
+    });
     QUnit.test('searchStore saves all required information', function (assert) {
         const instance = searchModalFactory({
             criterias: { search: 'query to be stored' },
@@ -363,9 +452,10 @@ define([
             rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
         });
         const ready = assert.async();
-        assert.expect(5);
+        assert.expect(6);
 
         instance.on('ready', function () {
+            assert.ok(!instance.isAdvancedSearchEnabled(), 'the advanced search is disabled');
             instance.on('store-updated', function () {
                 const $datatable = $('table.datatable');
                 assert.equal($datatable.length, 1, 'datatable has been created');
@@ -394,7 +484,11 @@ define([
         });
     });
 
-    QUnit.module('visual');
+    QUnit.module('visual', {
+        beforeEach() {
+            advancedSearchEnabled = false;
+        }
+    });
     QUnit.test('Visual test', function (assert) {
         const instance = searchModalFactory({
             criterias: { search: 'example' },

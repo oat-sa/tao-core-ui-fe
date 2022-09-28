@@ -308,6 +308,12 @@
             "enabled": true
         }
     },
+    "mockedStatusDisabled": {
+        "success": true,
+        "data": {
+            "enabled": false
+        }
+    },
     "mockedCriteriaSelect": {
         "success": true,
         "data": [

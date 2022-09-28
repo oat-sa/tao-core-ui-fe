@@ -123,7 +123,15 @@ export default function searchModalFactory(config) {
     }
 
     // Creates new component
-    const instance = component({}, defaults)
+    const instance = component({
+        /**
+         * Tells if the advanced search is enabled.
+         * @returns {boolean}
+         */
+        isAdvancedSearchEnabled() {
+            return advancedSearch && advancedSearch.isEnabled();
+        }
+    }, defaults)
         .setTemplate(layoutTpl)
         .on('selected-store-updated', recreateDatatable)
         .on('render', renderModal)
@@ -540,9 +548,12 @@ export default function searchModalFactory(config) {
      */
     function searchResultsLoaded(e, dataset) {
         const $actionsHeader = $('th.actions', $container);
-        const $manageColumnsBtn = $(propertySelectButtonTpl());
-        $actionsHeader.append($manageColumnsBtn);
-        $manageColumnsBtn.on('click', handleManageColumnsBtnClick);
+
+        if (instance.isAdvancedSearchEnabled()) {
+            const $manageColumnsBtn = $(propertySelectButtonTpl());
+            $actionsHeader.append($manageColumnsBtn);
+            $manageColumnsBtn.on('click', handleManageColumnsBtnClick);
+        }
 
         if (dataset.records === 0) {
             replaceSearchResultsDatatableWithMessage('no-matches');
