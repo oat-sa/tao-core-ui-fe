@@ -23,6 +23,8 @@ import textCriterionTpl from 'ui/searchModal/tpl/text-criterion';
 import invalidCriteriaWarningTpl from 'ui/searchModal/tpl/invalid-criteria-warning';
 import listCheckboxCriterionTpl from 'ui/searchModal/tpl/list-checkbox-criterion';
 import listSelectCriterionTpl from 'ui/searchModal/tpl/list-select-criterion';
+import highlightedTextTpl from 'ui/searchModal/tpl/highlighted-text';
+import classLabelTpl from 'ui/searchModal/tpl/class-label';
 import 'ui/searchModal/css/advancedSearch.css';
 import component from 'ui/component';
 import 'ui/modal';
@@ -165,12 +167,15 @@ export default function advancedSearchFactory(config) {
     /**
      * Lookup for characters in text to highlight
      * @param {String} text - text to lookup
-     * @param {String} highlight - character(s) to be highlighted
-     * @param {regExp|String} match - match to be applied in the text
+     * @param {String} searchString - match to be applied in the text
      * @returns {String} - highlighted text
      */
-    function highlightCharacter(text, highlight, match) {
-        return text.replace(match, `<b>${highlight}</b>`);
+    function highlightCharacter(text, searchString) {
+        if (!searchString) {
+            return text;
+        }
+        const reg = new RegExp(searchString, 'gi');
+        return text.replace(reg, str => highlightedTextTpl({ text: str }));
     }
 
     /**
@@ -195,12 +200,11 @@ export default function advancedSearchFactory(config) {
                     formatResult: function formatResult(result, container, query) {
                         const label = result.element[0].getAttribute('label');
                         const sublabel = result.element[0].getAttribute('sublabel');
-                        const match = new RegExp(query.term, 'ig');
-                        let template = highlightCharacter(label, query.term, match);
+                        let template = highlightCharacter(label, query.term);
 
                         // Add sublabel
                         if (sublabel && sublabel.length) {
-                            template = template + `<span class="class-path"> / ${highlightCharacter(sublabel, query.term, match)}</span>`;
+                            template = template + classLabelTpl({ text: highlightCharacter(sublabel, query.term) });
                         }
 
                         return template;
