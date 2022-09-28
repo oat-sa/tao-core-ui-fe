@@ -1851,7 +1851,7 @@ define([
             var $headerCells = $('.datatable thead th', $container);
 
             assert.equal($headerCells.length, 3, 'The login header exists');
-            assert.equal($headerCells.eq(0).text().trim(), 'Login // username');
+            assert.equal($headerCells.eq(0).text().trim(), 'Login / username');
             assert.equal($headerCells.eq(1).text().trim(), 'Name');
             assert.equal($headerCells.eq(2).text().trim(), 'Email');
 
