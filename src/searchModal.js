@@ -565,19 +565,31 @@ export default function searchModalFactory(config) {
      * @param {Event} e
      */
     function handleManageColumnsBtnClick(e) {
-        const { bottom: btnBottom, right: btnRight } = $(this).get(0).getBoundingClientRect();
-        const { top: containerTop, right: containerRight } = $container.get(0).getBoundingClientRect();
+
+        const selected = selectedColumns;
+        const available = availableColumns.map(column => {
+            const { id, sortId, label, type: dataType, sortable, isDuplicated } = column;
+            let alias, classLabel;
+            if (isDuplicated) {
+                alias = column.alias;
+                classLabel = column.classLabel;
+            }
+            return { id, label, alias, classLabel };
+        });
 
         if (!propertySelectorInstance) {
+            const { bottom: btnBottom, right: btnRight } = $(this).get(0).getBoundingClientRect();
+            const { top: containerTop, right: containerRight } = $container.get(0).getBoundingClientRect();
+            const position = {
+                top: btnBottom - containerTop,
+                right: containerRight - btnRight
+            }
             propertySelectorInstance = propertySelectorFactory({
                 renderTo: $container,
                 data: {
-                    position: {
-                        top: btnBottom - containerTop,
-                        right: containerRight - btnRight
-                    },
-                    available: availableColumns,
-                    selected: selectedColumns
+                    position,
+                    available,
+                    selected
                 }
             });
             propertySelectorInstance.on('select', propertySelectorColumns => {
@@ -591,7 +603,7 @@ export default function searchModalFactory(config) {
                 }
             });
         } else {
-            propertySelectorInstance.setData({ selected: selectedColumns });
+            propertySelectorInstance.setData({ available, selected });
             propertySelectorInstance.toggle();
         }
     }

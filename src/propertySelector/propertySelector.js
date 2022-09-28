@@ -29,7 +29,7 @@ import $ from 'jquery';
  * @type {string[]}
  * @private
  */
-const searchableFields = ['label', 'alias', 'className'];
+const searchableFields = ['label', 'alias', 'classLabel'];
 
 
 export default function propertySelectorFactory(config) {
@@ -76,6 +76,7 @@ export default function propertySelectorFactory(config) {
          * @property {string} id id of property
          * @property {string} label label of the property
          * @property {string} alias alias of the property
+         * @property {string} classLabel label of the property class
          */
         /**
          * @typedef propertySelectorData
