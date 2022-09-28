@@ -61,11 +61,19 @@ export default function advancedSearchFactory(config) {
     // Creates new component
     const instance = component({
         /**
+         * Tells if the advanced search is enabled.
+         * @returns {boolean}
+         */
+        isEnabled() {
+            return !!isAdvancedSearchStatusEnabled;
+        },
+
+        /**
          * Request metadata (criteria) for the given uri
          * @param {string} classUri - url to make the reques to
          * @returns {Promise} - Request promise
          */
-        updateCriteria: function (route) {
+        updateCriteria(route) {
             if (!isAdvancedSearchStatusEnabled) {
                 return Promise.resolve();
             }
@@ -87,14 +95,14 @@ export default function advancedSearchFactory(config) {
          * Access to component state
          * @returns {Object} - criteria state
          */
-        getState: function () {
+        getState() {
             return criteriaState;
         },
         /**
          * Removes every rendered criterion, updates criteria state accordingly
          * and removes classes applied to scrollable list of criteria
          */
-        clear: function () {
+        clear() {
             $advancedCriteriaContainer.removeClass(['scrollable', 'scroll-separator-top', 'scroll-separator-bottom']);
             $advancedCriteriaContainer.empty();
             _.forEach(criteriaState, criterion => {
@@ -105,7 +113,7 @@ export default function advancedSearchFactory(config) {
         /**
          * Builds substring of search query with the advanced criteria conditions
          */
-        getAdvancedCriteriaQuery: function (hasSearchInput) {
+        getAdvancedCriteriaQuery(hasSearchInput) {
             const advancedSearchCriteria = _.filter(criteriaState, criterion => criterion.rendered === true);
             let query = '';
 
@@ -181,7 +189,7 @@ export default function advancedSearchFactory(config) {
                     containerCssClass: 'criteria-select2',
                     dropdownCssClass: 'criteria-dropdown-select2',
                     sortResults: results => _.sortBy(results, ['text']),
-                    escapeMarkup: function(markup) {
+                    escapeMarkup: function (markup) {
                         return markup;
                     },
                     formatResult: function formatResult(result, container, query) {
@@ -191,7 +199,7 @@ export default function advancedSearchFactory(config) {
                         let template = highlightCharacter(label, query.term, match);
 
                         // Add sublabel
-                        if(sublabel && sublabel.length) {
+                        if (sublabel && sublabel.length) {
                             template = template + `<span class="class-path"> / ${highlightCharacter(sublabel, query.term, match)}</span>`;
                         }
 
@@ -324,7 +332,10 @@ export default function advancedSearchFactory(config) {
                         };
                     },
                     results: (response) => ({
-                        results: response.data.map(option => ({ id: valueMapping === 'uri' ? option.uri : option.label, text: option.label }))
+                        results: response.data.map(option => ({
+                            id: valueMapping === 'uri' ? option.uri : option.label,
+                            text: option.label
+                        }))
                     })
                 },
                 initSelection: function (element, callback) {

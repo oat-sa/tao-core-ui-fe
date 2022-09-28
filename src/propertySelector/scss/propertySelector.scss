@@ -32,8 +32,16 @@
             padding: 1rem 0;
             gap: 1rem;
 
-            .property-description-alias {
-                color: $grey;
+            .property-description {
+                padding-right: 0;
+            }
+
+            .property-description-checkbox {
+                padding-right: 4px;
+            }
+
+            .property-description-class {
+                color: $textSecondary;
             }
         }
     }

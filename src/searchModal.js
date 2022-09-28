@@ -123,7 +123,15 @@ export default function searchModalFactory(config) {
     }
 
     // Creates new component
-    const instance = component({}, defaults)
+    const instance = component({
+        /**
+         * Tells if the advanced search is enabled.
+         * @returns {boolean}
+         */
+        isAdvancedSearchEnabled() {
+            return advancedSearch && advancedSearch.isEnabled();
+        }
+    }, defaults)
         .setTemplate(layoutTpl)
         .on('selected-store-updated', recreateDatatable)
         .on('render', renderModal)
@@ -415,6 +423,15 @@ export default function searchModalFactory(config) {
     }
 
     /**
+     * Replaces empty value by a placeholder.
+     * @param value
+     * @returns {string|*}
+     */
+    const emptyValueTransform = value => {
+        return value === '' || value === null || typeof value === 'undefined' ? '-' : value;
+    };
+
+    /**
      * Refines the columns to be compatible with the datatable model
      * @param {object[]} columns
      * @returns {object[]}
@@ -424,13 +441,15 @@ export default function searchModalFactory(config) {
             return [];
         }
 
-        const emptyValueTransform = value => {
-            return value === '' || value === null || typeof value === 'undefined' ? '-' : value;
-        };
-
         return columns.map(column => {
-            const { id, sortId, label, alias, classLabel, type: dataType, sortable } = column;
-            return { id, sortId, label, alias, classLabel, dataType, sortable, transform: emptyValueTransform };
+            const { id, sortId, label, sortable, isDuplicated } = column;
+            let alias, comment, classLabel;
+            if (isDuplicated) {
+                alias = column.alias;
+                classLabel = column.classLabel; // needed by the property selector
+                comment = column.classLabel; // needed by the datatable
+            }
+            return { id, sortId, label, alias, classLabel, comment, sortable, transform: emptyValueTransform };
         });
     }
 
@@ -440,17 +459,11 @@ export default function searchModalFactory(config) {
      * @returns {object} The data configuration refined with the data model for the datatrable
      */
     function buildDataModel(data) {
-        if (data.settings) {
-            //save availableColumns to memory
-            availableColumns = data.settings.availableColumns;
-            data.model = columnsToModel(availableColumns);
-            dataCache = _.cloneDeep(data);
-            return data;
-        } else {
-            data.model = columnsToModel(_.values(data.model));
-            dataCache = _.cloneDeep(data);
-            return data;
-        }
+        //save availableColumns to memory
+        availableColumns = data.settings.availableColumns;
+        data.model = columnsToModel(availableColumns);
+        dataCache = _.cloneDeep(data);
+        return data;
     }
 
     /**
@@ -535,9 +548,12 @@ export default function searchModalFactory(config) {
      */
     function searchResultsLoaded(e, dataset) {
         const $actionsHeader = $('th.actions', $container);
-        const $manageColumnsBtn = $(propertySelectButtonTpl());
-        $actionsHeader.append($manageColumnsBtn);
-        $manageColumnsBtn.on('click', handleManageColumnsBtnClick);
+
+        if (instance.isAdvancedSearchEnabled()) {
+            const $manageColumnsBtn = $(propertySelectButtonTpl());
+            $actionsHeader.append($manageColumnsBtn);
+            $manageColumnsBtn.on('click', handleManageColumnsBtnClick);
+        }
 
         if (dataset.records === 0) {
             replaceSearchResultsDatatableWithMessage('no-matches');
@@ -560,19 +576,23 @@ export default function searchModalFactory(config) {
      * @param {Event} e
      */
     function handleManageColumnsBtnClick(e) {
-        const { bottom: btnBottom, right: btnRight } = $(this).get(0).getBoundingClientRect();
-        const { top: containerTop, right: containerRight } = $container.get(0).getBoundingClientRect();
+
+        const selected = selectedColumns;
+        const available = columnsToModel(availableColumns);
 
         if (!propertySelectorInstance) {
+            const { bottom: btnBottom, right: btnRight } = $(this).get(0).getBoundingClientRect();
+            const { top: containerTop, right: containerRight } = $container.get(0).getBoundingClientRect();
+            const position = {
+                top: btnBottom - containerTop,
+                right: containerRight - btnRight
+            }
             propertySelectorInstance = propertySelectorFactory({
                 renderTo: $container,
                 data: {
-                    position: {
-                        top: btnBottom - containerTop,
-                        right: containerRight - btnRight
-                    },
-                    available: availableColumns,
-                    selected: selectedColumns
+                    position,
+                    available,
+                    selected
                 }
             });
             propertySelectorInstance.on('select', propertySelectorColumns => {
@@ -586,7 +606,7 @@ export default function searchModalFactory(config) {
                 }
             });
         } else {
-            propertySelectorInstance.setData({ selected: selectedColumns });
+            propertySelectorInstance.setData({ available, selected });
             propertySelectorInstance.toggle();
         }
     }

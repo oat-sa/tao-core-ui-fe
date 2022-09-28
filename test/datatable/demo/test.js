@@ -214,6 +214,59 @@ define([
                         }
                     ]
                 }
+            },{
+                title: 'Alias and comment',
+                config: {
+                    url: '/demo-data/alias',
+                    rows: 10,
+                    model: [
+                        {
+                            id: 'login',
+                            label: 'Login',
+                            alias: 'username'
+                        },
+                        {
+                            id: 'email',
+                            label: 'Email',
+                            alias: 'e-mail',
+                            comment: 'without link'
+                        },
+                        {
+                            id: 'firstname',
+                            label: 'First Name'
+                        },
+                        {
+                            id: 'lastname',
+                            label: 'Last Name',
+                            comment: 'surname'
+                        },
+                        {
+                            id: 'phone',
+                            label: 'Phone',
+                            comment: 'extension in parenthesis'
+                        },
+                        {
+                            id: 'country',
+                            label: 'country'
+                        },
+                        {
+                            id: 'state',
+                            label: 'state'
+                        },
+                        {
+                            id: 'city',
+                            label: 'City'
+                        },
+                        {
+                            id: 'street',
+                            label: 'street'
+                        },
+                        {
+                            id: 'zipcode',
+                            label: 'Zip Code'
+                        }
+                    ]
+                }
             },
             {
                 title: 'Sortable',

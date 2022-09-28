@@ -19,14 +19,17 @@
 import component from 'ui/component';
 import propertySelectorTpl from 'ui/propertySelector/tpl/property-selector';
 import propertyDescriptionTpl from 'ui/propertySelector/tpl/property-description';
-import labelTpl from 'ui/propertySelector/tpl/label-text';
-import aliasTpl from 'ui/propertySelector/tpl/alias-text';
 import highlightedTextTpl from 'ui/propertySelector/tpl/highlighted-text';
-import checkBoxTpl from 'ui/propertySelector/tpl/checkbox';
 import buttonFactory from 'ui/button';
-import DOMPurify from 'dompurify';
 import 'ui/propertySelector/css/propertySelector.css';
 import $ from 'jquery';
+
+/**
+ * A list of fields in which we can search a term.
+ * @type {string[]}
+ * @private
+ */
+const searchableFields = ['label', 'alias', 'classLabel'];
 
 
 export default function propertySelectorFactory(config) {
@@ -52,11 +55,7 @@ export default function propertySelectorFactory(config) {
             const propertiesToRender = [];
             availableProperties.forEach(property => {
                 property.selected = selectedProperties.has(property.id);
-                if (
-                    search === '' ||
-                    (property.label && property.label.toLowerCase().includes(search.toLowerCase())) ||
-                    (property.alias && property.alias.toLowerCase().includes(search.toLowerCase()))
-                ) {
+                if (search === '' || includeSearch(property, search)) {
                     propertiesToRender.push(createPropertyOption(property, search));
                 }
             });
@@ -77,6 +76,7 @@ export default function propertySelectorFactory(config) {
          * @property {string} id id of property
          * @property {string} label label of the property
          * @property {string} alias alias of the property
+         * @property {string} classLabel label of the property class
          */
         /**
          * @typedef propertySelectorData
@@ -146,6 +146,19 @@ export default function propertySelectorFactory(config) {
         });
 
     /**
+     * Checks if a searchable field contains the searched term.
+     * @param {object} property
+     * @param {string} search
+     * @returns {boolean}
+     */
+    function includeSearch(property, search) {
+        const searchedTerm = search.toLowerCase();
+        return searchableFields.some(
+            field => 'string' === typeof property[field] && property[field].toLowerCase().includes(searchedTerm)
+        );
+    }
+
+    /**
      * Lookup for characters in text to highlight
      * @param {String} text - text to lookup
      * @param {String} searchString - match to be applied in the text
@@ -164,24 +177,13 @@ export default function propertySelectorFactory(config) {
     function createPropertyOption(property, searchString) {
         const descriptionData = Object.assign({}, property);
         if (searchString !== '') {
-            descriptionData.label =
-                descriptionData.label && highlightCharacter(DOMPurify.sanitize(descriptionData.label), searchString);
-            descriptionData.alias =
-                descriptionData.alias && highlightCharacter(DOMPurify.sanitize(descriptionData.alias), searchString);
+            searchableFields.forEach(field => {
+                if (descriptionData[field]) {
+                    descriptionData[field] = highlightCharacter(descriptionData[field], searchString);
+                }
+            });
         }
-        const $propertyDescription = $(propertyDescriptionTpl());
-        if (descriptionData.alias) {
-            $('.property-description', $propertyDescription).append(
-                labelTpl({ text: descriptionData.label, alias: true })
-            );
-            $('.property-description', $propertyDescription).append(aliasTpl({ text: descriptionData.alias }));
-        } else {
-            $('.property-description', $propertyDescription).append(labelTpl({ text: descriptionData.label }));
-        }
-
-        const $checkboxContainer = $('.checkbox-container', $propertyDescription);
-        $checkboxContainer.append(checkBoxTpl({ id: descriptionData.id, checked: descriptionData.selected }));
-        return $propertyDescription;
+        return $(propertyDescriptionTpl(descriptionData));
     }
 
     /**
