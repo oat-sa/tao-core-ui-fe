@@ -433,7 +433,7 @@ export default function searchModalFactory(config) {
             let alias, comment;
             if (isDuplicated) {
                 alias = column.alias;
-                comment = column.comment;
+                comment = column.classLabel;
             }
             return { id, sortId, label, alias, comment, dataType, sortable, transform: emptyValueTransform };
         });

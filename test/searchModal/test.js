@@ -104,7 +104,7 @@ define([
     });
     QUnit.test('searchModal component is correctly initialized triggering initial search', function (assert) {
         const ready = assert.async();
-        assert.expect(11);
+        assert.expect(13);
 
         Promise.all([store('search'), store('selectedColumns')]).then(stores => {
             const searchStore = stores[0];
@@ -140,8 +140,10 @@ define([
                         assert.equal($datatable.find('thead [data-sort-by="label"] .alias').length, 0, 'The default column has no alias');
                         assert.equal($datatable.find('thead [data-sort-by="custom_prop"]').length, 1, 'The additional column for the custom property is displayed');
                         assert.equal($datatable.find('thead [data-sort-by="custom_prop"] .alias').length, 0, 'The alias for the custom property is not displayed because it is not duplicated');
+                        assert.equal($datatable.find('thead [data-sort-by="custom_prop"] .comment').length, 0, 'The class name for the custom property is not displayed because it is not duplicated');
                         assert.equal($datatable.find('thead [data-sort-by="custom_label"]').length, 1, 'The additional column for the custom label is displayed');
                         assert.equal($datatable.find('thead [data-sort-by="custom_label"] .alias').length, 1, 'The alias for the custom label is displayed');
+                        assert.equal($datatable.find('thead [data-sort-by="custom_label"] .comment').length, 1, 'The class name for the custom label is displayed');
                         assert.equal($datatable.find('tbody tr').length, 9, 'datatable display the correct number of matches');
 
                         instance.destroy();
