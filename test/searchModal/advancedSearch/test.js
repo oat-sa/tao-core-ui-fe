@@ -117,6 +117,28 @@
         });
     });
 
+     QUnit.test('advancedSearch component is correctly initialized with criteria disabled', function (assert) {
+         const instance = searchModalFactory({
+             criterias: { search: 'example' },
+             url: '/test/searchModal/mocks/with-occurrences/search.json',
+             renderTo: '#testable-container',
+             rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
+             hideCriteria: true
+         });
+         const ready = assert.async();
+         assert.expect(2);
+
+         instance.on('ready', function () {
+             const $container = $('.advanced-search-container');
+             const $criteriaContainer = $container.find('.add-criteria-container');
+
+             assert.equal($criteriaContainer.length, 1, 'container for criteria is rendered');
+             assert.ok($criteriaContainer.hasClass('disabled'), 'container for criteria is disabled');
+             instance.destroy();
+             ready();
+         });
+     });
+
     QUnit.module('advanced search logic');
     QUnit.cases.init([
         {

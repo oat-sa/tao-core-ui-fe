@@ -51,76 +51,103 @@ define([
     QUnit.module('init');
     QUnit.test('searchModal component is correctly initialized using stored search results', function (assert) {
         const ready = assert.async();
-        assert.expect(4);
+        assert.expect(5);
         // before creating component instance, manipulate searchStore to store a mocked dataset to check on datatable-loaded event
-        store('search').then(searchStore => {
-            searchStore.setItem('results', mocks.mockedResults).then(() => {
-                const instance = searchModalFactory({
-                    criterias: { search: 'example' },
-                    url: '/test/searchModal/mocks/with-occurrences/search.json',
-                    renderTo: '#testable-container',
-                    searchOnInit: false,
-                    rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
-                });
+        Promise.all([store('search'), store('selectedColumns')]).then(stores => {
+            const searchStore = stores[0];
+            const selectedColumnsStore = stores[1];
+            selectedColumnsStore
+                .setItem('http://www.tao.lu/Ontologies/TAOItem.rdf#Item', [
+                    'http://www.w3.org/2000/01/rdf-schema#label',
+                    'custom_prop'
+                ])
+                .then(() => searchStore.setItem('results', mocks.mockedResults))
+                .then(() => {
+                    const instance = searchModalFactory({
+                        criterias: { search: 'example' },
+                        url: '/test/searchModal/mocks/with-occurrences/search.json',
+                        renderTo: '#testable-container',
+                        searchOnInit: false,
+                        rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
+                    });
 
-                instance.on('ready', function () {
-                    const $container = $('.search-modal');
-                    const $searchInput = $container.find('.generic-search-input');
-                    assert.equal(
-                        $('#testable-container')[0],
-                        instance.getContainer()[0],
-                        'searchModal component is created'
-                    );
-                    assert.equal($searchInput.val(), 'example', 'search input value is correctly initialized');
-                });
+                    instance.on('ready', function () {
+                        const $container = $('.search-modal');
+                        const $searchInput = $container.find('.generic-search-input');
+                        assert.equal(
+                            $('#testable-container')[0],
+                            instance.getContainer()[0],
+                            'searchModal component is created'
+                        );
+                        assert.equal($searchInput.val(), 'example', 'search input value is correctly initialized');
+                    });
 
-                instance.on('datatable-loaded', function () {
-                    const $datatable = $('table.datatable');
-                    assert.equal($datatable.length, 1, 'datatable has been created');
-                    assert.equal(
-                        $datatable.find('tbody tr').length,
-                        1,
-                        'datatable display the correct number of matches'
-                    );
+                    instance.on('datatable-loaded', function () {
+                        const $datatable = $('table.datatable');
+                        assert.equal($datatable.length, 1, 'datatable has been created');
+                        assert.equal(
+                            $datatable.find('tbody tr').length,
+                            1,
+                            'datatable display the correct number of matches'
+                        );
+                        assert.equal(
+                            $datatable.find('th').length,
+                            3,
+                            'datatable displays all selected props + actions column'
+                        );
 
-                    instance.destroy();
-                    ready();
+                        instance.destroy();
+                        ready();
+                    });
                 });
-            });
         });
     });
     QUnit.test('searchModal component is correctly initialized triggering initial search', function (assert) {
-        const instance = searchModalFactory({
-            criterias: { search: 'example' },
-            url: '/test/searchModal/mocks/with-occurrences/search.json',
-            renderTo: '#testable-container',
-            rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
-        });
         const ready = assert.async();
         assert.expect(11);
 
-        instance.on('ready', function () {
-            const $container = $('.search-modal');
-            const $searchInput = $container.find('.generic-search-input');
+        Promise.all([store('search'), store('selectedColumns')]).then(stores => {
+            const searchStore = stores[0];
+            const selectedColumnsStore = stores[1];
+            selectedColumnsStore
+                .setItem('http://www.tao.lu/Ontologies/TAOItem.rdf#Item', [
+                    'http://www.w3.org/2000/01/rdf-schema#label',
+                    'custom_prop',
+                    'custom_label'
+                ])
+                .then(() => searchStore.setItem('results', mocks.mockedResults))
+                .then(() => {
+                    const instance = searchModalFactory({
+                        criterias: { search: 'example' },
+                        url: '/test/searchModal/mocks/with-occurrences/search.json',
+                        renderTo: '#testable-container',
+                        rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
+                    });
 
-            assert.equal($('#testable-container')[0], instance.getContainer()[0], 'searchModal component is created');
-            assert.equal($searchInput.val(), 'example', 'search input value is correctly initialized');
-        });
+                    instance.on('ready', function () {
+                        const $container = $('.search-modal');
+                        const $searchInput = $container.find('.generic-search-input');
 
-        instance.on('datatable-loaded', function () {
-            const $datatable = $('table.datatable');
-            assert.equal($datatable.length, 1, 'datatable has been created');
-            assert.equal($datatable.find('thead th').length, 4, 'datatable display the correct number of columns');
-            assert.equal($datatable.find('thead [data-sort-by="label"]').length, 1, 'The default column is displayed');
-            assert.equal($datatable.find('thead [data-sort-by="label"] .alias').length, 0, 'The default column has no alias');
-            assert.equal($datatable.find('thead [data-sort-by="custom_prop"]').length, 1, 'The additional column for the custom property is displayed');
-            assert.equal($datatable.find('thead [data-sort-by="custom_prop"] .alias').length, 0, 'The alias for the custom property is not displayed because it is not duplicated');
-            assert.equal($datatable.find('thead [data-sort-by="custom_label"]').length, 1, 'The additional column for the custom label is displayed');
-            assert.equal($datatable.find('thead [data-sort-by="custom_label"] .alias').length, 1, 'The alias for the custom label is displayed');
-            assert.equal($datatable.find('tbody tr').length, 9, 'datatable display the correct number of matches');
+                        assert.equal($('#testable-container')[0], instance.getContainer()[0], 'searchModal component is created');
+                        assert.equal($searchInput.val(), 'example', 'search input value is correctly initialized');
+                    });
 
-            instance.destroy();
-            ready();
+                    instance.on('datatable-loaded', function () {
+                        const $datatable = $('table.datatable');
+                        assert.equal($datatable.length, 1, 'datatable has been created');
+                        assert.equal($datatable.find('thead th').length, 4, 'datatable display the correct number of columns');
+                        assert.equal($datatable.find('thead [data-sort-by="label"]').length, 1, 'The default column is displayed');
+                        assert.equal($datatable.find('thead [data-sort-by="label"] .alias').length, 0, 'The default column has no alias');
+                        assert.equal($datatable.find('thead [data-sort-by="custom_prop"]').length, 1, 'The additional column for the custom property is displayed');
+                        assert.equal($datatable.find('thead [data-sort-by="custom_prop"] .alias').length, 0, 'The alias for the custom property is not displayed because it is not duplicated');
+                        assert.equal($datatable.find('thead [data-sort-by="custom_label"]').length, 1, 'The additional column for the custom label is displayed');
+                        assert.equal($datatable.find('thead [data-sort-by="custom_label"] .alias').length, 1, 'The alias for the custom label is displayed');
+                        assert.equal($datatable.find('tbody tr').length, 9, 'datatable display the correct number of matches');
+
+                        instance.destroy();
+                        ready();
+                    });
+                });
         });
     });
 

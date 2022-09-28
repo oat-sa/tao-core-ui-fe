@@ -46,6 +46,17 @@ $classTreeVariables: (
         border: none;
     }
 
+    .toggle-modal-button {
+        user-select: none;
+        .icon-add {
+            font-size: 1.6rem;
+            position: relative;
+            top: 2px;
+            margin-right: 8px;
+        }
+    }
+
+
     .content-panel {
         width: 100%;
         height: 100%;
