@@ -415,6 +415,15 @@ export default function searchModalFactory(config) {
     }
 
     /**
+     * Replaces empty value by a placeholder.
+     * @param value
+     * @returns {string|*}
+     */
+    const emptyValueTransform = value => {
+        return value === '' || value === null || typeof value === 'undefined' ? '-' : value;
+    };
+
+    /**
      * Refines the columns to be compatible with the datatable model
      * @param {object[]} columns
      * @returns {object[]}
@@ -424,18 +433,15 @@ export default function searchModalFactory(config) {
             return [];
         }
 
-        const emptyValueTransform = value => {
-            return value === '' || value === null || typeof value === 'undefined' ? '-' : value;
-        };
-
         return columns.map(column => {
-            const { id, sortId, label, type: dataType, sortable, isDuplicated } = column;
-            let alias, comment;
+            const { id, sortId, label, sortable, isDuplicated } = column;
+            let alias, comment, classLabel;
             if (isDuplicated) {
                 alias = column.alias;
-                comment = column.classLabel;
+                classLabel = column.classLabel; // needed by the property selector
+                comment = column.classLabel; // needed by the datatable
             }
-            return { id, sortId, label, alias, comment, dataType, sortable, transform: emptyValueTransform };
+            return { id, sortId, label, alias, classLabel, comment, sortable, transform: emptyValueTransform };
         });
     }
 
@@ -567,15 +573,7 @@ export default function searchModalFactory(config) {
     function handleManageColumnsBtnClick(e) {
 
         const selected = selectedColumns;
-        const available = availableColumns.map(column => {
-            const { id, sortId, label, type: dataType, sortable, isDuplicated } = column;
-            let alias, classLabel;
-            if (isDuplicated) {
-                alias = column.alias;
-                classLabel = column.classLabel;
-            }
-            return { id, label, alias, classLabel };
-        });
+        const available = columnsToModel(availableColumns);
 
         if (!propertySelectorInstance) {
             const { bottom: btnBottom, right: btnRight } = $(this).get(0).getBoundingClientRect();
