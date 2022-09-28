@@ -46,6 +46,7 @@ import shortcutRegistry from 'util/shortcut/registry';
  * @param {string} config.url - search endpoint to be set on datatable
  * @param {string} config.rootClassUri - Uri for the root class of current context, required to init the class filter
  * @param {bool} config.hideResourceSelector - if resourceSelector must be hidden
+ * @param {bool} config.hideCriteria - if the criteria must be hidden
  * @param {string} config.placeholder - placeholder for input in template
  * @param {string} config.classesUrl - the URL to the classes API (usually '/tao/RestResource/getAll')
  * @param {string} config.classMappingUrl - the URL to the class mapping API (usually '/tao/ClassMetadata/getWithMapping')
@@ -96,6 +97,7 @@ export default function searchModalFactory(config) {
         advancedSearch = advancedSearchFactory({
             renderTo: $('.filters-container', $container),
             advancedCriteria: instance.config.criterias.advancedCriteria,
+            hideCriteria: instance.config.hideCriteria,
             statusUrl: instance.config.statusUrl,
             rootClassUri: rootClassUri
         });
