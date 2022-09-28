@@ -451,17 +451,11 @@ export default function searchModalFactory(config) {
      * @returns {object} The data configuration refined with the data model for the datatrable
      */
     function buildDataModel(data) {
-        if (data.settings) {
-            //save availableColumns to memory
-            availableColumns = data.settings.availableColumns;
-            data.model = columnsToModel(availableColumns);
-            dataCache = _.cloneDeep(data);
-            return data;
-        } else {
-            data.model = columnsToModel(_.values(data.model));
-            dataCache = _.cloneDeep(data);
-            return data;
-        }
+        //save availableColumns to memory
+        availableColumns = data.settings.availableColumns;
+        data.model = columnsToModel(availableColumns);
+        dataCache = _.cloneDeep(data);
+        return data;
     }
 
     /**

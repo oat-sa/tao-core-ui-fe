@@ -38,13 +38,6 @@
                 }
             ]
         },
-        "model": {
-            "http://www.w3.org/2000/01/rdf-schema#label": {
-                "id": "http://www.w3.org/2000/01/rdf-schema#label",
-                "label": "Label",
-                "sortable": false
-            }
-        },
         "params": {
             "rootNode": "http:\\/\\/www.tao.lu\\/Ontologies\\/TAOItem.rdf#Item",
             "parentNode": "http:\\/\\/www.tao.lu\\/Ontologies\\/TAOItem.rdf#Item",
