@@ -31,6 +31,21 @@ import 'select2';
 import request from 'core/dataProvider/request';
 
 /**
+ * Sort an array by a particular property.
+ * @param {Array} iter - The array to sort.
+ * @param {string} prop - The name of the sorting property.
+ * @returns {Array} - Returns a sorted copy of the array.
+ * @private
+ */
+function sortBy(iter, prop) {
+    return Array.from(iter).sort((a, b) => {
+        const textA = (a && a[prop]) || '';
+        const textB = (b && b[prop]) || '';
+        return textA.localeCompare(textB);
+    });
+}
+
+/**
  * Creates advanced search component
  *
  * @param {object} config
@@ -179,7 +194,11 @@ export default function advancedSearchFactory(config) {
     function initAddCriteriaSelector() {
         return request(instance.config.statusUrl)
             .then(function (response) {
-                if (config.hideCriteria || !response.enabled || (response.whitelist && response.whitelist.includes(config.rootClassUri))) {
+                if (
+                    config.hideCriteria ||
+                    !response.enabled ||
+                    (response.whitelist && response.whitelist.includes(config.rootClassUri))
+                ) {
                     isAdvancedSearchStatusEnabled = false;
                     return;
                 }
@@ -188,7 +207,7 @@ export default function advancedSearchFactory(config) {
                 $criteriaSelect.select2({
                     containerCssClass: 'criteria-select2',
                     dropdownCssClass: 'criteria-dropdown-select2',
-                    sortResults: results => _.sortBy(results, ['text']),
+                    sortResults: results => sortBy(results, 'text'),
                     escapeMarkup: function (markup) {
                         return markup;
                     },
@@ -200,7 +219,9 @@ export default function advancedSearchFactory(config) {
 
                         // Add sublabel
                         if (sublabel && sublabel.length) {
-                            template = template + `<span class="class-path"> / ${highlightCharacter(sublabel, query.term, match)}</span>`;
+                            template =
+                                template +
+                                `<span class="class-path"> / ${highlightCharacter(sublabel, query.term, match)}</span>`;
                         }
 
                         return template;
@@ -331,7 +352,7 @@ export default function advancedSearchFactory(config) {
                             subject: term
                         };
                     },
-                    results: (response) => ({
+                    results: response => ({
                         results: response.data.map(option => ({
                             id: valueMapping === 'uri' ? option.uri : option.label,
                             text: option.label
@@ -366,7 +387,7 @@ export default function advancedSearchFactory(config) {
         return $.ajax({
             type: 'GET',
             url: criterion.uri,
-            dataType: 'json',
+            dataType: 'json'
         }).then(({ data }) => {
             if (Array.isArray(criterion.value)) {
                 return criterion.value.map(v => ({
@@ -374,10 +395,10 @@ export default function advancedSearchFactory(config) {
                     text: (data.find(d => d.uri === v) || {}).label
                 }));
             }
-            let c = (data.find(d => d.uri === criterion.value) || {});
+            let c = data.find(d => d.uri === criterion.value) || {};
             return {
                 text: c.label,
-                id: criterion.value,
+                id: criterion.value
             };
         });
     }
@@ -578,12 +599,7 @@ export default function advancedSearchFactory(config) {
             optionText = `${label} (${criterion.alias}) /`;
         }
 
-        option = new Option(
-            label,
-            getCriterionStateId(criterion),
-            false,
-            false
-        );
+        option = new Option(label, getCriterionStateId(criterion), false, false);
 
         option.setAttribute('label', optionText);
         option.setAttribute('sublabel', sublabel);
