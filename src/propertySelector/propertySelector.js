@@ -32,6 +32,21 @@ import $ from 'jquery';
 const searchableFields = ['label', 'alias', 'classLabel'];
 
 /**
+ * Sort an array by a particular property.
+ * @param {Array} iter - The array to sort.
+ * @param {string} prop - The name of the sorting property.
+ * @returns {Array} - Returns a sorted copy of the array.
+ * @private
+ */
+function sortBy(iter, prop) {
+    return Array.from(iter).sort((a, b) => {
+        const textA = (a && a[prop]) || '';
+        const textB = (b && b[prop]) || '';
+        return textA.localeCompare(textB);
+    });
+}
+
+/**
  * Creates a property selector with respect to given options.
  * @param {object} [config]
  * @returns {*}
@@ -94,7 +109,7 @@ export default function propertySelectorFactory(config) {
          */
         setData(data) {
             if (data.available) {
-                availableProperties = data.available;
+                availableProperties = sortBy(data.available, 'label');
             }
             selectedProperties = new Set(data.selected);
             this.redrawList();
