@@ -105,7 +105,11 @@ define([
                             'datatable displays all selected props + actions column'
                         );
 
-                        assert.equal($datatable.find('.toggle-modal-button').length, 0, 'The columns manager is not added');
+                        assert.equal(
+                            $datatable.find('.toggle-modal-button').length,
+                            0,
+                            'The columns manager is not added'
+                        );
 
                         instance.destroy();
                         ready();
@@ -139,7 +143,11 @@ define([
                         const $container = $('.search-modal');
                         const $searchInput = $container.find('.generic-search-input');
 
-                        assert.equal($('#testable-container')[0], instance.getContainer()[0], 'searchModal component is created');
+                        assert.equal(
+                            $('#testable-container')[0],
+                            instance.getContainer()[0],
+                            'searchModal component is created'
+                        );
                         assert.equal($searchInput.val(), 'example', 'search input value is correctly initialized');
                         assert.ok(!instance.isAdvancedSearchEnabled(), 'the advanced search is disabled');
                     });
@@ -147,18 +155,62 @@ define([
                     instance.on('datatable-loaded', function () {
                         const $datatable = $('table.datatable');
                         assert.equal($datatable.length, 1, 'datatable has been created');
-                        assert.equal($datatable.find('thead th').length, 4, 'datatable display the correct number of columns');
-                        assert.equal($datatable.find('thead [data-sort-by="label"]').length, 1, 'The default column is displayed');
-                        assert.equal($datatable.find('thead [data-sort-by="label"] .alias').length, 0, 'The default column has no alias');
-                        assert.equal($datatable.find('thead [data-sort-by="custom_prop"]').length, 1, 'The additional column for the custom property is displayed');
-                        assert.equal($datatable.find('thead [data-sort-by="custom_prop"] .alias').length, 0, 'The alias for the custom property is not displayed because it is not duplicated');
-                        assert.equal($datatable.find('thead [data-sort-by="custom_prop"] .comment').length, 0, 'The class name for the custom property is not displayed because it is not duplicated');
-                        assert.equal($datatable.find('thead [data-sort-by="custom_label"]').length, 1, 'The additional column for the custom label is displayed');
-                        assert.equal($datatable.find('thead [data-sort-by="custom_label"] .alias').length, 1, 'The alias for the custom label is displayed');
-                        assert.equal($datatable.find('thead [data-sort-by="custom_label"] .comment').length, 1, 'The class name for the custom label is displayed');
-                        assert.equal($datatable.find('tbody tr').length, 9, 'datatable display the correct number of matches');
+                        assert.equal(
+                            $datatable.find('thead th').length,
+                            4,
+                            'datatable display the correct number of columns'
+                        );
+                        assert.equal(
+                            $datatable.find('thead [data-sort-by="label"]').length,
+                            1,
+                            'The default column is displayed'
+                        );
+                        assert.equal(
+                            $datatable.find('thead [data-sort-by="label"] .alias').length,
+                            0,
+                            'The default column has no alias'
+                        );
+                        assert.equal(
+                            $datatable.find('thead [data-sort-by="custom_prop"]').length,
+                            1,
+                            'The additional column for the custom property is displayed'
+                        );
+                        assert.equal(
+                            $datatable.find('thead [data-sort-by="custom_prop"] .alias').length,
+                            0,
+                            'The alias for the custom property is not displayed because it is not duplicated'
+                        );
+                        assert.equal(
+                            $datatable.find('thead [data-sort-by="custom_prop"] .comment').length,
+                            0,
+                            'The class name for the custom property is not displayed because it is not duplicated'
+                        );
+                        assert.equal(
+                            $datatable.find('thead [data-sort-by="custom_label"]').length,
+                            1,
+                            'The additional column for the custom label is displayed'
+                        );
+                        assert.equal(
+                            $datatable.find('thead [data-sort-by="custom_label"] .alias').length,
+                            1,
+                            'The alias for the custom label is displayed'
+                        );
+                        assert.equal(
+                            $datatable.find('thead [data-sort-by="custom_label"] .comment').length,
+                            1,
+                            'The class name for the custom label is displayed'
+                        );
+                        assert.equal(
+                            $datatable.find('tbody tr').length,
+                            9,
+                            'datatable display the correct number of matches'
+                        );
 
-                        assert.equal($datatable.find('.toggle-modal-button').length, 0, 'The columns manager is not added');
+                        assert.equal(
+                            $datatable.find('.toggle-modal-button').length,
+                            0,
+                            'The columns manager is not added'
+                        );
 
                         instance.destroy();
                         ready();
@@ -194,7 +246,11 @@ define([
                         const $container = $('.search-modal');
                         const $searchInput = $container.find('.generic-search-input');
 
-                        assert.equal($('#testable-container')[0], instance.getContainer()[0], 'searchModal component is created');
+                        assert.equal(
+                            $('#testable-container')[0],
+                            instance.getContainer()[0],
+                            'searchModal component is created'
+                        );
                         assert.equal($searchInput.val(), 'example', 'search input value is correctly initialized');
                         assert.ok(instance.isAdvancedSearchEnabled(), 'the advanced search is enabled');
                     });
@@ -202,18 +258,62 @@ define([
                     instance.on('datatable-loaded', function () {
                         const $datatable = $('table.datatable');
                         assert.equal($datatable.length, 1, 'datatable has been created');
-                        assert.equal($datatable.find('thead th').length, 4, 'datatable display the correct number of columns');
-                        assert.equal($datatable.find('thead [data-sort-by="label"]').length, 1, 'The default column is displayed');
-                        assert.equal($datatable.find('thead [data-sort-by="label"] .alias').length, 0, 'The default column has no alias');
-                        assert.equal($datatable.find('thead [data-sort-by="custom_prop"]').length, 1, 'The additional column for the custom property is displayed');
-                        assert.equal($datatable.find('thead [data-sort-by="custom_prop"] .alias').length, 0, 'The alias for the custom property is not displayed because it is not duplicated');
-                        assert.equal($datatable.find('thead [data-sort-by="custom_prop"] .comment').length, 0, 'The class name for the custom property is not displayed because it is not duplicated');
-                        assert.equal($datatable.find('thead [data-sort-by="custom_label"]').length, 1, 'The additional column for the custom label is displayed');
-                        assert.equal($datatable.find('thead [data-sort-by="custom_label"] .alias').length, 1, 'The alias for the custom label is displayed');
-                        assert.equal($datatable.find('thead [data-sort-by="custom_label"] .comment').length, 1, 'The class name for the custom label is displayed');
-                        assert.equal($datatable.find('tbody tr').length, 9, 'datatable display the correct number of matches');
+                        assert.equal(
+                            $datatable.find('thead th').length,
+                            4,
+                            'datatable display the correct number of columns'
+                        );
+                        assert.equal(
+                            $datatable.find('thead [data-sort-by="label"]').length,
+                            1,
+                            'The default column is displayed'
+                        );
+                        assert.equal(
+                            $datatable.find('thead [data-sort-by="label"] .alias').length,
+                            0,
+                            'The default column has no alias'
+                        );
+                        assert.equal(
+                            $datatable.find('thead [data-sort-by="custom_prop"]').length,
+                            1,
+                            'The additional column for the custom property is displayed'
+                        );
+                        assert.equal(
+                            $datatable.find('thead [data-sort-by="custom_prop"] .alias').length,
+                            0,
+                            'The alias for the custom property is not displayed because it is not duplicated'
+                        );
+                        assert.equal(
+                            $datatable.find('thead [data-sort-by="custom_prop"] .comment').length,
+                            0,
+                            'The class name for the custom property is not displayed because it is not duplicated'
+                        );
+                        assert.equal(
+                            $datatable.find('thead [data-sort-by="custom_label"]').length,
+                            1,
+                            'The additional column for the custom label is displayed'
+                        );
+                        assert.equal(
+                            $datatable.find('thead [data-sort-by="custom_label"] .alias').length,
+                            1,
+                            'The alias for the custom label is displayed'
+                        );
+                        assert.equal(
+                            $datatable.find('thead [data-sort-by="custom_label"] .comment').length,
+                            1,
+                            'The class name for the custom label is displayed'
+                        );
+                        assert.equal(
+                            $datatable.find('tbody tr').length,
+                            9,
+                            'datatable display the correct number of matches'
+                        );
 
-                        assert.equal($datatable.find('.toggle-modal-button').length, 1, 'The columns manager is reachable');
+                        assert.equal(
+                            $datatable.find('.toggle-modal-button').length,
+                            1,
+                            'The columns manager is reachable'
+                        );
 
                         instance.destroy();
                         ready();
@@ -452,7 +552,7 @@ define([
             rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
         });
         const ready = assert.async();
-        assert.expect(6);
+        assert.expect(8);
 
         instance.on('ready', function () {
             assert.ok(!instance.isAdvancedSearchEnabled(), 'the advanced search is disabled');
@@ -464,11 +564,15 @@ define([
                     const promises = [];
                     promises.push(searchStore.getItem('criterias'));
                     promises.push(searchStore.getItem('results'));
+                    promises.push(searchStore.getItem('options'));
                     Promise.all(promises).then(function (resolutions) {
                         const criterias = resolutions[0];
                         const results = resolutions[1];
+                        const options = resolutions[2];
 
                         assert.equal(criterias.search, 'query to be stored', 'query correctly stored');
+                        assert.equal(options.sortby, 'id', 'sorted column correctly stored');
+                        assert.equal(options.sortorder, 'asc', 'sort order correctly stored');
                         assert.equal(results.totalCount, 9, 'results correctly stored');
                         assert.equal(
                             criterias.class,

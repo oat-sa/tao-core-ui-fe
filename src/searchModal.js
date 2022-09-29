@@ -408,16 +408,17 @@ export default function searchModalFactory(config) {
         return new Promise(function (resolve, reject) {
             // If no search on init, get dataset from searchStore
             if (instance.config.searchOnInit === false) {
-                searchStore
-                    .getItem('results')
-                    .then(storedSearchResults => {
+                Promise.all([searchStore.getItem('results'), searchStore.getItem('options')])
+                    .then(fromStore => {
                         instance.config.searchOnInit = true;
-                        data.storedSearchResults = storedSearchResults;
+                        data.storedSearchResults = fromStore[0];
+                        data.storedSearchOptions = fromStore[1];
                         resolve(data);
                     })
                     .catch(e => {
-                        instance.trigger('error', e);
-                        reject(new Error('Error appending default dataset from searchStore to datatable'));
+                        reject(
+                            new Error('Error appending default dataset from searchStore to datatable', { cause: e })
+                        );
                     });
             } else {
                 resolve(data);
@@ -506,11 +507,16 @@ export default function searchModalFactory(config) {
         const $tableContainer = $('.content-container .flex-container-full', $container);
         $tableContainer.empty();
         $tableContainer.on('load.datatable', searchResultsLoaded);
+
+        const { sortby, sortorder } = data.storedSearchOptions || {};
+
         //create datatable
         $tableContainer.datatable(
             {
                 url: data.url,
                 model: data.model,
+                sortby,
+                sortorder,
                 labels: {
                     actions: ''
                 },
@@ -534,6 +540,11 @@ export default function searchModalFactory(config) {
         );
     }
 
+    function getTableOptions() {
+        const $tableContainer = $('.content-container .flex-container-full', $container);
+        return _.cloneDeep($tableContainer.data('ui.datatable') || {});
+    }
+
     /**
      * Filters data from cache by selected and recreates datatable
      */
@@ -549,6 +560,7 @@ export default function searchModalFactory(config) {
      */
     function searchResultsLoaded(e, dataset) {
         const $actionsHeader = $('th.actions', $container);
+        const { sortby, sortorder } = getTableOptions();
 
         if (instance.isAdvancedSearchEnabled()) {
             const $manageColumnsBtn = $(propertySelectButtonTpl());
@@ -563,6 +575,7 @@ export default function searchModalFactory(config) {
         updateSearchStore({
             action: 'update',
             dataset,
+            options: { sortby, sortorder },
             context: context.shownStructure,
             criterias: {
                 search: $searchInput.val(),
@@ -624,6 +637,7 @@ export default function searchModalFactory(config) {
         } else if (data.action === 'update') {
             promises.push(searchStore.setItem('criterias', data.criterias));
             promises.push(searchStore.setItem('context', data.context));
+            promises.push(searchStore.setItem('options', data.options));
             promises.push(
                 data.dataset.records === 0
                     ? searchStore.removeItem('results')
