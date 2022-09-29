@@ -123,15 +123,18 @@ export default function searchModalFactory(config) {
     }
 
     // Creates new component
-    const instance = component({
-        /**
-         * Tells if the advanced search is enabled.
-         * @returns {boolean}
-         */
-        isAdvancedSearchEnabled() {
-            return advancedSearch && advancedSearch.isEnabled();
-        }
-    }, defaults)
+    const instance = component(
+        {
+            /**
+             * Tells if the advanced search is enabled.
+             * @returns {boolean}
+             */
+            isAdvancedSearchEnabled() {
+                return advancedSearch && advancedSearch.isEnabled();
+            }
+        },
+        defaults
+    )
         .setTemplate(layoutTpl)
         .on('selected-store-updated', recreateDatatable)
         .on('render', renderModal)
@@ -500,10 +503,8 @@ export default function searchModalFactory(config) {
      */
     function buildSearchResultsDatatable(data) {
         //update the section container
-        const $tableContainer = $('<div class="flex-container-full"></div>');
-        const section = $('.content-container', $container);
-        section.empty();
-        section.append($tableContainer);
+        const $tableContainer = $('.content-container .flex-container-full', $container);
+        $tableContainer.empty();
         $tableContainer.on('load.datatable', searchResultsLoaded);
         //create datatable
         $tableContainer.datatable(
@@ -576,7 +577,6 @@ export default function searchModalFactory(config) {
      * @param {Event} e
      */
     function handleManageColumnsBtnClick(e) {
-
         const selected = selectedColumns;
         const available = columnsToModel(availableColumns);
 
@@ -586,7 +586,7 @@ export default function searchModalFactory(config) {
             const position = {
                 top: btnBottom - containerTop,
                 right: containerRight - btnRight
-            }
+            };
             propertySelectorInstance = propertySelectorFactory({
                 renderTo: $container,
                 data: {
