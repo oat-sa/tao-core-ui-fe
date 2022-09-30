@@ -21,6 +21,7 @@ import _ from 'lodash';
 import __ from 'i18n';
 import context from 'context';
 import layoutTpl from 'ui/searchModal/tpl/layout';
+import resultsContainerTpl from 'ui/searchModal/tpl/results-container';
 import infoMessageTpl from 'ui/searchModal/tpl/info-message';
 import propertySelectButtonTpl from 'ui/searchModal/tpl/property-select-button';
 import 'ui/searchModal/css/searchModal.css';
@@ -503,9 +504,12 @@ export default function searchModalFactory(config) {
      * @param {object} data - search configuration including model and endpoint for datatable
      */
     function buildSearchResultsDatatable(data) {
-        //update the section container
-        const $tableContainer = $('.content-container .flex-container-full', $container);
-        $tableContainer.empty();
+        // Note: the table container needs to be recreated because datatable is storing data in it.
+        // Keeping the table container introduces a DOM pollution.
+        // It is faster and cleaner to recreate the container than cleaning it explicitly.
+        const $tableContainer = $(resultsContainerTpl());
+        const $contentContainer = $('.content-container', $container);
+        $contentContainer.empty().append($tableContainer);
         $tableContainer.on('load.datatable', searchResultsLoaded);
 
         const { sortby, sortorder, page } = data.storedSearchOptions || {};
@@ -542,7 +546,7 @@ export default function searchModalFactory(config) {
     }
 
     function getTableOptions() {
-        const $tableContainer = $('.content-container .flex-container-full', $container);
+        const $tableContainer = $('.results-container', $container);
         return _.cloneDeep($tableContainer.data('ui.datatable') || {});
     }
 
