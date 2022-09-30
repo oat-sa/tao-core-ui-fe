@@ -24,7 +24,9 @@ import invalidCriteriaWarningTpl from 'ui/searchModal/tpl/invalid-criteria-warni
 import listCheckboxCriterionTpl from 'ui/searchModal/tpl/list-checkbox-criterion';
 import listSelectCriterionTpl from 'ui/searchModal/tpl/list-select-criterion';
 import highlightedTextTpl from 'ui/searchModal/tpl/highlighted-text';
-import classLabelTpl from 'ui/searchModal/tpl/class-label';
+import classLabelTpl from 'ui/searchModal/tpl/criteria-class-label';
+import aliasTpl from 'ui/searchModal/tpl/criteria-alias';
+import labelTpl from 'ui/searchModal/tpl/criteria-label';
 import 'ui/searchModal/css/advancedSearch.css';
 import component from 'ui/component';
 import 'ui/modal';
@@ -184,7 +186,11 @@ export default function advancedSearchFactory(config) {
     function initAddCriteriaSelector() {
         return request(instance.config.statusUrl)
             .then(function (response) {
-                if (config.hideCriteria || !response.enabled || (response.whitelist && response.whitelist.includes(config.rootClassUri))) {
+                if (
+                    config.hideCriteria ||
+                    !response.enabled ||
+                    (response.whitelist && response.whitelist.includes(config.rootClassUri))
+                ) {
                     isAdvancedSearchStatusEnabled = false;
                     return;
                 }
@@ -199,15 +205,20 @@ export default function advancedSearchFactory(config) {
                     },
                     formatResult: function formatResult(result, container, query) {
                         const label = result.element[0].getAttribute('label');
-                        const sublabel = result.element[0].getAttribute('sublabel');
-                        let template = highlightCharacter(label, query.term);
+                        const alias = result.element[0].getAttribute('alias');
+                        const classLabel = result.element[0].getAttribute('class-label');
 
-                        // Add sublabel
-                        if (sublabel && sublabel.length) {
-                            template = template + classLabelTpl({ text: highlightCharacter(sublabel, query.term) });
+                        let html = labelTpl({ text: highlightCharacter(label, query.term) });
+
+                        if (alias) {
+                            html += aliasTpl({ text: alias });
                         }
 
-                        return template;
+                        if (classLabel) {
+                            html += classLabelTpl({ text: classLabel });
+                        }
+
+                        return html;
                     }
                 });
 
@@ -335,7 +346,7 @@ export default function advancedSearchFactory(config) {
                             subject: term
                         };
                     },
-                    results: (response) => ({
+                    results: response => ({
                         results: response.data.map(option => ({
                             id: valueMapping === 'uri' ? option.uri : option.label,
                             text: option.label
@@ -370,7 +381,7 @@ export default function advancedSearchFactory(config) {
         return $.ajax({
             type: 'GET',
             url: criterion.uri,
-            dataType: 'json',
+            dataType: 'json'
         }).then(({ data }) => {
             if (Array.isArray(criterion.value)) {
                 return criterion.value.map(v => ({
@@ -378,10 +389,10 @@ export default function advancedSearchFactory(config) {
                     text: (data.find(d => d.uri === v) || {}).label
                 }));
             }
-            let c = (data.find(d => d.uri === criterion.value) || {});
+            let c = data.find(d => d.uri === criterion.value) || {};
             return {
                 text: c.label,
-                id: criterion.value,
+                id: criterion.value
             };
         });
     }
@@ -572,25 +583,21 @@ export default function advancedSearchFactory(config) {
      * @returns {HTMLOptionElement} Single option criteria
      */
     function createCriteriaOption(criterion) {
-        let label = criterion.label;
-        let sublabel = '';
+        const label = criterion.label;
+        let classLabel = '';
+        let alias = '';
         let option;
-        let optionText = label;
 
         if (criterion.isDuplicated) {
-            sublabel = criterion.class.label;
-            optionText = `${label} (${criterion.alias})`;
+            classLabel = criterion.class.label;
+            alias = criterion.alias;
         }
 
-        option = new Option(
-            label,
-            getCriterionStateId(criterion),
-            false,
-            false
-        );
+        option = new Option(label, getCriterionStateId(criterion), false, false);
 
-        option.setAttribute('label', optionText);
-        option.setAttribute('sublabel', sublabel);
+        option.setAttribute('label', label);
+        option.setAttribute('alias', alias);
+        option.setAttribute('class-label', classLabel);
 
         return option;
     }

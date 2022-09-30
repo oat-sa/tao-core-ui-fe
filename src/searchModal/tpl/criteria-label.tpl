@@ -1,0 +1,1 @@
+<span class="criteria-label">{{{dompurify text}}}</span>
