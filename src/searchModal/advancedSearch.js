@@ -589,8 +589,8 @@ export default function advancedSearchFactory(config) {
         let option;
 
         if (criterion.isDuplicated) {
-            classLabel = criterion.class.label;
-            alias = criterion.alias;
+            classLabel = criterion.class.label || '';
+            alias = criterion.alias || '';
         }
 
         option = new Option(label, getCriterionStateId(criterion), false, false);
