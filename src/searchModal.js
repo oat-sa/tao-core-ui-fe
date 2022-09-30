@@ -504,7 +504,9 @@ export default function searchModalFactory(config) {
      * @param {object} data - search configuration including model and endpoint for datatable
      */
     function buildSearchResultsDatatable(data) {
-        //update the section container
+        // Note: the table container needs to be recreated because datatable is storing data in it.
+        // Keeping the table container introduces a DOM pollution.
+        // It is faster and cleaner to recreate the container than cleaning it explicitly.
         const $tableContainer = $(resultsContainerTpl());
         const $contentContainer = $('.content-container', $container);
         $contentContainer.empty().append($tableContainer);
