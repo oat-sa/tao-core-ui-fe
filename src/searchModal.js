@@ -21,6 +21,7 @@ import _ from 'lodash';
 import __ from 'i18n';
 import context from 'context';
 import layoutTpl from 'ui/searchModal/tpl/layout';
+import resultsContainerTpl from 'ui/searchModal/tpl/results-container';
 import infoMessageTpl from 'ui/searchModal/tpl/info-message';
 import propertySelectButtonTpl from 'ui/searchModal/tpl/property-select-button';
 import 'ui/searchModal/css/searchModal.css';
@@ -504,8 +505,9 @@ export default function searchModalFactory(config) {
      */
     function buildSearchResultsDatatable(data) {
         //update the section container
-        const $tableContainer = $('.content-container .flex-container-full', $container);
-        $tableContainer.empty();
+        const $tableContainer = $(resultsContainerTpl());
+        const $contentContainer = $('.content-container', $container);
+        $contentContainer.empty().append($tableContainer);
         $tableContainer.on('load.datatable', searchResultsLoaded);
 
         const { sortby, sortorder } = data.storedSearchOptions || {};
@@ -541,7 +543,7 @@ export default function searchModalFactory(config) {
     }
 
     function getTableOptions() {
-        const $tableContainer = $('.content-container .flex-container-full', $container);
+        const $tableContainer = $('.results-container', $container);
         return _.cloneDeep($tableContainer.data('ui.datatable') || {});
     }
 

@@ -21,7 +21,6 @@
             </div>
         </div>
         <div class="content-container" style="padding:40px 20px">
-            <div class="flex-container-full"></div>
         </div>
     </div>
 </div>
