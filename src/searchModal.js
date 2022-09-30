@@ -508,7 +508,7 @@ export default function searchModalFactory(config) {
         $tableContainer.empty();
         $tableContainer.on('load.datatable', searchResultsLoaded);
 
-        const { sortby, sortorder } = data.storedSearchOptions || {};
+        const { sortby, sortorder, page } = data.storedSearchOptions || {};
 
         //create datatable
         $tableContainer.datatable(
@@ -517,6 +517,7 @@ export default function searchModalFactory(config) {
                 model: data.model,
                 sortby,
                 sortorder,
+                page,
                 labels: {
                     actions: ''
                 },
@@ -547,9 +548,10 @@ export default function searchModalFactory(config) {
 
     /**
      * Filters data from cache by selected and recreates datatable
+     * @params {object} options - Additional options to be given to the datatable
      */
-    function recreateDatatable() {
-        const data = _.cloneDeep(dataCache);
+    function recreateDatatable(options = {}) {
+        const data = Object.assign(_.cloneDeep(dataCache), options);
         filterSelectedColumns(data).then(buildSearchResultsDatatable);
     }
 
@@ -608,14 +610,15 @@ export default function searchModalFactory(config) {
                     selected
                 }
             });
-            propertySelectorInstance.on('select', propertySelectorColumns => {
+            propertySelectorInstance.on('select', selection => {
                 if (
-                    propertySelectorColumns.length !== selectedColumns.length ||
-                    propertySelectorColumns.some(columnId => !selectedColumns.includes(columnId))
+                    selection.length !== selectedColumns.length ||
+                    selection.some(columnId => !selectedColumns.includes(columnId))
                 ) {
                     //update table
-                    selectedColumns = propertySelectorColumns;
-                    updateSelectedStore(getClassFilterUri(), propertySelectorColumns);
+                    selectedColumns = selection;
+                    const { sortby, sortorder, page } = getTableOptions();
+                    updateSelectedStore(getClassFilterUri(), { selection, sortby, sortorder, page });
                 }
             });
         } else {
@@ -653,13 +656,18 @@ export default function searchModalFactory(config) {
     /**
      *
      * @param {string} classFilterUri class will be used as key
-     * @param {Array<string>} selected array of column ids to display
+     * @param {object} update - The changed configuration
+     * @param {Array<string>} update.selection - array of column ids to display
+     * @param {string} update.sortby - The sorted column
+     * @param {string} update.sortorder - The sort order
+     * @param {number} update.page - The current page
      * @returns
      */
-    function updateSelectedStore(classFilterUri, selected) {
+    function updateSelectedStore(classFilterUri, { selection = [], sortby = 'id', sortorder = 'asc', page = 1 } = {}) {
+        const storedSearchOptions = { sortby, sortorder, page };
         return selectedColumnsStore
-            .setItem(classFilterUri, selected)
-            .then(() => instance.trigger(`selected-store-updated`))
+            .setItem(classFilterUri, selection)
+            .then(() => instance.trigger('selected-store-updated', { storedSearchOptions }))
             .catch(e => instance.trigger('error', e));
     }
 
