@@ -31,7 +31,26 @@ import $ from 'jquery';
  */
 const searchableFields = ['label', 'alias', 'classLabel'];
 
+/**
+ * Sort an array by a particular property.
+ * @param {Array} iter - The array to sort.
+ * @param {string} prop - The name of the sorting property.
+ * @returns {Array} - Returns a sorted copy of the array.
+ * @private
+ */
+function sortBy(iter, prop) {
+    return Array.from(iter).sort((a, b) => {
+        const textA = (a && a[prop]) || '';
+        const textB = (b && b[prop]) || '';
+        return textA.localeCompare(textB);
+    });
+}
 
+/**
+ * Creates a property selector with respect to given options.
+ * @param {object} [config]
+ * @returns {*}
+ */
 export default function propertySelectorFactory(config) {
     //element references
     let $container;
@@ -90,7 +109,7 @@ export default function propertySelectorFactory(config) {
          */
         setData(data) {
             if (data.available) {
-                availableProperties = data.available;
+                availableProperties = sortBy(data.available, 'label');
             }
             selectedProperties = new Set(data.selected);
             this.redrawList();
@@ -100,12 +119,12 @@ export default function propertySelectorFactory(config) {
                 this.hide();
             } else {
                 this.show();
+                this.redrawList();
             }
         }
     })
         .setTemplate(propertySelectorTpl)
         .on('render', function () {
-            this.shown = true;
             //component parts reference assignments
             $container = instance.getElement();
             $propertyListContainer = $('.property-list-container', $container);
@@ -136,14 +155,48 @@ export default function propertySelectorFactory(config) {
                 searchRedrawTimeoutId = setTimeout(instance.redrawList, searchRedrawTimeout);
             });
 
+            this.show();
             this.trigger('ready');
         })
+        .on('destroy', unregisterPageClick)
         .on('hide', function () {
             this.shown = false;
+            unregisterPageClick();
         })
         .on('show', function () {
+            registerPageClick();
             this.shown = true;
+        })
+        .on('cancel select', function () {
+            this.hide();
+            $searchInput.val('');
+            search = '';
         });
+
+    /**
+     * Close the component when clicking outside.
+     * @param event
+     */
+    function pageClick(event) {
+        if ($(event.target).closest('.property-selector-container').length) {
+            return;
+        }
+        instance.trigger('cancel');
+    }
+
+    /**
+     * Listens to the clicks outside the component
+     */
+    function registerPageClick() {
+        setTimeout(() => document.addEventListener('click', pageClick), 0);
+    }
+
+    /**
+     * Stops listening to the clicks outside the component
+     */
+    function unregisterPageClick() {
+        setTimeout(() => document.removeEventListener('click', pageClick), 0);
+    }
 
     /**
      * Checks if a searchable field contains the searched term.
@@ -196,24 +249,13 @@ export default function propertySelectorFactory(config) {
             label: 'Cancel',
             type: 'info',
             cls: 'btn-secondary'
-        }).on('click', () => {
-            //clear search
-            $searchInput.val('');
-            search = '';
-            instance.redrawList();
-
-            instance.trigger('cancel');
-            instance.hide();
-        });
+        }).on('click', () => instance.trigger('cancel'));
 
         const saveButton = buttonFactory({
             id: 'save',
             label: 'Save',
             type: 'info'
-        }).on('click', () => {
-            instance.trigger('select', [...selectedProperties]);
-            instance.hide();
-        });
+        }).on('click', () => instance.trigger('select', [...selectedProperties]));
 
         cancelButton.render($targetContainer);
         saveButton.render($targetContainer);
