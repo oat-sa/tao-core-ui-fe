@@ -23,7 +23,6 @@ $controlsHeight: 36px;
     min-height: $controlsHeight;
     min-width: 200px;
     direction: ltr;
-    font-family: 'tao' !important;
 
     &.youtube {
         .player {
@@ -98,11 +97,9 @@ $controlsHeight: 36px;
                 padding: 6px 12px;
                 background-color: $playerBackground;
                 opacity: 0.2;
-                font-family: 'tao' !important;
 
                 &:hover {
                     opacity: 0.6;
-                   font-family: 'tao' !important;
                 }
             }
 
