@@ -561,16 +561,6 @@ $controlsHeight: 36px;
             }
         }
     }
-    &.video(.preview) {
-    .player-overlay {
-        .action {
-            .icon {
-              font-family: 'tao' !important;
-             }
-          }
-        }
-
-}
 
     &.video:not(.preview):not(.error) {
         .player-overlay {
