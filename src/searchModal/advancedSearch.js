@@ -23,6 +23,10 @@ import textCriterionTpl from 'ui/searchModal/tpl/text-criterion';
 import invalidCriteriaWarningTpl from 'ui/searchModal/tpl/invalid-criteria-warning';
 import listCheckboxCriterionTpl from 'ui/searchModal/tpl/list-checkbox-criterion';
 import listSelectCriterionTpl from 'ui/searchModal/tpl/list-select-criterion';
+import highlightedTextTpl from 'ui/searchModal/tpl/highlighted-text';
+import classLabelTpl from 'ui/searchModal/tpl/criteria-class-label';
+import aliasTpl from 'ui/searchModal/tpl/criteria-alias';
+import labelTpl from 'ui/searchModal/tpl/criteria-label';
 import 'ui/searchModal/css/advancedSearch.css';
 import component from 'ui/component';
 import 'ui/modal';
@@ -180,12 +184,15 @@ export default function advancedSearchFactory(config) {
     /**
      * Lookup for characters in text to highlight
      * @param {String} text - text to lookup
-     * @param {String} highlight - character(s) to be highlighted
-     * @param {regExp|String} match - match to be applied in the text
+     * @param {String} searchString - match to be applied in the text
      * @returns {String} - highlighted text
      */
-    function highlightCharacter(text, highlight, match) {
-        return text.replace(match, `<b>${highlight}</b>`);
+    function highlightCharacter(text, searchString) {
+        if (!searchString) {
+            return text;
+        }
+        const reg = new RegExp(searchString, 'gi');
+        return text.replace(reg, str => highlightedTextTpl({ text: str }));
     }
 
     /**
@@ -213,18 +220,20 @@ export default function advancedSearchFactory(config) {
                     },
                     formatResult: function formatResult(result, container, query) {
                         const label = result.element[0].getAttribute('label');
-                        const sublabel = result.element[0].getAttribute('sublabel');
-                        const match = new RegExp(query.term, 'ig');
-                        let template = highlightCharacter(label, query.term, match);
+                        const alias = result.element[0].getAttribute('alias');
+                        const classLabel = result.element[0].getAttribute('class-label');
 
-                        // Add sublabel
-                        if (sublabel && sublabel.length) {
-                            template =
-                                template +
-                                `<span class="class-path"> / ${highlightCharacter(sublabel, query.term, match)}</span>`;
+                        let html = labelTpl({ text: highlightCharacter(label, query.term) });
+
+                        if (alias) {
+                            html += aliasTpl({ text: alias });
                         }
 
-                        return template;
+                        if (classLabel) {
+                            html += classLabelTpl({ text: classLabel });
+                        }
+
+                        return html;
                     }
                 });
 
@@ -589,20 +598,21 @@ export default function advancedSearchFactory(config) {
      * @returns {HTMLOptionElement} Single option criteria
      */
     function createCriteriaOption(criterion) {
-        let label = criterion.label;
-        let sublabel = '';
+        const label = criterion.label;
+        let classLabel = '';
+        let alias = '';
         let option;
-        let optionText = label;
 
         if (criterion.isDuplicated) {
-            sublabel = criterion.class.label;
-            optionText = `${label} (${criterion.alias}) /`;
+            classLabel = criterion.class.label || '';
+            alias = criterion.alias || '';
         }
 
         option = new Option(label, getCriterionStateId(criterion), false, false);
 
-        option.setAttribute('label', optionText);
-        option.setAttribute('sublabel', sublabel);
+        option.setAttribute('label', label);
+        option.setAttribute('alias', alias);
+        option.setAttribute('class-label', classLabel);
 
         return option;
     }
