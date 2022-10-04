@@ -37,7 +37,8 @@
         },
         {
             "id": "https://tao.docker.localhost/ontologies/tao.rdf#i5f48e103c32b144a6be0cf4a640e0a4",
-            "http://www.w3.org/2000/01/rdf-schema#label": "example_2_Math"
+            "http://www.w3.org/2000/01/rdf-schema#label": "example_2_Math",
+            "custom_prop": ""
         },
         {
             "id": "https://tao.docker.localhost/ontologies/tao.rdf#i5f48e10370a44445642b4249664cd56",
@@ -47,7 +48,8 @@
         {
             "id": "https://tao.docker.localhost/ontologies/tao.rdf#i5f48e1031ff3e4486d4bd1f46de2c04",
             "http://www.w3.org/2000/01/rdf-schema#label": "Example_0_Introduction",
-            "custom_label": "Example 0 Introduction"
+            "custom_label": "Example 0 Introduction",
+            "custom_prop": [" "]
         }
     ],
     "readonly": [],

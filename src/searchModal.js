@@ -437,7 +437,14 @@ export default function searchModalFactory(config) {
      * @returns {string|*}
      */
     const emptyValueTransform = value => {
-        return value === '' || value === null || typeof value === 'undefined' ? '-' : value;
+        let testedValue = value;
+        if (Array.isArray(testedValue)) {
+            testedValue = testedValue[0];
+        }
+        if ('string' === typeof testedValue) {
+            testedValue = testedValue.trim();
+        }
+        return testedValue === '' || testedValue === null || typeof testedValue === 'undefined' ? '-' : value;
     };
 
     /**

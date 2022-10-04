@@ -119,7 +119,7 @@ define([
     });
     QUnit.test('searchModal component is correctly initialized triggering initial search', function (assert) {
         const ready = assert.async();
-        assert.expect(15);
+        assert.expect(18);
 
         Promise.all([store('search'), store('selectedColumns')]).then(stores => {
             const searchStore = stores[0];
@@ -204,6 +204,21 @@ define([
                             $datatable.find('tbody tr').length,
                             9,
                             'datatable display the correct number of matches'
+                        );
+                        assert.equal(
+                            $datatable.find('tbody tr:eq(5) td.custom_prop').text().trim(),
+                            '-',
+                            'the missing column is filled with a placeholder'
+                        );
+                        assert.equal(
+                            $datatable.find('tbody tr:eq(6) td.custom_prop').text().trim(),
+                            '-',
+                            'the empty column is filled with a placeholder'
+                        );
+                        assert.equal(
+                            $datatable.find('tbody tr:eq(8) td.custom_prop').text().trim(),
+                            '-',
+                            'the column with an empty array is filled with a placeholder'
                         );
 
                         assert.equal(
