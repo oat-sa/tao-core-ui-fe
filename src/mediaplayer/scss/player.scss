@@ -72,6 +72,11 @@ $controlsHeight: 36px;
             right: 0;
             opacity: 1;
             background: transparent none;
+            a.action {
+                 span.icon {
+                    font-family: 'tao' !important;
+                }
+            }
         }
 
         .action {
@@ -106,12 +111,14 @@ $controlsHeight: 36px;
                 &:hover {
                     .icon {
                         opacity: 1;
+                        font-family: 'tao' !important;
                     }
                 }
 
                 .icon {
                     opacity: 0.6;
                     background: none;
+                    font-family: 'tao' !important;
                 }
                 .message {
                     font-size: 20px;
@@ -160,6 +167,7 @@ $controlsHeight: 36px;
 
                 .icon {
                     line-height: $playerActionSize;
+                    font-family: 'tao' !important;
                 }
             }
 
@@ -401,6 +409,12 @@ $controlsHeight: 36px;
         &.paused.canplay {
             .player-overlay {
                 cursor: pointer;
+                font-family: 'tao' !important;
+                a.action {
+                    span.icon {
+                        font-family: 'tao' !important;
+                    }
+                }
             }
 
             &:not(.audio) {
@@ -423,6 +437,11 @@ $controlsHeight: 36px;
         &.playing.canpause {
             .player-overlay {
                 cursor: pointer;
+                .action {
+                    .icon {
+                        font-family: 'tao' !important;
+                    }
+                }
             }
 
             &:not(.audio) {
@@ -436,6 +455,11 @@ $controlsHeight: 36px;
     }
 
     &.playing.canpause {
+        .action {
+            .icon {
+                font-family: 'tao' !important;
+            }
+        }
         .controls {
             [data-control="pause"] {
                 display: inline-block;
@@ -444,6 +468,11 @@ $controlsHeight: 36px;
     }
 
     &.paused.canplay {
+        .action {
+            .icon {
+                font-family: 'tao' !important;
+            }
+        }
         .controls {
             [data-control="play"] {
                 display: inline-block;
