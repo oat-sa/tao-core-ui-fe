@@ -571,7 +571,7 @@ define([
                         const options = resolutions[2];
 
                         assert.equal(criterias.search, 'query to be stored', 'query correctly stored');
-                        assert.equal(options.sortby, 'id', 'sorted column correctly stored');
+                        assert.equal(options.sortby, 'label', 'sorted column correctly stored');
                         assert.equal(options.sortorder, 'asc', 'sort order correctly stored');
                         assert.equal(results.totalCount, 9, 'results correctly stored');
                         assert.equal(
