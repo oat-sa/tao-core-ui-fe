@@ -52,6 +52,8 @@ import shortcutRegistry from 'util/shortcut/registry';
  * @param {string} config.classesUrl - the URL to the classes API (usually '/tao/RestResource/getAll')
  * @param {string} config.classMappingUrl - the URL to the class mapping API (usually '/tao/ClassMetadata/getWithMapping')
  * @param {string} config.statusUrl - the URL to the status API (usually '/tao/AdvancedSearch/status')
+ * @param {string} config.sortby - the default sorted column (usually 'label')
+ * @param {string} config.sortorder - the default sort order (usually 'asc')
  * @returns {searchModal}
  */
 export default function searchModalFactory(config) {
@@ -63,7 +65,9 @@ export default function searchModalFactory(config) {
         renderTo: 'body',
         criterias: {},
         searchOnInit: true,
-        maxListSize: 5
+        maxListSize: 5,
+        sortby: 'label',
+        sortorder: 'asc'
     };
     // Private properties to be easily accessible by instance methods
     let $container = null;
@@ -433,7 +437,14 @@ export default function searchModalFactory(config) {
      * @returns {string|*}
      */
     const emptyValueTransform = value => {
-        return value === '' || value === null || typeof value === 'undefined' ? '-' : value;
+        let testedValue = value;
+        if (Array.isArray(testedValue)) {
+            testedValue = testedValue[0];
+        }
+        if ('string' === typeof testedValue) {
+            testedValue = testedValue.trim();
+        }
+        return testedValue === '' || testedValue === null || typeof testedValue === 'undefined' ? '-' : value;
     };
 
     /**
@@ -512,7 +523,7 @@ export default function searchModalFactory(config) {
         $contentContainer.empty().append($tableContainer);
         $tableContainer.on('load.datatable', searchResultsLoaded);
 
-        const { sortby, sortorder, page } = data.storedSearchOptions || {};
+        const { sortby, sortorder, page } = data.storedSearchOptions || instance.config;
 
         //create datatable
         $tableContainer.datatable(
