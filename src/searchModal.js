@@ -478,6 +478,22 @@ export default function searchModalFactory(config) {
         //save availableColumns to memory
         availableColumns = data.settings.availableColumns;
         data.model = columnsToModel(availableColumns);
+
+        // adjust the default sorting and pagination
+        let { sortby, sortorder, page } = instance.config;
+
+        if (!sortorder || !['asc', 'desc'].includes(sortorder)) {
+            sortorder = 'asc';
+        }
+
+        data.model.forEach(column => {
+            if (column.sortId && column.id === sortby) {
+                sortby = column.sortId;
+            }
+        });
+
+        data.pageConfig = { sortby, sortorder, page };
+
         dataCache = _.cloneDeep(data);
         return data;
     }
@@ -523,7 +539,7 @@ export default function searchModalFactory(config) {
         $contentContainer.empty().append($tableContainer);
         $tableContainer.on('load.datatable', searchResultsLoaded);
 
-        const { sortby, sortorder, page } = data.storedSearchOptions || instance.config;
+        const { sortby, sortorder, page } = data.storedSearchOptions || data.pageConfig;
 
         //create datatable
         $tableContainer.datatable(
