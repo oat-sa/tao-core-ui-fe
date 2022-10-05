@@ -249,17 +249,17 @@ define([
                 ])
                 .then(() => searchStore.setItem('results', mocks.mockedResults))
                 .then(() => {
+                    const $container = $('#testable-container');
                     advancedSearchEnabled = true;
                     const instance = searchModalFactory({
                         criterias: { search: 'example' },
                         url: '/test/searchModal/mocks/with-occurrences/search.json',
-                        renderTo: '#testable-container',
+                        renderTo: $container,
                         rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
                     });
 
                     instance.on('ready', function () {
-                        const $container = $('.search-modal');
-                        const $searchInput = $container.find('.generic-search-input');
+                        const $searchInput = $container.find('.search-modal .generic-search-input');
 
                         assert.equal(
                             $('#testable-container')[0],
@@ -271,7 +271,7 @@ define([
                     });
 
                     instance.on('datatable-loaded', function () {
-                        const $datatable = $('table.datatable');
+                        const $datatable = $container.find('table.datatable');
                         assert.equal($datatable.length, 1, 'datatable has been created');
                         assert.equal(
                             $datatable.find('thead th').length,
@@ -325,7 +325,7 @@ define([
                         );
 
                         assert.equal(
-                            $datatable.find('.toggle-modal-button').length,
+                            $container.find('.content-toolbar .toggle-modal-button').length,
                             1,
                             'The columns manager is reachable'
                         );
