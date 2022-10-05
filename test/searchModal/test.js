@@ -65,10 +65,7 @@ define([
             const searchStore = stores[0];
             const selectedColumnsStore = stores[1];
             selectedColumnsStore
-                .setItem('http://www.tao.lu/Ontologies/TAOItem.rdf#Item', [
-                    'http://www.w3.org/2000/01/rdf-schema#label',
-                    'custom_prop'
-                ])
+                .setItem('http://www.tao.lu/Ontologies/TAOItem.rdf#Item', ['label', 'custom_prop'])
                 .then(() => searchStore.setItem('results', mocks.mockedResults))
                 .then(() => {
                     const instance = searchModalFactory({
@@ -125,11 +122,7 @@ define([
             const searchStore = stores[0];
             const selectedColumnsStore = stores[1];
             selectedColumnsStore
-                .setItem('http://www.tao.lu/Ontologies/TAOItem.rdf#Item', [
-                    'http://www.w3.org/2000/01/rdf-schema#label',
-                    'custom_prop',
-                    'custom_label'
-                ])
+                .setItem('http://www.tao.lu/Ontologies/TAOItem.rdf#Item', ['label', 'custom_prop', 'custom_label'])
                 .then(() => searchStore.setItem('results', mocks.mockedResults))
                 .then(() => {
                     const instance = searchModalFactory({
@@ -161,12 +154,12 @@ define([
                             'datatable display the correct number of columns'
                         );
                         assert.equal(
-                            $datatable.find('thead [data-sort-by="label"]').length,
+                            $datatable.find('thead [data-sort-by="label.raw"]').length,
                             1,
                             'The default column is displayed'
                         );
                         assert.equal(
-                            $datatable.find('thead [data-sort-by="label"] .alias').length,
+                            $datatable.find('thead [data-sort-by="label.raw"] .alias').length,
                             0,
                             'The default column has no alias'
                         );
@@ -242,11 +235,7 @@ define([
             const searchStore = stores[0];
             const selectedColumnsStore = stores[1];
             selectedColumnsStore
-                .setItem('http://www.tao.lu/Ontologies/TAOItem.rdf#Item', [
-                    'http://www.w3.org/2000/01/rdf-schema#label',
-                    'custom_prop',
-                    'custom_label'
-                ])
+                .setItem('http://www.tao.lu/Ontologies/TAOItem.rdf#Item', ['label', 'custom_prop', 'custom_label'])
                 .then(() => searchStore.setItem('results', mocks.mockedResults))
                 .then(() => {
                     advancedSearchEnabled = true;
@@ -279,12 +268,12 @@ define([
                             'datatable display the correct number of columns'
                         );
                         assert.equal(
-                            $datatable.find('thead [data-sort-by="label"]').length,
+                            $datatable.find('thead [data-sort-by="label.raw"]').length,
                             1,
                             'The default column is displayed'
                         );
                         assert.equal(
-                            $datatable.find('thead [data-sort-by="label"] .alias').length,
+                            $datatable.find('thead [data-sort-by="label.raw"] .alias').length,
                             0,
                             'The default column has no alias'
                         );
@@ -586,7 +575,7 @@ define([
                         const options = resolutions[2];
 
                         assert.equal(criterias.search, 'query to be stored', 'query correctly stored');
-                        assert.equal(options.sortby, 'label', 'sorted column correctly stored');
+                        assert.equal(options.sortby, 'label.raw', 'sorted column correctly stored');
                         assert.equal(options.sortorder, 'asc', 'sort order correctly stored');
                         assert.equal(results.totalCount, 9, 'results correctly stored');
                         assert.equal(

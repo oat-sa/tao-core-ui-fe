@@ -4,8 +4,8 @@
         "settings": {
             "availableColumns": [
                 {
-                    "id": "http://www.w3.org/2000/01/rdf-schema#label",
-                    "sortId": "label",
+                    "id": "label",
+                    "sortId": "label.raw",
                     "label": "Label",
                     "type": "text",
                     "alias": null,

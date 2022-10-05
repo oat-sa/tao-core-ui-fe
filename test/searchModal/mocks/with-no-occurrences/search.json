@@ -4,7 +4,7 @@
         "settings": {
             "availableColumns": [
                 {
-                    "id": "http://www.w3.org/2000/01/rdf-schema#label",
+                    "id": "label",
                     "sortId": "label",
                     "label": "Label",
                     "type": "text",
