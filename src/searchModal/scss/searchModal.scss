@@ -46,17 +46,6 @@ $classTreeVariables: (
         border: none;
     }
 
-    .toggle-modal-button {
-        user-select: none;
-        .icon-add {
-            font-size: 1.6rem;
-            position: relative;
-            top: 2px;
-            margin-right: 8px;
-        }
-    }
-
-
     .content-panel {
         width: 100%;
         height: 100%;
@@ -136,6 +125,27 @@ $classTreeVariables: (
         border: none;
         @include simple-flex-box();
         overflow: auto;
+    }
+
+    .content-toolbar {
+        height: 2rem;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: stretch;
+        align-content: space-around;
+    }
+    .content-area {}
+
+    .toggle-modal-button {
+        user-select: none;
+        margin: 0 2rem;
+        .icon-add {
+            font-size: 1.6rem;
+            position: relative;
+            top: 2px;
+            margin-right: 8px;
+        }
     }
 
     .content-block {
@@ -249,7 +259,7 @@ $classTreeVariables: (
     // Increasing specificity
     &.search-modal {
         max-height: 100%;
-        min-height: 320px;    
+        min-height: 320px;
         height: 100%;
         padding: 0px;
     }
@@ -341,7 +351,7 @@ $classTreeVariables: (
     }
     .content-container {
         @media screen and (min-width: 840px) {
-            padding: 64px !important;
+            padding: 44px 64px 64px;
         }
         .no-datatable-container {
             display: flex;
