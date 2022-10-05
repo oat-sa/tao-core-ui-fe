@@ -20,12 +20,14 @@ import _ from 'lodash';
 import dtdHandler from 'ui/ckeditor/dtdHandler';
 import 'ckeditor';
 import module from 'module';
+import featuresService from 'services/features';
 
 /**
  * Cache original config
  */
 const originalConfig = _.cloneDeep(window.CKEDITOR.config);
 const moduleConfig = module.config();
+const furiganaPluginVisibilityKey = 'ckeditor/TaoFurigana';
 
 function getUserLanguage() {
     const documentLang = window.document.documentElement.getAttribute('lang');
@@ -636,6 +638,9 @@ const ckConfigurator = (function () {
             }
             if (options.horizontalRule && ['block', 'inline'].includes(toolbarType)) {
                 positionedPlugins.HorizontalRule = { insertAfter: 'TaoTooltip' };
+            }
+            if (featuresService.isVisible(furiganaPluginVisibilityKey, false)) {
+                positionedPlugins.TaoFurigana = {insertAfter: 'Superscript'};
             }
         }
 
