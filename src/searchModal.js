@@ -486,11 +486,18 @@ export default function searchModalFactory(config) {
             sortorder = 'asc';
         }
 
+        const sortIdentifiers = [];
         data.model.forEach(column => {
+            sortIdentifiers.push(column.sortId || column.id);
             if (column.sortId && column.id === sortby) {
                 sortby = column.sortId;
             }
         });
+        if (!sortIdentifiers.includes(sortby)) {
+            // unknown sort identifier is rejected for safety
+            sortby = void 0;
+            sortorder = void 0;
+        }
 
         data.pageConfig = { sortby, sortorder, page };
 
