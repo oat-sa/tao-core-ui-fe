@@ -542,8 +542,16 @@ export default function searchModalFactory(config) {
         // Keeping the table container introduces a DOM pollution.
         // It is faster and cleaner to recreate the container than cleaning it explicitly.
         const $tableContainer = $(resultsContainerTpl());
-        const $contentContainer = $('.content-container', $container);
-        $contentContainer.empty().append($tableContainer);
+        const $contentContainer = $('.content-area', $container).empty();
+        const $contentToolbar = $('.content-toolbar', $container).empty();
+
+        if (instance.isAdvancedSearchEnabled()) {
+            const $manageColumnsBtn = $(propertySelectButtonTpl());
+            $contentToolbar.append($manageColumnsBtn);
+            $manageColumnsBtn.on('click', handleManageColumnsBtnClick);
+        }
+
+        $contentContainer.append($tableContainer);
         $tableContainer.on('load.datatable', searchResultsLoaded);
 
         const { sortby, sortorder, page } = data.storedSearchOptions || data.pageConfig;
@@ -599,14 +607,7 @@ export default function searchModalFactory(config) {
      * @param {object} dataset - datatable dataset
      */
     function searchResultsLoaded(e, dataset) {
-        const $actionsHeader = $('th.actions', $container);
         const { sortby, sortorder } = getTableOptions();
-
-        if (instance.isAdvancedSearchEnabled()) {
-            const $manageColumnsBtn = $(propertySelectButtonTpl());
-            $actionsHeader.append($manageColumnsBtn);
-            $manageColumnsBtn.on('click', handleManageColumnsBtnClick);
-        }
 
         if (dataset.records === 0) {
             replaceSearchResultsDatatableWithMessage('no-matches');

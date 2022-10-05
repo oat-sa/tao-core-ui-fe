@@ -4,8 +4,8 @@
     <fieldset class="filter-bool-group">
         <legend>{{criterion.label}}
             {{#if criterion.isDuplicated}}
-            {{#if criterion.alias}}<span class="criteria-alias">({{criterion.alias}})</span>{{/if}}
-            {{#if criterion.class.label}}<span class="class-path">/ {{criterion.class.label}}</span>{{/if}}
+                {{#if criterion.alias}}<span class="criteria-alias">({{criterion.alias}})</span>{{/if}}
+                {{#if criterion.class.label}}<span class="class-path">/ {{criterion.class.label}}</span>{{/if}}
             {{/if}}
         </legend>
         {{#each criterion.values}}
