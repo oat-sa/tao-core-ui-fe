@@ -369,9 +369,10 @@ export default function searchModalFactory(config) {
         if (running === false) {
             running = true;
             searchQuery(query, classFilterUri, params)
-                .then(data => appendDefaultDatasetToDatatable(data.data))
+                .then(data => data.data)
                 .then(buildDataModel)
                 .then(filterSelectedColumns)
+                .then(appendDefaultDatasetToDatatable)
                 .then(buildSearchResultsDatatable)
                 .catch(e => instance.trigger('error', e))
                 .then(() => (running = false));
@@ -610,7 +611,7 @@ export default function searchModalFactory(config) {
         if (dataset.records === 0) {
             replaceSearchResultsDatatableWithMessage('no-matches');
         }
-        instance.trigger(`datatable-loaded`);
+        instance.trigger('datatable-loaded');
         updateSearchStore({
             action: 'update',
             dataset,
@@ -686,7 +687,7 @@ export default function searchModalFactory(config) {
         }
 
         Promise.all(promises)
-            .then(() => instance.trigger(`store-updated`))
+            .then(() => instance.trigger('store-updated'))
             .catch(e => instance.trigger('error', e));
     }
 
