@@ -628,7 +628,7 @@ export default function searchModalFactory(config) {
             options: { sortby, sortorder },
             context: context.shownStructure,
             criterias: {
-                search: controls.$searchInput.val(),
+                search: controls.$searchInput && controls.$searchInput.val(),
                 class: isResourceSelector ? _.map(resourceSelector.getSelection(), 'uri')[0] : rootClassUri,
                 advancedCriteria: advancedSearch.getState()
             }
