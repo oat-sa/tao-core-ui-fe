@@ -22,7 +22,7 @@
                     "alias": "Additional property",
                     "classLabel": "Custom properties",
                     "isDuplicated": false,
-                    "default": true,
+                    "default": false,
                     "sortable": true
                 },
                 {
@@ -33,7 +33,7 @@
                     "alias": "Custom label",
                     "classLabel": "Custom properties",
                     "isDuplicated": true,
-                    "default": true,
+                    "default": false,
                     "sortable": true
                 }
             ]
