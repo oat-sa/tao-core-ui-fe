@@ -71,16 +71,11 @@ export default function searchModalFactory(config) {
     };
     // Private properties to be easily accessible by instance methods
     let $container = null;
-    let $searchInput = null;
-    let $searchButton = null;
-    let $clearButton = null;
+    let controls = {};
     let running = false;
     let searchStore = null;
     let selectedColumnsStore = null;
     let resourceSelector = null;
-    let $classFilterContainer = null;
-    let $classFilterInput = null;
-    let $classTreeContainer = null;
     let advancedSearch = null;
     let propertySelectorInstance;
     let availableColumns = [];
@@ -100,7 +95,7 @@ export default function searchModalFactory(config) {
         initModal();
         initUiSelectors();
         advancedSearch = advancedSearchFactory({
-            renderTo: $('.filters-container', $container),
+            renderTo: controls.$filtersContainer,
             advancedCriteria: instance.config.criterias.advancedCriteria,
             hideCriteria: instance.config.hideCriteria,
             statusUrl: instance.config.statusUrl,
@@ -111,7 +106,7 @@ export default function searchModalFactory(config) {
         Promise.all(promises)
             .then(() => {
                 instance.trigger('ready');
-                $searchButton.trigger('click');
+                controls.$searchButton.trigger('click');
             })
             .catch(e => instance.trigger('error', e));
     }
@@ -125,6 +120,7 @@ export default function searchModalFactory(config) {
             propertySelectorInstance.destroy();
         }
         $('.modal-bg').remove();
+        controls = {};
     }
 
     // Creates new component
@@ -167,14 +163,14 @@ export default function searchModalFactory(config) {
     function initClassFilter() {
         return new Promise(resolve => {
             if (!isResourceSelector) {
-                $classFilterContainer.hide();
+                controls.$classFilterContainer.hide();
                 return resolve();
             }
             const initialClassUri =
                 instance.config.criterias && instance.config.criterias.class
                     ? instance.config.criterias.class
                     : rootClassUri;
-            resourceSelector = resourceSelectorFactory($('.class-tree', $container), {
+            resourceSelector = resourceSelectorFactory(controls.$classTreeContainer, {
                 //set up the inner resource selector
                 selectionMode: 'single',
                 selectClass: true,
@@ -230,9 +226,9 @@ export default function searchModalFactory(config) {
                     classUri,
                     maxListSize: instance.config.maxListSize
                 });
-                $classFilterInput.html(label);
-                $classFilterInput.data('uri', uri);
-                $classTreeContainer.hide();
+                controls.$classFilterInput.html(label);
+                controls.$classFilterInput.data('uri', uri);
+                controls.$classTreeContainer.hide();
                 advancedSearch
                     .updateCriteria(route)
                     .then(() => instance.trigger('criteriaListUpdated'))
@@ -271,18 +267,23 @@ export default function searchModalFactory(config) {
      * and sets initial search query on search input
      */
     function initUiSelectors() {
-        $searchButton = $('.btn-search', $container);
-        $clearButton = $('.btn-clear', $container);
-        $searchInput = $('.generic-search-input', $container);
-        $classFilterInput = $('.class-filter', $container);
-        $classTreeContainer = $('.class-tree', $container);
-        $classFilterContainer = $('.class-filter-container', $container);
+        controls = {
+            $searchButton: $('.btn-search', $container),
+            $clearButton: $('.btn-clear', $container),
+            $searchInput: $('.generic-search-input', $container),
+            $classFilterInput: $('.class-filter', $container),
+            $classTreeContainer: $('.class-tree', $container),
+            $classFilterContainer: $('.class-filter-container', $container),
+            $filtersContainer: $('.filters-container', $container),
+            $contentArea: $('.content-area', $container),
+            $contentToolbar: $('.content-toolbar', $container)
+        };
 
-        $searchButton.on('click', search);
-        $clearButton.on('click', clear);
-        const shortcuts = shortcutRegistry($searchInput);
+        controls.$searchButton.on('click', search);
+        controls.$clearButton.on('click', clear);
+        const shortcuts = shortcutRegistry(controls.$searchInput);
         shortcuts.clear().add('enter', search);
-        $searchInput.val(
+        controls.$searchInput.val(
             instance.config.criterias && instance.config.criterias.search ? instance.config.criterias.search : ''
         );
     }
@@ -292,24 +293,24 @@ export default function searchModalFactory(config) {
      */
     function setResourceSelectorUIBehaviour() {
         $container.on('mousedown', () => {
-            $classTreeContainer.hide();
+            controls.$classTreeContainer.hide();
         });
 
         /**
          * Pressing space, enter, esc, backspace
          * on class filter input will toggle resource selector
          */
-        const shortcuts = shortcutRegistry($classFilterInput);
-        shortcuts.add('enter', () => $classTreeContainer.show());
-        shortcuts.add('space', () => $classTreeContainer.show());
-        shortcuts.add('backspace', () => $classTreeContainer.hide());
-        shortcuts.add('escape', () => $classTreeContainer.hide(), { propagate: false });
+        const shortcuts = shortcutRegistry(controls.$classFilterInput);
+        shortcuts.add('enter', () => controls.$classTreeContainer.show());
+        shortcuts.add('space', () => controls.$classTreeContainer.show());
+        shortcuts.add('backspace', () => controls.$classTreeContainer.hide());
+        shortcuts.add('escape', () => controls.$classTreeContainer.hide(), { propagate: false });
 
         /**
          * clicking on class filter container will toggle resource selector
          */
-        $classFilterContainer.on('click', e => {
-            $classTreeContainer.toggle();
+        controls.$classFilterContainer.on('click', e => {
+            controls.$classTreeContainer.toggle();
         });
 
         /**
@@ -317,12 +318,12 @@ export default function searchModalFactory(config) {
          * stopPropagation to prevent be closed
          * by searchModal.mouseDown listener
          */
-        $classFilterContainer.on('mousedown', e => {
+        controls.$classFilterContainer.on('mousedown', e => {
             e.stopPropagation();
         });
 
         // clicking on resource selector will stopPropagation to prevent be closed by searchModal.mouseDown listener
-        $classTreeContainer.on('mousedown', e => {
+        controls.$classTreeContainer.on('mousedown', e => {
             e.stopPropagation();
         });
     }
@@ -389,14 +390,14 @@ export default function searchModalFactory(config) {
      * Returns selected class filter of rootClassUri
      */
     function getClassFilterUri() {
-        return isResourceSelector ? $classFilterInput.data('uri').trim() : rootClassUri;
+        return isResourceSelector ? controls.$classFilterInput.data('uri').trim() : rootClassUri;
     }
 
     /**
      * build final complex query appending every filter
      */
     function buildComplexQuery() {
-        const $searchInputValue = $searchInput.val().trim();
+        const $searchInputValue = controls.$searchInput.val().trim();
 
         let query = $searchInputValue;
         query += advancedSearch.getAdvancedCriteriaQuery(query !== '');
@@ -542,8 +543,8 @@ export default function searchModalFactory(config) {
         // Keeping the table container introduces a DOM pollution.
         // It is faster and cleaner to recreate the container than cleaning it explicitly.
         const $tableContainer = $(resultsContainerTpl());
-        const $contentContainer = $('.content-area', $container).empty();
-        const $contentToolbar = $('.content-toolbar', $container).empty();
+        const $contentContainer = controls.$contentArea.empty();
+        const $contentToolbar = controls.$contentToolbar.empty();
 
         if (instance.isAdvancedSearchEnabled()) {
             const $manageColumnsBtn = $(propertySelectButtonTpl());
@@ -619,7 +620,7 @@ export default function searchModalFactory(config) {
             options: { sortby, sortorder },
             context: context.shownStructure,
             criterias: {
-                search: $searchInput.val(),
+                search: controls.$searchInput.val(),
                 class: isResourceSelector ? _.map(resourceSelector.getSelection(), 'uri')[0] : rootClassUri,
                 advancedCriteria: advancedSearch.getState()
             }
@@ -716,7 +717,7 @@ export default function searchModalFactory(config) {
      * undefined value
      */
     function clear() {
-        $searchInput.val('');
+        controls.$searchInput.val('');
         advancedSearch.clear();
         isResourceSelector && resourceSelector.select(rootClassUri);
         replaceSearchResultsDatatableWithMessage('no-query');
@@ -728,8 +729,6 @@ export default function searchModalFactory(config) {
      * @param {string} reason - reason why datatable is not rendered, to display appropiate message
      */
     function replaceSearchResultsDatatableWithMessage(reason) {
-        const section = $('.content-container', $container);
-        section.empty();
         let message = '';
         let icon = '';
 
@@ -742,7 +741,8 @@ export default function searchModalFactory(config) {
         }
 
         const infoMessage = infoMessageTpl({ message, icon });
-        section.append(infoMessage);
+        controls.$contentToolbar.empty();
+        controls.$contentArea.empty().append(infoMessage);
     }
 
     // return initialized instance of searchModal
