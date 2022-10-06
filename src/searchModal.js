@@ -397,9 +397,7 @@ export default function searchModalFactory(config) {
      * build final complex query appending every filter
      */
     function buildComplexQuery() {
-        const $searchInputValue = controls.$searchInput.val().trim();
-
-        let query = $searchInputValue;
+        let query = controls.$searchInput.val().trim();
         query += advancedSearch.getAdvancedCriteriaQuery(query !== '');
 
         return query;
@@ -636,7 +634,7 @@ export default function searchModalFactory(config) {
         const available = columnsToModel(availableColumns);
 
         if (!propertySelectorInstance) {
-            const { bottom: btnBottom, right: btnRight } = $(this).get(0).getBoundingClientRect();
+            const { bottom: btnBottom, right: btnRight } = this.getBoundingClientRect();
             const { top: containerTop, right: containerRight } = $container.get(0).getBoundingClientRect();
             const position = {
                 top: btnBottom - containerTop,
