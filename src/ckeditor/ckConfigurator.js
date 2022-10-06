@@ -639,7 +639,7 @@ const ckConfigurator = (function () {
             if (options.horizontalRule && ['block', 'inline'].includes(toolbarType)) {
                 positionedPlugins.HorizontalRule = { insertAfter: 'TaoTooltip' };
             }
-            if (featuresService.isVisible(furiganaPluginVisibilityKey, false)) {
+            if (featuresService.isVisible(furiganaPluginVisibilityKey, false) && typeof toolbarPresets[toolbarType] !== 'undefined') {
                 positionedPlugins.TaoFurigana = {insertAfter: 'Superscript'};
             }
         }
