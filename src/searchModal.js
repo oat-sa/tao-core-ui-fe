@@ -381,8 +381,7 @@ export default function searchModalFactory(config) {
      * Request search results and manages its results
      */
     function search() {
-        const query = buildComplexQuery();
-        searchHandler(query, getClassFilterUri());
+        searchHandler(buildComplexQuery(), getClassFilterUri());
     }
 
     /**
@@ -512,7 +511,7 @@ export default function searchModalFactory(config) {
      */
     function filterSelectedColumns(data) {
         return selectedColumnsStore
-            .getItem(getClassFilterUri())
+            .getItem(rootClassUri)
             .then(storedSelectedColumnIds => {
                 if (storedSelectedColumnIds && storedSelectedColumnIds.length) {
                     selectedColumns = [...storedSelectedColumnIds];
@@ -657,7 +656,7 @@ export default function searchModalFactory(config) {
                     //update table
                     selectedColumns = selection;
                     const { sortby, sortorder, page } = getTableOptions();
-                    updateSelectedStore(getClassFilterUri(), { selection, sortby, sortorder, page });
+                    updateSelectedStore({ selection, sortby, sortorder, page });
                 }
             });
         } else {
@@ -694,7 +693,6 @@ export default function searchModalFactory(config) {
 
     /**
      *
-     * @param {string} classFilterUri class will be used as key
      * @param {object} update - The changed configuration
      * @param {Array<string>} update.selection - array of column ids to display
      * @param {string} update.sortby - The sorted column
@@ -702,10 +700,10 @@ export default function searchModalFactory(config) {
      * @param {number} update.page - The current page
      * @returns
      */
-    function updateSelectedStore(classFilterUri, { selection = [], sortby = 'id', sortorder = 'asc', page = 1 } = {}) {
+    function updateSelectedStore({ selection = [], sortby = 'id', sortorder = 'asc', page = 1 } = {}) {
         const storedSearchOptions = { sortby, sortorder, page };
         return selectedColumnsStore
-            .setItem(classFilterUri, selection)
+            .setItem(rootClassUri, selection)
             .then(() => instance.trigger('selected-store-updated', { storedSearchOptions }))
             .catch(e => instance.trigger('error', e));
     }
