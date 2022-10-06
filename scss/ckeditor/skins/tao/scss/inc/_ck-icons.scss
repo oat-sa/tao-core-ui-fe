@@ -57,4 +57,4 @@
 .cke_button__taountab_icon:before { @include icon-untab;}
 .cke_combo_arrow:before { @include icon-down;}
 .cke_button_arrow:before { @include icon-down;}
-.cke_button__taofurigana_icon::before {@include icon-furigana;}
+.cke_button__taofurigana_icon::before {@include icon-furigana; padding-left: 2px;}
