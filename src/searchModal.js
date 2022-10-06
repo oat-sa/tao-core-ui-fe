@@ -542,14 +542,6 @@ export default function searchModalFactory(config) {
         // It is faster and cleaner to recreate the container than cleaning it explicitly.
         const $tableContainer = $(resultsContainerTpl());
         const $contentContainer = controls.$contentArea.empty();
-        const $contentToolbar = controls.$contentToolbar.empty();
-
-        if (instance.isAdvancedSearchEnabled()) {
-            const $manageColumnsBtn = $(propertySelectButtonTpl());
-            $contentToolbar.append($manageColumnsBtn);
-            $manageColumnsBtn.on('click', handleManageColumnsBtnClick);
-        }
-
         $contentContainer.append($tableContainer);
         $tableContainer.on('load.datatable', searchResultsLoaded);
 
@@ -606,6 +598,13 @@ export default function searchModalFactory(config) {
      * @param {object} dataset - datatable dataset
      */
     function searchResultsLoaded(e, dataset) {
+        const $contentToolbar = controls.$contentToolbar.empty();
+        if (instance.isAdvancedSearchEnabled()) {
+            const $manageColumnsBtn = $(propertySelectButtonTpl());
+            $contentToolbar.append($manageColumnsBtn);
+            $manageColumnsBtn.on('click', handleManageColumnsBtnClick);
+        }
+
         const { sortby, sortorder } = getTableOptions();
 
         if (dataset.records === 0) {
