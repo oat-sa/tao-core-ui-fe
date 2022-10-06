@@ -84,6 +84,7 @@ export default function searchModalFactory(config) {
     let advancedSearch = null;
     let propertySelectorInstance;
     let availableColumns = [];
+    let availableIdentifiers = {};
     let selectedColumns = [];
     let dataCache;
 
@@ -475,8 +476,10 @@ export default function searchModalFactory(config) {
      */
     function buildDataModel(data) {
         //save availableColumns to memory
+        availableIdentifiers = {};
         availableColumns = data.settings.availableColumns;
         data.model = columnsToModel(availableColumns);
+        data.model.forEach(column => (availableIdentifiers[column.id] = true));
 
         // adjust the default sorting and pagination
         let { sortby, sortorder, page } = instance.config;
@@ -513,9 +516,17 @@ export default function searchModalFactory(config) {
         return selectedColumnsStore
             .getItem(rootClassUri)
             .then(storedSelectedColumnIds => {
+                selectedColumns = [];
+
                 if (storedSelectedColumnIds && storedSelectedColumnIds.length) {
-                    selectedColumns = [...storedSelectedColumnIds];
-                } else {
+                    storedSelectedColumnIds.forEach(id => {
+                        if (availableIdentifiers[id]) {
+                            selectedColumns.push(id);
+                        }
+                    });
+                }
+
+                if (!selectedColumns.length) {
                     selectedColumns = data.settings.availableColumns.reduce((acc, column) => {
                         if (column.default) {
                             acc.push(column.id);
