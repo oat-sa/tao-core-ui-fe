@@ -478,6 +478,10 @@ export default function searchModalFactory(config) {
         //save availableColumns to memory
         availableIdentifiers = {};
         availableColumns = data.settings.availableColumns;
+
+        // The support for the old data.model coming from the server has been removed from the commit
+        // https://github.com/oat-sa/tao-core-ui-fe/commit/ae6c16a9199f9fc808bc8a37d2ddfce437a62e9c
+        // The data model is now coming from the settings carried on by the searchParams request.
         data.model = columnsToModel(availableColumns);
         data.model.forEach(column => (availableIdentifiers[column.id] = true));
 
