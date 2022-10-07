@@ -21,13 +21,16 @@ import _ from 'lodash';
 import __ from 'i18n';
 import context from 'context';
 import layoutTpl from 'ui/searchModal/tpl/layout';
+import resultsContainerTpl from 'ui/searchModal/tpl/results-container';
 import infoMessageTpl from 'ui/searchModal/tpl/info-message';
+import propertySelectButtonTpl from 'ui/searchModal/tpl/property-select-button';
 import 'ui/searchModal/css/searchModal.css';
 import component from 'ui/component';
 import 'ui/modal';
 import 'ui/datatable';
 import store from 'core/store';
 import resourceSelectorFactory from 'ui/resource/selector';
+import propertySelectorFactory from 'ui/propertySelector/propertySelector';
 import advancedSearchFactory from 'ui/searchModal/advancedSearch';
 import request from 'core/dataProvider/request';
 import urlUtil from 'util/url';
@@ -44,28 +47,41 @@ import shortcutRegistry from 'util/shortcut/registry';
  * @param {string} config.url - search endpoint to be set on datatable
  * @param {string} config.rootClassUri - Uri for the root class of current context, required to init the class filter
  * @param {bool} config.hideResourceSelector - if resourceSelector must be hidden
+ * @param {bool} config.hideCriteria - if the criteria must be hidden
  * @param {string} config.placeholder - placeholder for input in template
+ * @param {string} config.classesUrl - the URL to the classes API (usually '/tao/RestResource/getAll')
+ * @param {string} config.classMappingUrl - the URL to the class mapping API (usually '/tao/ClassMetadata/getWithMapping')
+ * @param {string} config.statusUrl - the URL to the status API (usually '/tao/AdvancedSearch/status')
+ * @param {string} config.sortby - the default sorted column (usually 'label')
+ * @param {string} config.sortorder - the default sort order (usually 'asc')
  * @returns {searchModal}
  */
 export default function searchModalFactory(config) {
+    // @TODO: The consumer must be responsible for supplying the routes. The component must not hardcode endpoints.
     const defaults = {
+        classesUrl: urlUtil.route('getAll', 'RestResource', 'tao'),
+        classMappingUrl: urlUtil.route('getWithMapping', 'ClassMetadata', 'tao'),
+        statusUrl: urlUtil.route('status', 'AdvancedSearch', 'tao'),
         renderTo: 'body',
         criterias: {},
         searchOnInit: true,
-        maxListSize: 5
+        maxListSize: 5,
+        sortby: 'label',
+        sortorder: 'asc'
     };
     // Private properties to be easily accessible by instance methods
     let $container = null;
-    let $searchInput = null;
-    let $searchButton = null;
-    let $clearButton = null;
+    let controls = {};
     let running = false;
     let searchStore = null;
+    let selectedColumnsStore = null;
     let resourceSelector = null;
-    let $classFilterContainer = null;
-    let $classFilterInput = null;
-    let $classTreeContainer = null;
     let advancedSearch = null;
+    let propertySelectorInstance;
+    let availableColumns = [];
+    let availableIdentifiers = {};
+    let selectedColumns = [];
+    let dataCache;
 
     // resorce selector
     const isResourceSelector = !config.hideResourceSelector;
@@ -80,16 +96,18 @@ export default function searchModalFactory(config) {
         initModal();
         initUiSelectors();
         advancedSearch = advancedSearchFactory({
-            renderTo: $('.filters-container', $container),
+            renderTo: controls.$filtersContainer,
             advancedCriteria: instance.config.criterias.advancedCriteria,
+            hideCriteria: instance.config.hideCriteria,
+            statusUrl: instance.config.statusUrl,
             rootClassUri: rootClassUri
         });
         promises.push(initClassFilter());
-        promises.push(initSearchStore());
+        promises.push(initStores());
         Promise.all(promises)
             .then(() => {
                 instance.trigger('ready');
-                $searchButton.trigger('click');
+                controls.$searchButton.trigger('click');
             })
             .catch(e => instance.trigger('error', e));
     }
@@ -99,12 +117,28 @@ export default function searchModalFactory(config) {
      */
     function destroyModal() {
         $container.removeClass('modal').modal('destroy');
+        if (propertySelectorInstance) {
+            propertySelectorInstance.destroy();
+        }
         $('.modal-bg').remove();
+        controls = {};
     }
 
     // Creates new component
-    const instance = component({}, defaults)
+    const instance = component(
+        {
+            /**
+             * Tells if the advanced search is enabled.
+             * @returns {boolean}
+             */
+            isAdvancedSearchEnabled() {
+                return advancedSearch && advancedSearch.isEnabled();
+            }
+        },
+        defaults
+    )
         .setTemplate(layoutTpl)
+        .on('selected-store-updated', recreateDatatable)
         .on('render', renderModal)
         .on('destroy', destroyModal);
 
@@ -130,14 +164,14 @@ export default function searchModalFactory(config) {
     function initClassFilter() {
         return new Promise(resolve => {
             if (!isResourceSelector) {
-                $classFilterContainer.hide();
+                controls.$classFilterContainer.hide();
                 return resolve();
             }
             const initialClassUri =
                 instance.config.criterias && instance.config.criterias.class
                     ? instance.config.criterias.class
                     : rootClassUri;
-            resourceSelector = resourceSelectorFactory($('.class-tree', $container), {
+            resourceSelector = resourceSelectorFactory(controls.$classTreeContainer, {
                 //set up the inner resource selector
                 selectionMode: 'single',
                 selectClass: true,
@@ -149,7 +183,7 @@ export default function searchModalFactory(config) {
             // when a class query is triggered, update selector options with received resources
             resourceSelector.on('query', params => {
                 const classOnlyParams = { ...params, classOnly: true };
-                const route = urlUtil.route('getAll', 'RestResource', 'tao');
+                const route = instance.config.classesUrl;
                 request(route, classOnlyParams)
                     .then(response => {
                         if (
@@ -189,13 +223,13 @@ export default function searchModalFactory(config) {
                 const classUri = _.map(selectedValue, 'classUri')[0];
                 const label = _.map(selectedValue, 'label')[0];
                 const uri = _.map(selectedValue, 'uri')[0];
-                const route = urlUtil.route('getWithMapping', 'ClassMetadata', 'tao', {
+                const route = urlUtil.build(instance.config.classMappingUrl, {
                     classUri,
                     maxListSize: instance.config.maxListSize
                 });
-                $classFilterInput.html(label);
-                $classFilterInput.data('uri', uri);
-                $classTreeContainer.hide();
+                controls.$classFilterInput.html(label);
+                controls.$classFilterInput.data('uri', uri);
+                controls.$classTreeContainer.hide();
                 advancedSearch
                     .updateCriteria(route)
                     .then(() => instance.trigger('criteriaListUpdated'))
@@ -234,18 +268,23 @@ export default function searchModalFactory(config) {
      * and sets initial search query on search input
      */
     function initUiSelectors() {
-        $searchButton = $('.btn-search', $container);
-        $clearButton = $('.btn-clear', $container);
-        $searchInput = $('.generic-search-input', $container);
-        $classFilterInput = $('.class-filter', $container);
-        $classTreeContainer = $('.class-tree', $container);
-        $classFilterContainer = $('.class-filter-container', $container);
+        controls = {
+            $searchButton: $('.btn-search', $container),
+            $clearButton: $('.btn-clear', $container),
+            $searchInput: $('.generic-search-input', $container),
+            $classFilterInput: $('.class-filter', $container),
+            $classTreeContainer: $('.class-tree', $container),
+            $classFilterContainer: $('.class-filter-container', $container),
+            $filtersContainer: $('.filters-container', $container),
+            $contentArea: $('.content-area', $container),
+            $contentToolbar: $('.content-toolbar', $container)
+        };
 
-        $searchButton.on('click', search);
-        $clearButton.on('click', clear);
-        const shortcuts = shortcutRegistry($searchInput);
+        controls.$searchButton.on('click', search);
+        controls.$clearButton.on('click', clear);
+        const shortcuts = shortcutRegistry(controls.$searchInput);
         shortcuts.clear().add('enter', search);
-        $searchInput.val(
+        controls.$searchInput.val(
             instance.config.criterias && instance.config.criterias.search ? instance.config.criterias.search : ''
         );
     }
@@ -255,24 +294,24 @@ export default function searchModalFactory(config) {
      */
     function setResourceSelectorUIBehaviour() {
         $container.on('mousedown', () => {
-            $classTreeContainer.hide();
+            controls.$classTreeContainer.hide();
         });
 
         /**
          * Pressing space, enter, esc, backspace
          * on class filter input will toggle resource selector
          */
-        const shortcuts = shortcutRegistry($classFilterInput);
-        shortcuts.add('enter', () => $classTreeContainer.show());
-        shortcuts.add('space', () => $classTreeContainer.show());
-        shortcuts.add('backspace', () => $classTreeContainer.hide());
-        shortcuts.add('escape', () => $classTreeContainer.hide(), { propagate: false });
+        const shortcuts = shortcutRegistry(controls.$classFilterInput);
+        shortcuts.add('enter', () => controls.$classTreeContainer.show());
+        shortcuts.add('space', () => controls.$classTreeContainer.show());
+        shortcuts.add('backspace', () => controls.$classTreeContainer.hide());
+        shortcuts.add('escape', () => controls.$classTreeContainer.hide(), { propagate: false });
 
         /**
          * clicking on class filter container will toggle resource selector
          */
-        $classFilterContainer.on('click', e => {
-            $classTreeContainer.toggle();
+        controls.$classFilterContainer.on('click', e => {
+            controls.$classTreeContainer.toggle();
         });
 
         /**
@@ -280,12 +319,12 @@ export default function searchModalFactory(config) {
          * stopPropagation to prevent be closed
          * by searchModal.mouseDown listener
          */
-        $classFilterContainer.on('mousedown', e => {
+        controls.$classFilterContainer.on('mousedown', e => {
             e.stopPropagation();
         });
 
         // clicking on resource selector will stopPropagation to prevent be closed by searchModal.mouseDown listener
-        $classTreeContainer.on('mousedown', e => {
+        controls.$classTreeContainer.on('mousedown', e => {
             e.stopPropagation();
         });
     }
@@ -294,50 +333,72 @@ export default function searchModalFactory(config) {
      * Loads search store so it is accessible in the component
      * @returns {Promise}
      */
-    function initSearchStore() {
-        return store('search')
-            .then(function (store) {
-                searchStore = store;
-            })
-            .catch(e => instance.trigger('error', e));
+    function initStores() {
+        return Promise.all([
+            store('search').then(store => (searchStore = store)),
+            store('selectedColumns').then(store => (selectedColumnsStore = store))
+        ]).catch(e => instance.trigger('error', e));
     }
+
+    /**
+     * Performs a search query
+     * @param query - The searched terms
+     * @param classFilterUri - The URI of the node class
+     * @param [params] - Additional parameters
+     * @returns {Promise}
+     */
+    const searchQuery = (query, classFilterUri, params = {}) => {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: instance.config.url,
+                type: 'POST',
+                data: { ...params, query: query, parentNode: classFilterUri, structure: context.shownStructure },
+                dataType: 'json'
+            })
+                .done(resolve)
+                .fail(reject);
+        });
+    };
+
+    /**
+     * Performs the search query, preventing to send too many requests
+     * @param query - The searched terms
+     * @param classFilterUri - The URI of the node class
+     * @param [params] - Additional parameters
+     */
+    const searchHandler = (query, classFilterUri, params = {}) => {
+        if (running === false) {
+            running = true;
+            searchQuery(query, classFilterUri, params)
+                .then(data => data.data)
+                .then(buildDataModel)
+                .then(filterSelectedColumns)
+                .then(appendDefaultDatasetToDatatable)
+                .then(buildSearchResultsDatatable)
+                .catch(e => instance.trigger('error', e))
+                .then(() => (running = false));
+        }
+    };
 
     /**
      * Request search results and manages its results
      */
     function search() {
-        const query = buildComplexQuery();
-        const classFilterUri = isResourceSelector ? $classFilterInput.data('uri').trim() : rootClassUri;
+        searchHandler(buildComplexQuery(), getClassFilterUri());
+    }
 
-        //throttle and control to prevent sending too many requests
-        const searchHandler = _.throttle(query => {
-            if (running === false) {
-                running = true;
-                $.ajax({
-                    url: instance.config.url,
-                    type: 'POST',
-                    data: { query: query, parentNode: classFilterUri, structure: context.shownStructure },
-                    dataType: 'json'
-                })
-                    .done(data => {
-                        appendDefaultDatasetToDatatable(data.data)
-                            .then(() => buildSearchResultsDatatable(data.data))
-                            .catch(e => instance.trigger('error', e));
-                    })
-                    .always(() => (running = false));
-            }
-        }, 100);
-
-        searchHandler(query);
+    /**
+     * Returns selected class filter of rootClassUri
+     */
+    function getClassFilterUri() {
+        return isResourceSelector ? controls.$classFilterInput.data('uri').trim() : rootClassUri;
     }
 
     /**
      * build final complex query appending every filter
      */
     function buildComplexQuery() {
-        const $searchInputValue = $searchInput.val().trim();
-
-        let query = $searchInputValue;
+        let query = controls.$searchInput.val().trim();
         query += advancedSearch.getAdvancedCriteriaQuery(query !== '');
 
         return query;
@@ -352,21 +413,138 @@ export default function searchModalFactory(config) {
         return new Promise(function (resolve, reject) {
             // If no search on init, get dataset from searchStore
             if (instance.config.searchOnInit === false) {
-                searchStore
-                    .getItem('results')
-                    .then(storedSearchResults => {
+                Promise.all([searchStore.getItem('results'), searchStore.getItem('options')])
+                    .then(fromStore => {
                         instance.config.searchOnInit = true;
-                        data.storedSearchResults = storedSearchResults;
-                        resolve();
+                        data.storedSearchResults = fromStore[0];
+                        data.storedSearchOptions = fromStore[1];
+                        resolve(data);
                     })
                     .catch(e => {
-                        instance.trigger('error', e);
-                        reject(new Error('Error appending default dataset from searchStore to datatable'));
+                        reject(
+                            new Error('Error appending default dataset from searchStore to datatable', { cause: e })
+                        );
                     });
             } else {
-                resolve();
+                resolve(data);
             }
         });
+    }
+
+    /**
+     * Replaces empty value by a placeholder.
+     * @param value
+     * @returns {string|*}
+     */
+    const emptyValueTransform = value => {
+        let testedValue = value;
+        if (Array.isArray(testedValue)) {
+            testedValue = testedValue[0];
+        }
+        if ('string' === typeof testedValue) {
+            testedValue = testedValue.trim();
+        }
+        return testedValue === '' || testedValue === null || typeof testedValue === 'undefined' ? '-' : value;
+    };
+
+    /**
+     * Refines the columns to be compatible with the datatable model
+     * @param {object[]} columns
+     * @returns {object[]}
+     */
+    function columnsToModel(columns) {
+        if (!Array.isArray(columns)) {
+            return [];
+        }
+
+        return columns.map(column => {
+            const { id, sortId, label, sortable, isDuplicated } = column;
+            let alias, comment, classLabel;
+            if (isDuplicated) {
+                alias = column.alias;
+                classLabel = column.classLabel; // needed by the property selector
+                comment = column.classLabel; // needed by the datatable
+            }
+            return { id, sortId, label, alias, classLabel, comment, sortable, transform: emptyValueTransform };
+        });
+    }
+
+    /**
+     * Refines the data model for the datatable
+     * @param {object} data - search configuration including model and endpoint for datatable
+     * @returns {object} The data configuration refined with the data model for the datatrable
+     */
+    function buildDataModel(data) {
+        //save availableColumns to memory
+        availableIdentifiers = {};
+        availableColumns = data.settings.availableColumns;
+
+        // The support for the old data.model coming from the server has been removed from the commit
+        // https://github.com/oat-sa/tao-core-ui-fe/commit/ae6c16a9199f9fc808bc8a37d2ddfce437a62e9c
+        // The data model is now coming from the settings carried on by the searchParams request.
+        data.model = columnsToModel(availableColumns);
+        data.model.forEach(column => (availableIdentifiers[column.id] = true));
+
+        // adjust the default sorting and pagination
+        let { sortby, sortorder, page } = instance.config;
+
+        if (!sortorder || !['asc', 'desc'].includes(sortorder)) {
+            sortorder = 'asc';
+        }
+
+        const sortIdentifiers = [];
+        data.model.forEach(column => {
+            sortIdentifiers.push(column.sortId || column.id);
+            if (column.sortId && column.id === sortby) {
+                sortby = column.sortId;
+            }
+        });
+        if (!sortIdentifiers.includes(sortby)) {
+            // unknown sort identifier is rejected for safety
+            sortby = void 0;
+            sortorder = void 0;
+        }
+
+        data.pageConfig = { sortby, sortorder, page };
+
+        dataCache = _.cloneDeep(data);
+        return data;
+    }
+
+    /**
+     * Filters datatble model based on stored selected columns
+     * @param {Object} data data containing available columns and model for datatable
+     * @returns {Promise} promise which resolves with filtered data.model
+     */
+    function filterSelectedColumns(data) {
+        return selectedColumnsStore
+            .getItem(rootClassUri)
+            .then(storedSelectedColumnIds => {
+                selectedColumns = [];
+
+                if (storedSelectedColumnIds && storedSelectedColumnIds.length) {
+                    storedSelectedColumnIds.forEach(id => {
+                        if (availableIdentifiers[id]) {
+                            selectedColumns.push(id);
+                        }
+                    });
+                }
+
+                if (!selectedColumns.length) {
+                    selectedColumns = data.settings.availableColumns.reduce((acc, column) => {
+                        if (column.default) {
+                            acc.push(column.id);
+                        }
+                        return acc;
+                    }, []);
+                }
+
+                data.model = data.model.filter(column => selectedColumns.includes(column.id));
+                return data;
+            })
+            .catch(e => {
+                instance.trigger('error', e);
+            });
     }
 
     /**
@@ -374,18 +552,24 @@ export default function searchModalFactory(config) {
      * @param {object} data - search configuration including model and endpoint for datatable
      */
     function buildSearchResultsDatatable(data) {
-        //update the section container
-        const $tableContainer = $('<div class="flex-container-full"></div>');
-        const section = $('.content-container', $container);
-        section.empty();
-        section.append($tableContainer);
+        // Note: the table container needs to be recreated because datatable is storing data in it.
+        // Keeping the table container introduces a DOM pollution.
+        // It is faster and cleaner to recreate the container than cleaning it explicitly.
+        const $tableContainer = $(resultsContainerTpl());
+        const $contentContainer = controls.$contentArea.empty();
+        $contentContainer.append($tableContainer);
         $tableContainer.on('load.datatable', searchResultsLoaded);
+
+        const { sortby, sortorder, page } = data.storedSearchOptions || data.pageConfig;
 
         //create datatable
         $tableContainer.datatable(
             {
                 url: data.url,
-                model: _.values(data.model),
+                model: data.model,
+                sortby,
+                sortorder,
+                page,
                 labels: {
                     actions: ''
                 },
@@ -409,26 +593,90 @@ export default function searchModalFactory(config) {
         );
     }
 
+    function getTableOptions() {
+        const $tableContainer = $('.results-container', $container);
+        return _.cloneDeep($tableContainer.data('ui.datatable') || {});
+    }
+
+    /**
+     * Filters data from cache by selected and recreates datatable
+     * @params {object} options - Additional options to be given to the datatable
+     */
+    function recreateDatatable(options = {}) {
+        const data = Object.assign(_.cloneDeep(dataCache), options);
+        filterSelectedColumns(data).then(buildSearchResultsDatatable);
+    }
+
     /**
      * Triggered on load.datatable event, it updates searchStore and manages possible exceptions
      * @param {object} e - load.datatable event
      * @param {object} dataset - datatable dataset
      */
     function searchResultsLoaded(e, dataset) {
+        const $contentToolbar = controls.$contentToolbar.empty();
+        if (instance.isAdvancedSearchEnabled()) {
+            const $manageColumnsBtn = $(propertySelectButtonTpl());
+            $contentToolbar.append($manageColumnsBtn);
+            $manageColumnsBtn.on('click', handleManageColumnsBtnClick);
+        }
+
+        const { sortby, sortorder } = getTableOptions();
+
         if (dataset.records === 0) {
             replaceSearchResultsDatatableWithMessage('no-matches');
         }
-        instance.trigger(`datatable-loaded`);
+        instance.trigger('datatable-loaded');
         updateSearchStore({
             action: 'update',
             dataset,
+            options: { sortby, sortorder },
             context: context.shownStructure,
             criterias: {
-                search: $searchInput.val(),
+                search: controls.$searchInput && controls.$searchInput.val(),
                 class: isResourceSelector ? _.map(resourceSelector.getSelection(), 'uri')[0] : rootClassUri,
                 advancedCriteria: advancedSearch.getState()
             }
         });
+    }
+
+    /**
+     * Handler for manage columns button click
+     * @param {Event} e
+     */
+    function handleManageColumnsBtnClick(e) {
+        const selected = selectedColumns;
+        const available = columnsToModel(availableColumns);
+
+        if (!propertySelectorInstance) {
+            const { bottom: btnBottom, right: btnRight } = this.getBoundingClientRect();
+            const { top: containerTop, right: containerRight } = $container.get(0).getBoundingClientRect();
+            const position = {
+                top: btnBottom - containerTop,
+                right: containerRight - btnRight
+            };
+            propertySelectorInstance = propertySelectorFactory({
+                renderTo: $container,
+                data: {
+                    position,
+                    available,
+                    selected
+                }
+            });
+            propertySelectorInstance.on('select', selection => {
+                if (
+                    selection.length !== selectedColumns.length ||
+                    selection.some(columnId => !selectedColumns.includes(columnId))
+                ) {
+                    //update table
+                    selectedColumns = selection;
+                    const { sortby, sortorder, page } = getTableOptions();
+                    updateSelectedStore({ selection, sortby, sortorder, page });
+                }
+            });
+        } else {
+            propertySelectorInstance.setData({ available, selected });
+            propertySelectorInstance.toggle();
+        }
     }
 
     /**
@@ -444,6 +692,7 @@ export default function searchModalFactory(config) {
         } else if (data.action === 'update') {
             promises.push(searchStore.setItem('criterias', data.criterias));
             promises.push(searchStore.setItem('context', data.context));
+            promises.push(searchStore.setItem('options', data.options));
             promises.push(
                 data.dataset.records === 0
                     ? searchStore.removeItem('results')
@@ -452,7 +701,24 @@ export default function searchModalFactory(config) {
         }
 
         Promise.all(promises)
-            .then(() => instance.trigger(`store-updated`))
+            .then(() => instance.trigger('store-updated'))
+            .catch(e => instance.trigger('error', e));
+    }
+
+    /**
+     *
+     * @param {object} update - The changed configuration
+     * @param {Array<string>} update.selection - array of column ids to display
+     * @param {string} update.sortby - The sorted column
+     * @param {string} update.sortorder - The sort order
+     * @param {number} update.page - The current page
+     * @returns
+     */
+    function updateSelectedStore({ selection = [], sortby = 'id', sortorder = 'asc', page = 1 } = {}) {
+        const storedSearchOptions = { sortby, sortorder, page };
+        return selectedColumnsStore
+            .setItem(rootClassUri, selection)
+            .then(() => instance.trigger('selected-store-updated', { storedSearchOptions }))
             .catch(e => instance.trigger('error', e));
     }
 
@@ -462,7 +728,7 @@ export default function searchModalFactory(config) {
      * undefined value
      */
     function clear() {
-        $searchInput.val('');
+        controls.$searchInput.val('');
         advancedSearch.clear();
         isResourceSelector && resourceSelector.select(rootClassUri);
         replaceSearchResultsDatatableWithMessage('no-query');
@@ -474,8 +740,6 @@ export default function searchModalFactory(config) {
      * @param {string} reason - reason why datatable is not rendered, to display appropiate message
      */
     function replaceSearchResultsDatatableWithMessage(reason) {
-        const section = $('.content-container', $container);
-        section.empty();
         let message = '';
         let icon = '';
 
@@ -488,7 +752,8 @@ export default function searchModalFactory(config) {
         }
 
         const infoMessage = infoMessageTpl({ message, icon });
-        section.append(infoMessage);
+        controls.$contentToolbar.empty();
+        controls.$contentArea.empty().append(infoMessage);
     }
 
     // return initialized instance of searchModal

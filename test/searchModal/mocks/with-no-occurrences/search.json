@@ -1,12 +1,20 @@
 {
     "data": {
         "url": "/test/searchModal/mocks/with-no-occurrences/dataset.json",
-        "model": {
-            "http://www.w3.org/2000/01/rdf-schema#label": {
-                "id": "http://www.w3.org/2000/01/rdf-schema#label",
-                "label": "Label",
-                "sortable": false
-            }
+        "settings": {
+            "availableColumns": [
+                {
+                    "id": "label",
+                    "sortId": "label",
+                    "label": "Label",
+                    "type": "text",
+                    "alias": null,
+                    "classLabel": null,
+                    "isDuplicated": false,
+                    "default": true,
+                    "sortable": false
+                }
+            ]
         },
         "params": {
             "rootNode": "http:\\/\\/www.tao.lu\\/Ontologies\\/TAOItem.rdf#Item",

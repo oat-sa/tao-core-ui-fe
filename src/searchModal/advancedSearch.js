@@ -23,13 +23,31 @@ import textCriterionTpl from 'ui/searchModal/tpl/text-criterion';
 import invalidCriteriaWarningTpl from 'ui/searchModal/tpl/invalid-criteria-warning';
 import listCheckboxCriterionTpl from 'ui/searchModal/tpl/list-checkbox-criterion';
 import listSelectCriterionTpl from 'ui/searchModal/tpl/list-select-criterion';
+import highlightedTextTpl from 'ui/searchModal/tpl/highlighted-text';
+import classLabelTpl from 'ui/searchModal/tpl/criteria-class-label';
+import aliasTpl from 'ui/searchModal/tpl/criteria-alias';
+import labelTpl from 'ui/searchModal/tpl/criteria-label';
 import 'ui/searchModal/css/advancedSearch.css';
 import component from 'ui/component';
 import 'ui/modal';
 import 'ui/datatable';
 import 'select2';
-import urlUtil from 'util/url';
 import request from 'core/dataProvider/request';
+
+/**
+ * Sort an array by a particular property.
+ * @param {Array} iter - The array to sort.
+ * @param {string} prop - The name of the sorting property.
+ * @returns {Array} - Returns a sorted copy of the array.
+ * @private
+ */
+function sortBy(iter, prop) {
+    return Array.from(iter).sort((a, b) => {
+        const textA = (a && a[prop]) || '';
+        const textB = (b && b[prop]) || '';
+        return textA.localeCompare(textB);
+    });
+}
 
 /**
  * Creates advanced search component
@@ -37,7 +55,9 @@ import request from 'core/dataProvider/request';
  * @param {object} config
  * @param {object} config.renderTo - DOM element where component will be rendered to
  * @param {string} config.advancedCriteria - advanced criteria to be set on component creation
+ * @param {bool} config.hideCriteria - if the criteria must be hidden
  * @param {string} config.rootClassUri - rootClassUri to check for whitelist sections
+ * @param {string} config.statusUrl - the URL to the status API (usually '/tao/AdvancedSearch/status')
  * @returns {advancedSearch}
  */
 export default function advancedSearchFactory(config) {
@@ -60,11 +80,19 @@ export default function advancedSearchFactory(config) {
     // Creates new component
     const instance = component({
         /**
+         * Tells if the advanced search is enabled.
+         * @returns {boolean}
+         */
+        isEnabled() {
+            return !!isAdvancedSearchStatusEnabled;
+        },
+
+        /**
          * Request metadata (criteria) for the given uri
          * @param {string} classUri - url to make the reques to
          * @returns {Promise} - Request promise
          */
-        updateCriteria: function (route) {
+        updateCriteria(route) {
             if (!isAdvancedSearchStatusEnabled) {
                 return Promise.resolve();
             }
@@ -86,14 +114,14 @@ export default function advancedSearchFactory(config) {
          * Access to component state
          * @returns {Object} - criteria state
          */
-        getState: function () {
+        getState() {
             return criteriaState;
         },
         /**
          * Removes every rendered criterion, updates criteria state accordingly
          * and removes classes applied to scrollable list of criteria
          */
-        clear: function () {
+        clear() {
             $advancedCriteriaContainer.removeClass(['scrollable', 'scroll-separator-top', 'scroll-separator-bottom']);
             $advancedCriteriaContainer.empty();
             _.forEach(criteriaState, criterion => {
@@ -104,7 +132,7 @@ export default function advancedSearchFactory(config) {
         /**
          * Builds substring of search query with the advanced criteria conditions
          */
-        getAdvancedCriteriaQuery: function (hasSearchInput) {
+        getAdvancedCriteriaQuery(hasSearchInput) {
             const advancedSearchCriteria = _.filter(criteriaState, criterion => criterion.rendered === true);
             let query = '';
 
@@ -156,22 +184,28 @@ export default function advancedSearchFactory(config) {
     /**
      * Lookup for characters in text to highlight
      * @param {String} text - text to lookup
-     * @param {String} highlight - character(s) to be highlighted
-     * @param {regExp|String} match - match to be applied in the text
+     * @param {String} searchString - match to be applied in the text
      * @returns {String} - highlighted text
      */
-    function highlightCharacter(text, highlight, match) {
-        return text.replace(match, `<b>${highlight}</b>`);
+    function highlightCharacter(text, searchString) {
+        if (!searchString) {
+            return text;
+        }
+        const reg = new RegExp(searchString, 'gi');
+        return text.replace(reg, str => highlightedTextTpl({ text: str }));
     }
 
     /**
      * Inits select2 on criteria select and its UX logic
      */
     function initAddCriteriaSelector() {
-        const route = urlUtil.route('status', 'AdvancedSearch', 'tao');
-        return request(route)
+        return request(instance.config.statusUrl)
             .then(function (response) {
-                if (!response.enabled || (response.whitelist && response.whitelist.includes(config.rootClassUri))) {
+                if (
+                    config.hideCriteria ||
+                    !response.enabled ||
+                    (response.whitelist && response.whitelist.includes(config.rootClassUri))
+                ) {
                     isAdvancedSearchStatusEnabled = false;
                     return;
                 }
@@ -180,22 +214,26 @@ export default function advancedSearchFactory(config) {
                 $criteriaSelect.select2({
                     containerCssClass: 'criteria-select2',
                     dropdownCssClass: 'criteria-dropdown-select2',
-                    sortResults: results => _.sortBy(results, ['text']),
-                    escapeMarkup: function(markup) {
+                    sortResults: results => sortBy(results, 'text'),
+                    escapeMarkup: function (markup) {
                         return markup;
                     },
                     formatResult: function formatResult(result, container, query) {
                         const label = result.element[0].getAttribute('label');
-                        const sublabel = result.element[0].getAttribute('sublabel');
-                        const match = new RegExp(query.term, 'ig');
-                        let template = highlightCharacter(label, query.term, match);
+                        const alias = result.element[0].getAttribute('alias');
+                        const classLabel = result.element[0].getAttribute('class-label');
 
-                        // Add sublabel
-                        if(sublabel && sublabel.length) {
-                            template = template + `<span class="class-path"> / ${highlightCharacter(sublabel, query.term, match)}</span>`;
+                        let html = labelTpl({ text: highlightCharacter(label, query.term) });
+
+                        if (alias) {
+                            html += aliasTpl({ text: alias });
                         }
 
-                        return template;
+                        if (classLabel) {
+                            html += classLabelTpl({ text: classLabel });
+                        }
+
+                        return html;
                     }
                 });
 
@@ -323,8 +361,11 @@ export default function advancedSearchFactory(config) {
                             subject: term
                         };
                     },
-                    results: (response) => ({
-                        results: response.data.map(option => ({ id: valueMapping === 'uri' ? option.uri : option.label, text: option.label }))
+                    results: response => ({
+                        results: response.data.map(option => ({
+                            id: valueMapping === 'uri' ? option.uri : option.label,
+                            text: option.label
+                        }))
                     })
                 },
                 initSelection: function (element, callback) {
@@ -355,7 +396,7 @@ export default function advancedSearchFactory(config) {
         return $.ajax({
             type: 'GET',
             url: criterion.uri,
-            dataType: 'json',
+            dataType: 'json'
         }).then(({ data }) => {
             if (Array.isArray(criterion.value)) {
                 return criterion.value.map(v => ({
@@ -363,10 +404,10 @@ export default function advancedSearchFactory(config) {
                     text: (data.find(d => d.uri === v) || {}).label
                 }));
             }
-            let c = (data.find(d => d.uri === criterion.value) || {});
+            let c = data.find(d => d.uri === criterion.value) || {};
             return {
                 text: c.label,
-                id: criterion.value,
+                id: criterion.value
             };
         });
     }
@@ -557,25 +598,21 @@ export default function advancedSearchFactory(config) {
      * @returns {HTMLOptionElement} Single option criteria
      */
     function createCriteriaOption(criterion) {
-        let label = criterion.label;
-        let sublabel = '';
+        const label = criterion.label;
+        let classLabel = '';
+        let alias = '';
         let option;
-        let optionText = label;
 
         if (criterion.isDuplicated) {
-            sublabel = criterion.class.label;
-            optionText = `${label} (${criterion.alias}) /`;
+            classLabel = criterion.class.label || '';
+            alias = criterion.alias || '';
         }
 
-        option = new Option(
-            label,
-            getCriterionStateId(criterion),
-            false,
-            false
-        );
+        option = new Option(label, getCriterionStateId(criterion), false, false);
 
-        option.setAttribute('label', optionText);
-        option.setAttribute('sublabel', sublabel);
+        option.setAttribute('label', label);
+        option.setAttribute('alias', alias);
+        option.setAttribute('class-label', classLabel);
 
         return option;
     }

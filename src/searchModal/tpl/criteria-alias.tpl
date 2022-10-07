@@ -1,0 +1,1 @@
+<span class="criteria-alias"> ({{{dompurify text}}})</span>
