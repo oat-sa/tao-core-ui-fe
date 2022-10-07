@@ -20,7 +20,9 @@
                 <button class="btn-search btn-info small">{{__ "Search"}}</button>
             </div>
         </div>
-        <div class="content-container" style="padding:40px 20px">
+        <div class="content-container">
+            <div class="content-toolbar"></div>
+            <div class="content-area"></div>
         </div>
     </div>
 </div>

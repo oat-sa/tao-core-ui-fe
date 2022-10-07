@@ -1,11 +1,11 @@
 {
     "name": "@oat-sa/tao-core-ui",
-    "version": "1.60.2",
+    "version": "1.61.0",
     "displayName": "TAO Core UI",
     "description": "UI libraries of TAO",
     "scripts": {
         "test": "npx qunit-testrunner",
-        "test:keepAlive": "npx qunit-testrunner --keepalive",
+        "test:keepAlive": "npx qunit-testrunner --keepalive --port 5400",
         "test:cov": "npm run build:cov && npx qunit-testrunner --cov",
         "test:dev": "run-p test:keepAlive build:watch",
         "coverage": "nyc report",
@@ -15,11 +15,12 @@
         "build:dev": "npm run build:watch",
         "build:watch": "rollup --config ./build/rollup.config.js --watch",
         "build:cov": "rollup --config ./build/rollup.config.js --environment COVERAGE",
+        "build:all": "npm run buildScss && npm run build",
         "buildScss": "node ./build/scss.js",
         "lint:src": "eslint -c .eslintrc.js src",
         "lint:test": "eslint -c test/.eslintrc.js test",
         "lint:report": "eslint -c .eslintrc.js --output-file eslint_report.json --format json src | true",
-        "prepare": "npm run buildScss && npm run build"
+        "prepare": "npm run build:all"
     },
     "keywords": [
         "tao",

@@ -1,0 +1,1 @@
+<span class="class-path"> / {{{dompurify text}}}</span>

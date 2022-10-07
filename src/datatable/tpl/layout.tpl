@@ -61,10 +61,10 @@
                         <div
                             {{#if sortable}}
                                 class="sortable"
-                                data-sort-by="{{id}}"
+                                data-sort-by="{{#if sortId}}{{sortId}}{{else}}{{id}}{{/if}}"
                                 {{#if sorttype}}data-sort-type="{{sorttype}}"{{/if}}
                                 tabindex="0"
-                            {{/if}}>{{label}}</div>
+                            {{/if}}>{{label}}{{#if alias}} <span class="alias">({{alias}})</span>{{/if}}{{#if comment}} <span class="comment">/ {{comment}}</span>{{/if}}</div>
                         {{#if filterable}}
                         <aside data-column="{{id}}" class="filter column
                             {{#if customFilter}} customInput" >
@@ -88,7 +88,7 @@
                         {{#if ../options.selectable}}
                         <td class="checkboxes"><input type="checkbox" name="cb[{{id}}]" value="1" /></td>
                         {{/if}}
-{{! IMPORTANT:START IF YOU'RE GOING TO MAKE CHANGES TO THIS SECTION, 
+{{! IMPORTANT:START IF YOU'RE GOING TO MAKE CHANGES TO THIS SECTION,
     PLEASE UPDATE shallowUpdate METHOD ACCORDINGLY}}
                         {{#each ../options.model}}
                             {{#if type}}
@@ -120,7 +120,7 @@
                             {{/if}}
 
                         {{/each}}
-{{! IMPORTANT:END IF YOU'RE GOING TO MAKE CHANGES TO THIS SECTION, 
+{{! IMPORTANT:END IF YOU'RE GOING TO MAKE CHANGES TO THIS SECTION,
     PLEASE UPDATE shallowUpdate METHOD ACCORDINGLY}}
                         {{#with ../options.actions}}
                         <td class="actions">
