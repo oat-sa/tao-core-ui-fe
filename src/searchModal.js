@@ -79,6 +79,7 @@ export default function searchModalFactory(config) {
     let advancedSearch = null;
     let propertySelectorInstance;
     let availableColumns = [];
+    let availableIdentifiers = {};
     let selectedColumns = [];
     let dataCache;
 
@@ -383,8 +384,7 @@ export default function searchModalFactory(config) {
      * Request search results and manages its results
      */
     function search() {
-        const query = buildComplexQuery();
-        searchHandler(query, getClassFilterUri());
+        searchHandler(buildComplexQuery(), getClassFilterUri());
     }
 
     /**
@@ -476,8 +476,10 @@ export default function searchModalFactory(config) {
      */
     function buildDataModel(data) {
         //save availableColumns to memory
+        availableIdentifiers = {};
         availableColumns = data.settings.availableColumns;
         data.model = columnsToModel(availableColumns);
+        data.model.forEach(column => (availableIdentifiers[column.id] = true));
 
         // adjust the default sorting and pagination
         let { sortby, sortorder, page } = instance.config;
@@ -512,11 +514,19 @@ export default function searchModalFactory(config) {
      */
     function filterSelectedColumns(data) {
         return selectedColumnsStore
-            .getItem(getClassFilterUri())
+            .getItem(rootClassUri)
             .then(storedSelectedColumnIds => {
+                selectedColumns = [];
+
                 if (storedSelectedColumnIds && storedSelectedColumnIds.length) {
-                    selectedColumns = [...storedSelectedColumnIds];
-                } else {
+                    storedSelectedColumnIds.forEach(id => {
+                        if (availableIdentifiers[id]) {
+                            selectedColumns.push(id);
+                        }
+                    });
+                }
+
+                if (!selectedColumns.length) {
                     selectedColumns = data.settings.availableColumns.reduce((acc, column) => {
                         if (column.default) {
                             acc.push(column.id);
@@ -618,7 +628,7 @@ export default function searchModalFactory(config) {
             options: { sortby, sortorder },
             context: context.shownStructure,
             criterias: {
-                search: controls.$searchInput.val(),
+                search: controls.$searchInput && controls.$searchInput.val(),
                 class: isResourceSelector ? _.map(resourceSelector.getSelection(), 'uri')[0] : rootClassUri,
                 advancedCriteria: advancedSearch.getState()
             }
@@ -656,7 +666,7 @@ export default function searchModalFactory(config) {
                     //update table
                     selectedColumns = selection;
                     const { sortby, sortorder, page } = getTableOptions();
-                    updateSelectedStore(getClassFilterUri(), { selection, sortby, sortorder, page });
+                    updateSelectedStore({ selection, sortby, sortorder, page });
                 }
             });
         } else {
@@ -693,7 +703,6 @@ export default function searchModalFactory(config) {
 
     /**
      *
-     * @param {string} classFilterUri class will be used as key
      * @param {object} update - The changed configuration
      * @param {Array<string>} update.selection - array of column ids to display
      * @param {string} update.sortby - The sorted column
@@ -701,10 +710,10 @@ export default function searchModalFactory(config) {
      * @param {number} update.page - The current page
      * @returns
      */
-    function updateSelectedStore(classFilterUri, { selection = [], sortby = 'id', sortorder = 'asc', page = 1 } = {}) {
+    function updateSelectedStore({ selection = [], sortby = 'id', sortorder = 'asc', page = 1 } = {}) {
         const storedSearchOptions = { sortby, sortorder, page };
         return selectedColumnsStore
-            .setItem(classFilterUri, selection)
+            .setItem(rootClassUri, selection)
             .then(() => instance.trigger('selected-store-updated', { storedSearchOptions }))
             .catch(e => instance.trigger('error', e));
     }
