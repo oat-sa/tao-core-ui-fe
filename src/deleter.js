@@ -109,6 +109,7 @@ var deleter = {
             $target = options.target;
 
             if (options.confirm === true) {
+                //eslint-disable-next-line no-alert
                 performDelete = window.confirm(options.confirmMessage);
             }
 
