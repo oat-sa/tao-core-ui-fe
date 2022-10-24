@@ -56,13 +56,11 @@ var Durationer = {
      * @param {string} [format = 'HH:mm:ss'] - the format of the duration value got from
      * @returns {jQueryElement} for chaining
      */
-    init: function(options) {
-        var self = Durationer;
-
+    init: function (options) {
         //get options using default
         options = _.defaults(options || {}, defaults);
 
-        return this.each(function() {
+        return this.each(function () {
             var $elt = $(this);
 
             if (!$elt.data(dataNs)) {
@@ -72,14 +70,14 @@ var Durationer = {
                 } else {
                     options.id = $elt.attr('id') || $elt.attr('name') || 'durationer-' + new Date().getTime();
 
-                    var duration = moment($elt.val(), options.format);
+                    const duration = moment($elt.val(), options.format);
 
                     //hide the element
                     $elt.hide();
 
-                    self._insertField($elt, options, duration.hours(), 'hours');
-                    self._insertField($elt, options, duration.minutes(), 'minutes');
-                    self._insertField($elt, options, duration.seconds(), 'seconds');
+                    Durationer._insertField($elt, options, duration.hours(), 'hours');
+                    Durationer._insertField($elt, options, duration.minutes(), 'minutes');
+                    Durationer._insertField($elt, options, duration.seconds(), 'seconds');
 
                     if (options.separator) {
                         $elt.siblings('.' + options.wrapperClass + ':not(:last)').after(
@@ -90,11 +88,11 @@ var Durationer = {
                     //keep a ref to the incrementer elements
                     options.$ctrls = $elt.siblings('.' + options.wrapperClass).children('input');
 
-                    options.$ctrls.on('change', function() {
+                    options.$ctrls.on('change', function () {
                         self._syncToField($elt);
                     });
 
-                    $elt.on('change', function(e) {
+                    $elt.on('change', function (e) {
                         if (e.namespace !== ns) {
                             self._syncFromField($elt);
                         }
@@ -120,7 +118,7 @@ var Durationer = {
      * @param {string} value - the current field value
      * @param {string} type - which field to insert (hours, minutes or seconds)
      */
-    _insertField: function($elt, options, value, type) {
+    _insertField: function ($elt, options, value, type) {
         var data = _.defaults(
             {
                 type: type,
@@ -144,11 +142,11 @@ var Durationer = {
      * @private
      * @param {jQueryElement} $elt - the plugin element
      */
-    _syncFromField: function($elt) {
+    _syncFromField: function ($elt) {
         var options = $elt.data(dataNs);
         var current = moment($elt.val(), options.format);
 
-        options.$ctrls.each(function() {
+        options.$ctrls.each(function () {
             var $field = $(this);
             if (current[$field.data('duration-type')]) {
                 $field.val(current[$field.data('duration-type')]());
@@ -161,11 +159,11 @@ var Durationer = {
      * @private
      * @param {jQueryElement} $elt - the plugin element
      */
-    _syncToField: function($elt) {
+    _syncToField: function ($elt) {
         var options = $elt.data(dataNs);
         var current = moment($elt.val(), options.format);
 
-        options.$ctrls.each(function() {
+        options.$ctrls.each(function () {
             var $field = $(this);
             if (!isNaN($field.val()) && current[$field.data('duration-type')]) {
                 current[$field.data('duration-type')]($field.val());
@@ -184,8 +182,8 @@ var Durationer = {
      * @example $('selector').durationer('destroy');
      * @public
      */
-    destroy: function() {
-        this.each(function() {
+    destroy: function () {
+        this.each(function () {
             var $elt = $(this);
             var options = $elt.data(dataNs);
 
@@ -213,7 +211,7 @@ Pluginifier.register(ns, Durationer);
  * @param {jQueryElement} $container - the root context to listen in
  */
 export default function listenDataAttr($container) {
-    $container.find('[data-duration]').each(function() {
+    $container.find('[data-duration]').each(function () {
         var $elt = $(this);
         var format = $elt.data('duration');
         var options = $.trim(format).length > 0 ? { format: format } : {};
