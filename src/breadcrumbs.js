@@ -28,30 +28,30 @@ import 'ui/breadcrumbs/css/breadcrumbs.css';
  * Defines a breadcrumbs component
  * @type {Object}
  */
-var breadcrumbs = {
+let breadcrumbs = {
     /**
      * Updates the component with a new set of entries
-     * @param {Array} breadcrumbs
-     * @param {String} [breadcrumbs.id] - The identifier of the breadcrumb
-     * @param {String} [breadcrumbs.url] - The URL targeted by the breadcrumb
-     * @param {String} [breadcrumbs.label] - The displayed label
-     * @param {String} [breadcrumbs.data] - An extra label to display, usually related to the current context
-     * @param {Array} [breadcrumbs.entries] - A list of parallels links
-     * @param {Array} [breadcrumbs.cls] - CSS class to add to the container
+     * @param {Array} newBreadcrumbs
+     * @param {String} [newBreadcrumbs.id] - The identifier of the breadcrumb
+     * @param {String} [newBreadcrumbs.url] - The URL targeted by the breadcrumb
+     * @param {String} [newBreadcrumbs.label] - The displayed label
+     * @param {String} [newBreadcrumbs.data] - An extra label to display, usually related to the current context
+     * @param {Array} [newBreadcrumbs.entries] - A list of parallels links
+     * @param {Array} [newBreadcrumbs.cls] - CSS class to add to the container
      * @returns {jQuery}
      */
-    update: function update(breadcrumbs) {
+    update: function update(newBreadcrumbs) {
         var $oldComponent = this.getContainer();
         var $component;
 
-        this.config.breadcrumbs = breadcrumbs;
+        this.config.breadcrumbs = newBreadcrumbs;
 
         /**
          * Notifies the update
          * @event breadcrumbs#update
-         * @param {breadcrumbs} breadcrumbs
+         * @param {breadcrumbs} newBreadcrumbs
          */
-        this.trigger('update', breadcrumbs, this);
+        this.trigger('update', newBreadcrumbs, this);
 
         $component = this.render();
 
@@ -71,12 +71,12 @@ var breadcrumbs = {
  * Remove the link from the last crumb
  */
 var removeLastLink = function removeLastLink() {
-    var breadcrumbs = this.config.breadcrumbs;
+    let newBreadcrumbs = this.config.breadcrumbs;
 
-    if (breadcrumbs && breadcrumbs.length) {
-        breadcrumbs = _.cloneDeep(this.config.breadcrumbs);
-        breadcrumbs[breadcrumbs.length - 1].url = null;
-        this.config.breadcrumbs = breadcrumbs;
+    if (newBreadcrumbs && newBreadcrumbs.length) {
+        newBreadcrumbs = _.cloneDeep(this.config.breadcrumbs);
+        newBreadcrumbs[newBreadcrumbs.length - 1].url = null;
+        this.config.breadcrumbs = newBreadcrumbs;
     }
 };
 
