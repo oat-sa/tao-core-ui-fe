@@ -276,10 +276,9 @@ const dialog = {
 
     /**
      * Install an event handler on the underlying DOM element
-     * @param {String} eventName
      * @returns {dialog}
      */
-    on(eventName) {
+    on() {
         if (this.$html) {
             this.$html.on.apply(this.$html, arguments);
         }
@@ -289,10 +288,9 @@ const dialog = {
 
     /**
      * Uninstall an event handler from the underlying DOM element
-     * @param {String} eventName
      * @returns {dialog}
      */
-    off(eventName) {
+    off() {
         if (this.$html) {
             this.$html.off.apply(this.$html, arguments);
         }
@@ -308,7 +306,7 @@ const dialog = {
      */
     trigger(eventName, extraParameters) {
         if (this.$html) {
-            if (undefined === extraParameters) {
+            if (typeof extraParameters !== 'undefined') {
                 extraParameters = [];
             }
             if (!_.isArray(extraParameters)) {
@@ -411,9 +409,7 @@ const dialog = {
                         this.destroy();
                     }
                 });
-            const $items = this.getDom()
-                .add($(_scope).find('input'))
-                .add(this.$buttons.find('button'));
+            const $items = this.getDom().add($(_scope).find('input')).add(this.$buttons.find('button'));
             const closeButton = $(_scope).find('#modal-close-btn')[0];
 
             if (closeButton) {
@@ -425,42 +421,46 @@ const dialog = {
                 elements: navigableDomElement.createFromDoms($items),
                 propagateTab: false
             })
-                .on('right down', function() {
+                .on('right down', function () {
                     if (this.getCursor().position === $items.length - 1) {
-                        this.setCursorAt(1);  // Skip container.
+                        this.setCursorAt(1); // Skip container.
                     } else {
                         this.next();
                     }
                 })
-                .on('left up', function() {
-                    if (this.getCursor().position === 1) {  // Skip container.
+                .on('left up', function () {
+                    if (this.getCursor().position === 1) {
+                        // Skip container.
                         this.last();
                     } else {
                         this.previous();
                     }
                 })
-                .on('tab', function() {
+                .on('tab', function () {
                     if (this.getCursor().position === $items.length - 1) {
-                        this.setCursorAt(1);  // Skip container.
+                        this.setCursorAt(1); // Skip container.
                     } else {
                         this.next();
                     }
                 })
-                .on('shift+tab', function() {
-                    if (this.getCursor().position === 1) {  // Skip container.
+                .on('shift+tab', function () {
+                    if (this.getCursor().position === 1) {
+                        // Skip container.
                         this.last();
                     } else {
                         this.previous();
                     }
                 })
-                .on('activate', _.debounce(function(cursor) {
-                    const $elt = cursor.navigable.getElement();
-                    if (!$elt.is(':radio,:checkbox')) {
-                        $elt.click();
-                    } else {
-                        $elt.prop('checked', !$elt.prop('checked')).change();
-                    }
-                }, 10)
+                .on(
+                    'activate',
+                    _.debounce(function (cursor) {
+                        const $elt = cursor.navigable.getElement();
+                        if (!$elt.is(':radio,:checkbox')) {
+                            $elt.click();
+                        } else {
+                            $elt.prop('checked', !$elt.prop('checked')).change();
+                        }
+                    }, 10)
                 );
             this.navigator.first();
             //added a global shortcut to enable setting focus on tab
@@ -514,4 +514,4 @@ export default function dialogFactory(options) {
     const instance = Object.assign({}, dialog);
     instance.init(options);
     return instance;
-};
+}
