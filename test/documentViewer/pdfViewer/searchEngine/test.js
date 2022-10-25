@@ -24,7 +24,7 @@ define([
     'pdfjs-dist/build/pdf',
     'ui/documentViewer/providers/pdfViewer/pdfjs/textManager',
     'ui/documentViewer/providers/pdfViewer/pdfjs/searchEngine'
-], function($, _, pdfjs, textManagerFactory, searchEngineFactory) {
+], function ($, _, pdfjs, textManagerFactory, searchEngineFactory) {
     'use strict';
 
     var pdfUrl = location.href.replace('/pdfViewer/searchEngine/test.html', '/sample/demo.pdf');
@@ -34,7 +34,7 @@ define([
 
     QUnit.module('pdfViewer SearchEngine factory');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         var textManager = textManagerFactory({ PDFJS: pdfjs });
         var config = {
             textManager: textManager
@@ -67,7 +67,7 @@ define([
         { name: 'destroy', title: 'destroy' }
     ];
 
-    QUnit.cases.init(searchEngineApi).test('instance API ', function(data, assert) {
+    QUnit.cases.init(searchEngineApi).test('instance API ', function (data, assert) {
         var textManager = textManagerFactory({ PDFJS: pdfjs });
         var config = {
             textManager: textManager
@@ -77,35 +77,35 @@ define([
         assert.equal(
             typeof instance[data.name],
             'function',
-            `The pdfViewer SearchEngine instance exposes a "${  data.name  }" function`
+            `The pdfViewer SearchEngine instance exposes a "${data.name}" function`
         );
 
         instance.destroy();
     });
 
     QUnit.module('pdfViewer SearchEngine implementation', {
-        beforeEach: function(assert) {
+        beforeEach: function () {
             pdfjsBackup.pageCount = pdfjs.pageCount;
             pdfjsBackup.textContent = pdfjs.textContent;
         },
-        afterEach: function(assert) {
+        afterEach: function () {
             pdfjs.removeAllListeners();
             pdfjs.pageCount = pdfjsBackup.pageCount;
             pdfjs.textContent = pdfjsBackup.textContent;
         }
     });
 
-    QUnit.test('error', function(assert) {
+    QUnit.test('error', function (assert) {
         var config = {};
 
         assert.expect(1);
 
-        assert.throws(function() {
+        assert.throws(function () {
             searchEngineFactory(config);
         }, 'The pdfViewer SearchEngine factory triggers an error if the text manager is missing');
     });
 
-    QUnit.test('clearMatches', function(assert) {
+    QUnit.test('clearMatches', function (assert) {
         var textManager = textManagerFactory({ PDFJS: pdfjs });
         var config = {
             textManager: textManager
@@ -138,7 +138,7 @@ define([
         textManager.destroy();
     });
 
-    QUnit.test('setTextManager', function(assert) {
+    QUnit.test('setTextManager', function (assert) {
         var textManager1 = textManagerFactory({ PDFJS: pdfjs });
         var textManager2 = textManagerFactory({ PDFJS: pdfjs });
         var config = {
@@ -239,7 +239,7 @@ define([
         }
     ];
 
-    QUnit.cases.init(searchCases).test('search', function(data, assert) {
+    QUnit.cases.init(searchCases).test('search', function (data, assert) {
         var ready = assert.async();
         var textManager = textManagerFactory({ PDFJS: pdfjs });
         var config = _.merge(
@@ -262,10 +262,10 @@ define([
 
         pdfjs
             .getDocument(pdfUrl)
-            .then(function(pdf) {
+            .then(function (pdf) {
                 textManager.setDocument(pdf);
 
-                return instance.search(data.query, data.currentPage).then(function(pageNum) {
+                return instance.search(data.query, data.currentPage).then(function (pageNum) {
                     assert.equal(
                         pageNum,
                         data.firstPage,
@@ -297,13 +297,13 @@ define([
                     ready();
                 });
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(false, 'No error should be triggered');
                 ready();
             });
     });
 
-    QUnit.test('navigating in search', function(assert) {
+    QUnit.test('navigating in search', function (assert) {
         var ready = assert.async();
         var textManager = textManagerFactory({ PDFJS: pdfjs });
         var config = {
@@ -313,7 +313,16 @@ define([
         var query = 'page';
         var currentPage = 3;
         var count = 4;
-        var matches = [[], [[27, 31], [46, 50]], [], [[5, 9]], [[5, 9]]];
+        var matches = [
+            [],
+            [
+                [27, 31],
+                [46, 50]
+            ],
+            [],
+            [[5, 9]],
+            [[5, 9]]
+        ];
         var firstMatch = {
             overall: 3,
             page: 4,
@@ -394,10 +403,10 @@ define([
 
         pdfjs
             .getDocument(pdfUrl)
-            .then(function(pdf) {
+            .then(function (pdf) {
                 textManager.setDocument(pdf);
 
-                return instance.search(query, currentPage).then(function(pageNum) {
+                return instance.search(query, currentPage).then(function (pageNum) {
                     assert.equal(
                         pageNum,
                         firstMatch.page,
@@ -423,7 +432,7 @@ define([
                     assert.equal(match.overall, firstMatch.overall, 'The current match target the right overall index');
                     assert.equal(instance.getQuery(), query, 'The current query is stored');
 
-                    _.forEach(matchesPathPrevious, function(expectedMatch) {
+                    _.forEach(matchesPathPrevious, function (expectedMatch) {
                         loop = instance.previousMatch();
                         match = instance.getCurrentMatch();
                         assert.equal(typeof loop, 'boolean', 'The previousMatch() method returned a boolean');
@@ -442,7 +451,7 @@ define([
                         );
                     });
 
-                    _.forEach(matchesPathNext, function(expectedMatch) {
+                    _.forEach(matchesPathNext, function (expectedMatch) {
                         loop = instance.nextMatch();
                         match = instance.getCurrentMatch();
                         assert.equal(typeof loop, 'boolean', 'The nextMatch() method returned a boolean');
@@ -466,13 +475,13 @@ define([
                     ready();
                 });
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(false, 'No error should be triggered');
                 ready();
             });
     });
 
-    QUnit.test('updateMatches', function(assert) {
+    QUnit.test('updateMatches', function (assert) {
         var ready = assert.async();
         var textManager = textManagerFactory({ PDFJS: pdfjs });
         var config = {
@@ -481,7 +490,13 @@ define([
         var instance = searchEngineFactory(config);
         var searchQuery = 'page';
         var expectedPage = 1;
-        var expectedMatches = [[[29, 33], [47, 51], [71, 75]]];
+        var expectedMatches = [
+            [
+                [29, 33],
+                [47, 51],
+                [71, 75]
+            ]
+        ];
 
         assert.expect(28);
 
@@ -502,16 +517,16 @@ define([
 
         pdfjs
             .getDocument(pdfUrl)
-            .then(function(pdf) {
+            .then(function (pdf) {
                 textManager.setDocument(pdf);
 
-                return pdf.getPage(1).then(function(page) {
-                    return instance.updateMatches(1).then(function() {
+                return pdf.getPage(1).then(function (page) {
+                    return instance.updateMatches(1).then(function () {
                         assert.ok(true, 'There is no matches, but the updateMatches has resolved the promise');
 
                         return instance
                             .search(searchQuery)
-                            .then(function(pageNum) {
+                            .then(function (pageNum) {
                                 assert.equal(
                                     pageNum,
                                     expectedPage,
@@ -529,8 +544,8 @@ define([
                                     'The search has find the expected matches'
                                 );
 
-                                return textManager.renderPage(pageNum, page.getViewport()).then(function(layer) {
-                                    return instance.updateMatches(pageNum).then(function(num) {
+                                return textManager.renderPage(pageNum, page.getViewport()).then(function (layer) {
+                                    return instance.updateMatches(pageNum).then(function (num) {
                                         var $container = $('<div />').append(layer);
                                         var $matches = $container.find('span');
 
@@ -608,8 +623,8 @@ define([
                                     });
                                 });
                             })
-                            .then(function() {
-                                return instance.search('unknown').then(function(pageNum) {
+                            .then(function () {
+                                return instance.search('unknown').then(function (pageNum) {
                                     assert.equal(pageNum, 0, 'The search has not found any terms');
                                     assert.ok(instance.getMatches() instanceof Array, 'There is matches array');
                                     assert.equal(
@@ -623,8 +638,8 @@ define([
                                         'The search has not find any matches, as expected'
                                     );
 
-                                    return textManager.renderPage(pageNum, page.getViewport()).then(function(layer) {
-                                        return instance.updateMatches(pageNum).then(function(num) {
+                                    return textManager.renderPage(pageNum, page.getViewport()).then(function (layer) {
+                                        return instance.updateMatches(pageNum).then(function (num) {
                                             var $container = $('<div />').append(layer);
                                             var $matches = $container.find('span');
 
@@ -641,13 +656,13 @@ define([
                     });
                 });
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(false, 'No error should be triggered');
                 ready();
             });
     });
 
-    QUnit.test('destroy', function(assert) {
+    QUnit.test('destroy', function (assert) {
         var textManager = textManagerFactory({ PDFJS: pdfjs });
         var config = {
             textManager: textManager
