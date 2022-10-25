@@ -18,12 +18,12 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
-define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
+define(['jquery', 'lodash', 'ui/breadcrumbs'], function ($, _, breadcrumbs) {
     'use strict';
 
     QUnit.module('breadcrumbs');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.equal(typeof breadcrumbs, 'function', 'The breadcrumbs module exposes a function');
         assert.equal(typeof breadcrumbs(), 'object', 'The breadcrumbs factory produces an object');
         assert.notStrictEqual(
@@ -33,7 +33,7 @@ define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
         );
     });
 
-    var testReviewApi = [
+    const testReviewApi = [
         { name: 'init', title: 'init' },
         { name: 'destroy', title: 'destroy' },
         { name: 'render', title: 'render' },
@@ -49,19 +49,19 @@ define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
         { name: 'setTemplate', title: 'setTemplate' }
     ];
 
-    QUnit.cases.init(testReviewApi).test('instance API ', function(data, assert) {
+    QUnit.cases.init(testReviewApi).test('instance API ', function (data, assert) {
         var instance = breadcrumbs();
         assert.equal(
             typeof instance[data.name],
             'function',
-            `The breadcrumbs instance exposes a "${  data.title  }" function`
+            `The breadcrumbs instance exposes a "${data.title}" function`
         );
         instance.destroy();
     });
 
-    QUnit.test('init', function(assert) {
+    QUnit.test('init', function (assert) {
         var config = {
-            nothing: undefined,
+            nothing: void 0,
             dummy: null,
             title: 'My Title',
             textEmpty: 'Nothing to list',
@@ -72,12 +72,12 @@ define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
 
         assert.notEqual(instance.config, config, 'The breadcrumbs instance must duplicate the config set');
         assert.equal(
-            instance.hasOwnProperty('nothing'),
+            Object.prototype.hasOwnProperty.call(instance, 'nothing'),
             false,
             'The breadcrumbs instance must not accept undefined config properties'
         );
         assert.equal(
-            instance.hasOwnProperty('dummy'),
+            Object.prototype.hasOwnProperty.call(instance, 'dummy'),
             false,
             'The breadcrumbs instance must not accept null config properties'
         );
@@ -86,7 +86,7 @@ define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
         instance.destroy();
     });
 
-    var breadcrumbsEntries = [
+    const breadcrumbsEntries = [
         {
             id: 'home',
             url: 'http://localhost/home',
@@ -117,7 +117,7 @@ define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
         }
     ];
 
-    var breadcrumbsEntries2 = [
+    const breadcrumbsEntries2 = [
         {
             id: 'home',
             url: 'http://localhost/home',
@@ -148,7 +148,7 @@ define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
         }
     ];
 
-    QUnit.test('render', function(assert) {
+    QUnit.test('render', function (assert) {
         var $dummy = $('<div class="dummy" />');
         var $container = $('#fixture-1').append($dummy);
         var config = {
@@ -177,10 +177,7 @@ define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
         );
         assert.equal(instance.getElement().length, 1, 'The breadcrumbs instance returns the rendered content');
         assert.equal(
-            instance
-                .getElement()
-                .parent()
-                .get(0),
+            instance.getElement().parent().get(0),
             $container.get(0),
             'The breadcrumbs instance is rendered inside the right container'
         );
@@ -193,175 +190,90 @@ define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
 
         // 1st
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .first()
-                .data('breadcrumb'),
+            instance.getElement().find('> li').first().data('breadcrumb'),
             breadcrumbsEntries[0].id,
             'The 1st breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .first()
-                .find('a')
-                .text(),
+            instance.getElement().find('> li').first().find('a').text(),
             breadcrumbsEntries[0].label,
             'The 1st breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .first()
-                .find('a')
-                .attr('href'),
+            instance.getElement().find('> li').first().find('a').attr('href'),
             breadcrumbsEntries[0].url,
             'The 1st breadcrumb has the right URL'
         );
 
         // 2nd
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .data('breadcrumb'),
+            instance.getElement().find('> li').eq(1).data('breadcrumb'),
             breadcrumbsEntries[1].id,
             'The 2nd breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('> a')
-                .text(),
+            instance.getElement().find('> li').eq(1).find('> a').text(),
             breadcrumbsEntries[1].label,
             'The 2nd breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('> a')
-                .attr('href'),
+            instance.getElement().find('> li').eq(1).find('> a').attr('href'),
             breadcrumbsEntries[1].url,
             'The 2nd breadcrumb has the right URL'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li').length,
+            instance.getElement().find('> li').eq(1).find('li').length,
             breadcrumbsEntries[1].entries.length,
             'The 2nd breadcrumb has a sub list'
         );
 
         // 2nd sub 1
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(0)
-                .data('breadcrumb'),
+            instance.getElement().find('> li').eq(1).find('li').eq(0).data('breadcrumb'),
             breadcrumbsEntries[1].entries[0].id,
             'The 1st list entry of the 2nd breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(0)
-                .find('a')
-                .text(),
+            instance.getElement().find('> li').eq(1).find('li').eq(0).find('a').text(),
             breadcrumbsEntries[1].entries[0].label,
             'The 1st list entry of the 2nd breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(0)
-                .find('a')
-                .attr('href'),
+            instance.getElement().find('> li').eq(1).find('li').eq(0).find('a').attr('href'),
             breadcrumbsEntries[1].entries[0].url,
             'The 1st list entry of the 2nd breadcrumb has the right URL'
         );
 
         // 2nd sub 2
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(1)
-                .data('breadcrumb'),
+            instance.getElement().find('> li').eq(1).find('li').eq(1).data('breadcrumb'),
             breadcrumbsEntries[1].entries[1].id,
             'The 2nd list entry of the 2nd breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(1)
-                .find('a')
-                .text(),
+            instance.getElement().find('> li').eq(1).find('li').eq(1).find('a').text(),
             breadcrumbsEntries[1].entries[1].label,
             'The 2nd list entry of the 2nd breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(1)
-                .find('a')
-                .attr('href'),
+            instance.getElement().find('> li').eq(1).find('li').eq(1).find('a').attr('href'),
             breadcrumbsEntries[1].entries[1].url,
             'The 2nd list entry of the 2nd breadcrumb has the right URL'
         );
 
         // 3rd
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(2)
-                .data('breadcrumb'),
+            instance.getElement().find('> li').eq(2).data('breadcrumb'),
             breadcrumbsEntries[2].id,
             'The 3rd breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(2)
-                .find('.a')
-                .text(),
-            `${breadcrumbsEntries[2].label  } - ${  breadcrumbsEntries[2].data}`,
+            instance.getElement().find('> li').eq(2).find('.a').text(),
+            `${breadcrumbsEntries[2].label} - ${breadcrumbsEntries[2].data}`,
             'The 3rd breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(2)
-                .find('a').length,
+            instance.getElement().find('> li').eq(2).find('a').length,
             0,
             'The 3rd breadcrumb does not have a link'
         );
@@ -372,7 +284,7 @@ define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
         assert.equal(instance.getElement(), null, 'The breadcrumbs instance has removed its rendered content');
     });
 
-    QUnit.test('update', function(assert) {
+    QUnit.test('update', function (assert) {
         var $container = $('#fixture-2');
         var config = {
             renderTo: $container,
@@ -398,175 +310,90 @@ define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
 
         // 1st
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .first()
-                .data('breadcrumb'),
+            instance.getElement().find('> li').first().data('breadcrumb'),
             breadcrumbsEntries[0].id,
             '[1st pass] The 1st breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .first()
-                .find('a')
-                .text(),
+            instance.getElement().find('> li').first().find('a').text(),
             breadcrumbsEntries[0].label,
             '[1st pass] The 1st breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .first()
-                .find('a')
-                .attr('href'),
+            instance.getElement().find('> li').first().find('a').attr('href'),
             breadcrumbsEntries[0].url,
             '[1st pass] The 1st breadcrumb has the right URL'
         );
 
         // 2nd
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .data('breadcrumb'),
+            instance.getElement().find('> li').eq(1).data('breadcrumb'),
             breadcrumbsEntries[1].id,
             '[1st pass] The 2nd breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('> a')
-                .text(),
+            instance.getElement().find('> li').eq(1).find('> a').text(),
             breadcrumbsEntries[1].label,
             '[1st pass] The 2nd breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('> a')
-                .attr('href'),
+            instance.getElement().find('> li').eq(1).find('> a').attr('href'),
             breadcrumbsEntries[1].url,
             '[1st pass] The 2nd breadcrumb has the right URL'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li').length,
+            instance.getElement().find('> li').eq(1).find('li').length,
             breadcrumbsEntries[1].entries.length,
             '[1st pass] The 2nd breadcrumb has a sub list'
         );
 
         // 2nd sub 1
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(0)
-                .data('breadcrumb'),
+            instance.getElement().find('> li').eq(1).find('li').eq(0).data('breadcrumb'),
             breadcrumbsEntries[1].entries[0].id,
             '[1st pass] The 1st list entry of the 2nd breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(0)
-                .find('a')
-                .text(),
+            instance.getElement().find('> li').eq(1).find('li').eq(0).find('a').text(),
             breadcrumbsEntries[1].entries[0].label,
             '[1st pass] The 1st list entry of the 2nd breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(0)
-                .find('a')
-                .attr('href'),
+            instance.getElement().find('> li').eq(1).find('li').eq(0).find('a').attr('href'),
             breadcrumbsEntries[1].entries[0].url,
             '[1st pass] The 1st list entry of the 2nd breadcrumb has the right URL'
         );
 
         // 2nd sub 2
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(1)
-                .data('breadcrumb'),
+            instance.getElement().find('> li').eq(1).find('li').eq(1).data('breadcrumb'),
             breadcrumbsEntries[1].entries[1].id,
             '[1st pass] The 2nd list entry of the 2nd breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(1)
-                .find('a')
-                .text(),
+            instance.getElement().find('> li').eq(1).find('li').eq(1).find('a').text(),
             breadcrumbsEntries[1].entries[1].label,
             '[1st pass] The 2nd list entry of the 2nd breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(1)
-                .find('a')
-                .attr('href'),
+            instance.getElement().find('> li').eq(1).find('li').eq(1).find('a').attr('href'),
             breadcrumbsEntries[1].entries[1].url,
             '[1st pass] The 2nd list entry of the 2nd breadcrumb has the right URL'
         );
 
         // 3rd
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(2)
-                .data('breadcrumb'),
+            instance.getElement().find('> li').eq(2).data('breadcrumb'),
             breadcrumbsEntries[2].id,
             '[1st pass] The 3rd breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(2)
-                .find('.a')
-                .text(),
-            `${breadcrumbsEntries[2].label  } - ${  breadcrumbsEntries[2].data}`,
+            instance.getElement().find('> li').eq(2).find('.a').text(),
+            `${breadcrumbsEntries[2].label} - ${breadcrumbsEntries[2].data}`,
             '[1st pass] The 3rd breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(2)
-                .find('a').length,
+            instance.getElement().find('> li').eq(2).find('a').length,
             0,
             '[1st pass] The 3rd breadcrumb does not have a link'
         );
@@ -585,175 +412,90 @@ define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
 
         // 1st
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .first()
-                .data('breadcrumb'),
+            instance.getElement().find('> li').first().data('breadcrumb'),
             breadcrumbsEntries2[0].id,
             '[2nd pass] The 1st breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .first()
-                .find('a')
-                .text(),
+            instance.getElement().find('> li').first().find('a').text(),
             breadcrumbsEntries2[0].label,
             '[2nd pass] The 1st breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .first()
-                .find('a')
-                .attr('href'),
+            instance.getElement().find('> li').first().find('a').attr('href'),
             breadcrumbsEntries2[0].url,
             '[2nd pass] The 1st breadcrumb has the right URL'
         );
 
         // 2nd
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .data('breadcrumb'),
+            instance.getElement().find('> li').eq(1).data('breadcrumb'),
             breadcrumbsEntries2[1].id,
             '[2nd pass] The 2nd breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('> a')
-                .text(),
+            instance.getElement().find('> li').eq(1).find('> a').text(),
             breadcrumbsEntries2[1].label,
             '[2nd pass] The 2nd breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('> a')
-                .attr('href'),
+            instance.getElement().find('> li').eq(1).find('> a').attr('href'),
             breadcrumbsEntries2[1].url,
             '[2nd pass] The 2nd breadcrumb has the right URL'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li').length,
+            instance.getElement().find('> li').eq(1).find('li').length,
             breadcrumbsEntries2[1].entries.length,
             '[2nd pass] The 2nd breadcrumb has a sub list'
         );
 
         // 2nd sub 1
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(0)
-                .data('breadcrumb'),
+            instance.getElement().find('> li').eq(1).find('li').eq(0).data('breadcrumb'),
             breadcrumbsEntries2[1].entries[0].id,
             '[2nd pass] The 1st list entry of the 2nd breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(0)
-                .find('a')
-                .text(),
+            instance.getElement().find('> li').eq(1).find('li').eq(0).find('a').text(),
             breadcrumbsEntries2[1].entries[0].label,
             '[2nd pass] The 1st list entry of the 2nd breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(0)
-                .find('a')
-                .attr('href'),
+            instance.getElement().find('> li').eq(1).find('li').eq(0).find('a').attr('href'),
             breadcrumbsEntries2[1].entries[0].url,
             '[2nd pass] The 1st list entry of the 2nd breadcrumb has the right URL'
         );
 
         // 2nd sub 2
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(1)
-                .data('breadcrumb'),
+            instance.getElement().find('> li').eq(1).find('li').eq(1).data('breadcrumb'),
             breadcrumbsEntries2[1].entries[1].id,
             '[2nd pass] The 2nd list entry of the 2nd breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(1)
-                .find('a')
-                .text(),
+            instance.getElement().find('> li').eq(1).find('li').eq(1).find('a').text(),
             breadcrumbsEntries2[1].entries[1].label,
             '[2nd pass] The 2nd list entry of the 2nd breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(1)
-                .find('a')
-                .attr('href'),
+            instance.getElement().find('> li').eq(1).find('li').eq(1).find('a').attr('href'),
             breadcrumbsEntries2[1].entries[1].url,
             '[2nd pass] The 2nd list entry of the 2nd breadcrumb has the right URL'
         );
 
         // 3rd
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(2)
-                .data('breadcrumb'),
+            instance.getElement().find('> li').eq(2).data('breadcrumb'),
             breadcrumbsEntries2[2].id,
             '[2nd pass] The 3rd breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(2)
-                .find('.a')
-                .text(),
-            `${breadcrumbsEntries2[2].label  } - ${  breadcrumbsEntries2[2].data}`,
+            instance.getElement().find('> li').eq(2).find('.a').text(),
+            `${breadcrumbsEntries2[2].label} - ${breadcrumbsEntries2[2].data}`,
             '[2nd pass] The 3rd breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(2)
-                .find('a').length,
+            instance.getElement().find('> li').eq(2).find('a').length,
             0,
             '[2nd pass] The 3rd breadcrumb does not have a link'
         );
@@ -777,10 +519,7 @@ define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
             '[3rd pass] The breadcrumbs instance returns the rendered content'
         );
         assert.equal(
-            instance
-                .getElement()
-                .parent()
-                .get(0),
+            instance.getElement().parent().get(0),
             $container.get(0),
             '[3rd pass] The breadcrumbs instance is rendered inside the right container'
         );
@@ -798,175 +537,90 @@ define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
 
         // 1st
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .first()
-                .data('breadcrumb'),
+            instance.getElement().find('> li').first().data('breadcrumb'),
             breadcrumbsEntries[0].id,
             '[3rd pass] The 1st breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .first()
-                .find('a')
-                .text(),
+            instance.getElement().find('> li').first().find('a').text(),
             breadcrumbsEntries[0].label,
             '[3rd pass] The 1st breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .first()
-                .find('a')
-                .attr('href'),
+            instance.getElement().find('> li').first().find('a').attr('href'),
             breadcrumbsEntries[0].url,
             '[3rd pass] The 1st breadcrumb has the right URL'
         );
 
         // 2nd
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .data('breadcrumb'),
+            instance.getElement().find('> li').eq(1).data('breadcrumb'),
             breadcrumbsEntries[1].id,
             '[3rd pass] The 2nd breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('> a')
-                .text(),
+            instance.getElement().find('> li').eq(1).find('> a').text(),
             breadcrumbsEntries[1].label,
             '[3rd pass] The 2nd breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('> a')
-                .attr('href'),
+            instance.getElement().find('> li').eq(1).find('> a').attr('href'),
             breadcrumbsEntries[1].url,
             '[3rd pass] The 2nd breadcrumb has the right URL'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li').length,
+            instance.getElement().find('> li').eq(1).find('li').length,
             breadcrumbsEntries[1].entries.length,
             '[3rd pass] The 2nd breadcrumb has a sub list'
         );
 
         // 2nd sub 1
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(0)
-                .data('breadcrumb'),
+            instance.getElement().find('> li').eq(1).find('li').eq(0).data('breadcrumb'),
             breadcrumbsEntries[1].entries[0].id,
             '[3rd pass] The 1st list entry of the 2nd breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(0)
-                .find('a')
-                .text(),
+            instance.getElement().find('> li').eq(1).find('li').eq(0).find('a').text(),
             breadcrumbsEntries[1].entries[0].label,
             '[3rd pass] The 1st list entry of the 2nd breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(0)
-                .find('a')
-                .attr('href'),
+            instance.getElement().find('> li').eq(1).find('li').eq(0).find('a').attr('href'),
             breadcrumbsEntries[1].entries[0].url,
             '[3rd pass] The 1st list entry of the 2nd breadcrumb has the right URL'
         );
 
         // 2nd sub 2
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(1)
-                .data('breadcrumb'),
+            instance.getElement().find('> li').eq(1).find('li').eq(1).data('breadcrumb'),
             breadcrumbsEntries[1].entries[1].id,
             '[3rd pass] The 2nd list entry of the 2nd breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(1)
-                .find('a')
-                .text(),
+            instance.getElement().find('> li').eq(1).find('li').eq(1).find('a').text(),
             breadcrumbsEntries[1].entries[1].label,
             '[3rd pass] The 2nd list entry of the 2nd breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(1)
-                .find('a')
-                .attr('href'),
+            instance.getElement().find('> li').eq(1).find('li').eq(1).find('a').attr('href'),
             breadcrumbsEntries[1].entries[1].url,
             '[3rd pass] The 2nd list entry of the 2nd breadcrumb has the right URL'
         );
 
         // 3rd
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(2)
-                .data('breadcrumb'),
+            instance.getElement().find('> li').eq(2).data('breadcrumb'),
             breadcrumbsEntries[2].id,
             '[3rd pass] The 3rd breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(2)
-                .find('.a')
-                .text(),
-            `${breadcrumbsEntries[2].label  } - ${  breadcrumbsEntries[2].data}`,
+            instance.getElement().find('> li').eq(2).find('.a').text(),
+            `${breadcrumbsEntries[2].label} - ${breadcrumbsEntries[2].data}`,
             '[3rd pass] The 3rd breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(2)
-                .find('a').length,
+            instance.getElement().find('> li').eq(2).find('a').length,
             0,
             '[3rd pass] The 3rd breadcrumb does not have a link'
         );
@@ -986,10 +640,7 @@ define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
             '[4th pass] The breadcrumbs instance returns the rendered content'
         );
         assert.equal(
-            instance
-                .getElement()
-                .parent()
-                .get(0),
+            instance.getElement().parent().get(0),
             $container.get(0),
             '[4th pass] The breadcrumbs instance is rendered inside the right container'
         );
@@ -1007,175 +658,90 @@ define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
 
         // 1st
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .first()
-                .data('breadcrumb'),
+            instance.getElement().find('> li').first().data('breadcrumb'),
             breadcrumbsEntries2[0].id,
             '[4th pass] The 1st breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .first()
-                .find('a')
-                .text(),
+            instance.getElement().find('> li').first().find('a').text(),
             breadcrumbsEntries2[0].label,
             '[4th pass] The 1st breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .first()
-                .find('a')
-                .attr('href'),
+            instance.getElement().find('> li').first().find('a').attr('href'),
             breadcrumbsEntries2[0].url,
             '[4th pass] The 1st breadcrumb has the right URL'
         );
 
         // 2nd
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .data('breadcrumb'),
+            instance.getElement().find('> li').eq(1).data('breadcrumb'),
             breadcrumbsEntries2[1].id,
             '[4th pass] The 2nd breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('> a')
-                .text(),
+            instance.getElement().find('> li').eq(1).find('> a').text(),
             breadcrumbsEntries2[1].label,
             '[4th pass] The 2nd breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('> a')
-                .attr('href'),
+            instance.getElement().find('> li').eq(1).find('> a').attr('href'),
             breadcrumbsEntries2[1].url,
             '[4th pass] The 2nd breadcrumb has the right URL'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li').length,
+            instance.getElement().find('> li').eq(1).find('li').length,
             breadcrumbsEntries2[1].entries.length,
             '[4th pass] The 2nd breadcrumb has a sub list'
         );
 
         // 2nd sub 1
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(0)
-                .data('breadcrumb'),
+            instance.getElement().find('> li').eq(1).find('li').eq(0).data('breadcrumb'),
             breadcrumbsEntries2[1].entries[0].id,
             '[4th pass] The 1st list entry of the 2nd breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(0)
-                .find('a')
-                .text(),
+            instance.getElement().find('> li').eq(1).find('li').eq(0).find('a').text(),
             breadcrumbsEntries2[1].entries[0].label,
             '[4th pass] The 1st list entry of the 2nd breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(0)
-                .find('a')
-                .attr('href'),
+            instance.getElement().find('> li').eq(1).find('li').eq(0).find('a').attr('href'),
             breadcrumbsEntries2[1].entries[0].url,
             '[4th pass] The 1st list entry of the 2nd breadcrumb has the right URL'
         );
 
         // 2nd sub 2
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(1)
-                .data('breadcrumb'),
+            instance.getElement().find('> li').eq(1).find('li').eq(1).data('breadcrumb'),
             breadcrumbsEntries2[1].entries[1].id,
             '[4th pass] The 2nd list entry of the 2nd breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(1)
-                .find('a')
-                .text(),
+            instance.getElement().find('> li').eq(1).find('li').eq(1).find('a').text(),
             breadcrumbsEntries2[1].entries[1].label,
             '[4th pass] The 2nd list entry of the 2nd breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(1)
-                .find('li')
-                .eq(1)
-                .find('a')
-                .attr('href'),
+            instance.getElement().find('> li').eq(1).find('li').eq(1).find('a').attr('href'),
             breadcrumbsEntries2[1].entries[1].url,
             '[4th pass] The 2nd list entry of the 2nd breadcrumb has the right URL'
         );
 
         // 3rd
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(2)
-                .data('breadcrumb'),
+            instance.getElement().find('> li').eq(2).data('breadcrumb'),
             breadcrumbsEntries2[2].id,
             '[4th pass] The 3rd breadcrumb has the right identifier'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(2)
-                .find('.a')
-                .text(),
-            `${breadcrumbsEntries2[2].label  } - ${  breadcrumbsEntries2[2].data}`,
+            instance.getElement().find('> li').eq(2).find('.a').text(),
+            `${breadcrumbsEntries2[2].label} - ${breadcrumbsEntries2[2].data}`,
             '[4th pass] The 3rd breadcrumb has the right label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('> li')
-                .eq(2)
-                .find('a').length,
+            instance.getElement().find('> li').eq(2).find('a').length,
             0,
             '[4th pass] The 3rd breadcrumb does not have a link'
         );
@@ -1190,7 +756,7 @@ define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
         );
     });
 
-    QUnit.test('show/hide', function(assert) {
+    QUnit.test('show/hide', function (assert) {
         var instance = breadcrumbs().render();
         var $component = instance.getElement();
 
@@ -1221,7 +787,7 @@ define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
         instance.destroy();
     });
 
-    QUnit.test('enable/disable', function(assert) {
+    QUnit.test('enable/disable', function (assert) {
         var instance = breadcrumbs().render();
         var $component = instance.getElement();
 
@@ -1256,7 +822,7 @@ define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
         instance.destroy();
     });
 
-    QUnit.test('state', function(assert) {
+    QUnit.test('state', function (assert) {
         var instance = breadcrumbs().render();
         var $component = instance.getElement();
 
