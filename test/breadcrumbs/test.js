@@ -54,7 +54,7 @@ define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
         assert.equal(
             typeof instance[data.name],
             'function',
-            'The breadcrumbs instance exposes a "' + data.title + '" function'
+            `The breadcrumbs instance exposes a "${  data.title  }" function`
         );
         instance.destroy();
     });
@@ -353,7 +353,7 @@ define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
                 .eq(2)
                 .find('.a')
                 .text(),
-            breadcrumbsEntries[2].label + ' - ' + breadcrumbsEntries[2].data,
+            `${breadcrumbsEntries[2].label  } - ${  breadcrumbsEntries[2].data}`,
             'The 3rd breadcrumb has the right label'
         );
         assert.equal(
@@ -558,7 +558,7 @@ define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
                 .eq(2)
                 .find('.a')
                 .text(),
-            breadcrumbsEntries[2].label + ' - ' + breadcrumbsEntries[2].data,
+            `${breadcrumbsEntries[2].label  } - ${  breadcrumbsEntries[2].data}`,
             '[1st pass] The 3rd breadcrumb has the right label'
         );
         assert.equal(
@@ -745,7 +745,7 @@ define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
                 .eq(2)
                 .find('.a')
                 .text(),
-            breadcrumbsEntries2[2].label + ' - ' + breadcrumbsEntries2[2].data,
+            `${breadcrumbsEntries2[2].label  } - ${  breadcrumbsEntries2[2].data}`,
             '[2nd pass] The 3rd breadcrumb has the right label'
         );
         assert.equal(
@@ -958,7 +958,7 @@ define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
                 .eq(2)
                 .find('.a')
                 .text(),
-            breadcrumbsEntries[2].label + ' - ' + breadcrumbsEntries[2].data,
+            `${breadcrumbsEntries[2].label  } - ${  breadcrumbsEntries[2].data}`,
             '[3rd pass] The 3rd breadcrumb has the right label'
         );
         assert.equal(
@@ -1167,7 +1167,7 @@ define(['jquery', 'lodash', 'ui/breadcrumbs'], function($, _, breadcrumbs) {
                 .eq(2)
                 .find('.a')
                 .text(),
-            breadcrumbsEntries2[2].label + ' - ' + breadcrumbsEntries2[2].data,
+            `${breadcrumbsEntries2[2].label  } - ${  breadcrumbsEntries2[2].data}`,
             '[4th pass] The 3rd breadcrumb has the right label'
         );
         assert.equal(

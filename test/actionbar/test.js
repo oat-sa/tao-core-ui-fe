@@ -106,7 +106,7 @@ define(['jquery', 'lodash', 'ui/actionbar'], function($, _, actionbar) {
         assert.equal(
             typeof instance[data.name],
             'function',
-            'The actionbar instance exposes a "' + data.title + '" function'
+            `The actionbar instance exposes a "${  data.title  }" function`
         );
     });
 
@@ -199,39 +199,39 @@ define(['jquery', 'lodash', 'ui/actionbar'], function($, _, actionbar) {
         );
         _.forEach(config.buttons, function(button) {
             assert.equal(
-                instance.getElement().find('[data-control="' + button.id + '"]').length,
+                instance.getElement().find(`[data-control="${  button.id  }"]`).length,
                 1,
-                'The actionbar instance has rendered the button ' + button.id
+                `The actionbar instance has rendered the button ${  button.id}`
             );
             assert.equal(
                 instance
                     .getElement()
-                    .find('[data-control="' + button.id + '"]')
+                    .find(`[data-control="${  button.id  }"]`)
                     .text()
                     .trim(),
                 button.label,
-                'The actionbar instance has rendered the button ' + button.id + ' with label ' + button.label
+                `The actionbar instance has rendered the button ${  button.id  } with label ${  button.label}`
             );
 
             if (button.icon) {
                 assert.equal(
-                    instance.getElement().find('[data-control="' + button.id + '"] .icon').length,
+                    instance.getElement().find(`[data-control="${  button.id  }"] .icon`).length,
                     1,
-                    'The actionbar instance has rendered the button ' + button.id + ' with an icon'
+                    `The actionbar instance has rendered the button ${  button.id  } with an icon`
                 );
                 assert.equal(
                     instance
                         .getElement()
-                        .find('[data-control="' + button.id + '"] .icon')
-                        .hasClass('icon-' + button.icon),
+                        .find(`[data-control="${  button.id  }"] .icon`)
+                        .hasClass(`icon-${  button.icon}`),
                     true,
-                    'The actionbar instance has rendered the button ' + button.id + ' with the icon ' + button.icon
+                    `The actionbar instance has rendered the button ${  button.id  } with the icon ${  button.icon}`
                 );
             } else {
                 assert.equal(
-                    instance.getElement().find('[data-control="' + button.id + '"] .icon').length,
+                    instance.getElement().find(`[data-control="${  button.id  }"] .icon`).length,
                     0,
-                    'The actionbar instance has rendered the button ' + button.id + ' without an icon'
+                    `The actionbar instance has rendered the button ${  button.id  } without an icon`
                 );
             }
 
@@ -239,19 +239,19 @@ define(['jquery', 'lodash', 'ui/actionbar'], function($, _, actionbar) {
                 assert.equal(
                     instance
                         .getElement()
-                        .find('[data-control="' + button.id + '"]')
+                        .find(`[data-control="${  button.id  }"]`)
                         .hasClass('conditional'),
                     true,
-                    'The actionbar instance has rendered the button ' + button.id + ' with the class conditional'
+                    `The actionbar instance has rendered the button ${  button.id  } with the class conditional`
                 );
             } else {
                 assert.equal(
                     instance
                         .getElement()
-                        .find('[data-control="' + button.id + '"]')
+                        .find(`[data-control="${  button.id  }"]`)
                         .hasClass('conditional'),
                     false,
-                    'The actionbar instance has rendered the button ' + button.id + ' without the class conditional'
+                    `The actionbar instance has rendered the button ${  button.id  } without the class conditional`
                 );
             }
         });

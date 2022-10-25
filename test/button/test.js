@@ -54,7 +54,7 @@ define(['jquery', 'lodash', 'ui/button', 'tpl!test/ui/button/click'], function($
         assert.equal(
             typeof instance[data.title],
             'function',
-            'The button instance exposes a "' + data.title + '" function'
+            `The button instance exposes a "${  data.title  }" function`
         );
     });
 
@@ -69,7 +69,7 @@ define(['jquery', 'lodash', 'ui/button', 'tpl!test/ui/button/click'], function($
         assert.equal(
             typeof instance[data.title],
             'function',
-            'The button instance exposes a "' + data.title + '" function'
+            `The button instance exposes a "${  data.title  }" function`
         );
     });
 
@@ -81,7 +81,7 @@ define(['jquery', 'lodash', 'ui/button', 'tpl!test/ui/button/click'], function($
         assert.equal(
             typeof instance[data.title],
             'function',
-            'The button instance exposes a "' + data.title + '" function'
+            `The button instance exposes a "${  data.title  }" function`
         );
     });
 
@@ -197,7 +197,7 @@ define(['jquery', 'lodash', 'ui/button', 'tpl!test/ui/button/click'], function($
         );
         assert.ok(instance.getElement().is('button'), 'The button instance has rendered the button');
         assert.ok(
-            instance.getElement().is('[data-control="' + data.config.id + '"]'),
+            instance.getElement().is(`[data-control="${  data.config.id  }"]`),
             'The button instance has the right identifier'
         );
         assert.equal(
@@ -206,14 +206,14 @@ define(['jquery', 'lodash', 'ui/button', 'tpl!test/ui/button/click'], function($
                 .text()
                 .trim(),
             data.config.label,
-            'The button instance has rendered the button  with label ' + data.config.label
+            `The button instance has rendered the button  with label ${  data.config.label}`
         );
 
         if (data.config.type) {
             assert.equal(
-                instance.getElement().hasClass('btn-' + data.config.type),
+                instance.getElement().hasClass(`btn-${  data.config.type}`),
                 true,
-                'The button instance has rendered the button with type ' + data.config.type
+                `The button instance has rendered the button with type ${  data.config.type}`
             );
         } else {
             assert.equal(
@@ -230,7 +230,7 @@ define(['jquery', 'lodash', 'ui/button', 'tpl!test/ui/button/click'], function($
             assert.equal(
                 instance.getElement().attr('title'),
                 data.config.title,
-                'The button instance has rendered the button with title ' + data.config.title
+                `The button instance has rendered the button with title ${  data.config.title}`
             );
         } else {
             assert.equal(
@@ -259,9 +259,9 @@ define(['jquery', 'lodash', 'ui/button', 'tpl!test/ui/button/click'], function($
                 instance
                     .getElement()
                     .find('.icon')
-                    .hasClass('icon-' + data.config.icon),
+                    .hasClass(`icon-${  data.config.icon}`),
                 true,
-                'The button instance has rendered the icon ' + data.config.icon
+                `The button instance has rendered the icon ${  data.config.icon}`
             );
         } else {
             assert.equal(
@@ -476,7 +476,7 @@ define(['jquery', 'lodash', 'ui/button', 'tpl!test/ui/button/click'], function($
                 label: label
             })
                 .on('render', function() {
-                    assert.ok(true, 'Button "' + id + '" is rendered');
+                    assert.ok(true, `Button "${  id  }" is rendered`);
                 })
                 .on('click', function(buttonId) {
                     return new Promise(function(resolve) {

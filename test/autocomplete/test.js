@@ -84,7 +84,7 @@ define(['jquery', 'ui/autocomplete', 'lib/simulator/jquery.keystroker'], functio
         var instance = autocompleteUI();
         assert.ok(
             typeof instance[data.name] === 'function',
-            'The ui/autocomplete instance exposes a "' + data.title + '" function'
+            `The ui/autocomplete instance exposes a "${  data.title  }" function`
         );
     });
 
@@ -291,16 +291,16 @@ define(['jquery', 'ui/autocomplete', 'lib/simulator/jquery.keystroker'], functio
         var expectedOntology = 'http://www.tao.lu/Ontologies/TAO.rdf#User';
         var expectedParamsRoot = 'params';
         var $element = $(
-            '<input type="text"' +
-                ' data-url="' +
-                expectedUrl +
-                '"' +
-                ' data-ontology="' +
-                expectedOntology +
-                '"' +
-                ' data-params-root="' +
-                expectedParamsRoot +
-                '" />'
+            `<input type="text"` +
+                ` data-url="${
+                    expectedUrl
+                }"` +
+                ` data-ontology="${
+                    expectedOntology
+                }"` +
+                ` data-params-root="${
+                    expectedParamsRoot
+                }" />`
         );
 
         var instance = autocompleteUI($element);

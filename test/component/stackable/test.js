@@ -43,7 +43,7 @@ define(['jquery', 'ui/hider', 'ui/stacker', 'ui/component', 'ui/component/stacka
         var component = makeStackable(componentFactory());
 
         assert.expect(1);
-        assert.ok(typeof component[data.title] === 'function', 'component has a ' + data.title + ' method');
+        assert.ok(typeof component[data.title] === 'function', `component has a ${  data.title  } method`);
     });
 
     QUnit.module('Regular component');

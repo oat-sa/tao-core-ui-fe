@@ -61,7 +61,7 @@ define(['jquery', 'ui/class/selector', 'json!test/ui/class/selector/classes.json
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The classSelector exposes the component method "' + data.title
+                `The classSelector exposes the component method "${  data.title}`
             );
         });
 
@@ -72,7 +72,7 @@ define(['jquery', 'ui/class/selector', 'json!test/ui/class/selector/classes.json
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The classSelector exposes the eventifier method "' + data.title
+                `The classSelector exposes the eventifier method "${  data.title}`
             );
         });
 
@@ -92,7 +92,7 @@ define(['jquery', 'ui/class/selector', 'json!test/ui/class/selector/classes.json
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The classSelector exposes the method "' + data.title
+                `The classSelector exposes the method "${  data.title}`
             );
         });
 
@@ -446,13 +446,13 @@ define(['jquery', 'ui/class/selector', 'json!test/ui/class/selector/classes.json
             var $element = this.getElement();
 
             assert.ok(this.hasNode(node), 'The node exists');
-            assert.equal($('.options [data-uri="' + node.uri + '"]', $element).length, 1, 'The node is in the options');
+            assert.equal($(`.options [data-uri="${  node.uri  }"]`, $element).length, 1, 'The node is in the options');
 
             assert.ok(this.removeNode(node), 'The node is removed');
 
             assert.ok(!this.hasNode(node), 'The node does exists anymore');
             assert.equal(
-                $('.options [data-uri="' + node.uri + '"]', $element).length,
+                $(`.options [data-uri="${  node.uri  }"]`, $element).length,
                 0,
                 'The node is not in the options anymore'
             );
@@ -479,11 +479,11 @@ define(['jquery', 'ui/class/selector', 'json!test/ui/class/selector/classes.json
             classes: classes
         }).on('render', function() {
             var $element = this.getElement();
-            var $parentNode = $('.options [data-uri="' + parentNode + '"]', $element);
+            var $parentNode = $(`.options [data-uri="${  parentNode  }"]`, $element);
 
             assert.ok(!this.hasNode(node), 'The node to add does not exists yet');
             assert.equal(
-                $('.options [data-uri="' + node.uri + '"]', $element).length,
+                $(`.options [data-uri="${  node.uri  }"]`, $element).length,
                 0,
                 'The node is not in the options'
             );
@@ -496,7 +496,7 @@ define(['jquery', 'ui/class/selector', 'json!test/ui/class/selector/classes.json
 
             assert.ok(this.hasNode(node), 'The node is added');
             assert.equal(
-                $('.options [data-uri="' + node.uri + '"]', $element).length,
+                $(`.options [data-uri="${  node.uri  }"]`, $element).length,
                 1,
                 'The node is now in the options'
             );
@@ -523,7 +523,7 @@ define(['jquery', 'ui/class/selector', 'json!test/ui/class/selector/classes.json
             classUri: uri
         }).on('render', function() {
             var $element = this.getElement();
-            var $selectableNode = $('.options [data-uri="' + uri + '"]', $element);
+            var $selectableNode = $(`.options [data-uri="${  uri  }"]`, $element);
 
             assert.ok(this.hasNode(uri), 'The node exists');
             assert.equal($selectableNode.length, 1, 'The node is in the options');

@@ -128,7 +128,7 @@ define(['jquery', 'lodash', 'ui/areaBroker', 'ui/component'], function($, _, are
     QUnit.cases.init(brokerApi).test('broker api', function(data, assert) {
         var broker = getTestBroker();
         assert.expect(1);
-        assert.equal(typeof broker[data.method], 'function', 'The broker has the method ' + data.method);
+        assert.equal(typeof broker[data.method], 'function', `The broker has the method ${  data.method}`);
     });
 
     QUnit.module('Area mapping');

@@ -58,7 +58,7 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The component instance exposes a "' + data.title + '" function'
+                `The component instance exposes a "${  data.title  }" function`
             );
         });
 
@@ -516,9 +516,9 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
 
                     $component.css({
                         'box-sizing': data.boxSizing,
-                        padding: data.padding + 'px',
-                        margin: data.margin + 'px',
-                        border: data.border + 'px solid black'
+                        padding: `${data.padding  }px`,
+                        margin: `${data.margin  }px`,
+                        border: `${data.border  }px solid black`
                     });
 
                     outerSize = this.getOuterSize(data.includeMargin);

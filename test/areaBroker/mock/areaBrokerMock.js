@@ -44,6 +44,7 @@ define(['jquery', 'lodash', 'ui/areaBroker'], function($, _, areaBrokerFactory) 
      * @param {jQuery} config.$brokerContainer - where to create the area broker - default to #qunit-fixture
      * @param {String[]} config.areas - A list of areas to create, or...
      * @param {Object} config.mapping - ... a list of already created areas
+     * @param config
      * @returns {areaBroker} - Returns the new areaBroker
      */
     function areaBrokerMock(config) {
@@ -52,7 +53,7 @@ define(['jquery', 'lodash', 'ui/areaBroker'], function($, _, areaBrokerFactory) 
         config = config || {};
 
         $areaBrokerDom = $('<div />')
-            .attr('id', 'area-broker-mock-' + mockId++)
+            .attr('id', `area-broker-mock-${  mockId++}`)
             .addClass(config.id || classes.areaBroker);
 
         defaultAreas = config.defaultAreas || [];
