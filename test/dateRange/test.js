@@ -24,7 +24,7 @@
  * @author Alexander Zagovorichev <zagovorichev@1pt.com>
  * @author Bertrand Chevrier <bertrand@taotesting.com>
  */
-define(['ui/dateRange/dateRange'], function(dateRangeFactory) {
+define(['ui/dateRange/dateRange', 'jquery'], function (dateRangeFactory, $) {
     'use strict';
 
     QUnit.module('API');
@@ -45,50 +45,50 @@ define(['ui/dateRange/dateRange'], function(dateRangeFactory) {
             { title: 'getTemplate' },
             { title: 'setTemplate' }
         ])
-        .test('Component API ', function(data, assert) {
+        .test('Component API ', function (data, assert) {
             assert.expect(1);
             assert.equal(
                 typeof dateRangeFactory()[data.title],
                 'function',
-                `The range component exposes the component method "${  data.title}`
+                `The range component exposes the component method "${data.title}`
             );
         });
 
     QUnit.cases
         .init([{ title: 'on' }, { title: 'off' }, { title: 'trigger' }, { title: 'before' }, { title: 'after' }])
-        .test('Eventifier API ', function(data, assert) {
+        .test('Eventifier API ', function (data, assert) {
             assert.expect(1);
             assert.equal(
                 typeof dateRangeFactory()[data.title],
                 'function',
-                `The range component exposes the eventifier method "${  data.title}`
+                `The range component exposes the eventifier method "${data.title}`
             );
         });
 
     QUnit.cases
         .init([{ title: 'submit' }, { title: 'reset' }, { title: 'getStart' }, { title: 'getEnd' }])
-        .test('Picker API ', function(data, assert) {
+        .test('Picker API ', function (data, assert) {
             assert.expect(1);
             assert.equal(
                 typeof dateRangeFactory()[data.title],
                 'function',
-                `The range component exposes the method "${  data.title}`
+                `The range component exposes the method "${data.title}`
             );
         });
 
     QUnit.module('Behavior');
 
-    QUnit.test('Lifecycle', function(assert) {
+    QUnit.test('Lifecycle', function (assert) {
         var container = document.querySelector('#qunit-fixture');
         var done = assert.async();
 
         assert.expect(2);
 
         dateRangeFactory(container)
-            .on('init', function() {
+            .on('init', function () {
                 assert.ok(!this.is('rendered'), 'The component is not yet rendered');
             })
-            .on('render', function() {
+            .on('render', function () {
                 assert.ok(this.is('rendered'), 'The component is now rendered');
 
                 this.destroy();
@@ -96,7 +96,7 @@ define(['ui/dateRange/dateRange'], function(dateRangeFactory) {
             .on('destroy', done);
     });
 
-    QUnit.test('Default configuration', function(assert) {
+    QUnit.test('Default configuration', function (assert) {
         var container = document.querySelector('#qunit-fixture');
         var done = assert.async();
 
@@ -105,7 +105,7 @@ define(['ui/dateRange/dateRange'], function(dateRangeFactory) {
         assert.equal(container.querySelectorAll('input').length, 0, 'No input field found');
         assert.equal(container.querySelectorAll('button').length, 0, 'No button found');
 
-        dateRangeFactory(container).on('ready', function() {
+        dateRangeFactory(container).on('ready', function () {
             var element = this.getElement()[0];
             var startField = element.querySelector('input[name="periodStart"]');
             var endField = element.querySelector('input[name="periodEnd"]');
@@ -121,7 +121,7 @@ define(['ui/dateRange/dateRange'], function(dateRangeFactory) {
         });
     });
 
-    QUnit.test('Custom buttons configuration', function(assert) {
+    QUnit.test('Custom buttons configuration', function (assert) {
         var container = document.querySelector('#qunit-fixture');
         var done = assert.async();
 
@@ -138,7 +138,7 @@ define(['ui/dateRange/dateRange'], function(dateRangeFactory) {
                 label: 'Filter',
                 title: 'Filter the values'
             }
-        }).on('ready', function() {
+        }).on('ready', function () {
             var element = this.getElement()[0];
             var applyButton = element.querySelector('button[data-control="filter"]');
             var resetButton = element.querySelector('button[data-control="reset"]');
@@ -152,7 +152,7 @@ define(['ui/dateRange/dateRange'], function(dateRangeFactory) {
         });
     });
 
-    QUnit.test('Set range values', function(assert) {
+    QUnit.test('Set range values', function (assert) {
         var container = document.querySelector('#qunit-fixture');
         var done = assert.async();
 
@@ -161,7 +161,7 @@ define(['ui/dateRange/dateRange'], function(dateRangeFactory) {
         assert.equal(container.querySelectorAll('button').length, 0, 'No button found');
 
         dateRangeFactory(container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var element = this.getElement()[0];
                 var startField = element.querySelector('input[name="periodStart"]');
                 var endField = element.querySelector('input[name="periodEnd"]');
@@ -180,7 +180,7 @@ define(['ui/dateRange/dateRange'], function(dateRangeFactory) {
 
                 applyButton.click();
             })
-            .on('submit', function(start, end) {
+            .on('submit', function (start, end) {
                 assert.equal(start, '2019-01-01 12:00:00', 'The start value is correct');
                 assert.equal(end, '2019-01-02 00:00:00', 'The end vaue is correct');
                 assert.equal(this.getStart(), '2019-01-01 12:00:00', 'The start value is correct');
@@ -190,7 +190,7 @@ define(['ui/dateRange/dateRange'], function(dateRangeFactory) {
             });
     });
 
-    QUnit.test('Reset range values', function(assert) {
+    QUnit.test('Reset range values', function (assert) {
         var container = document.querySelector('#qunit-fixture');
         var done = assert.async();
 
@@ -199,7 +199,7 @@ define(['ui/dateRange/dateRange'], function(dateRangeFactory) {
         assert.equal(container.querySelectorAll('button').length, 0, 'No button found');
 
         dateRangeFactory(container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var element = this.getElement()[0];
                 var startField = element.querySelector('input[name="periodStart"]');
                 var endField = element.querySelector('input[name="periodEnd"]');
@@ -221,7 +221,7 @@ define(['ui/dateRange/dateRange'], function(dateRangeFactory) {
 
                 resetButton.click();
             })
-            .on('reset', function() {
+            .on('reset', function () {
                 var element = this.getElement()[0];
                 var startField = element.querySelector('input[name="periodStart"]');
                 var endField = element.querySelector('input[name="periodEnd"]');
@@ -237,7 +237,7 @@ define(['ui/dateRange/dateRange'], function(dateRangeFactory) {
             });
     });
 
-    QUnit.test('Set via picker', function(assert) {
+    QUnit.test('Set via picker', function (assert) {
         var container = document.querySelector('#qunit-fixture');
         var done = assert.async();
 
@@ -260,7 +260,7 @@ define(['ui/dateRange/dateRange'], function(dateRangeFactory) {
                 }
             }
         })
-            .on('ready', function() {
+            .on('ready', function () {
                 var element = this.getElement()[0];
                 var startField = element.querySelector('input[name="periodStart"]');
                 var startPicker = element.querySelector('.start .datetime-picker .flatpickr-calendar');
@@ -271,7 +271,7 @@ define(['ui/dateRange/dateRange'], function(dateRangeFactory) {
 
                 startField.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
 
-                setTimeout(function() {
+                setTimeout(function () {
                     assert.ok(startPicker.classList.contains('open'), 'The start picker is now open');
 
                     startPicker
@@ -279,7 +279,7 @@ define(['ui/dateRange/dateRange'], function(dateRangeFactory) {
                         .dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
                 }, 300);
             })
-            .on('close', function(target, value) {
+            .on('close', function (target, value) {
                 assert.equal(target, 'start', 'The start date get changed');
                 assert.equal(value, '2019-04-10', 'The start value is set');
                 assert.equal(this.getStart(), '2019-04-10', 'The start value is set');
@@ -326,10 +326,10 @@ define(['ui/dateRange/dateRange'], function(dateRangeFactory) {
                 $outputChange.val('reset');
             })
             .on('submit', function (start, end) {
-                $outputChange.val(`Submitted values:\n- start: ${  start  }\n- end: ${  end}`);
+                $outputChange.val(`Submitted values:\n- start: ${start}\n- end: ${end}`);
             })
             .on('change', function (name, value) {
-                $outputChange.val(`value of [${  name  }] changed to "${  value  }"\n${  $outputChange.val()}`);
+                $outputChange.val(`value of [${name}] changed to "${value}"\n${$outputChange.val()}`);
             })
             .on('error', function (err) {
                 assert.ok(false, 'The operation should not fail!');
