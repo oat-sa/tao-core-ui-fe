@@ -28,7 +28,7 @@ const youtubeApi = 'https://www.youtube.com/iframe_api';
  * A Regex to extract ID from Youtube URLs
  * @type {RegExp}
  */
-const reYoutube = /([?&\/]v[=\/])([\w-]+)([&\/]?)/;
+const reYoutube = /([?&/]v[=/])([\w-]+)([&/]?)/;
 
 /**
  * Installs a Youtube player. The Youtube API must be ready
