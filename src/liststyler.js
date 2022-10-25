@@ -67,7 +67,7 @@ var listStyles = {
  * @param selectedStyle
  */
 function populate(selectBox, selectedStyle) {
-    _.forOwn(listStyles, function(symbol, style) {
+    _.forOwn(listStyles, function (symbol, style) {
         selectBox.options.add(new Option(capitalize(style.replace(/-/g, ' ')), style, false, style === selectedStyle));
     });
 }
@@ -88,7 +88,7 @@ function formatState(state) {
  *
  * @type {{init: init}}
  */
-var ListStyler = {
+const ListStyler = {
     /**
          * Initialize the plugin.
          *
@@ -101,8 +101,8 @@ var ListStyler = {
          * @param options
          * @returns {*}
          */
-    init: function(options) {
-        return this.each(function() {
+    init: function (options) {
+        return this.each(function () {
             var $elt = $(this);
 
             //get options using default
@@ -112,7 +112,7 @@ var ListStyler = {
 
             currStyle = options.selected;
 
-            $elt.on('change', function() {
+            $elt.on('change', function () {
                 $elt.trigger('stylechange.' + ns, { newStyle: this.value, oldStyle: currStyle });
                 currStyle = this.value;
             });
@@ -138,8 +138,8 @@ var ListStyler = {
      * @example $('selector').toggler('destroy');
      * @public
      */
-    destroy: function() {
-        this.each(function() {
+    destroy: function () {
+        this.each(function () {
             var $elt = $(this);
 
             /**
