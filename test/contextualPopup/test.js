@@ -1,9 +1,9 @@
-define(['jquery', 'ui/contextualPopup', 'css!test/contextualPopup/test.css'], function($, contextualPopup) {
+define(['jquery', 'ui/contextualPopup', 'css!test/contextualPopup/test.css'], function ($, contextualPopup) {
     'use strict';
 
     QUnit.module('init popup');
 
-    QUnit.test('with content string', function(assert) {
+    QUnit.test('with content string', function () {
         var $container = $('#main-container');
         var popup1 = contextualPopup($container.find('.center1'), $container, { content: 'content 1' });
 
@@ -16,7 +16,7 @@ define(['jquery', 'ui/contextualPopup', 'css!test/contextualPopup/test.css'], fu
         popup1.destroy();
     });
 
-    QUnit.test('with jquery element', function(assert) {
+    QUnit.test('with jquery element', function () {
         var $container = $('#main-container');
         var $content2 = $('<ul><li>element 1</li><li>element 2</li><li>element 3</li></ul>');
         var popup2 = contextualPopup($container.find('.center2'), $container, { content: $content2 });
@@ -31,7 +31,7 @@ define(['jquery', 'ui/contextualPopup', 'css!test/contextualPopup/test.css'], fu
         popup2.destroy();
     });
 
-    QUnit.test('with controls', function(assert) {
+    QUnit.test('with controls', function () {
         var $container = $('#main-container');
         var popup3 = contextualPopup($container.find('.center3'), $container, {
             content: 'content 3',
@@ -47,7 +47,7 @@ define(['jquery', 'ui/contextualPopup', 'css!test/contextualPopup/test.css'], fu
         popup3.destroy();
     });
 
-    QUnit.test('with positioning on top', function(assert) {
+    QUnit.test('with positioning on top', function () {
         var $container = $('#main-container');
         var popup4 = contextualPopup($container.find('.center4'), $container, {
             content: 'content 4',
@@ -63,7 +63,7 @@ define(['jquery', 'ui/contextualPopup', 'css!test/contextualPopup/test.css'], fu
 
     QUnit.module('api');
 
-    QUnit.test('show/hide/isVisible', function(assert) {
+    QUnit.test('show/hide/isVisible', function () {
         var $container = $('#main-container');
         var popup1 = contextualPopup($container.find('.center1'), $container, { content: 'content 1' });
 
@@ -78,57 +78,36 @@ define(['jquery', 'ui/contextualPopup', 'css!test/contextualPopup/test.css'], fu
         QUnit.assert.ok(popup1.isVisible(), 'popup is visible again');
     });
 
-    QUnit.test('setContent', function(assert) {
+    QUnit.test('setContent', function () {
         var $container = $('#main-container');
         var popup1 = contextualPopup($container.find('.center1'), $container, { content: 'content 1' });
-        QUnit.assert.equal(
-            popup1
-                .getPopup()
-                .children('.popup-content')
-                .html(),
-            'content 1',
-            'intial content'
-        );
+        QUnit.assert.equal(popup1.getPopup().children('.popup-content').html(), 'content 1', 'intial content');
 
         popup1.setContent('content A');
-        QUnit.assert.equal(
-            popup1
-                .getPopup()
-                .children('.popup-content')
-                .html(),
-            'content A',
-            'updated content'
-        );
+        QUnit.assert.equal(popup1.getPopup().children('.popup-content').html(), 'content A', 'updated content');
 
-        var $contentB = $('<p class="some-paragraph">contentB</p>');
+        const $contentB = $('<p class="some-paragraph">contentB</p>');
         popup1.setContent($contentB);
-        QUnit.assert.equal(
-            popup1
-                .getPopup()
-                .children('.popup-content')
-                .children()[0],
-            $contentB[0],
-            'updated content'
-        );
+        QUnit.assert.equal(popup1.getPopup().children('.popup-content').children()[0], $contentB[0], 'updated content');
 
         popup1.destroy();
     });
 
-    QUnit.test('done', function(assert) {
+    QUnit.test('done', function (assert) {
         //done button hides and trigger event done
         assert.expect(4);
 
-        var $container = $('#main-container');
-        var popup1 = contextualPopup($container.find('.center1'), $container, {
+        const $container = $('#main-container');
+        const popup1 = contextualPopup($container.find('.center1'), $container, {
             content: 'content 1',
             controls: { done: true }
         });
         $container
             .off('.contextual-popup')
-            .on('done.contextual-popup', function() {
+            .on('done.contextual-popup', function () {
                 QUnit.assert.ok(true, 'triggered done');
             })
-            .on('hide.contextual-popup', function() {
+            .on('hide.contextual-popup', function () {
                 QUnit.assert.ok(true, 'triggered hide');
             });
 
@@ -139,29 +118,26 @@ define(['jquery', 'ui/contextualPopup', 'css!test/contextualPopup/test.css'], fu
         popup1.show();
 
         //done by clicking on the button
-        popup1
-            .getPopup()
-            .find('.btn.done')
-            .click();
+        popup1.getPopup().find('.btn.done').click();
 
         popup1.destroy();
     });
 
-    QUnit.test('callbacks', function(assert) {
+    QUnit.test('callbacks', function (assert) {
         assert.expect(8);
 
-        var $container = $('#main-container');
-        var popup1 = contextualPopup($container.find('.center1'), $container, {
+        const $container = $('#main-container');
+        const popup1 = contextualPopup($container.find('.center1'), $container, {
             content: 'content 1',
             controls: {
                 done: true,
                 cancel: true
             },
             callbacks: {
-                beforeDone: function() {
+                beforeDone: function () {
                     return true;
                 },
-                beforeCancel: function() {
+                beforeCancel: function () {
                     return true;
                 }
             }
@@ -169,10 +145,10 @@ define(['jquery', 'ui/contextualPopup', 'css!test/contextualPopup/test.css'], fu
 
         $container
             .off('.contextual-popup')
-            .on('done.contextual-popup', function() {
+            .on('done.contextual-popup', function () {
                 QUnit.assert.ok(true, 'triggered done');
             })
-            .on('cancel.contextual-popup', function() {
+            .on('cancel.contextual-popup', function () {
                 QUnit.assert.ok(true, 'triggered cancel');
             });
 
@@ -181,10 +157,7 @@ define(['jquery', 'ui/contextualPopup', 'css!test/contextualPopup/test.css'], fu
         QUnit.assert.ok(popup1.isVisible());
 
         //done by clicking on the button
-        popup1
-            .getPopup()
-            .find('.btn.done')
-            .click();
+        popup1.getPopup().find('.btn.done').click();
         QUnit.assert.ok(!popup1.isVisible());
 
         //redisplay it
@@ -192,25 +165,22 @@ define(['jquery', 'ui/contextualPopup', 'css!test/contextualPopup/test.css'], fu
         QUnit.assert.ok(popup1.isVisible());
 
         //done by clicking on the button
-        popup1
-            .getPopup()
-            .find('.btn.cancel')
-            .click();
+        popup1.getPopup().find('.btn.cancel').click();
         QUnit.assert.ok(!popup1.isVisible());
 
         popup1.destroy();
 
-        var popup2 = contextualPopup($container.find('.center1'), $container, {
+        const popup2 = contextualPopup($container.find('.center1'), $container, {
             content: 'content 1',
             controls: {
                 done: true,
                 cancel: true
             },
             callbacks: {
-                beforeDone: function() {
+                beforeDone: function () {
                     return false;
                 },
-                beforeCancel: function() {
+                beforeCancel: function () {
                     return false;
                 }
             }
@@ -219,37 +189,31 @@ define(['jquery', 'ui/contextualPopup', 'css!test/contextualPopup/test.css'], fu
         popup2.show();
 
         //should not be hidden
-        popup2
-            .getPopup()
-            .find('.btn.done')
-            .click();
+        popup2.getPopup().find('.btn.done').click();
         QUnit.assert.ok(popup2.isVisible());
 
         //should not be hidden
-        popup2
-            .getPopup()
-            .find('.btn.cancel')
-            .click();
+        popup2.getPopup().find('.btn.cancel').click();
         QUnit.assert.ok(popup2.isVisible());
 
         popup2.destroy();
     });
 
-    QUnit.test('cancel', function(assert) {
+    QUnit.test('cancel', function (assert) {
         //cancel button hides and trigger event done
         assert.expect(4);
 
-        var $container = $('#main-container');
-        var popup1 = contextualPopup($container.find('.center1'), $container, {
+        const $container = $('#main-container');
+        const popup1 = contextualPopup($container.find('.center1'), $container, {
             content: 'content 1',
             controls: { cancel: true }
         });
         $container
             .off('.contextual-popup')
-            .on('cancel.contextual-popup', function() {
+            .on('cancel.contextual-popup', function () {
                 QUnit.assert.ok(true, 'triggered cancel');
             })
-            .on('hide.contextual-popup', function() {
+            .on('hide.contextual-popup', function () {
                 QUnit.assert.ok(true, 'triggered hide');
             });
 
@@ -260,30 +224,14 @@ define(['jquery', 'ui/contextualPopup', 'css!test/contextualPopup/test.css'], fu
         popup1.show();
 
         //done by clicking on the button
-        popup1
-            .getPopup()
-            .find('.btn.cancel')
-            .click();
+        popup1.getPopup().find('.btn.cancel').click();
 
         popup1.destroy();
     });
 
     QUnit.module('visual test');
 
-    QUnit.test('check', function(assert) {
+    QUnit.test('check', function (assert) {
         assert.expect(0);
-
-        var $container = $('#visual-test');
-        var popup1 = contextualPopup($container.find('.center1'), $container, { content: 'content 1' });
-        var $content2 = $('<ul><li>element 1</li><li>element 2</li><li>element 3</li></ul>');
-        var popup2 = contextualPopup($container.find('.center2'), $container, { content: $content2 });
-        var popup3 = contextualPopup($container.find('.center3'), $container, {
-            content: 'content 3',
-            controls: { done: true, cancel: true }
-        });
-        var popup4 = contextualPopup($container.find('.center4'), $container, {
-            content: 'content 4',
-            position: 'top'
-        });
     });
 });
