@@ -19,7 +19,6 @@
  * @author Anton Tsymuk <anton@taotesting.com>
  */
 import $ from 'jquery';
-import _ from 'lodash';
 import __ from 'i18n';
 import component from 'ui/component';
 import pageSizeSelectorTpl from 'ui/pageSizeSelector/tpl/pageSizeSelector';
@@ -55,8 +54,8 @@ var pageSizeSelectorFactory = function pageSizeSelectorFactory(config) {
             var defaultSize = this.config.defaultSize;
 
             var selectedOption;
-            options.forEach(function(option) {
-                if (option.value == defaultSize) {
+            options.forEach(function (option) {
+                if (option.value === defaultSize) {
                     selectedOption = option;
 
                     option.selected = true;
@@ -74,10 +73,10 @@ var pageSizeSelectorFactory = function pageSizeSelectorFactory(config) {
 
     return component(pageSizeSelectorSpecs, defaults)
         .setTemplate(pageSizeSelectorTpl)
-        .on('init', function() {
+        .on('init', function () {
             this.setSelectedOption();
         })
-        .on('render', function() {
+        .on('render', function () {
             var self = this;
             var $component = this.getElement();
 
@@ -86,17 +85,17 @@ var pageSizeSelectorFactory = function pageSizeSelectorFactory(config) {
                     dropdownCssClass: 'page-size-dropdown',
                     minimumResultsForSearch: Infinity
                 })
-                .on('change', function(e) {
+                .on('change', function (e) {
                     self.trigger('change', e.val);
                 });
         })
-        .after('render', function() {
+        .after('render', function () {
             var $component = this.getElement();
 
             // Notify about the default value after render
             this.trigger('change', $('select', $component).val());
         })
-        .on('destroy', function() {
+        .on('destroy', function () {
             var $component = this.getElement();
 
             $('.select2', $component).select2('destroy');
