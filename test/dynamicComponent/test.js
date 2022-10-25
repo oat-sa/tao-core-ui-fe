@@ -18,12 +18,12 @@
 /**
  * @author Sam <sam@taotesting.com>
  */
-define(['jquery', 'lodash', 'ui/dynamicComponent'], function($, _, dynamicComponent) {
+define(['jquery', 'lodash', 'ui/dynamicComponent'], function ($, _, dynamicComponent) {
     'use strict';
 
     QUnit.module('component');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.equal(typeof dynamicComponent, 'function', 'The component module exposes a function');
         assert.equal(typeof dynamicComponent(), 'object', 'The component factory produces an object');
         assert.notStrictEqual(
@@ -53,25 +53,25 @@ define(['jquery', 'lodash', 'ui/dynamicComponent'], function($, _, dynamicCompon
             { title: 'resetSize' },
             { title: 'resetSize' }
         ])
-        .test('instance API ', function(data, assert) {
+        .test('instance API ', function (data, assert) {
             var instance = dynamicComponent();
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                `The component instance exposes a "${  data.title  }" function`
+                `The component instance exposes a "${data.title}" function`
             );
         });
 
-    QUnit.test('init', function(assert) {
+    QUnit.test('init', function (assert) {
         var specs = {
             value: 10,
-            method: function() {}
+            method: function () {}
         };
         var defaults = {
             label: 'a label'
         };
         var config = {
-            nothing: undefined,
+            nothing: void 0,
             dummy: null,
             title: 'My Title'
         };
@@ -80,17 +80,17 @@ define(['jquery', 'lodash', 'ui/dynamicComponent'], function($, _, dynamicCompon
         assert.notEqual(instance, specs, 'The component instance must not be the same obect as the list of specs');
         assert.notEqual(instance.config, config, 'The component instance must duplicate the config set');
         assert.equal(
-            instance.hasOwnProperty('nothing'),
+            Object.prototype.hasOwnProperty.call(instance, 'nothing'),
             false,
             'The component instance must not accept undefined config properties'
         );
         assert.equal(
-            instance.hasOwnProperty('dummy'),
+            Object.prototype.hasOwnProperty.call(instance, 'dummy'),
             false,
             'The component instance must not accept null config properties'
         );
         assert.equal(
-            instance.hasOwnProperty('value'),
+            Object.prototype.hasOwnProperty.call(instance, 'value'),
             false,
             'The component instance must not accept properties from the list of specs'
         );
@@ -111,7 +111,7 @@ define(['jquery', 'lodash', 'ui/dynamicComponent'], function($, _, dynamicCompon
         instance.destroy();
     });
 
-    QUnit.test('render', function(assert) {
+    QUnit.test('render', function (assert) {
         var ready = assert.async();
         var $dummy1 = $('<div class="dummy" />');
         var $content1 = $('<div class="my-custom-content">BBB</div>');
@@ -125,7 +125,7 @@ define(['jquery', 'lodash', 'ui/dynamicComponent'], function($, _, dynamicCompon
         assert.equal($container1.find('.dummy').length, 1, 'The container1 contains an element of the class dummy');
 
         dynamicComponent({}, {})
-            .on('rendercontent', function($content) {
+            .on('rendercontent', function ($content) {
                 //Init the calculator
                 $content.append($content1);
 
@@ -142,9 +142,7 @@ define(['jquery', 'lodash', 'ui/dynamicComponent'], function($, _, dynamicCompon
                 );
                 assert.equal(this.getElement().length, 1, 'The component instance returns the rendered content');
                 assert.equal(
-                    this.getElement()
-                        .parent()
-                        .get(0),
+                    this.getElement().parent().get(0),
                     $container1.get(0),
                     'The component instance is rendered inside the right container'
                 );
@@ -199,9 +197,7 @@ define(['jquery', 'lodash', 'ui/dynamicComponent'], function($, _, dynamicCompon
                 assert.equal($container1.find('.dynamic-component-container').offset().left, 10, 'position top left');
 
                 //Manual reset
-                $('#fixture-1')
-                    .empty()
-                    .attr('style', '');
+                $('#fixture-1').empty().attr('style', '');
 
                 ready();
             })
@@ -215,13 +211,13 @@ define(['jquery', 'lodash', 'ui/dynamicComponent'], function($, _, dynamicCompon
             });
     });
 
-    QUnit.test('reset', function(assert) {
+    QUnit.test('reset', function (assert) {
         var ready = assert.async();
 
         var $content1 = $('<div class="my-custom-content">BBB</div>');
         var $container1 = $('#fixture-1');
         var instance = dynamicComponent({}, {})
-            .on('rendercontent', function($content) {
+            .on('rendercontent', function ($content) {
                 //Init the calculator
                 $content.append($content1);
             })
@@ -269,12 +265,10 @@ define(['jquery', 'lodash', 'ui/dynamicComponent'], function($, _, dynamicCompon
         assert.equal($container1.find('.dynamic-component-container').offset().top, 10, 'position top ok');
         assert.equal($container1.find('.dynamic-component-container').offset().left, 10, 'position top left');
 
-        instance.on('reset', function() {
+        instance.on('reset', function () {
             assert.ok(true, 'The component instance can handle reset events');
 
-            this.getElement()
-                .find('.my-custom-content')
-                .empty();
+            this.getElement().find('.my-custom-content').empty();
 
             assert.equal(
                 $container1.find('.dynamic-component-container .dynamic-component-content .my-custom-content').length,
@@ -298,27 +292,22 @@ define(['jquery', 'lodash', 'ui/dynamicComponent'], function($, _, dynamicCompon
         });
 
         $container1.find('.dynamic-component-container').css({ top: 100, left: 100 });
-        $container1
-            .find('.dynamic-component-container .dynamic-component-content')
-            .width(500)
-            .height(400);
+        $container1.find('.dynamic-component-container .dynamic-component-content').width(500).height(400);
 
         instance.reset();
 
         //Manual reset
-        $('#fixture-1')
-            .empty()
-            .attr('style', '');
+        $('#fixture-1').empty().attr('style', '');
     });
 
-    QUnit.test('content size', function(assert) {
+    QUnit.test('content size', function (assert) {
         var ready = assert.async();
 
         var $content1 = $('<div class="my-custom-content">BBB</div>');
         var $container1 = $('#fixture-1');
 
         dynamicComponent({}, {})
-            .after('rendercontent', function($content) {
+            .after('rendercontent', function ($content) {
                 var $element = this.getElement();
                 var diffWidth = $element.outerWidth() - $element.width();
                 var diffHeight =
@@ -378,7 +367,7 @@ define(['jquery', 'lodash', 'ui/dynamicComponent'], function($, _, dynamicCompon
                 assert.equal($element.offset().top, 100, 'updated position top ok');
                 assert.equal($element.offset().left, 100, 'updated position top left');
 
-                this.on('resize.setContentSize', function() {
+                this.on('resize.setContentSize', function () {
                     this.off('resize.setContentSize');
                     assert.ok(true, 'The component instance can handle content resize events');
 
@@ -404,9 +393,7 @@ define(['jquery', 'lodash', 'ui/dynamicComponent'], function($, _, dynamicCompon
                     assert.equal($element.offset().left, 100, 'final position top left');
 
                     //Manual reset
-                    $('#fixture-1')
-                        .empty()
-                        .attr('style', '');
+                    $('#fixture-1').empty().attr('style', '');
                     ready();
                 }).setContentSize(500, 400);
             })
@@ -420,7 +407,7 @@ define(['jquery', 'lodash', 'ui/dynamicComponent'], function($, _, dynamicCompon
             });
     });
 
-    QUnit.test('close', function(assert) {
+    QUnit.test('close', function (assert) {
         var ready = assert.async();
 
         var $container1 = $('#fixture-0');
@@ -428,7 +415,7 @@ define(['jquery', 'lodash', 'ui/dynamicComponent'], function($, _, dynamicCompon
             .init({
                 renderTo: $container1
             })
-            .on('hide', function() {
+            .on('hide', function () {
                 assert.ok('dynamic component hidden with the closer');
                 ready();
             });
