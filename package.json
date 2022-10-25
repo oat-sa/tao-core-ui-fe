@@ -44,6 +44,7 @@
     "license": "GPL-2.0",
     "devDependencies": {
         "@babel/core": "^7.19.3",
+        "@babel/eslint-parser": "^7.19.1",
         "@babel/preset-env": "^7.19.4",
         "@oat-sa/browserslist-config-tao": "^1.0.1",
         "@oat-sa/eslint-config-tao": "^1.1.1",
