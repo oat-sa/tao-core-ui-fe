@@ -24,14 +24,14 @@ define([
     'ui/documentViewer/providers/pdfViewer/pdfjs/wrapper',
     'ui/documentViewer/providers/pdfViewer/pdfjs/viewer',
     'pdfjs-dist/build/pdf'
-], function($, keystroker, wrapperFactory, viewerFactory, pdfjs) {
+], function ($, keystroker, wrapperFactory, viewerFactory, pdfjs) {
     'use strict';
 
     var pdfUrl = location.href.replace('/pdfViewer/pdfjsViewer/test.html', '/sample/demo.pdf');
 
     QUnit.module('pdfViewer PDF.js factory');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         var $container = $('#qunit-fixture');
         var config = {
             PDFJS: pdfjs
@@ -51,23 +51,23 @@ define([
     });
 
     QUnit.module('pdfViewer PDF.js implementation', {
-        afterEach: function(assert) {
+        afterEach: function () {
             pdfjs.removeAllListeners();
         }
     });
 
-    QUnit.test('error', function(assert) {
+    QUnit.test('error', function (assert) {
         var $container = $('#qunit-fixture');
         var config = {};
 
         assert.expect(1);
 
-        assert.throws(function() {
+        assert.throws(function () {
             viewerFactory($container, config);
         }, 'The pdfViewer PDF.js factory triggers an error if PDF.js is missing');
     });
 
-    QUnit.test('render', function(assert) {
+    QUnit.test('render', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -92,7 +92,7 @@ define([
         assert.ok(promise instanceof Promise, 'The object returned by the load() function is a promise');
 
         promise
-            .then(function() {
+            .then(function () {
                 var $pagePrev = $container.find('[data-control="pdf-page-prev"]'),
                     $pageNext = $container.find('[data-control="pdf-page-next"]'),
                     $pageNum = $container.find('[data-control="pdf-page-num"]'),
@@ -116,12 +116,12 @@ define([
                 assert.notEqual(
                     $pdfContainer.width(),
                     requestedWidth,
-                    `The PDF panel is not ${  expectedWidth  } pixels width`
+                    `The PDF panel is not ${expectedWidth} pixels width`
                 );
                 assert.notEqual(
                     $pdfContainer.height(),
                     requestedHeight,
-                    `The PDF panel is not ${  expectedHeight  } pixels height`
+                    `The PDF panel is not ${expectedHeight} pixels height`
                 );
 
                 instance.setSize(requestedWidth, requestedHeight);
@@ -132,12 +132,12 @@ define([
                 assert.equal(
                     $pdfContainer.width(),
                     expectedWidth,
-                    `The PDF panel is now ${  expectedWidth  } pixels width`
+                    `The PDF panel is now ${expectedWidth} pixels width`
                 );
                 assert.equal(
                     $pdfContainer.height(),
                     expectedHeight,
-                    `The PDF panel is now ${  expectedHeight  } pixels height`
+                    `The PDF panel is now ${expectedHeight} pixels height`
                 );
 
                 instance.unload();
@@ -151,13 +151,13 @@ define([
 
                 ready();
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(false, 'No error should be triggered');
                 ready();
             });
     });
 
-    QUnit.test('navigation single page', function(assert) {
+    QUnit.test('navigation single page', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -182,7 +182,7 @@ define([
         assert.ok(promise instanceof Promise, 'The object returned by the load() function is a promise');
 
         promise
-            .then(function() {
+            .then(function () {
                 var $pagePrev = $container.find('[data-control="pdf-page-prev"]'),
                     $pageNext = $container.find('[data-control="pdf-page-next"]'),
                     $pageNum = $container.find('[data-control="pdf-page-num"]'),
@@ -201,24 +201,24 @@ define([
                 assert.equal($pdfBar.length, 1, 'The PDF bar has been added');
                 assert.equal($pdfContainer.length, 1, 'The PDF panel has been added');
 
-                assert.equal($pageNum.val(), page, `The current page is ${  page}`);
-                assert.equal(parseInt($pageCount.text(), 10), count, `The page count is ${  count}`);
+                assert.equal($pageNum.val(), page, `The current page is ${page}`);
+                assert.equal(parseInt($pageCount.text(), 10), count, `The page count is ${count}`);
                 assert.equal($pageNum.is(':disabled'), true, 'The page number input is disabled');
                 assert.equal($pagePrev.is(':disabled'), true, 'The previous page button is disabled');
                 assert.equal($pageNext.is(':disabled'), true, 'The next page button is disabled');
 
                 $pageNext.click();
 
-                setTimeout(function() {
-                    assert.equal($pageNum.val(), page, `The current page is ${  page}`);
+                setTimeout(function () {
+                    assert.equal($pageNum.val(), page, `The current page is ${page}`);
                     assert.equal($pageNum.is(':disabled'), true, 'The page number input is disabled');
                     assert.equal($pagePrev.is(':disabled'), true, 'The previous page button is disabled');
                     assert.equal($pageNext.is(':disabled'), true, 'The next page button is disabled');
 
                     $pagePrev.click();
 
-                    setTimeout(function() {
-                        assert.equal($pageNum.val(), page, `The current page is ${  page}`);
+                    setTimeout(function () {
+                        assert.equal($pageNum.val(), page, `The current page is ${page}`);
                         assert.equal($pageNum.is(':disabled'), true, 'The page number input is disabled');
                         assert.equal($pagePrev.is(':disabled'), true, 'The previous page button is disabled');
                         assert.equal($pageNext.is(':disabled'), true, 'The next page button is disabled');
@@ -226,8 +226,8 @@ define([
                         $pageNum.val(count + 1);
                         $pageNum.change();
 
-                        setTimeout(function() {
-                            assert.equal($pageNum.val(), page, `The current page is ${  page}`);
+                        setTimeout(function () {
+                            assert.equal($pageNum.val(), page, `The current page is ${page}`);
                             assert.equal($pageNum.is(':disabled'), true, 'The page number input is disabled');
                             assert.equal($pagePrev.is(':disabled'), true, 'The previous page button is disabled');
                             assert.equal($pageNext.is(':disabled'), true, 'The next page button is disabled');
@@ -244,13 +244,13 @@ define([
                     }, 100);
                 }, 100);
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(false, 'No error should be triggered');
                 ready();
             });
     });
 
-    QUnit.test('navigation multi pages', function(assert) {
+    QUnit.test('navigation multi pages', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -275,7 +275,7 @@ define([
         assert.ok(promise instanceof Promise, 'The object returned by the load() function is a promise');
 
         promise
-            .then(function() {
+            .then(function () {
                 var $pagePrev = $container.find('[data-control="pdf-page-prev"]'),
                     $pageNext = $container.find('[data-control="pdf-page-next"]'),
                     $pageNum = $container.find('[data-control="pdf-page-num"]'),
@@ -294,45 +294,45 @@ define([
                 assert.equal($pdfBar.length, 1, 'The PDF bar has been added');
                 assert.equal($pdfContainer.length, 1, 'The PDF panel has been added');
 
-                assert.equal($pageNum.val(), page, `The current page is ${  page}`);
-                assert.equal(parseInt($pageCount.text(), 10), count, `The page count is ${  count}`);
+                assert.equal($pageNum.val(), page, `The current page is ${page}`);
+                assert.equal(parseInt($pageCount.text(), 10), count, `The page count is ${count}`);
                 assert.equal($pagePrev.is(':disabled'), true, 'The previous page button is disabled');
 
                 $pageNext.click();
                 page++;
 
-                setTimeout(function() {
-                    assert.equal($pageNum.val(), page, `The current page is ${  page}`);
+                setTimeout(function () {
+                    assert.equal($pageNum.val(), page, `The current page is ${page}`);
                     assert.equal($pagePrev.is(':disabled'), false, 'The previous page button is enabled');
 
                     $pagePrev.click();
                     page--;
 
-                    setTimeout(function() {
-                        assert.equal($pageNum.val(), page, `The current page is ${  page}`);
+                    setTimeout(function () {
+                        assert.equal($pageNum.val(), page, `The current page is ${page}`);
                         assert.equal($pageNext.is(':disabled'), false, 'The next page button is enabled');
 
                         page = count;
                         $pageNum.val(page);
                         $pageNum.change();
 
-                        setTimeout(function() {
-                            assert.equal($pageNum.val(), page, `The current page is ${  page}`);
+                        setTimeout(function () {
+                            assert.equal($pageNum.val(), page, `The current page is ${page}`);
                             assert.equal($pageNext.is(':disabled'), true, 'The next page button is disabled');
 
                             keystroker.keystroke($pageNum, keystroker.keyCode.DOWN);
                             page--;
 
-                            setTimeout(function() {
-                                assert.equal($pageNum.val(), page, `The current page is ${  page}`);
+                            setTimeout(function () {
+                                assert.equal($pageNum.val(), page, `The current page is ${page}`);
                                 assert.equal($pagePrev.is(':disabled'), false, 'The previous page button is enabled');
                                 assert.equal($pageNext.is(':disabled'), false, 'The next page button is enabled');
 
                                 keystroker.keystroke($pageNum, keystroker.keyCode.UP);
                                 page++;
 
-                                setTimeout(function() {
-                                    assert.equal($pageNum.val(), page, `The current page is ${  page}`);
+                                setTimeout(function () {
+                                    assert.equal($pageNum.val(), page, `The current page is ${page}`);
                                     assert.equal(
                                         $pagePrev.is(':disabled'),
                                         false,
@@ -354,13 +354,13 @@ define([
                     }, 100);
                 }, 100);
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(false, 'No error should be triggered');
                 ready();
             });
     });
 
-    QUnit.test('options', function(assert) {
+    QUnit.test('options', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -381,7 +381,7 @@ define([
         assert.ok(promise instanceof Promise, 'The object returned by the load() function is a promise');
 
         promise
-            .then(function() {
+            .then(function () {
                 var $pagePrev = $container.find('[data-control="pdf-page-prev"]'),
                     $pageNext = $container.find('[data-control="pdf-page-next"]'),
                     $pageNum = $container.find('[data-control="pdf-page-num"]'),
@@ -404,12 +404,12 @@ define([
 
                 $fitToWidth.click();
 
-                setTimeout(function() {
+                setTimeout(function () {
                     assert.equal($fitToWidth.is(':checked'), false, 'The Fit to width option is not checked');
 
                     $fitToWidth.click();
 
-                    setTimeout(function() {
+                    setTimeout(function () {
                         assert.equal($fitToWidth.is(':checked'), true, 'The Fit to width option is checked');
 
                         instance.unload();
@@ -419,13 +419,13 @@ define([
                     }, 100);
                 }, 100);
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(false, 'No error should be triggered');
                 ready();
             });
     });
 
-    QUnit.test('findBar', function(assert) {
+    QUnit.test('findBar', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -440,7 +440,7 @@ define([
         instance = viewerFactory($container, config);
         instance
             .load(pdfUrl)
-            .then(function() {
+            .then(function () {
                 assert.ok(true, 'The PDF file has been loaded');
 
                 assert.equal($container.find('[data-control="pdf-search"]').length, 0, 'There is no search button');
@@ -452,7 +452,7 @@ define([
 
                 config.allowSearch = true;
                 instance = viewerFactory($container, config);
-                return instance.load(pdfUrl).then(function() {
+                return instance.load(pdfUrl).then(function () {
                     assert.ok(true, 'The PDF file has been loaded');
 
                     assert.equal(
@@ -468,7 +468,7 @@ define([
                     ready();
                 });
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(false, 'No error should be triggered');
                 ready();
             });
