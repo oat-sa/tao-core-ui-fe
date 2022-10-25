@@ -71,7 +71,7 @@ var validators = {
         name: 'numeric',
         message: __('The value of this field must be numeric'),
         options: {},
-        validate: function(value, callback) {
+        validate: function (value, callback) {
             var parsedValue = parseFloat(value),
                 r = parsedValue.toString() === value.toString() && _.isNumber(parsedValue) && !_.isNaN(parsedValue);
 
@@ -84,7 +84,7 @@ var validators = {
         name: 'notEmpty',
         message: __('this is required'),
         options: {},
-        validate: function(value, callback) {
+        validate: function (value, callback) {
             var r;
             if (_.isNumber(value)) {
                 r = true;
@@ -106,7 +106,7 @@ var validators = {
         name: 'length',
         message: __('required length'),
         options: { min: 0, max: 0 },
-        validate: function(value, callback, options) {
+        validate: function (value, callback, options) {
             var r = false;
             if (value.length >= options.min) {
                 if (options.max) {
@@ -124,8 +124,8 @@ var validators = {
         name: 'fileExists',
         message: __('no file not found in this location'),
         options: { baseUrl: '' },
-        validate: (function() {
-            return function(value, callback, options) {
+        validate: (function () {
+            return function (value, callback, options) {
                 if (!value) {
                     callback(false);
                     return;
@@ -142,12 +142,10 @@ var validators = {
                         //FIXME change this to use an URL without transfomations. the validator should be called with the right URL,
                         //here it works only for the getFile service...
                         url: options.baseUrl + encodeURIComponent(value),
-                        success: function() {
+                        success: function () {
                             callback(true);
                         },
-                        error: function(jqXHR, textStatus, errorThrown) {
-                            callback(false);
-                        }
+                        error: () => callback(false)
                     });
                 } else {
                     callback(true);
@@ -159,9 +157,9 @@ var validators = {
         name: 'validRegex',
         message: __('invalid regular expression'),
         options: {},
-        validate: function(value, callback) {
+        validate: function (value, callback) {
             if (typeof callback === 'function') {
-                var valid = false;
+                let valid = false;
                 if (value !== '') {
                     try {
                         new RegExp('^' + value + '$');
@@ -200,7 +198,7 @@ var register = function registerValidator(name, validator, force) {
     if (!_.isObject(validator) || !_.isString(validator.message) || !_.isFunction(validator.validate)) {
         throw new Error(
             'A validator must be an object with a message and a validate method, but given : ' +
-            JSON.stringify(validator)
+                JSON.stringify(validator)
         );
     }
 
