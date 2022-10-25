@@ -19,7 +19,7 @@
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  * @author Christophe Noël <christophe@taotesting.com>
  */
-define(['jquery', 'lodash', 'ui/areaBroker'], function($, _, areaBrokerFactory) {
+define(['jquery', 'lodash', 'ui/areaBroker'], function ($, _, areaBrokerFactory) {
     'use strict';
 
     var areaBroker;
@@ -39,12 +39,12 @@ define(['jquery', 'lodash', 'ui/areaBroker'], function($, _, areaBrokerFactory) 
 
     /**
      * Builds and returns a new areaBroker with dedicated areas.
+     * @param {Object} config
      * @param {String} config.id - area broker id, will be used as a class on container
      * @param {String[]} config.defaultAreas - mandatory areas to create
      * @param {jQuery} config.$brokerContainer - where to create the area broker - default to #qunit-fixture
      * @param {String[]} config.areas - A list of areas to create, or...
      * @param {Object} config.mapping - ... a list of already created areas
-     * @param config
      * @returns {areaBroker} - Returns the new areaBroker
      */
     function areaBrokerMock(config) {
@@ -53,7 +53,7 @@ define(['jquery', 'lodash', 'ui/areaBroker'], function($, _, areaBrokerFactory) 
         config = config || {};
 
         $areaBrokerDom = $('<div />')
-            .attr('id', `area-broker-mock-${  mockId++}`)
+            .attr('id', `area-broker-mock-${mockId++}`)
             .addClass(config.id || classes.areaBroker);
 
         defaultAreas = config.defaultAreas || [];
@@ -67,16 +67,13 @@ define(['jquery', 'lodash', 'ui/areaBroker'], function($, _, areaBrokerFactory) 
                 config.areas = _.keys(_.merge(_.object(config.areas), _.object(defaultAreas)));
             }
 
-            _.forEach(config.areas, function(areaId) {
-                config.mapping[areaId] = $('<div />')
-                    .addClass('test-area')
-                    .addClass(areaId)
-                    .appendTo($areaBrokerDom);
+            _.forEach(config.areas, function (areaId) {
+                config.mapping[areaId] = $('<div />').addClass('test-area').addClass(areaId).appendTo($areaBrokerDom);
             });
 
             // Create only missing areas
         } else {
-            _.union(defaultAreas, config.areas || []).forEach(function(areaId) {
+            _.union(defaultAreas, config.areas || []).forEach(function (areaId) {
                 // create missing areas
                 if (!config.mapping[areaId]) {
                     config.mapping[areaId] = $('<div />')
