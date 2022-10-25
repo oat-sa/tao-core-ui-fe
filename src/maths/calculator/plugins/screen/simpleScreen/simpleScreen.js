@@ -21,7 +21,6 @@
  */
 import $ from 'jquery';
 import _ from 'lodash';
-import __ from 'i18n';
 import nsHelper from 'util/namespace';
 import scrollHelper from 'ui/scroller';
 import registeredTerms from 'ui/maths/calculator/core/terms';
@@ -70,13 +69,13 @@ export default pluginFactory(
             reset();
 
             calculator
-                .after(nsHelper.namespaceAll('expressionchange', pluginName), function(expression) {
+                .after(nsHelper.namespaceAll('expressionchange', pluginName), function (expression) {
                     // ensure the displayed expression is at least a 0 (never be an empty string)
                     if (!expression.trim()) {
                         _.defer(reset);
                     }
                 })
-                .after(nsHelper.namespaceAll('evaluate', pluginName), function() {
+                .after(nsHelper.namespaceAll('evaluate', pluginName), function () {
                     // when the expression is computed, replace it with the result as a variable
                     calculator.replace(registeredTerms.ANS.value);
                 })
@@ -145,14 +144,14 @@ export default pluginFactory(
             };
 
             calculator
-                .on(nsHelper.namespaceAll('command-clearAll', pluginName), function() {
+                .on(nsHelper.namespaceAll('command-clearAll', pluginName), function () {
                     self.controls.$history.empty();
                 })
-                .on(nsHelper.namespaceAll('expressionchange', pluginName), function() {
+                .on(nsHelper.namespaceAll('expressionchange', pluginName), function () {
                     calculator.setState('error', false);
                     showExpression(calculator.getTokens());
                 })
-                .on(nsHelper.namespaceAll('evaluate', pluginName), function(result) {
+                .on(nsHelper.namespaceAll('evaluate', pluginName), function (result) {
                     self.controls.$history.html(
                         historyTpl({
                             expression: renderExpression(calculator.getTokens()),
@@ -161,12 +160,12 @@ export default pluginFactory(
                     );
                     autoScroll(self.controls.$history, '.history-result');
                 })
-                .after(nsHelper.namespaceAll('evaluate', pluginName), function(result) {
+                .after(nsHelper.namespaceAll('evaluate', pluginName), function (result) {
                     if (expressionHelper.containsError(result.value)) {
                         showExpression(result);
                     }
                 })
-                .on(nsHelper.namespaceAll('syntaxerror', pluginName), function() {
+                .on(nsHelper.namespaceAll('syntaxerror', pluginName), function () {
                     calculator.setState('error', true);
                     showExpression(calculator.getExpression() + registeredTerms.ERROR.value);
                 });
