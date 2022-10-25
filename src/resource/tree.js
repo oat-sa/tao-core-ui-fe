@@ -38,7 +38,7 @@ import selectable from 'ui/resource/selectable';
 import hider from 'ui/hider';
 import treeTpl from 'ui/resource/tpl/tree';
 import treeNodeTpl from 'ui/resource/tpl/treeNode';
-import DOMPurify from 'dompurify'
+import DOMPurify from 'dompurify';
 
 //yes indent isn't handle by css
 var indentStep = 15;
