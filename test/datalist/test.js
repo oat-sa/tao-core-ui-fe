@@ -19,7 +19,7 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
-define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
+define(['jquery', 'lodash', 'ui/datalist'], function ($, _, datalist) {
     'use strict';
 
     // Toggle the sample display
@@ -35,16 +35,18 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
                     {
                         id: 'always',
                         label: 'Always displayed',
-                        action: function() {
-                            console.log('tool', arguments);
+                        action: function (...args) {
+                            //eslint-disable-next-line no-console
+                            console.log('tool', args);
                         }
                     },
                     {
                         id: 'selection',
                         label: 'On selection',
                         massAction: true,
-                        action: function() {
-                            console.log('tool', arguments);
+                        action: function (...args) {
+                            //eslint-disable-next-line no-console
+                            console.log('tool', args);
                         }
                     }
                 ],
@@ -52,11 +54,12 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
                     {
                         id: 'action',
                         label: 'Action',
-                        hidden: function() {
+                        hidden: function () {
                             return this.id === '2';
                         },
-                        action: function() {
-                            console.log('action', arguments);
+                        action: function (...args) {
+                            //eslint-disable-next-line no-console
+                            console.log('action', args);
                         }
                     }
                 ]
@@ -75,20 +78,21 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
                     label: 'Line 3'
                 }
             ]
-        ).on('select', function(selection) {
+        ).on('select', function (selection) {
+            //eslint-disable-next-line no-console
             console.log('selection', selection);
         });
     }
 
     QUnit.module('datalist');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.equal(typeof datalist, 'function', 'The datalist module exposes a function');
         assert.equal(typeof datalist(), 'object', 'The datalist factory produces an object');
         assert.notStrictEqual(datalist(), datalist(), 'The datalist factory provides a different object on each call');
     });
 
-    var datalistApi = [
+    const datalistApi = [
         { name: 'init', title: 'init' },
         { name: 'destroy', title: 'destroy' },
         { name: 'render', title: 'render' },
@@ -112,18 +116,18 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
         { name: 'setTemplate', title: 'setTemplate' }
     ];
 
-    QUnit.cases.init(datalistApi).test('instance API ', function(data, assert) {
+    QUnit.cases.init(datalistApi).test('instance API ', function (data, assert) {
         var instance = datalist();
         assert.equal(
             typeof instance[data.name],
             'function',
-            `The datalist instance exposes a "${  data.title  }" function`
+            `The datalist instance exposes a "${data.title}" function`
         );
     });
 
-    QUnit.test('init', function(assert) {
+    QUnit.test('init', function (assert) {
         var config = {
-            nothing: undefined,
+            nothing: void 0,
             dummy: null,
             keyName: 'key',
             labelName: 'name',
@@ -138,12 +142,12 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
 
         assert.notEqual(instance.config, config, 'The datalist instance must duplicate the config set');
         assert.equal(
-            instance.hasOwnProperty('nothing'),
+            Object.prototype.hasOwnProperty.call(instance, 'nothing'),
             false,
             'The datalist instance must not accept undefined config properties'
         );
         assert.equal(
-            instance.hasOwnProperty('dummy'),
+            Object.prototype.hasOwnProperty.call(instance, 'dummy'),
             false,
             'The datalist instance must not accept null config properties'
         );
@@ -184,7 +188,7 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
         instance.destroy();
     });
 
-    var datalistConfigs = [
+    const datalistConfigs = [
         {
             title: 'simple',
             config: {
@@ -254,7 +258,7 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
                     {
                         id: 'action2',
                         label: 'Action 2',
-                        hidden: function() {
+                        hidden: function () {
                             return this.id === '2';
                         }
                     }
@@ -263,7 +267,7 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
         }
     ];
 
-    QUnit.cases.init(datalistConfigs).test('render ', function(data, assert) {
+    QUnit.cases.init(datalistConfigs).test('render ', function (data, assert) {
         var $dummy = $('<div class="dummy" />');
         var $container = $('#fixture-1').append($dummy);
         var datalistData = [
@@ -311,52 +315,34 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
         );
         assert.equal(instance.getElement().length, 1, 'The datalist instance returns the rendered content');
         assert.equal(
-            instance
-                .getElement()
-                .parent()
-                .get(0),
+            instance.getElement().parent().get(0),
             $container.get(0),
             'The datalist instance is rendered inside the right container'
         );
 
         assert.equal(
-            instance
-                .getElement()
-                .find('h1')
-                .text(),
+            instance.getElement().find('h1').text(),
             config.title,
             'The datalist instance has rendered a title with the right content'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.empty-list')
-                .text(),
+            instance.getElement().find('.empty-list').text(),
             config.textEmpty,
             'The datalist instance has rendered a message to display when the list is empty, and set the right content'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.available-list .label')
-                .text(),
+            instance.getElement().find('.available-list .label').text(),
             config.textNumber,
             'The datalist instance has rendered a message to show the number of boxes, and set the right content'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.available-list .count')
-                .text(),
+            instance.getElement().find('.available-list .count').text(),
             datalistData.length,
             'The datalist instance displays the right number of lines'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.loading')
-                .text(),
-            `${config.textLoading  }...`,
+            instance.getElement().find('.loading').text(),
+            `${config.textLoading}...`,
             'The datalist instance has rendered a message to show when the component is in loading state, and set the right content'
         );
 
@@ -373,41 +359,37 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
                 config.tools.length,
                 'The datalist instance has rendered buttons in the action bar'
             );
-            _.forEach(config.tools, function(tool) {
+            _.forEach(config.tools, function (tool) {
                 assert.equal(
-                    instance.getElement().find(`.list .action-bar [data-control="${  tool.id  }"]`).length,
+                    instance.getElement().find(`.list .action-bar [data-control="${tool.id}"]`).length,
                     1,
-                    `The datalist instance has rendered the tool button ${  tool.id}`
+                    `The datalist instance has rendered the tool button ${tool.id}`
                 );
                 assert.equal(
-                    instance
-                        .getElement()
-                        .find(`.list .action-bar [data-control="${  tool.id  }"]`)
-                        .text()
-                        .trim(),
+                    instance.getElement().find(`.list .action-bar [data-control="${tool.id}"]`).text().trim(),
                     tool.label,
-                    `The datalist instance has rendered the tool button ${  tool.id  } with label ${  tool.label}`
+                    `The datalist instance has rendered the tool button ${tool.id} with label ${tool.label}`
                 );
 
                 if (tool.icon) {
                     assert.equal(
-                        instance.getElement().find(`.list .action-bar [data-control="${  tool.id  }"] .icon`).length,
+                        instance.getElement().find(`.list .action-bar [data-control="${tool.id}"] .icon`).length,
                         1,
-                        `The datalist instance has rendered the tool button ${  tool.id  } with an icon`
+                        `The datalist instance has rendered the tool button ${tool.id} with an icon`
                     );
                     assert.equal(
                         instance
                             .getElement()
-                            .find(`.list .action-bar [data-control="${  tool.id  }"] .icon`)
-                            .hasClass(`icon-${  tool.icon}`),
+                            .find(`.list .action-bar [data-control="${tool.id}"] .icon`)
+                            .hasClass(`icon-${tool.icon}`),
                         true,
-                        `The datalist instance has rendered the tool button ${  tool.id  } with the icon ${  tool.icon}`
+                        `The datalist instance has rendered the tool button ${tool.id} with the icon ${tool.icon}`
                     );
                 } else {
                     assert.equal(
-                        instance.getElement().find(`.list .action-bar [data-control="${  tool.id  }"] .icon`).length,
+                        instance.getElement().find(`.list .action-bar [data-control="${tool.id}"] .icon`).length,
                         0,
-                        `The datalist instance has rendered the tool button ${  tool.id  } without an icon`
+                        `The datalist instance has rendered the tool button ${tool.id} without an icon`
                     );
                 }
 
@@ -415,21 +397,19 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
                     assert.equal(
                         instance
                             .getElement()
-                            .find(`.list .action-bar [data-control="${  tool.id  }"]`)
+                            .find(`.list .action-bar [data-control="${tool.id}"]`)
                             .hasClass('mass-action'),
                         true,
-                        `The datalist instance has rendered the tool button ${  tool.id  } with the class mass-action`
+                        `The datalist instance has rendered the tool button ${tool.id} with the class mass-action`
                     );
                 } else {
                     assert.equal(
                         instance
                             .getElement()
-                            .find(`.list .action-bar [data-control="${  tool.id  }"]`)
+                            .find(`.list .action-bar [data-control="${tool.id}"]`)
                             .hasClass('mass-action'),
                         false,
-                        `The datalist instance has rendered the tool button ${
-                            tool.id
-                        } without the class mass-action`
+                        `The datalist instance has rendered the tool button ${tool.id} without the class mass-action`
                     );
                 }
             });
@@ -449,11 +429,7 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
             'The datalist instance has rendered a label header'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.list th.label')
-                .text()
-                .trim(),
+            instance.getElement().find('.list th.label').text().trim(),
             config.labelText,
             'The datalist instance has rendered the right text in the label header'
         );
@@ -478,37 +454,34 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
         );
 
         // Check the rendered lines
-        _.forEach(datalistData, function(line) {
+        _.forEach(datalistData, function (line) {
             var id = line[config.keyName];
             var label = line[config.labelName];
-            var $line = instance.getElement().find(`.list tbody tr[data-id="${  id  }"]`);
+            var $line = instance.getElement().find(`.list tbody tr[data-id="${id}"]`);
 
-            assert.equal($line.length, 1, `The datalist instance has rendered the line with id ${  id}`);
+            assert.equal($line.length, 1, `The datalist instance has rendered the line with id ${id}`);
             assert.equal(
-                $line
-                    .find('td.label')
-                    .text()
-                    .trim(),
+                $line.find('td.label').text().trim(),
                 label,
-                `The datalist instance has rendered the label ${  label  } in the line with id ${  id}`
+                `The datalist instance has rendered the label ${label} in the line with id ${id}`
             );
 
             if (config.selectable) {
                 assert.equal(
                     $line.find('td.checkboxes input').length,
                     1,
-                    `The datalist instance has rendered a checkbox in the line with id ${  id}`
+                    `The datalist instance has rendered a checkbox in the line with id ${id}`
                 );
                 assert.equal(
                     !$line.find('td.checkboxes input').prop('checked'),
                     true,
-                    `The datalist instance has rendered an unchecked checkbox in the line with id ${  id}`
+                    `The datalist instance has rendered an unchecked checkbox in the line with id ${id}`
                 );
             } else {
                 assert.equal(
                     $line.find('td.checkboxes').length,
                     0,
-                    `The datalist instance must not render a checkbox in the line with id ${  id}`
+                    `The datalist instance must not render a checkbox in the line with id ${id}`
                 );
             }
 
@@ -516,72 +489,47 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
                 assert.equal(
                     $line.find('td.actions').length,
                     1,
-                    `The datalist instance has rendered an actions column in the line with id ${  id}`
+                    `The datalist instance has rendered an actions column in the line with id ${id}`
                 );
 
-                _.forEach(config.actions, function(action) {
+                _.forEach(config.actions, function (action) {
                     if (!action.hidden || !action.hidden.call(line)) {
                         assert.equal(
-                            $line.find(`td.actions [data-control="${  action.id  }"]`).length,
+                            $line.find(`td.actions [data-control="${action.id}"]`).length,
                             1,
-                            `The datalist instance has rendered the action button ${
-                                action.id
-                            } in the line with id ${
-                                id}`
+                            `The datalist instance has rendered the action button ${action.id} in the line with id ${id}`
                         );
                         assert.equal(
-                            $line
-                                .find(`td.actions [data-control="${  action.id  }"]`)
-                                .text()
-                                .trim(),
+                            $line.find(`td.actions [data-control="${action.id}"]`).text().trim(),
                             action.label,
-                            `The datalist instance has rendered the action button ${
-                                action.id
-                            } with the label ${
-                                action.label
-                            } in the line with id ${
-                                id}`
+                            `The datalist instance has rendered the action button ${action.id} with the label ${action.label} in the line with id ${id}`
                         );
 
                         if (action.icon) {
                             assert.equal(
-                                $line.find(`td.actions [data-control="${  action.id  }"] .icon`).length,
+                                $line.find(`td.actions [data-control="${action.id}"] .icon`).length,
                                 1,
-                                `The datalist instance has rendered the action button ${
-                                    action.id
-                                } with an icon in the line with id ${
-                                    id}`
+                                `The datalist instance has rendered the action button ${action.id} with an icon in the line with id ${id}`
                             );
                             assert.equal(
                                 $line
-                                    .find(`td.actions [data-control="${  action.id  }"] .icon`)
-                                    .hasClass(`icon-${  action.icon}`),
+                                    .find(`td.actions [data-control="${action.id}"] .icon`)
+                                    .hasClass(`icon-${action.icon}`),
                                 true,
-                                `The datalist instance has rendered the action button ${
-                                    action.id
-                                } with the icon ${
-                                    action.icon
-                                } in the line with id ${
-                                    id}`
+                                `The datalist instance has rendered the action button ${action.id} with the icon ${action.icon} in the line with id ${id}`
                             );
                         } else {
                             assert.equal(
-                                $line.find(`td.actions [data-control="${  action.id  }"] .icon`).length,
+                                $line.find(`td.actions [data-control="${action.id}"] .icon`).length,
                                 0,
-                                `The datalist instance has rendered the action button ${
-                                    action.id
-                                } without an icon in the line with id ${
-                                    id}`
+                                `The datalist instance has rendered the action button ${action.id} without an icon in the line with id ${id}`
                             );
                         }
                     } else {
                         assert.equal(
-                            $line.find(`td.actions [data-control="${  action.id  }"]`).length,
+                            $line.find(`td.actions [data-control="${action.id}"]`).length,
                             0,
-                            `The datalist instance must not render the hidden action button ${
-                                action.id
-                            } in the line with id ${
-                                id}`
+                            `The datalist instance must not render the hidden action button ${action.id} in the line with id ${id}`
                         );
                     }
                 });
@@ -589,7 +537,7 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
                 assert.equal(
                     $line.find('td.actions').length,
                     0,
-                    `The datalist instance must not render an actions column in the line with id ${  id}`
+                    `The datalist instance must not render an actions column in the line with id ${id}`
                 );
             }
         });
@@ -600,7 +548,7 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
         assert.equal(instance.getElement(), null, 'The datalist instance has removed its rendered content');
     });
 
-    QUnit.cases.init(datalistConfigs).test('update ', function(data, assert) {
+    QUnit.cases.init(datalistConfigs).test('update ', function (data, assert) {
         var $dummy = $('<div class="dummy" />');
         var $container = $('#fixture-1').append($dummy);
         var datalistData = [
@@ -648,52 +596,34 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
         );
         assert.equal(instance.getElement().length, 1, 'The datalist instance returns the rendered content');
         assert.equal(
-            instance
-                .getElement()
-                .parent()
-                .get(0),
+            instance.getElement().parent().get(0),
             $container.get(0),
             'The datalist instance is rendered inside the right container'
         );
 
         assert.equal(
-            instance
-                .getElement()
-                .find('h1')
-                .text(),
+            instance.getElement().find('h1').text(),
             config.title,
             'The datalist instance has rendered a title with the right content'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.empty-list')
-                .text(),
+            instance.getElement().find('.empty-list').text(),
             config.textEmpty,
             'The datalist instance has rendered a message to display when the list is empty, and set the right content'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.available-list .label')
-                .text(),
+            instance.getElement().find('.available-list .label').text(),
             config.textNumber,
             'The datalist instance has rendered a message to show the number of boxes, and set the right content'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.available-list .count')
-                .text(),
+            instance.getElement().find('.available-list .count').text(),
             0,
             'The datalist instance displays the right number of lines'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.loading')
-                .text(),
-            `${config.textLoading  }...`,
+            instance.getElement().find('.loading').text(),
+            `${config.textLoading}...`,
             'The datalist instance has rendered a message to show when the component is in loading state, and set the right content'
         );
 
@@ -710,41 +640,37 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
                 config.tools.length,
                 'The datalist instance has rendered buttons in the action bar'
             );
-            _.forEach(config.tools, function(tool) {
+            _.forEach(config.tools, function (tool) {
                 assert.equal(
-                    instance.getElement().find(`.list .action-bar [data-control="${  tool.id  }"]`).length,
+                    instance.getElement().find(`.list .action-bar [data-control="${tool.id}"]`).length,
                     1,
-                    `The datalist instance has rendered the tool button ${  tool.id}`
+                    `The datalist instance has rendered the tool button ${tool.id}`
                 );
                 assert.equal(
-                    instance
-                        .getElement()
-                        .find(`.list .action-bar [data-control="${  tool.id  }"]`)
-                        .text()
-                        .trim(),
+                    instance.getElement().find(`.list .action-bar [data-control="${tool.id}"]`).text().trim(),
                     tool.label,
-                    `The datalist instance has rendered the tool button ${  tool.id  } with label ${  tool.label}`
+                    `The datalist instance has rendered the tool button ${tool.id} with label ${tool.label}`
                 );
 
                 if (tool.icon) {
                     assert.equal(
-                        instance.getElement().find(`.list .action-bar [data-control="${  tool.id  }"] .icon`).length,
+                        instance.getElement().find(`.list .action-bar [data-control="${tool.id}"] .icon`).length,
                         1,
-                        `The datalist instance has rendered the tool button ${  tool.id  } with an icon`
+                        `The datalist instance has rendered the tool button ${tool.id} with an icon`
                     );
                     assert.equal(
                         instance
                             .getElement()
-                            .find(`.list .action-bar [data-control="${  tool.id  }"] .icon`)
-                            .hasClass(`icon-${  tool.icon}`),
+                            .find(`.list .action-bar [data-control="${tool.id}"] .icon`)
+                            .hasClass(`icon-${tool.icon}`),
                         true,
-                        `The datalist instance has rendered the tool button ${  tool.id  } with the icon ${  tool.icon}`
+                        `The datalist instance has rendered the tool button ${tool.id} with the icon ${tool.icon}`
                     );
                 } else {
                     assert.equal(
-                        instance.getElement().find(`.list .action-bar [data-control="${  tool.id  }"] .icon`).length,
+                        instance.getElement().find(`.list .action-bar [data-control="${tool.id}"] .icon`).length,
                         0,
-                        `The datalist instance has rendered the tool button ${  tool.id  } without an icon`
+                        `The datalist instance has rendered the tool button ${tool.id} without an icon`
                     );
                 }
 
@@ -752,21 +678,19 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
                     assert.equal(
                         instance
                             .getElement()
-                            .find(`.list .action-bar [data-control="${  tool.id  }"]`)
+                            .find(`.list .action-bar [data-control="${tool.id}"]`)
                             .hasClass('mass-action'),
                         true,
-                        `The datalist instance has rendered the tool button ${  tool.id  } with the class mass-action`
+                        `The datalist instance has rendered the tool button ${tool.id} with the class mass-action`
                     );
                 } else {
                     assert.equal(
                         instance
                             .getElement()
-                            .find(`.list .action-bar [data-control="${  tool.id  }"]`)
+                            .find(`.list .action-bar [data-control="${tool.id}"]`)
                             .hasClass('mass-action'),
                         false,
-                        `The datalist instance has rendered the tool button ${
-                            tool.id
-                        } without the class mass-action`
+                        `The datalist instance has rendered the tool button ${tool.id} without the class mass-action`
                     );
                 }
             });
@@ -786,11 +710,7 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
             'The datalist instance has rendered a label header'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.list th.label')
-                .text()
-                .trim(),
+            instance.getElement().find('.list th.label').text().trim(),
             config.labelText,
             'The datalist instance has rendered the right text in the label header'
         );
@@ -824,37 +744,34 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
         );
 
         // Check the rendered lines
-        _.forEach(datalistData, function(line) {
+        _.forEach(datalistData, function (line) {
             var id = line[config.keyName];
             var label = line[config.labelName];
-            var $line = instance.getElement().find(`.list tbody tr[data-id="${  id  }"]`);
+            var $line = instance.getElement().find(`.list tbody tr[data-id="${id}"]`);
 
-            assert.equal($line.length, 1, `The datalist instance has rendered the line with id ${  id}`);
+            assert.equal($line.length, 1, `The datalist instance has rendered the line with id ${id}`);
             assert.equal(
-                $line
-                    .find('td.label')
-                    .text()
-                    .trim(),
+                $line.find('td.label').text().trim(),
                 label,
-                `The datalist instance has rendered the label ${  label  } in the line with id ${  id}`
+                `The datalist instance has rendered the label ${label} in the line with id ${id}`
             );
 
             if (config.selectable) {
                 assert.equal(
                     $line.find('td.checkboxes input').length,
                     1,
-                    `The datalist instance has rendered a checkbox in the line with id ${  id}`
+                    `The datalist instance has rendered a checkbox in the line with id ${id}`
                 );
                 assert.equal(
                     !$line.find('td.checkboxes input').prop('checked'),
                     true,
-                    `The datalist instance has rendered an unchecked checkbox in the line with id ${  id}`
+                    `The datalist instance has rendered an unchecked checkbox in the line with id ${id}`
                 );
             } else {
                 assert.equal(
                     $line.find('td.checkboxes').length,
                     0,
-                    `The datalist instance must not render a checkbox in the line with id ${  id}`
+                    `The datalist instance must not render a checkbox in the line with id ${id}`
                 );
             }
 
@@ -862,72 +779,47 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
                 assert.equal(
                     $line.find('td.actions').length,
                     1,
-                    `The datalist instance has rendered an actions column in the line with id ${  id}`
+                    `The datalist instance has rendered an actions column in the line with id ${id}`
                 );
 
-                _.forEach(config.actions, function(action) {
+                _.forEach(config.actions, function (action) {
                     if (!action.hidden || !action.hidden.call(line)) {
                         assert.equal(
-                            $line.find(`td.actions [data-control="${  action.id  }"]`).length,
+                            $line.find(`td.actions [data-control="${action.id}"]`).length,
                             1,
-                            `The datalist instance has rendered the action button ${
-                                action.id
-                            } in the line with id ${
-                                id}`
+                            `The datalist instance has rendered the action button ${action.id} in the line with id ${id}`
                         );
                         assert.equal(
-                            $line
-                                .find(`td.actions [data-control="${  action.id  }"]`)
-                                .text()
-                                .trim(),
+                            $line.find(`td.actions [data-control="${action.id}"]`).text().trim(),
                             action.label,
-                            `The datalist instance has rendered the action button ${
-                                action.id
-                            } with the label ${
-                                action.label
-                            } in the line with id ${
-                                id}`
+                            `The datalist instance has rendered the action button ${action.id} with the label ${action.label} in the line with id ${id}`
                         );
 
                         if (action.icon) {
                             assert.equal(
-                                $line.find(`td.actions [data-control="${  action.id  }"] .icon`).length,
+                                $line.find(`td.actions [data-control="${action.id}"] .icon`).length,
                                 1,
-                                `The datalist instance has rendered the action button ${
-                                    action.id
-                                } with an icon in the line with id ${
-                                    id}`
+                                `The datalist instance has rendered the action button ${action.id} with an icon in the line with id ${id}`
                             );
                             assert.equal(
                                 $line
-                                    .find(`td.actions [data-control="${  action.id  }"] .icon`)
-                                    .hasClass(`icon-${  action.icon}`),
+                                    .find(`td.actions [data-control="${action.id}"] .icon`)
+                                    .hasClass(`icon-${action.icon}`),
                                 true,
-                                `The datalist instance has rendered the action button ${
-                                    action.id
-                                } with the icon ${
-                                    action.icon
-                                } in the line with id ${
-                                    id}`
+                                `The datalist instance has rendered the action button ${action.id} with the icon ${action.icon} in the line with id ${id}`
                             );
                         } else {
                             assert.equal(
-                                $line.find(`td.actions [data-control="${  action.id  }"] .icon`).length,
+                                $line.find(`td.actions [data-control="${action.id}"] .icon`).length,
                                 0,
-                                `The datalist instance has rendered the action button ${
-                                    action.id
-                                } without an icon in the line with id ${
-                                    id}`
+                                `The datalist instance has rendered the action button ${action.id} without an icon in the line with id ${id}`
                             );
                         }
                     } else {
                         assert.equal(
-                            $line.find(`td.actions [data-control="${  action.id  }"]`).length,
+                            $line.find(`td.actions [data-control="${action.id}"]`).length,
                             0,
-                            `The datalist instance must not render the hidden action button ${
-                                action.id
-                            } in the line with id ${
-                                id}`
+                            `The datalist instance must not render the hidden action button ${action.id} in the line with id ${id}`
                         );
                     }
                 });
@@ -935,7 +827,7 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
                 assert.equal(
                     $line.find('td.actions').length,
                     0,
-                    `The datalist instance must not render an actions column in the line with id ${  id}`
+                    `The datalist instance must not render an actions column in the line with id ${id}`
                 );
             }
         });
@@ -964,7 +856,7 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
         assert.equal(instance.getElement(), null, 'The datalist instance has removed its rendered content');
     });
 
-    QUnit.test('show/hide', function(assert) {
+    QUnit.test('show/hide', function (assert) {
         var instance = datalist().render();
 
         var $component = instance.getElement();
@@ -996,7 +888,7 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
         instance.destroy();
     });
 
-    QUnit.test('enable/disable', function(assert) {
+    QUnit.test('enable/disable', function (assert) {
         var instance = datalist().render();
         var $component = instance.getElement();
 
@@ -1027,7 +919,7 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
         instance.destroy();
     });
 
-    QUnit.test('state', function(assert) {
+    QUnit.test('state', function (assert) {
         var instance = datalist().render();
         var $component = instance.getElement();
 
@@ -1062,14 +954,15 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
         instance.destroy();
     });
 
-    QUnit.test('events', function(assert) {
-        var ready6 = assert.async();
-        var ready5 = assert.async();
-        var ready4 = assert.async();
-        var ready3 = assert.async();
-        var ready2 = assert.async();
-        var ready1 = assert.async();
-        var config = {
+    QUnit.test('events', function (assert) {
+        const ready6 = assert.async();
+        const ready5 = assert.async();
+        const ready4 = assert.async();
+        const ready3 = assert.async();
+        const ready2 = assert.async();
+        const ready1 = assert.async();
+        const ready = assert.async();
+        const config = {
             selectable: true,
             tools: [
                 {
@@ -1084,7 +977,7 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
                 }
             ]
         };
-        var data = [
+        const data = [
             {
                 id: '1',
                 label: 'Line 1'
@@ -1098,30 +991,27 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
                 label: 'Line 3'
             }
         ];
-        var instance = datalist(config);
+        const instance = datalist(config);
 
-        instance.on('custom', function() {
+        instance.on('custom', function () {
             assert.ok(true, 'The datalist instance can handle custom events');
             ready();
         });
 
-        instance.on('render', function() {
+        instance.on('render', function () {
             assert.ok(true, 'The datalist instance triggers event when it is rendered');
             ready1();
         });
 
-        instance.on('update', function(d) {
+        instance.on('update', function (d) {
             assert.ok(true, 'The datalist instance triggers event when it is updated');
             assert.equal(d, data, 'The datalist instance provides the dataset when the update event is triggered');
             ready2();
 
-            instance
-                .getElement()
-                .find('[data-control="tool1"]')
-                .click();
+            instance.getElement().find('[data-control="tool1"]').click();
         });
 
-        instance.on('tool', function(selection, buttonId) {
+        instance.on('tool', function (selection, buttonId) {
             assert.ok(true, 'The datalist instance triggers event when a tool button is clicked');
             assert.ok(
                 _.isArray(selection),
@@ -1134,13 +1024,10 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
             );
             ready3();
 
-            instance
-                .getElement()
-                .find('[data-id="1"] [data-control="action1"]')
-                .click();
+            instance.getElement().find('[data-id="1"] [data-control="action1"]').click();
         });
 
-        instance.on('action', function(lineId, buttonId) {
+        instance.on('action', function (lineId, buttonId) {
             assert.ok(true, 'The datalist instance triggers event when an action button is clicked');
             assert.equal(
                 lineId,
@@ -1157,14 +1044,14 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
             instance
                 .getElement()
                 .find('[data-id="1"] td.checkboxes input')
-                .on('click', function() {
+                .on('click', function () {
                     // Force the check attribute as the soft click does not do this
                     $(this).prop('checked', true);
                 })
                 .click();
         });
 
-        instance.on('select', function(selection) {
+        instance.on('select', function (selection) {
             assert.ok(true, 'The datalist instance triggers event when a selection is made');
             assert.ok(
                 _.isArray(selection),
@@ -1183,22 +1070,17 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
             ready5();
         });
 
-        instance.on('destroy', function() {
+        instance.on('destroy', function () {
             assert.ok(true, 'The datalist instance triggers event when it is destroyed');
             ready6();
         });
 
         assert.expect(15);
-        var ready = assert.async();
 
-        instance
-            .render()
-            .update(data)
-            .trigger('custom')
-            .destroy();
+        instance.render().update(data).trigger('custom').destroy();
     });
 
-    QUnit.test('selection', function(assert) {
+    QUnit.test('selection', function (assert) {
         var ready = assert.async();
         var config = {
             selectable: true,
@@ -1231,36 +1113,24 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
         var selection = [2];
         var instance = datalist(config);
 
-        instance.on('render', function() {
+        instance.on('render', function () {
             assert.equal(
-                instance
-                    .getElement()
-                    .find('[data-control="tool1"]')
-                    .hasClass('mass-action'),
+                instance.getElement().find('[data-control="tool1"]').hasClass('mass-action'),
                 false,
                 'The tool1 button is not a mass action'
             );
             assert.equal(
-                instance
-                    .getElement()
-                    .find('[data-control="tool1"]')
-                    .hasClass('hidden'),
+                instance.getElement().find('[data-control="tool1"]').hasClass('hidden'),
                 false,
                 'The tool1 button is visible'
             );
             assert.equal(
-                instance
-                    .getElement()
-                    .find('[data-control="tool2"]')
-                    .hasClass('mass-action'),
+                instance.getElement().find('[data-control="tool2"]').hasClass('mass-action'),
                 true,
                 'The tool2 button is a mass action'
             );
             assert.equal(
-                instance
-                    .getElement()
-                    .find('[data-control="tool2"]')
-                    .hasClass('hidden'),
+                instance.getElement().find('[data-control="tool2"]').hasClass('hidden'),
                 true,
                 'The tool2 button is hidden'
             );
@@ -1268,18 +1138,15 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
             instance.update(data);
         });
 
-        instance.on('select', function(sel) {
+        instance.on('select', function (sel) {
             assert.equal(
-                instance
-                    .getElement()
-                    .find('[data-control="tool2"]')
-                    .hasClass('hidden'),
+                instance.getElement().find('[data-control="tool2"]').hasClass('hidden'),
                 !(sel && sel.length),
                 'The tool2 button must be visible if a selection is made'
             );
         });
 
-        instance.on('update', function() {
+        instance.on('update', function () {
             // Check pre-selection
             assert.equal(
                 instance.getElement().find('tbody tr').length,
@@ -1301,10 +1168,8 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
             instance
                 .getElement()
                 .find('tbody input:checked')
-                .each(function() {
-                    var id = $(this)
-                        .closest('tr')
-                        .data('id');
+                .each(function () {
+                    var id = $(this).closest('tr').data('id');
                     assert.ok(_.indexOf(selection, id) >= 0, 'The datalist instance has selected the right lines');
                 });
 
@@ -1321,10 +1186,8 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
             instance
                 .getElement()
                 .find('tbody input:checked')
-                .each(function() {
-                    var id = $(this)
-                        .closest('tr')
-                        .data('id');
+                .each(function () {
+                    var id = $(this).closest('tr').data('id');
                     assert.ok(_.indexOf(selection, id) >= 0, 'The datalist instance has selected the right lines');
                 });
 
@@ -1340,7 +1203,7 @@ define(['jquery', 'lodash', 'ui/datalist'], function($, _, datalist) {
             instance.destroy();
         });
 
-        instance.on('destroy', function() {
+        instance.on('destroy', function () {
             assert.ok(true, 'The datalist instance triggers event when it is destroyed');
             ready();
         });
