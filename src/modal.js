@@ -65,7 +65,7 @@ var modal = {
      * @returns {jQueryElement} for chaining
      * @fires modal#create.modal
      */
-    init: function(options) {
+    init: function (options) {
         //extend the options using defaults
         options = $.extend(true, {}, defaults, options);
 
@@ -78,7 +78,7 @@ var modal = {
             }
         }
 
-        return $(this).each(function() {
+        return $(this).each(function () {
             var $modal = $(this);
 
             options.modalOverlay = '__modal-bg-' + ($modal.attr('id') || new Date().getTime());
@@ -88,7 +88,7 @@ var modal = {
 
             //Initialize the overlay for the modal dialog
             if ($('#' + options.modalOverlay).length === 0) {
-                var $overlay = $('<div/>').attr({ id: options.modalOverlay, class: options.modalOverlayClass });
+                const $overlay = $('<div/>').attr({ id: options.modalOverlay, class: options.modalOverlayClass });
                 if (options.$context instanceof $ && options.$context.length) {
                     //when a $context is given, position the modal overlay relative to that context
                     $overlay.css('position', 'absolute');
@@ -130,8 +130,8 @@ var modal = {
      * @param {jQuery object} $element
      * @fires modal#destroyed.modal
      */
-    _destroy: function($element) {
-        return $element.each(function() {
+    _destroy: function ($element) {
+        return $element.each(function () {
             var $modal = $(this);
             var options = $modal.data(dataNs);
 
@@ -152,30 +152,30 @@ var modal = {
      * @param {jQuery object} $element
      * @returns {undefined}
      */
-    _bindEvents: function($element) {
+    _bindEvents: function ($element) {
         var options = $element.data(dataNs);
 
         if (options) {
             if (options.width === 'responsive') {
-                $(window).on('resize.' + pluginName, function(e) {
+                $(window).on('resize.' + pluginName, function (e) {
                     e.preventDefault();
                     modal._resize($element);
                 });
             }
 
             if (!options.disableClosing) {
-                $('.' + options.modalCloseClass, $element).on('click.' + pluginName, function(e) {
+                $('.' + options.modalCloseClass, $element).on('click.' + pluginName, function (e) {
                     e.preventDefault();
                     closeModal($element, 'close');
                 });
 
-                $('#' + options.modalOverlay).on('click.' + pluginName, function(e) {
+                $('#' + options.modalOverlay).on('click.' + pluginName, function (e) {
                     e.preventDefault();
                     closeModal($element, 'overlay');
                 });
 
                 if (!options.disableEscape) {
-                    $(document).on('keydown.' + pluginName, function(e) {
+                    $(document).on('keydown.' + pluginName, function (e) {
                         if (e.keyCode === 27) {
                             e.preventDefault();
                             closeModal($element, 'escape');
@@ -191,7 +191,7 @@ var modal = {
      * @param {jQuery object} $element
      * @returns {undefined}
      */
-    _unBindEvents: function($element) {
+    _unBindEvents: function ($element) {
         var options = $element.data(dataNs);
 
         if (options && options.width === 'responsive') {
@@ -213,7 +213,7 @@ var modal = {
      * @returns {jQuery object}
      * @fires modal#opened.modal
      */
-    _open: function($element) {
+    _open: function ($element) {
         var modalHeight = $element.outerHeight(),
             windowHeight = $(window).height(),
             options = $element.data(dataNs),
@@ -224,7 +224,7 @@ var modal = {
 
         if (typeof options !== 'undefined') {
             // Called when the modal is fully opened
-            onOpen = function() {
+            onOpen = function () {
                 $element.addClass('opened');
                 modal._bindEvents($element);
 
@@ -245,7 +245,7 @@ var modal = {
             // added later: now offset will be increased only if container element doesn't has class no-scroll-offset
             // as, sometimes, on screens with lesser height part of modal runs under the bottom browser edge
             if (!options.top && !$element.parent().hasClass('no-scroll-offset')) {
-                $element.parents().map(function() {
+                $element.parents().map(function () {
                     if (this.tagName !== 'BODY' && this.tagName !== 'HTML') {
                         topOffset += parseInt($(this).scrollTop(), 10);
                     }
@@ -283,7 +283,7 @@ var modal = {
      * @param {jQuery object} $element
      * @fires modal#closed.modal
      */
-    _close: function($element) {
+    _close: function ($element) {
         closeModal($element, 'api');
     },
 
@@ -292,7 +292,7 @@ var modal = {
      * @param {jQuery object} $element
      * @returns {undefined}
      */
-    _resize: function($element) {
+    _resize: function ($element) {
         var options = $element.data(dataNs);
         var windowWidth = parseInt($(window).width(), 10);
         var css = {};
@@ -318,7 +318,7 @@ var modal = {
 function closeModal($element, reason) {
     var options = $element.data(dataNs);
     var $overlay = $('#' + options.modalOverlay);
-    var onClose = function() {
+    var onClose = function () {
         $element.removeClass('opened');
         $element.css('display', 'none');
 
@@ -359,7 +359,7 @@ export default function listenDataAttr($container) {
         container: $container,
         listenerEvent: 'click',
         namespace: dataNs
-    }).init(function($elt, $target) {
+    }).init(function ($elt, $target) {
         $target.modal();
     });
 }
