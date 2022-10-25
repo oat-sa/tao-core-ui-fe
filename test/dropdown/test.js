@@ -71,7 +71,7 @@ define(['jquery', 'ui/dropdown'], function($, dropdown) {
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The dropdown instance exposes a "' + data.title + '" function'
+                `The dropdown instance exposes a "${  data.title  }" function`
             );
         });
 

@@ -97,35 +97,34 @@ define([
         $container.datatable({
             url: '/test/datatable/data.json',
             model: [{
-                    id: 'login',
-                    label: 'Login',
-                    sortable: true
-                }, {
-                    id: 'name',
-                    label: 'Name',
-                    sortable: true
+                id: 'login',
+                label: 'Login',
+                sortable: true
+            }, {
+                id: 'name',
+                label: 'Name',
+                sortable: true
             }],
             tools: [{
-                    id: 'test',
-                    label: 'tool button',
-                    action() {
-                        assert.step('Tool button is clicked')
-                    }
-                }, {
-                    id: 'disabled',
-                    label: 'disabled tool button',
-                    action() {
-                        assert.step('Disabled tool button is clicked')
-                    }
-                },
-                {
-                    id: 'without-action',
-                    label: 'Without action handler',
-                },
-                {
-                    label: 'Tool without id',
+                id: 'test',
+                label: 'tool button',
+                action() {
+                    assert.step('Tool button is clicked');
                 }
-            ]
+            }, {
+                id: 'disabled',
+                label: 'disabled tool button',
+                action() {
+                    assert.step('Disabled tool button is clicked');
+                }
+            },
+            {
+                id: 'without-action',
+                label: 'Without action handler',
+            },
+            {
+                label: 'Tool without id',
+            }]
         });
     });
 
@@ -230,7 +229,7 @@ define([
         });
 
         $container.on('load.datatable', function() {
-            assert.verifySteps(['intercept'])
+            assert.verifySteps(['intercept']);
             done();
         });
 
@@ -255,7 +254,7 @@ define([
                         }]
                     });
 
-                })
+                });
             }
         });
     });
@@ -279,7 +278,7 @@ define([
             requestInterceptor: function(){
                 return new Promise(function(resolve, reject){
                     reject('Failed');
-                })
+                });
             }
         });
     });
@@ -506,7 +505,7 @@ define([
                     label: 'Pause me',
                     title: 'Press to pause process',
                     action: function(id) {
-                        assert.ok(true, 'In the pause action, id: ' + id);
+                        assert.ok(true, `In the pause action, id: ${  id}`);
                     }
                 }]
             }, {
@@ -519,7 +518,7 @@ define([
                     label: 'Play',
                     title: 'Run action',
                     action: function(id) {
-                        assert.ok(true, 'In the run action, id: ' + id);
+                        assert.ok(true, `In the run action, id: ${  id}`);
                     }
                 }, {
                     id: 'pause',
@@ -527,7 +526,7 @@ define([
                     label: 'Pause me',
                     title: 'Press to pause process',
                     action: function(id) {
-                        assert.ok(true, 'In the pause action, id: ' + id);
+                        assert.ok(true, `In the pause action, id: ${  id}`);
                     }
                 }, {
                     id: 'stop',
@@ -609,7 +608,7 @@ define([
                 label: 'Play',
                 title: 'Run action',
                 action: function(id) {
-                    assert.ok(true, 'In the run action, id: ' + id);
+                    assert.ok(true, `In the run action, id: ${  id}`);
                 }
             }, {
                 id: 'pause',
@@ -617,7 +616,7 @@ define([
                 label: 'Pause me',
                 title: 'Press to pause process',
                 action: function(id) {
-                    assert.ok(true, 'In the pause action, id: ' + id);
+                    assert.ok(true, `In the pause action, id: ${  id}`);
                 }
             }, {
                 id: 'stop',
@@ -678,7 +677,7 @@ define([
         assert.expect(4);
 
         $container.on('create.datatable', function() {
-            const $firstRowActions = $('[data-item-identifier="1"] .actions')
+            const $firstRowActions = $('[data-item-identifier="1"] .actions');
 
             assert.equal($firstRowActions.find('.edit, .delete').length, 2, 'Action buttons is rendered');
             assert.equal($firstRowActions.find('.icon-edit, .icon-delete').length, 2, 'Action buttons has icons');
@@ -780,7 +779,7 @@ define([
             return {
                 status: 404,
                 statusText: 'Not Found',
-            }
+            };
         });
 
         $container.on('create.datatable', function() {
@@ -809,7 +808,7 @@ define([
                 status: 200,
                 statusText: 'OK',
                 responseText: undefined
-            }
+            };
         });
 
         $container.on('create.datatable', function() {
@@ -1282,7 +1281,7 @@ define([
 
         var $elt = $('#container-1');
         var renderFullName = function(row) {
-            return row.firstname + ' ' + row.lastname;
+            return `${row.firstname  } ${  row.lastname}`;
         };
         var transform = function(value, row, field, index, data) {
             assert.equal(typeof row, 'object', 'The row is provided');
@@ -1380,8 +1379,8 @@ define([
         assert.expect(2);
 
         $container.one('create.datatable', () => {
-            assert.equal( $('.datatable-pagination-top').children().length, paginationTopChildrenLength, 'Top pagination content is rendered')
-            assert.equal( $('.datatable-pagination-bottom').children().length, paginationBottomChildrenLength, 'Bottom pagination content is rendered')
+            assert.equal( $('.datatable-pagination-top').children().length, paginationTopChildrenLength, 'Top pagination content is rendered');
+            assert.equal( $('.datatable-pagination-bottom').children().length, paginationBottomChildrenLength, 'Bottom pagination content is rendered');
             done();
         });
 
@@ -1392,7 +1391,7 @@ define([
             paginationStrategyTop,
             paginationStrategyBottom
         });
-    })
+    });
 
     QUnit.test('Pagination', function(assert) {
         const done = assert.async();
@@ -2026,7 +2025,7 @@ define([
         assert.expect(5);
 
         $container.one('create.datatable', function(){
-            const statusColumn1 = $container.find('.status').eq(0)
+            const statusColumn1 = $container.find('.status').eq(0);
 
             assert.equal(statusColumn1.text(), 'paused', 'The first delivery status is set');
 
@@ -2045,16 +2044,17 @@ define([
 
                     $container.datatable('refresh', {
                         data: [
-                        {
-                            id: 2,
-                            delivery: 2,
-                            status: 'awaiting'
-                        },
-                        {
-                            id: 1,
-                            delivery: 1,
-                            status: 'awaiting'
-                        }]
+                            {
+                                id: 2,
+                                delivery: 2,
+                                status: 'awaiting'
+                            },
+                            {
+                                id: 1,
+                                delivery: 1,
+                                status: 'awaiting'
+                            }
+                        ]
                     });
                 });
 
@@ -2106,15 +2106,15 @@ define([
                     label: 'Without id',
                     disabled: true,
                     action: function(id) {
-                        console.log('ACTION IS CALLED', id)
-                        assert.ok(true, 'In the pause action, id: ' + id);
+                        console.log('ACTION IS CALLED', id);
+                        assert.ok(true, `In the pause action, id: ${  id}`);
                     }
                 },
                 {
                     title: 'Without id, label, icon',
                     action: function(id) {
-                        console.log('ACTION IS CALLED', id)
-                        assert.ok(true, 'In the pause action, id: ' + id);
+                        console.log('ACTION IS CALLED', id);
+                        assert.ok(true, `In the pause action, id: ${  id}`);
                     }
                 },
                 {
@@ -2123,14 +2123,14 @@ define([
                     label: 'hidden',
                     hidden: true,
                     action: function(id) {
-                        console.log('ACTION IS CALLED', id)
-                        assert.ok(true, 'In the pause action, id: ' + id);
+                        console.log('ACTION IS CALLED', id);
+                        assert.ok(true, `In the pause action, id: ${  id}`);
                     }
                 },
                 {
                     id: 'hidden-without-label-and-icon',
                     action: function(id) {
-                        assert.ok(true, 'In the pause action, id: ' + id);
+                        assert.ok(true, `In the pause action, id: ${  id}`);
                     }
                 },{
                     id: 'disabled',
@@ -2139,78 +2139,81 @@ define([
                     title: 'Disabled',
                     disabled: true,
                     action: function(id) {
-                        assert.ok(true, 'In the pause action, id: ' + id);
+                        assert.ok(true, `In the pause action, id: ${  id}`);
                     }
                 },
                 {
                     id: 'disabled-without-title',
                     icon: 'disabled',
                     label: 'disabled',
-                    disabled: function(){return true},
+                    disabled: function(){
+                        return true;
+                    },
                     action: function(id) {
-                        assert.ok(true, 'In the pause action, id: ' + id);
+                        assert.ok(true, `In the pause action, id: ${  id}`);
                     }
-                }
-            ],
+                }],
             }]
         },
-            {
-                id: 'administration',
-                label: 'Administration',
-                type: 'actions',
-                data: [{
-                    id: 1,
-                    delivery: 1,
-                    status: 'paused',
-                    actions: [ {
-                        id: 'pause',
-                        icon: 'pause',
-                        label: 'Pause me',
-                        title: 'Press to pause process',
-                        disabled: function(){return true},
-                        action: function(id) {
-                            assert.ok(true, 'In the pause action, id: ' + id);
-                        }
-                    }]
-                },
-                {
-                    id: 2,
-                    delivery: 2,
-                    status: 'awaiting'
-                },
-                {
-                    id: 3,
-                    delivery: 3,
-                    status: 'in progress'
-                }],
-                actions: [{
-                    id: 'run',
-                    icon: 'play',
-                    label: 'Play',
-                    title: 'Run action',
-                    action: function(id) {
-                        console.log('ACTION', 1)
-                        assert.ok(true, 'In the run action, id: ' + id);
-                    }
-                }, {
+        {
+            id: 'administration',
+            label: 'Administration',
+            type: 'actions',
+            data: [{
+                id: 1,
+                delivery: 1,
+                status: 'paused',
+                actions: [ {
                     id: 'pause',
                     icon: 'pause',
                     label: 'Pause me',
-                    disabled: true,
+                    title: 'Press to pause process',
+                    disabled: function(){
+                        return true;
+                    },
                     action: function(id) {
-                        console.log('ACTION', 2)
-                        assert.ok(true, 'In the pause action, id: ' + id);
-                    }
-                }, {
-                    icon: 'stop',
-                    label: 'Stop',
-                    title: 'Press to stop process',
-                    action: function() {
-                        console.log('ACTION', 3)
-                        assert.ok(true, 'In the stop action');
+                        assert.ok(true, `In the pause action, id: ${  id}`);
                     }
                 }]
-            }
+            },
+            {
+                id: 2,
+                delivery: 2,
+                status: 'awaiting'
+            },
+            {
+                id: 3,
+                delivery: 3,
+                status: 'in progress'
+            }],
+            actions: [{
+                id: 'run',
+                icon: 'play',
+                label: 'Play',
+                title: 'Run action',
+                action: function(id) {
+                    console.log('ACTION', 1);
+                    assert.ok(true, `In the run action, id: ${  id}`);
+                }
+            }, {
+                id: 'pause',
+                icon: 'pause',
+                label: 'Pause me',
+                disabled: true,
+                action: function(id) {
+                    console.log('ACTION', 2);
+                    assert.ok(true, `In the pause action, id: ${  id}`);
+                }
+            }, {
+                icon: 'stop',
+                label: 'Stop',
+                title: 'Press to stop process',
+                action: function() {
+                    console.log('ACTION', 3);
+                    assert.ok(true, 'In the stop action');
+                }
+            }]
+        }
         );
     });
 
@@ -2261,7 +2264,7 @@ define([
             pageSizeSelector: true,
             rows: 50,
         });
-    })
+    });
 
     QUnit.test('Plugin "addRowClass"', function(assert){
         const ready = assert.async();
@@ -2317,7 +2320,7 @@ define([
             pageSizeSelector: true,
             rows: 50,
         });
-    })
+    });
 
     QUnit.test('Plugin "removeRowClass"', function(assert){
         const ready = assert.async();
@@ -2370,7 +2373,7 @@ define([
             pageSizeSelector: true,
             rows: 50,
         });
-    })
+    });
 
     QUnit.test('It does not render the element is removed while loading', function(assert) {
         assert.expect(2);
@@ -2383,7 +2386,7 @@ define([
 
         $elt.on('query.datatable', () => {
             assert.ok(true, 'The table starts loading');
-            $container.html('')
+            $container.html('');
         });
         $elt.on('render', () => {
             assert.ok(false, 'The datable');

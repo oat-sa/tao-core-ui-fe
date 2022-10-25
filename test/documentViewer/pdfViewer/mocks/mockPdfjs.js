@@ -110,6 +110,7 @@ define(['lodash', 'core/eventifier'], function(_, eventifier) {
 
     /**
      * Fakes a PDF.js page object
+     * @param pageNum
      * @returns {Object}
      */
     function pdfPageFactory(pageNum) {

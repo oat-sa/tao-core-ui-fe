@@ -48,7 +48,7 @@ define(['jquery', 'lodash', 'ui/dialog'], function($, _, dialog) {
         assert.equal(
             typeof instance[data.title],
             'function',
-            'The dialog instance exposes a "' + data.title + '" function'
+            `The dialog instance exposes a "${  data.title  }" function`
         );
     });
 
@@ -449,7 +449,7 @@ define(['jquery', 'lodash', 'ui/dialog'], function($, _, dialog) {
             assert.equal(
                 modal.getDom().find('button').length,
                 buttons.length,
-                'The dialog box displays ' + buttons.length + ' buttons'
+                `The dialog box displays ${  buttons.length  } buttons`
             );
 
             modal
@@ -457,14 +457,14 @@ define(['jquery', 'lodash', 'ui/dialog'], function($, _, dialog) {
                     modal.getDom().click();
                     buttons.forEach(function(button) {
                         assert.equal(
-                            modal.getDom().find('button[data-control="' + button + '"]').length,
+                            modal.getDom().find(`button[data-control="${  button  }"]`).length,
                             1,
-                            "The dialog box displays a '" + button + "' button"
+                            `The dialog box displays a '${  button  }' button`
                         );
                         assert.equal(
-                            modal.getDom().find('button[data-control="' + button + '"]:focus').length,
+                            modal.getDom().find(`button[data-control="${  button  }"]:focus`).length,
                             0,
-                            "The button '" + button + "' should not be focused yet"
+                            `The button '${  button  }' should not be focused yet`
                         );
                     });
 
@@ -480,9 +480,9 @@ define(['jquery', 'lodash', 'ui/dialog'], function($, _, dialog) {
 
                     modal.focus(data.focus);
                     assert.equal(
-                        modal.getDom().find('button[data-control="' + data.focus + '"]:focus').length,
+                        modal.getDom().find(`button[data-control="${  data.focus  }"]:focus`).length,
                         1,
-                        "The button '" + data.focus + "' should be focused now"
+                        `The button '${  data.focus  }' should be focused now`
                     );
 
                     modal.destroy();
@@ -506,14 +506,14 @@ define(['jquery', 'lodash', 'ui/dialog'], function($, _, dialog) {
         assert.expect(4);
 
         modal.on('create.dialog', function() {
-            assert.equal($(renderTo + ' .modal').length, 1, 'The modal element is created');
-            assert.equal($(renderTo + ' .message').text(), message, 'The modal message is correct');
+            assert.equal($(`${renderTo  } .modal`).length, 1, 'The modal element is created');
+            assert.equal($(`${renderTo  } .message`).text(), message, 'The modal message is correct');
 
             modal.destroy();
         });
         modal.on('destroy.modal', function() {
             assert.equal(
-                $(renderTo + ' .modal').length,
+                $(`${renderTo  } .modal`).length,
                 1,
                 'The modal element is still there due to the way the modal works'
             );

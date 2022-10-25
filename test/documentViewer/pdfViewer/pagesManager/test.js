@@ -65,7 +65,7 @@ define([
         assert.equal(
             typeof instance[data.name],
             'function',
-            'The pdfViewer PagesManager instance exposes a "' + data.name + '" function'
+            `The pdfViewer PagesManager instance exposes a "${  data.name  }" function`
         );
 
         instance.destroy();
@@ -292,12 +292,12 @@ define([
                         assert.notEqual(
                             view.getDrawLayerElement().width(),
                             expectedWidth,
-                            'The view is not ' + expectedWidth + ' pixels width'
+                            `The view is not ${  expectedWidth  } pixels width`
                         );
                         assert.notEqual(
                             view.getDrawLayerElement().height(),
                             expectedHeight,
-                            'The view is not ' + expectedHeight + ' pixels height'
+                            `The view is not ${  expectedHeight  } pixels height`
                         );
                         $container.width(requestedWidth).height(requestedHeight);
 
@@ -307,12 +307,12 @@ define([
                             assert.equal(
                                 view.getDrawLayerElement().width(),
                                 expectedWidth,
-                                'The view is now ' + expectedWidth + ' pixels width'
+                                `The view is now ${  expectedWidth  } pixels width`
                             );
                             assert.equal(
                                 view.getDrawLayerElement().height(),
                                 expectedHeight,
-                                'The view is now ' + expectedHeight + ' pixels height'
+                                `The view is now ${  expectedHeight  } pixels height`
                             );
 
                             instance.destroy();

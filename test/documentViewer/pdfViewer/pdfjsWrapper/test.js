@@ -98,7 +98,7 @@ define([
         assert.equal(
             typeof instance[data.name],
             'function',
-            'The PDF.js Wrapper instance exposes a "' + data.name + '" function'
+            `The PDF.js Wrapper instance exposes a "${  data.name  }" function`
         );
 
         instance.destroy();
@@ -178,8 +178,8 @@ define([
             .then(function() {
                 assert.ok(instance.getState('loaded'), 'The PDF is loaded');
 
-                assert.equal(instance.getPage(), page, 'The PDF is set on the page ' + page);
-                assert.equal(instance.getPageCount(), count, 'The PDF has ' + count + ' pages');
+                assert.equal(instance.getPage(), page, `The PDF is set on the page ${  page}`);
+                assert.equal(instance.getPageCount(), count, `The PDF has ${  count  } pages`);
                 assert.equal(typeof instance.getDocument(), 'object', 'The PDF document is returned');
 
                 instance.destroy();
@@ -229,8 +229,8 @@ define([
             .then(function() {
                 assert.ok(instance.getState('loaded'), 'The PDF is loaded');
 
-                assert.equal(instance.getPage(), page, 'The PDF is set on the page ' + page);
-                assert.equal(instance.getPageCount(), count, 'The PDF has ' + count + ' pages');
+                assert.equal(instance.getPage(), page, `The PDF is set on the page ${  page}`);
+                assert.equal(instance.getPageCount(), count, `The PDF has ${  count  } pages`);
                 assert.equal(typeof instance.getDocument(), 'object', 'The PDF document is returned');
 
                 instance.destroy();
@@ -300,24 +300,24 @@ define([
             .then(function() {
                 assert.ok(instance.getState('loaded'), 'The PDF is loaded');
 
-                assert.equal(instance.getPage(), page, 'The PDF is set on the page ' + page);
-                assert.equal(instance.getPageCount(), count, 'The PDF has ' + count + ' pages');
+                assert.equal(instance.getPage(), page, `The PDF is set on the page ${  page}`);
+                assert.equal(instance.getPageCount(), count, `The PDF has ${  count  } pages`);
                 assert.equal(typeof instance.getDocument(), 'object', 'The PDF document is returned');
 
                 page = count;
                 instance
                     .setPage(page)
                     .then(function() {
-                        assert.equal(instance.getPage(), page, 'The PDF is set on the page ' + page);
+                        assert.equal(instance.getPage(), page, `The PDF is set on the page ${  page}`);
 
                         assert.equal(instance.getState('rendering'), false, 'The PDF is not rendering at this time');
                         assert.equal(instance.getState('rendered'), true, 'The page has been rendered');
 
                         return instance.setPage(page).then(function() {
-                            assert.equal(instance.getPage(), page, 'The PDF is still set on the page ' + page);
+                            assert.equal(instance.getPage(), page, `The PDF is still set on the page ${  page}`);
 
                             return instance.setPage(page + 1).then(function() {
-                                assert.equal(instance.getPage(), page, 'The PDF is still set on the page ' + page);
+                                assert.equal(instance.getPage(), page, `The PDF is still set on the page ${  page}`);
 
                                 instance.destroy();
                                 assert.equal(instance.getDocument(), null, 'The PDF document is destroyed');
@@ -383,16 +383,16 @@ define([
                 return instance.load(pdfUrl).then(function() {
                     assert.ok(instance.getState('loaded'), 'The PDF is loaded');
 
-                    assert.equal(instance.getPage(), page, 'The PDF is set on the page ' + page);
-                    assert.equal(instance.getPageCount(), count, 'The PDF has ' + count + ' pages');
+                    assert.equal(instance.getPage(), page, `The PDF is set on the page ${  page}`);
+                    assert.equal(instance.getPageCount(), count, `The PDF has ${  count  } pages`);
                     assert.equal(typeof instance.getDocument(), 'object', 'The PDF document is returned');
 
                     page++;
                     return instance.setPage(page).then(function() {
-                        assert.equal(instance.getPage(), page, 'The PDF is set on the page ' + page);
+                        assert.equal(instance.getPage(), page, `The PDF is set on the page ${  page}`);
 
                         return instance.setPage(page).then(function() {
-                            assert.equal(instance.getPage(), page, 'The PDF is still set on the page ' + page);
+                            assert.equal(instance.getPage(), page, `The PDF is still set on the page ${  page}`);
 
                             pdfjs.on('pageRender', function() {
                                 assert.ok(true, 'The page has been rendered');
@@ -458,16 +458,16 @@ define([
             .then(function() {
                 assert.ok(instance.getState('loaded'), 'The PDF is loaded');
 
-                assert.equal(instance.getPage(), page, 'The PDF is set on the page ' + page);
-                assert.equal(instance.getPageCount(), count, 'The PDF has ' + count + ' pages');
+                assert.equal(instance.getPage(), page, `The PDF is set on the page ${  page}`);
+                assert.equal(instance.getPageCount(), count, `The PDF has ${  count  } pages`);
                 assert.equal(typeof instance.getDocument(), 'object', 'The PDF document is returned');
 
                 page++;
                 return instance.setPage(page).then(function() {
-                    assert.equal(instance.getPage(), page, 'The PDF is set on the page ' + page);
+                    assert.equal(instance.getPage(), page, `The PDF is set on the page ${  page}`);
 
                     return instance.setPage(page).then(function() {
-                        assert.equal(instance.getPage(), page, 'The PDF is still set on the page ' + page);
+                        assert.equal(instance.getPage(), page, `The PDF is still set on the page ${  page}`);
 
                         pdfjs.on('pageRender', function() {
                             assert.ok(true, 'The page has been refreshed');
@@ -526,8 +526,8 @@ define([
             .then(function() {
                 assert.ok(instance.getState('loaded'), 'The PDF is loaded');
 
-                assert.equal(instance.getPage(), page, 'The PDF is set on the page ' + page);
-                assert.equal(instance.getPageCount(), count, 'The PDF has ' + count + ' pages');
+                assert.equal(instance.getPage(), page, `The PDF is set on the page ${  page}`);
+                assert.equal(instance.getPageCount(), count, `The PDF has ${  count  } pages`);
                 assert.equal(typeof instance.getDocument(), 'object', 'The PDF document is returned');
 
                 promises.push(instance.setPage(page++));
@@ -535,7 +535,7 @@ define([
                 promises.push(instance.setPage(page));
 
                 return Promise.all(promises).then(function() {
-                    assert.equal(instance.getPage(), page, 'The PDF is set on the page ' + page);
+                    assert.equal(instance.getPage(), page, `The PDF is set on the page ${  page}`);
 
                     instance.destroy();
                     assert.equal(instance.getDocument(), null, 'The PDF document is destroyed');
@@ -568,7 +568,7 @@ define([
             .on('pagechange', function(pageNum) {
                 assert.ok(true, 'The pagechange event has been triggered');
                 assert.equal(pageNum, page, 'The page number is provided with the event');
-                assert.equal(instance.getPage(), page, 'The PDF is set on the page ' + page);
+                assert.equal(instance.getPage(), page, `The PDF is set on the page ${  page}`);
             })
             .on('allrendered', function() {
                 assert.ok(true, 'The page has been rendered');
@@ -596,8 +596,8 @@ define([
             .then(function() {
                 assert.ok(instance.getState('loaded'), 'The PDF is loaded');
 
-                assert.equal(instance.getPage(), page, 'The PDF is set on the page ' + page);
-                assert.equal(instance.getPageCount(), count, 'The PDF has ' + count + ' pages');
+                assert.equal(instance.getPage(), page, `The PDF is set on the page ${  page}`);
+                assert.equal(instance.getPageCount(), count, `The PDF has ${  count  } pages`);
                 assert.equal(typeof instance.getDocument(), 'object', 'The PDF document is returned');
 
                 page++;

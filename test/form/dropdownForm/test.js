@@ -79,7 +79,7 @@ define([
                 this.destroy();
             });
         assert.expect(1);
-        assert.equal(typeof instance[data.title], 'function', 'The instance exposes a "' + data.title + '" function');
+        assert.equal(typeof instance[data.title], 'function', `The instance exposes a "${  data.title  }" function`);
     });
 
     QUnit.cases.init([
@@ -93,7 +93,7 @@ define([
                 this.destroy();
             });
         assert.expect(1);
-        assert.equal(typeof instance[data.title], 'function', 'The instance exposes a "' + data.title + '" function');
+        assert.equal(typeof instance[data.title], 'function', `The instance exposes a "${  data.title  }" function`);
     });
 
     QUnit.cases.init([
@@ -109,7 +109,7 @@ define([
                 this.destroy();
             });
         assert.expect(1);
-        assert.equal(typeof instance[data.title], 'function', 'The instance exposes a "' + data.title + '" function');
+        assert.equal(typeof instance[data.title], 'function', `The instance exposes a "${  data.title  }" function`);
     });
 
     QUnit.module('Life cycle');
@@ -211,11 +211,11 @@ define([
                 assert.equal($container.find('.form-component .form-actions').children().length, _.size(buttons), 'The component contains the expected amount of buttons');
 
                 _.forEach(widgets, function (widget) {
-                    assert.equal($container.find('.form-component fieldset [name="' + widget.uri + '"]').length, 1, 'The component contains the widget ' + widget.uri);
+                    assert.equal($container.find(`.form-component fieldset [name="${  widget.uri  }"]`).length, 1, `The component contains the widget ${  widget.uri}`);
                 });
 
                 _.forEach(buttons, function (button) {
-                    assert.equal($container.find('.form-component .form-actions [data-control="' + button.id + '"]').length, 1, 'The component contains the button ' + button.id);
+                    assert.equal($container.find(`.form-component .form-actions [data-control="${  button.id  }"]`).length, 1, `The component contains the button ${  button.id}`);
                 });
 
                 assert.deepEqual(instance.getFormValues(), data.config && data.config.values || {}, 'The component has set the form values');
@@ -463,7 +463,7 @@ define([
                 assert.equal($container.find('.dropdown-form fieldset').children().length, _.size(data.config && data.config.widgets), 'The initial widgets are rendered');
 
                 _.forEach(data.config && data.config.widgets, function(widget) {
-                    assert.equal($container.find('.dropdown-form fieldset [name="' + widget.uri + '"]').first().length, 1, 'The widget ' + widget.uri + ' has been rendered');
+                    assert.equal($container.find(`.dropdown-form fieldset [name="${  widget.uri  }"]`).first().length, 1, `The widget ${  widget.uri  } has been rendered`);
                 });
 
                 instance.setFormWidgets(data.widgets)
@@ -471,7 +471,7 @@ define([
                         assert.equal($container.find('.dropdown-form fieldset').children().length, _.size(data.widgets), 'The new widgets are rendered');
 
                         _.forEach(data.widgets, function (widget) {
-                            assert.equal($container.find('.dropdown-form fieldset [name="' + widget.uri + '"]').first().length, 1, 'The widget ' + widget.uri + ' has been rendered');
+                            assert.equal($container.find(`.dropdown-form fieldset [name="${  widget.uri  }"]`).first().length, 1, `The widget ${  widget.uri  } has been rendered`);
                         });
                     })
                     .catch(function (err) {
@@ -553,7 +553,7 @@ define([
                 assert.equal($container.find('.dropdown-form fieldset').length, 1, 'The component contains a place for the widgets');
 
                 data.expected.forEach(function(id) {
-                    assert.equal($container.find('.dropdown-form [data-control="' + id + '"]').length, 1, 'The component contains the button ' + id);
+                    assert.equal($container.find(`.dropdown-form [data-control="${  id  }"]`).length, 1, `The component contains the button ${  id}`);
                 });
 
                 assert.equal($container.find('.dropdown-form [data-control="submit"]').length, submitAllowed ? 1 : 0, 'The submit button is set as expected');
@@ -561,7 +561,7 @@ define([
                 assert.equal($container.find('.dropdown-form fieldset').children().length, _.size(data.config && data.config.widgets), 'The initial widgets are rendered');
 
                 _.forEach(data.config && data.config.widgets, function(widget) {
-                    assert.equal($container.find('.dropdown-form fieldset [name="' + widget.uri + '"]').first().length, 1, 'The widget ' + widget.uri + ' has been rendered');
+                    assert.equal($container.find(`.dropdown-form fieldset [name="${  widget.uri  }"]`).first().length, 1, `The widget ${  widget.uri  } has been rendered`);
                 });
 
                 instance.destroy();
@@ -1052,14 +1052,14 @@ define([
 
         function testElement(expectedUri, expectedValue) {
             _.defer(function() {
-                $container.find('.dropdown-form fieldset [name="' + expectedUri + '"]').val(expectedValue).change();
+                $container.find(`.dropdown-form fieldset [name="${  expectedUri  }"]`).val(expectedValue).change();
             });
             return new Promise(function(resolve) {
                 instance
                     .off('.test')
                     .on('change.test', function(uri, value) {
-                        assert.equal(uri, expectedUri, 'The change event is emitted for ' + expectedUri);
-                        assert.equal(value, expectedValue, 'The change event comes with the value ' + expectedValue);
+                        assert.equal(uri, expectedUri, `The change event is emitted for ${  expectedUri}`);
+                        assert.equal(value, expectedValue, `The change event comes with the value ${  expectedValue}`);
                         resolve();
                     });
             });
@@ -1115,7 +1115,7 @@ define([
                 ready();
             });
     });
-/**/
+    /**/
     QUnit.module('Visual');
 
     QUnit.test('Visual test', function (assert) {
@@ -1136,16 +1136,16 @@ define([
                     })
                     .on('error', reject)
                     .on('change', function (uri, value) {
-                        $outputChange.val('value of [' + uri + '] changed to "' + value + '"\n' + $outputChange.val());
+                        $outputChange.val(`value of [${  uri  }] changed to "${  value  }"\n${  $outputChange.val()}`);
                     })
                     .on('open', function () {
                         $outputChange.val('');
                         $outputSubmit.val('');
                     })
                     .on('submit', function (values) {
-                        $outputSubmit.val('Submitted values:\n' + JSON.stringify(values, null, 2));
+                        $outputSubmit.val(`Submitted values:\n${  JSON.stringify(values, null, 2)}`);
                     });
-            })
+            });
         }
 
         assert.expect(6);

@@ -51,7 +51,7 @@ define(['ui/dialog/confirm'], function(dialogConfirm) {
         assert.equal(
             typeof instance[data.name],
             'function',
-            'The dialogConfirm instance exposes a "' + data.title + '" function'
+            `The dialogConfirm instance exposes a "${  data.title  }" function`
         );
         instance.destroy();
     });
@@ -143,7 +143,7 @@ define(['ui/dialog/confirm'], function(dialogConfirm) {
 
         modal
             .getDom()
-            .find('button[data-control="' + data.button + '"]')
+            .find(`button[data-control="${  data.button  }"]`)
             .click();
     });
 });

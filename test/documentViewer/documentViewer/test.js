@@ -75,7 +75,7 @@ define(['lodash', 'ui/documentViewer'], function(_, documentViewer) {
         assert.equal(
             typeof instance[data.name],
             'function',
-            'The documentViewer instance exposes a "' + data.name + '" function'
+            `The documentViewer instance exposes a "${  data.name  }" function`
         );
     });
 

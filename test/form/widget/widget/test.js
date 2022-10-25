@@ -62,7 +62,7 @@ define([
         {title: 'clearProviders'}
     ]).test('provider registry API ', function (data, assert) {
         assert.expect(1);
-        assert.equal(typeof widgetFactory[data.title], 'function', 'The factory exposes a "' + data.title + '" function');
+        assert.equal(typeof widgetFactory[data.title], 'function', `The factory exposes a "${  data.title  }" function`);
     });
 
     QUnit.cases.init([
@@ -87,7 +87,7 @@ define([
                 this.destroy();
             });
         assert.expect(1);
-        assert.equal(typeof instance[data.title], 'function', 'The instance exposes a "' + data.title + '" function');
+        assert.equal(typeof instance[data.title], 'function', `The instance exposes a "${  data.title  }" function`);
     });
 
     QUnit.cases.init([
@@ -101,7 +101,7 @@ define([
                 this.destroy();
             });
         assert.expect(1);
-        assert.equal(typeof instance[data.title], 'function', 'The instance exposes a "' + data.title + '" function');
+        assert.equal(typeof instance[data.title], 'function', `The instance exposes a "${  data.title  }" function`);
     });
 
     QUnit.cases.init([
@@ -121,7 +121,7 @@ define([
                 this.destroy();
             });
         assert.expect(1);
-        assert.equal(typeof instance[data.title], 'function', 'The instance exposes a "' + data.title + '" function');
+        assert.equal(typeof instance[data.title], 'function', `The instance exposes a "${  data.title  }" function`);
     });
 
     QUnit.module('Life cycle');
@@ -697,7 +697,7 @@ define([
                 assert.equal(this.getWidgetElement(), null, 'There is no form element yet');
             })
             .on('ready', function () {
-                assert.ok(this.getWidgetElement().is($container.find('[name="' + config.uri + '"]')), 'The expected form element is returned');
+                assert.ok(this.getWidgetElement().is($container.find(`[name="${  config.uri  }"]`)), 'The expected form element is returned');
                 this.destroy();
             })
             .after('destroy', function () {
@@ -732,7 +732,7 @@ define([
             getWidgetElement: function getWidgetElement() {
                 assert.ok(true, 'The provider getWidgetElement() method is called');
                 return this.getElement()
-                    .find('[name="' + this.getUri() + '"]');
+                    .find(`[name="${  this.getUri()  }"]`);
             }
         });
 
@@ -744,7 +744,7 @@ define([
                 assert.equal(this.getWidgetElement(), null, 'There is no form element yet');
             })
             .on('ready', function () {
-                assert.ok(this.getWidgetElement().is($container.find('[name="' + config.uri + '"]')), 'The expected form element is returned');
+                assert.ok(this.getWidgetElement().is($container.find(`[name="${  config.uri  }"]`)), 'The expected form element is returned');
                 this.destroy();
             })
             .after('destroy', function () {
@@ -1388,7 +1388,7 @@ define([
                     .catch(function () {
                     })
                     .then(function () {
-                        $outputChange.val('value of [' + uri + '] changed to "' + value + '"\n' + $outputChange.val());
+                        $outputChange.val(`value of [${  uri  }] changed to "${  value  }"\n${  $outputChange.val()}`);
                     });
             })
             .on('error', function (err) {

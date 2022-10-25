@@ -116,12 +116,12 @@ define([
                 assert.notEqual(
                     $pdfContainer.width(),
                     requestedWidth,
-                    'The PDF panel is not ' + expectedWidth + ' pixels width'
+                    `The PDF panel is not ${  expectedWidth  } pixels width`
                 );
                 assert.notEqual(
                     $pdfContainer.height(),
                     requestedHeight,
-                    'The PDF panel is not ' + expectedHeight + ' pixels height'
+                    `The PDF panel is not ${  expectedHeight  } pixels height`
                 );
 
                 instance.setSize(requestedWidth, requestedHeight);
@@ -132,12 +132,12 @@ define([
                 assert.equal(
                     $pdfContainer.width(),
                     expectedWidth,
-                    'The PDF panel is now ' + expectedWidth + ' pixels width'
+                    `The PDF panel is now ${  expectedWidth  } pixels width`
                 );
                 assert.equal(
                     $pdfContainer.height(),
                     expectedHeight,
-                    'The PDF panel is now ' + expectedHeight + ' pixels height'
+                    `The PDF panel is now ${  expectedHeight  } pixels height`
                 );
 
                 instance.unload();
@@ -201,8 +201,8 @@ define([
                 assert.equal($pdfBar.length, 1, 'The PDF bar has been added');
                 assert.equal($pdfContainer.length, 1, 'The PDF panel has been added');
 
-                assert.equal($pageNum.val(), page, 'The current page is ' + page);
-                assert.equal(parseInt($pageCount.text(), 10), count, 'The page count is ' + count);
+                assert.equal($pageNum.val(), page, `The current page is ${  page}`);
+                assert.equal(parseInt($pageCount.text(), 10), count, `The page count is ${  count}`);
                 assert.equal($pageNum.is(':disabled'), true, 'The page number input is disabled');
                 assert.equal($pagePrev.is(':disabled'), true, 'The previous page button is disabled');
                 assert.equal($pageNext.is(':disabled'), true, 'The next page button is disabled');
@@ -210,7 +210,7 @@ define([
                 $pageNext.click();
 
                 setTimeout(function() {
-                    assert.equal($pageNum.val(), page, 'The current page is ' + page);
+                    assert.equal($pageNum.val(), page, `The current page is ${  page}`);
                     assert.equal($pageNum.is(':disabled'), true, 'The page number input is disabled');
                     assert.equal($pagePrev.is(':disabled'), true, 'The previous page button is disabled');
                     assert.equal($pageNext.is(':disabled'), true, 'The next page button is disabled');
@@ -218,7 +218,7 @@ define([
                     $pagePrev.click();
 
                     setTimeout(function() {
-                        assert.equal($pageNum.val(), page, 'The current page is ' + page);
+                        assert.equal($pageNum.val(), page, `The current page is ${  page}`);
                         assert.equal($pageNum.is(':disabled'), true, 'The page number input is disabled');
                         assert.equal($pagePrev.is(':disabled'), true, 'The previous page button is disabled');
                         assert.equal($pageNext.is(':disabled'), true, 'The next page button is disabled');
@@ -227,7 +227,7 @@ define([
                         $pageNum.change();
 
                         setTimeout(function() {
-                            assert.equal($pageNum.val(), page, 'The current page is ' + page);
+                            assert.equal($pageNum.val(), page, `The current page is ${  page}`);
                             assert.equal($pageNum.is(':disabled'), true, 'The page number input is disabled');
                             assert.equal($pagePrev.is(':disabled'), true, 'The previous page button is disabled');
                             assert.equal($pageNext.is(':disabled'), true, 'The next page button is disabled');
@@ -294,22 +294,22 @@ define([
                 assert.equal($pdfBar.length, 1, 'The PDF bar has been added');
                 assert.equal($pdfContainer.length, 1, 'The PDF panel has been added');
 
-                assert.equal($pageNum.val(), page, 'The current page is ' + page);
-                assert.equal(parseInt($pageCount.text(), 10), count, 'The page count is ' + count);
+                assert.equal($pageNum.val(), page, `The current page is ${  page}`);
+                assert.equal(parseInt($pageCount.text(), 10), count, `The page count is ${  count}`);
                 assert.equal($pagePrev.is(':disabled'), true, 'The previous page button is disabled');
 
                 $pageNext.click();
                 page++;
 
                 setTimeout(function() {
-                    assert.equal($pageNum.val(), page, 'The current page is ' + page);
+                    assert.equal($pageNum.val(), page, `The current page is ${  page}`);
                     assert.equal($pagePrev.is(':disabled'), false, 'The previous page button is enabled');
 
                     $pagePrev.click();
                     page--;
 
                     setTimeout(function() {
-                        assert.equal($pageNum.val(), page, 'The current page is ' + page);
+                        assert.equal($pageNum.val(), page, `The current page is ${  page}`);
                         assert.equal($pageNext.is(':disabled'), false, 'The next page button is enabled');
 
                         page = count;
@@ -317,14 +317,14 @@ define([
                         $pageNum.change();
 
                         setTimeout(function() {
-                            assert.equal($pageNum.val(), page, 'The current page is ' + page);
+                            assert.equal($pageNum.val(), page, `The current page is ${  page}`);
                             assert.equal($pageNext.is(':disabled'), true, 'The next page button is disabled');
 
                             keystroker.keystroke($pageNum, keystroker.keyCode.DOWN);
                             page--;
 
                             setTimeout(function() {
-                                assert.equal($pageNum.val(), page, 'The current page is ' + page);
+                                assert.equal($pageNum.val(), page, `The current page is ${  page}`);
                                 assert.equal($pagePrev.is(':disabled'), false, 'The previous page button is enabled');
                                 assert.equal($pageNext.is(':disabled'), false, 'The next page button is enabled');
 
@@ -332,7 +332,7 @@ define([
                                 page++;
 
                                 setTimeout(function() {
-                                    assert.equal($pageNum.val(), page, 'The current page is ' + page);
+                                    assert.equal($pageNum.val(), page, `The current page is ${  page}`);
                                     assert.equal(
                                         $pagePrev.is(':disabled'),
                                         false,

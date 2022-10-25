@@ -71,7 +71,7 @@ define([
         assert.equal(
             typeof instance[data.name],
             'function',
-            'The pdfViewer TextManager instance exposes a "' + data.name + '" function'
+            `The pdfViewer TextManager instance exposes a "${  data.name  }" function`
         );
 
         instance.destroy();

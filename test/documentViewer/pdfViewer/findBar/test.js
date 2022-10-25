@@ -103,7 +103,7 @@ define([
         assert.equal(
             typeof instance[data.name],
             'function',
-            'The pdfViewer FindBar instance exposes a "' + data.name + '" function'
+            `The pdfViewer FindBar instance exposes a "${  data.name  }" function`
         );
 
         instance.destroy();
@@ -794,7 +794,7 @@ define([
                             $('[data-control="pdf-search-position"]', $container)
                                 .text()
                                 .trim(),
-                            current.overall + '/' + expectedCount,
+                            `${current.overall  }/${  expectedCount}`,
                             'The position message is correctly set'
                         );
                         assert.equal(

@@ -85,7 +85,7 @@ define(['lodash', 'ui/documentViewer/viewerFactory', 'tpl!test/ui/documentViewer
         assert.equal(
             typeof instance[data.name],
             'function',
-            'The viewerFactory instance exposes a "' + data.name + '" function'
+            `The viewerFactory instance exposes a "${  data.name  }" function`
         );
     });
 

@@ -58,7 +58,7 @@ define(['jquery', 'lodash', 'ui/dynamicComponent'], function($, _, dynamicCompon
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The component instance exposes a "' + data.title + '" function'
+                `The component instance exposes a "${  data.title  }" function`
             );
         });
 

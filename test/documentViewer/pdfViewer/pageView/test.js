@@ -78,7 +78,7 @@ define([
         assert.equal(
             typeof instance[data.name],
             'function',
-            'The pdfViewer PageView instance exposes a "' + data.name + '" function'
+            `The pdfViewer PageView instance exposes a "${  data.name  }" function`
         );
 
         instance.destroy();
@@ -333,12 +333,12 @@ define([
         assert.equal(
             $container.width(),
             data.containerWidth,
-            'The container is ' + data.containerWidth + ' pixels width'
+            `The container is ${  data.containerWidth  } pixels width`
         );
         assert.equal(
             $container.height(),
             data.containerHeight,
-            'The container is ' + data.containerHeight + ' pixels height'
+            `The container is ${  data.containerHeight  } pixels height`
         );
 
         instance
@@ -349,45 +349,45 @@ define([
         assert.notEqual(
             instance.getElement().width(),
             data.expectedWidth,
-            'The page view is not ' + data.expectedWidth + ' pixels width'
+            `The page view is not ${  data.expectedWidth  } pixels width`
         );
         assert.notEqual(
             instance.getElement().height(),
             data.expectedHeight,
-            'The page view is not ' + data.expectedHeight + ' pixels height'
+            `The page view is not ${  data.expectedHeight  } pixels height`
         );
 
         assert.notEqual(
             instance.getDrawLayerElement().width(),
             data.expectedWidth,
-            'The draw layer is not ' + data.expectedWidth + ' pixels width'
+            `The draw layer is not ${  data.expectedWidth  } pixels width`
         );
         assert.notEqual(
             instance.getDrawLayerElement().height(),
             data.expectedHeight,
-            'The draw layer is not ' + data.expectedHeight + ' pixels height'
+            `The draw layer is not ${  data.expectedHeight  } pixels height`
         );
 
         assert.notEqual(
             instance.getTextLayerElement().width(),
             data.expectedWidth,
-            'The text layer is not ' + data.expectedWidth + ' pixels width'
+            `The text layer is not ${  data.expectedWidth  } pixels width`
         );
         assert.notEqual(
             instance.getTextLayerElement().height(),
             data.expectedHeight,
-            'The text layer is not ' + data.expectedHeight + ' pixels height'
+            `The text layer is not ${  data.expectedHeight  } pixels height`
         );
 
         assert.notEqual(
             instance.getCanvas().width,
             data.viewport.width,
-            'The canvas viewport is not ' + data.viewport.width + ' pixels width'
+            `The canvas viewport is not ${  data.viewport.width  } pixels width`
         );
         assert.notEqual(
             instance.getCanvas().height,
             data.viewport.height,
-            'The canvas viewport is not ' + data.viewport.height + ' pixels height'
+            `The canvas viewport is not ${  data.viewport.height  } pixels height`
         );
 
         assert.ok(!instance.isRendered(), 'The pdfViewer PageView instance is not rendered');
@@ -409,45 +409,45 @@ define([
                         assert.equal(
                             instance.getElement().width(),
                             data.expectedWidth,
-                            'The page view is now ' + data.expectedWidth + ' pixels width'
+                            `The page view is now ${  data.expectedWidth  } pixels width`
                         );
                         assert.equal(
                             instance.getElement().height(),
                             data.expectedHeight,
-                            'The page view is now ' + data.expectedHeight + ' pixels height'
+                            `The page view is now ${  data.expectedHeight  } pixels height`
                         );
 
                         assert.equal(
                             instance.getDrawLayerElement().width(),
                             data.expectedWidth,
-                            'The draw layer is now ' + data.expectedWidth + ' pixels width'
+                            `The draw layer is now ${  data.expectedWidth  } pixels width`
                         );
                         assert.equal(
                             instance.getDrawLayerElement().height(),
                             data.expectedHeight,
-                            'The draw layer is now ' + data.expectedHeight + ' pixels height'
+                            `The draw layer is now ${  data.expectedHeight  } pixels height`
                         );
 
                         assert.equal(
                             instance.getTextLayerElement().width(),
                             data.expectedWidth,
-                            'The text layer is now ' + data.expectedWidth + ' pixels width'
+                            `The text layer is now ${  data.expectedWidth  } pixels width`
                         );
                         assert.equal(
                             instance.getTextLayerElement().height(),
                             data.expectedHeight,
-                            'The text layer is now ' + data.expectedHeight + ' pixels height'
+                            `The text layer is now ${  data.expectedHeight  } pixels height`
                         );
 
                         assert.equal(
                             instance.getCanvas().width,
                             data.viewport.width,
-                            'The canvas viewport is now ' + data.viewport.width + ' pixels width'
+                            `The canvas viewport is now ${  data.viewport.width  } pixels width`
                         );
                         assert.equal(
                             instance.getCanvas().height,
                             data.viewport.height,
-                            'The canvas viewport is now ' + data.viewport.height + ' pixels height'
+                            `The canvas viewport is now ${  data.viewport.height  } pixels height`
                         );
 
                         instance.destroy();
@@ -479,12 +479,12 @@ define([
         assert.equal(
             $container.width(),
             data.containerWidth,
-            'The container is ' + data.containerWidth + ' pixels width'
+            `The container is ${  data.containerWidth  } pixels width`
         );
         assert.equal(
             $container.height(),
             data.containerHeight,
-            'The container is ' + data.containerHeight + ' pixels height'
+            `The container is ${  data.containerHeight  } pixels height`
         );
 
         instance
@@ -495,45 +495,45 @@ define([
         assert.notEqual(
             instance.getElement().width(),
             data.expectedWidth,
-            'The page view is not ' + data.expectedWidth + ' pixels width'
+            `The page view is not ${  data.expectedWidth  } pixels width`
         );
         assert.notEqual(
             instance.getElement().height(),
             data.expectedHeight,
-            'The page view is not ' + data.expectedHeight + ' pixels height'
+            `The page view is not ${  data.expectedHeight  } pixels height`
         );
 
         assert.notEqual(
             instance.getDrawLayerElement().width(),
             data.expectedWidth,
-            'The draw layer is not ' + data.expectedWidth + ' pixels width'
+            `The draw layer is not ${  data.expectedWidth  } pixels width`
         );
         assert.notEqual(
             instance.getDrawLayerElement().height(),
             data.expectedHeight,
-            'The draw layer is not ' + data.expectedHeight + ' pixels height'
+            `The draw layer is not ${  data.expectedHeight  } pixels height`
         );
 
         assert.notEqual(
             instance.getTextLayerElement().width(),
             data.expectedWidth,
-            'The text layer is not ' + data.expectedWidth + ' pixels width'
+            `The text layer is not ${  data.expectedWidth  } pixels width`
         );
         assert.notEqual(
             instance.getTextLayerElement().height(),
             data.expectedHeight,
-            'The text layer is not ' + data.expectedHeight + ' pixels height'
+            `The text layer is not ${  data.expectedHeight  } pixels height`
         );
 
         assert.notEqual(
             instance.getCanvas().width,
             data.viewport.width,
-            'The canvas viewport is not ' + data.viewport.width + ' pixels width'
+            `The canvas viewport is not ${  data.viewport.width  } pixels width`
         );
         assert.notEqual(
             instance.getCanvas().height,
             data.viewport.height,
-            'The canvas viewport is not ' + data.viewport.height + ' pixels height'
+            `The canvas viewport is not ${  data.viewport.height  } pixels height`
         );
 
         assert.ok(!instance.isRendered(), 'The pdfViewer PageView instance is not rendered');
@@ -560,45 +560,45 @@ define([
                         assert.equal(
                             instance.getElement().width(),
                             data.expectedWidth,
-                            'The page view is now ' + data.expectedWidth + ' pixels width'
+                            `The page view is now ${  data.expectedWidth  } pixels width`
                         );
                         assert.equal(
                             instance.getElement().height(),
                             data.expectedHeight,
-                            'The page view is now ' + data.expectedHeight + ' pixels height'
+                            `The page view is now ${  data.expectedHeight  } pixels height`
                         );
 
                         assert.equal(
                             instance.getDrawLayerElement().width(),
                             data.expectedWidth,
-                            'The draw layer is now ' + data.expectedWidth + ' pixels width'
+                            `The draw layer is now ${  data.expectedWidth  } pixels width`
                         );
                         assert.equal(
                             instance.getDrawLayerElement().height(),
                             data.expectedHeight,
-                            'The draw layer is now ' + data.expectedHeight + ' pixels height'
+                            `The draw layer is now ${  data.expectedHeight  } pixels height`
                         );
 
                         assert.equal(
                             instance.getTextLayerElement().width(),
                             data.expectedWidth,
-                            'The text layer is now ' + data.expectedWidth + ' pixels width'
+                            `The text layer is now ${  data.expectedWidth  } pixels width`
                         );
                         assert.equal(
                             instance.getTextLayerElement().height(),
                             data.expectedHeight,
-                            'The text layer is now ' + data.expectedHeight + ' pixels height'
+                            `The text layer is now ${  data.expectedHeight  } pixels height`
                         );
 
                         assert.equal(
                             instance.getCanvas().width,
                             data.viewport.width,
-                            'The canvas viewport is now ' + data.viewport.width + ' pixels width'
+                            `The canvas viewport is now ${  data.viewport.width  } pixels width`
                         );
                         assert.equal(
                             instance.getCanvas().height,
                             data.viewport.height,
-                            'The canvas viewport is now ' + data.viewport.height + ' pixels height'
+                            `The canvas viewport is now ${  data.viewport.height  } pixels height`
                         );
 
                         assert.notEqual(

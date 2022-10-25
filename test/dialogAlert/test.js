@@ -51,7 +51,7 @@ define(['ui/dialog/alert'], function(dialogAlert) {
         assert.equal(
             typeof instance[data.name],
             'function',
-            'The dialogAlert instance exposes a "' + data.title + '" function'
+            `The dialogAlert instance exposes a "${  data.title  }" function`
         );
         instance.destroy();
     });

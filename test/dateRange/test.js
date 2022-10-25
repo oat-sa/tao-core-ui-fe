@@ -50,7 +50,7 @@ define(['ui/dateRange/dateRange'], function(dateRangeFactory) {
             assert.equal(
                 typeof dateRangeFactory()[data.title],
                 'function',
-                'The range component exposes the component method "' + data.title
+                `The range component exposes the component method "${  data.title}`
             );
         });
 
@@ -61,7 +61,7 @@ define(['ui/dateRange/dateRange'], function(dateRangeFactory) {
             assert.equal(
                 typeof dateRangeFactory()[data.title],
                 'function',
-                'The range component exposes the eventifier method "' + data.title
+                `The range component exposes the eventifier method "${  data.title}`
             );
         });
 
@@ -72,7 +72,7 @@ define(['ui/dateRange/dateRange'], function(dateRangeFactory) {
             assert.equal(
                 typeof dateRangeFactory()[data.title],
                 'function',
-                'The range component exposes the method "' + data.title
+                `The range component exposes the method "${  data.title}`
             );
         });
 
@@ -326,10 +326,10 @@ define(['ui/dateRange/dateRange'], function(dateRangeFactory) {
                 $outputChange.val('reset');
             })
             .on('submit', function (start, end) {
-                $outputChange.val('Submitted values:\n- start: ' + start + '\n- end: ' + end);
+                $outputChange.val(`Submitted values:\n- start: ${  start  }\n- end: ${  end}`);
             })
             .on('change', function (name, value) {
-                $outputChange.val('value of [' + name + '] changed to "' + value + '"\n' + $outputChange.val());
+                $outputChange.val(`value of [${  name  }] changed to "${  value  }"\n${  $outputChange.val()}`);
             })
             .on('error', function (err) {
                 assert.ok(false, 'The operation should not fail!');
