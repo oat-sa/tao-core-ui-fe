@@ -79,12 +79,13 @@ function highlighterFactory(options) {
      * @param {object} options - options
      * @returns {object} - highlighter implementation
      */
-    function getProvider(options) {
-        if (!highlighterFactory.providers[options.type]) {
-            throw new TypeError('Provider ' + name + ' is not registered.');
+    function getProvider(providerOptions) {
+        const requiredProvider = highlighterFactory.providers[providerOptions.type];
+        if (!requiredProvider) {
+            throw new TypeError(`Provider ${requiredProvider} is not registered.`);
         }
 
-        return highlighterFactory.providers[options.type](options);
+        return requiredProvider(providerOptions);
     }
 
     return highlighter.init();
@@ -92,7 +93,7 @@ function highlighterFactory(options) {
 
 highlighterFactory.providers = {};
 
-highlighterFactory.register = function(name, provider) {
+highlighterFactory.register = function (name, provider) {
     highlighterFactory.providers[name] = provider;
 };
 
