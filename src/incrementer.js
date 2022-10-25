@@ -44,13 +44,11 @@ var Incrementer = {
      * @param {Number} [options.zero] - whether input can take zero value even in min value more than zero
      * @returns {jQueryElement} for chaining
      */
-    init: function(options) {
-        var self = Incrementer;
-
+    init: function (options) {
         //get options using default
         options = _.defaults(options || {}, defaults);
 
-        return this.each(function() {
+        return this.each(function () {
             var $elt = $(this);
             var wrapper = $('<span>', { class: options.incrementerWrapperClass });
             var $ctrl, currentValue;
@@ -67,24 +65,24 @@ var Incrementer = {
                         .after(
                             //set up controls
                             '<span class="ctrl ' +
-                            options.incrementerCtrlClass +
-                            '">' +
-                            '<a href="#" class="inc" title="+' +
-                            options.step +
-                            '" tabindex="-1"></a>' +
-                            '<a href="#" class="dec" title="-' +
-                            options.step +
-                            '" tabindex="-1"></a>' +
-                            '</span>'
+                                options.incrementerCtrlClass +
+                                '">' +
+                                '<a href="#" class="inc" title="+' +
+                                options.step +
+                                '" tabindex="-1"></a>' +
+                                '<a href="#" class="dec" title="-' +
+                                options.step +
+                                '" tabindex="-1"></a>' +
+                                '</span>'
                         )
-                        .on('keydown', function(e) {
+                        .on('keydown', function (e) {
                             if (e.which === 38) {
                                 //up
-                                self._inc($elt);
+                                Incrementer._inc($elt);
                                 this.select();
                             } else if (e.which === 40) {
                                 //down
-                                self._dec($elt);
+                                Incrementer._dec($elt);
                                 this.select();
                             }
                         })
@@ -92,13 +90,13 @@ var Incrementer = {
                         //(for instance, while taping an negative value)
                         .on(
                             'keyup',
-                            _.debounce(function() {
-                                var value = $elt.val(),
-                                    negative = value.charAt(0) === '-',
-                                    options = $elt.data(dataNs);
+                            _.debounce(function () {
+                                let value = $elt.val();
+                                const negative = value.charAt(0) === '-';
+                                const dataOptions = $elt.data(dataNs);
 
                                 //sanitize the string by removing all invalid characters (only allow digit and dot)
-                                value = parseFloat(value.replace(/[^\d\.]/g, ''));
+                                value = parseFloat(value.replace(/[^\d.]/g, ''));
 
                                 if (isNaN(value)) {
                                     //allow empty input
@@ -109,19 +107,22 @@ var Incrementer = {
 
                                     //check if the min and max are respected:
                                     if (
-                                        options.min === null ||
-                                        (_.isNumber(options.min) && value >= options.min) ||
-                                        (options.zero === true && value === 0)
+                                        dataOptions.min === null ||
+                                        (_.isNumber(dataOptions.min) && value >= dataOptions.min) ||
+                                        (dataOptions.zero === true && value === 0)
                                     ) {
                                         $elt.val(value);
                                     } else {
-                                        $elt.val(options.min);
-                                        value = options.min;
+                                        $elt.val(dataOptions.min);
+                                        value = dataOptions.min;
                                     }
-                                    if (options.max === null || (_.isNumber(options.max) && value <= options.max)) {
+                                    if (
+                                        dataOptions.max === null ||
+                                        (_.isNumber(dataOptions.max) && value <= dataOptions.max)
+                                    ) {
                                         $elt.val(value);
                                     } else {
-                                        $elt.val(options.max);
+                                        $elt.val(dataOptions.max);
                                     }
                                 }
 
@@ -129,22 +130,16 @@ var Incrementer = {
                                 $elt.trigger('change');
                             }, 600)
                         )
-                        .on('focus', function() {
+                        .on('focus', function () {
                             this.select();
                         })
-                        .on('disable.incrementer', function() {
+                        .on('disable.incrementer', function () {
                             $elt.prop('disabled', true).addClass('disabled');
-                            $ctrl
-                                .find('.inc,.dec')
-                                .prop('disabled', true)
-                                .addClass('disabled');
+                            $ctrl.find('.inc,.dec').prop('disabled', true).addClass('disabled');
                         })
-                        .on('enable.incrementer', function() {
+                        .on('enable.incrementer', function () {
                             $elt.prop('disabled', false).removeClass('disabled');
-                            $ctrl
-                                .find('.inc,.dec')
-                                .removeProp('disabled')
-                                .removeClass('disabled');
+                            $ctrl.find('.inc,.dec').removeProp('disabled').removeClass('disabled');
                         });
 
                     //set up the default value if needed
@@ -158,16 +153,16 @@ var Incrementer = {
 
                     $ctrl = $elt.next('.' + options.incrementerCtrlClass);
 
-                    $ctrl.find('.inc').click(function(e) {
+                    $ctrl.find('.inc').click(function (e) {
                         e.preventDefault();
                         if (!$(this).prop('disabled')) {
-                            self._inc($elt);
+                            Incrementer._inc($elt);
                         }
                     });
-                    $ctrl.find('.dec').click(function(e) {
+                    $ctrl.find('.dec').click(function (e) {
                         e.preventDefault();
                         if (!$(this).prop('disabled')) {
-                            self._dec($elt);
+                            Incrementer._dec($elt);
                         }
                     });
 
@@ -181,12 +176,12 @@ var Incrementer = {
         });
     },
 
-    _toFixedDown: function(number, precision) {
+    _toFixedDown: function (number, precision) {
         var m = Math.pow(10, precision || 0);
         return Math.floor(number * m) / m;
     },
 
-    _decimalPlaces: function(number) {
+    _decimalPlaces: function (number) {
         var match = ('' + number).match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
         if (!match) {
             return 0;
@@ -201,7 +196,7 @@ var Incrementer = {
      * @param {jQueryElement} $elt - plugin's element
      * @fires Incrementer#plus.incrementer
      */
-    _inc: function($elt) {
+    _inc: function ($elt) {
         var options = $elt.data(dataNs),
             current = parseFloat($elt.val() || 0),
             value;
@@ -228,7 +223,7 @@ var Incrementer = {
      * @param {jQueryElement} $elt - plugin's element
      * @fires Incrementer#minus.incrementer
      */
-    _dec: function($elt) {
+    _dec: function ($elt) {
         var options = $elt.data(dataNs),
             current = parseFloat($elt.val() || 0),
             value;
@@ -260,8 +255,8 @@ var Incrementer = {
      * @example $('selector').incrementer('destroy');
      * @public
      */
-    destroy: function() {
-        this.each(function() {
+    destroy: function () {
+        this.each(function () {
             var $elt = $(this);
             var options = $elt.data(dataNs);
             $elt.off('keyup keydown')
@@ -288,7 +283,7 @@ Pluginifier.register(ns, Incrementer);
  * @param {jQueryElement} $container - the root context to listen in
  */
 export default function listenDataAttr($container) {
-    $container.find('[data-increment]').each(function() {
+    $container.find('[data-increment]').each(function () {
         var $elt = $(this);
         var decimal = Incrementer._decimalPlaces($elt.attr('data-increment'));
         var step = parseFloat($elt.attr('data-increment'));
