@@ -93,7 +93,6 @@ define(['lodash', 'core/eventifier'], function (_, eventifier) {
 
     /**
      * Fakes a PDF.js document object
-     * @param {String} uri
      * @returns {Object}
      */
     function pdfDocumentFactory() {
