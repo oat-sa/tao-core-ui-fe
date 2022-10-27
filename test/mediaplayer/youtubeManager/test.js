@@ -49,7 +49,7 @@ define(['ui/mediaplayer/youtubeManager'], function (youtubeManager) {
         },
         afterEach() {
             window.require = requireOrigin;
-            window.YT = undefined;
+            window.YT = void 0;
         }
     });
 
@@ -238,7 +238,7 @@ define(['ui/mediaplayer/youtubeManager'], function (youtubeManager) {
         Promise.all(
             players.map(
                 data =>
-                    new Promise(resolve => {
+                    new Promise((resolve, reject) => {
                         const fixture = document.getElementById(data.fixture);
                         const timeout = setTimeout(() => {
                             assert.ok(true, 'The player should have been removed');
