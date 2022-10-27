@@ -70,7 +70,7 @@ define(['jquery', 'ui/progressbar'], function ($) {
     QUnit.test('update', function (assert) {
         const ready = assert.async();
         const $elt = $(`#${containerId}`);
-        
+
         assert.expect(3);
 
         assert.ok($elt.length === 1, 'Test the fixture is available');
@@ -88,7 +88,7 @@ define(['jquery', 'ui/progressbar'], function ($) {
     QUnit.test('set value', function (assert) {
         const ready = assert.async();
         const $elt = $(`#${containerId}`);
-        
+
         assert.expect(3);
 
         assert.ok($elt.length === 1, 'Test the fixture is available');
@@ -106,7 +106,7 @@ define(['jquery', 'ui/progressbar'], function ($) {
     QUnit.test('get value', function (assert) {
         const ready = assert.async();
         const $elt = $(`#${containerId}`);
-        
+
         assert.expect(2);
 
         assert.ok($elt.length === 1, 'Test the fixture is available');
@@ -128,7 +128,6 @@ define(['jquery', 'ui/progressbar'], function ($) {
 
         assert.ok($elt.length === 1, 'Test the fixture is available');
 
-/**
         $elt.on('update.progressbar', function () {
             assert.equal($elt.find('span').text(), '38%', 'the sub element contains the progress text');
 
