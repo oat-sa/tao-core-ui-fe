@@ -26,12 +26,12 @@ define([
     'ui/resource/list',
     'json!test/ui/resource/list/nodes.json',
     'css!ui/resource/css/selector'
-], function($, resourceListFactory, nodesData) {
+], function ($, resourceListFactory, nodesData) {
     'use strict';
 
     QUnit.module('API');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.expect(3);
 
         assert.equal(typeof resourceListFactory, 'function', 'The resourceListFactory module exposes a function');
@@ -59,34 +59,34 @@ define([
             { title: 'getTemplate' },
             { title: 'setTemplate' }
         ])
-        .test('Component API ', function(data, assert) {
+        .test('Component API ', function (data, assert) {
             var instance = resourceListFactory();
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The resourceList exposes the component method "' + data.title
+                `The resourceList exposes the component method "${data.title}"`
             );
         });
 
     QUnit.cases
         .init([{ title: 'on' }, { title: 'off' }, { title: 'trigger' }, { title: 'before' }, { title: 'after' }])
-        .test('Eventifier API ', function(data, assert) {
+        .test('Eventifier API ', function (data, assert) {
             var instance = resourceListFactory();
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The resourceList exposes the eventifier method "' + data.title
+                `The resourceList exposes the eventifier method "${data.title}"`
             );
         });
 
-    QUnit.cases.init([{ title: 'query' }, { title: 'update' }]).test('Instance API ', function(data, assert) {
+    QUnit.cases.init([{ title: 'query' }, { title: 'update' }]).test('Instance API ', function (data, assert) {
         var instance = resourceListFactory();
-        assert.equal(typeof instance[data.title], 'function', 'The resourceList exposes the method "' + data.title);
+        assert.equal(typeof instance[data.title], 'function', `The resourceList exposes the method "${data.title}"`);
     });
 
     QUnit.module('Behavior');
 
-    QUnit.test('Lifecycle', function(assert) {
+    QUnit.test('Lifecycle', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -96,20 +96,20 @@ define([
             classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
             nodes: nodesData
         })
-            .on('init', function() {
+            .on('init', function () {
                 assert.ok(!this.is('rendered'), 'The component is not yet rendered');
             })
-            .on('render', function() {
+            .on('render', function () {
                 assert.ok(this.is('rendered'), 'The component is now rendered');
 
                 this.destroy();
             })
-            .on('destroy', function() {
+            .on('destroy', function () {
                 ready();
             });
     });
 
-    QUnit.test('Rendering', function(assert) {
+    QUnit.test('Rendering', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -120,7 +120,7 @@ define([
         resourceListFactory($container, {
             classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
             nodes: nodesData
-        }).on('render', function() {
+        }).on('render', function () {
             var $element = this.getElement();
 
             assert.equal($('.resource-list', $container).length, 1, 'The component has been inserted');
@@ -133,9 +133,7 @@ define([
                 'The 1st list item has the correct URI'
             );
             assert.equal(
-                $('li:first-child', $element)
-                    .text()
-                    .trim(),
+                $('li:first-child', $element).text().trim(),
                 'Maths test 1',
                 'The 1st list item has the correct text content'
             );
@@ -145,9 +143,7 @@ define([
                 'The last list item has the correct URI'
             );
             assert.equal(
-                $('li:last-child', $element)
-                    .text()
-                    .trim(),
+                $('li:last-child', $element).text().trim(),
                 'Demo item 1',
                 'The last list item has the correct text content'
             );
@@ -159,7 +155,7 @@ define([
         });
     });
 
-    QUnit.test('query/update', function(assert) {
+    QUnit.test('query/update', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -168,7 +164,7 @@ define([
         resourceListFactory($container, {
             classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
         })
-            .on('query', function(params) {
+            .on('query', function (params) {
                 assert.equal(
                     params.classUri,
                     'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
@@ -178,16 +174,20 @@ define([
 
                 this.update(nodesData, params);
             })
-            .on('update', function() {
-                assert.equal($('li', this.getElement()).length, 25, 'The list has been updated with the proper amount of nodes');
+            .on('update', function () {
+                assert.equal(
+                    $('li', this.getElement()).length,
+                    25,
+                    'The list has been updated with the proper amount of nodes'
+                );
             })
-            .on('render', function(params) {
+            .on('render', function (params) {
                 this.update(nodesData, params);
                 ready();
             });
     });
 
-    QUnit.test('select nodes', function(assert) {
+    QUnit.test('select nodes', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -196,7 +196,7 @@ define([
         resourceListFactory($container, {
             classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
             nodes: nodesData
-        }).on('render', function() {
+        }).on('render', function () {
             var selection = this.getSelection();
             var $node1 = $('[data-uri="http://bertao/tao.rdf#i14918988138981105"]', this.getElement());
             var $node2 = $('[data-uri="http://bertao/tao.rdf#i14918988538969120"]', this.getElement());
@@ -239,7 +239,7 @@ define([
         });
     });
 
-    QUnit.test('unique selection', function(assert) {
+    QUnit.test('unique selection', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -249,7 +249,7 @@ define([
             classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
             nodes: nodesData,
             multiple: false
-        }).on('render', function() {
+        }).on('render', function () {
             var selection = this.getSelection();
             var $node1 = $('[data-uri="http://bertao/tao.rdf#i14918988138981105"]', this.getElement());
             var $node2 = $('[data-uri="http://bertao/tao.rdf#i14918988538969120"]', this.getElement());
@@ -310,7 +310,7 @@ define([
 
     QUnit.module('Visual');
 
-    QUnit.test('playground', function(assert) {
+    QUnit.test('playground', function (assert) {
         const ready = assert.async();
 
         const container = document.getElementById('resource-selector');
@@ -323,9 +323,9 @@ define([
 
         assert.expect(1);
 
-        resourceListFactory(container, config).on('render', function() {
+        resourceListFactory(container, config).on('render', function () {
             const $selector = $('#resource-selector');
-            $selector.css({'opacity': 1});
+            $selector.css({ opacity: 1 });
             assert.ok(true);
             ready();
         });
