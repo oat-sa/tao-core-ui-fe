@@ -15,12 +15,7 @@
  *
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
  */
-define([
-    'jquery',
-    'lodash',
-    'ui/keyNavigation/navigableDomElement',
-    'lib/simulator/jquery.simulate'
-], function (
+define(['jquery', 'lodash', 'ui/keyNavigation/navigableDomElement', 'lib/simulator/jquery.simulate'], function (
     $,
     _,
     navigableDomElement
@@ -41,12 +36,10 @@ define([
                 reject();
             }, 50);
 
-            instance
-                .off('.test')
-                .on(event + '.test', function () {
-                    window.clearTimeout(fail);
-                    resolve(arguments);
-                });
+            instance.off('.test').on(event + '.test', function () {
+                window.clearTimeout(fail);
+                resolve(arguments);
+            });
         });
     }
 
@@ -57,36 +50,43 @@ define([
         assert.equal(typeof navigableDomElement, 'function', 'The module exposes a function');
         assert.equal(typeof navigableDomElement(), 'object', 'The factory creates an object');
         assert.notDeepEqual(navigableDomElement(), navigableDomElement(), 'The factory creates new objects');
-        assert.equal(typeof navigableDomElement.createFromDoms, 'function', 'The factory exposes the function createFromDoms');
-        assert.equal(typeof navigableDomElement.isNavigableElement, 'function', 'The factory exposes the function isNavigableElement');
+        assert.equal(
+            typeof navigableDomElement.createFromDoms,
+            'function',
+            'The factory exposes the function createFromDoms'
+        );
+        assert.equal(
+            typeof navigableDomElement.isNavigableElement,
+            'function',
+            'The factory exposes the function isNavigableElement'
+        );
     });
 
-    QUnit.cases.init([
-        {title: 'on'},
-        {title: 'off'},
-        {title: 'trigger'},
-        {title: 'spread'}
-    ]).test('event API ', function (data, assert) {
-        var instance = navigableDomElement();
-        assert.expect(1);
-        assert.equal(typeof instance[data.title], 'function', 'The navigator exposes a "' + data.title + '" function');
-    });
+    QUnit.cases
+        .init([{ title: 'on' }, { title: 'off' }, { title: 'trigger' }, { title: 'spread' }])
+        .test('event API ', function (data, assert) {
+            var instance = navigableDomElement();
+            assert.expect(1);
+            assert.equal(typeof instance[data.title], 'function', `The navigator exposes a "${data.title}" function`);
+        });
 
-    QUnit.cases.init([
-        {title: 'init'},
-        {title: 'destroy'},
-        {title: 'getType'},
-        {title: 'getElement'},
-        {title: 'isVisible'},
-        {title: 'isEnabled'},
-        {title: 'isFocused'},
-        {title: 'blur'},
-        {title: 'focus'}
-    ]).test('component API ', function (data, assert) {
-        var instance = navigableDomElement();
-        assert.expect(1);
-        assert.equal(typeof instance[data.title], 'function', 'The navigator exposes a "' + data.title + '" function');
-    });
+    QUnit.cases
+        .init([
+            { title: 'init' },
+            { title: 'destroy' },
+            { title: 'getType' },
+            { title: 'getElement' },
+            { title: 'isVisible' },
+            { title: 'isEnabled' },
+            { title: 'isFocused' },
+            { title: 'blur' },
+            { title: 'focus' }
+        ])
+        .test('component API ', function (data, assert) {
+            var instance = navigableDomElement();
+            assert.expect(1);
+            assert.equal(typeof instance[data.title], 'function', `The navigator exposes a "${data.title}" function`);
+        });
 
     QUnit.test('init parameter / getElement', function (assert) {
         var expected = document.querySelector(fixtureSelector);
@@ -95,16 +95,29 @@ define([
         assert.expect(7);
 
         instance = navigableDomElement(expected);
-        assert.ok(instance.getElement() instanceof $, 'Element: The instance has a jQuery selection for the represented element');
+        assert.ok(
+            instance.getElement() instanceof $,
+            'Element: The instance has a jQuery selection for the represented element'
+        );
         assert.equal(instance.getElement().get(0), expected, 'Element: The instance has selected the right element');
         assert.equal(instance.getType(), 'element', 'This is a navigable element');
 
         instance = navigableDomElement(fixtureSelector);
-        assert.ok(instance.getElement() instanceof $, 'CSS Selector: The instance has a jQuery selection for the represented element');
-        assert.equal(instance.getElement().get(0), expected, 'CSS Selector: The instance has selected the right element');
+        assert.ok(
+            instance.getElement() instanceof $,
+            'CSS Selector: The instance has a jQuery selection for the represented element'
+        );
+        assert.equal(
+            instance.getElement().get(0),
+            expected,
+            'CSS Selector: The instance has selected the right element'
+        );
 
         instance = navigableDomElement($(fixtureSelector));
-        assert.ok(instance.getElement() instanceof $, 'jQuery: The instance has a jQuery selection for the represented element');
+        assert.ok(
+            instance.getElement() instanceof $,
+            'jQuery: The instance has a jQuery selection for the represented element'
+        );
         assert.equal(instance.getElement().get(0), expected, 'jQuery: The instance has selected the right element');
     });
 
@@ -115,15 +128,19 @@ define([
         assert.expect(10);
 
         assert.equal(fixture.className, 'test-element', 'The fixture has the initial CSS class');
-        assert.equal(fixture.getAttribute('tabindex'), undefined, 'The fixture doesn\'t have a tabindex');
+        assert.equal(fixture.getAttribute('tabindex'), undefined, "The fixture doesn't have a tabindex");
 
         assert.equal(instance.init(), instance, 'The init method is fluent');
-        assert.equal(fixture.classList.contains('key-navigation-highlight'), true, 'The fixture got the navigable CSS class');
+        assert.equal(
+            fixture.classList.contains('key-navigation-highlight'),
+            true,
+            'The fixture got the navigable CSS class'
+        );
         assert.equal(fixture.getAttribute('tabindex'), '-1', 'The fixture now has a disabled tabindex');
 
         assert.equal(instance.destroy(), instance, 'The destroy method is fluent');
         assert.equal(fixture.className, 'test-element', 'The fixture has the initial CSS class');
-        assert.equal(fixture.getAttribute('tabindex'), undefined, 'The fixture doesn\'t have a tabindex');
+        assert.equal(fixture.getAttribute('tabindex'), undefined, "The fixture doesn't have a tabindex");
 
         assert.throws(function () {
             navigableDomElement().init();
@@ -279,23 +296,23 @@ define([
 
         function promisePropagateTab(shiftKey) {
             return promiseEvent($(container), 'keydown')
-                .then(function(args) {
+                .then(function (args) {
                     assert.equal(args[0].keyCode, 9, 'The TAB key has been forwarded!');
                     assert.equal(args[0].shiftKey, shiftKey, 'The Shift key has been forwarded!');
                 })
-                .catch(function() {
+                .catch(function () {
                     assert.ok(false, 'The TAB key has not been forwarded!');
-                })
+                });
         }
 
         function promiseNotPropagateTab() {
             return promiseEvent($(container), 'keydown')
-                .then(function() {
+                .then(function () {
                     assert.ok(false, 'The TAB key has been forwarded while it should not!');
                 })
-                .catch(function() {
+                .catch(function () {
                     assert.ok(true, 'The TAB key has not been forwarded!');
-                })
+                });
         }
 
         assert.expect(44);
@@ -306,7 +323,7 @@ define([
                     document.activeElement.blur();
                 }
 
-                instance.init({propagateTab: true});
+                instance.init({ propagateTab: true });
 
                 assert.equal(document.activeElement, document.body, 'No element in focus');
                 assert.equal(instance.isFocused(), false, 'The element is not focused');
@@ -317,22 +334,16 @@ define([
                 assert.equal(instance.isFocused(), true, 'The element is focused');
             })
             .then(function () {
-                var p = Promise.all([
-                    promiseKeyboard('tab', inner),
-                    promisePropagateTab(false),
-                ]);
+                var p = Promise.all([promiseKeyboard('tab', inner), promisePropagateTab(false)]);
 
-                $(inner).simulate('keydown', {keyCode: 9}); //Tab
+                $(inner).simulate('keydown', { keyCode: 9 }); //Tab
 
                 return p;
             })
             .then(function () {
-                var p = Promise.all([
-                    promiseKeyboard('shift+tab', inner),
-                    promisePropagateTab(true)
-                ]);
+                var p = Promise.all([promiseKeyboard('shift+tab', inner), promisePropagateTab(true)]);
 
-                $(inner).simulate('keydown', {keyCode: 9, shiftKey: true}); //Shift+Tab
+                $(inner).simulate('keydown', { keyCode: 9, shiftKey: true }); //Shift+Tab
 
                 return p;
             })
@@ -342,7 +353,7 @@ define([
                 }
 
                 instance.destroy();
-                instance.init({propagateTab: false});
+                instance.init({ propagateTab: false });
 
                 assert.equal(document.activeElement, document.body, 'No element in focus');
                 assert.equal(instance.isFocused(), false, 'The element is not focused');
@@ -353,22 +364,16 @@ define([
                 assert.equal(instance.isFocused(), true, 'The element is focused');
             })
             .then(function () {
-                var p = Promise.all([
-                    promiseKeyboard('tab', inner),
-                    promiseNotPropagateTab()
-                ]);
+                var p = Promise.all([promiseKeyboard('tab', inner), promiseNotPropagateTab()]);
 
-                $(inner).simulate('keydown', {keyCode: 9}); //Tab
+                $(inner).simulate('keydown', { keyCode: 9 }); //Tab
 
                 return p;
             })
             .then(function () {
-                var p = Promise.all([
-                    promiseKeyboard('shift+tab', inner),
-                    promiseNotPropagateTab()
-                ]);
+                var p = Promise.all([promiseKeyboard('shift+tab', inner), promiseNotPropagateTab()]);
 
-                $(inner).simulate('keydown', {keyCode: 9, shiftKey: true}); //Shift+Tab
+                $(inner).simulate('keydown', { keyCode: 9, shiftKey: true }); //Shift+Tab
 
                 return p;
             })
@@ -376,42 +381,42 @@ define([
                 var p = promiseKeyboard('left', inner);
 
                 $(container).off('.test');
-                $(inner).simulate('keydown', {keyCode: 37}); //Left
+                $(inner).simulate('keydown', { keyCode: 37 }); //Left
 
                 return p;
             })
             .then(function () {
                 var p = promiseKeyboard('up', inner);
 
-                $(inner).simulate('keydown', {keyCode: 38}); //Up
+                $(inner).simulate('keydown', { keyCode: 38 }); //Up
 
                 return p;
             })
             .then(function () {
                 var p = promiseKeyboard('right', inner);
 
-                $(inner).simulate('keydown', {keyCode: 39}); //Right
+                $(inner).simulate('keydown', { keyCode: 39 }); //Right
 
                 return p;
             })
             .then(function () {
                 var p = promiseKeyboard('down', inner);
 
-                $(inner).simulate('keydown', {keyCode: 40}); //Down
+                $(inner).simulate('keydown', { keyCode: 40 }); //Down
 
                 return p;
             })
             .then(function () {
                 var p = promiseKeyboard('space', inner);
 
-                $(inner).simulate('keyup', {keyCode: 32}); //Space
+                $(inner).simulate('keyup', { keyCode: 32 }); //Space
 
                 return p;
             })
             .then(function () {
                 var p = promiseKeyboard('enter', inner);
 
-                $(inner).simulate('keydown', {keyCode: 13}); //Enter
+                $(inner).simulate('keydown', { keyCode: 13 }); //Enter
 
                 return p;
             })
@@ -475,56 +480,56 @@ define([
             .then(function () {
                 var p = promiseKeyboard('tab', fixture);
 
-                $(fixture).simulate('keydown', {keyCode: 9}); //Tab
+                $(fixture).simulate('keydown', { keyCode: 9 }); //Tab
 
                 return p;
             })
             .then(function () {
                 var p = promiseKeyboard('shift+tab', fixture);
 
-                $(fixture).simulate('keydown', {keyCode: 9, shiftKey: true}); //Shift+Tab
+                $(fixture).simulate('keydown', { keyCode: 9, shiftKey: true }); //Shift+Tab
 
                 return p;
             })
             .then(function () {
                 var p = promisePrevented();
 
-                $(fixture).simulate('keydown', {keyCode: 37}); //Left
+                $(fixture).simulate('keydown', { keyCode: 37 }); //Left
 
                 return p;
             })
             .then(function () {
                 var p = promisePrevented();
 
-                $(fixture).simulate('keydown', {keyCode: 38}); //Up
+                $(fixture).simulate('keydown', { keyCode: 38 }); //Up
 
                 return p;
             })
             .then(function () {
                 var p = promisePrevented();
 
-                $(fixture).simulate('keydown', {keyCode: 39}); //Right
+                $(fixture).simulate('keydown', { keyCode: 39 }); //Right
 
                 return p;
             })
             .then(function () {
                 var p = promisePrevented();
 
-                $(fixture).simulate('keydown', {keyCode: 40}); //Down
+                $(fixture).simulate('keydown', { keyCode: 40 }); //Down
 
                 return p;
             })
             .then(function () {
                 var p = promisePrevented();
 
-                $(document.activeElement).simulate('keyup', {keyCode: 32}); //Space
+                $(document.activeElement).simulate('keyup', { keyCode: 32 }); //Space
 
                 return p;
             })
             .then(function () {
                 var p = promisePrevented();
 
-                $(fixture).simulate('keydown', {keyCode: 13}); //Enter
+                $(fixture).simulate('keydown', { keyCode: 13 }); //Enter
 
                 return p;
             })
@@ -540,30 +545,36 @@ define([
             .then(ready);
     });
 
-    QUnit.cases.init([
-        {
-            title: 'jQuery',
-            fixtures: $('#qunit-fixture [data-fixture]')
-        },
-        {
-            title: 'Elements',
-            fixtures: document.querySelectorAll('#qunit-fixture [data-fixture]')
-        }
-    ]).test('createFromDoms ', function (data, assert) {
-        var instances = navigableDomElement.createFromDoms(data.fixtures);
+    QUnit.cases
+        .init([
+            {
+                title: 'jQuery',
+                fixtures: $('#qunit-fixture [data-fixture]')
+            },
+            {
+                title: 'Elements',
+                fixtures: document.querySelectorAll('#qunit-fixture [data-fixture]')
+            }
+        ])
+        .test('createFromDoms ', function (data, assert) {
+            var instances = navigableDomElement.createFromDoms(data.fixtures);
 
-        assert.expect(4 + data.fixtures.length);
+            assert.expect(4 + data.fixtures.length);
 
-        assert.deepEqual(navigableDomElement.createFromDoms(), [], 'No list, no instances');
-        assert.deepEqual(navigableDomElement.createFromDoms([]), [], 'Empty list, no instances');
-        assert.deepEqual(navigableDomElement.createFromDoms($()), [], 'Empty collection, no instances');
+            assert.deepEqual(navigableDomElement.createFromDoms(), [], 'No list, no instances');
+            assert.deepEqual(navigableDomElement.createFromDoms([]), [], 'Empty list, no instances');
+            assert.deepEqual(navigableDomElement.createFromDoms($()), [], 'Empty collection, no instances');
 
-        assert.equal(instances.length, data.fixtures.length, 'The expected number of instances has been created');
+            assert.equal(instances.length, data.fixtures.length, 'The expected number of instances has been created');
 
-        instances.forEach(function (instance, i) {
-            assert.equal(instance.getElement().is(data.fixtures[i]), true, 'The instance relates to the expected element');
+            instances.forEach(function (instance, i) {
+                assert.equal(
+                    instance.getElement().is(data.fixtures[i]),
+                    true,
+                    'The instance relates to the expected element'
+                );
+            });
         });
-    });
 
     QUnit.test('isNavigableElement', function (assert) {
         var fixture = document.querySelector(fixtureSelector);
@@ -576,7 +587,10 @@ define([
         assert.equal(navigableDomElement.isNavigableElement({}), false, 'An empty object is not a navigable element');
 
         instance.focus = null;
-        assert.equal(navigableDomElement.isNavigableElement(instance), false, 'The instance is not a navigable element if it misses API');
+        assert.equal(
+            navigableDomElement.isNavigableElement(instance),
+            false,
+            'The instance is not a navigable element if it misses API'
+        );
     });
-
 });
