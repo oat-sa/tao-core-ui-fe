@@ -16,7 +16,7 @@
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
  */
 
-define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget/textBox/textBox'], function(
+define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget/textBox/textBox'], function (
     $,
     _,
     generisValidatorFactory,
@@ -43,7 +43,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
     var validations = {
         beginWithAlpha: {
             message: 'Must begin with an alpha character or _ and contain only alphanumeric, _, -, and + characters',
-            predicate: /^[a-zA-Z_]+[a-zA-Z\d_+\-]/
+            predicate: /^[a-zA-Z_]+[a-zA-Z\d_+-]/
         },
         threeLetters: {
             message: 'Must contain at least nine letters',
@@ -56,7 +56,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
      */
     QUnit.module('Api');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.equal(typeof generisWidgetTextBoxFactory, 'function', 'The module exposes a function');
         assert.equal(typeof generisWidgetTextBoxFactory({}, {}), 'object', 'The factory produces an object');
         assert.notStrictEqual(
@@ -75,12 +75,12 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
             { name: 'validate', title: 'validate', type: 'function' },
             { name: 'serialize', title: 'serialize', type: 'function' }
         ])
-        .test('instance', function(data, assert) {
+        .test('instance', function (data, assert) {
             var instance = generisWidgetTextBoxFactory({}, {});
             assert.equal(
                 typeof instance[data.name],
                 data.type,
-                'The instance exposes a(n) "' + data.title + '" ' + data.type
+                `The instance exposes a(n) "${data.title}" ${data.type}`
             );
         });
 
@@ -89,7 +89,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
      */
     QUnit.module('Methods');
 
-    QUnit.test('get', function(assert) {
+    QUnit.test('get', function (assert) {
         var widget = generisWidgetTextBoxFactory(
             {},
             {
@@ -101,7 +101,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
         assert.equal(widget.get(), 'foobar', 'returns correct value');
     });
 
-    QUnit.test('set', function(assert) {
+    QUnit.test('set', function (assert) {
         var widget = generisWidgetTextBoxFactory(
             {},
             {
@@ -114,7 +114,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
         assert.equal(widget.get(), 'baz', 'updates value');
     });
 
-    QUnit.test('setValidator', function(assert) {
+    QUnit.test('setValidator', function (assert) {
         var oldValidator;
         var widget = generisWidgetTextBoxFactory({}, {});
 
@@ -124,7 +124,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
         assert.notEqual(widget.validator, oldValidator, 'validator is replaced');
     });
 
-    QUnit.test('validate', function(assert) {
+    QUnit.test('validate', function (assert) {
         var widget = generisWidgetTextBoxFactory(
             {
                 validator: [
@@ -140,7 +140,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
         assert.equal(widget.validator.errors.length, 1, 'validate properly generated errors');
     });
 
-    QUnit.test('serialize', function(assert) {
+    QUnit.test('serialize', function (assert) {
         var obj = {
             uri: 'foo#bar',
             value: 'foobar'
@@ -158,7 +158,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
      */
     QUnit.module('Events');
 
-    QUnit.test('change & blur', function(assert) {
+    QUnit.test('change & blur', function (assert) {
         assert.ok(true, "on('change blur')");
     });
 
@@ -167,15 +167,15 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
      */
     QUnit.module('Visual Test');
 
-    QUnit.test('Display and play', function(assert) {
+    QUnit.test('Display and play', function (assert) {
         var tb1 = generisWidgetTextBoxFactory({}, fields[0])
-            .on('render', function() {
+            .on('render', function () {
                 assert.ok(true);
             })
             .render('#display-and-play > form > fieldset');
 
         var tb2 = generisWidgetTextBoxFactory({}, fields[1])
-            .on('render', function() {
+            .on('render', function () {
                 assert.ok(true);
             })
             .render('#display-and-play > form > fieldset');
@@ -183,13 +183,15 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
         tb1.validator.addValidation(validations.beginWithAlpha);
         tb2.validator.addValidation(validations.threeLetters);
 
-        $('#validate').on('click', function(e) {
+        $('#validate').on('click', function (e) {
             e.preventDefault();
 
             tb1.validate();
+            //eslint-disable-next-line no-console
             console.log(tb1.serialize());
 
             tb2.validate();
+            //eslint-disable-next-line no-console
             console.log(tb2.serialize());
 
             return false;
