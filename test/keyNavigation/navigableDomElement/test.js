@@ -36,9 +36,9 @@ define(['jquery', 'lodash', 'ui/keyNavigation/navigableDomElement', 'lib/simulat
                 reject();
             }, 50);
 
-            instance.off('.test').on(event + '.test', function () {
+            instance.off('.test').on(`${event}.test`, function (...args) {
                 window.clearTimeout(fail);
-                resolve(arguments);
+                resolve(args);
             });
         });
     }
@@ -122,13 +122,13 @@ define(['jquery', 'lodash', 'ui/keyNavigation/navigableDomElement', 'lib/simulat
     });
 
     QUnit.test('init / destroy', function (assert) {
-        var fixture = document.querySelector(fixtureSelector);
-        var instance = navigableDomElement(fixture);
+        const fixture = document.querySelector(fixtureSelector);
+        const instance = navigableDomElement(fixture);
 
         assert.expect(10);
 
         assert.equal(fixture.className, 'test-element', 'The fixture has the initial CSS class');
-        assert.equal(fixture.getAttribute('tabindex'), undefined, "The fixture doesn't have a tabindex");
+        assert.equal(fixture.getAttribute('tabindex'), void 0, "The fixture doesn't have a tabindex");
 
         assert.equal(instance.init(), instance, 'The init method is fluent');
         assert.equal(
@@ -140,7 +140,7 @@ define(['jquery', 'lodash', 'ui/keyNavigation/navigableDomElement', 'lib/simulat
 
         assert.equal(instance.destroy(), instance, 'The destroy method is fluent');
         assert.equal(fixture.className, 'test-element', 'The fixture has the initial CSS class');
-        assert.equal(fixture.getAttribute('tabindex'), undefined, "The fixture doesn't have a tabindex");
+        assert.equal(fixture.getAttribute('tabindex'), void 0, "The fixture doesn't have a tabindex");
 
         assert.throws(function () {
             navigableDomElement().init();
@@ -186,11 +186,11 @@ define(['jquery', 'lodash', 'ui/keyNavigation/navigableDomElement', 'lib/simulat
         function promiseFocus(event, expectedEl) {
             return promiseEvent(instance, event)
                 .then(function (args) {
-                    assert.ok(true, 'The ' + event + ' event has been triggered');
+                    assert.ok(true, `The ${event} event has been triggered`);
                     assert.equal(args[0], expectedEl, 'The expected element has been supplied');
                 })
                 .catch(function () {
-                    assert.ok(false, 'The ' + event + ' event has not been triggered!');
+                    assert.ok(false, `The ${event} event has not been triggered!`);
                 });
         }
 
@@ -276,17 +276,17 @@ define(['jquery', 'lodash', 'ui/keyNavigation/navigableDomElement', 'lib/simulat
     });
 
     QUnit.test('keyboard', function (assert) {
-        var ready = assert.async();
-        var container = document.querySelector('#qunit-fixture');
-        var fixture = document.querySelector(fixtureSelector);
-        var inner = fixture.querySelector('.inner-element');
-        var instance = navigableDomElement(fixture);
+        const ready = assert.async();
+        const container = document.querySelector('#qunit-fixture');
+        const fixture = document.querySelector(fixtureSelector);
+        const inner = fixture.querySelector('.inner-element');
+        const instance = navigableDomElement(fixture);
 
         function promiseKeyboard(expectedKey, expectedEl) {
             return promiseEvent(instance, 'key')
                 .then(function (args) {
                     assert.ok(true, 'The key event has been triggered');
-                    assert.equal(args[0], expectedKey, 'The key ' + expectedKey + ' has been pressed');
+                    assert.equal(args[0], expectedKey, `The key ${expectedKey} has been pressed`);
                     assert.equal(args[1], expectedEl, 'The expected element has been supplied');
                 })
                 .catch(function () {
@@ -441,7 +441,7 @@ define(['jquery', 'lodash', 'ui/keyNavigation/navigableDomElement', 'lib/simulat
             return promiseEvent(instance, 'key')
                 .then(function (args) {
                     assert.ok(true, 'The key event has been triggered');
-                    assert.equal(args[0], expectedKey, 'The key ' + expectedKey + ' has been pressed');
+                    assert.equal(args[0], expectedKey, `The key ${expectedKey} has been pressed`);
                     assert.equal(args[1], expectedEl, 'The expected element has been supplied');
                 })
                 .catch(function () {
