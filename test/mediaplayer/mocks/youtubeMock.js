@@ -18,7 +18,7 @@
 define(['core/eventifier', 'test/mediaplayer/mocks/playerMock'], function (eventifier, playerMockFactory) {
     'use strict';
 
-    const reYoutube = /([?&\/]v[=\/])([\w-]+)([&\/]?)/;
+    const reYoutube = /([?&/]v[=/])([\w-]+)([&/]?)/;
     const extractYoutubeId = url => {
         const res = reYoutube.exec(url);
         return (res && res[2]) || url;
