@@ -22,7 +22,7 @@ define(['jquery', 'lodash', 'ui/keyNavigation/navigableDomElement', 'lib/simulat
 ) {
     'use strict';
 
-    var fixtureSelector = '#qunit-fixture .test-element';
+    const fixtureSelector = '#qunit-fixture .test-element';
 
     /**
      * Capture an event, fail if it takes too much time to occur

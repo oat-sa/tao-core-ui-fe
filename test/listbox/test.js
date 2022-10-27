@@ -18,18 +18,18 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
-define(['jquery', 'lodash', 'ui/listbox'], function($, _, listBox) {
+define(['jquery', 'lodash', 'ui/listbox'], function ($, _, listBox) {
     'use strict';
 
     QUnit.module('listBox');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.equal(typeof listBox, 'function', 'The listBox module exposes a function');
         assert.equal(typeof listBox(), 'object', 'The listBox factory produces an object');
         assert.notStrictEqual(listBox(), listBox(), 'The listBox factory provides a different object on each call');
     });
 
-    var testReviewApi = [
+    const testReviewApi = [
         { name: 'init', title: 'init' },
         { name: 'destroy', title: 'destroy' },
         { name: 'render', title: 'render' },
@@ -51,19 +51,15 @@ define(['jquery', 'lodash', 'ui/listbox'], function($, _, listBox) {
         { name: 'setTemplate', title: 'setTemplate' }
     ];
 
-    QUnit.cases.init(testReviewApi).test('instance API ', function(data, assert) {
-        var instance = listBox();
-        assert.equal(
-            typeof instance[data.name],
-            'function',
-            'The listBox instance exposes a "' + data.title + '" function'
-        );
+    QUnit.cases.init(testReviewApi).test('instance API ', function (data, assert) {
+        const instance = listBox();
+        assert.equal(typeof instance[data.name], 'function', `The listBox instance exposes a "${data.title}" function`);
         instance.destroy();
     });
 
-    QUnit.test('init', function(assert) {
+    QUnit.test('init', function (assert) {
         var config = {
-            nothing: undefined,
+            nothing: void 0,
             dummy: null,
             title: 'My Title',
             textEmpty: 'Nothing to list',
@@ -74,12 +70,12 @@ define(['jquery', 'lodash', 'ui/listbox'], function($, _, listBox) {
 
         assert.notEqual(instance.config, config, 'The listBox instance must duplicate the config set');
         assert.equal(
-            instance.hasOwnProperty('nothing'),
+            Object.prototype.hasOwnProperty.call(instance, 'nothing'),
             false,
             'The listBox instance must not accept undefined config properties'
         );
         assert.equal(
-            instance.hasOwnProperty('dummy'),
+            Object.prototype.hasOwnProperty.call(instance, 'dummy'),
             false,
             'The listBox instance must not accept null config properties'
         );
@@ -104,7 +100,7 @@ define(['jquery', 'lodash', 'ui/listbox'], function($, _, listBox) {
         instance.destroy();
     });
 
-    QUnit.test('render', function(assert) {
+    QUnit.test('render', function (assert) {
         var $dummy = $('<div class="dummy" />');
         var $container = $('#fixture-1').append($dummy);
         var config = {
@@ -153,52 +149,34 @@ define(['jquery', 'lodash', 'ui/listbox'], function($, _, listBox) {
         );
         assert.equal(instance.getElement().length, 1, 'The listBox instance returns the rendered content');
         assert.equal(
-            instance
-                .getElement()
-                .parent()
-                .get(0),
+            instance.getElement().parent().get(0),
             $container.get(0),
             'The listBox instance is rendered inside the right container'
         );
 
         assert.equal(
-            instance
-                .getElement()
-                .find('h1')
-                .text(),
+            instance.getElement().find('h1').text(),
             config.title,
             'The listBox instance has rendered a title with the right content'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.empty-list')
-                .text(),
+            instance.getElement().find('.empty-list').text(),
             config.textEmpty,
             'The listBox instance has rendered a message to display when the list is empty, and set the right content'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.available-list .label')
-                .text(),
+            instance.getElement().find('.available-list .label').text(),
             config.textNumber,
             'The listBox instance has rendered a message to show the number of boxes, and set the right content'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.available-list .count')
-                .text(),
+            instance.getElement().find('.available-list .count').text(),
             config.list.length,
             'The listBox instance displays the right number of boxes'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.loading')
-                .text(),
-            config.textLoading + '...',
+            instance.getElement().find('.loading').text(),
+            `${config.textLoading}...`,
             'The listBox instance has rendered a message to show when the component is in loading state, and set the right content'
         );
 
@@ -210,111 +188,59 @@ define(['jquery', 'lodash', 'ui/listbox'], function($, _, listBox) {
 
         // 1st
         assert.equal(
-            instance
-                .getElement()
-                .find('.list .entry')
-                .first()
-                .hasClass('flex-col-8'),
+            instance.getElement().find('.list .entry').first().hasClass('flex-col-8'),
             true,
             'The listBox instance has set the right flex width in the first entry'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.list .entry')
-                .first()
-                .find('a')
-                .attr('href'),
+            instance.getElement().find('.list .entry').first().find('a').attr('href'),
             config.list[0].url,
             'The listBox instance has set the right url in the first entry'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.list .entry')
-                .first()
-                .find('h3')
-                .text(),
+            instance.getElement().find('.list .entry').first().find('h3').text(),
             config.list[0].label,
             'The listBox instance has set the right label in the first entry'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.list .entry')
-                .first()
-                .find('.content')
-                .html(),
+            instance.getElement().find('.list .entry').first().find('.content').html(),
             config.list[0].content,
             'The listBox instance has set the content text in the first entry'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.list .entry')
-                .first()
-                .find('.text-link')
-                .text(),
+            instance.getElement().find('.list .entry').first().find('.text-link').text(),
             config.list[0].text,
             'The listBox instance has set the right bottom text in the first entry'
         );
 
         // 2nd
         assert.equal(
-            instance
-                .getElement()
-                .find('.list .entry')
-                .last()
-                .hasClass('flex-col-4'),
+            instance.getElement().find('.list .entry').last().hasClass('flex-col-4'),
             true,
             'The listBox instance has set the right flex width in the second entry'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.list .entry')
-                .last()
-                .hasClass('myclass'),
+            instance.getElement().find('.list .entry').last().hasClass('myclass'),
             true,
             'The listBox instance has set an extra CSS class in the second entry'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.list .entry')
-                .last()
-                .find('a')
-                .attr('href'),
+            instance.getElement().find('.list .entry').last().find('a').attr('href'),
             config.list[1].url,
             'The listBox instance has set the right url in the second entry'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.list .entry')
-                .last()
-                .find('h3')
-                .text(),
+            instance.getElement().find('.list .entry').last().find('h3').text(),
             config.list[1].label,
             'The listBox instance has set the right label in the second entry'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.list .entry')
-                .last()
-                .find('.content')
-                .html(),
+            instance.getElement().find('.list .entry').last().find('.content').html(),
             config.list[1].content,
             'The listBox instance has set the content text in the second entry'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.list .entry')
-                .last()
-                .find('.text-link')
-                .text(),
+            instance.getElement().find('.list .entry').last().find('.text-link').text(),
             config.list[1].text,
             'The listBox instance has set the right bottom text in the second entry'
         );
@@ -325,7 +251,7 @@ define(['jquery', 'lodash', 'ui/listbox'], function($, _, listBox) {
         assert.equal(instance.getElement(), null, 'The listBox instance has removed its rendered content');
     });
 
-    QUnit.test('update', function(assert) {
+    QUnit.test('update', function (assert) {
         var instance = listBox().render();
         var $component = instance.getElement();
         var list = [
@@ -362,10 +288,7 @@ define(['jquery', 'lodash', 'ui/listbox'], function($, _, listBox) {
         assert.equal(instance.is('loading'), false, 'The listBox instance does not have the state loading');
 
         assert.equal(
-            instance
-                .getElement()
-                .find('.available-list .count')
-                .text(),
+            instance.getElement().find('.available-list .count').text(),
             0,
             'The listBox instance displays the right number of boxes'
         );
@@ -378,51 +301,27 @@ define(['jquery', 'lodash', 'ui/listbox'], function($, _, listBox) {
             'The listBox instance has rendered the list of boxes'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.list .entry')
-                .first()
-                .hasClass('flex-col-12'),
+            instance.getElement().find('.list .entry').first().hasClass('flex-col-12'),
             true,
             'The listBox instance has set the right flex width in the first entry'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.list .entry')
-                .first()
-                .find('a')
-                .attr('href'),
+            instance.getElement().find('.list .entry').first().find('a').attr('href'),
             list[0].url,
             'The listBox instance has set the right url in the first entry'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.list .entry')
-                .first()
-                .find('h3')
-                .text(),
+            instance.getElement().find('.list .entry').first().find('h3').text(),
             list[0].label,
             'The listBox instance has set the right label in the first entry'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.list .entry')
-                .first()
-                .find('.content')
-                .html(),
+            instance.getElement().find('.list .entry').first().find('.content').html(),
             list[0].content,
             'The listBox instance has set the content text in the first entry'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.list .entry')
-                .first()
-                .find('.text-link')
-                .text(),
+            instance.getElement().find('.list .entry').first().find('.text-link').text(),
             list[0].text,
             'The listBox instance has set the right bottom text in the first entry'
         );
@@ -439,10 +338,7 @@ define(['jquery', 'lodash', 'ui/listbox'], function($, _, listBox) {
         );
         assert.equal(instance.getElement().hasClass('loading'), false, 'The listBox instance is not loading');
         assert.equal(
-            instance
-                .getElement()
-                .find('.available-list .count')
-                .text(),
+            instance.getElement().find('.available-list .count').text(),
             list.length,
             'The listBox instance displays the right number of boxes'
         );
@@ -454,7 +350,7 @@ define(['jquery', 'lodash', 'ui/listbox'], function($, _, listBox) {
         instance.destroy();
     });
 
-    QUnit.test('show/hide', function(assert) {
+    QUnit.test('show/hide', function (assert) {
         var instance = listBox().render();
         var $component = instance.getElement();
 
@@ -485,7 +381,7 @@ define(['jquery', 'lodash', 'ui/listbox'], function($, _, listBox) {
         instance.destroy();
     });
 
-    QUnit.test('enable/disable', function(assert) {
+    QUnit.test('enable/disable', function (assert) {
         var instance = listBox().render();
         var $component = instance.getElement();
 
@@ -516,7 +412,7 @@ define(['jquery', 'lodash', 'ui/listbox'], function($, _, listBox) {
         instance.destroy();
     });
 
-    QUnit.test('state', function(assert) {
+    QUnit.test('state', function (assert) {
         var instance = listBox().render();
         var $component = instance.getElement();
 
@@ -574,7 +470,7 @@ define(['jquery', 'lodash', 'ui/listbox'], function($, _, listBox) {
         instance.destroy();
     });
 
-    QUnit.test('setters', function(assert) {
+    QUnit.test('setters', function (assert) {
         var config = {
             title: 'My Title',
             textEmpty: 'Nothing to list',
@@ -601,45 +497,30 @@ define(['jquery', 'lodash', 'ui/listbox'], function($, _, listBox) {
         );
 
         assert.notEqual(
-            instance
-                .getElement()
-                .find('h1')
-                .text(),
+            instance.getElement().find('h1').text(),
             config.title,
             'The listBox instance has rendered a title with its own content'
         );
         assert.notEqual(
-            instance
-                .getElement()
-                .find('.empty-list')
-                .text(),
+            instance.getElement().find('.empty-list').text(),
             config.textEmpty,
             'The listBox instance has rendered a message to display when the list is empty, and set its own content'
         );
         assert.notEqual(
-            instance
-                .getElement()
-                .find('.available-list .label')
-                .text(),
+            instance.getElement().find('.available-list .label').text(),
             config.textNumber,
             'The listBox instance has rendered a message to show the number of boxes, and set its own content'
         );
         assert.notEqual(
-            instance
-                .getElement()
-                .find('.loading')
-                .text(),
-            config.textLoading + '...',
+            instance.getElement().find('.loading').text(),
+            `${config.textLoading}...`,
             'The listBox instance has rendered a message to show when the component is in loading state, and set its own content'
         );
 
         instance.setTitle(config.title);
         assert.equal(instance.config.title, config.title, 'The listBox instance has taken the right title');
         assert.equal(
-            instance
-                .getElement()
-                .find('h1')
-                .text(),
+            instance.getElement().find('h1').text(),
             config.title,
             'The listBox instance has updated the title with the right content'
         );
@@ -651,10 +532,7 @@ define(['jquery', 'lodash', 'ui/listbox'], function($, _, listBox) {
             'The listBox instance has the right empty list message'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.empty-list')
-                .text(),
+            instance.getElement().find('.empty-list').text(),
             config.textEmpty,
             'The listBox instance has updated the message to display when the list is empty, and set the right content'
         );
@@ -662,10 +540,7 @@ define(['jquery', 'lodash', 'ui/listbox'], function($, _, listBox) {
         instance.setTextNumber(config.textNumber);
         assert.equal(instance.config.textNumber, config.textNumber, 'The listBox instance has the right number label');
         assert.equal(
-            instance
-                .getElement()
-                .find('.available-list .label')
-                .text(),
+            instance.getElement().find('.available-list .label').text(),
             config.textNumber,
             'The listBox instance has updated the number label, and set the right content'
         );
@@ -677,11 +552,8 @@ define(['jquery', 'lodash', 'ui/listbox'], function($, _, listBox) {
             'The listBox instance has the right loading label'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.loading')
-                .text(),
-            config.textLoading + '...',
+            instance.getElement().find('.loading').text(),
+            `${config.textLoading}...`,
             'The listBox instance has updated the loading label, and set the right content'
         );
 
@@ -709,40 +581,28 @@ define(['jquery', 'lodash', 'ui/listbox'], function($, _, listBox) {
         );
 
         assert.equal(
-            instance
-                .getElement()
-                .find('h1')
-                .text(),
+            instance.getElement().find('h1').text(),
             config.title,
             'The listBox instance has rendered a title with its own content'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.empty-list')
-                .text(),
+            instance.getElement().find('.empty-list').text(),
             config.textEmpty,
             'The listBox instance has rendered a message to display when the list is empty, and set its own content'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.available-list .label')
-                .text(),
+            instance.getElement().find('.available-list .label').text(),
             config.textNumber,
             'The listBox instance has rendered a message to show the number of boxes, and set its own content'
         );
         assert.equal(
-            instance
-                .getElement()
-                .find('.loading')
-                .text(),
-            config.textLoading + '...',
+            instance.getElement().find('.loading').text(),
+            `${config.textLoading}...`,
             'The listBox instance has rendered a message to show when the component is in loading state, and set its own content'
         );
     });
 
-    QUnit.test('countRenderer', function(assert) {
+    QUnit.test('countRenderer', function (assert) {
         var $container = $('#fixture-1');
         var list = [
             {
@@ -764,7 +624,7 @@ define(['jquery', 'lodash', 'ui/listbox'], function($, _, listBox) {
             renderTo: $container,
             replace: true,
             list: list,
-            countRenderer: function(count) {
+            countRenderer: function (count) {
                 return count - 1;
             }
         };
@@ -780,19 +640,13 @@ define(['jquery', 'lodash', 'ui/listbox'], function($, _, listBox) {
         );
         assert.equal(instance.getElement().length, 1, 'The listBox instance returns the rendered content');
         assert.equal(
-            instance
-                .getElement()
-                .parent()
-                .get(0),
+            instance.getElement().parent().get(0),
             $container.get(0),
             'The listBox instance is rendered inside the right container'
         );
 
         assert.equal(
-            instance
-                .getElement()
-                .find('.available-list .count')
-                .text(),
+            instance.getElement().find('.available-list .count').text(),
             expectedCount,
             'The listBox instance displays the right number of boxes'
         );
@@ -803,7 +657,7 @@ define(['jquery', 'lodash', 'ui/listbox'], function($, _, listBox) {
             'The listBox instance has rendered the list of boxes'
         );
 
-        var list2 = list.concat([
+        const list2 = list.concat([
             {
                 url: 'http://localhost/test3',
                 label: 'Test3',
@@ -817,10 +671,7 @@ define(['jquery', 'lodash', 'ui/listbox'], function($, _, listBox) {
         expectedCount = list2.length - 1;
 
         assert.equal(
-            instance
-                .getElement()
-                .find('.available-list .count')
-                .text(),
+            instance.getElement().find('.available-list .count').text(),
             expectedCount,
             'The listBox instance displays the right number of boxes'
         );
