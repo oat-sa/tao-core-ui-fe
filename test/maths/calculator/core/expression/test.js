@@ -18,7 +18,7 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
  */
-define(['ui/maths/calculator/core/expression', 'ui/maths/calculator/core/terms', 'util/mathsEvaluator'], function(
+define(['ui/maths/calculator/core/expression', 'ui/maths/calculator/core/terms', 'util/mathsEvaluator'], function (
     expressionHelper,
     registeredTerms,
     mathsEvaluatorFactory
@@ -130,111 +130,33 @@ define(['ui/maths/calculator/core/expression', 'ui/maths/calculator/core/terms',
         }
     };
     var renderedTokens = {
-        NUM0:
-            '<span class="term term-digit" data-value="0" data-token="NUM0" data-type="digit">' +
-            registeredTerms.NUM0.label +
-            '</span>',
-        NUM1:
-            '<span class="term term-digit" data-value="1" data-token="NUM1" data-type="digit">' +
-            registeredTerms.NUM1.label +
-            '</span>',
-        NUM2:
-            '<span class="term term-digit" data-value="2" data-token="NUM2" data-type="digit">' +
-            registeredTerms.NUM2.label +
-            '</span>',
-        NUM3:
-            '<span class="term term-digit" data-value="3" data-token="NUM3" data-type="digit">' +
-            registeredTerms.NUM3.label +
-            '</span>',
-        NUM4:
-            '<span class="term term-digit" data-value="4" data-token="NUM4" data-type="digit">' +
-            registeredTerms.NUM4.label +
-            '</span>',
-        NUM5:
-            '<span class="term term-digit" data-value="5" data-token="NUM5" data-type="digit">' +
-            registeredTerms.NUM5.label +
-            '</span>',
-        NUM6:
-            '<span class="term term-digit" data-value="6" data-token="NUM6" data-type="digit">' +
-            registeredTerms.NUM6.label +
-            '</span>',
-        NUM7:
-            '<span class="term term-digit" data-value="7" data-token="NUM7" data-type="digit">' +
-            registeredTerms.NUM7.label +
-            '</span>',
-        NUM8:
-            '<span class="term term-digit" data-value="8" data-token="NUM8" data-type="digit">' +
-            registeredTerms.NUM8.label +
-            '</span>',
-        NUM9:
-            '<span class="term term-digit" data-value="9" data-token="NUM9" data-type="digit">' +
-            registeredTerms.NUM9.label +
-            '</span>',
-        EXP10:
-            '<span class="term term-digit" data-value="e" data-token="EXP10" data-type="digit">' +
-            registeredTerms.EXP10.label +
-            '</span>',
-        ADD:
-            '<span class="term term-operator" data-value="+" data-token="ADD" data-type="operator">' +
-            registeredTerms.ADD.label +
-            '</span>',
-        SUB:
-            '<span class="term term-operator" data-value="-" data-token="SUB" data-type="operator">' +
-            registeredTerms.SUB.label +
-            '</span>',
-        POS:
-            '<span class="term term-operator" data-value="+" data-token="POS" data-type="operator">' +
-            registeredTerms.POS.label +
-            '</span>',
-        NEG:
-            '<span class="term term-operator" data-value="-" data-token="NEG" data-type="operator">' +
-            registeredTerms.NEG.label +
-            '</span>',
-        MUL:
-            '<span class="term term-operator" data-value="*" data-token="MUL" data-type="operator">' +
-            registeredTerms.MUL.label +
-            '</span>',
-        POW:
-            '<span class="term term-operator" data-value="^" data-token="POW" data-type="operator">' +
-            registeredTerms.POW.label +
-            '</span>',
-        POWEL:
-            '<span class="term term-operator term-elide" data-value="^" data-token="POW" data-type="operator">' +
-            registeredTerms.POW.label +
-            '</span>',
-        FAC:
-            '<span class="term term-operator" data-value="!" data-token="FAC" data-type="operator">' +
-            registeredTerms.FAC.label +
-            '</span>',
-        NTHRT:
-            '<span class="term term-function" data-value="nthrt" data-token="NTHRT" data-type="function">' +
-            registeredTerms.NTHRT.label +
-            '</span>',
-        LPAR:
-            '<span class="term term-aggregator" data-value="(" data-token="LPAR" data-type="aggregator">' +
-            registeredTerms.LPAR.label +
-            '</span>',
-        RPAR:
-            '<span class="term term-aggregator" data-value=")" data-token="RPAR" data-type="aggregator">' +
-            registeredTerms.RPAR.label +
-            '</span>',
-        CEIL:
-            '<span class="term term-function" data-value="ceil" data-token="CEIL" data-type="function">' +
-            registeredTerms.CEIL.label +
-            '</span>',
-        COS:
-            '<span class="term term-function" data-value="cos" data-token="COS" data-type="function">' +
-            registeredTerms.COS.label +
-            '</span>',
-        PI:
-            '<span class="term term-constant" data-value="PI" data-token="PI" data-type="constant">' +
-            registeredTerms.PI.label +
-            '</span>',
+        NUM0: `<span class="term term-digit" data-value="0" data-token="NUM0" data-type="digit">${registeredTerms.NUM0.label}</span>`,
+        NUM1: `<span class="term term-digit" data-value="1" data-token="NUM1" data-type="digit">${registeredTerms.NUM1.label}</span>`,
+        NUM2: `<span class="term term-digit" data-value="2" data-token="NUM2" data-type="digit">${registeredTerms.NUM2.label}</span>`,
+        NUM3: `<span class="term term-digit" data-value="3" data-token="NUM3" data-type="digit">${registeredTerms.NUM3.label}</span>`,
+        NUM4: `<span class="term term-digit" data-value="4" data-token="NUM4" data-type="digit">${registeredTerms.NUM4.label}</span>`,
+        NUM5: `<span class="term term-digit" data-value="5" data-token="NUM5" data-type="digit">${registeredTerms.NUM5.label}</span>`,
+        NUM6: `<span class="term term-digit" data-value="6" data-token="NUM6" data-type="digit">${registeredTerms.NUM6.label}</span>`,
+        NUM7: `<span class="term term-digit" data-value="7" data-token="NUM7" data-type="digit">${registeredTerms.NUM7.label}</span>`,
+        NUM8: `<span class="term term-digit" data-value="8" data-token="NUM8" data-type="digit">${registeredTerms.NUM8.label}</span>`,
+        NUM9: `<span class="term term-digit" data-value="9" data-token="NUM9" data-type="digit">${registeredTerms.NUM9.label}</span>`,
+        EXP10: `<span class="term term-digit" data-value="e" data-token="EXP10" data-type="digit">${registeredTerms.EXP10.label}</span>`,
+        ADD: `<span class="term term-operator" data-value="+" data-token="ADD" data-type="operator">${registeredTerms.ADD.label}</span>`,
+        SUB: `<span class="term term-operator" data-value="-" data-token="SUB" data-type="operator">${registeredTerms.SUB.label}</span>`,
+        POS: `<span class="term term-operator" data-value="+" data-token="POS" data-type="operator">${registeredTerms.POS.label}</span>`,
+        NEG: `<span class="term term-operator" data-value="-" data-token="NEG" data-type="operator">${registeredTerms.NEG.label}</span>`,
+        MUL: `<span class="term term-operator" data-value="*" data-token="MUL" data-type="operator">${registeredTerms.MUL.label}</span>`,
+        POW: `<span class="term term-operator" data-value="^" data-token="POW" data-type="operator">${registeredTerms.POW.label}</span>`,
+        POWEL: `<span class="term term-operator term-elide" data-value="^" data-token="POW" data-type="operator">${registeredTerms.POW.label}</span>`,
+        FAC: `<span class="term term-operator" data-value="!" data-token="FAC" data-type="operator">${registeredTerms.FAC.label}</span>`,
+        NTHRT: `<span class="term term-function" data-value="nthrt" data-token="NTHRT" data-type="function">${registeredTerms.NTHRT.label}</span>`,
+        LPAR: `<span class="term term-aggregator" data-value="(" data-token="LPAR" data-type="aggregator">${registeredTerms.LPAR.label}</span>`,
+        RPAR: `<span class="term term-aggregator" data-value=")" data-token="RPAR" data-type="aggregator">${registeredTerms.RPAR.label}</span>`,
+        CEIL: `<span class="term term-function" data-value="ceil" data-token="CEIL" data-type="function">${registeredTerms.CEIL.label}</span>`,
+        COS: `<span class="term term-function" data-value="cos" data-token="COS" data-type="function">${registeredTerms.COS.label}</span>`,
+        PI: `<span class="term term-constant" data-value="PI" data-token="PI" data-type="constant">${registeredTerms.PI.label}</span>`,
         ANS: '<span class="term term-variable" data-value="ans" data-token="ANS" data-type="variable">{{ans}}</span>',
-        VAR_ANS:
-            '<span class="term term-variable" data-value="ans" data-token="ANS" data-type="variable">' +
-            registeredTerms.ANS.label +
-            '</span>',
+        VAR_ANS: `<span class="term term-variable" data-value="ans" data-token="ANS" data-type="variable">${registeredTerms.ANS.label}</span>`,
         VAR_X: '<span class="term term-variable" data-value="x" data-token="term" data-type="variable">x</span>',
         VAR_Y: '<span class="term term-variable" data-value="y" data-token="term" data-type="variable">y</span>',
         UNKNOWN_Y: '<span class="term term-unknown" data-value="y" data-token="term" data-type="unknown">y</span>'
@@ -242,7 +164,7 @@ define(['ui/maths/calculator/core/expression', 'ui/maths/calculator/core/terms',
 
     QUnit.module('Factory');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.expect(1);
         assert.equal(typeof expressionHelper, 'object', 'The module exposes an object');
     });
@@ -256,18 +178,18 @@ define(['ui/maths/calculator/core/expression', 'ui/maths/calculator/core/terms',
             { title: 'renderSign' },
             { title: 'render' }
         ])
-        .test('API ', function(data, assert) {
+        .test('API ', function (data, assert) {
             assert.expect(1);
             assert.equal(
                 typeof expressionHelper[data.title],
                 'function',
-                'The helper exposes a "' + data.title + '" function'
+                `The helper exposes a "${data.title}" function`
             );
         });
 
     QUnit.module('API');
 
-    QUnit.test('containsError', function(assert) {
+    QUnit.test('containsError', function (assert) {
         assert.expect(12);
 
         assert.equal(expressionHelper.containsError('3*4'), false, 'Should not contain an error');
@@ -369,13 +291,13 @@ define(['ui/maths/calculator/core/expression', 'ui/maths/calculator/core/terms',
                 expected: '0'
             }
         ])
-        .test('replaceLastResult', function(data, assert) {
+        .test('replaceLastResult', function (data, assert) {
             assert.expect(1);
 
             assert.equal(
                 expressionHelper.replaceLastResult(data.expression, data.value),
                 data.expected,
-                'Should replace the last result variable from ' + data.expression + ' to ' + data.expected
+                `Should replace the last result variable from ${data.expression} to ${data.expected}`
             );
         });
 
@@ -445,7 +367,7 @@ define(['ui/maths/calculator/core/expression', 'ui/maths/calculator/core/terms',
                 expected: '3.14159e+50~'
             }
         ])
-        .test('roundLastResultVariable', function(data, assert) {
+        .test('roundLastResultVariable', function (data, assert) {
             assert.expect(1);
 
             assert.equal(
@@ -560,7 +482,7 @@ define(['ui/maths/calculator/core/expression', 'ui/maths/calculator/core/terms',
                 }
             }
         ])
-        .test('roundLastResultVariable', function(data, assert) {
+        .test('roundLastResultVariable', function (data, assert) {
             assert.expect(1);
 
             assert.deepEqual(
@@ -570,17 +492,17 @@ define(['ui/maths/calculator/core/expression', 'ui/maths/calculator/core/terms',
             );
         });
 
-    QUnit.test('renderSign', function(assert) {
+    QUnit.test('renderSign', function (assert) {
         assert.expect(6);
 
         assert.equal(expressionHelper.renderSign(), '', 'Missing value');
         assert.equal(expressionHelper.renderSign(''), '', 'Empty value');
         assert.equal(expressionHelper.renderSign('42'), '42', 'Simple value');
-        assert.equal(expressionHelper.renderSign('-42'), registeredTerms.NEG.label + '42', 'Negative value');
-        assert.equal(expressionHelper.renderSign('+42'), registeredTerms.POS.label + '42', 'Positive value');
+        assert.equal(expressionHelper.renderSign('-42'), `${registeredTerms.NEG.label}42`, 'Negative value');
+        assert.equal(expressionHelper.renderSign('+42'), `${registeredTerms.POS.label}42`, 'Positive value');
         assert.equal(
             expressionHelper.renderSign('3-4+2'),
-            '3' + registeredTerms.NEG.label + '4' + registeredTerms.POS.label + '2',
+            `3${registeredTerms.NEG.label}4${registeredTerms.POS.label}2`,
             'Simple expression'
         );
     });
@@ -1864,7 +1786,7 @@ define(['ui/maths/calculator/core/expression', 'ui/maths/calculator/core/terms',
                 ].join('')
             }
         ])
-        .test('render', function(data, assert) {
+        .test('render', function (data, assert) {
             assert.expect(1);
 
             assert.equal(
