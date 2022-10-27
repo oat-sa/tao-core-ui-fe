@@ -190,6 +190,7 @@ define([
                     showConfig();
                     renderPlayer();
                 } else {
+                    //eslint-disable-next-line no-alert
                     alert('You must supply a video URL!');
                 }
             }
@@ -207,7 +208,10 @@ define([
         $configEdit.on('change', () => {
             try {
                 config = JSON.parse($configEdit.val());
-            } catch (err) {}
+            } catch (err) {
+                //eslint-disable-next-line no-console
+                console.error(err);
+            }
         });
         $configEntries.on('change', 'input,select', e => {
             const input = e.target;
