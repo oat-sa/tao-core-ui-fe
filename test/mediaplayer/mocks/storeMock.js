@@ -36,14 +36,14 @@ define(function () {
                 store.clear();
                 return Promise.resolve();
             }
-        }
+        };
     }
 
     function storeMock(key) {
         if (!stores.has(key)) {
             stores.set(key, storeFactory());
         }
-        return Promise.resolve(stores.get(key))
+        return Promise.resolve(stores.get(key));
     }
 
     storeMock.reset = () => stores.clear();
