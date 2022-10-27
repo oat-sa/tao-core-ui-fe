@@ -25,24 +25,22 @@ define([
     'use strict';
 
     function playerMockFactory($container, config = {}) {
-        const type = config.type || 'video';
+        const mediaType = config.type || 'video';
         const sources = config.sources || [];
         const polling = config.polling || 10;
         const duration = (config.duration || 100) * polling;
 
         let playback = false;
-        let loaded = false;
         let stalled = false;
         let media;
 
         const player = {
             init() {
-                this.$media = $(playerTpl({ type }));
+                this.$media = $(playerTpl({ mediaType }));
                 $container.append(this.$media);
 
                 media = void 0;
                 playback = false;
-                loaded = false;
                 stalled = false;
 
                 media = mediaMock(this.$media.get(0), { polling, duration });
@@ -83,7 +81,6 @@ define([
                         }
                     })
                     .on('canplay', () => {
-                        loaded = true;
                         this.trigger('ready');
                     })
                     .on('stalled', () => {
@@ -96,8 +93,8 @@ define([
                     });
 
                 sources.forEach(source => {
-                    const { src, type } = source;
-                    this.addMedia(src, type);
+                    const { src, type: sourceType } = source;
+                    this.addMedia(src, sourceType);
                 });
 
                 return true;
@@ -114,7 +111,6 @@ define([
                 this.$media = void 0;
                 media = void 0;
                 playback = false;
-                loaded = false;
                 stalled = false;
             },
 
