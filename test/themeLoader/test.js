@@ -23,19 +23,17 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function (_, $, themeLoader) {
     const pink = 'rgb(255, 192, 203)';
     const blue = 'rgb(0, 0, 255)';
     const green = 'rgb(0, 128, 0)';
-    const red = 'rgb(255, 0, 0)';
 
     let eventTriggered = '';
     let themeApplied = '';
 
     $(document)
         .off('themechange.themeloader')
-        .on('themechange.themeloader', (e, data) => eventTriggered = data);
+        .on('themechange.themeloader', (e, data) => (eventTriggered = data));
 
     $(document)
         .off('themeapplied.test')
-        .on('themeapplied.test', (e, themeId) => themeApplied = themeId);
-
+        .on('themeapplied.test', (e, themeId) => (themeApplied = themeId));
 
     QUnit.module('Theme Loader API');
 
@@ -48,17 +46,9 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function (_, $, themeLoader) {
     QUnit.test('config format', assert => {
         assert.expect(4);
 
-        assert.throws(
-            () => themeLoader(),
-            TypeError,
-            'A config parameter is required'
-        );
+        assert.throws(() => themeLoader(), TypeError, 'A config parameter is required');
 
-        assert.throws(
-            () => themeLoader({}),
-            TypeError,
-            'A config parameter with a base property is required'
-        );
+        assert.throws(() => themeLoader({}), TypeError, 'A config parameter with a base property is required');
 
         assert.throws(
             () => themeLoader({ base: '' }),
@@ -67,10 +57,11 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function (_, $, themeLoader) {
         );
 
         assert.throws(
-            () => themeLoader({
-                base: '',
-                available: [{}]
-            }),
+            () =>
+                themeLoader({
+                    base: '',
+                    available: [{}]
+                }),
             TypeError,
             'Themes should contain path and id'
         );
