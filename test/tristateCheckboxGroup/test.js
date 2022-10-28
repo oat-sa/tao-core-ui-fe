@@ -15,12 +15,12 @@
  *
  * Copyright (c) 2016 (original work) Open Assessment Technologies SA ;
  */
-define(['jquery', 'lodash', 'ui/tristateCheckboxGroup'], function($, _, tristateCheckboxGroup) {
+define(['jquery', 'lodash', 'ui/tristateCheckboxGroup'], function ($, _, tristateCheckboxGroup) {
     'use strict';
 
     QUnit.module('Tri-state Checkboxes');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.equal(typeof tristateCheckboxGroup, 'function', 'The tristateCheckbox module exposes a function');
         assert.equal(typeof tristateCheckboxGroup(), 'object', 'The tristateCheckbox factory produces an object');
         assert.notStrictEqual(
@@ -30,7 +30,7 @@ define(['jquery', 'lodash', 'ui/tristateCheckboxGroup'], function($, _, tristate
         );
     });
 
-    var testReviewApi = [
+    const testReviewApi = [
         { name: 'init', title: 'init' },
         { name: 'destroy', title: 'destroy' },
         { name: 'render', title: 'render' },
@@ -49,17 +49,17 @@ define(['jquery', 'lodash', 'ui/tristateCheckboxGroup'], function($, _, tristate
         { name: 'setElements', title: 'setElements' }
     ];
 
-    QUnit.cases.init(testReviewApi).test('instance API ', function(data, assert) {
+    QUnit.cases.init(testReviewApi).test('instance API ', function (data, assert) {
         var instance = tristateCheckboxGroup();
         assert.equal(
             typeof instance[data.name],
             'function',
-            `The tristateCheckbox instance exposes a "${  data.title  }" function`
+            `The tristateCheckbox instance exposes a "${data.title}" function`
         );
         instance.destroy();
     });
 
-    QUnit.test('init', function(assert) {
+    QUnit.test('init', function (assert) {
         var config = {};
         var instance = tristateCheckboxGroup(config);
 
@@ -68,9 +68,9 @@ define(['jquery', 'lodash', 'ui/tristateCheckboxGroup'], function($, _, tristate
         instance.destroy();
     });
 
-    QUnit.test('render', function(assert) {
-        var $container = $('#fixture-0');
-        var config = {
+    QUnit.test('render', function (assert) {
+        const $container = $('#fixture-0');
+        const config = {
             renderTo: $container,
             replace: true,
             list: [
@@ -79,20 +79,20 @@ define(['jquery', 'lodash', 'ui/tristateCheckboxGroup'], function($, _, tristate
                 { indeterminate: true, label: 'choice intermediate', value: '2' }
             ]
         };
-        var triCbox = tristateCheckboxGroup(config);
+        tristateCheckboxGroup(config);
         assert.equal($container.find('.tristate-checkbox-group').length, 1, 'container ok');
         assert.equal($container.find('input[type=checkbox]').length, 3, '3 checkboxes');
         assert.equal($container.find('input[type=checkbox]:checked').length, 1, '1 checked');
         assert.equal($container.find('input[type=checkbox]:indeterminate').length, 1, '1 indeterminate');
     });
 
-    QUnit.test('setElements', function(assert) {
-        var $container = $('#fixture-0');
-        var config = {
+    QUnit.test('setElements', function (assert) {
+        const $container = $('#fixture-0');
+        const config = {
             renderTo: $container,
             replace: true
         };
-        var triCbox = tristateCheckboxGroup(config).setElements([
+        const triCbox = tristateCheckboxGroup(config).setElements([
             { label: 'choice not selected', value: '0' },
             { checked: true, label: 'choice selected', value: '1' },
             { indeterminate: true, label: 'choice intermediate', value: '2' }
@@ -112,7 +112,7 @@ define(['jquery', 'lodash', 'ui/tristateCheckboxGroup'], function($, _, tristate
         assert.equal($container.find('input[type=checkbox]:indeterminate').length, 2, '2 indeterminate');
     });
 
-    QUnit.test('getValues/setValues', function(assert) {
+    QUnit.test('getValues/setValues', function (assert) {
         var $container = $('#fixture-0');
         var config = {
             renderTo: $container,
@@ -141,7 +141,7 @@ define(['jquery', 'lodash', 'ui/tristateCheckboxGroup'], function($, _, tristate
         assert.equal(values.indeterminate[0], '1');
     });
 
-    QUnit.test('change', function(assert) {
+    QUnit.test('change', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-0');
         var config = {
@@ -153,7 +153,7 @@ define(['jquery', 'lodash', 'ui/tristateCheckboxGroup'], function($, _, tristate
                 { indeterminate: true, label: 'choice intermediate', value: '2' }
             ]
         };
-        var triCbox = tristateCheckboxGroup(config).on('change', function(values) {
+        var triCbox = tristateCheckboxGroup(config).on('change', function (values) {
             assert.ok(_.isArray(values.checked), 'get checked elements');
             assert.ok(_.isArray(values.indeterminate), 'get indeterminate elements');
             assert.equal(values.checked.length, 2);
@@ -175,13 +175,10 @@ define(['jquery', 'lodash', 'ui/tristateCheckboxGroup'], function($, _, tristate
         $container.find('input[value="0"]').click();
     });
 
-    QUnit.test('maxSelection', function(assert) {
-        var ready = assert.async();
-
-        assert.expect(3);
-
-        var $container = $('#fixture-0');
-        var config = {
+    QUnit.test('maxSelection', function (assert) {
+        const ready = assert.async();
+        const $container = $('#fixture-0');
+        const config = {
             renderTo: $container,
             replace: true,
             list: [
@@ -191,7 +188,10 @@ define(['jquery', 'lodash', 'ui/tristateCheckboxGroup'], function($, _, tristate
             ],
             maxSelection: 1
         };
-        var triCbox = tristateCheckboxGroup(config).on('change', function(values) {
+
+        assert.expect(3);
+
+        tristateCheckboxGroup(config).on('change', function (values) {
             assert.equal(values.checked.length, 1);
             assert.equal(values.indeterminate.length, 0);
             assert.equal(values.checked[0], '0');
@@ -202,9 +202,9 @@ define(['jquery', 'lodash', 'ui/tristateCheckboxGroup'], function($, _, tristate
         $container.find('input[value="1"]').click(); //This one will not
     });
 
-    QUnit.test('render (visual test)', function(assert) {
-        var $container = $('#fixture-1');
-        var config = {
+    QUnit.test('render (visual test)', function (assert) {
+        const $container = $('#fixture-1');
+        const config = {
             renderTo: $container,
             replace: true,
             list: [
