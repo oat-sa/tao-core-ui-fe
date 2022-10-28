@@ -70,7 +70,7 @@ define(['jquery', 'lodash', 'ui/taskQueue/status'], function($, _, taskQueueStat
         var serviceUrl = 'dummy/service/url';
         var status = taskQueueStatusFactory({ serviceUrl: serviceUrl });
 
-        assert.equal(typeof status[data.name], 'function', 'The component exposes a "' + data.name + '" function');
+        assert.equal(typeof status[data.name], 'function', `The component exposes a "${  data.name  }" function`);
     });
 
     QUnit.module('Rendering');

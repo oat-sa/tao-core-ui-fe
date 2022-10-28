@@ -35,15 +35,15 @@ define(['jquery', 'lodash', 'ui/tooltip', 'tpl!ui/tooltip/default'], function($,
     QUnit.test('Tooltip: component initialization', function(assert) {
         var $single;
         assert.expect(2);
-        tooltip.lookup($('#' + containerName));
-        $single = $('[data-tooltip]', '#' + containerName).first();
+        tooltip.lookup($(`#${  containerName}`));
+        $single = $('[data-tooltip]', `#${  containerName}`).first();
         assert.ok($single.data('$tooltip'), 'tooltip got built from given container');
         assert.throws(function() {
             tooltip.lookup();
         }, 'tooltip component throws an exception when called without attributes');
     });
     QUnit.test('Tooltip: component as Tooltip instance', function(assert) {
-        var $ref = $('[data-tooltip]', '#' + containerName).first();
+        var $ref = $('[data-tooltip]', `#${  containerName}`).first();
         var instance;
         assert.expect(1);
         instance = tooltip.create($ref, 'default text');
@@ -51,7 +51,7 @@ define(['jquery', 'lodash', 'ui/tooltip', 'tpl!ui/tooltip/default'], function($,
     });
 
     QUnit.test('Tooltip: component API', function(assert) {
-        var $container = $('#' + containerName);
+        var $container = $(`#${  containerName}`);
         var $single;
         var instance;
         var wrapperInstance;
@@ -99,21 +99,21 @@ define(['jquery', 'lodash', 'ui/tooltip', 'tpl!ui/tooltip/default'], function($,
         var $single;
         assert.expect(2);
         $reference.attr('data-tooltip-theme', data);
-        tooltip.lookup($('#' + containerName));
-        $single = $('[data-tooltip]', '#' + containerName).first();
+        tooltip.lookup($(`#${  containerName}`));
+        $single = $('[data-tooltip]', `#${  containerName}`).first();
         instance = $single.data('$tooltip');
 
         assert.notEqual(instance.options.template.trim(), '', 'template is not empty string');
         if (data === 'default' || data === 'when theme not exist') {
-            assert.equal(instance.options.template, defaultTheme, data + '  default template applied');
+            assert.equal(instance.options.template, defaultTheme, `${data  }  default template applied`);
         } else {
-            assert.notEqual(instance.options.template.trim(), '', data + ' template applied');
+            assert.notEqual(instance.options.template.trim(), '', `${data  } template applied`);
         }
     });
     QUnit.test('Tooltip: create several tooltips on same page', function(assert) {
         var amount = 3;
         var resultAmount = 0;
-        var $container = $('#' + containerNameMultiple);
+        var $container = $(`#${  containerNameMultiple}`);
         assert.expect(1);
         tooltip.lookup($container);
         $('[data-tooltip]', $container).each(function(key, item) {
@@ -129,8 +129,8 @@ define(['jquery', 'lodash', 'ui/tooltip', 'tpl!ui/tooltip/default'], function($,
 
     QUnit.test('tooltip.lookup()', function(assert) {
         var ready = assert.async();
-        var $container = $('#' + containerName);
-        var $single = $('[data-tooltip]', '#' + containerName).first();
+        var $container = $(`#${  containerName}`);
+        var $single = $('[data-tooltip]', `#${  containerName}`).first();
 
         assert.expect(2);
         tooltip.lookup($container);
@@ -153,7 +153,7 @@ define(['jquery', 'lodash', 'ui/tooltip', 'tpl!ui/tooltip/default'], function($,
     QUnit.test('tooltip.create()', function(assert) {
         var ready = assert.async();
         var message = 'tooltip create error method';
-        var $container = $('#' + containerName);
+        var $container = $(`#${  containerName}`);
         var $ref = $('#tooltipstered', $container);
 
         assert.expect(2);
@@ -179,7 +179,7 @@ define(['jquery', 'lodash', 'ui/tooltip', 'tpl!ui/tooltip/default'], function($,
     QUnit.test('tooltip.create({theme:"error"}) ', function(assert) {
         var ready = assert.async();
         var message = 'tooltip create error method';
-        var $container = $('#' + containerName);
+        var $container = $(`#${  containerName}`);
         var $ref = $('#tooltipstered', $container);
         var errorInstance = tooltip.create($ref, message, { theme: 'error' });
 
@@ -198,7 +198,7 @@ define(['jquery', 'lodash', 'ui/tooltip', 'tpl!ui/tooltip/default'], function($,
     QUnit.test('tooltip.create({theme:"warning"}) ', function(assert) {
         var ready = assert.async();
         var message = 'tooltip create warning method';
-        var $container = $('#' + containerName);
+        var $container = $(`#${  containerName}`);
         var $ref = $('#tooltipstered', $container);
         var warningInstance = tooltip.create($ref, message, { theme: 'warning' });
 
@@ -217,7 +217,7 @@ define(['jquery', 'lodash', 'ui/tooltip', 'tpl!ui/tooltip/default'], function($,
     QUnit.test('tooltip.create({theme:"danger"}) ', function(assert) {
         var ready = assert.async();
         var message = 'tooltip create warning method';
-        var $container = $('#' + containerName);
+        var $container = $(`#${  containerName}`);
         var $ref = $('#tooltipstered', $container);
         var dangerInstance = tooltip.create($ref, message, { theme: 'danger' });
 
@@ -237,7 +237,7 @@ define(['jquery', 'lodash', 'ui/tooltip', 'tpl!ui/tooltip/default'], function($,
     QUnit.test('tooltip.create({theme:"success"}) ', function(assert) {
         var ready = assert.async();
         var message = 'tooltip create warning method';
-        var $container = $('#' + containerName);
+        var $container = $(`#${  containerName}`);
         var $ref = $('#tooltipstered', $container);
         var successInstance = tooltip.create($ref, message, { theme: 'success' });
 
@@ -257,7 +257,7 @@ define(['jquery', 'lodash', 'ui/tooltip', 'tpl!ui/tooltip/default'], function($,
     QUnit.test('tooltip.create({theme:"info"}) ', function(assert) {
         var ready = assert.async();
         var message = 'tooltip create warning method';
-        var $container = $('#' + containerName);
+        var $container = $(`#${  containerName}`);
         var $ref = $('#tooltipstered', $container);
         var infoInstance = tooltip.create($ref, message, { theme: 'info' });
 
@@ -284,7 +284,7 @@ define(['jquery', 'lodash', 'ui/tooltip', 'tpl!ui/tooltip/default'], function($,
         tooltip.lookup($container);
         assert.ok($elm.data('$tooltip'), 'tooltip instance is defined');
         themes.forEach(function(value) {
-            $themeSelect.append('<option value="' + value + '">' + value + '</option>');
+            $themeSelect.append(`<option value="${  value  }">${  value  }</option>`);
         });
 
         $('#change-theme', $container).click(function($e) {

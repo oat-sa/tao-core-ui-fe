@@ -65,7 +65,7 @@ define(['jquery', 'lodash', 'ui/taskQueue/table'], function($, _, taskQueueTable
         var context = 'oneTypeOfSuperLongTask';
         var taskTable = taskQueueTableFactory({ context: context });
 
-        assert.equal(typeof taskTable[data.name], 'function', 'The component exposes a "' + data.name + '" function');
+        assert.equal(typeof taskTable[data.name], 'function', `The component exposes a "${  data.name  }" function`);
     });
 
     QUnit.module('Behavior');

@@ -54,7 +54,7 @@ define(['jquery', 'lodash', 'ui/tristateCheckboxGroup'], function($, _, tristate
         assert.equal(
             typeof instance[data.name],
             'function',
-            'The tristateCheckbox instance exposes a "' + data.title + '" function'
+            `The tristateCheckbox instance exposes a "${  data.title  }" function`
         );
         instance.destroy();
     });
