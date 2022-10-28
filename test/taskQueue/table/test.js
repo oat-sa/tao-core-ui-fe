@@ -15,21 +15,21 @@
  *
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
  */
-define(['jquery', 'lodash', 'ui/taskQueue/table'], function($, _, taskQueueTableFactory) {
+define(['jquery', 'lodash', 'ui/taskQueue/table'], function ($, _, taskQueueTableFactory) {
     'use strict';
 
     QUnit.module('API');
 
-    QUnit.test('factory', function(assert) {
-        assert.expect(5);
+    QUnit.test('factory', function (assert) {
+        const context = 'oneTypeOfSuperLongTask';
+        let taskTable;
 
-        var context = 'oneTypeOfSuperLongTask';
-        var taskTable;
+        assert.expect(5);
 
         assert.equal(typeof taskQueueTableFactory, 'function', 'The module exposes a function');
 
         assert.throws(
-            function() {
+            function () {
                 taskQueueTableFactory();
             },
             TypeError,
@@ -37,7 +37,7 @@ define(['jquery', 'lodash', 'ui/taskQueue/table'], function($, _, taskQueueTable
         );
 
         assert.throws(
-            function() {
+            function () {
                 taskQueueTableFactory({ context: '' });
             },
             TypeError,
@@ -50,7 +50,7 @@ define(['jquery', 'lodash', 'ui/taskQueue/table'], function($, _, taskQueueTable
         assert.notDeepEqual(taskTable, taskQueueTableFactory({ context: context }), 'The factory creates new objects');
     });
 
-    var pluginApi = [
+    const pluginApi = [
         { name: 'init', title: 'init' },
         { name: 'render', title: 'render' },
         { name: 'destroy', title: 'destroy' },
@@ -59,33 +59,33 @@ define(['jquery', 'lodash', 'ui/taskQueue/table'], function($, _, taskQueueTable
         { name: 'trigger', title: 'trigger' }
     ];
 
-    QUnit.cases.init(pluginApi).test('component method ', function(data, assert) {
+    QUnit.cases.init(pluginApi).test('component method ', function (data, assert) {
+        const context = 'oneTypeOfSuperLongTask';
+        const taskTable = taskQueueTableFactory({ context: context });
+
         assert.expect(1);
 
-        var context = 'oneTypeOfSuperLongTask';
-        var taskTable = taskQueueTableFactory({ context: context });
-
-        assert.equal(typeof taskTable[data.name], 'function', `The component exposes a "${  data.name  }" function`);
+        assert.equal(typeof taskTable[data.name], 'function', `The component exposes a "${data.name}" function`);
     });
 
     QUnit.module('Behavior');
 
-    QUnit.test('create table', function(assert) {
-        var ready = assert.async();
+    QUnit.test('create table', function (assert) {
+        const ready = assert.async();
+        const context = 'oneTypeOfSuperLongTask';
+        const $fixtureContainer = $('#qunit-fixture');
+        const taskTable = taskQueueTableFactory({ context: context });
+
         assert.expect(5);
 
-        var context = 'oneTypeOfSuperLongTask';
-        var $fixtureContainer = $('#qunit-fixture');
-        var taskTable = taskQueueTableFactory({ context: context });
-
         taskTable
-            .on('render', function() {
+            .on('render', function () {
                 var $component = $('.component', $fixtureContainer);
 
                 assert.equal($component.length, 1, 'The component has been appended to the container');
                 assert.ok($component.hasClass('rendered'), 'The component has the rendered class');
             })
-            .on('loaded', function() {
+            .on('loaded', function () {
                 var $component = $('.component', $fixtureContainer);
                 assert.equal($('.datatable-container > table', $component).length, 1, 'The table is also added');
                 assert.equal(
@@ -108,16 +108,16 @@ define(['jquery', 'lodash', 'ui/taskQueue/table'], function($, _, taskQueueTable
             .render($fixtureContainer);
     });
 
-    QUnit.test('create table with download button', function(assert) {
-        var ready = assert.async();
+    QUnit.test('create table with download button', function (assert) {
+        const ready = assert.async();
+        const context = 'oneTypeOfSuperLongTask';
+        const $fixtureContainer = $('#qunit-fixture');
+        const taskTable = taskQueueTableFactory({ context: context });
+
         assert.expect(1);
 
-        var context = 'oneTypeOfSuperLongTask';
-        var $fixtureContainer = $('#qunit-fixture');
-        var taskTable = taskQueueTableFactory({ context: context });
-
         taskTable
-            .on('loaded', function() {
+            .on('loaded', function () {
                 var $component = $('.component', $fixtureContainer);
                 assert.equal(
                     $('.actions .btn-info', $('.datatable-container > table tbody tr', $component)[0]).length,
