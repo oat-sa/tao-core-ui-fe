@@ -18,14 +18,16 @@
 
 export const FLOAT_LEFT_CLASS = 'wrap-left';
 export const FLOAT_RIGHT_CLASS = 'wrap-right';
+export const INLINE_CLASS = 'wrap-inline';
 
 export const positionFloat = function positionFloat(widget, position) {
     if (!position) {
         return;
     }
 
-    widget.$container.removeClass(`${FLOAT_LEFT_CLASS} ${FLOAT_RIGHT_CLASS}`);
-    widget.$original.removeClass(`${FLOAT_LEFT_CLASS} ${FLOAT_RIGHT_CLASS}`);
+    widget.$container.removeClass(`${FLOAT_LEFT_CLASS} ${FLOAT_RIGHT_CLASS} ${INLINE_CLASS}`);
+    widget.$original.removeClass(`${FLOAT_LEFT_CLASS} ${FLOAT_RIGHT_CLASS} ${INLINE_CLASS}`);
+    widget.$container.parents('.widget-box').removeClass(`parent-${INLINE_CLASS}`);
 
     let className;
 
@@ -37,7 +39,8 @@ export const positionFloat = function positionFloat(widget, position) {
             className = FLOAT_LEFT_CLASS;
             break;
         case 'default':
-            className = '';
+            className = INLINE_CLASS;
+            widget.$container.parents('.widget-box').addClass(`parent-${className}`);
     }
 
     // Update DOM
@@ -55,8 +58,9 @@ export const positionFloat = function positionFloat(widget, position) {
 export const initAlignment = function initAlignment(widget) {
     if (widget.element.hasClass(FLOAT_LEFT_CLASS)) {
         return positionFloat(widget, 'left');
-    }
-    if (widget.element.hasClass(FLOAT_RIGHT_CLASS)) {
+    } else if (widget.element.hasClass(FLOAT_RIGHT_CLASS)) {
         return positionFloat(widget, 'right');
+    } else {
+        return positionFloat(widget, 'default');
     }
 };
