@@ -402,6 +402,15 @@ body {
         & p {
             margin-bottom: 0;
         }
+
+        & > .custom-text-box {
+            display: flex;
+            align-items: flex-end;
+        
+            & p {
+                margin-bottom: 0;
+            }
+        }
     }
 
     .txt-ctr {
