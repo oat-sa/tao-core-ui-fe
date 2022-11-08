@@ -80,7 +80,7 @@
         "open-cli": "^7.1.0",
         "popper.js": "^1.15.0",
         "postcss": "^7.0.16",
-        "postcss-node-sass": "^2.1.8",
+        "postcss-node-sass": "^3.1.2",
         "postcss-scss": "^2.0.0",
         "promise-limit": "^2.7.0",
         "qunit": "^2.19.1",
