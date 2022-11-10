@@ -97,7 +97,7 @@ export default function youtubePlayerFactory($container, config = {}) {
                 })
             );
             $container.append($media);
-            otherSources.forEach(source => this.addMedia(source.src));
+            otherSources.forEach(otherSource => this.addMedia(otherSource.src));
 
             media = null;
             destroyed = false;
