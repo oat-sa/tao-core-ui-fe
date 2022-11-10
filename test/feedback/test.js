@@ -32,7 +32,7 @@ define(['jquery', 'ui/feedback'], function($, feedback) {
             assert.equal(
                 typeof instance[data.name],
                 'function',
-                'The feedback instance exposes a "' + data.title + '" function'
+                `The feedback instance exposes a "${  data.title  }" function`
             );
         });
 
@@ -43,7 +43,7 @@ define(['jquery', 'ui/feedback'], function($, feedback) {
             assert.equal(
                 typeof instance[data.name],
                 'function',
-                'The feedback instance exposes a "' + data.title + '" function'
+                `The feedback instance exposes a "${  data.title  }" function`
             );
         });
 
@@ -64,7 +64,7 @@ define(['jquery', 'ui/feedback'], function($, feedback) {
             assert.equal(
                 typeof instance[data.name],
                 'function',
-                'The feedback instance exposes a "' + data.title + '" function'
+                `The feedback instance exposes a "${  data.title  }" function`
             );
         });
 
@@ -222,11 +222,11 @@ define(['jquery', 'ui/feedback'], function($, feedback) {
                     var $element = this.getElement();
                     assert.ok(this.is('rendered'), 'The component is rendered');
                     assert.ok(
-                        $element.hasClass('feedback-' + data.level),
+                        $element.hasClass(`feedback-${  data.level}`),
                         'The component root element has the correct level class'
                     );
                     assert.equal(
-                        $('.icon-' + data.level, $element).length,
+                        $(`.icon-${  data.level}`, $element).length,
                         1,
                         'The component has the correct level icon'
                     );

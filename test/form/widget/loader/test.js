@@ -54,7 +54,7 @@ define([
         {title: 'clearProviders'}
     ]).test('provider registry API ', function (data, assert) {
         assert.expect(1);
-        assert.equal(typeof widgetFactory[data.title], 'function', 'The factory exposes a "' + data.title + '" function');
+        assert.equal(typeof widgetFactory[data.title], 'function', `The factory exposes a "${  data.title  }" function`);
     });
 
     QUnit.module('Definitions');
@@ -72,7 +72,7 @@ define([
         const widget = widgetDefinitions[data.title];
         const provider = widgetFactory.getProvider(widget);
         assert.expect(2);
-        assert.equal(typeof provider, 'object', 'The widget registry contains the widget "' + data.title + '"');
-        assert.equal(typeof provider.init, 'function', 'The widget registry contains a valid widget provider for "' + data.title + '"');
+        assert.equal(typeof provider, 'object', `The widget registry contains the widget "${  data.title  }"`);
+        assert.equal(typeof provider.init, 'function', `The widget registry contains a valid widget provider for "${  data.title  }"`);
     });
 });

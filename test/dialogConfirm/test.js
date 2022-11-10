@@ -18,14 +18,14 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
-define(['ui/dialog/confirm'], function(dialogConfirm) {
+define(['ui/dialog/confirm'], function (dialogConfirm) {
     'use strict';
 
     QUnit.module('dialog/confirm');
 
-    QUnit.test('module', function(assert) {
-        var conf1 = dialogConfirm();
-        var conf2 = dialogConfirm();
+    QUnit.test('module', function (assert) {
+        const conf1 = dialogConfirm();
+        const conf2 = dialogConfirm();
         assert.equal(typeof dialogConfirm, 'function', 'The dialogConfirm module exposes a function');
         assert.equal(typeof conf1, 'object', 'The dialogConfirm factory produces an object');
         assert.notStrictEqual(conf1, conf2, 'The dialogConfirm factory provides a different object on each call');
@@ -33,7 +33,7 @@ define(['ui/dialog/confirm'], function(dialogConfirm) {
         conf2.destroy();
     });
 
-    var dialogApi = [
+    const dialogApi = [
         { name: 'init', title: 'init' },
         { name: 'destroy', title: 'destroy' },
         { name: 'setButtons', title: 'setButtons' },
@@ -46,17 +46,17 @@ define(['ui/dialog/confirm'], function(dialogConfirm) {
         { name: 'getDom', title: 'getDom' }
     ];
 
-    QUnit.cases.init(dialogApi).test('instance API ', function(data, assert) {
+    QUnit.cases.init(dialogApi).test('instance API ', function (data, assert) {
         var instance = dialogConfirm();
         assert.equal(
             typeof instance[data.name],
             'function',
-            'The dialogConfirm instance exposes a "' + data.title + '" function'
+            `The dialogConfirm instance exposes a "${data.title}" function`
         );
         instance.destroy();
     });
 
-    var confirmCases = [
+    const confirmCases = [
         {
             message: 'must accept',
             button: 'ok',
@@ -77,9 +77,9 @@ define(['ui/dialog/confirm'], function(dialogConfirm) {
         }
     ];
 
-    QUnit.cases.init(confirmCases).test('use ', function(data, assert) {
+    QUnit.cases.init(confirmCases).test('use ', function (data, assert) {
         var ready = assert.async();
-        var accept = function() {
+        var accept = function () {
             assert.equal(
                 data.button,
                 'ok',
@@ -87,7 +87,7 @@ define(['ui/dialog/confirm'], function(dialogConfirm) {
             );
             ready();
         };
-        var refuse = function() {
+        var refuse = function () {
             assert.equal(
                 data.button,
                 'cancel',
@@ -102,10 +102,7 @@ define(['ui/dialog/confirm'], function(dialogConfirm) {
         assert.ok(!!modal.getDom().length, 'The dialogConfirm instance gets a DOM element');
         assert.equal(modal.getDom().parent().length, 1, 'The dialogConfirm box is rendered by default');
         assert.equal(
-            modal
-                .getDom()
-                .find('.message')
-                .text(),
+            modal.getDom().find('.message').text(),
             data.message,
             'The dialogConfirm box displays the message'
         );
@@ -124,26 +121,17 @@ define(['ui/dialog/confirm'], function(dialogConfirm) {
 
         if (data.options && data.options.buttons) {
             assert.equal(
-                modal
-                    .getDom()
-                    .find('button[data-control="ok"] .label')
-                    .text(),
+                modal.getDom().find('button[data-control="ok"] .label').text(),
                 data.options.buttons.labels.ok,
                 'The dialogConfirm box displays correct label'
             );
             assert.equal(
-                modal
-                    .getDom()
-                    .find('button[data-control="cancel"] .label')
-                    .text(),
+                modal.getDom().find('button[data-control="cancel"] .label').text(),
                 data.options.buttons.labels.cancel,
                 'The dialogConfirm box displays correct label'
             );
         }
 
-        modal
-            .getDom()
-            .find('button[data-control="' + data.button + '"]')
-            .click();
+        modal.getDom().find(`button[data-control="${data.button}"]`).click();
     });
 });

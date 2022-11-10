@@ -47,7 +47,7 @@ define(['ui/datetime/picker'], function(dateTimePicker) {
             assert.equal(
                 typeof dateTimePicker()[data.title],
                 'function',
-                'The picker exposes the component method "' + data.title
+                `The picker exposes the component method "${  data.title}`
             );
         });
 
@@ -58,7 +58,7 @@ define(['ui/datetime/picker'], function(dateTimePicker) {
             assert.equal(
                 typeof dateTimePicker()[data.title],
                 'function',
-                'The picker exposes the eventifier method "' + data.title
+                `The picker exposes the eventifier method "${  data.title}`
             );
         });
 
@@ -79,7 +79,7 @@ define(['ui/datetime/picker'], function(dateTimePicker) {
             assert.equal(
                 typeof dateTimePicker()[data.title],
                 'function',
-                'The picker exposes the method "' + data.title
+                `The picker exposes the method "${  data.title}`
             );
         });
 
