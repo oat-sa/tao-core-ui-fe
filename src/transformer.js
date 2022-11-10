@@ -33,7 +33,7 @@ var vendorPrefixes = ['webkit', 'ms'];
 /**
  * Figure out the vendor prefix, if any
  */
-var prefix = (function() {
+var prefix = (function () {
     var i = vendorPrefixes.length,
         style = window.getComputedStyle(document.body, null);
 
@@ -41,7 +41,7 @@ var prefix = (function() {
         return '';
     }
     while (i--) {
-        if (style[vendorPrefixes[i] + 'Transform'] !== undefined) {
+        if (typeof style[vendorPrefixes[i] + 'Transform'] !== 'undefined') {
             return '-' + vendorPrefixes[i] + '-';
         }
     }
@@ -53,7 +53,7 @@ var prefix = (function() {
  * @param elem
  * @returns {{matrix: string, obj: obj }}
  */
-var _getTransformation = function(elem) {
+var _getTransformation = function (elem) {
     var _style = window.getComputedStyle(elem, null),
         matrix =
             _style.getPropertyValue('transform') ||
@@ -72,7 +72,7 @@ var _getTransformation = function(elem) {
  * @returns {string}
  * @private
  */
-var _getTransformOrigin = function(elem) {
+var _getTransformOrigin = function (elem) {
     var _style = window.getComputedStyle(elem, null);
     return (
         _style.getPropertyValue('transform-origin') ||
@@ -141,7 +141,7 @@ function _transform($elem, transforms) {
     cssObj[prefix + 'transform'] = '';
 
     // generate the style
-    _.forIn(transforms, function(value, key) {
+    _.forIn(transforms, function (value, key) {
         // ignore values that aren't numeric
         if (_.isNaN(value)) {
             return true;
@@ -157,7 +157,7 @@ function _transform($elem, transforms) {
             }
         }
 
-        if (undefined !== defaults[key] && value !== defaults[key]) {
+        if (typeof defaults[key] !== 'undefined' && value !== defaults[key]) {
             if (key.indexOf('translate') > -1) {
                 value += 'px';
             } else if (key === 'rotate' || key.indexOf('skew') > -1) {
