@@ -16,7 +16,6 @@
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA;
  */
 
-import _ from 'lodash';
 import __ from 'i18n';
 import widgetFactory from 'ui/generis/widget/widget';
 import tpl from 'ui/generis/widget/textBox/textBox.tpl';
