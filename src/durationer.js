@@ -89,12 +89,12 @@ var Durationer = {
                     options.$ctrls = $elt.siblings('.' + options.wrapperClass).children('input');
 
                     options.$ctrls.on('change', function () {
-                        self._syncToField($elt);
+                        Durationer._syncToField($elt);
                     });
 
                     $elt.on('change', function (e) {
                         if (e.namespace !== ns) {
-                            self._syncFromField($elt);
+                            Durationer._syncFromField($elt);
                         }
                     });
 
