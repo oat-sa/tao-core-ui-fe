@@ -73,16 +73,16 @@ var _defaults = {
 export default function taskQueueApi(config) {
     config = _.defaults(config || {}, _defaults);
 
-    var pollingIntervals = [
+    const pollingIntervals = [
         { iteration: 10, interval: 1000 },
         { iteration: 10, interval: 10000 },
         { iteration: 10, interval: 30000 },
         { iteration: 0, interval: 60000 }
     ];
 
-    var poll;
+    let poll;
 
-    var api = eventifier({
+    const api = eventifier({
         /**
          * Get the status of a task identified by its unique task id
          *
@@ -90,14 +90,13 @@ export default function taskQueueApi(config) {
          * @returns {Promise}
          */
         getStatus: function getStatus(taskId) {
-            var status;
-            var error;
+            let status;
 
             if (!config.url || !config.url.status) {
                 throw new TypeError('config.url.status is not configured while getStatus() is being called');
             }
 
-            status = request(config.url.status, { taskId: taskId }).then(function(taskData) {
+            status = request(config.url.status, { taskId: taskId }).then(function (taskData) {
                 //check taskData
                 if (taskData && taskData.status) {
                     return Promise.resolve(taskData);
@@ -105,7 +104,7 @@ export default function taskQueueApi(config) {
                 return Promise.reject(new Error('failed to get task data'));
             });
 
-            status.catch(function(err) {
+            status.catch(function (err) {
                 api.trigger('error', err);
             });
 
@@ -130,7 +129,7 @@ export default function taskQueueApi(config) {
              * @private
              * @param {Object} pollingInstance - a poll object
              */
-            var _updateInterval = function _updateInterval(pollingInstance) {
+            function _updateInterval(pollingInstance) {
                 var pollingInterval;
                 if (loop) {
                     loop--;
@@ -141,7 +140,7 @@ export default function taskQueueApi(config) {
                         pollingInstance.setInterval(pollingInterval.interval);
                     }
                 }
-            };
+            }
 
             api.pollStop();
             poll = polling({
@@ -149,7 +148,7 @@ export default function taskQueueApi(config) {
                     // get into asynchronous mode
                     var done = this.async();
                     api.getStatus(taskId)
-                        .then(function(taskData) {
+                        .then(function (taskData) {
                             if (taskData.status === 'finished') {
                                 api.trigger('finished', taskData);
                                 poll.stop();
@@ -159,7 +158,7 @@ export default function taskQueueApi(config) {
                                 done.resolve();
                             }
                         })
-                        .catch(function() {
+                        .catch(function () {
                             done.reject();
                         });
                 }
@@ -191,14 +190,13 @@ export default function taskQueueApi(config) {
          * @returns {Promise}
          */
         remove: function remove(taskId) {
-            var status;
-            var error;
+            let status;
 
             if (!config.url || !config.url.remove) {
                 throw new TypeError('config.url.remove is not configured while remove is being called');
             }
 
-            status = request(config.url.remove, { taskId: taskId }).then(function(taskData) {
+            status = request(config.url.remove, { taskId: taskId }).then(function (taskData) {
                 if (taskData && taskData.status === 'archived') {
                     return Promise.resolve(taskData);
                 } else {
@@ -206,7 +204,7 @@ export default function taskQueueApi(config) {
                 }
             });
 
-            status.catch(function(res) {
+            status.catch(function (res) {
                 api.trigger('error', res);
             });
 

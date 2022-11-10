@@ -24,7 +24,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 
 var filter = {
-    init: function() {},
+    init: function () {},
     /**
      * @param {jQuery} $table - table element
      * @param {jQuery} $filter - filter input
@@ -33,7 +33,7 @@ var filter = {
     getQueryData: function getQueryData($table, $filter, options) {
         var data = {};
         var column = $filter.data('column');
-        var model = _.find(options.model, function(o) {
+        var model = _.find(options.model, function (o) {
             return o.id === column;
         });
 
@@ -43,7 +43,7 @@ var filter = {
 
         data.filterquery = $filter
             .find(':input')
-            .filter(function() {
+            .filter(function () {
                 return $(this).val();
             })
             .val();
@@ -70,7 +70,7 @@ var filter = {
 
         data.filterquery = $filter
             .find(':input')
-            .filter(function() {
+            .filter(function () {
                 return $(this).val();
             })
             .val();
@@ -81,13 +81,13 @@ var filter = {
     render: function render($table, options) {
         var filterColumns = options.filtercolumns ? options.filtercolumns : [];
 
-        _.forEach($('.filter', $table), function(filter) {
-            var $filter = $(filter);
+        _.forEach($('.filter', $table), function (tableFilter) {
+            var $filter = $(tableFilter);
             var column = $filter.data('column');
             var filterSelector = options.filterSelector || 'select, input';
             var $filterInput = $(filterSelector, $filter);
 
-            var model = _.find(options.model, function(o) {
+            var model = _.find(options.model, function (o) {
                 return o.id === column;
             });
 

@@ -159,6 +159,7 @@ define(['jquery', 'lodash', 'ui/dialog'], function ($, _, dialog) {
         const ready2 = assert.async(2);
         const ready1 = assert.async();
         const ready = assert.async();
+
         const message = 'test';
         const modal = dialog({
             message: message,

@@ -231,12 +231,12 @@ function mediaplayerFactory(config) {
     const mediaplayer = {
         /**
          * Initializes the media player
-         * @param {Object} config
+         * @param {Object} mediaPlayerConfig
          * @returns {mediaplayer}
          */
-        init(config) {
+        init(mediaPlayerConfig) {
             // load the config set, discard null values in order to allow defaults to be set
-            this.config = _.omit(config || {}, value => typeof value === 'undefined' || value === null);
+            this.config = _.omit(mediaPlayerConfig || {}, value => typeof value === 'undefined' || value === null);
             _.defaults(this.config, defaults.options);
             if (!this.config.mimeType && 'string' === typeof this.config.type && this.config.type.indexOf('/') > 0) {
                 this.config.mimeType = this.config.type;

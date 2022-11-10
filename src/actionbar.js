@@ -86,7 +86,7 @@ var actionbar = {
     toggleButton: function toggleButton(id, condition) {
         var $btn = this.getButtonElement(id);
         if ($btn) {
-            if (undefined !== condition) {
+            if (typeof condition !== 'undefined') {
                 condition = !condition;
             }
             $btn.toggleClass('hidden', condition);
@@ -123,7 +123,7 @@ var actionbar = {
      */
     toggleConditionals: function toggleConditionals(condition) {
         if (this.is('rendered')) {
-            if (undefined !== condition) {
+            if (typeof condition !== 'undefined') {
                 condition = !condition;
             }
             this.controls.$conditional.toggleClass('hidden', condition);
@@ -160,7 +160,7 @@ var actionbar = {
      */
     toggleAll: function toggleAll(condition) {
         if (this.is('rendered')) {
-            if (undefined !== condition) {
+            if (typeof condition !== 'undefined') {
                 condition = !condition;
             }
             this.controls.$all.toggleClass('hidden', condition);
@@ -198,13 +198,13 @@ function actionbarFactory(config) {
             .setTemplate(mainTpl)
 
             // uninstalls the component
-            .on('destroy', function() {
+            .on('destroy', function () {
                 this.buttons = null;
                 this.controls = null;
             })
 
             // renders the component
-            .on('render', function() {
+            .on('render', function () {
                 var self = this;
                 var $component = this.getElement();
 
@@ -219,13 +219,13 @@ function actionbarFactory(config) {
                     $conditional: $component.find('button.conditional'),
                     $all: $component.find('button')
                 };
-                _.forEach(this.config.buttons, function(button) {
+                _.forEach(this.config.buttons, function (button) {
                     self.buttons[button.id] = button;
                     self.controls.$buttons[button.id] = $component.find('[data-control="' + button.id + '"]');
                 });
 
                 // click on a button
-                this.$component.on('click', 'button', function(e) {
+                this.$component.on('click', 'button', function (e) {
                     var $this = $(this);
                     var buttonId = $this.closest('button').data('control');
                     var button = self.getButton(buttonId);

@@ -98,7 +98,7 @@ export default function loginFactory($container, config) {
          * @returns {jQuery} jQuery element
          */
         createFakeForm: function createFakeForm() {
-            const $element = this.getElement()
+            const $element = this.getElement();
             const $fakeFormDom = $element.clone();
 
             $element.find('label').remove();
@@ -164,7 +164,7 @@ export default function loginFactory($container, config) {
                 }
             };
 
-            const show = function show() {
+            function show() {
                 $viewIcon.hide();
                 $hideIcon.show();
 
@@ -174,9 +174,9 @@ export default function loginFactory($container, config) {
                 window.addEventListener('mousedown', autoHide);
 
                 $pwdInput.focus();
-            };
+            }
 
-            const hide = function hide(moveFocus) {
+            function hide(moveFocus) {
                 $hideIcon.hide();
                 $viewIcon.show();
 
@@ -188,7 +188,7 @@ export default function loginFactory($container, config) {
                 if (moveFocus) {
                     $pwdInput.focus();
                 }
-            };
+            }
 
             const togglePassword = function togglePassword() {
                 if ($pwdInput.type === 'password') {
@@ -233,11 +233,9 @@ export default function loginFactory($container, config) {
                 messages.error = __('All fields are required');
             }
 
-            _.forEach(messages, function(message, level) {
+            _.forEach(messages, function (message, level) {
                 if (message) {
-                    feedback()
-                        .message(level, message)
-                        .open();
+                    feedback().message(level, message).open();
                     $fields.addClass(level);
                 }
             });
@@ -246,10 +244,10 @@ export default function loginFactory($container, config) {
 
     var loginComponent = component(api, _defaultConfig)
         .setTemplate(loginTpl)
-        .on('init', function() {
+        .on('init', function () {
             this.render($container);
         })
-        .on('render', function() {
+        .on('render', function () {
             var $fakeForm, $loginBtn;
             var $loginForm = this.getRealForm();
             var self = this;
@@ -260,7 +258,7 @@ export default function loginFactory($container, config) {
              */
             var submitForm = function submitForm() {
                 // if the fake form exists, copy all fields values into the real form
-                $fakeForm.find(':input').each(function() {
+                $fakeForm.find(':input').each(function () {
                     var $field = $(this);
                     $loginForm.find('input[name="' + $field.attr('name') + '"]').val($field.val());
                 });
@@ -277,23 +275,20 @@ export default function loginFactory($container, config) {
                 $fakeForm = this.createFakeForm();
 
                 this.hide();
-                this.getElement()
-                    .find('form')
-                    .attr('id', 'loginForm')
-                    .attr('aria-hidden', 'true');
+                this.getElement().find('form').attr('id', 'loginForm').attr('aria-hidden', 'true');
                 this.getContainer().prepend($fakeForm);
 
                 // submit the form when the user hit the submit button inside the fake form
                 $fakeForm
                     .find('input[type="submit"], button[type="submit"]')
                     .off('click')
-                    .on('click', function(e) {
+                    .on('click', function (e) {
                         e.preventDefault();
                         submitForm();
                     });
 
                 // submit the form when the user hit the ENTER key inside the fake form
-                $fakeForm.on('keypress', function(e) {
+                $fakeForm.on('keypress', function (e) {
                     if (e.key === 'Enter') {
                         e.preventDefault();
                         submitForm();
@@ -315,7 +310,7 @@ export default function loginFactory($container, config) {
             this.displayMessages(this.getMessages());
         });
 
-    _.defer(function() {
+    _.defer(function () {
         loginComponent.init(config);
     });
     return loginComponent;
