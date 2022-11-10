@@ -36,7 +36,7 @@ define([
 
         const player = {
             init() {
-                this.$media = $(playerTpl({ mediaType }));
+                this.$media = $(playerTpl({ type: mediaType }));
                 $container.append(this.$media);
 
                 media = void 0;
