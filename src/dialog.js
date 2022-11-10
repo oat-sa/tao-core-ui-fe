@@ -306,7 +306,7 @@ const dialog = {
      */
     trigger(eventName, extraParameters) {
         if (this.$html) {
-            if (typeof extraParameters !== 'undefined') {
+            if (typeof extraParameters === 'undefined') {
                 extraParameters = [];
             }
             if (!_.isArray(extraParameters)) {
