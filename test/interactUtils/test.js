@@ -1,4 +1,4 @@
-define(['jquery', 'lodash', 'interact', 'ui/interactUtils', 'core/mouseEvent'], function(
+define(['jquery', 'lodash', 'interact', 'ui/interactUtils', 'core/mouseEvent'], function (
     $,
     _,
     interact,
@@ -9,11 +9,11 @@ define(['jquery', 'lodash', 'interact', 'ui/interactUtils', 'core/mouseEvent'], 
 
     QUnit.module('tapOn(), javascript element');
 
-    QUnit.test('fire mousedown and mouseup events', function(assert) {
-        var ready = assert.async();
+    QUnit.test('fire mousedown and mouseup events', function (assert) {
+        const ready = assert.async();
         assert.expect(3);
 
-        var button = document.getElementById('button');
+        const button = document.getElementById('button');
         button.addEventListener('pointerdown', function pointerdown() {
             assert.ok(true, 'pointerdown has been fired');
         });
@@ -21,22 +21,22 @@ define(['jquery', 'lodash', 'interact', 'ui/interactUtils', 'core/mouseEvent'], 
             assert.ok(true, 'pointerup has been fired');
         });
 
-        interactUtils.tapOn(button, function() {
+        interactUtils.tapOn(button, function () {
             assert.ok(true, 'callback has been fired');
             ready();
         });
     });
 
-    QUnit.test('triggers interact tap event', function(assert) {
-        var ready = assert.async();
+    QUnit.test('triggers interact tap event', function (assert) {
+        const ready = assert.async();
         assert.expect(2);
 
-        var button = document.getElementById('button');
+        const button = document.getElementById('button');
         interact(button).on('tap', function tap() {
             assert.ok(true, 'tap has been triggered');
         });
 
-        interactUtils.tapOn(button, function() {
+        interactUtils.tapOn(button, function () {
             assert.ok(true, 'callback has been fired');
             ready();
         });
@@ -44,11 +44,11 @@ define(['jquery', 'lodash', 'interact', 'ui/interactUtils', 'core/mouseEvent'], 
 
     QUnit.module('tapOn(), jquery element');
 
-    QUnit.test('fire mousedown and mouseup events', function(assert) {
-        var ready = assert.async();
+    QUnit.test('fire mousedown and mouseup events', function (assert) {
+        const ready = assert.async();
         assert.expect(3);
 
-        var button = document.getElementById('button'),
+        const button = document.getElementById('button'),
             $button = $('#button');
 
         button.addEventListener('pointerdown', function pointerdown() {
@@ -58,24 +58,24 @@ define(['jquery', 'lodash', 'interact', 'ui/interactUtils', 'core/mouseEvent'], 
             assert.ok(true, 'pointerup has been fired');
         });
 
-        interactUtils.tapOn($button, function() {
+        interactUtils.tapOn($button, function () {
             assert.ok(true, 'callback has been fired');
             ready();
         });
     });
 
-    QUnit.test('triggers interact tap event', function(assert) {
-        var ready = assert.async();
+    QUnit.test('triggers interact tap event', function (assert) {
+        const ready = assert.async();
         assert.expect(2);
 
-        var button = document.getElementById('button'),
+        const button = document.getElementById('button'),
             $button = $('#button');
 
         interact(button).on('tap', function tap() {
             assert.ok(true, 'tap has been triggered');
         });
 
-        interactUtils.tapOn($button, function() {
+        interactUtils.tapOn($button, function () {
             assert.ok(true, 'callback has been fired');
             ready();
         });
@@ -83,10 +83,10 @@ define(['jquery', 'lodash', 'interact', 'ui/interactUtils', 'core/mouseEvent'], 
 
     QUnit.module('moveElement(), restoreElementPosition()');
 
-    QUnit.test('move and restore js element position', function(assert) {
+    QUnit.test('move and restore js element position', function (assert) {
         assert.expect(4);
 
-        var dragged = document.getElementById('dragged');
+        const dragged = document.getElementById('dragged');
 
         interactUtils.moveElement(dragged, 5, 15);
 
@@ -107,10 +107,10 @@ define(['jquery', 'lodash', 'interact', 'ui/interactUtils', 'core/mouseEvent'], 
         // assert.equal(dragged.style.webkitTransform, 'translate(0px, 0px)', 'element has been moved with css webkitTransform');
     });
 
-    QUnit.test('move and restore jQuery element position', function(assert) {
+    QUnit.test('move and restore jQuery element position', function (assert) {
         assert.expect(4);
 
-        var dragged = document.getElementById('dragged'),
+        const dragged = document.getElementById('dragged'),
             $dragged = $('#dragged');
 
         interactUtils.moveElement($dragged, 5, 15);
@@ -134,11 +134,11 @@ define(['jquery', 'lodash', 'interact', 'ui/interactUtils', 'core/mouseEvent'], 
 
     QUnit.module('iframe drag fix');
 
-    QUnit.test('registered callback is triggered when mouse leave browser window', function(assert) {
-        var ready = assert.async();
+    QUnit.test('registered callback is triggered when mouse leave browser window', function (assert) {
+        const ready = assert.async();
         assert.expect(1);
 
-        interactUtils.iFrameDragFixOn(function() {
+        interactUtils.iFrameDragFixOn(function () {
             assert.ok(true, 'callback has been fired');
             ready();
         });
