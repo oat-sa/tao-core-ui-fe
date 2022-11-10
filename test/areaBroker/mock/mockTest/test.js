@@ -89,9 +89,9 @@ define(['lodash', 'jquery', 'test/ui/areaBroker/mock/areaBrokerMock'], function(
 
         _.forEach(areas, function(area) {
             assert.equal(
-                broker.getContainer().find('.' + area).length,
+                broker.getContainer().find(`.${  area}`).length,
                 1,
-                'The container must contain an area related to ' + area
+                `The container must contain an area related to ${  area}`
             );
         });
     });
@@ -112,16 +112,16 @@ define(['lodash', 'jquery', 'test/ui/areaBroker/mock/areaBrokerMock'], function(
             'The container contains the exact number of areas'
         );
         assert.equal(
-            broker.getContainer().find('.' + extraArea).length,
+            broker.getContainer().find(`.${  extraArea}`).length,
             1,
             'The container must contain the extra area'
         );
 
         _.forEach(areas, function(area) {
             assert.equal(
-                broker.getContainer().find('.' + area).length,
+                broker.getContainer().find(`.${  area}`).length,
                 1,
-                'The container must contain an area related to ' + area
+                `The container must contain an area related to ${  area}`
             );
         });
     });
@@ -140,7 +140,7 @@ define(['lodash', 'jquery', 'test/ui/areaBroker/mock/areaBrokerMock'], function(
         );
 
         _.forEach(areas, function(area) {
-            assert.equal(broker.getArea(area).length, 1, 'The container can retrieve the area ' + area);
+            assert.equal(broker.getArea(area).length, 1, `The container can retrieve the area ${  area}`);
         });
     });
 
@@ -163,7 +163,7 @@ define(['lodash', 'jquery', 'test/ui/areaBroker/mock/areaBrokerMock'], function(
             assert.equal(
                 broker.getArea(areaId),
                 mapping[areaId],
-                'The area broker contains the right dom element for ' + areaId
+                `The area broker contains the right dom element for ${  areaId}`
             );
         });
         assert.equal(broker.getArea('extraArea').length, 1, 'The container can retrieve the extra area');

@@ -34,7 +34,7 @@ define(['jquery', 'lodash', 'ui/component', 'ui/animable/pulsable/pulsable', 'cs
         var component = makePulsable(componentFactory());
 
         assert.expect(1);
-        assert.equal(typeof component[data.method], 'function', 'The component has the method ' + data.method);
+        assert.equal(typeof component[data.method], 'function', `The component has the method ${  data.method}`);
     });
 
     QUnit.module('Behavior');
