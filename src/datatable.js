@@ -355,7 +355,7 @@ const dataTable = {
 
         $.ajax(ajaxConfig)
             .done(function (response) {
-                if($elt && typeof $elt.data(dataNs) !== 'object'){
+                if ($elt && typeof $elt.data(dataNs) !== 'object') {
                     return $elt.trigger(`error.${ns}`, [new Error(`Unable to load data attached to the element`)]);
                 }
                 self._render($elt, response);
@@ -383,7 +383,7 @@ const dataTable = {
     _render($elt, dataset = {}) {
         const self = this;
         let options = _.cloneDeep($elt.data(dataNs));
-        if(typeof options === 'undefined') {
+        if (typeof options === 'undefined') {
             return $elt.trigger(`error.${ns}`, [new Error(`Unable to load data attached to the element`)]);
         }
 
@@ -468,7 +468,7 @@ const dataTable = {
                 $('[data-item-identifier="' + id + '"] button', $rendering).addClass('disabled');
             } else if (values && typeof values === 'object') {
                 for (const action in values) {
-                    if (values.hasOwnProperty(action) && values[action] === true) {
+                    if (Object.prototype.hasOwnProperty.call(values, action) && values[action] === true) {
                         $(`[data-item-identifier="${id}"] button.${action}`, $rendering).addClass('disabled');
                     }
                 }
@@ -629,7 +629,7 @@ const dataTable = {
             const column = $(this).data('sort-by');
             const type = $(this).data('sort-type');
 
-            self._sort($elt, column, undefined, type);
+            self._sort($elt, column, void 0, type);
         });
 
         // Add the filter behavior
@@ -869,7 +869,7 @@ const dataTable = {
         }
 
         // NOTE: The code above generate the table cell. With updating handlebars to the version > 2.*, please move it to the dedicated template to reuse it in layout.tpl as well
-        nextState.data.forEach((nextData, index) => {
+        nextState.data.forEach(nextData => {
             const $row = $container.find(`tr[data-item-identifier="${nextData.id}"]`);
 
             options.model.forEach(model => {
@@ -919,7 +919,7 @@ const dataTable = {
 
         if (typeof asc !== 'undefined') {
             if ('asc' !== asc && 'desc' !== asc) {
-                asc = !!asc ? 'asc' : 'desc';
+                asc = asc ? 'asc' : 'desc';
             }
             options.sortorder = asc;
         } else if (options.sortorder === 'asc' && options.sortby === sortBy) {

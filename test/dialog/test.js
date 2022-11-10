@@ -193,6 +193,8 @@ define(['jquery', 'lodash', 'ui/dialog'], function($, _, dialog) {
         var ready3 = assert.async();
         var ready2 = assert.async(2);
         var ready1 = assert.async();
+        var ready = assert.async();
+
         var message = 'test';
         var modal = dialog({
             message: message,
@@ -230,7 +232,6 @@ define(['jquery', 'lodash', 'ui/dialog'], function($, _, dialog) {
             }
         });
 
-        var ready = assert.async();
 
         assert.equal(typeof modal, 'object', 'The dialog instance is an object');
         assert.equal(typeof modal.getDom(), 'object', 'The dialog instance gets a DOM element');

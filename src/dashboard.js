@@ -58,6 +58,7 @@ import component from 'ui/component';
 import dashboardTpl from 'ui/dashboard/tpl/dashboard';
 import metricsListTpl from 'ui/dashboard/tpl/dashboardMetricsList';
 import 'ui/dashboard/css/dashboard.css';
+import $ from 'jquery';
 
 var defaults = {
     headerText: __('Outlook on the next Synchronization'),
@@ -95,9 +96,7 @@ function dashboardFactory(config) {
          * Clear dashboard
          */
         clearDashboard: function clearDashboard() {
-            this.getElement()
-                .find('.dashboard-metrics_container')
-                .empty();
+            this.getElement().find('.dashboard-metrics_container').empty();
             this.toggleWarningMessage(false);
         },
         /**
@@ -130,17 +129,17 @@ function dashboardFactory(config) {
             var self = this;
 
             if (data && data.length) {
-                _.forEach(data, function(item) {
+                _.forEach(data, function (item) {
                     item.state = self.mapScoreToState(item.score);
                 });
 
                 this.toggleWarningMessage(
-                    _.some(data, function(item) {
+                    _.some(data, function (item) {
                         return item.score <= self.config.scoreState.warn;
                     })
                 );
 
-                var $metricsList = $(metricsListTpl({ data: data, layoutType: self.config.layoutType }));
+                const $metricsList = $(metricsListTpl({ data: data, layoutType: self.config.layoutType }));
 
                 $listContainer.append($metricsList);
             }
@@ -149,17 +148,13 @@ function dashboardFactory(config) {
          * Toggle loading bar
          */
         toggleLoadingBar: function toggleLoadingBar(display) {
-            this.getElement()
-                .find('.dashboard-loading')
-                .toggle(display);
+            this.getElement().find('.dashboard-loading').toggle(display);
         },
         /**
          * Toggle warning message
          */
         toggleWarningMessage: function toggleWarningMessage(display) {
-            this.getElement()
-                .find('.dashboard-warning')
-                .toggle(display);
+            this.getElement().find('.dashboard-warning').toggle(display);
         }
     };
 
@@ -168,10 +163,10 @@ function dashboardFactory(config) {
      */
     return component(specs, defaults)
         .setTemplate(dashboardTpl)
-        .on('init', function() {
+        .on('init', function () {
             this.setState('loading', this.config.loading);
         })
-        .on('render', function() {
+        .on('render', function () {
             if (!this.is('loading')) {
                 this.renderMetrics(this.config.data);
             } else {
