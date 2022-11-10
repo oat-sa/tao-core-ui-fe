@@ -15,12 +15,12 @@
  *
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
  */
-define(['jquery', 'lodash', 'ui/loadingButton/loadingButton'], function($, _, loadingButtonFactory) {
+define(['jquery', 'lodash', 'ui/loadingButton/loadingButton'], function ($, _, loadingButtonFactory) {
     'use strict';
 
     QUnit.module('API');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.expect(3);
 
         assert.equal(typeof loadingButtonFactory, 'function', 'The loadingButtonFactory module exposes a function');
@@ -48,45 +48,45 @@ define(['jquery', 'lodash', 'ui/loadingButton/loadingButton'], function($, _, lo
             { title: 'getTemplate' },
             { title: 'setTemplate' }
         ])
-        .test('Component API ', function(data, assert) {
+        .test('Component API ', function (data, assert) {
             var instance = loadingButtonFactory();
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The loadingButton exposes the component method "' + data.title
+                `The loadingButton exposes the component method "${data.title}"`
             );
         });
 
     QUnit.cases
         .init([{ title: 'on' }, { title: 'off' }, { title: 'trigger' }, { title: 'before' }, { title: 'after' }])
-        .test('Eventifier API ', function(data, assert) {
+        .test('Eventifier API ', function (data, assert) {
             var instance = loadingButtonFactory();
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The loadingButton exposes the eventifier method "' + data.title
+                `The loadingButton exposes the eventifier method "${data.title}"`
             );
         });
 
     QUnit.cases
         .init([{ title: 'start' }, { title: 'terminate' }, { title: 'reset' }])
-        .test('Instance API ', function(data, assert) {
+        .test('Instance API ', function (data, assert) {
             var instance = loadingButtonFactory();
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The loadingButton exposes the method "' + data.title
+                `The loadingButton exposes the method "${data.title}"`
             );
         });
 
     QUnit.module('Behavior');
 
-    QUnit.test('enable/disable', function(assert) {
+    QUnit.test('enable/disable', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         assert.expect(3);
         loadingButtonFactory()
-            .on('render', function() {
+            .on('render', function () {
                 assert.equal(this.getElement().prop('disabled'), false, 'initially enabled');
 
                 this.disable();
@@ -100,23 +100,23 @@ define(['jquery', 'lodash', 'ui/loadingButton/loadingButton'], function($, _, lo
             .render($container);
     });
 
-    QUnit.test('click and start', function(assert) {
+    QUnit.test('click and start', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         assert.expect(2);
         loadingButtonFactory({})
-            .on('render', function() {
+            .on('render', function () {
                 assert.ok(true, 'rendered');
                 this.getElement().click();
             })
-            .on('started', function() {
+            .on('started', function () {
                 assert.ok(true, 'started after click');
                 ready();
             })
             .render($container);
     });
 
-    QUnit.test('start, terminate and reset', function(assert) {
+    QUnit.test('start, terminate and reset', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         assert.expect(27);
@@ -127,146 +127,46 @@ define(['jquery', 'lodash', 'ui/loadingButton/loadingButton'], function($, _, lo
             label: 'Publish',
             terminatedLabel: 'Interrupted'
         })
-            .on('render', function() {
-                assert.ok(
-                    this.getElement()
-                        .find('.start-icon')
-                        .is(':visible'),
-                    'start icon visible'
-                );
-                assert.ok(
-                    this.getElement()
-                        .find('.action-label')
-                        .is(':visible'),
-                    'action label visible'
-                );
-                assert.equal(
-                    this.getElement()
-                        .find('.action-label')
-                        .text(),
-                    'Publish',
-                    'label correct'
-                );
-                assert.ok(
-                    !this.getElement()
-                        .find('.terminated-label')
-                        .is(':visible'),
-                    'terminate label hidden'
-                );
-                assert.ok(
-                    !this.getElement()
-                        .find('.spinning')
-                        .is(':visible'),
-                    'loading icon visible'
-                );
+            .on('render', function () {
+                assert.ok(this.getElement().find('.start-icon').is(':visible'), 'start icon visible');
+                assert.ok(this.getElement().find('.action-label').is(':visible'), 'action label visible');
+                assert.equal(this.getElement().find('.action-label').text(), 'Publish', 'label correct');
+                assert.ok(!this.getElement().find('.terminated-label').is(':visible'), 'terminate label hidden');
+                assert.ok(!this.getElement().find('.spinning').is(':visible'), 'loading icon visible');
                 assert.ok(!this.is('disabled'), 'component is enabled');
                 this.start();
             })
-            .on('started', function() {
+            .on('started', function () {
                 assert.ok(true, 'programmatically started');
-                assert.ok(
-                    !this.getElement()
-                        .find('.start-icon')
-                        .is(':visible'),
-                    'start icon hidden'
-                );
-                assert.ok(
-                    this.getElement()
-                        .find('.action-label')
-                        .is(':visible'),
-                    'action label visible'
-                );
-                assert.equal(
-                    this.getElement()
-                        .find('.action-label')
-                        .text(),
-                    'Publish',
-                    'label correct'
-                );
-                assert.ok(
-                    !this.getElement()
-                        .find('.terminated-label')
-                        .is(':visible'),
-                    'terminate label hidden'
-                );
-                assert.ok(
-                    this.getElement()
-                        .find('.spinning')
-                        .is(':visible'),
-                    'loading icon visible'
-                );
+                assert.ok(!this.getElement().find('.start-icon').is(':visible'), 'start icon hidden');
+                assert.ok(this.getElement().find('.action-label').is(':visible'), 'action label visible');
+                assert.equal(this.getElement().find('.action-label').text(), 'Publish', 'label correct');
+                assert.ok(!this.getElement().find('.terminated-label').is(':visible'), 'terminate label hidden');
+                assert.ok(this.getElement().find('.spinning').is(':visible'), 'loading icon visible');
                 assert.ok(!this.is('disabled'), 'component is enabled');
                 this.terminate();
             })
-            .on('terminated', function() {
+            .on('terminated', function () {
                 assert.ok(true, 'programmatically terminated');
-                assert.ok(
-                    this.getElement()
-                        .find('.start-icon')
-                        .is(':visible'),
-                    'start icon visible'
-                );
-                assert.ok(
-                    !this.getElement()
-                        .find('.action-label')
-                        .is(':visible'),
-                    'action label hidden'
-                );
+                assert.ok(this.getElement().find('.start-icon').is(':visible'), 'start icon visible');
+                assert.ok(!this.getElement().find('.action-label').is(':visible'), 'action label hidden');
                 assert.equal(
-                    this.getElement()
-                        .find('.terminated-label')
-                        .text(),
+                    this.getElement().find('.terminated-label').text(),
                     'Interrupted',
                     'terminate label correct'
                 );
-                assert.ok(
-                    this.getElement()
-                        .find('.terminated-label')
-                        .is(':visible'),
-                    'terminate visible'
-                );
-                assert.ok(
-                    !this.getElement()
-                        .find('.spinning')
-                        .is(':visible'),
-                    'loading icon hidden'
-                );
+                assert.ok(this.getElement().find('.terminated-label').is(':visible'), 'terminate visible');
+                assert.ok(!this.getElement().find('.spinning').is(':visible'), 'loading icon hidden');
                 assert.ok(this.is('disabled'), 'component is disabled');
                 this.reset();
             })
-            .on('reset', function() {
+            .on('reset', function () {
                 assert.ok(true, 'programmatically reset');
-                assert.ok(
-                    this.getElement()
-                        .find('.start-icon')
-                        .is(':visible'),
-                    'start icon visible'
-                );
-                assert.ok(
-                    this.getElement()
-                        .find('.action-label')
-                        .is(':visible'),
-                    'action label visible'
-                );
-                assert.equal(
-                    this.getElement()
-                        .find('.action-label')
-                        .text(),
-                    'Publish',
-                    'label correct'
-                );
-                assert.ok(
-                    !this.getElement()
-                        .find('.terminated-label')
-                        .is(':visible'),
-                    'terminate label hidden'
-                );
-                assert.ok(
-                    !this.getElement()
-                        .find('.spinning')
-                        .is(':visible'),
-                    'loading icon visible'
-                );
+                assert.ok(this.getElement().find('.start-icon').is(':visible'), 'start icon visible');
+                assert.ok(this.getElement().find('.action-label').is(':visible'), 'action label visible');
+                assert.equal(this.getElement().find('.action-label').text(), 'Publish', 'label correct');
+                assert.ok(!this.getElement().find('.terminated-label').is(':visible'), 'terminate label hidden');
+                assert.ok(!this.getElement().find('.spinning').is(':visible'), 'loading icon visible');
                 assert.ok(!this.is('disabled'), 'component is enabled again');
                 ready();
             })
@@ -275,21 +175,21 @@ define(['jquery', 'lodash', 'ui/loadingButton/loadingButton'], function($, _, lo
 
     QUnit.module('Visual');
 
-    QUnit.test('playground', function(assert) {
+    QUnit.test('playground', function (assert) {
         var ready = assert.async();
         var $container = $('#visual');
         var button = loadingButtonFactory({})
-            .on('render', function() {
+            .on('render', function () {
                 assert.ok(true);
                 ready();
             })
-            .on('started', function() {
-                _.delay(function() {
+            .on('started', function () {
+                _.delay(function () {
                     button.terminate();
                 }, 2000);
             })
-            .on('terminated', function() {
-                _.delay(function() {
+            .on('terminated', function () {
+                _.delay(function () {
                     button.reset();
                 }, 2000);
             })

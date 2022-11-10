@@ -16,18 +16,18 @@
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
  */
 
-define(['jquery', 'lodash', 'ui/report'], function($, _, report) {
+define(['jquery', 'lodash', 'ui/report'], function ($, _, report) {
     'use strict';
 
     QUnit.module('API');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.equal(typeof report, 'function', 'The report module exposes a function');
         assert.equal(typeof report(), 'object', 'The report factory produces an object');
         assert.notStrictEqual(report(), report(), 'The report factory provides a different object on each call');
     });
 
-    var reportApi = [
+    const reportApi = [
         { name: 'init', title: 'init' },
         { name: 'destroy', title: 'destroy' },
         { name: 'render', title: 'render' },
@@ -43,21 +43,17 @@ define(['jquery', 'lodash', 'ui/report'], function($, _, report) {
         { name: 'setTemplate', title: 'setTemplate' }
     ];
 
-    QUnit.cases.init(reportApi).test('instance API ', function(data, assert) {
+    QUnit.cases.init(reportApi).test('instance API ', function (data, assert) {
         assert.expect(1);
-        var instance = report();
-        assert.equal(
-            typeof instance[data.name],
-            'function',
-            'The report instance exposes a "' + data.title + '" function'
-        );
+        const instance = report();
+        assert.equal(typeof instance[data.name], 'function', `The report instance exposes a "${data.title}" function`);
     });
 
-    QUnit.test('init', function(assert) {
+    QUnit.test('init', function (assert) {
         assert.expect(12);
 
-        var config = {
-            nothing: undefined,
+        const config = {
+            nothing: void 0,
             dummy: null,
             keyName: 'key',
             labelName: 'name',
@@ -68,16 +64,16 @@ define(['jquery', 'lodash', 'ui/report'], function($, _, report) {
             textLoading: 'Please wait',
             selectable: true
         };
-        var instance = report(config);
+        const instance = report(config);
 
         assert.notEqual(instance.config, config, 'The report instance must duplicate the config set');
         assert.equal(
-            instance.hasOwnProperty('nothing'),
+            Object.prototype.hasOwnProperty.call(instance, 'nothing'),
             false,
             'The report instance must not accept undefined config properties'
         );
         assert.equal(
-            instance.hasOwnProperty('dummy'),
+            Object.prototype.hasOwnProperty.call(instance, 'dummy'),
             false,
             'The report instance must not accept null config properties'
         );
@@ -120,20 +116,19 @@ define(['jquery', 'lodash', 'ui/report'], function($, _, report) {
 
     QUnit.module('Rendering');
 
-    QUnit.test('simple report', function(assert) {
-        var ready = assert.async();
-
-        assert.expect(7);
-
-        var $fixtureContainer = $('#qunit-fixture');
-        var sampleData = {
+    QUnit.test('simple report', function (assert) {
+        const ready = assert.async();
+        const $fixtureContainer = $('#qunit-fixture');
+        const sampleData = {
             type: 'warning',
             message: '<em>Data not imported. All records are <strong>invalid.</strong></em>',
             data: null
         };
 
+        assert.expect(7);
+
         report({}, sampleData)
-            .on('render', function() {
+            .on('render', function () {
                 var $component = $('.component-report ', $fixtureContainer);
                 assert.equal($component.length, 1, 'The component has been appended to the container');
                 assert.ok($component.hasClass('rendered'), 'The component has the rendered class');
@@ -150,17 +145,16 @@ define(['jquery', 'lodash', 'ui/report'], function($, _, report) {
             .render($fixtureContainer);
     });
 
-    QUnit.test('simple report with actions', function(assert) {
-        var ready = assert.async();
-
-        assert.expect(9);
-
-        var $fixtureContainer = $('#qunit-fixture');
-        var sampleData = {
+    QUnit.test('simple report with actions', function (assert) {
+        const ready = assert.async();
+        const $fixtureContainer = $('#qunit-fixture');
+        const sampleData = {
             type: 'warning',
             message: '<em>Data not imported. All records are <strong>invalid.</strong></em>',
             data: null
         };
+
+        assert.expect(9);
 
         report(
             {
@@ -181,7 +175,7 @@ define(['jquery', 'lodash', 'ui/report'], function($, _, report) {
             },
             sampleData
         )
-            .on('render', function() {
+            .on('render', function () {
                 var $component = $('.component-report ', $fixtureContainer);
                 assert.equal($component.length, 1, 'The component has been appended to the container');
                 assert.ok($component.hasClass('rendered'), 'The component has the rendered class');
@@ -211,13 +205,10 @@ define(['jquery', 'lodash', 'ui/report'], function($, _, report) {
             .render($fixtureContainer);
     });
 
-    QUnit.test('hierarchical report', function(assert) {
-        var ready = assert.async();
-
-        assert.expect(6);
-
-        var $fixtureContainer = $('#qunit-fixture');
-        var sampleData = {
+    QUnit.test('hierarchical report', function (assert) {
+        const ready = assert.async();
+        const $fixtureContainer = $('#qunit-fixture');
+        const sampleData = {
             type: 'warning',
             message: '<em>Data not imported. All records are <strong>invalid.</strong></em>',
             data: null,
@@ -257,8 +248,10 @@ define(['jquery', 'lodash', 'ui/report'], function($, _, report) {
             ]
         };
 
+        assert.expect(6);
+
         report({}, sampleData)
-            .on('render', function() {
+            .on('render', function () {
                 var $component = $('.component-report ', $fixtureContainer);
                 assert.equal($component.length, 1, 'The component has been appended to the container');
                 assert.ok($component.hasClass('rendered'), 'The component has the rendered class');
@@ -278,17 +271,16 @@ define(['jquery', 'lodash', 'ui/report'], function($, _, report) {
 
     QUnit.module('Behaviour');
 
-    QUnit.test('trigger actions', function(assert) {
-        var ready = assert.async();
-
-        assert.expect(11);
-
-        var $fixtureContainer = $('#qunit-fixture');
-        var sampleData = {
+    QUnit.test('trigger actions', function (assert) {
+        const ready = assert.async();
+        const $fixtureContainer = $('#qunit-fixture');
+        const sampleData = {
             type: 'warning',
             message: '<em>Data not imported. All records are <strong>invalid.</strong></em>',
             data: null
         };
+
+        assert.expect(11);
 
         report(
             {
@@ -309,7 +301,7 @@ define(['jquery', 'lodash', 'ui/report'], function($, _, report) {
             },
             sampleData
         )
-            .on('render', function() {
+            .on('render', function () {
                 var $component = $('.component-report ', $fixtureContainer);
                 assert.equal($component.length, 1, 'The component has been appended to the container');
                 assert.ok($component.hasClass('rendered'), 'The component has the rendered class');
@@ -336,25 +328,22 @@ define(['jquery', 'lodash', 'ui/report'], function($, _, report) {
 
                 $component.find('.actions .action[data-trigger="continue"]').click();
             })
-            .on('action-continue', function() {
+            .on('action-continue', function () {
                 var $component = $('.component-report ', $fixtureContainer);
                 $component.find('.actions .action[data-trigger="rollback"]').click();
                 assert.ok(true, 'continue event triggered');
             })
-            .on('action-rollback', function() {
+            .on('action-rollback', function () {
                 assert.ok(true, 'rollback event triggered');
                 ready();
             })
             .render($fixtureContainer);
     });
 
-    QUnit.test('toggle details', function(assert) {
-        var ready = assert.async();
-
-        assert.expect(14);
-
-        var $fixtureContainer = $('#qunit-fixture');
-        var sampleData = {
+    QUnit.test('toggle details', function (assert) {
+        const ready = assert.async();
+        const $fixtureContainer = $('#qunit-fixture');
+        const sampleData = {
             type: 'warning',
             message: '<em>Data not imported. All records are <strong>invalid.</strong></em>',
             data: null,
@@ -394,8 +383,10 @@ define(['jquery', 'lodash', 'ui/report'], function($, _, report) {
             ]
         };
 
+        assert.expect(14);
+
         report({}, sampleData)
-            .on('render', function() {
+            .on('render', function () {
                 var $component = $('.component-report ', $fixtureContainer);
                 assert.equal($component.length, 1, 'The component has been appended to the container');
                 assert.ok($component.hasClass('rendered'), 'The component has the rendered class');
@@ -415,7 +406,7 @@ define(['jquery', 'lodash', 'ui/report'], function($, _, report) {
                 //Show details
                 $component.find('.fold input').click();
             })
-            .on('showDetails', function() {
+            .on('showDetails', function () {
                 var $component = $('.component-report ', $fixtureContainer);
 
                 assert.ok(true, 'showDetails event triggered');
@@ -428,11 +419,11 @@ define(['jquery', 'lodash', 'ui/report'], function($, _, report) {
                 );
                 assert.equal($component.find('.leaf:visible').length, 3, 'all leaf report are visible');
 
-                _.delay(function() {
+                _.delay(function () {
                     $component.find('.fold input').click();
                 }, 200);
             })
-            .on('hideDetails', function() {
+            .on('hideDetails', function () {
                 var $component = $('.component-report ', $fixtureContainer);
                 assert.ok(true, 'hideDetails event triggered');
 
@@ -447,11 +438,11 @@ define(['jquery', 'lodash', 'ui/report'], function($, _, report) {
 
     QUnit.module('Playground');
 
-    QUnit.test('render and play', function(assert) {
+    QUnit.test('render and play', function (assert) {
         assert.expect(0);
 
-        var $fixtureContainer = $('#qunit-fixture-external');
-        var sampleData = {
+        const $fixtureContainer = $('#qunit-fixture-external');
+        const sampleData = {
             type: 'warning',
             message: '<em>Data not imported. All records are <strong>invalid.</strong></em>',
             data: null,

@@ -23,12 +23,12 @@ define([
     'lodash',
     'ui/maths/calculator/core/board',
     'ui/maths/calculator/plugins/keyboard/templateKeyboard/templateKeyboard'
-], function($, _, calculatorBoardFactory, templateKeyboardPluginFactory) {
+], function ($, _, calculatorBoardFactory, templateKeyboardPluginFactory) {
     'use strict';
 
     QUnit.module('module');
 
-    QUnit.test('templateKeyboard', function(assert) {
+    QUnit.test('templateKeyboard', function (assert) {
         var calculator = calculatorBoardFactory();
 
         assert.expect(3);
@@ -66,117 +66,119 @@ define([
             { title: 'enable' },
             { title: 'disable' }
         ])
-        .test('plugin API ', function(data, assert) {
+        .test('plugin API ', function (data, assert) {
             var calculator = calculatorBoardFactory();
             var plugin = templateKeyboardPluginFactory(calculator);
             assert.expect(1);
             assert.equal(
                 typeof plugin[data.title],
                 'function',
-                'The plugin instances expose a "' + data.title + '" function'
+                `The plugin instances expose a "${data.title}" function`
             );
         });
 
     QUnit.module('behavior');
 
-    QUnit.test('install', function(assert) {
+    QUnit.test('install', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-install');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = templateKeyboardPluginFactory(calculator, areaBroker);
 
                 assert.expect(1);
 
                 calculator
-                    .on('plugin-install.templateKeyboard', function() {
+                    .on('plugin-install.templateKeyboard', function () {
                         assert.ok(true, 'The plugin has been installed');
                     })
-                    .on('destroy', function() {
+                    .on('destroy', function () {
                         ready();
                     });
 
                 plugin
                     .install()
-                    .catch(function(err) {
-                        assert.ok(false, 'Unexpected failure : ' + err.message);
+                    .catch(function (err) {
+                        assert.ok(false, `Unexpected failure : ${err.message}`);
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
+                //eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
                 ready();
             });
     });
 
-    QUnit.test('init', function(assert) {
+    QUnit.test('init', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-init');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = templateKeyboardPluginFactory(calculator, areaBroker);
 
                 assert.expect(1);
 
                 calculator
-                    .on('plugin-init.templateKeyboard', function() {
+                    .on('plugin-init.templateKeyboard', function () {
                         assert.ok(plugin.getState('init'), 'The plugin has been initialized');
                     })
-                    .on('destroy', function() {
+                    .on('destroy', function () {
                         ready();
                     });
 
                 plugin
                     .install()
-                    .then(function() {
+                    .then(function () {
                         return plugin.init();
                     })
-                    .catch(function(err) {
-                        assert.ok(false, 'Unexpected failure : ' + err.message);
+                    .catch(function (err) {
+                        assert.ok(false, `Unexpected failure : ${err.message}`);
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
+                //eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
                 ready();
             });
     });
 
-    QUnit.test('render', function(assert) {
+    QUnit.test('render', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-render');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = templateKeyboardPluginFactory(calculator, areaBroker);
 
                 assert.expect(29);
 
                 calculator
-                    .on('plugin-render.templateKeyboard', function() {
+                    .on('plugin-render.templateKeyboard', function () {
                         assert.ok(plugin.getState('ready'), 'The plugin has been rendered');
                     })
-                    .on('destroy', function() {
+                    .on('destroy', function () {
                         ready();
                     });
 
                 plugin
                     .install()
-                    .then(function() {
+                    .then(function () {
                         return plugin.init();
                     })
-                    .then(function() {
+                    .then(function () {
                         return plugin.render();
                     })
-                    .then(function() {
+                    .then(function () {
                         assert.equal(
                             areaBroker.getKeyboardArea().find('.calculator-keyboard').length,
                             1,
@@ -326,25 +328,26 @@ define([
                             'The layout contains a key for execute'
                         );
                     })
-                    .catch(function(err) {
-                        assert.ok(false, 'Unexpected failure : ' + err.message);
+                    .catch(function (err) {
+                        assert.ok(false, `Unexpected failure : ${err.message}`);
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
+                //eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
                 ready();
             });
     });
 
-    QUnit.test('render - failure', function(assert) {
+    QUnit.test('render - failure', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-render');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = templateKeyboardPluginFactory(calculator, areaBroker);
                 plugin.setConfig({ layout: 'foo' });
@@ -352,64 +355,64 @@ define([
                 assert.expect(1);
 
                 calculator
-                    .on('plugin-render.templateKeyboard', function() {
+                    .on('plugin-render.templateKeyboard', function () {
                         assert.ok(false, 'Should not reach that point!');
                     })
-                    .on('destroy', function() {
+                    .on('destroy', function () {
                         ready();
                     });
 
                 plugin
                     .install()
-                    .then(function() {
+                    .then(function () {
                         return plugin.init();
                     })
-                    .then(function() {
+                    .then(function () {
                         return plugin.render();
                     })
-                    .then(function() {
+                    .then(function () {
                         assert.ok(false, 'Should not reach that point!');
                     })
-                    .catch(function() {
+                    .catch(function () {
                         assert.ok(true, 'The operation should fail!');
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function() {
+            .on('error', function () {
                 assert.ok(true, 'The operation should fail!');
                 calculator.destroy();
             });
     });
 
-    QUnit.test('destroy', function(assert) {
+    QUnit.test('destroy', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-destroy');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = templateKeyboardPluginFactory(calculator, areaBroker);
 
                 assert.expect(3);
 
                 calculator
-                    .on('plugin-render.templateKeyboard', function() {
+                    .on('plugin-render.templateKeyboard', function () {
                         assert.ok(plugin.getState('ready'), 'The plugin has been rendered');
                     })
-                    .on('destroy', function() {
+                    .on('destroy', function () {
                         ready();
                     });
 
                 plugin
                     .install()
-                    .then(function() {
+                    .then(function () {
                         return plugin.init();
                     })
-                    .then(function() {
+                    .then(function () {
                         return plugin.render();
                     })
-                    .then(function() {
+                    .then(function () {
                         assert.equal(
                             areaBroker.getKeyboardArea().find('.calculator-keyboard').length,
                             1,
@@ -418,54 +421,55 @@ define([
 
                         return plugin.destroy();
                     })
-                    .then(function() {
+                    .then(function () {
                         assert.equal(
                             areaBroker.getKeyboardArea().find('.calculator-keyboard').length,
                             0,
                             'The keyboard layout has been removed'
                         );
                     })
-                    .catch(function(err) {
-                        assert.ok(false, 'Unexpected failure : ' + err.message);
+                    .catch(function (err) {
+                        assert.ok(false, `Unexpected failure : ${err.message}`);
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
+                //eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
                 ready();
             });
     });
 
-    QUnit.test('use keys', function(assert) {
+    QUnit.test('use keys', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-keys');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = templateKeyboardPluginFactory(calculator, areaBroker);
 
                 assert.expect(15);
 
                 calculator
-                    .on('plugin-render.templateKeyboard', function() {
+                    .on('plugin-render.templateKeyboard', function () {
                         assert.ok(plugin.getState('ready'), 'The plugin has been rendered');
                     })
-                    .on('destroy', function() {
+                    .on('destroy', function () {
                         ready();
                     });
 
                 plugin
                     .install()
-                    .then(function() {
+                    .then(function () {
                         return plugin.init();
                     })
-                    .then(function() {
+                    .then(function () {
                         return plugin.render();
                     })
-                    .then(function() {
+                    .then(function () {
                         assert.equal(
                             areaBroker.getKeyboardArea().find('.calculator-keyboard').length,
                             1,
@@ -479,9 +483,9 @@ define([
 
                         assert.equal(calculator.getExpression(), '', 'The expression is empty');
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
-                            calculator.after('command-term.test', function(term) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
+                            calculator.after('command-term.test', function (term) {
                                 calculator.off('command-term.test');
 
                                 assert.equal(term, 'NUM4', 'The term NUM4 has been used');
@@ -489,15 +493,12 @@ define([
 
                                 resolve();
                             });
-                            areaBroker
-                                .getKeyboardArea()
-                                .find('.calculator-keyboard .key[data-param="NUM4"]')
-                                .click();
+                            areaBroker.getKeyboardArea().find('.calculator-keyboard .key[data-param="NUM4"]').click();
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
-                            calculator.after('command-term.test', function(term) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
+                            calculator.after('command-term.test', function (term) {
                                 calculator.off('command-term.test');
 
                                 assert.equal(term, 'NUM2', 'The term NUM2 has been used');
@@ -505,15 +506,12 @@ define([
 
                                 resolve();
                             });
-                            areaBroker
-                                .getKeyboardArea()
-                                .find('.calculator-keyboard .key[data-param="NUM2"]')
-                                .click();
+                            areaBroker.getKeyboardArea().find('.calculator-keyboard .key[data-param="NUM2"]').click();
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
-                            calculator.after('command-term.test', function(term) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
+                            calculator.after('command-term.test', function (term) {
                                 calculator.off('command-term.test');
 
                                 assert.equal(term, 'ADD', 'The term ADD has been used');
@@ -521,15 +519,12 @@ define([
 
                                 resolve();
                             });
-                            areaBroker
-                                .getKeyboardArea()
-                                .find('.calculator-keyboard .key[data-param="ADD"]')
-                                .click();
+                            areaBroker.getKeyboardArea().find('.calculator-keyboard .key[data-param="ADD"]').click();
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
-                            calculator.after('command-term.test', function(term) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
+                            calculator.after('command-term.test', function (term) {
                                 calculator.off('command-term.test');
 
                                 assert.equal(term, 'NUM3', 'The term NUM3 has been used');
@@ -537,15 +532,12 @@ define([
 
                                 resolve();
                             });
-                            areaBroker
-                                .getKeyboardArea()
-                                .find('.calculator-keyboard .key[data-param="NUM3"]')
-                                .click();
+                            areaBroker.getKeyboardArea().find('.calculator-keyboard .key[data-param="NUM3"]').click();
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
-                            calculator.after('evaluate.test', function(result) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
+                            calculator.after('evaluate.test', function (result) {
                                 calculator.off('evaluate.test');
 
                                 assert.equal(
@@ -563,9 +555,9 @@ define([
                                 .click();
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
-                            calculator.after('command-clear.test', function() {
+                    .then(function () {
+                        return new Promise(function (resolve) {
+                            calculator.after('command-clear.test', function () {
                                 calculator.off('command-clear.test');
 
                                 assert.equal(calculator.getExpression(), '', 'The expression has been cleared');
@@ -578,14 +570,15 @@ define([
                                 .click();
                         });
                     })
-                    .catch(function(err) {
-                        assert.ok(false, 'Unexpected failure : ' + err.message);
+                    .catch(function (err) {
+                        assert.ok(false, `Unexpected failure : ${err.message}`);
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
+                //eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
                 ready();
@@ -594,7 +587,7 @@ define([
 
     QUnit.module('visual test');
 
-    $.fn.setCursorPosition = function(pos) {
+    $.fn.setCursorPosition = function (pos) {
         var range;
         if (this.setSelectionRange) {
             this.setSelectionRange(pos, pos);
@@ -610,28 +603,28 @@ define([
         }
     };
 
-    QUnit.test('keyboard', function(assert) {
+    QUnit.test('keyboard', function (assert) {
         var ready = assert.async();
         var $container = $('#visual-test');
         var $output = $('#visual-test .output input');
         var $input = $('#visual-test .input input');
         calculatorBoardFactory($container, [templateKeyboardPluginFactory])
-            .on('expressionchange', function() {
+            .on('expressionchange', function () {
                 $input.val(this.getExpression());
             })
-            .on('positionchange', function() {
+            .on('positionchange', function () {
                 $input.setCursorPosition(this.getPosition());
             })
-            .on('evaluate', function(result) {
+            .on('evaluate', function (result) {
                 $output.val(result.value);
             })
-            .on('syntaxerror', function(err) {
+            .on('syntaxerror', function (err) {
                 $output.val(err);
             })
-            .on('command-clearAll', function() {
+            .on('command-clearAll', function () {
                 $output.val('');
             })
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = this.getAreaBroker();
                 assert.equal(
                     areaBroker.getKeyboardArea().find('.calculator-keyboard').length,
@@ -641,7 +634,8 @@ define([
 
                 ready();
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
+                //eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
                 ready();

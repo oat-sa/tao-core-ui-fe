@@ -23,12 +23,12 @@ define([
     'lodash',
     'ui/maths/calculator/core/board',
     'ui/maths/calculator/plugins/core/stepNavigation'
-], function($, _, calculatorBoardFactory, stepNavigationPluginFactory) {
+], function ($, _, calculatorBoardFactory, stepNavigationPluginFactory) {
     'use strict';
 
     QUnit.module('module');
 
-    QUnit.test('stepNavigation', function(assert) {
+    QUnit.test('stepNavigation', function (assert) {
         var calculator = calculatorBoardFactory();
 
         assert.expect(3);
@@ -66,24 +66,24 @@ define([
             { title: 'enable' },
             { title: 'disable' }
         ])
-        .test('plugin API ', function(data, assert) {
+        .test('plugin API ', function (data, assert) {
             var calculator = calculatorBoardFactory();
             var plugin = stepNavigationPluginFactory(calculator);
             assert.expect(1);
             assert.equal(
                 typeof plugin[data.title],
                 'function',
-                'The plugin instances expose a "' + data.title + '" function'
+                `The plugin instances expose a "${data.title}" function`
             );
         });
 
     QUnit.module('behavior');
 
-    QUnit.test('install', function(assert) {
+    QUnit.test('install', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-install');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = stepNavigationPluginFactory(calculator, areaBroker);
 
@@ -98,16 +98,16 @@ define([
                 );
 
                 calculator
-                    .on('plugin-install.stepNavigation', function() {
+                    .on('plugin-install.stepNavigation', function () {
                         assert.ok(true, 'The plugin has been installed');
                     })
-                    .on('destroy', function() {
+                    .on('destroy', function () {
                         ready();
                     });
 
                 plugin
                     .install()
-                    .then(function() {
+                    .then(function () {
                         assert.ok(calculator.hasCommand('stepMoveLeft'), 'The command stepMoveLeft is now registered');
                         assert.ok(
                             calculator.hasCommand('stepMoveRight'),
@@ -122,25 +122,26 @@ define([
                             'The command stepDeleteRight is now registered'
                         );
                     })
-                    .catch(function(err) {
-                        assert.ok(false, 'Unexpected failure : ' + err.message);
+                    .catch(function (err) {
+                        assert.ok(false, `Unexpected failure : ${err.message}`);
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
+                //eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
                 ready();
             });
     });
 
-    QUnit.test('init', function(assert) {
+    QUnit.test('init', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-init');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = stepNavigationPluginFactory(calculator, areaBroker);
 
@@ -155,19 +156,19 @@ define([
                 );
 
                 calculator
-                    .on('plugin-init.stepNavigation', function() {
+                    .on('plugin-init.stepNavigation', function () {
                         assert.ok(plugin.getState('init'), 'The plugin has been initialized');
                     })
-                    .on('destroy', function() {
+                    .on('destroy', function () {
                         ready();
                     });
 
                 plugin
                     .install()
-                    .then(function() {
+                    .then(function () {
                         return plugin.init();
                     })
-                    .then(function() {
+                    .then(function () {
                         assert.ok(calculator.hasCommand('stepMoveLeft'), 'The command stepMoveLeft is now registered');
                         assert.ok(
                             calculator.hasCommand('stepMoveRight'),
@@ -182,25 +183,26 @@ define([
                             'The command stepDeleteRight is now registered'
                         );
                     })
-                    .catch(function(err) {
-                        assert.ok(false, 'Unexpected failure : ' + err.message);
+                    .catch(function (err) {
+                        assert.ok(false, `Unexpected failure : ${err.message}`);
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
+                //eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
                 ready();
             });
     });
 
-    QUnit.test('destroy', function(assert) {
+    QUnit.test('destroy', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-destroy');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = stepNavigationPluginFactory(calculator, areaBroker);
 
@@ -214,16 +216,16 @@ define([
                     'The command stepDeleteRight is not yet registered'
                 );
 
-                calculator.on('destroy', function() {
+                calculator.on('destroy', function () {
                     ready();
                 });
 
                 plugin
                     .install()
-                    .then(function() {
+                    .then(function () {
                         return plugin.init();
                     })
-                    .then(function() {
+                    .then(function () {
                         assert.ok(calculator.hasCommand('stepMoveLeft'), 'The command stepMoveLeft is now registered');
                         assert.ok(
                             calculator.hasCommand('stepMoveRight'),
@@ -240,32 +242,33 @@ define([
 
                         return plugin.destroy();
                     })
-                    .then(function() {
+                    .then(function () {
                         assert.ok(!calculator.hasCommand('stepMoveLeft'), 'The command stepMoveLeft is removed');
                         assert.ok(!calculator.hasCommand('stepMoveRight'), 'The command stepMoveRight is removed');
                         assert.ok(!calculator.hasCommand('stepDeleteLeft'), 'The command stepDeleteLeft is removed');
                         assert.ok(!calculator.hasCommand('stepDeleteRight'), 'The command stepDeleteRight is removed');
                     })
-                    .catch(function(err) {
-                        assert.ok(false, 'Unexpected failure : ' + err.message);
+                    .catch(function (err) {
+                        assert.ok(false, `Unexpected failure : ${err.message}`);
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
+                //eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
                 ready();
             });
     });
 
-    QUnit.test('navigation', function(assert) {
+    QUnit.test('navigation', function (assert) {
         var ready = assert.async();
         var expression = ' (.1+.2) * 10^3 / cos PI - sin sqrt 2';
         var $container = $('#fixture-navigation');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = stepNavigationPluginFactory(calculator, areaBroker);
 
@@ -280,19 +283,19 @@ define([
                 );
 
                 calculator
-                    .on('plugin-init.stepNavigation', function() {
+                    .on('plugin-init.stepNavigation', function () {
                         assert.ok(plugin.getState('init'), 'The plugin has been initialized');
                     })
-                    .on('destroy', function() {
+                    .on('destroy', function () {
                         ready();
                     });
 
                 plugin
                     .install()
-                    .then(function() {
+                    .then(function () {
                         return plugin.init();
                     })
-                    .then(function() {
+                    .then(function () {
                         assert.ok(calculator.hasCommand('stepMoveLeft'), 'The command stepMoveLeft is now registered');
                         assert.ok(
                             calculator.hasCommand('stepMoveRight'),
@@ -310,8 +313,8 @@ define([
                         calculator.replace(expression);
                         assert.equal(calculator.getExpression(), expression, 'The expression is properly set');
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             var tokens = calculator.getTokens();
 
                             assert.ok(_.isArray(tokens), 'Got a lis of tokens');
@@ -328,7 +331,7 @@ define([
                             );
 
                             calculator
-                                .after('command-stepMoveLeft.test', function() {
+                                .after('command-stepMoveLeft.test', function () {
                                     calculator.off('command-stepMoveLeft.test');
                                     assert.equal(
                                         calculator.getPosition(),
@@ -346,12 +349,12 @@ define([
                                 .useCommand('stepMoveLeft');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             var tokens = calculator.getTokens();
 
                             calculator
-                                .after('command-stepMoveLeft.test', function() {
+                                .after('command-stepMoveLeft.test', function () {
                                     calculator.off('command-stepMoveLeft.test');
                                     assert.equal(
                                         calculator.getPosition(),
@@ -377,10 +380,10 @@ define([
                                 .useCommand('stepMoveLeft');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('command-stepMoveLeft.test', function() {
+                                .after('command-stepMoveLeft.test', function () {
                                     calculator.off('command-stepMoveLeft.test');
                                     assert.equal(
                                         calculator.getPosition(),
@@ -398,10 +401,10 @@ define([
                                 .useCommand('stepMoveLeft');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('command-stepMoveLeft.test', function() {
+                                .after('command-stepMoveLeft.test', function () {
                                     calculator.off('command-stepMoveLeft.test');
                                     assert.equal(
                                         calculator.getPosition(),
@@ -419,10 +422,10 @@ define([
                                 .useCommand('stepMoveLeft');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('command-stepMoveLeft.test', function() {
+                                .after('command-stepMoveLeft.test', function () {
                                     calculator.off('command-stepMoveLeft.test');
                                     assert.equal(calculator.getPosition(), 0, 'The position should not have changed');
                                     assert.equal(
@@ -436,10 +439,10 @@ define([
                                 .useCommand('stepMoveLeft');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('command-stepMoveRight.test', function() {
+                                .after('command-stepMoveRight.test', function () {
                                     calculator.off('command-stepMoveRight.test');
                                     assert.equal(
                                         calculator.getPosition(),
@@ -457,12 +460,12 @@ define([
                                 .useCommand('stepMoveRight');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             var tokens = calculator.getTokens();
 
                             calculator
-                                .after('command-stepMoveRight.test', function() {
+                                .after('command-stepMoveRight.test', function () {
                                     calculator.off('command-stepMoveRight.test');
                                     assert.equal(
                                         calculator.getPosition(),
@@ -492,12 +495,12 @@ define([
                                 .useCommand('stepMoveRight');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             var tokens = calculator.getTokens();
 
                             calculator
-                                .after('command-stepMoveRight.test', function() {
+                                .after('command-stepMoveRight.test', function () {
                                     calculator.off('command-stepMoveRight.test');
                                     assert.equal(
                                         calculator.getPosition(),
@@ -515,12 +518,12 @@ define([
                                 .useCommand('stepMoveRight');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             var tokens = calculator.getTokens();
 
                             calculator
-                                .after('command-stepMoveRight.test', function() {
+                                .after('command-stepMoveRight.test', function () {
                                     calculator.off('command-stepMoveRight.test');
                                     assert.equal(
                                         calculator.getPosition(),
@@ -538,12 +541,12 @@ define([
                                 .useCommand('stepMoveRight');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             var tokens = calculator.getTokens();
 
                             calculator
-                                .after('command-stepMoveRight.test', function() {
+                                .after('command-stepMoveRight.test', function () {
                                     calculator.off('command-stepMoveRight.test');
                                     assert.equal(
                                         calculator.getPosition(),
@@ -560,26 +563,27 @@ define([
                                 .useCommand('stepMoveRight');
                         });
                     })
-                    .catch(function(err) {
-                        assert.ok(false, 'Unexpected failure : ' + err.message);
+                    .catch(function (err) {
+                        assert.ok(false, `Unexpected failure : ${err.message}`);
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
+                //eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
                 ready();
             });
     });
 
-    QUnit.test('deletion', function(assert) {
+    QUnit.test('deletion', function (assert) {
         var ready = assert.async();
         var expression = ' (.1+.2) * 10^3 / cos PI - sin sqrt 2';
         var $container = $('#fixture-deletion');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = stepNavigationPluginFactory(calculator, areaBroker);
 
@@ -594,19 +598,19 @@ define([
                 );
 
                 calculator
-                    .on('plugin-init.stepNavigation', function() {
+                    .on('plugin-init.stepNavigation', function () {
                         assert.ok(plugin.getState('init'), 'The plugin has been initialized');
                     })
-                    .on('destroy', function() {
+                    .on('destroy', function () {
                         ready();
                     });
 
                 plugin
                     .install()
-                    .then(function() {
+                    .then(function () {
                         return plugin.init();
                     })
-                    .then(function() {
+                    .then(function () {
                         assert.ok(calculator.hasCommand('stepMoveLeft'), 'The command stepMoveLeft is now registered');
                         assert.ok(
                             calculator.hasCommand('stepMoveRight'),
@@ -624,8 +628,8 @@ define([
                         calculator.replace(expression);
                         assert.equal(calculator.getExpression(), expression, 'The expression is properly set');
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             var tokens = calculator.getTokens();
 
                             assert.ok(_.isArray(tokens), 'Got a lis of tokens');
@@ -636,7 +640,7 @@ define([
                             assert.equal(calculator.getTokenIndex(), 16, 'Current token is at index 16');
 
                             calculator
-                                .after('command-stepDeleteLeft.test', function() {
+                                .after('command-stepDeleteLeft.test', function () {
                                     calculator.off('command-stepDeleteLeft.test');
                                     expression = ' (.1+.2) * 10^3 / cos PI - sqrt 2';
                                     assert.equal(
@@ -661,10 +665,10 @@ define([
                                 .useCommand('stepDeleteLeft');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('command-stepDeleteRight.test', function() {
+                                .after('command-stepDeleteRight.test', function () {
                                     calculator.off('command-stepDeleteRight.test');
                                     expression = ' (.1+.2) * 10^3 / cos PI - 2';
                                     assert.equal(
@@ -685,10 +689,10 @@ define([
                                 .useCommand('stepDeleteRight');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('command-stepDeleteLeft.test', function() {
+                                .after('command-stepDeleteLeft.test', function () {
                                     calculator.off('command-stepDeleteLeft.test');
                                     expression = ' (.1+.2) * 10^3 / cos PI 2';
                                     assert.equal(
@@ -713,10 +717,10 @@ define([
                                 .useCommand('stepDeleteLeft');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('command-stepDeleteRight.test', function() {
+                                .after('command-stepDeleteRight.test', function () {
                                     calculator.off('command-stepDeleteRight.test');
                                     expression = ' (.1+.2) * 10^3 / cos PI ';
                                     assert.equal(
@@ -741,10 +745,10 @@ define([
                                 .useCommand('stepDeleteRight');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('command-stepDeleteLeft.test', function() {
+                                .after('command-stepDeleteLeft.test', function () {
                                     calculator.off('command-stepDeleteLeft.test');
                                     expression = ' (.1+.2) * 10^3 / cos ';
                                     assert.equal(
@@ -769,10 +773,10 @@ define([
                                 .useCommand('stepDeleteLeft');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('command-stepDeleteRight.test', function() {
+                                .after('command-stepDeleteRight.test', function () {
                                     calculator.off('command-stepDeleteRight.test');
                                     assert.equal(calculator.getExpression(), expression, 'Nothing should have changed');
                                     assert.equal(
@@ -800,10 +804,10 @@ define([
                                 .useCommand('stepDeleteRight');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('command-stepDeleteLeft.test', function() {
+                                .after('command-stepDeleteLeft.test', function () {
                                     calculator.off('command-stepDeleteLeft.test');
                                     expression = '(.1+.2) * 10^3 / cos ';
                                     assert.equal(
@@ -832,10 +836,10 @@ define([
                                 .useCommand('stepDeleteLeft');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('command-stepDeleteLeft.test', function() {
+                                .after('command-stepDeleteLeft.test', function () {
                                     calculator.off('command-stepDeleteLeft.test');
                                     assert.equal(calculator.getExpression(), expression, 'Nothing should have changed');
                                     assert.equal(calculator.getPosition(), 0, 'The position should not have changed');
@@ -859,10 +863,10 @@ define([
                                 .useCommand('stepDeleteLeft');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('command-stepDeleteRight.test', function() {
+                                .after('command-stepDeleteRight.test', function () {
                                     calculator.off('command-stepDeleteRight.test');
                                     expression = '(.1+.2) * 1^3 / cos ';
                                     assert.equal(
@@ -887,14 +891,15 @@ define([
                                 .useCommand('stepDeleteRight');
                         });
                     })
-                    .catch(function(err) {
-                        assert.ok(false, 'Unexpected failure : ' + err.message);
+                    .catch(function (err) {
+                        assert.ok(false, `Unexpected failure : ${err.message}`);
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
+                //eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
                 ready();

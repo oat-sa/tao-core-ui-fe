@@ -17,7 +17,7 @@
  *
  */
 
-define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensionComponent'], function(
+define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensionComponent'], function (
     $,
     _,
     mediaDimensionComponent
@@ -126,16 +126,16 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
             down_arrow: '40',
             insert: '45',
             delete: '46',
-            '0': '48',
-            '1': '49',
-            '2': '50',
-            '3': '51',
-            '4': '52',
-            '5': '53',
-            '6': '54',
-            '7': '55',
-            '8': '56',
-            '9': '57',
+            0: '48',
+            1: '49',
+            2: '50',
+            3: '51',
+            4: '52',
+            5: '53',
+            6: '54',
+            7: '55',
+            8: '56',
+            9: '57',
             a: '65',
             b: '66',
             c: '67',
@@ -210,7 +210,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
 
     QUnit.module('API');
 
-    QUnit.test('factory', function(assert) {
+    QUnit.test('factory', function (assert) {
         var $tmplContainer = $('.template .visible-test');
         var $visibleContainer = $tmplContainer.clone().appendTo('.sandbox'),
             conf = _.cloneDeep(workingConfiguration),
@@ -230,16 +230,16 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
 
         assert.ok(typeof mediaDimensionComponent === 'function', 'the module exposes a function');
         assert.ok(
-            typeof mediaDimensionComponent($toolsContainer, media, conf).on('render', function() {
+            typeof mediaDimensionComponent($toolsContainer, media, conf).on('render', function () {
                 this.destroy();
             }) === 'object',
             'the factory creates an object'
         );
         assert.notEqual(
-            mediaDimensionComponent($toolsContainer, media, conf).on('render', function() {
+            mediaDimensionComponent($toolsContainer, media, conf).on('render', function () {
                 this.destroy();
             }),
-            mediaDimensionComponent($toolsContainer, media, conf).on('render', function() {
+            mediaDimensionComponent($toolsContainer, media, conf).on('render', function () {
                 this.destroy();
             }),
             'the factory creates new objects'
@@ -247,7 +247,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
         $visibleContainer.remove();
     });
 
-    QUnit.test('component', function(assert) {
+    QUnit.test('component', function (assert) {
         var $tmplContainer = $('.template .visible-test');
         var $visibleContainer = $tmplContainer.clone().appendTo('.sandbox'),
             component,
@@ -265,7 +265,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
             };
         assert.expect(2);
 
-        component = mediaDimensionComponent($toolsContainer, media, conf).on('render', function() {
+        component = mediaDimensionComponent($toolsContainer, media, conf).on('render', function () {
             this.destroy();
         });
 
@@ -274,7 +274,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
         $visibleContainer.remove();
     });
 
-    QUnit.test('eventifier', function(assert) {
+    QUnit.test('eventifier', function (assert) {
         var $tmplContainer = $('.template .visible-test');
         var $visibleContainer = $tmplContainer.clone().appendTo('.sandbox'),
             component,
@@ -292,7 +292,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
             };
         assert.expect(3);
 
-        component = mediaDimensionComponent($toolsContainer, media, conf).on('render', function() {
+        component = mediaDimensionComponent($toolsContainer, media, conf).on('render', function () {
             this.destroy();
         });
 
@@ -304,7 +304,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
 
     QUnit.module('Component');
 
-    QUnit.test('On showResponsiveToggle property', function(assert) {
+    QUnit.test('On showResponsiveToggle property', function (assert) {
         var ready = assert.async();
         var $tmplContainer = $('.template .visible-test');
         var $visibleContainer = $tmplContainer.clone().appendTo('.sandbox'),
@@ -322,7 +322,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
             };
         assert.expect(1);
         conf.showResponsiveToggle = true;
-        mediaDimensionComponent($toolsContainer, media, conf).on('render', function() {
+        mediaDimensionComponent($toolsContainer, media, conf).on('render', function () {
             assert.equal(
                 $('.media-sizer', this.getContainer()).hasClass('media-sizer-responsivetoggle-off'),
                 false,
@@ -334,7 +334,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
         });
     });
 
-    QUnit.test('Off showResponsiveToggle property', function(assert) {
+    QUnit.test('Off showResponsiveToggle property', function (assert) {
         var ready = assert.async();
         var $tmplContainer = $('.template .visible-test');
         var $visibleContainer = $tmplContainer.clone().appendTo('.sandbox'),
@@ -352,7 +352,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
             };
         assert.expect(1);
         conf.showResponsiveToggle = false;
-        mediaDimensionComponent($toolsContainer, media, conf).on('render', function() {
+        mediaDimensionComponent($toolsContainer, media, conf).on('render', function () {
             assert.ok(
                 $('.media-sizer', this.getContainer()).hasClass('media-sizer-responsivetoggle-off'),
                 'Media sizer has a class to hide the responsive toggle'
@@ -363,7 +363,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
         });
     });
 
-    QUnit.test('Parameter currentUtil set to percent', function(assert) {
+    QUnit.test('Parameter currentUtil set to percent', function (assert) {
         var ready = assert.async();
         var $tmplContainer = $('.template .visible-test');
         var $visibleContainer = $tmplContainer.clone().appendTo('.sandbox'),
@@ -382,7 +382,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
         assert.expect(2);
         conf.showResponsiveToggle = false;
         conf.responsive = true;
-        mediaDimensionComponent($toolsContainer, media, conf).on('render', function() {
+        mediaDimensionComponent($toolsContainer, media, conf).on('render', function () {
             var $percentBlock = $('.media-sizer-percent', this.getContainer());
             var $pixelBlock = $('.media-sizer-pixel', this.getContainer());
             assert.ok($percentBlock.css('display') === 'block', 'Block responsive is visible');
@@ -393,7 +393,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
         });
     });
 
-    QUnit.test('Parameter currentUtil set to pixel', function(assert) {
+    QUnit.test('Parameter currentUtil set to pixel', function (assert) {
         var ready = assert.async();
         var $tmplContainer = $('.template .visible-test');
         var $visibleContainer = $tmplContainer.clone().appendTo('.sandbox'),
@@ -412,7 +412,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
 
         assert.expect(2);
         conf.responsive = false;
-        mediaDimensionComponent($toolsContainer, media, conf).on('render', function() {
+        mediaDimensionComponent($toolsContainer, media, conf).on('render', function () {
             var $percentBlock = $('.media-sizer-percent', this.getContainer());
             var $pixelBlock = $('.media-sizer-pixel', this.getContainer());
 
@@ -424,7 +424,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
         });
     });
 
-    QUnit.test('Picture is bigger than the container', function(assert) {
+    QUnit.test('Picture is bigger than the container', function (assert) {
         var ready = assert.async();
         var $tmplContainer = $('.template .visible-test');
         var $visibleContainer = $tmplContainer.clone().appendTo('.sandbox'),
@@ -444,7 +444,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
         assert.expect(5);
 
         $controlContainer.width(200);
-        mediaDimensionComponent($toolsContainer, media, conf).on('render', function() {
+        mediaDimensionComponent($toolsContainer, media, conf).on('render', function () {
             var $percentBlock = $('.media-sizer-percent', this.getContainer());
             var $editorContainer = $('.item-editor-unit-input-box', $percentBlock);
             var $percentInput = $('input[name=width]', $editorContainer);
@@ -467,7 +467,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
         });
     });
 
-    QUnit.test('Picture smaller than container', function(assert) {
+    QUnit.test('Picture smaller than container', function (assert) {
         var ready = assert.async();
         var $tmplContainer = $('.template .visible-test');
         var $visibleContainer = $tmplContainer.clone().appendTo('.sandbox'),
@@ -487,7 +487,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
         assert.expect(5);
 
         conf.responsive = false;
-        mediaDimensionComponent($toolsContainer, media, conf).on('render', function() {
+        mediaDimensionComponent($toolsContainer, media, conf).on('render', function () {
             var $percentBlock = $('.media-sizer-percent', this.getContainer());
             var $editorContainer = $('.item-editor-unit-input-box', $percentBlock);
             var $percentInput = $('input[name=width]', $editorContainer);
@@ -510,7 +510,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
         });
     });
 
-    QUnit.test('Responsive slider mode [percent]', function(assert) {
+    QUnit.test('Responsive slider mode [percent]', function (assert) {
         var ready = assert.async();
         var $tmplContainer = $('.template .visible-test');
         var $visibleContainer = $tmplContainer.clone().appendTo('.sandbox'),
@@ -529,7 +529,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
         assert.expect(9);
         conf.showResponsiveToggle = false;
         conf.responsive = false;
-        mediaDimensionComponent($toolsContainer, media, conf).on('render', function() {
+        mediaDimensionComponent($toolsContainer, media, conf).on('render', function () {
             var $percentBlock = $('.media-sizer-percent', this.getContainer());
             var $editorContainer = $('.item-editor-unit-input-box', $percentBlock);
             var $percentInput = $('input[name=width]', $editorContainer);
@@ -601,7 +601,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
             { unit: 'px', dim: 'width', value: 1.1111, expected: 1111 },
             { unit: 'px', dim: 'height', value: 1.1111, expected: 1111 }
         ])
-        .test('Allowed symbols in the input fields', function(params, assert) {
+        .test('Allowed symbols in the input fields', function (params, assert) {
             var ready = assert.async();
             var $tmplContainer = $('.template .visible-test');
             var $visibleContainer = $tmplContainer.clone().appendTo('.sandbox'),
@@ -620,7 +620,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
 
             assert.expect(1);
             conf.responsive = params.unit === '%';
-            mediaDimensionComponent($toolsContainer, media, conf).on('render', function() {
+            mediaDimensionComponent($toolsContainer, media, conf).on('render', function () {
                 var $fields = {
                     '%': { width: null },
                     px: {
@@ -637,11 +637,11 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
                     var input = $fields[unit][dim];
                     var keyup, keydown, code;
                     var i;
-                    value = '' + value;
+                    value = `${value}`;
                     input.val('');
                     for (i = 0; i < value.length; i++) {
                         // Get charcode doesn\'t work because of numpad keys (charcode returns ascii)
-                        code = keyboardKeyCodes['KEYCODES'].hasOwnProperty(value[i])
+                        code = Object.prototype.hasOwnProperty.call(keyboardKeyCodes['KEYCODES'], value[i])
                             ? parseInt(keyboardKeyCodes['KEYCODES'][value[i]])
                             : 0;
                         keydown = $.Event('keydown', { keyCode: code });
@@ -655,7 +655,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
                     assert.equal(
                         input.val(),
                         expected,
-                        '[' + unit + '][' + dim + '] The value "' + value + '" transformed to ' + expected
+                        `[${unit}][${dim}] The value "${value}" transformed to ${expected}`
                     );
                 };
 
@@ -671,7 +671,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
             });
         });
 
-    QUnit.test('Pixels mode', function(assert) {
+    QUnit.test('Pixels mode', function (assert) {
         var ready = assert.async();
         var $tmplContainer = $('.template .visible-test');
         var $visibleContainer = $tmplContainer.clone().appendTo('.sandbox'),
@@ -692,7 +692,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
         conf.showResponsiveToggle = false;
         conf.responsive = false;
         conf.syncDimensions = true;
-        mediaDimensionComponent($toolsContainer, media, conf).on('render', function() {
+        mediaDimensionComponent($toolsContainer, media, conf).on('render', function () {
             var $pixelBlock = $('.media-sizer-pixel', this.getContainer());
             var $editorContainer = $('.item-editor-unit-input-box', $pixelBlock);
             var $widthInput = $('input[name=width]', $editorContainer);
@@ -715,7 +715,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
         });
     });
 
-    QUnit.test('Workflow', function(assert) {
+    QUnit.test('Workflow', function (assert) {
         var ready = assert.async();
         var $tmplContainer = $('.template .visible-test');
         var $visibleContainer = $tmplContainer.clone().appendTo('.sandbox'),
@@ -737,7 +737,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
         conf.responsive = false;
         conf.syncDimensions = false;
 
-        mediaDimensionComponent($toolsContainer, media, conf).on('render', function() {
+        mediaDimensionComponent($toolsContainer, media, conf).on('render', function () {
             var $pixelBlock = $('.media-sizer-pixel', this.getContainer());
             var $pxEditorContainer = $('.item-editor-unit-input-box', $pixelBlock);
             var $widthInput = $('input[name=width]', $pxEditorContainer);
@@ -783,7 +783,7 @@ define(['jquery', 'lodash', 'ui/mediaEditor/plugins/mediaDimension/mediaDimensio
 
     QUnit.module('Demo');
 
-    QUnit.test('Preview components workflow', function(assert) {
+    QUnit.test('Preview components workflow', function (assert) {
         var $tmplContainer = $('.template .visible-test');
         var $visibleContainer = $tmplContainer.clone().appendTo('.sandbox'),
             conf = _.cloneDeep(workingConfiguration),

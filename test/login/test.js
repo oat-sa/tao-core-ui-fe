@@ -19,7 +19,7 @@
 /**
  * @author Ilya Yarkavets <ilya.yarkavets@1pt.com>
  */
-define(['jquery', 'ui/login/login'], function($, loginFactory) {
+define(['jquery', 'ui/login/login'], function ($, loginFactory) {
     'use strict';
 
     const passwordRevealConfig = {
@@ -38,16 +38,16 @@ define(['jquery', 'ui/login/login'], function($, loginFactory) {
     };
 
     const disableAutofocusConfig = {
-        disableAutofocus: true,
+        disableAutofocus: true
     };
 
     const enableAutofocusConfig = {
-        disableAutofocus: false,
+        disableAutofocus: false
     };
 
     QUnit.module('API');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.expect(3);
 
         assert.equal(typeof loginFactory, 'function', 'The loginFactory module exposes a function');
@@ -75,23 +75,23 @@ define(['jquery', 'ui/login/login'], function($, loginFactory) {
             { title: 'getTemplate' },
             { title: 'setTemplate' }
         ])
-        .test('Component API ', function(data, assert) {
+        .test('Component API ', function (data, assert) {
             var instance = loginFactory();
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The login exposes the component method "' + data.title
+                `The login exposes the component method "${data.title}"`
             );
         });
 
     QUnit.cases
         .init([{ title: 'on' }, { title: 'off' }, { title: 'trigger' }, { title: 'before' }, { title: 'after' }])
-        .test('Eventifier API ', function(data, assert) {
+        .test('Eventifier API ', function (data, assert) {
             var instance = loginFactory();
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The login exposes the eventifier method "' + data.title
+                `The login exposes the eventifier method "${data.title}"`
             );
         });
 
@@ -109,34 +109,34 @@ define(['jquery', 'ui/login/login'], function($, loginFactory) {
             { title: 'attachPasswordRevealEvents' },
             { title: 'displayMessages' }
         ])
-        .test('Instance API ', function(data, assert) {
+        .test('Instance API ', function (data, assert) {
             var instance = loginFactory();
-            assert.equal(typeof instance[data.title], 'function', 'The login exposes the method "' + data.title);
+            assert.equal(typeof instance[data.title], 'function', `The login exposes the method "${data.title}"`);
         });
 
     QUnit.module('Behavior');
 
-    QUnit.test('Lifecycle', function(assert) {
+    QUnit.test('Lifecycle', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
         assert.expect(2);
 
         loginFactory($container)
-            .on('init', function() {
+            .on('init', function () {
                 assert.ok(!this.is('rendered'), 'The component is not yet rendered');
             })
-            .on('render', function() {
+            .on('render', function () {
                 assert.ok(this.is('rendered'), 'The component is now rendered');
 
                 this.destroy();
             })
-            .on('destroy', function() {
+            .on('destroy', function () {
                 ready();
             });
     });
 
-    QUnit.test('Rendering', function(assert) {
+    QUnit.test('Rendering', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -144,7 +144,7 @@ define(['jquery', 'ui/login/login'], function($, loginFactory) {
 
         assert.equal($('.login-component', $container).length, 0, 'No resource tree in the container');
 
-        loginFactory($container, passwordRevealConfig).after('render', function() {
+        loginFactory($container, passwordRevealConfig).after('render', function () {
             var $element = this.getElement();
 
             assert.equal($('.login-component', $container).length, 1, 'The component has been inserted');
@@ -154,7 +154,7 @@ define(['jquery', 'ui/login/login'], function($, loginFactory) {
         });
     });
 
-    QUnit.test('Password reveal enabled', function(assert) {
+    QUnit.test('Password reveal enabled', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -162,7 +162,7 @@ define(['jquery', 'ui/login/login'], function($, loginFactory) {
 
         assert.equal($('.login-component', $container).length, 0, 'No resource tree in the container');
 
-        loginFactory($container, passwordRevealConfig).after('render', function() {
+        loginFactory($container, passwordRevealConfig).after('render', function () {
             var $element = this.getElement();
 
             assert.equal($('.login-component', $container).length, 1, 'The component has been inserted');
@@ -193,7 +193,7 @@ define(['jquery', 'ui/login/login'], function($, loginFactory) {
         });
     });
 
-    QUnit.test('Autocomplete disabled', function(assert) {
+    QUnit.test('Autocomplete disabled', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -201,7 +201,7 @@ define(['jquery', 'ui/login/login'], function($, loginFactory) {
 
         assert.equal($('.login-component', $container).length, 0, 'No resource tree in the container');
 
-        loginFactory($container, disableAutocompleteConfig).after('render', function() {
+        loginFactory($container, disableAutocompleteConfig).after('render', function () {
             var $element = this.getElement();
 
             assert.equal(
@@ -210,13 +210,7 @@ define(['jquery', 'ui/login/login'], function($, loginFactory) {
                 'The component has been inserted and created real form (hidden) and fake to disable autocomplete'
             );
             assert.equal($('.login-component .fakeForm', $container).is(':visible'), true, 'Fake form is visible');
-            assert.equal(
-                $('.login-component', $container)
-                    .eq('1')
-                    .hasClass('hidden'),
-                true,
-                'Real form is hidden'
-            );
+            assert.equal($('.login-component', $container).eq('1').hasClass('hidden'), true, 'Real form is hidden');
 
             assert.equal(
                 $('input[type=text]', $element).attr('autocomplete'),
@@ -245,7 +239,7 @@ define(['jquery', 'ui/login/login'], function($, loginFactory) {
         });
     });
 
-    QUnit.test('Autocomplete disabled and password reveal enabled', function(assert) {
+    QUnit.test('Autocomplete disabled and password reveal enabled', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -253,7 +247,7 @@ define(['jquery', 'ui/login/login'], function($, loginFactory) {
 
         assert.equal($('.login-component', $container).length, 0, 'No resource tree in the container');
 
-        loginFactory($container, bothOptionsConfig).after('render', function() {
+        loginFactory($container, bothOptionsConfig).after('render', function () {
             var $element = this.getElement();
 
             assert.equal(
@@ -262,13 +256,7 @@ define(['jquery', 'ui/login/login'], function($, loginFactory) {
                 'The component has been inserted and created real form (hidden) and fake to disable autocomplete'
             );
             assert.equal($('.login-component .fakeForm', $container).is(':visible'), true, 'Fake form is visible');
-            assert.equal(
-                $('.login-component', $container)
-                    .eq('1')
-                    .hasClass('hidden'),
-                true,
-                'Real form is hidden'
-            );
+            assert.equal($('.login-component', $container).eq('1').hasClass('hidden'), true, 'Real form is hidden');
 
             assert.equal(
                 $('input[type=text]', $element).attr('autocomplete'),
@@ -306,32 +294,28 @@ define(['jquery', 'ui/login/login'], function($, loginFactory) {
         });
     });
 
-    QUnit.test('Autofocus disabled', (assert) => {
+    QUnit.test('Autofocus disabled', assert => {
         const ready = assert.async();
         const $container = $('#qunit-fixture');
 
         assert.expect(2);
 
-        loginFactory($container, enableAutofocusConfig).after('render', function() {
+        loginFactory($container, enableAutofocusConfig).after('render', function () {
             const $element = this.getElement();
 
-            assert.equal(
-                $('input[type=text]', $element).attr('autofocus'),
-                'autofocus',
-                'Autofocus is enabled'
-            );
+            assert.equal($('input[type=text]', $element).attr('autofocus'), 'autofocus', 'Autofocus is enabled');
 
-            loginFactory($container, disableAutofocusConfig).after('render', function() {
+            loginFactory($container, disableAutofocusConfig).after('render', function () {
                 const $elementWitoutAutofocus = this.getElement();
 
                 assert.equal(
                     $('input[type=text]', $elementWitoutAutofocus).attr('autofocus'),
-                    undefined,
+                    void 0,
                     'Autofocus is disabled'
                 );
 
                 ready();
             });
         });
-  });
+    });
 });
