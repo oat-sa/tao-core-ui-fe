@@ -44,13 +44,13 @@ var _defaults = {
  * @returns {Object} the new selector instance
  */
 function create($anchor, $container, options) {
-    var destroyed = false;
+    let destroyed = false;
     options = _.defaults(options, _defaults);
     $anchor.data('contextual-popup-options', options);
 
     //anchor must be positioned in css
-    var positions = _computePosition($anchor, $container);
-    var $element = $(
+    const positions = _computePosition($anchor, $container);
+    const $element = $(
         popupTpl({
             popup: positions.popup,
             arrow: positions.arrow,
@@ -67,12 +67,12 @@ function create($anchor, $container, options) {
     $anchor.append($element);
     $element
         .off(_ns)
-        .on('click' + _ns, '.done', function() {
+        .on('click' + _ns, '.done', function () {
             if (runCallback('beforeDone')) {
                 _done($element);
             }
         })
-        .on('click' + _ns, '.cancel', function() {
+        .on('click' + _ns, '.cancel', function () {
             if (runCallback('beforeCancel')) {
                 _cancel($element);
             }
@@ -89,10 +89,7 @@ function create($anchor, $container, options) {
      */
     function setContent(content) {
         if (content instanceof $ || _.isString(content)) {
-            $element
-                .find('.popup-content')
-                .empty()
-                .append(content);
+            $element.find('.popup-content').empty().append(content);
         }
     }
 
@@ -109,7 +106,7 @@ function create($anchor, $container, options) {
         return result;
     }
 
-    var popup = {
+    const popup = {
         /**
          * Get the popup JQuery container
          *
@@ -186,7 +183,7 @@ function create($anchor, $container, options) {
          * Tells if the popup is currently hidden or visible
          * @returns {boolean}
          */
-        isVisible: function() {
+        isVisible: function () {
             return $element.is(':visible');
         }
     };
@@ -228,7 +225,7 @@ function _cancel($element) {
     $element.trigger('cancel' + _ns);
 }
 
-var _styleDefaults = {
+const _styleDefaults = {
     popupWidth: 500,
     arrowWidth: 6,
     marginTop: 15,
@@ -275,7 +272,7 @@ function _computePosition($anchor, $container) {
             break;
     }
 
-    var offset = _anchor.left - _container.left;
+    const offset = _anchor.left - _container.left;
     //do we have enough space on the left ?
     if (offset + marginLeft + _anchor.w / 2 < _popup.w / 2) {
         _popup.left = -offset + marginLeft;
@@ -283,7 +280,7 @@ function _computePosition($anchor, $container) {
         _popup.left = -offset + _container.w - marginLeft - _popup.w;
     }
 
-    var _arrow = {
+    const _arrow = {
         left: -_popup.left + _anchor.w / 2 - arrowWidth,
         leftCover: -_popup.left + _anchor.w / 2 - arrowWidth - 6
     };

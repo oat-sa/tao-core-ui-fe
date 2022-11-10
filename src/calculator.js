@@ -129,10 +129,10 @@ function adjustFontSize($text, fontRatio, fontSize) {
  */
 function calculatorFactory(config) {
     config = _.defaults(config || {}, _defaults);
-    var calculatorComponent;
+    let calculatorComponent;
 
     calculatorComponent = dynamicComponent(calculator)
-        .on('rendercontent', function($content) {
+        .on('rendercontent', function ($content) {
             var $input,
                 self = this,
                 calcConfig = {};
@@ -144,16 +144,16 @@ function calculatorFactory(config) {
             //init the calculator
             this.calc = calculatorBuild.init($content, calcConfig);
 
-            $input = $content.find('input.calcDisplay').on('change', function() {
+            $input = $content.find('input.calcDisplay').on('change', function () {
                 adjustFontSize($input, self.fontRatio, self.fontSize);
             });
 
             this.fontSize = parseFloat($input.css('font-size'));
             this.fontRatio = getFontRatio($input);
         })
-        .after('show', function() {
+        .after('show', function () {
             var self = this;
-            _.defer(function() {
+            _.defer(function () {
                 //need defer to ensure that element show callbacks are all executed
                 var $display = self.getElement().find('.calcDisplay');
                 var strLength = $display.val().length + 1;
@@ -161,26 +161,26 @@ function calculatorFactory(config) {
                 $display[0].setSelectionRange(strLength, strLength);
             });
         })
-        .on('reset', function() {
+        .on('reset', function () {
             //reset the calculator input
             this.calc.press('C');
         })
-        .on('resize', function() {
+        .on('resize', function () {
             var $element = this.getElement();
             if ($element) {
                 adjustFontSize($element.find('form'), this.fontRatio, this.fontSize);
                 adjustFontSize($element.find('input.calcDisplay'), this.fontRatio, this.fontSize);
             }
         })
-        .on('destroy', function() {
+        .on('destroy', function () {
             if (this.calc) {
                 this.calc.remove();
             }
         });
 
-        _.defer(function() {
-            calculatorComponent.init(config);
-        });
+    _.defer(function () {
+        calculatorComponent.init(config);
+    });
 
     return calculatorComponent;
 }

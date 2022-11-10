@@ -21,14 +21,14 @@ import _ from 'lodash';
  * Singleton to edit the XHTML DTD and to retrieve element relationships.
  * The DTD code itself is almost 1:1 copied from CKEDITOR
  */
-var dtdHandler = (function() {
+var dtdHandler = (function () {
     var dtdMode = 'html',
         dtds = {};
 
     /**
      * Set DTD mode (qti|html)
      */
-    var setMode = function(mode) {
+    var setMode = function (mode) {
         // for the oblivious ones such as myself:
         if (mode.toLowerCase() === 'xhtml') {
             mode = 'html';
@@ -79,14 +79,14 @@ var dtdHandler = (function() {
      * @param child (string|DOM element|jQuery element)
      * @returns {Array}
      */
-    var getParentsOf = function(child) {
+    var getParentsOf = function (child) {
         var parents = [],
             element;
 
         child = _normalizeElement(child);
 
         for (element in dtds[dtdMode]) {
-            if (!dtds[dtdMode].hasOwnProperty(element)) {
+            if (!Object.prototype.hasOwnProperty.call(dtds[dtdMode], element)) {
                 continue;
             }
             if (element.indexOf('$') === 0) {
@@ -105,7 +105,7 @@ var dtdHandler = (function() {
      * @param parent (string|DOM element|jQuery element)
      * @returns {*}
      */
-    var getChildrenOf = function(parent) {
+    var getChildrenOf = function (parent) {
         parent = _normalizeElement(parent);
 
         if (parent in dtds[dtdMode]) {
@@ -122,7 +122,7 @@ var dtdHandler = (function() {
      * @param of (string|DOM element|jQuery element)
      * @returns {*}
      */
-    var isChildOf = function(child, of) {
+    var isChildOf = function (child, of) {
         return _.contains(getChildrenOf(of), _normalizeElement(child));
     };
 
@@ -133,7 +133,7 @@ var dtdHandler = (function() {
      * @param of (string|DOM element|jQuery element)
      * @returns {*}
      */
-    var isParentOf = function(parent, of) {
+    var isParentOf = function (parent, of) {
         return _.contains(getParentsOf(of), _normalizeElement(parent));
     };
 
@@ -142,7 +142,7 @@ var dtdHandler = (function() {
      *
      * @returns {*}
      */
-    var getDtd = function() {
+    var getDtd = function () {
         return dtds[dtdMode];
     };
 
@@ -151,7 +151,7 @@ var dtdHandler = (function() {
      *
      * @returns {string}
      */
-    var getMode = function() {
+    var getMode = function () {
         return dtdMode;
     };
 
@@ -188,9 +188,9 @@ var dtdHandler = (function() {
      * @license Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
      * For licensing, see LICENSE.md or http://ckeditor.com/license
      */
-    dtds.html = (function() {
+    dtds.html = (function () {
         var X = _.extend,
-            Y = function(source, removed) {
+            Y = function (source, removed) {
                 var substracted = _.cloneDeep(source),
                     i,
                     name;
@@ -925,7 +925,7 @@ var dtdHandler = (function() {
      *
      * @return dtd {object} the modified dtd
      */
-    dtds.qti = (function() {
+    dtds.qti = (function () {
         var element,
             listCnt,
             child,
@@ -954,7 +954,7 @@ var dtdHandler = (function() {
 
         // find html5-only elements in children and add them to overrides
         for (element in qtiDtd) {
-            if (!qtiDtd.hasOwnProperty(element)) {
+            if (!Object.prototype.hasOwnProperty.call(qtiDtd, element)) {
                 continue;
             }
             intersection = _.intersection(_.keys(qtiDtd[element]), html5Only);
@@ -971,11 +971,11 @@ var dtdHandler = (function() {
 
         // execute overrides
         for (element in overrides) {
-            if (!overrides.hasOwnProperty(element)) {
+            if (!Object.prototype.hasOwnProperty.call(overrides, element)) {
                 continue;
             }
             // disallow adding keys to the dtd ckeditor cannot handle
-            if (!qtiDtd.hasOwnProperty(element)) {
+            if (!Object.prototype.hasOwnProperty.call(qtiDtd, element)) {
                 continue;
             }
 
