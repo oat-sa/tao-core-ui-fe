@@ -197,8 +197,7 @@ var register = function registerValidator(name, validator, force) {
 
     if (!_.isObject(validator) || !_.isString(validator.message) || !_.isFunction(validator.validate)) {
         throw new Error(
-            'A validator must be an object with a message and a validate method, but given : ' +
-                JSON.stringify(validator)
+            `A validator must be an object with a message and a validate method, but given : ${JSON.stringify(validator)}`
         );
     }
 
