@@ -99,7 +99,7 @@ Validator.prototype.addRule = function (rule) {
 
 Validator.prototype.addRules = function (rules) {
     var self = this;
-    _.each(rules, function (rule) {
+    _.each(rules, (rule) => {
         self.addRule(rule);
     });
     return this;
