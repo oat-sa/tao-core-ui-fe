@@ -41,7 +41,7 @@ define([
             var component = makeTaskable(componentFactory());
 
             assert.expect(1);
-            assert.equal(typeof component[data.method], 'function', 'The component has the method ' + data.method);
+            assert.equal(typeof component[data.method], 'function', `The component has the method ${  data.method}`);
         });
 
     QUnit.module('Creation');

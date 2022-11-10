@@ -1,7 +1,7 @@
-define(['lodash', 'jquery', 'ui/validator'], function(_, $, FormValidator) {
+define(['lodash', 'jquery', 'ui/validator'], function (_, $) {
     'use strict';
 
-    QUnit.test('validate', function(assert) {
+    QUnit.test('validate', function (assert) {
         assert.ok(true, 'Form is valid');
         $('#field_0').validator();
         $('#field_1').validator();
