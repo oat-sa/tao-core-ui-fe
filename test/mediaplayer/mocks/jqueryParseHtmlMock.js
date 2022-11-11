@@ -34,8 +34,8 @@ define(['jquery'], function ($) {
             },
             reset() {
                 $.parseHTML = parseHTMLOrigin;
-            },
-        }
+            }
+        };
     }
 
     return parseHTMLMockFactory;

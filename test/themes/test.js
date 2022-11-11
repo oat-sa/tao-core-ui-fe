@@ -1,4 +1,4 @@
-define(['lodash', 'ui/themes'], function(_, themesHandler) {
+define(['lodash', 'ui/themes'], function (_, themesHandler) {
     'use strict';
 
     var config = {
@@ -65,20 +65,20 @@ define(['lodash', 'ui/themes'], function(_, themesHandler) {
 
     QUnit.module('Themes config');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.ok(typeof themesHandler !== 'undefined', 'The module exports something');
         assert.ok(typeof themesHandler === 'object', 'The module exports an object');
     });
 
-    QUnit.test('get(what)', function(assert) {
+    QUnit.test('get(what)', function (assert) {
         assert.expect(7);
 
-        config.activeNamespace = undefined;
+        config.activeNamespace = void 0;
         mockThemeConfig(config);
         assert.deepEqual(themesHandler.get('items'), config.items, 'returns items themes');
         assert.deepEqual(themesHandler.get('items_ns1'), config[itemsNs1], 'returns items_ns1 themes');
         assert.deepEqual(themesHandler.get('items_ns2'), config[itemsNs2], 'returns items_ns1 themes');
-        assert.deepEqual(themesHandler.get('unknown'), undefined, 'returns undefined if target is not found');
+        assert.deepEqual(themesHandler.get('unknown'), void 0, 'returns undefined if target is not found');
 
         mockThemeConfig(config);
         themesHandler.setActiveNamespace('ns1');
@@ -105,7 +105,7 @@ define(['lodash', 'ui/themes'], function(_, themesHandler) {
         );
     });
 
-    QUnit.test('get(what, ns)', function(assert) {
+    QUnit.test('get(what, ns)', function (assert) {
         assert.expect(2);
 
         config.activeNamespace = 'ns2';
@@ -115,17 +115,13 @@ define(['lodash', 'ui/themes'], function(_, themesHandler) {
             config[itemsNs1],
             'returns "items_ns" entry if namespace is specified, ignoring active namespace'
         );
-        assert.deepEqual(
-            themesHandler.get('items', 'unknown'),
-            undefined,
-            'returns undefined if namespace is not found'
-        );
+        assert.deepEqual(themesHandler.get('items', 'unknown'), void 0, 'returns undefined if namespace is not found');
     });
 
-    QUnit.test('getAvailable(what)', function(assert) {
+    QUnit.test('getAvailable(what)', function (assert) {
         assert.expect(6);
 
-        config.activeNamespace = undefined;
+        config.activeNamespace = void 0;
         mockThemeConfig(config);
         assert.deepEqual(themesHandler.getAvailable('items'), config.items.available, 'returns available items themes');
         assert.deepEqual(
@@ -160,7 +156,7 @@ define(['lodash', 'ui/themes'], function(_, themesHandler) {
         );
     });
 
-    QUnit.test('getAvailable(what, ns)', function(assert) {
+    QUnit.test('getAvailable(what, ns)', function (assert) {
         assert.expect(2);
 
         mockThemeConfig(config);
@@ -177,7 +173,7 @@ define(['lodash', 'ui/themes'], function(_, themesHandler) {
         );
     });
 
-    QUnit.test('getActiveNamespace()', function(assert) {
+    QUnit.test('getActiveNamespace()', function (assert) {
         assert.expect(1);
 
         config.activeNamespace = 'ns2';
@@ -185,7 +181,7 @@ define(['lodash', 'ui/themes'], function(_, themesHandler) {
         assert.deepEqual(themesHandler.getActiveNamespace(), 'ns2', 'Returns active namespace from the config');
     });
 
-    QUnit.test('setActiveNamespace(ns)', function(assert) {
+    QUnit.test('setActiveNamespace(ns)', function (assert) {
         assert.expect(1);
 
         config.activeNamespace = itemsNs2;
@@ -198,7 +194,7 @@ define(['lodash', 'ui/themes'], function(_, themesHandler) {
         );
     });
 
-    QUnit.test('getCurrentThemeData(what)', function(assert) {
+    QUnit.test('getCurrentThemeData(what)', function (assert) {
         assert.expect(3);
 
         mockThemeConfig(config);
@@ -211,7 +207,7 @@ define(['lodash', 'ui/themes'], function(_, themesHandler) {
         assert.deepEqual(themesHandler.getCurrentThemeData(), config[itemsNs1], 'returns items_ns1 themes');
     });
 
-    QUnit.test('setConfig', function(assert) {
+    QUnit.test('setConfig', function (assert) {
         assert.expect(1);
 
         themesHandler.setConfig(config);

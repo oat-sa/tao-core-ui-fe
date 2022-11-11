@@ -201,11 +201,11 @@ export default function propertySelectorFactory(config) {
     /**
      * Checks if a searchable field contains the searched term.
      * @param {object} property
-     * @param {string} search
+     * @param {string} searchString
      * @returns {boolean}
      */
-    function includeSearch(property, search) {
-        const searchedTerm = search.toLowerCase();
+    function includeSearch(property, searchString) {
+        const searchedTerm = searchString.toLowerCase();
         return searchableFields.some(
             field => 'string' === typeof property[field] && property[field].toLowerCase().includes(searchedTerm)
         );

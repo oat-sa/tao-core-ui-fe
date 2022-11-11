@@ -24,7 +24,7 @@ define(function () {
             writable: false,
             configurable: true,
             enumerable: true
-        }
+        };
         try {
             Object.defineProperty(window.navigator, 'userAgent', userAgent);
         } catch (e) {

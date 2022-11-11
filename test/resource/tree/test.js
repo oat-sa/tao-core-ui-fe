@@ -27,12 +27,12 @@ define([
     'json!test/ui/resource/tree/root.json',
     'json!test/ui/resource/tree/node.json',
     'css!ui/resource/css/selector'
-], function($, resourceTreeFactory, rootData, nodeData) {
+], function ($, resourceTreeFactory, rootData, nodeData) {
     'use strict';
 
     QUnit.module('API');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.expect(3);
 
         assert.equal(typeof resourceTreeFactory, 'function', 'The resourceTreeFactory module exposes a function');
@@ -60,34 +60,34 @@ define([
             { title: 'getTemplate' },
             { title: 'setTemplate' }
         ])
-        .test('Component API ', function(data, assert) {
+        .test('Component API ', function (data, assert) {
             var instance = resourceTreeFactory();
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The resourceTree exposes the component method "' + data.title
+                `The resourceTree exposes the component method "${data.title}"`
             );
         });
 
     QUnit.cases
         .init([{ title: 'on' }, { title: 'off' }, { title: 'trigger' }, { title: 'before' }, { title: 'after' }])
-        .test('Eventifier API ', function(data, assert) {
+        .test('Eventifier API ', function (data, assert) {
             var instance = resourceTreeFactory();
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The resourceTree exposes the eventifier method "' + data.title
+                `The resourceTree exposes the eventifier method "${data.title}"`
             );
         });
 
-    QUnit.cases.init([{ title: 'query' }, { title: 'update' }]).test('Instance API ', function(data, assert) {
+    QUnit.cases.init([{ title: 'query' }, { title: 'update' }]).test('Instance API ', function (data, assert) {
         var instance = resourceTreeFactory();
-        assert.equal(typeof instance[data.title], 'function', 'The resourceTree exposes the method "' + data.title);
+        assert.equal(typeof instance[data.title], 'function', `The resourceTree exposes the method "${data.title}"`);
     });
 
     QUnit.module('Behavior');
 
-    QUnit.test('Lifecycle', function(assert) {
+    QUnit.test('Lifecycle', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -96,20 +96,20 @@ define([
         resourceTreeFactory($container, {
             classUri: 'http://bertao/tao.rdf#i1491898694361191'
         })
-            .on('init', function() {
+            .on('init', function () {
                 assert.ok(!this.is('rendered'), 'The component is not yet rendered');
             })
-            .on('render', function() {
+            .on('render', function () {
                 assert.ok(this.is('rendered'), 'The component is now rendered');
 
                 this.destroy();
             })
-            .on('destroy', function() {
+            .on('destroy', function () {
                 ready();
             });
     });
 
-    QUnit.test('Rendering', function(assert) {
+    QUnit.test('Rendering', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -120,7 +120,7 @@ define([
         resourceTreeFactory($container, {
             classUri: 'http://bertao/tao.rdf#i1491898694361191',
             nodes: rootData
-        }).on('render', function() {
+        }).on('render', function () {
             var $element = this.getElement();
 
             assert.equal($('.resource-tree', $container).length, 1, 'The component has been inserted');
@@ -156,7 +156,7 @@ define([
         });
     });
 
-    QUnit.test('query/update', function(assert) {
+    QUnit.test('query/update', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -165,7 +165,7 @@ define([
         resourceTreeFactory($container, {
             classUri: 'http://bertao/tao.rdf#i1491898694361191'
         })
-            .on('query', function(params) {
+            .on('query', function (params) {
                 assert.equal(
                     params.classUri,
                     'http://bertao/tao.rdf#i1491898694361191',
@@ -175,14 +175,14 @@ define([
 
                 this.update(nodeData, params);
             })
-            .on('update', function() {
+            .on('update', function () {
                 assert.equal($('li', this.getElement()).length, 3, 'The tree has been updated');
 
                 ready();
             });
     });
 
-    QUnit.test('open closed node', function(assert) {
+    QUnit.test('open closed node', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -191,7 +191,7 @@ define([
         resourceTreeFactory($container, {
             classUri: 'http://bertao/tao.rdf#i1491898694361191',
             nodes: rootData
-        }).on('render', function() {
+        }).on('render', function () {
             var $closedClass = $('[data-uri="http://bertao/tao.rdf#i1491898712953393"]', this.getElement());
 
             assert.equal($closedClass.length, 1, 'A closed class node has been inserted');
@@ -199,11 +199,11 @@ define([
             assert.equal($closedClass.children('ul').children('li').length, 0, 'The class node is no children');
             assert.equal($closedClass.data('count'), 3, 'The class node expects 3 children');
 
-            this.on('query.foo', function(params) {
+            this.on('query.foo', function (params) {
                 this.off('query.foo');
                 this.update(nodeData, params);
             });
-            this.on('update', function() {
+            this.on('update', function () {
                 assert.ok(!$closedClass.hasClass('closed'), 'The class node is not closed anymore');
                 assert.equal($closedClass.children('ul').children('li').length, 3, 'The class node contains children');
                 ready();
@@ -213,7 +213,7 @@ define([
         });
     });
 
-    QUnit.test('open empty node', function(assert) {
+    QUnit.test('open empty node', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -222,7 +222,7 @@ define([
         resourceTreeFactory($container, {
             classUri: 'http://bertao/tao.rdf#i1491898694361191',
             nodes: rootData
-        }).on('render', function() {
+        }).on('render', function () {
             var $emptyClass = $('[data-uri="http://bertao/tao.rdf#i1491898702297492"]', this.getElement());
 
             assert.equal($emptyClass.length, 1, 'An empty class node has been inserted');
@@ -230,7 +230,7 @@ define([
             assert.equal($emptyClass.children('ul').children('li').length, 0, 'The class node is no children');
             assert.equal($emptyClass.data('count'), 0, 'The class node expects 0 children');
 
-            this.on('query.foo', function() {
+            this.on('query.foo', function () {
                 assert.ok(false, 'Should not be here');
                 ready();
             });
@@ -240,7 +240,7 @@ define([
         });
     });
 
-    QUnit.test('select nodes', function(assert) {
+    QUnit.test('select nodes', function (assert) {
         const ready = assert.async();
         const $container = $('#qunit-fixture');
 
@@ -249,7 +249,7 @@ define([
         resourceTreeFactory($container, {
             classUri: 'http://bertao/tao.rdf#i1491898694361191',
             nodes: rootData
-        }).on('render', function() {
+        }).on('render', function () {
             let selection = this.getSelection();
             const $node1 = $('[data-uri="http://bertao/tao.rdf#i1491898801542197"]', this.getElement());
             const $node2 = $('[data-uri="http://bertao/tao.rdf#i14918988061562101"]', this.getElement());
@@ -259,7 +259,7 @@ define([
             // not clickable
             const $nodeInstanceDenied = $('[data-uri="http://bertao/tao.rdf#i14918988061562102"]', this.getElement());
 
-            function checkNodeInstance ($node) {
+            function checkNodeInstance($node) {
                 assert.equal($node.length, 1, 'The node1 exists');
                 assert.ok($node.hasClass('instance'), 'The node is an instance');
                 assert.ok(!$node.hasClass('selected'), 'The node is not selected');
@@ -303,7 +303,7 @@ define([
             assert.ok(!$nodeInstanceDenied.hasClass('selected'), 'The node instance denied is NOT selected');
             assert.equal(
                 typeof selection['http://bertao/tao.rdf#i14918988061562102'],
-                "undefined",
+                'undefined',
                 'The selection does not contain the node instance denied'
             );
 
@@ -311,7 +311,7 @@ define([
         });
     });
 
-    QUnit.test('unique selection', function(assert) {
+    QUnit.test('unique selection', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -321,7 +321,7 @@ define([
             classUri: 'http://bertao/tao.rdf#i1491898694361191',
             nodes: rootData,
             multiple: false
-        }).on('render', function() {
+        }).on('render', function () {
             var selection = this.getSelection();
             var $node1 = $('[data-uri="http://bertao/tao.rdf#i1491898801542197"]', this.getElement());
             var $node2 = $('[data-uri="http://bertao/tao.rdf#i14918988061562101"]', this.getElement());
@@ -382,7 +382,7 @@ define([
         });
     });
 
-    QUnit.test('remove a node', function(assert) {
+    QUnit.test('remove a node', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var uri = 'http://bertao/tao.rdf#i1491898801542197';
@@ -393,19 +393,19 @@ define([
         resourceTreeFactory($container, {
             classUri: classUri,
             nodes: rootData
-        }).on('render', function() {
-            var $classNode = $('[data-uri="' + classUri + '"]', this.getElement());
-            var $node = $('[data-uri="' + uri + '"]', this.getElement());
+        }).on('render', function () {
+            var $classNode = $(`[data-uri="${classUri}"]`, this.getElement());
+            var $node = $(`[data-uri="${uri}"]`, this.getElement());
 
             assert.equal($classNode.length, 1, 'The class node is in the DOM');
             assert.equal($classNode.data('count'), 9, 'The instances count is correct');
 
-            this.after('remove', function(removedUri) {
+            this.after('remove', function (removedUri) {
                 assert.equal(removedUri, uri, 'The removedUri is correct');
 
                 assert.ok(!this.hasNode(uri), 'The node is not registerd anymore');
                 assert.equal(
-                    $('[data-uri="' + uri + '"]', this.getElement()).length,
+                    $(`[data-uri="${uri}"]`, this.getElement()).length,
                     0,
                     'The node is not in the DOM anymore'
                 );
@@ -427,7 +427,7 @@ define([
 
     QUnit.module('Visual');
 
-    QUnit.test('playground', function(assert) {
+    QUnit.test('playground', function (assert) {
         const ready = assert.async();
 
         const container = document.getElementById('resource-selector');
@@ -441,12 +441,12 @@ define([
         assert.expect(1);
 
         resourceTreeFactory(container, config)
-            .on('query', function(params) {
+            .on('query', function (params) {
                 this.update(nodeData, params);
             })
-            .on('render', function() {
+            .on('render', function () {
                 const $selector = $('#resource-selector');
-                $selector.css({'opacity': 1});
+                $selector.css({ opacity: 1 });
                 assert.ok(true);
                 ready();
             });

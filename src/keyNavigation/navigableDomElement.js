@@ -66,7 +66,7 @@ export default function navigableDomElement(element) {
          * @param {Boolean} propagateTab - allows the key event to propagate when the Tab key is pressed.
          * @returns {navigableDomElement}
          */
-        init({propagateTab = false} = {}) {
+        init({ propagateTab = false } = {}) {
             const keyboard = (key, el) => {
                 /**
                  * @event key
@@ -118,29 +118,33 @@ export default function navigableDomElement(element) {
                 });
 
             // init standard key bindings
-            shortcuts.clear()
-                .add(
-                    'tab shift+tab',
-                    (e, key) => keyboard(key, e.target),
-                    {
-                        propagate: !!propagateTab,
-                        prevent: true
-                    }
-                )
+            shortcuts
+                .clear()
+                .add('tab shift+tab', (e, key) => keyboard(key, e.target), {
+                    propagate: !!propagateTab,
+                    prevent: true
+                })
                 .add(
                     'up down left right',
                     (e, key) => {
                         const $target = $(e.target);
                         if (!isInput($target)) {
-                            if (!$target.is('img') &&
+                            if (
+                                !$target.is('img') &&
                                 !$target.hasClass('key-navigation-scrollable') &&
-                                !($target.hasClass('key-navigation-scrollable-up') && (key === 'up' || key === 'left')) &&
-                                !($target.hasClass('key-navigation-scrollable-down') && (key === 'down' || key === 'right'))
+                                !(
+                                    $target.hasClass('key-navigation-scrollable-up') &&
+                                    (key === 'up' || key === 'left')
+                                ) &&
+                                !(
+                                    $target.hasClass('key-navigation-scrollable-down') &&
+                                    (key === 'down' || key === 'right')
+                                )
                             ) {
                                 // prevent scrolling of parent element
                                 e.preventDefault();
                             }
-                            keyboard(key, e.target)
+                            keyboard(key, e.target);
                         }
                     },
                     {
@@ -171,9 +175,7 @@ export default function navigableDomElement(element) {
          * @returns {navigableDomElement}
          */
         destroy() {
-            $element
-                .removeClass(navigableCls)
-                .off(eventNS);
+            $element.removeClass(navigableCls).off(eventNS);
 
             if (initialTabIndex || initialTabIndex === 0) {
                 $element.attr('tabindex', initialTabIndex);
@@ -251,7 +253,7 @@ export default function navigableDomElement(element) {
             return this;
         }
     });
-};
+}
 
 /**
  * From a jQuery container, returns an array of navigableDomElement
@@ -279,4 +281,5 @@ navigableDomElement.createFromDoms = $elements => {
  * @param {Object} navigable
  * @returns {Boolean}
  */
-navigableDomElement.isNavigableElement = navigable => !!navigable && navigableApi.every(n => 'function' === typeof navigable[n]);
+navigableDomElement.isNavigableElement = navigable =>
+    !!navigable && navigableApi.every(n => 'function' === typeof navigable[n]);

@@ -227,7 +227,7 @@ var autocompleter = {
      * The complete list of plugin options can be found at: https://github.com/devbridge/jQuery-Autocomplete
      * @returns {autocompleter} this
      */
-    init: function(element, options) {
+    init: function (element, options) {
         // fetch the element to handle, we need an input element
         this.$element = $(element);
         if (!this.$element.is(':input')) {
@@ -274,7 +274,7 @@ var autocompleter = {
      * The value is conserved.
      * @returns {autocompleter} this
      */
-    destroy: function() {
+    destroy: function () {
         this.applyPlugin('dispose');
         if (this.$element) {
             this.$element.off('.' + NS);
@@ -292,12 +292,12 @@ var autocompleter = {
      * The complete list of plugin options can be found at: https://github.com/devbridge/jQuery-Autocomplete
      * @returns {Object} Returns the list of plugin options and their values.
      */
-    parseOptions: function(options) {
+    parseOptions: function (options) {
         var self = this;
         var pluginOptions = {};
 
         // filter the options
-        _.forOwn(options, function(value, name) {
+        _.forOwn(options, function (value, name) {
             var setterName = 'set' + capitalize(name);
             if (self[setterName]) {
                 // a setter exists for this option
@@ -343,7 +343,7 @@ var autocompleter = {
      * The complete list of plugin options can be found at: https://github.com/devbridge/jQuery-Autocomplete
      * @returns {autocompleter} this
      */
-    setOptions: function(options) {
+    setOptions: function (options) {
         this.applyPlugin('setOptions', [this.parseOptions(options)]);
         return this;
     },
@@ -354,7 +354,7 @@ var autocompleter = {
      * @param {Array} [params] A list of optional params to pass to the called method
      * @returns {*} Returns the callee result
      */
-    applyElement: function(action, params) {
+    applyElement: function (action, params) {
         var $element = this.$element;
 
         if ($element) {
@@ -368,7 +368,7 @@ var autocompleter = {
      * @param {Array} [params] A list of optional params to pass to the called method
      * @returns {*} Returns the callee result
      */
-    applyPlugin: function(action, params) {
+    applyPlugin: function (action, params) {
         var $element = this.$element;
         var $plugin = $element && $element[this.pluginName]();
 
@@ -380,7 +380,7 @@ var autocompleter = {
     /**
      * Shows the tooltip displayed when the server returns less records than available
      */
-    showTooltipTooMany: function() {
+    showTooltipTooMany: function () {
         if (this.$element) {
             this.tooltip.show();
         }
@@ -389,7 +389,7 @@ var autocompleter = {
     /**
      * Hides the tooltip displayed when the server returns less records than available
      */
-    hideTooltipTooMany: function() {
+    hideTooltipTooMany: function () {
         if (this.$element) {
             this.tooltip.hide();
         }
@@ -401,7 +401,7 @@ var autocompleter = {
      * @param {Array} [params] A list of optional parameters
      * @returns {*} Returns the call result
      */
-    trigger: function(eventName, params) {
+    trigger: function (eventName, params) {
         return this.applyElement('triggerHandler', [adjustEventName(eventName), params]);
     },
 
@@ -411,7 +411,7 @@ var autocompleter = {
      * @param {Function } callback The function called back when the event occurs
      * @returns {autocompleter} this
      */
-    on: function(eventName, callback) {
+    on: function (eventName, callback) {
         this.applyElement('on', [adjustEventName(eventName), callback]);
         return this;
     },
@@ -422,7 +422,7 @@ var autocompleter = {
      * @param {Function } [callback] The callback provided at install
      * @returns {autocompleter} this
      */
-    off: function(eventName, callback) {
+    off: function (eventName, callback) {
         this.applyElement('off', [adjustEventName(eventName), callback]);
         return this;
     },
@@ -431,7 +431,7 @@ var autocompleter = {
      * Gets the nested element on which the component is installed.
      * @returns {*|jQuery|HTMLElement}
      */
-    getElement: function() {
+    getElement: function () {
         return this.$element;
     },
 
@@ -439,7 +439,7 @@ var autocompleter = {
      * Checks if the server can provide more suggestions than displayed for the current query
      * @returns {Boolean}
      */
-    hasTooManySuggestions: function() {
+    hasTooManySuggestions: function () {
         return !!this.tooManySuggestions;
     },
 
@@ -447,7 +447,7 @@ var autocompleter = {
      * Gets the field value.
      * @returns {String}
      */
-    getValue: function() {
+    getValue: function () {
         return this.value;
     },
 
@@ -457,7 +457,7 @@ var autocompleter = {
      * @param {String} label The label to display inside the field
      * @returns {autocompleter} this
      */
-    setValue: function(value, label) {
+    setValue: function (value, label) {
         this.value = value;
         if (!_.isUndefined(label)) {
             this.setLabel(label);
@@ -469,7 +469,7 @@ var autocompleter = {
      * Gets the displayed label.
      * @returns {String}
      */
-    getLabel: function() {
+    getLabel: function () {
         return this.label;
     },
 
@@ -478,7 +478,7 @@ var autocompleter = {
      * @param {String} label The label to display inside the field
      * @returns {autocompleter} this
      */
-    setLabel: function(label) {
+    setLabel: function (label) {
         this.label = label;
         if (this.$element) {
             this.$element.val(label);
@@ -490,7 +490,7 @@ var autocompleter = {
      * Gets the URI of the target ontology.
      * @returns {String}
      */
-    getOntology: function() {
+    getOntology: function () {
         return this.ontology;
     },
 
@@ -499,7 +499,7 @@ var autocompleter = {
      * @param {String} ontology
      * @returns {autocompleter} this
      */
-    setOntology: function(ontology) {
+    setOntology: function (ontology) {
         this.ontology = ontology;
         return this;
     },
@@ -508,7 +508,7 @@ var autocompleter = {
      * Gets the name of the field containing the value within the received data.
      * @returns {String}
      */
-    getValueField: function() {
+    getValueField: function () {
         return this.valueField;
     },
 
@@ -517,7 +517,7 @@ var autocompleter = {
      * @param {String} valueField
      * @returns {autocompleter} this
      */
-    setValueField: function(valueField) {
+    setValueField: function (valueField) {
         this.valueField = valueField;
         return this;
     },
@@ -526,7 +526,7 @@ var autocompleter = {
      * Gets the name of the field containing the label within the received data.
      * @returns {String}
      */
-    getLabelField: function() {
+    getLabelField: function () {
         return this.labelField;
     },
 
@@ -535,7 +535,7 @@ var autocompleter = {
      * @param {String} labelField
      * @returns {autocompleter} this
      */
-    setLabelField: function(labelField) {
+    setLabelField: function (labelField) {
         this.labelField = labelField;
         return this;
     },
@@ -548,7 +548,7 @@ var autocompleter = {
      * has to take care of the selected value and to add it in its own list.
      * @returns {Boolean}
      */
-    getIsProvider: function() {
+    getIsProvider: function () {
         return this.isProvider;
     },
 
@@ -561,7 +561,7 @@ var autocompleter = {
      * @param {Boolean} isProvider
      * @returns {autocompleter} this
      */
-    setIsProvider: function(isProvider) {
+    setIsProvider: function (isProvider) {
         this.isProvider = toBoolean(isProvider);
         return this;
     },
@@ -571,7 +571,7 @@ var autocompleter = {
      * When set to true the component prevents auto submit when the user hit enter on the text box.
      * @returns {Boolean}
      */
-    getPreventSubmit: function() {
+    getPreventSubmit: function () {
         return this.preventSubmit;
     },
 
@@ -581,7 +581,7 @@ var autocompleter = {
      * @param {Boolean} preventSubmit
      * @returns {autocompleter} this
      */
-    setPreventSubmit: function(preventSubmit) {
+    setPreventSubmit: function (preventSubmit) {
         this.preventSubmit = toBoolean(preventSubmit);
         return this;
     },
@@ -591,7 +591,7 @@ var autocompleter = {
      * When provided, all the search params are wrapped under the same root.
      * @returns {String}
      */
-    getParamsRoot: function() {
+    getParamsRoot: function () {
         return this.paramsRoot;
     },
 
@@ -601,7 +601,7 @@ var autocompleter = {
      * @param {String} paramsRoot
      * @returns {autocompleter} this
      */
-    setParamsRoot: function(paramsRoot) {
+    setParamsRoot: function (paramsRoot) {
         this.paramsRoot = paramsRoot;
         return this;
     },
@@ -610,7 +610,7 @@ var autocompleter = {
      * Gets the list of extra params to be sent with the query.
      * @returns {Object}
      */
-    getParams: function() {
+    getParams: function () {
         var params = _.merge({}, this.params || {});
         var searchParams = params;
 
@@ -621,12 +621,12 @@ var autocompleter = {
 
         if (this.ontology) {
             if (!Array.isArray(this.ontologyParam)) {
-              searchParams[this.ontologyParam] = this.ontology;
+                searchParams[this.ontologyParam] = this.ontology;
             } else {
-              this.ontologyParam.forEach(p => {
-                searchParams[p] = this.ontology;
-              })
-            } 
+                this.ontologyParam.forEach(p => {
+                    searchParams[p] = this.ontology;
+                });
+            }
         }
 
         return params;
@@ -637,7 +637,7 @@ var autocompleter = {
      * @param {Object} params
      * @returns {autocompleter} this
      */
-    setParams: function(params) {
+    setParams: function (params) {
         this.params = params;
         return this;
     },
@@ -647,7 +647,7 @@ var autocompleter = {
      * If paramsRoot has been defined, the param name will be wrapped.
      * @returns {String}
      */
-    getQueryParam: function() {
+    getQueryParam: function () {
         return this.adjustParam(this.queryParam);
     },
 
@@ -656,7 +656,7 @@ var autocompleter = {
      * @param {String} queryParam
      * @returns {autocompleter} this
      */
-    setQueryParam: function(queryParam) {
+    setQueryParam: function (queryParam) {
         this.queryParam = queryParam;
         return this;
     },
@@ -666,7 +666,7 @@ var autocompleter = {
      * If paramsRoot has been defined, the param name will be wrapped.
      * @returns {String}
      */
-    getOntologyParam: function() {
+    getOntologyParam: function () {
         const p = Array.isArray(this.ontologyParam) ? this.ontologyParam[0] : this.ontologyParam;
         return this.adjustParam(p);
     },
@@ -676,7 +676,7 @@ var autocompleter = {
      * @param {String} ontologyParam
      * @returns {autocompleter} this
      */
-    setOntologyParam: function(ontologyParam) {
+    setOntologyParam: function (ontologyParam) {
         this.ontologyParam = ontologyParam;
         return this;
     },
@@ -685,7 +685,7 @@ var autocompleter = {
      * Gets the URL to data source
      * @returns {String}
      */
-    getUrl: function() {
+    getUrl: function () {
         return this.url;
     },
 
@@ -694,7 +694,7 @@ var autocompleter = {
      * @param {String} url
      * @returns {autocompleter} this
      */
-    setUrl: function(url) {
+    setUrl: function (url) {
         this.url = url;
         return this;
     },
@@ -703,7 +703,7 @@ var autocompleter = {
      * Gets the request method. Can be either GET or POST, default to GET.
      * @returns {String}
      */
-    getType: function() {
+    getType: function () {
         return this.type || 'GET';
     },
 
@@ -712,7 +712,7 @@ var autocompleter = {
      * @param {String} type
      * @returns {autocompleter} this
      */
-    setType: function(type) {
+    setType: function (type) {
         this.type = type;
         return this;
     },
@@ -721,7 +721,7 @@ var autocompleter = {
      * Gets the number of miliseconds to defer ajax request.
      * @returns {number}
      */
-    getDelay: function() {
+    getDelay: function () {
         return this.delay;
     },
 
@@ -730,7 +730,7 @@ var autocompleter = {
      * @param {Number} delay
      * @returns {autocompleter}
      */
-    setDelay: function(delay) {
+    setDelay: function (delay) {
         this.delay = Math.max(0, Number(delay));
         return this;
     },
@@ -739,7 +739,7 @@ var autocompleter = {
      * Gets the minimum number of characters required to trigger the ajax request.
      * @returns {number}
      */
-    getMinChars: function() {
+    getMinChars: function () {
         return this.minChars;
     },
 
@@ -748,7 +748,7 @@ var autocompleter = {
      * @param {Number} minChars
      * @returns {autocompleter} this
      */
-    setMinChars: function(minChars) {
+    setMinChars: function (minChars) {
         this.minChars = Math.max(1, Number(minChars));
         return this;
     },
@@ -757,7 +757,7 @@ var autocompleter = {
      * Activates the component if it was deactivated before.
      * @returns {autocompleter} this
      */
-    enable: function() {
+    enable: function () {
         this.applyPlugin('enable');
         return this;
     },
@@ -766,7 +766,7 @@ var autocompleter = {
      * Deactivates the component.
      * @returns {autocompleter} this
      */
-    disable: function() {
+    disable: function () {
         this.applyPlugin('disable');
         return this;
     },
@@ -775,7 +775,7 @@ var autocompleter = {
      * Hides suggestions.
      * @returns {autocompleter} this
      */
-    hide: function() {
+    hide: function () {
         this.applyPlugin('hide');
         return this;
     },
@@ -784,7 +784,7 @@ var autocompleter = {
      * Clears suggestion cache and current suggestions.
      * @returns {autocompleter} this
      */
-    clear: function() {
+    clear: function () {
         this.tooManySuggestions = false;
         this.applyPlugin('clear');
         return this;
@@ -794,7 +794,7 @@ var autocompleter = {
      * Clears suggestion cache.
      * @returns {autocompleter} this
      */
-    clearCache: function() {
+    clearCache: function () {
         this.applyPlugin('clearCache');
         return this;
     },
@@ -806,7 +806,7 @@ var autocompleter = {
      * - hides suggestions.
      * @returns {autocompleter} this
      */
-    reset: function() {
+    reset: function () {
         this.setValue(null, '');
         this.clear();
         this.applyPlugin('hide');
@@ -818,7 +818,7 @@ var autocompleter = {
      * @param {Event} event
      * @private
      */
-    _onKeyEvent: function(event) {
+    _onKeyEvent: function (event) {
         // prevent auto submit when the option preventSubmit is enabled
         if (this.preventSubmit && 13 === event.which) {
             event.preventDefault();
@@ -830,7 +830,7 @@ var autocompleter = {
      * @param {Object} suggestion
      * @private
      */
-    _onSelect: function(suggestion) {
+    _onSelect: function (suggestion) {
         var value = suggestion && suggestion.data;
         var label = suggestion && suggestion.value;
 
@@ -854,7 +854,7 @@ var autocompleter = {
      * @param {Object} params The list of params which will be bound the query
      * @private
      */
-    _onSearchStart: function(params) {
+    _onSearchStart: function (params) {
         var queryParam = this.getQueryParam();
         var query;
 
@@ -877,7 +877,7 @@ var autocompleter = {
      * @param {Object} suggestions An array containing the results.
      * @private
      */
-    _onSearchComplete: function(query, suggestions) {
+    _onSearchComplete: function (query, suggestions) {
         // clear cache when the query returns no records :
         // this avoids to have to reload the page when the server has a temporary failure
         if (!suggestions || !suggestions.length) {
@@ -895,7 +895,7 @@ var autocompleter = {
      * @param {Exception} errorThrown
      * @private
      */
-    _onSearchError: function(query, jqXHR, textStatus, errorThrown) {
+    _onSearchError: function (query, jqXHR, textStatus, errorThrown) {
         return this.trigger('searchError', [query, jqXHR, textStatus, errorThrown, this]);
     },
 
@@ -903,7 +903,7 @@ var autocompleter = {
      * Fired when input is altered after selection has been made.
      * @private
      */
-    _onInvalidateSelection: function() {
+    _onInvalidateSelection: function () {
         return this.trigger('invalidateSelection', [this]);
     },
 
@@ -913,16 +913,15 @@ var autocompleter = {
      * @param {jQuery} $container
      * @private
      */
-    _onBeforeRender: function($container) {
+    _onBeforeRender: function ($container) {
         this.trigger('beforeRender', [$container, this]);
     },
 
     /**
      * Fired when the input element has the focus
-     * @param {Event} event
      * @private
      */
-    _onFocus: function(event) {
+    _onFocus: function () {
         if (this.hasTooManySuggestions()) {
             this.showTooltipTooMany();
         }
@@ -930,10 +929,9 @@ var autocompleter = {
 
     /**
      * Fired when the input element lose the focus
-     * @param {Event} event
      * @private
      */
-    _onBlur: function(event) {
+    _onBlur: function () {
         this.hideTooltipTooMany();
     },
 
@@ -942,7 +940,7 @@ var autocompleter = {
      * @param response
      * @returns {{suggestions: Array}}
      */
-    _transformResult: function(response) {
+    _transformResult: function (response) {
         var self = this;
         var results = {
             suggestions: []
@@ -952,7 +950,7 @@ var autocompleter = {
             response = JSON.parse(response);
         }
         if (response.records) {
-            results.suggestions = _.map(response.data, function(dataItem) {
+            results.suggestions = _.map(response.data, function (dataItem) {
                 return {
                     value: dataItem[self.labelField],
                     data: dataItem[self.valueField]
@@ -976,7 +974,7 @@ var autocompleter = {
      * @param {String} param
      * @returns {String}
      */
-    adjustParam: function(param) {
+    adjustParam: function (param) {
         if (this.paramsRoot) {
             param = this.paramsRoot + '[' + param + ']';
         }
@@ -989,8 +987,8 @@ var autocompleter = {
  * @param {string} eventName
  * @returns {string}
  */
-var adjustEventName = function(eventName) {
-    var names = _(eventName.split(' ')).map(function(name) {
+function adjustEventName(eventName) {
+    var names = _(eventName.split(' ')).map(function (name) {
         name = name.toLowerCase();
         if (-1 === name.indexOf('.')) {
             name += '.' + NS;
@@ -998,21 +996,21 @@ var adjustEventName = function(eventName) {
         return name;
     });
     return names.join(' ');
-};
+}
 
 /**
  * Converts a value to boolean
  * @param value
  * @returns {Boolean}
  */
-var toBoolean = function(value) {
+function toBoolean(value) {
     if (_.isString(value)) {
         if ('false' === value.toLowerCase() || '0' === value) {
             value = false;
         }
     }
     return !!value;
-};
+}
 
 /**
  * Installs the autocompleter onto an element.
@@ -1020,10 +1018,10 @@ var toBoolean = function(value) {
  * @param {Object} options A list of options to set
  * @returns {autocompleter} Returns the instance of the autocompleter component
  */
-var autocompleteFactory = function(element, options) {
+function autocompleteFactory(element, options) {
     var autocomplete = _.clone(autocompleter, true);
     _.defaults(autocomplete, defaults);
     return autocomplete.init(element, options);
-};
+}
 
 export default autocompleteFactory;

@@ -20,10 +20,12 @@ define(function () {
 
     let same = true;
 
-    class UrlParser {
-        sameDomain() {
-            return same;
-        }
+    function UrlParser() {
+        return {
+            sameDomain() {
+                return same;
+            }
+        };
     }
 
     UrlParser.setSame = value => (same = value);

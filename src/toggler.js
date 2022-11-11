@@ -40,11 +40,11 @@ var Toggler = {
      * @fires Toggler#create.toggler
      * @returns {jQueryElement} for chaining
      */
-    init: function(options) {
+    init: function (options) {
         //get options using default
         options = $.extend(true, {}, defaults, options);
 
-        return this.each(function() {
+        return this.each(function () {
             var $elt = $(this);
             var $target = options.target;
             var openedClass = options.openedClass;
@@ -64,7 +64,7 @@ var Toggler = {
                 }
 
                 //keep in sync with changes made by another toggler
-                $target.on('toggle.' + ns, function(e, $toggler) {
+                $target.on('toggle.' + ns, function (e, $toggler) {
                     e.stopPropagation();
                     if (!$toggler.is($elt)) {
                         if ($target.css('display') === 'none') {
@@ -77,7 +77,7 @@ var Toggler = {
 
                 //bind an event to trigger the toggling
                 if (options.bindEvent !== false) {
-                    $elt.on(options.bindEvent, function(e) {
+                    $elt.on(options.bindEvent, function (e) {
                         e.preventDefault();
                         Toggler._toggle($(this));
                     });
@@ -102,9 +102,10 @@ var Toggler = {
      * @fires Toggler#open.toggler
      * @fires Toggler#close.toggler
      */
-    _toggle: function($elt) {
-        var options = $elt.data(dataNs);
-        var $target = options.target;
+    _toggle: function ($elt) {
+        const options = $elt.data(dataNs);
+        const $target = options.target;
+        let action;
 
         var triggerEvents = function triggerEvents() {
             /**
@@ -114,13 +115,12 @@ var Toggler = {
              * @event Toggler#open.toggler
              * @event Toggler#close.toggler
              */
-            $elt.trigger('toggle.' + ns, [$target]).trigger(action + '.' + ns, [$target]);
+            $elt.trigger('toggle.' + ns, [$target]).trigger(`${action}.${ns}`, [$target]);
 
             //trigger also on the target in case of multiple toggling
             $target.trigger('toggle.' + ns, [$elt]);
         };
 
-        var action;
         if ($elt.is(':radio,:checkbox')) {
             action = $elt.prop('checked') ? 'open' : 'close';
         } else {
@@ -148,8 +148,8 @@ var Toggler = {
      * @example $('selector').toggler('destroy');
      * @public
      */
-    destroy: function() {
-        this.each(function() {
+    destroy: function () {
+        this.each(function () {
             var $elt = $(this);
             var options = $elt.data(dataNs);
             if (options.bindEvent !== false) {
@@ -184,7 +184,7 @@ export default function listenDataAttr($container) {
         bubbled: true,
         namespace: dataNs
     })
-        .init(function($elt, $target) {
+        .init(function ($elt, $target) {
             var opts = {
                 target: $target,
                 bindEvent: false
@@ -194,7 +194,7 @@ export default function listenDataAttr($container) {
             }
             $elt.toggler(opts);
         })
-        .trigger(function($elt) {
+        .trigger(function ($elt) {
             $elt.toggler('toggle');
         });
 }

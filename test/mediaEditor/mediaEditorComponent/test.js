@@ -18,12 +18,12 @@
  * @author Oleksander Zagovorychev <zagovorichev@gmail.com>
  */
 
-define(['jquery', 'ui/mediaEditor/mediaEditorComponent'], function($, mediaEditorComponent) {
+define(['jquery', 'ui/mediaEditor/mediaEditorComponent'], function ($, mediaEditorComponent) {
     'use strict';
 
     QUnit.module('Demo');
 
-    QUnit.test('elements workflow', function(assert) {
+    QUnit.test('elements workflow', function (assert) {
         var $container;
         var $demoContainer = $('.demo-container');
         var $controlContainer = $('.control-container', $demoContainer);
@@ -47,14 +47,14 @@ define(['jquery', 'ui/mediaEditor/mediaEditorComponent'], function($, mediaEdito
             mediaDimension: {
                 active: true
             }
-        }).on('change', function(nMedia) {
+        }).on('change', function (nMedia) {
             media = nMedia;
             if (media.responsive) {
                 media.$node.css({
-                    width: media.width + '%',
+                    width: `${media.width}%`,
                     height: 'auto'
                 });
-                media.$node.attr('width', media.width + '%');
+                media.$node.attr('width', `${media.width}%`);
                 media.$node.attr('height', '');
             } else {
                 media.$node.css({

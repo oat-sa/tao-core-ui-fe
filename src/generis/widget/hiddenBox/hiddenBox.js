@@ -16,7 +16,6 @@
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA;
  */
 
-import _ from 'lodash';
 import __ from 'i18n';
 import widgetFactory from 'ui/generis/widget/widget';
 import tpl from 'ui/generis/widget/hiddenBox/hiddenBox.tpl';
@@ -111,7 +110,7 @@ function factory(options, config) {
     if (widget.config.required) {
         widget.validator.addValidation({
             message: __('This field is required'),
-            predicate: function(value) {
+            predicate: function (value) {
                 return /\S+/.test(value.value);
             },
             precedence: 1
@@ -120,7 +119,7 @@ function factory(options, config) {
 
     widget.validator.addValidation({
         message: __('Fields must match'),
-        predicate: function(value) {
+        predicate: function (value) {
             return value.value === value.confirmation;
         },
         precedence: 2

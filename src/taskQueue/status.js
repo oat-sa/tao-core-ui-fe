@@ -112,9 +112,9 @@ export default function taskQueueStatusComponent(config) {
      * @fires reportComponent#action
      * @fires reportComponent#action-{custom action name}
      */
-    var createReport = function createReport(reportType, message, taskReport) {
-        var innerTaskReport;
-        var reportData = {
+    function createReport(reportType, message, taskReport) {
+        let innerTaskReport;
+        const reportData = {
             type: reportType,
             message: message
         };
@@ -140,19 +140,19 @@ export default function taskQueueStatusComponent(config) {
             },
             reportData
         )
-            .on('action', function(actionId) {
+            .on('action', function (actionId) {
                 taskQueueStatus.trigger('action-' + actionId);
                 taskQueueStatus.trigger('action', actionId);
             })
-            .on('showDetails', function() {
+            .on('showDetails', function () {
                 taskQueueStatus.trigger('showDetails');
             })
-            .on('hideDetails', function() {
+            .on('hideDetails', function () {
                 taskQueueStatus.trigger('hideDetails');
             })
             .render(taskQueueStatus.getElement())
             .showDetails();
-    };
+    }
 
     /**
      * The task queue status component
@@ -164,12 +164,12 @@ export default function taskQueueStatusComponent(config) {
      */
     taskQueueStatus = component(statusComponent)
         .setTemplate(statusTpl)
-        .on('destroy', function() {
+        .on('destroy', function () {
             if (this.taskQueueApi) {
                 this.taskQueueApi.pollStop();
             }
         })
-        .on('render', function() {
+        .on('render', function () {
             var self = this;
 
             if (config.data && config.data.status === 'finished') {
@@ -188,7 +188,7 @@ export default function taskQueueStatusComponent(config) {
 
                 //poll the status
                 this.taskQueueApi = taskQueue({ url: { status: config.serviceUrl } })
-                    .on('running', function(taskData) {
+                    .on('running', function (taskData) {
                         if (self.status !== 'running') {
                             self.report = createReport(
                                 'info',
@@ -202,7 +202,7 @@ export default function taskQueueStatusComponent(config) {
                         }
                         self.trigger('running', taskData);
                     })
-                    .on('finished', function(taskData) {
+                    .on('finished', function (taskData) {
                         if (self.status !== 'finished') {
                             self.report = createReport(
                                 taskData.report.type || 'info',
@@ -217,7 +217,7 @@ export default function taskQueueStatusComponent(config) {
                             self.trigger('statechange', self.status);
                         }
                     })
-                    .on('error', function(err) {
+                    .on('error', function (err) {
                         self.trigger('error', err);
                     });
             }

@@ -84,11 +84,11 @@ function calculateActivePage(page, pages) {
  *
  * @returns {component|*}
  */
-var paginationFactory = function paginationFactory(config) {
-    var paginationComponent;
-    var pagination;
-    var provider;
-    var totalPages, activePage;
+const paginationFactory = function paginationFactory(config) {
+    let paginationComponent;
+    let pagination;
+    let provider;
+    let totalPages, activePage;
 
     config = _.defaults(config || {}, _defaults);
 
@@ -147,11 +147,11 @@ var paginationFactory = function paginationFactory(config) {
     paginationComponent = component(pagination);
 
     paginationComponent
-        .on('change enable', function() {
+        .on('change enable', function () {
             provider.enable();
             this.refresh();
         })
-        .on('render', function() {
+        .on('render', function () {
             var self = this;
 
             if (_.isUndefined(config.totalPages)) {
@@ -173,7 +173,7 @@ var paginationFactory = function paginationFactory(config) {
             provider
                 .forwardButton()
                 .off('click')
-                .on('click', function() {
+                .on('click', function () {
                     if (self.getActivePage() >= self.getTotal()) {
                         return;
                     }
@@ -184,7 +184,7 @@ var paginationFactory = function paginationFactory(config) {
             provider
                 .backwardButton()
                 .off('click')
-                .on('click', function() {
+                .on('click', function () {
                     if (self.getActivePage() === 1) {
                         return;
                     }
@@ -196,7 +196,7 @@ var paginationFactory = function paginationFactory(config) {
                 provider
                     .pageButtons()
                     .off('click')
-                    .on('click', function() {
+                    .on('click', function () {
                         var page = parseInt($(this).text());
                         if (page) {
                             self.setPage(page);
@@ -208,7 +208,7 @@ var paginationFactory = function paginationFactory(config) {
                 provider
                     .firstPageButton()
                     .off('click')
-                    .on('click', function() {
+                    .on('click', function () {
                         self.setPage(1);
                     });
             }
@@ -217,16 +217,16 @@ var paginationFactory = function paginationFactory(config) {
                 provider
                     .lastPageButton()
                     .off('click')
-                    .on('click', function() {
+                    .on('click', function () {
                         self.setPage(self.getTotal());
                     });
             }
         })
-        .on('disable', function() {
+        .on('disable', function () {
             // all buttons will be disabled
             provider.disable();
         })
-        .on('destroy', function() {
+        .on('destroy', function () {
             provider.destroy();
         })
         .init(config);

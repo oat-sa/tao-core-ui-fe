@@ -1,18 +1,18 @@
-define(['jquery', 'ui/lock'], function($, lock) {
+define(['jquery', 'ui/lock'], function ($, lock) {
     'use strict';
 
     QUnit.module('lock');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.expect(1);
 
         assert.ok(typeof lock === 'function', 'The module expose a function');
     });
 
-    QUnit.test('api', function(assert) {
+    QUnit.test('api', function (assert) {
         assert.expect(11);
 
-        var lk = lock();
+        const lk = lock();
         assert.ok(typeof lk === 'object', 'The lock function creates an object');
         assert.ok(typeof lk._container === 'object', 'The lock instance has a _container member');
         assert.ok(typeof lk._container.selector === 'string', 'The _container is a jquery object');
@@ -26,21 +26,21 @@ define(['jquery', 'ui/lock'], function($, lock) {
         assert.ok(typeof lk.register === 'function', 'The lock instance has a register method');
     });
 
-    QUnit.test('factory', function(assert) {
+    QUnit.test('factory', function (assert) {
         assert.expect(3);
 
-        var lock1 = lock();
-        var lock2 = lock();
+        const lock1 = lock();
+        const lock2 = lock();
         assert.ok(typeof lock1 === 'object', 'The lock function creates an object');
         assert.ok(typeof lock2 === 'object', 'The lock function creates an object');
         assert.notStrictEqual(lock1, lock2, 'The lock function creates object instances');
     });
 
-    QUnit.test('wrong container', function(assert) {
+    QUnit.test('wrong container', function (assert) {
         assert.expect(1);
 
         assert.throws(
-            function() {
+            function () {
                 lock($('#foofoo'));
             },
             Error,
@@ -48,11 +48,11 @@ define(['jquery', 'ui/lock'], function($, lock) {
         );
     });
 
-    QUnit.test('state', function(assert) {
+    QUnit.test('state', function (assert) {
         assert.expect(11);
 
-        var lk = lock().message();
-        var lock2 = lock().message();
+        const lk = lock().message();
+        const lock2 = lock().message();
 
         assert.ok(typeof lk === 'object', 'The lock function creates an object');
         assert.ok(typeof lk._state === 'string', 'The lock contains a _state member');
@@ -68,7 +68,7 @@ define(['jquery', 'ui/lock'], function($, lock) {
         assert.equal(lock2._state, 'closed', 'Once changed the current state is changed');
         assert.equal(lk._state, 'created', 'Once changed it does not interfere with other instances');
         assert.throws(
-            function() {
+            function () {
                 lock().setState('notAState');
             },
             Error,
@@ -76,10 +76,10 @@ define(['jquery', 'ui/lock'], function($, lock) {
         );
     });
 
-    QUnit.test('register', function(assert) {
+    QUnit.test('register', function (assert) {
         assert.expect(6);
 
-        var lk = lock($('#alt-lock-box')).register();
+        const lk = lock($('#alt-lock-box')).register();
 
         assert.ok(typeof lk === 'object', 'The lock function creates an object');
         assert.ok(typeof lk.content === 'string', 'The content property has been created');
@@ -89,11 +89,11 @@ define(['jquery', 'ui/lock'], function($, lock) {
         assert.ok(/feedback-info/m.test(lk.content), 'The content property contains the right css class');
     });
 
-    QUnit.test('default message', function(assert) {
+    QUnit.test('default message', function (assert) {
         assert.expect(5);
 
-        var lk = lock();
-        var r2 = lk.message();
+        const lk = lock();
+        const r2 = lk.message();
 
         assert.ok(typeof lk === 'object', 'The lock function creates an object');
         assert.strictEqual(lk, r2, 'The message function is fluent');
@@ -102,9 +102,9 @@ define(['jquery', 'ui/lock'], function($, lock) {
         assert.ok(/feedback-info/m.test(lk.content), 'The content property contains the right css class');
     });
 
-    QUnit.test('parameterized message', function(assert) {
+    QUnit.test('parameterized message', function (assert) {
         assert.expect(5);
-        var lk = lock().locked('AWESOME_MESSAGE');
+        const lk = lock().locked('AWESOME_MESSAGE');
 
         assert.ok(typeof lk === 'object', 'The lock function creates an object');
         assert.ok(typeof lk.content === 'string', 'The content property has been created');
@@ -113,24 +113,22 @@ define(['jquery', 'ui/lock'], function($, lock) {
         assert.ok(/AWESOME_MESSAGE/m.test(lk.content), 'The content property contains the message');
     });
 
-    QUnit.test('display message', function(assert) {
+    QUnit.test('display message', function (assert) {
         assert.expect(3);
-        var $container = $('#lock-box');
+        const $container = $('#lock-box');
 
-        var lk = lock($container).hasLock('LOCKED_RESOURCE');
+        const lk = lock($container).hasLock('LOCKED_RESOURCE');
 
         assert.equal(lk.level, 'info', 'The level is set to info');
         assert.ok(/LOCKED_RESOURCE/m.test(lk.content), 'The content property contains the message');
         assert.equal($('.feedback-info', $container).length, 1, 'The lock content has been appended to the container');
     });
 
-    QUnit.test('close message', function(assert) {
+    QUnit.test('close message', function (assert) {
         assert.expect(2);
 
-        var $container = $('#lock-box');
-        var lk = lock($container)
-            .message('locked', 'LOCKED_RESOURCE')
-            .display();
+        const $container = $('#lock-box');
+        const lk = lock($container).message('locked', 'LOCKED_RESOURCE').display();
 
         assert.equal($('.feedback-error', $container).length, 1, 'The lock content has been appended to the container');
 
@@ -142,19 +140,17 @@ define(['jquery', 'ui/lock'], function($, lock) {
         );
     });
 
-    QUnit.test('close event', function(assert) {
-        var ready = assert.async();
+    QUnit.test('close event', function (assert) {
+        const ready = assert.async();
 
         assert.expect(2);
 
-        var $container = $('#lock-box');
-        var lk = lock($container)
-            .message('hasLock', 'LOCKED_RESOURCE')
-            .display();
+        const $container = $('#lock-box');
+        const lk = lock($container).message('hasLock', 'LOCKED_RESOURCE').display();
 
         assert.equal($('.feedback-info', $container).length, 1, 'The lock content has been appended to the container');
 
-        $container.on('close.lock', function(e) {
+        $container.on('close.lock', function () {
             assert.equal(
                 $('.feedback-info', $container).length,
                 0,
@@ -166,16 +162,16 @@ define(['jquery', 'ui/lock'], function($, lock) {
         lk.close();
     });
 
-    QUnit.test('release', function(assert) {
-        var ready = assert.async();
+    QUnit.test('release', function (assert) {
+        const ready = assert.async();
 
         assert.expect(4);
 
-        var $container = $('#lock-box');
+        const $container = $('#lock-box');
 
         lock($container)
             .hasLock('LOCKED_RESOURCE', {
-                failed: function() {
+                failed: function () {
                     assert.ok(true, 'The release failed and callback is called');
                 },
                 uri: 123,
@@ -186,7 +182,7 @@ define(['jquery', 'ui/lock'], function($, lock) {
 
         lock($container)
             .hasLock('LOCKED_RESOURCE', {
-                failed: function() {
+                failed: function () {
                     assert.ok(true, 'The release failed and callback is called');
                 },
                 uri: 123,
@@ -197,7 +193,7 @@ define(['jquery', 'ui/lock'], function($, lock) {
 
         lock($container)
             .hasLock('LOCKED_RESOURCE', {
-                failed: function() {
+                failed: function () {
                     assert.ok(true, 'The release failed and callback is called');
                 },
                 uri: 123,
@@ -206,10 +202,10 @@ define(['jquery', 'ui/lock'], function($, lock) {
             .release()
             .close();
 
-        setTimeout(function() {
+        setTimeout(function () {
             lock($container)
                 .hasLock('LOCKED_RESOURCE', {
-                    released: function() {
+                    released: function () {
                         assert.ok(true, 'The release works and callback is called');
                         ready();
                     },
@@ -221,21 +217,21 @@ define(['jquery', 'ui/lock'], function($, lock) {
         }, 200);
     });
 
-    QUnit.test('callbacks', function(assert) {
-        var ready = assert.async();
+    QUnit.test('callbacks', function (assert) {
+        const ready = assert.async();
 
         assert.expect(3);
 
-        var $container = $('#lock-box');
+        const $container = $('#lock-box');
         lock($container)
             .message('locked', 'LOCKED_RESOURCE', {
-                create: function() {
+                create: function () {
                     assert.ok(true, 'The create callback is called');
                 },
-                display: function() {
+                display: function () {
                     assert.ok(true, 'The close callback is called');
                 },
-                close: function() {
+                close: function () {
                     assert.ok(true, 'The close callback is called');
                     ready();
                 }

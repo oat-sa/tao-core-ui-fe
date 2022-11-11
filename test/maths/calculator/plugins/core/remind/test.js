@@ -18,7 +18,7 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
  */
-define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculator/plugins/core/remind'], function(
+define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculator/plugins/core/remind'], function (
     $,
     _,
     calculatorBoardFactory,
@@ -28,7 +28,7 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
 
     QUnit.module('module');
 
-    QUnit.test('remind', function(assert) {
+    QUnit.test('remind', function (assert) {
         var calculator = calculatorBoardFactory();
 
         assert.expect(3);
@@ -62,24 +62,24 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
             { title: 'enable' },
             { title: 'disable' }
         ])
-        .test('plugin API ', function(data, assert) {
+        .test('plugin API ', function (data, assert) {
             var calculator = calculatorBoardFactory();
             var plugin = remindPluginFactory(calculator);
             assert.expect(1);
             assert.equal(
                 typeof plugin[data.title],
                 'function',
-                'The plugin instances expose a "' + data.title + '" function'
+                `The plugin instances expose a "${data.title}" function`
             );
         });
 
     QUnit.module('behavior');
 
-    QUnit.test('install', function(assert) {
+    QUnit.test('install', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-install');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = remindPluginFactory(calculator, areaBroker);
 
@@ -91,40 +91,41 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                 assert.ok(!calculator.hasCommand('remindClear'), 'The command remindClear is not yet registered');
 
                 calculator
-                    .on('plugin-install.remind', function() {
+                    .on('plugin-install.remind', function () {
                         assert.ok(true, 'The plugin has been installed');
                     })
-                    .on('destroy', function() {
+                    .on('destroy', function () {
                         ready();
                     });
 
                 plugin
                     .install()
-                    .then(function() {
+                    .then(function () {
                         assert.ok(calculator.hasCommand('remind'), 'The command remind is now registered');
                         assert.ok(calculator.hasCommand('remindLast'), 'The command remindLast is now registered');
                         assert.ok(calculator.hasCommand('remindStore'), 'The command remindStore is now registered');
                         assert.ok(calculator.hasCommand('remindClear'), 'The command remindClear is now registered');
                     })
-                    .catch(function(err) {
-                        assert.ok(false, 'Unexpected failure : ' + err.message);
+                    .catch(function (err) {
+                        assert.ok(false, `Unexpected failure : ${err.message}`);
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
+                //eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
                 ready();
             });
     });
 
-    QUnit.test('init', function(assert) {
+    QUnit.test('init', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-init');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = remindPluginFactory(calculator, areaBroker);
 
@@ -136,10 +137,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                 assert.ok(!calculator.hasCommand('remindClear'), 'The command remindClear is not yet registered');
 
                 calculator
-                    .on('plugin-init.remind', function() {
+                    .on('plugin-init.remind', function () {
                         assert.ok(plugin.getState('init'), 'The plugin has been initialized');
                     })
-                    .after('destroy', function() {
+                    .after('destroy', function () {
                         assert.ok(!calculator.hasVariable('mem'), 'The remind variable should have been removed');
                         assert.ok(!calculator.hasVariable('last'), 'The remind last variable should have been removed');
 
@@ -148,10 +149,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
 
                 plugin
                     .install()
-                    .then(function() {
+                    .then(function () {
                         return plugin.init();
                     })
-                    .then(function() {
+                    .then(function () {
                         assert.ok(calculator.hasCommand('remind'), 'The command remind is now registered');
                         assert.ok(calculator.hasCommand('remindLast'), 'The command remindLast is now registered');
                         assert.ok(calculator.hasCommand('remindStore'), 'The command remindStore is now registered');
@@ -163,9 +164,9 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                             'The remind last variable does not exist at this time'
                         );
 
-                        return new Promise(function(resolve) {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('evaluate.test', function(r1) {
+                                .after('evaluate.test', function (r1) {
                                     calculator.off('evaluate.test');
 
                                     assert.ok(
@@ -189,25 +190,26 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .evaluate();
                         });
                     })
-                    .catch(function(err) {
-                        assert.ok(false, 'Unexpected failure : ' + err.message);
+                    .catch(function (err) {
+                        assert.ok(false, `Unexpected failure : ${err.message}`);
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
+                //eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
                 ready();
             });
     });
 
-    QUnit.test('destroy', function(assert) {
+    QUnit.test('destroy', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-destroy');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = remindPluginFactory(calculator, areaBroker);
 
@@ -218,16 +220,16 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                 assert.ok(!calculator.hasCommand('remindStore'), 'The command remindStore is not yet registered');
                 assert.ok(!calculator.hasCommand('remindClear'), 'The command remindClear is not yet registered');
 
-                calculator.on('destroy', function() {
+                calculator.on('destroy', function () {
                     ready();
                 });
 
                 plugin
                     .install()
-                    .then(function() {
+                    .then(function () {
                         return plugin.init();
                     })
-                    .then(function() {
+                    .then(function () {
                         assert.ok(calculator.hasCommand('remind'), 'The command remind is now registered');
                         assert.ok(calculator.hasCommand('remindLast'), 'The command remindLast is now registered');
                         assert.ok(calculator.hasCommand('remindStore'), 'The command remindStore is now registered');
@@ -235,31 +237,32 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
 
                         return plugin.destroy();
                     })
-                    .then(function() {
+                    .then(function () {
                         assert.ok(!calculator.hasCommand('remind'), 'The command remind is removed');
                         assert.ok(!calculator.hasCommand('remindLast'), 'The command remindLast is removed');
                         assert.ok(!calculator.hasCommand('remindStore'), 'The command remindStore is removed');
                         assert.ok(!calculator.hasCommand('remindClear'), 'The command remindClear is removed');
                     })
-                    .catch(function(err) {
-                        assert.ok(false, 'Unexpected failure : ' + err.message);
+                    .catch(function (err) {
+                        assert.ok(false, `Unexpected failure : ${err.message}`);
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
+                //eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
                 ready();
             });
     });
 
-    QUnit.test('remind', function(assert) {
+    QUnit.test('remind', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-remind');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = remindPluginFactory(calculator, areaBroker);
 
@@ -271,10 +274,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                 assert.ok(!calculator.hasCommand('remindClear'), 'The command remindClear is not yet registered');
 
                 calculator
-                    .on('plugin-init.remind', function() {
+                    .on('plugin-init.remind', function () {
                         assert.ok(plugin.getState('init'), 'The plugin has been initialized');
                     })
-                    .after('destroy', function() {
+                    .after('destroy', function () {
                         assert.ok(!calculator.hasVariable('mem'), 'The remind variable should have been removed');
                         assert.ok(!calculator.hasVariable('last'), 'The remind last variable should have been removed');
 
@@ -283,10 +286,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
 
                 plugin
                     .install()
-                    .then(function() {
+                    .then(function () {
                         return plugin.init();
                     })
-                    .then(function() {
+                    .then(function () {
                         assert.ok(calculator.hasCommand('remind'), 'The command remind is now registered');
                         assert.ok(calculator.hasCommand('remindLast'), 'The command remindLast is now registered');
                         assert.ok(calculator.hasCommand('remindStore'), 'The command remindStore is now registered');
@@ -298,10 +301,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                             'The remind last variable does not exist at this time'
                         );
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('evaluate.test', function(result) {
+                                .after('evaluate.test', function (result) {
                                     calculator.off('evaluate.test');
 
                                     assert.ok(
@@ -325,10 +328,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .evaluate();
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('evaluate.test', function(result) {
+                                .after('evaluate.test', function (result) {
                                     calculator.off('evaluate.test');
 
                                     assert.ok(
@@ -352,10 +355,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .evaluate();
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('command-remindStore.test', function() {
+                                .after('command-remindStore.test', function () {
                                     calculator.off('command-remindStore.test');
 
                                     assert.ok(calculator.hasVariable('mem'), 'The remind variable should now exist');
@@ -379,10 +382,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('remindStore');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('command-remind.test', function() {
+                                .after('command-remind.test', function () {
                                     calculator.off('command-remind.test');
 
                                     assert.equal(
@@ -397,10 +400,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('remind');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('evaluate.test', function(result) {
+                                .after('evaluate.test', function (result) {
                                     calculator.off('evaluate.test');
 
                                     assert.ok(calculator.hasVariable('mem'), 'The remind variable still exist');
@@ -422,10 +425,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .evaluate();
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('evaluate.test', function(result) {
+                                .after('evaluate.test', function (result) {
                                     calculator.off('evaluate.test');
 
                                     assert.equal(
@@ -456,10 +459,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .evaluate();
                         });
                     })
-                    .then(function(result) {
-                        return new Promise(function(resolve) {
+                    .then(function (result) {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('command-remindClear.test', function() {
+                                .after('command-remindClear.test', function () {
                                     calculator.off('command-remindClear.test');
 
                                     assert.ok(!calculator.hasVariable('mem'), 'The remind variable has been destroyed');
@@ -475,14 +478,15 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('remindClear');
                         });
                     })
-                    .catch(function(err) {
-                        assert.ok(false, 'Unexpected failure : ' + err.message);
+                    .catch(function (err) {
+                        assert.ok(false, `Unexpected failure : ${err.message}`);
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
+                //eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
                 ready();

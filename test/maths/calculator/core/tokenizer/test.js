@@ -18,7 +18,7 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
  */
-define(['lodash', 'ui/maths/calculator/core/tokenizer', 'ui/maths/calculator/core/terms'], function(
+define(['lodash', 'ui/maths/calculator/core/tokenizer', 'ui/maths/calculator/core/terms'], function (
     _,
     calculatorTokenizerFactory,
     registeredTerms
@@ -27,7 +27,7 @@ define(['lodash', 'ui/maths/calculator/core/tokenizer', 'ui/maths/calculator/cor
 
     QUnit.module('Factory');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.expect(3);
         assert.equal(typeof calculatorTokenizerFactory, 'function', 'The module exposes a function');
         assert.equal(typeof calculatorTokenizerFactory(), 'object', 'The factory produces an object');
@@ -38,15 +38,15 @@ define(['lodash', 'ui/maths/calculator/core/tokenizer', 'ui/maths/calculator/cor
         );
     });
 
-    QUnit.cases.init([{ title: 'iterator' }, { title: 'tokenize' }]).test('API ', function(data, assert) {
+    QUnit.cases.init([{ title: 'iterator' }, { title: 'tokenize' }]).test('API ', function (data, assert) {
         var instance = calculatorTokenizerFactory();
         assert.expect(1);
-        assert.equal(typeof instance[data.title], 'function', 'The instance exposes a "' + data.title + '" function');
+        assert.equal(typeof instance[data.title], 'function', `The instance exposes a "${data.title}" function`);
     });
 
     QUnit.module('API');
 
-    QUnit.test('tokenize - success', function(assert) {
+    QUnit.test('tokenize - success', function (assert) {
         var tokenizer, tokens;
 
         assert.expect(38);
@@ -94,7 +94,7 @@ define(['lodash', 'ui/maths/calculator/core/tokenizer', 'ui/maths/calculator/cor
         assert.equal(tokens[17].offset, 30, 'The expected token is found at offset 30');
     });
 
-    QUnit.test('tokenize - error', function(assert) {
+    QUnit.test('tokenize - error', function (assert) {
         var tokenizer, tokens;
 
         assert.expect(4);
@@ -107,7 +107,7 @@ define(['lodash', 'ui/maths/calculator/core/tokenizer', 'ui/maths/calculator/cor
         assert.equal(tokens[4].offset, 6, 'The expected error has been found at offset 6');
     });
 
-    QUnit.test('tokenize - additional', function(assert) {
+    QUnit.test('tokenize - additional', function (assert) {
         var tokenizer, tokens;
 
         assert.expect(20);
@@ -144,13 +144,13 @@ define(['lodash', 'ui/maths/calculator/core/tokenizer', 'ui/maths/calculator/cor
         assert.equal(tokens[8].offset, 18, 'The expected token is found at offset 18');
     });
 
-    QUnit.test('tokenize - all', function(assert) {
+    QUnit.test('tokenize - all', function (assert) {
         var tokenizer, tokens;
 
         var expectedTokens = [];
         var expression = '';
-        _.forEach(registeredTerms, function(term, token) {
-            expression += term.value + ' ';
+        _.forEach(registeredTerms, function (term, token) {
+            expression += `${term.value} `;
             expectedTokens.push(token);
         });
 
@@ -162,16 +162,16 @@ define(['lodash', 'ui/maths/calculator/core/tokenizer', 'ui/maths/calculator/cor
         assert.ok(_.isArray(tokens), 'Got a list of tokens');
         assert.equal(tokens.length, expectedTokens.length, 'The list contains the expected number of tokens');
 
-        _.forEach(tokens, function(token, index) {
+        _.forEach(tokens, function (token, index) {
             assert.equal(
                 token.type,
                 expectedTokens[index],
-                'The expected token ' + expectedTokens[index] + ' is found at index ' + index
+                `The expected token ${expectedTokens[index]} is found at index ${index}`
             );
         });
     });
 
-    QUnit.test('iterator - success', function(assert) {
+    QUnit.test('iterator - success', function (assert) {
         var tokenizer, next, token;
 
         assert.expect(38);
@@ -238,7 +238,7 @@ define(['lodash', 'ui/maths/calculator/core/tokenizer', 'ui/maths/calculator/cor
         assert.equal(typeof token, 'undefined', 'The iterator has completed the expression');
     });
 
-    QUnit.test('iterator - error', function(assert) {
+    QUnit.test('iterator - error', function (assert) {
         var tokenizer, next, token;
 
         assert.expect(12);
@@ -266,7 +266,7 @@ define(['lodash', 'ui/maths/calculator/core/tokenizer', 'ui/maths/calculator/cor
         assert.equal(typeof token, 'undefined', 'The iterator has completed the expression');
     });
 
-    QUnit.test('iterator - additional', function(assert) {
+    QUnit.test('iterator - additional', function (assert) {
         var tokenizer, next, token;
 
         assert.expect(20);

@@ -18,7 +18,7 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
  */
-define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculator/plugins/core/degrad'], function(
+define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculator/plugins/core/degrad'], function (
     $,
     _,
     calculatorBoardFactory,
@@ -28,7 +28,7 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
 
     QUnit.module('module');
 
-    QUnit.test('degrad', function(assert) {
+    QUnit.test('degrad', function (assert) {
         var calculator = calculatorBoardFactory();
 
         assert.expect(3);
@@ -62,24 +62,24 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
             { title: 'enable' },
             { title: 'disable' }
         ])
-        .test('plugin API ', function(data, assert) {
+        .test('plugin API ', function (data, assert) {
             var calculator = calculatorBoardFactory();
             var plugin = degradPluginFactory(calculator);
             assert.expect(1);
             assert.equal(
                 typeof plugin[data.title],
                 'function',
-                'The plugin instances expose a "' + data.title + '" function'
+                `The plugin instances expose a "${data.title}" function`
             );
         });
 
     QUnit.module('behavior');
 
-    QUnit.test('install', function(assert) {
+    QUnit.test('install', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-install');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = degradPluginFactory(calculator, areaBroker);
 
@@ -89,38 +89,39 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                 assert.ok(!calculator.hasCommand('radian'), 'The command radian is not yet registered');
 
                 calculator
-                    .on('plugin-install.degrad', function() {
+                    .on('plugin-install.degrad', function () {
                         assert.ok(true, 'The plugin has been installed');
                     })
-                    .on('destroy', function() {
+                    .on('destroy', function () {
                         ready();
                     });
 
                 plugin
                     .install()
-                    .then(function() {
+                    .then(function () {
                         assert.ok(calculator.hasCommand('degree'), 'The command degree is now registered');
                         assert.ok(calculator.hasCommand('radian'), 'The command radian is now registered');
                     })
-                    .catch(function(err) {
-                        assert.ok(false, 'Unexpected failure : ' + err.message);
+                    .catch(function (err) {
+                        assert.ok(false, `Unexpected failure : ${err.message}`);
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
+                //eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
                 ready();
             });
     });
 
-    QUnit.test('init', function(assert) {
+    QUnit.test('init', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-init');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = degradPluginFactory(calculator, areaBroker);
 
@@ -132,41 +133,42 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                 assert.ok(!calculator.is('radian'), 'The state radian is not set');
 
                 calculator
-                    .on('plugin-init.degrad', function() {
+                    .on('plugin-init.degrad', function () {
                         assert.ok(plugin.getState('init'), 'The plugin has been initialized');
                     })
-                    .on('destroy', function() {
+                    .on('destroy', function () {
                         ready();
                     });
 
                 plugin
                     .install()
-                    .then(function() {
+                    .then(function () {
                         return plugin.init();
                     })
-                    .then(function() {
+                    .then(function () {
                         assert.ok(calculator.hasCommand('degree'), 'The command degree is now registered');
                         assert.ok(calculator.hasCommand('radian'), 'The command radian is now registered');
                     })
-                    .catch(function(err) {
-                        assert.ok(false, 'Unexpected failure : ' + err.message);
+                    .catch(function (err) {
+                        assert.ok(false, `Unexpected failure : ${err.message}`);
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
+                //eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
                 ready();
             });
     });
 
-    QUnit.test('destroy', function(assert) {
+    QUnit.test('destroy', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-destroy');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = degradPluginFactory(calculator, areaBroker);
 
@@ -177,16 +179,16 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                 assert.ok(!calculator.is('degree'), 'The state degree is not set');
                 assert.ok(!calculator.is('radian'), 'The state radian is not set');
 
-                calculator.on('destroy', function() {
+                calculator.on('destroy', function () {
                     ready();
                 });
 
                 plugin
                     .install()
-                    .then(function() {
+                    .then(function () {
                         return plugin.init();
                     })
-                    .then(function() {
+                    .then(function () {
                         assert.ok(plugin.getState('init'), 'The plugin has been initialized');
                         assert.ok(calculator.hasCommand('degree'), 'The command degree is now registered');
                         assert.ok(calculator.hasCommand('radian'), 'The command radian is now registered');
@@ -196,32 +198,33 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
 
                         return plugin.destroy();
                     })
-                    .then(function() {
+                    .then(function () {
                         assert.ok(!calculator.hasCommand('degree'), 'The command degree is removed');
                         assert.ok(!calculator.hasCommand('radian'), 'The command radian is removed');
 
                         assert.ok(!calculator.is('degree'), 'The state degree is removed');
                         assert.ok(!calculator.is('radian'), 'The state radian is removed');
                     })
-                    .catch(function(err) {
-                        assert.ok(false, 'Unexpected failure : ' + err.message);
+                    .catch(function (err) {
+                        assert.ok(false, `Unexpected failure : ${err.message}`);
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
+                //eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
                 ready();
             });
     });
 
-    QUnit.test('toggle', function(assert) {
+    QUnit.test('toggle', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-toggle');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = degradPluginFactory(calculator, areaBroker);
 
@@ -233,19 +236,19 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                 assert.ok(!calculator.is('radian'), 'The state radian is not set');
 
                 calculator
-                    .on('plugin-init.degrad', function() {
+                    .on('plugin-init.degrad', function () {
                         assert.ok(plugin.getState('init'), 'The plugin has been initialized');
                     })
-                    .on('destroy', function() {
+                    .on('destroy', function () {
                         ready();
                     });
 
                 plugin
                     .install()
-                    .then(function() {
+                    .then(function () {
                         return plugin.init();
                     })
-                    .then(function() {
+                    .then(function () {
                         assert.ok(calculator.hasCommand('degree'), 'The command degree is now registered');
                         assert.ok(calculator.hasCommand('radian'), 'The command radian is now registered');
 
@@ -271,14 +274,15 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                         calculator.replace('cos PI');
                         assert.equal(calculator.evaluate().value, '-1', 'The expression is computed in radian mode');
                     })
-                    .catch(function(err) {
-                        assert.ok(false, 'Unexpected failure : ' + err.message);
+                    .catch(function (err) {
+                        assert.ok(false, `Unexpected failure : ${err.message}`);
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
+                //eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
                 ready();
@@ -306,12 +310,12 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                 expected: 'radian'
             }
         ])
-        .test('config', function(data, assert) {
+        .test('config', function (data, assert) {
             var ready = assert.async();
 
             var $container = $('#fixture-config');
             var calculator = calculatorBoardFactory($container, [], data.config)
-                .on('ready', function() {
+                .on('ready', function () {
                     var areaBroker = calculator.getAreaBroker();
                     var plugin = degradPluginFactory(calculator, areaBroker);
 
@@ -323,32 +327,33 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                     assert.ok(!calculator.is('radian'), 'The state radian is not set');
 
                     calculator
-                        .on('plugin-init.degrad', function() {
+                        .on('plugin-init.degrad', function () {
                             assert.ok(plugin.getState('init'), 'The plugin has been initialized');
                         })
-                        .on('destroy', function() {
+                        .on('destroy', function () {
                             ready();
                         });
 
                     plugin
                         .install()
-                        .then(function() {
+                        .then(function () {
                             return plugin.init();
                         })
-                        .then(function() {
+                        .then(function () {
                             assert.ok(calculator.hasCommand('degree'), 'The command degree is now registered');
                             assert.ok(calculator.hasCommand('radian'), 'The command radian is now registered');
 
-                            assert.ok(calculator.is(data.expected), 'The expected state is set: ' + data.expected);
+                            assert.ok(calculator.is(data.expected), `The expected state is set: ${data.expected}`);
                         })
-                        .catch(function(err) {
-                            assert.ok(false, 'Unexpected failure : ' + err.message);
+                        .catch(function (err) {
+                            assert.ok(false, `Unexpected failure : ${err.message}`);
                         })
-                        .then(function() {
+                        .then(function () {
                             calculator.destroy();
                         });
                 })
-                .on('error', function(err) {
+                .on('error', function (err) {
+                    //eslint-disable-next-line no-console
                     console.error(err);
                     assert.ok(false, 'The operation should not fail!');
                     ready();

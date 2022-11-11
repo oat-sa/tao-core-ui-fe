@@ -18,12 +18,12 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
-define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
+define(['jquery', 'lodash', 'ui/component'], function ($, _, componentFactory) {
     'use strict';
 
     QUnit.module('component');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.expect(3);
         assert.equal(typeof componentFactory, 'function', 'The component module exposes a function');
         assert.equal(typeof componentFactory(), 'object', 'The component factory produces an object');
@@ -52,26 +52,26 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
             { title: 'setTemplate' },
             { title: 'getConfig' }
         ])
-        .test('instance API ', function(data, assert) {
+        .test('instance API ', function (data, assert) {
             var instance = componentFactory();
             assert.expect(1);
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The component instance exposes a "' + data.title + '" function'
+                `The component instance exposes a "${data.title}" function`
             );
         });
 
-    QUnit.test('init', function(assert) {
+    QUnit.test('init', function (assert) {
         var specs = {
             value: 10,
-            method: function() {}
+            method: function () {}
         };
         var defaults = {
             label: 'a label'
         };
         var config = {
-            nothing: undefined,
+            nothing: void 0,
             dummy: null,
             title: 'My Title'
         };
@@ -82,17 +82,17 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
         assert.notEqual(instance, specs, 'The component instance must not be the same obect as the list of specs');
         assert.notEqual(instance.config, config, 'The component instance must duplicate the config set');
         assert.equal(
-            instance.hasOwnProperty('nothing'),
+            Object.prototype.hasOwnProperty.call(instance, 'nothing'),
             false,
             'The component instance must not accept undefined config properties'
         );
         assert.equal(
-            instance.hasOwnProperty('dummy'),
+            Object.prototype.hasOwnProperty.call(instance, 'dummy'),
             false,
             'The component instance must not accept null config properties'
         );
         assert.equal(
-            instance.hasOwnProperty('value'),
+            Object.prototype.hasOwnProperty.call(instance, 'value'),
             false,
             'The component instance must not accept properties from the list of specs'
         );
@@ -113,7 +113,7 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
         instance.destroy();
     });
 
-    QUnit.test('render', function(assert) {
+    QUnit.test('render', function (assert) {
         var $dummy1 = $('<div class="dummy" />');
         var $dummy2 = $('<div class="dummy" />');
         var template = '<div class="my-component">TEST</div>';
@@ -148,10 +148,7 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
         );
         assert.equal(instance.getElement().length, 1, 'The component instance returns the rendered content');
         assert.equal(
-            instance
-                .getElement()
-                .parent()
-                .get(0),
+            instance.getElement().parent().get(0),
             $container1.get(0),
             'The component instance is rendered inside the right container'
         );
@@ -178,10 +175,7 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
         );
         assert.equal(instance.getElement().length, 1, 'The component instance returns the rendered content');
         assert.equal(
-            instance
-                .getElement()
-                .parent()
-                .get(0),
+            instance.getElement().parent().get(0),
             $container2.get(0),
             'The component instance is rendered inside the right container'
         );
@@ -212,10 +206,7 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
         );
         assert.equal(instance.getElement().length, 1, 'The component instance returns the rendered content');
         assert.equal(
-            instance
-                .getElement()
-                .parent()
-                .get(0),
+            instance.getElement().parent().get(0),
             $container3.get(0),
             'The component instance is rendered inside the right container'
         );
@@ -227,7 +218,7 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
         assert.equal(instance.getElement(), null, 'The component instance has removed its rendered content');
     });
 
-    QUnit.test('setSize', function(assert) {
+    QUnit.test('setSize', function (assert) {
         var $dummy1 = $('<div class="dummy" />');
         var $dummy2 = $('<div class="dummy" />');
         var template = '<div class="my-component">TEST</div>';
@@ -267,10 +258,7 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
         );
         assert.equal(instance.getElement().length, 1, 'The component instance returns the rendered content');
         assert.equal(
-            instance
-                .getElement()
-                .parent()
-                .get(0),
+            instance.getElement().parent().get(0),
             $container1.get(0),
             'The component instance is rendered inside the right container'
         );
@@ -312,10 +300,7 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
         );
         assert.equal(instance.getElement().length, 1, 'The component instance returns the rendered content');
         assert.equal(
-            instance
-                .getElement()
-                .parent()
-                .get(0),
+            instance.getElement().parent().get(0),
             $container2.get(0),
             'The component instance is rendered inside the right container'
         );
@@ -356,10 +341,7 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
         );
         assert.equal(instance.getElement().length, 1, 'The component instance returns the rendered content');
         assert.equal(
-            instance
-                .getElement()
-                .parent()
-                .get(0),
+            instance.getElement().parent().get(0),
             $container3.get(0),
             'The component instance is rendered inside the right container'
         );
@@ -502,7 +484,7 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
                 outerHeight: 120
             }
         ])
-        .test('getOuterSize()', function(data, assert) {
+        .test('getOuterSize()', function (data, assert) {
             var template = '<div>TEST</div>',
                 $container1 = $('#fixture-1');
             var ready = assert.async();
@@ -510,15 +492,15 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
 
             componentFactory()
                 .setTemplate(template)
-                .on('render', function() {
+                .on('render', function () {
                     var $component = this.getElement(),
                         outerSize;
 
                     $component.css({
                         'box-sizing': data.boxSizing,
-                        padding: data.padding + 'px',
-                        margin: data.margin + 'px',
-                        border: data.border + 'px solid black'
+                        padding: `${data.padding}px`,
+                        margin: `${data.margin}px`,
+                        border: `${data.border}px solid black`
                     });
 
                     outerSize = this.getOuterSize(data.includeMargin);
@@ -535,10 +517,8 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
                 });
         });
 
-    QUnit.test('show/hide', function(assert) {
-        var instance = componentFactory()
-            .init()
-            .render();
+    QUnit.test('show/hide', function (assert) {
+        var instance = componentFactory().init().render();
 
         var $component = instance.getElement();
 
@@ -571,10 +551,8 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
         instance.destroy();
     });
 
-    QUnit.test('enable/disable', function(assert) {
-        var instance = componentFactory()
-            .init()
-            .render();
+    QUnit.test('enable/disable', function (assert) {
+        var instance = componentFactory().init().render();
         var $component = instance.getElement();
 
         assert.expect(8);
@@ -606,10 +584,8 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
         instance.destroy();
     });
 
-    QUnit.test('state', function(assert) {
-        var instance = componentFactory()
-            .init()
-            .render();
+    QUnit.test('state', function (assert) {
+        var instance = componentFactory().init().render();
         var $component = instance.getElement();
 
         assert.expect(8);
@@ -645,7 +621,7 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
         instance.destroy();
     });
 
-    QUnit.test('events', function(assert) {
+    QUnit.test('events', function (assert) {
         var ready4 = assert.async();
         var ready3 = assert.async();
         var ready2 = assert.async();
@@ -655,48 +631,43 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
         var expectedHeight = 100;
 
         assert.expect(7);
-        var ready = assert.async();
+        const ready = assert.async();
 
-        instance.on('custom', function() {
+        instance.on('custom', function () {
             assert.ok(true, 'The component instance can handle custom events');
             ready();
         });
 
-        instance.on('init', function() {
+        instance.on('init', function () {
             assert.ok(true, 'The component instance triggers event when it is initialized');
             ready1();
         });
 
-        instance.on('render', function() {
+        instance.on('render', function () {
             assert.ok(true, 'The component instance triggers event when it is rendered');
             ready2();
         });
 
-        instance.on('setsize', function(width, height) {
+        instance.on('setsize', function (width, height) {
             assert.ok(true, 'The component instance triggers event when it is resized');
             assert.equal(width, expectedWidth, 'The right width has been provided');
             assert.equal(height, expectedHeight, 'The right height has been provided');
             ready3();
         });
 
-        instance.on('destroy', function() {
+        instance.on('destroy', function () {
             assert.ok(true, 'The component instance triggers event when it is destroyed');
             ready4();
         });
 
-        instance
-            .init()
-            .render()
-            .setSize(expectedWidth, expectedHeight)
-            .trigger('custom')
-            .destroy();
+        instance.init().render().setSize(expectedWidth, expectedHeight).trigger('custom').destroy();
     });
 
-    QUnit.test('extends', function(assert) {
+    QUnit.test('extends', function (assert) {
         var ready = assert.async();
         var expectedValue = 'pouet!';
         var instance = componentFactory({
-            yolo: function(val) {
+            yolo: function (val) {
                 assert.ok(true, 'The additional method has been called');
                 assert.equal(val, expectedValue, 'The expected value has been provided');
                 ready();
@@ -708,7 +679,7 @@ define(['jquery', 'lodash', 'ui/component'], function($, _, componentFactory) {
         instance.yolo(expectedValue);
     });
 
-    QUnit.test('getConfig', function(assert) {
+    QUnit.test('getConfig', function (assert) {
         var defaults = {
             label: 'default',
             value: 12

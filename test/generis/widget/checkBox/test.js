@@ -16,7 +16,7 @@
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
  */
 
-define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget/checkBox/checkBox'], function(
+define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget/checkBox/checkBox'], function (
     $,
     _,
     generisValidatorFactory,
@@ -73,7 +73,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
     var validations = {
         oneOrOther: {
             message: 'Cannot be both test taker and test author',
-            predicate: function(values) {
+            predicate: function (values) {
                 var testAuthor = 'http://www.tao.lu/Ontologies/TAO.rdf#TestAuthor';
                 var testTaker = 'http://www.tao.lu/Ontologies/TAO.rdf#DeliveryRole';
 
@@ -82,7 +82,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
         },
         sysAdminOnly: {
             message: 'A Systems Administrator cannot have other roles',
-            predicate: function(values) {
+            predicate: function (values) {
                 var sysAdmin = 'http://www.tao.lu/Ontologies/TAO.rdf#SysAdminRole';
 
                 return _.contains(values, sysAdmin) ? values.length === 1 : true;
@@ -95,7 +95,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
      */
     QUnit.module('Api');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.equal(typeof generisWidgetCheckBoxFactory, 'function', 'The module exposes a function');
         assert.equal(typeof generisWidgetCheckBoxFactory({}, {}), 'object', 'The factory produces an object');
         assert.notStrictEqual(
@@ -114,12 +114,12 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
             { name: 'validate', title: 'validate', type: 'function' },
             { name: 'serialize', title: 'serialize', type: 'function' }
         ])
-        .test('instance', function(data, assert) {
+        .test('instance', function (data, assert) {
             var instance = generisWidgetCheckBoxFactory({}, {});
             assert.equal(
                 typeof instance[data.name],
                 data.type,
-                'The instance exposes a(n) "' + data.title + '" ' + data.type
+                `The instance exposes a(n) "${data.title}"  ${data.type}`
             );
         });
 
@@ -128,7 +128,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
      */
     QUnit.module('Methods');
 
-    QUnit.test('get', function(assert) {
+    QUnit.test('get', function (assert) {
         var widget = generisWidgetCheckBoxFactory(
             {},
             {
@@ -140,7 +140,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
         assert.ok(_.contains(widget.get(), 'foobar'), 'returns correct value');
     });
 
-    QUnit.test('set', function(assert) {
+    QUnit.test('set', function (assert) {
         var widget = generisWidgetCheckBoxFactory(
             {},
             {
@@ -153,7 +153,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
         assert.ok(_.contains(widget.get(), 'baz'), 'updates value');
     });
 
-    QUnit.test('setValidator', function(assert) {
+    QUnit.test('setValidator', function (assert) {
         var oldValidator;
         var widget = generisWidgetCheckBoxFactory({}, {});
 
@@ -163,7 +163,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
         assert.notEqual(widget.validator, oldValidator, 'validator is replaced');
     });
 
-    QUnit.test('validate', function(assert) {
+    QUnit.test('validate', function (assert) {
         var widget = generisWidgetCheckBoxFactory(
             {
                 validator: [validations.sysAdminOnly]
@@ -179,7 +179,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
         assert.equal(widget.validator.errors.length, 1, 'validate properly generated errors');
     });
 
-    QUnit.test('serialize', function(assert) {
+    QUnit.test('serialize', function (assert) {
         var obj = {
             uri: 'foo#bar',
             values: ['foobar']
@@ -197,7 +197,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
      */
     QUnit.module('Behavior');
 
-    QUnit.test('DOM', function(assert) {
+    QUnit.test('DOM', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -222,7 +222,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
                 ]
             }
         )
-            .on('render', function() {
+            .on('render', function () {
                 var $element = this.getElement();
                 assert.equal($('.check-box', $container).length, 1, 'The checkbox is rendered');
                 assert.deepEqual(
@@ -232,19 +232,11 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
                 );
                 assert.ok($element.hasClass('rendered'));
 
-                assert.equal(
-                    $('.left > label', $element)
-                        .text()
-                        .trim(),
-                    'Foo',
-                    'The element label is correct'
-                );
+                assert.equal($('.left > label', $element).text().trim(), 'Foo', 'The element label is correct');
 
                 assert.equal($('.option', $element).length, 2, 'The element hsa 2 options');
                 assert.equal(
-                    $('.option:nth-child(1) label', $element)
-                        .text()
-                        .trim(),
+                    $('.option:nth-child(1) label', $element).text().trim(),
                     'v1',
                     '1st option label is correct'
                 );
@@ -255,9 +247,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
                 );
 
                 assert.equal(
-                    $('.option:nth-child(2) label', $element)
-                        .text()
-                        .trim(),
+                    $('.option:nth-child(2) label', $element).text().trim(),
                     'v2',
                     '2nd option label is correct'
                 );
@@ -271,7 +261,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
             .render($container);
     });
 
-    QUnit.test('change value', function(assert) {
+    QUnit.test('change value', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -294,12 +284,12 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
                 ]
             }
         )
-            .on('change', function(values) {
+            .on('change', function (values) {
                 assert.equal(values.name, 'http://foo#bar', 'The field name is correct');
                 assert.deepEqual(values.value, ['http://foo#v1'], 'The field value contains the option');
                 ready();
             })
-            .on('render', function() {
+            .on('render', function () {
                 var values;
                 var $element = this.getElement();
                 var $1stOpt = $('.option:nth-child(1) input', $element);
@@ -322,7 +312,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
      */
     QUnit.module('Visual Test');
 
-    QUnit.test('Display and play', function(assert) {
+    QUnit.test('Display and play', function (assert) {
         var tb1, tb2;
 
         fields[0].range = ranges[fields[0].range];
@@ -330,19 +320,19 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
 
         tb1 = generisWidgetCheckBoxFactory({}, fields[0])
             .setValidator([validations.sysAdminOnly])
-            .on('render', function() {
+            .on('render', function () {
                 assert.ok(true);
             })
             .render('#display-and-play > form > fieldset');
 
         tb2 = generisWidgetCheckBoxFactory({}, fields[1])
             .setValidator([validations.oneOrOther])
-            .on('render', function() {
+            .on('render', function () {
                 assert.ok(true);
             })
             .render('#display-and-play > form > fieldset');
 
-        $('#validate').on('click', function(e) {
+        $('#validate').on('click', function (e) {
             e.preventDefault();
 
             tb1.validate();

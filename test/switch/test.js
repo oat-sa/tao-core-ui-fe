@@ -19,12 +19,12 @@
 /**
  * @author Bertrand Chevrier <bertrand@taotesting.com>
  */
-define(['jquery', 'ui/switch/switch'], function($, switchFactory) {
+define(['jquery', 'ui/switch/switch'], function ($, switchFactory) {
     'use strict';
 
     QUnit.module('API');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.expect(3);
 
         assert.equal(typeof switchFactory, 'function', 'The switchFactory module exposes a function');
@@ -52,23 +52,23 @@ define(['jquery', 'ui/switch/switch'], function($, switchFactory) {
             { title: 'getTemplate' },
             { title: 'setTemplate' }
         ])
-        .test('Component API ', function(data, assert) {
+        .test('Component API ', function (data, assert) {
             var instance = switchFactory();
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The switch exposes the component method "' + data.title
+                `The switch exposes the component method "${data.title}"`
             );
         });
 
     QUnit.cases
         .init([{ title: 'on' }, { title: 'off' }, { title: 'trigger' }, { title: 'before' }, { title: 'after' }])
-        .test('Eventifier API ', function(data, assert) {
+        .test('Eventifier API ', function (data, assert) {
             var instance = switchFactory();
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The switch exposes the eventifier method "' + data.title
+                `The switch exposes the eventifier method "${data.title}"`
             );
         });
 
@@ -82,34 +82,34 @@ define(['jquery', 'ui/switch/switch'], function($, switchFactory) {
             { title: 'setOff' },
             { title: 'toggle' }
         ])
-        .test('Instance API ', function(data, assert) {
+        .test('Instance API ', function (data, assert) {
             var instance = switchFactory();
-            assert.equal(typeof instance[data.title], 'function', 'The switch exposes the method "' + data.title);
+            assert.equal(typeof instance[data.title], 'function', `The switch exposes the method "${data.title}"`);
         });
 
     QUnit.module('Behavior');
 
-    QUnit.test('Lifecycle', function(assert) {
+    QUnit.test('Lifecycle', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
         assert.expect(2);
 
         switchFactory($container)
-            .on('init', function() {
+            .on('init', function () {
                 assert.ok(!this.is('rendered'), 'The component is not yet rendered');
             })
-            .on('render', function() {
+            .on('render', function () {
                 assert.ok(this.is('rendered'), 'The component is now rendered');
 
                 this.destroy();
             })
-            .on('destroy', function() {
+            .on('destroy', function () {
                 ready();
             });
     });
 
-    QUnit.test('Rendering', function(assert) {
+    QUnit.test('Rendering', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -117,37 +117,25 @@ define(['jquery', 'ui/switch/switch'], function($, switchFactory) {
 
         assert.equal($('.switch', $container).length, 0, 'No resource tree in the container');
 
-        switchFactory($container).after('render', function() {
+        switchFactory($container).after('render', function () {
             var $element = this.getElement();
 
             assert.equal($('.switch', $container).length, 1, 'The component has been inserted');
             assert.equal($('.switch', $container)[0], $element[0], 'The component element is correct');
 
             assert.equal($('.on', $element).length, 1, 'The component has the on button');
-            assert.equal(
-                $('.on', $element)
-                    .text()
-                    .trim(),
-                'On',
-                'The on button label is correct'
-            );
+            assert.equal($('.on', $element).text().trim(), 'On', 'The on button label is correct');
             assert.ok(!$('.on', $element).hasClass('active'), 'The on button starts unselected');
 
             assert.equal($('.off', $element).length, 1, 'The component has the off button');
-            assert.equal(
-                $('.off', $element)
-                    .text()
-                    .trim(),
-                'Off',
-                'The off button label is correct'
-            );
+            assert.equal($('.off', $element).text().trim(), 'Off', 'The off button label is correct');
             assert.ok($('.off', $element).hasClass('active'), 'The off button starts active');
 
             ready();
         });
     });
 
-    QUnit.test('Modified defaults', function(assert) {
+    QUnit.test('Modified defaults', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -164,7 +152,7 @@ define(['jquery', 'ui/switch/switch'], function($, switchFactory) {
             off: {
                 label: 'night'
             }
-        }).after('render', function() {
+        }).after('render', function () {
             var $element = this.getElement();
 
             assert.equal($('.switch', $container).length, 1, 'The component has been inserted');
@@ -172,30 +160,18 @@ define(['jquery', 'ui/switch/switch'], function($, switchFactory) {
             assert.equal($element.attr('title'), 'hello', 'The component title has been changed');
 
             assert.equal($('.on', $element).length, 1, 'The component has the on button');
-            assert.equal(
-                $('.on', $element)
-                    .text()
-                    .trim(),
-                'day',
-                'The on button label is correct'
-            );
+            assert.equal($('.on', $element).text().trim(), 'day', 'The on button label is correct');
             assert.ok($('.on', $element).hasClass('active'), 'The on button starts selected');
 
             assert.equal($('.off', $element).length, 1, 'The component has the off button');
-            assert.equal(
-                $('.off', $element)
-                    .text()
-                    .trim(),
-                'night',
-                'The off button label is correct'
-            );
+            assert.equal($('.off', $element).text().trim(), 'night', 'The off button label is correct');
             assert.ok(!$('.off', $element).hasClass('active'), 'The off button starts unselected');
 
             ready();
         });
     });
 
-    QUnit.test('states', function(assert) {
+    QUnit.test('states', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -203,7 +179,7 @@ define(['jquery', 'ui/switch/switch'], function($, switchFactory) {
 
         assert.equal($('.switch', $container).length, 0, 'No resource tree in the container');
 
-        switchFactory($container).on('render', function() {
+        switchFactory($container).on('render', function () {
             assert.ok(this.isOff(), 'The component starts off');
             assert.ok(!this.isOn(), 'The component starts off');
 
@@ -236,7 +212,7 @@ define(['jquery', 'ui/switch/switch'], function($, switchFactory) {
         });
     });
 
-    QUnit.test('toggle by clicking', function(assert) {
+    QUnit.test('toggle by clicking', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -245,7 +221,7 @@ define(['jquery', 'ui/switch/switch'], function($, switchFactory) {
         assert.equal($('.switch', $container).length, 0, 'No resource tree in the container');
 
         switchFactory($container)
-            .on('change', function(value) {
+            .on('change', function (value) {
                 assert.ok(!this.isOff(), 'The component is now on');
                 assert.ok(this.isOn(), 'The component is now on');
                 assert.equal(value, 'on', 'The event value matches');
@@ -255,21 +231,19 @@ define(['jquery', 'ui/switch/switch'], function($, switchFactory) {
 
                 ready();
             })
-            .on('render', function() {
+            .on('render', function () {
                 assert.ok(this.isOff(), 'The component starts off');
                 assert.ok(!this.isOn(), 'The component starts off');
                 assert.ok($('.off', this.getElement()).hasClass('active'), 'The off button starts active');
                 assert.ok(!$('.on', this.getElement()).hasClass('active'), 'The on button starts inactive');
 
-                this.getElement()
-                    .find('input')
-                    .click();
+                this.getElement().find('input').click();
             });
     });
 
     QUnit.module('Visual');
 
-    QUnit.test('simple button', function(assert) {
+    QUnit.test('simple button', function (assert) {
         var ready = assert.async();
         var container = document.getElementById('outside');
 
@@ -281,13 +255,13 @@ define(['jquery', 'ui/switch/switch'], function($, switchFactory) {
             off: {
                 label: 'night'
             }
-        }).on('render', function() {
+        }).on('render', function () {
             assert.ok(true);
             ready();
         });
     });
 
-    QUnit.test('monoStyle button', function(assert) {
+    QUnit.test('monoStyle button', function (assert) {
         var ready = assert.async();
         var container = document.getElementById('outside');
 
@@ -301,7 +275,7 @@ define(['jquery', 'ui/switch/switch'], function($, switchFactory) {
                 active: true
             },
             monoStyle: true
-        }).on('render', function() {
+        }).on('render', function () {
             assert.ok(true);
             ready();
         });

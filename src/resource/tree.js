@@ -38,7 +38,7 @@ import selectable from 'ui/resource/selectable';
 import hider from 'ui/hider';
 import treeTpl from 'ui/resource/tpl/tree';
 import treeNodeTpl from 'ui/resource/tpl/treeNode';
-import DOMPurify from 'dompurify'
+import DOMPurify from 'dompurify';
 
 //yes indent isn't handle by css
 var indentStep = 15;
@@ -58,7 +58,7 @@ var indentChildren = function indentChildren($list, level) {
     if ($list.length) {
         indent = level * indentStep;
         level++;
-        $list.children('li').each(function() {
+        $list.children('li').each(function () {
             var $target = $(this);
             $target.children('a').css('padding-left', indent + 'px');
             indentChildren($target.children('ul'), level);
@@ -86,7 +86,7 @@ var needMore = function needMore($node) {
     $node
         .children('ul')
         .find('.class')
-        .each(function() {
+        .each(function () {
             needMore($(this));
         });
 };
@@ -203,7 +203,7 @@ export default function resourceTreeFactory($container, config) {
                     }
 
                     function reduceNodes(nodeList) {
-                        return _.sortBy(nodeList, function(a, b) {
+                        return _.sortBy(nodeList, function (a, b) {
                             return b.label - a.label;
                         }).reduce(reduceNode, '');
                     }
@@ -229,9 +229,7 @@ export default function resourceTreeFactory($container, config) {
                         needMore($root);
                         indentChildren($component.children('ul'), 0);
 
-                        $root
-                            .removeClass('closed')
-                            .toggleClass('empty', !$root.children('ul').children('li').length);
+                        $root.removeClass('closed').toggleClass('empty', !$root.children('ul').children('li').length);
 
                         /**
                          * The tree has been updated
@@ -248,14 +246,14 @@ export default function resourceTreeFactory($container, config) {
 
     resourceTree
         .setTemplate(treeTpl)
-        .on('init', function() {
+        .on('init', function () {
             this.classUri = this.config.classUri;
 
             this.setState('multiple', !!this.config.multiple);
 
             this.render($container);
         })
-        .on('render', function() {
+        .on('render', function () {
             var self = this;
             var $component = this.getElement();
 
@@ -303,7 +301,7 @@ export default function resourceTreeFactory($container, config) {
             if (self.config.selectClass) {
                 //if we can
 
-                $component.on('click', '.class', function(e) {
+                $component.on('click', '.class', function (e) {
                     const $class = $(e.currentTarget);
                     e.preventDefault();
                     e.stopPropagation();
@@ -321,7 +319,7 @@ export default function resourceTreeFactory($container, config) {
                     }
                 });
             } else {
-                $component.on('click', '.class', function(e) {
+                $component.on('click', '.class', function (e) {
                     const $class = $(e.currentTarget);
 
                     e.preventDefault();
@@ -334,7 +332,7 @@ export default function resourceTreeFactory($container, config) {
             }
 
             //selection
-            $component.on('click', '.instance', function(e) {
+            $component.on('click', '.instance', function (e) {
                 const $instance = $(e.currentTarget);
 
                 // all instances should be not clickable because in the tree if it is child node - it will close
@@ -351,7 +349,7 @@ export default function resourceTreeFactory($container, config) {
                 }
             });
 
-            $component.on('click', '.more', function(e) {
+            $component.on('click', '.more', function (e) {
                 var $root = $(e.currentTarget).parent('.class');
                 e.preventDefault();
                 e.stopPropagation();
@@ -369,13 +367,13 @@ export default function resourceTreeFactory($container, config) {
                 this.query();
             }
         })
-        .on('query', function() {
+        .on('query', function () {
             this.setState('loading', true);
         })
-        .on('update', function() {
+        .on('update', function () {
             this.setState('loading', false);
         })
-        .on('remove', function(uri) {
+        .on('remove', function (uri) {
             var $node, $parents, $parent;
 
             if (this.is('rendered') && uri) {
@@ -393,7 +391,7 @@ export default function resourceTreeFactory($container, config) {
         });
 
     //always defer the initialization to let consumers listen for init and render events.
-    _.defer(function() {
+    _.defer(function () {
         resourceTree.init(config);
     });
     return resourceTree;

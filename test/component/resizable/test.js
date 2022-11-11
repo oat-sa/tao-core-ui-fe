@@ -42,7 +42,7 @@ define([
             var component = makeResizable(componentFactory());
 
             assert.expect(1);
-            assert.equal(typeof component[data.method], 'function', 'The component has the method ' + data.method);
+            assert.equal(typeof component[data.method], 'function', `The component has the method ${  data.method}`);
         });
 
     QUnit.test('auto makes the component placeable', function(assert) {

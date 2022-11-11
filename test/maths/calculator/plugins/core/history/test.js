@@ -18,7 +18,7 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
  */
-define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculator/plugins/core/history'], function(
+define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculator/plugins/core/history'], function (
     $,
     _,
     calculatorBoardFactory,
@@ -28,7 +28,7 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
 
     QUnit.module('module');
 
-    QUnit.test('history', function(assert) {
+    QUnit.test('history', function (assert) {
         var calculator = calculatorBoardFactory();
 
         assert.expect(3);
@@ -62,24 +62,24 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
             { title: 'enable' },
             { title: 'disable' }
         ])
-        .test('plugin API ', function(data, assert) {
+        .test('plugin API ', function (data, assert) {
             var calculator = calculatorBoardFactory();
             var plugin = historyPluginFactory(calculator);
             assert.expect(1);
             assert.equal(
                 typeof plugin[data.title],
                 'function',
-                'The plugin instances expose a "' + data.title + '" function'
+                `The plugin instances expose a "${data.title}" function`
             );
         });
 
     QUnit.module('behavior');
 
-    QUnit.test('install', function(assert) {
+    QUnit.test('install', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-install');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = historyPluginFactory(calculator, areaBroker);
 
@@ -91,29 +91,29 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                 assert.ok(!calculator.hasCommand('historyGet'), 'The command historyGet is not yet registered');
 
                 calculator
-                    .on('plugin-install.history', function() {
+                    .on('plugin-install.history', function () {
                         assert.ok(true, 'The plugin has been installed');
                     })
-                    .on('destroy', function() {
+                    .on('destroy', function () {
                         ready();
                     });
 
                 plugin
                     .install()
-                    .then(function() {
+                    .then(function () {
                         assert.ok(calculator.hasCommand('historyClear'), 'The command historyClear is now registered');
                         assert.ok(calculator.hasCommand('historyUp'), 'The command historyUp is now registered');
                         assert.ok(calculator.hasCommand('historyDown'), 'The command historyDown is now registered');
                         assert.ok(calculator.hasCommand('historyGet'), 'The command historyGet is now registered');
                     })
-                    .catch(function(err) {
-                        assert.ok(false, 'Unexpected failure : ' + err.message);
+                    .catch(function (err) {
+                        assert.ok(false, `Unexpected failure : ${err.message}`);
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
                 // eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
@@ -121,11 +121,11 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
             });
     });
 
-    QUnit.test('init', function(assert) {
+    QUnit.test('init', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-init');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = historyPluginFactory(calculator, areaBroker);
 
@@ -137,27 +137,27 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                 assert.ok(!calculator.hasCommand('historyGet'), 'The command historyGet is not yet registered');
 
                 calculator
-                    .on('plugin-init.history', function() {
+                    .on('plugin-init.history', function () {
                         assert.ok(plugin.getState('init'), 'The plugin has been initialized');
                     })
-                    .on('destroy', function() {
+                    .on('destroy', function () {
                         ready();
                     });
 
                 plugin
                     .install()
-                    .then(function() {
+                    .then(function () {
                         return plugin.init();
                     })
-                    .then(function() {
+                    .then(function () {
                         assert.ok(calculator.hasCommand('historyClear'), 'The command historyClear is now registered');
                         assert.ok(calculator.hasCommand('historyUp'), 'The command historyUp is now registered');
                         assert.ok(calculator.hasCommand('historyDown'), 'The command historyDown is now registered');
                         assert.ok(calculator.hasCommand('historyGet'), 'The command historyGet is now registered');
 
-                        return new Promise(function(resolve) {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('history.read', function(history) {
+                                .on('history.read', function (history) {
                                     calculator.off('history.read');
                                     assert.deepEqual(history, [], 'history is empty');
                                     resolve();
@@ -165,15 +165,15 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyGet');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             assert.equal(
                                 calculator.getLastResult().value,
                                 '0',
                                 'The value of the last result is defaulted'
                             );
                             calculator
-                                .after('evaluate.test', function(result) {
+                                .after('evaluate.test', function (result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '-1', 'The expression is computed');
                                     assert.equal(
@@ -187,10 +187,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .evaluate();
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('history.read', function(history) {
+                                .on('history.read', function (history) {
                                     calculator.off('history.read');
                                     assert.deepEqual(history, ['cos PI'], 'history now contains evaluated expression');
                                     resolve();
@@ -198,14 +198,14 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyGet');
                         });
                     })
-                    .catch(function(err) {
-                        assert.ok(false, 'Unexpected failure : ' + err.message);
+                    .catch(function (err) {
+                        assert.ok(false, `Unexpected failure : ${err.message}`);
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
                 // eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
@@ -213,11 +213,11 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
             });
     });
 
-    QUnit.test('destroy', function(assert) {
+    QUnit.test('destroy', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-destroy');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = historyPluginFactory(calculator, areaBroker);
 
@@ -228,16 +228,16 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                 assert.ok(!calculator.hasCommand('historyDown'), 'The command historyDown is not yet registered');
                 assert.ok(!calculator.hasCommand('historyGet'), 'The command historyGet is not yet registered');
 
-                calculator.on('destroy', function() {
+                calculator.on('destroy', function () {
                     ready();
                 });
 
                 plugin
                     .install()
-                    .then(function() {
+                    .then(function () {
                         return plugin.init();
                     })
-                    .then(function() {
+                    .then(function () {
                         assert.ok(calculator.hasCommand('historyClear'), 'The command historyClear is now registered');
                         assert.ok(calculator.hasCommand('historyUp'), 'The command historyUp is now registered');
                         assert.ok(calculator.hasCommand('historyDown'), 'The command historyDown is now registered');
@@ -245,20 +245,20 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
 
                         return plugin.destroy();
                     })
-                    .then(function() {
+                    .then(function () {
                         assert.ok(!calculator.hasCommand('historyClear'), 'The command historyClear is removed');
                         assert.ok(!calculator.hasCommand('historyUp'), 'The command historyUp is removed');
                         assert.ok(!calculator.hasCommand('historyDown'), 'The command historyDown is removed');
                         assert.ok(!calculator.hasCommand('historyGet'), 'The command historyGet is removed');
                     })
-                    .catch(function(err) {
-                        assert.ok(false, 'Unexpected failure : ' + err.message);
+                    .catch(function (err) {
+                        assert.ok(false, `Unexpected failure : ${err.message}`);
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
                 // eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
@@ -266,39 +266,39 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
             });
     });
 
-    QUnit.test('history - fill and clear', function(assert) {
+    QUnit.test('history - fill and clear', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-history-fill');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = historyPluginFactory(calculator, areaBroker);
 
                 assert.expect(27);
 
                 calculator
-                    .on('plugin-init.history', function() {
+                    .on('plugin-init.history', function () {
                         assert.ok(plugin.getState('init'), 'The plugin has been initialized');
                     })
-                    .on('destroy', function() {
+                    .on('destroy', function () {
                         ready();
                     });
 
                 plugin
                     .install()
-                    .then(function() {
+                    .then(function () {
                         return plugin.init();
                     })
-                    .then(function() {
+                    .then(function () {
                         assert.ok(calculator.hasCommand('historyClear'), 'The command historyClear is registered');
                         assert.ok(calculator.hasCommand('historyUp'), 'The command historyUp is registered');
                         assert.ok(calculator.hasCommand('historyDown'), 'The command historyDown is registered');
                         assert.ok(calculator.hasCommand('historyGet'), 'The command historyGet is registered');
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('history.read', function(history) {
+                                .on('history.read', function (history) {
                                     calculator.off('history.read');
                                     assert.deepEqual(history, [], 'history is empty');
                                     resolve();
@@ -306,15 +306,15 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyGet');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             assert.equal(
                                 calculator.getLastResult().value,
                                 '0',
                                 'The value of the last result is defaulted'
                             );
                             calculator
-                                .after('evaluate.test', function(result) {
+                                .after('evaluate.test', function (result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '-1', 'The expression is computed');
                                     assert.equal(
@@ -328,15 +328,15 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .evaluate();
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             assert.equal(
                                 calculator.getLastResult().value,
                                 '-1',
                                 'The value of the last result is accurate'
                             );
                             calculator
-                                .on('history.read', function(history) {
+                                .on('history.read', function (history) {
                                     calculator.off('history.read');
                                     assert.deepEqual(history, ['cos PI'], 'history now contains evaluated expression');
                                     resolve();
@@ -344,10 +344,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyGet');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('evaluate.test', function(result) {
+                                .after('evaluate.test', function (result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '-1', 'The expression is computed');
                                     assert.equal(
@@ -361,10 +361,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .evaluate();
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('history.read', function(history) {
+                                .on('history.read', function (history) {
                                     calculator.off('history.read');
                                     assert.deepEqual(
                                         history,
@@ -376,15 +376,15 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyGet');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             assert.equal(
                                 calculator.getLastResult().value,
                                 '-1',
                                 'The value of the last result is still -1'
                             );
                             calculator
-                                .after('evaluate.test', function(result) {
+                                .after('evaluate.test', function (result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '0.3', 'The expression is computed');
                                     assert.equal(
@@ -398,10 +398,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .evaluate();
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('history.read', function(history) {
+                                .on('history.read', function (history) {
                                     calculator.off('history.read');
                                     assert.deepEqual(history, ['cos PI', '.1+.2'], 'history has been completed');
                                     resolve();
@@ -409,15 +409,15 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyGet');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             assert.equal(
                                 calculator.getLastResult().value,
                                 '0.3',
                                 'The value of the last result is still 0.3'
                             );
                             calculator
-                                .after('evaluate.test', function(result) {
+                                .after('evaluate.test', function (result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '0.6', 'The expression is computed');
                                     assert.equal(
@@ -431,10 +431,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .evaluate();
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('history.read', function(history) {
+                                .on('history.read', function (history) {
                                     calculator.off('history.read');
                                     assert.equal(calculator.getExpression(), '', 'The expression is cleared');
                                     assert.deepEqual(
@@ -448,10 +448,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyGet');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('history.read', function(history) {
+                                .on('history.read', function (history) {
                                     calculator.off('history.read');
                                     assert.equal(calculator.getExpression(), '', 'The expression is cleared');
                                     assert.deepEqual(
@@ -465,10 +465,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyGet');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('history.read', function(history) {
+                                .on('history.read', function (history) {
                                     calculator.off('history.read');
                                     assert.deepEqual(history, [], 'history has been cleared');
                                     assert.equal(calculator.getExpression(), '', 'The expression is still empty');
@@ -478,14 +478,14 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyGet');
                         });
                     })
-                    .catch(function(err) {
-                        assert.ok(false, 'Unexpected failure : ' + err.message);
+                    .catch(function (err) {
+                        assert.ok(false, `Unexpected failure : ${err.message}`);
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
                 // eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
@@ -493,39 +493,39 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
             });
     });
 
-    QUnit.test('history - navigate and remind', function(assert) {
+    QUnit.test('history - navigate and remind', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-history-navigate');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = historyPluginFactory(calculator, areaBroker);
 
                 assert.expect(52);
 
                 calculator
-                    .on('plugin-init.history', function() {
+                    .on('plugin-init.history', function () {
                         assert.ok(plugin.getState('init'), 'The plugin has been initialized');
                     })
-                    .on('destroy', function() {
+                    .on('destroy', function () {
                         ready();
                     });
 
                 plugin
                     .install()
-                    .then(function() {
+                    .then(function () {
                         return plugin.init();
                     })
-                    .then(function() {
+                    .then(function () {
                         assert.ok(calculator.hasCommand('historyClear'), 'The command historyClear is registered');
                         assert.ok(calculator.hasCommand('historyUp'), 'The command historyUp is registered');
                         assert.ok(calculator.hasCommand('historyDown'), 'The command historyDown is registered');
                         assert.ok(calculator.hasCommand('historyGet'), 'The command historyGet is registered');
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('history.read', function(history) {
+                                .on('history.read', function (history) {
                                     calculator.off('history.read');
                                     assert.deepEqual(history, [], 'history is empty');
                                     resolve();
@@ -533,15 +533,15 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyGet');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             assert.equal(
                                 calculator.getLastResult().value,
                                 '0',
                                 'The value of the last result is defaulted'
                             );
                             calculator
-                                .after('evaluate.test', function(result) {
+                                .after('evaluate.test', function (result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '-1', 'The expression "cos PI" is computed');
                                     assert.equal(
@@ -555,10 +555,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .evaluate();
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('evaluate.test', function(result) {
+                                .after('evaluate.test', function (result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '-1', 'The expression "cos PI" is computed again');
                                     assert.equal(
@@ -572,10 +572,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .evaluate();
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('evaluate.test', function(result) {
+                                .after('evaluate.test', function (result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '0.3', 'The expression ".1+.2" is computed');
                                     assert.equal(
@@ -589,10 +589,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .evaluate();
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('history.read', function(history) {
+                                .on('history.read', function (history) {
                                     calculator.off('history.read');
                                     assert.deepEqual(
                                         history,
@@ -604,10 +604,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyGet');
                         });
                     })
-                    .then(function(history) {
-                        return new Promise(function(resolve) {
+                    .then(function (history) {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('clear.test', function() {
+                                .on('clear.test', function () {
                                     calculator.off('clear.test');
                                     assert.equal(calculator.getExpression(), '', 'The expression is cleared');
                                     resolve(history);
@@ -615,15 +615,15 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .clear();
                         });
                     })
-                    .then(function(history) {
-                        return new Promise(function(resolve) {
+                    .then(function (history) {
+                        return new Promise(function (resolve) {
                             assert.equal(
                                 calculator.getLastResult().value,
                                 '0.3',
                                 'The value of the last result did not change yet'
                             );
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -640,10 +640,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyUp');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('evaluate.test', function(result) {
+                                .after('evaluate.test', function (result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '3', 'The expression "1+2" is computed');
                                     assert.equal(
@@ -657,10 +657,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .evaluate();
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('history.read', function(history) {
+                                .on('history.read', function (history) {
                                     calculator.off('history.read');
                                     assert.deepEqual(history, ['cos PI', '.1+.2', '1+2'], 'history has been updated');
                                     resolve();
@@ -668,10 +668,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyGet');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('evaluate.test', function(result) {
+                                .after('evaluate.test', function (result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '12', 'The expression "3*4" is computed');
                                     assert.equal(
@@ -685,10 +685,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .evaluate();
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('history.read', function(history) {
+                                .on('history.read', function (history) {
                                     calculator.off('history.read');
                                     assert.deepEqual(
                                         history,
@@ -700,10 +700,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyGet');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -715,11 +715,11 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .replace('6*7');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             assert.equal(calculator.getLastResult().value, '12', 'The value of the last result is 12');
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -736,10 +736,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyUp');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -756,10 +756,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyUp');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -776,10 +776,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyUp');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -796,10 +796,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyUp');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('command-historyUp.stop', function() {
+                                .after('command-historyUp.stop', function () {
                                     calculator.off('command-historyUp.stop');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -816,10 +816,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyUp');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -836,10 +836,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyDown');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -856,10 +856,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyDown');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -876,10 +876,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyDown');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(calculator.getExpression(), '6*7', 'The expression has been reset');
                                     assert.equal(
@@ -892,10 +892,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyDown');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('command-historyDown.stop', function() {
+                                .after('command-historyDown.stop', function () {
                                     calculator.off('command-historyDown.stop');
                                     assert.equal(calculator.getExpression(), '6*7', 'The expression did not change');
                                     assert.equal(
@@ -908,10 +908,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyDown');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -928,10 +928,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyUp');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('command-historyClear.set', function() {
+                                .on('command-historyClear.set', function () {
                                     calculator.off('command-historyClear.set');
                                     assert.ok(true, 'The history should be cleared now');
                                     resolve();
@@ -939,10 +939,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyClear');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('history.read', function(history) {
+                                .on('history.read', function (history) {
                                     calculator.off('history.read');
                                     assert.deepEqual(history, [], 'history is empty');
                                     assert.equal(
@@ -960,14 +960,14 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyGet');
                         });
                     })
-                    .catch(function(err) {
-                        assert.ok(false, 'Unexpected failure : ' + err.message);
+                    .catch(function (err) {
+                        assert.ok(false, `Unexpected failure : ${err.message}`);
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
                 // eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
@@ -975,39 +975,39 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
             });
     });
 
-    QUnit.test('history - navigate and replace', function(assert) {
+    QUnit.test('history - navigate and replace', function (assert) {
         var ready = assert.async();
         var $container = $('#fixture-history-replace');
         var calculator = calculatorBoardFactory($container)
-            .on('ready', function() {
+            .on('ready', function () {
                 var areaBroker = calculator.getAreaBroker();
                 var plugin = historyPluginFactory(calculator, areaBroker);
 
                 assert.expect(55);
 
                 calculator
-                    .on('plugin-init.history', function() {
+                    .on('plugin-init.history', function () {
                         assert.ok(plugin.getState('init'), 'The plugin has been initialized');
                     })
-                    .on('destroy', function() {
+                    .on('destroy', function () {
                         ready();
                     });
 
                 plugin
                     .install()
-                    .then(function() {
+                    .then(function () {
                         return plugin.init();
                     })
-                    .then(function() {
+                    .then(function () {
                         assert.ok(calculator.hasCommand('historyClear'), 'The command historyClear is registered');
                         assert.ok(calculator.hasCommand('historyUp'), 'The command historyUp is registered');
                         assert.ok(calculator.hasCommand('historyDown'), 'The command historyDown is registered');
                         assert.ok(calculator.hasCommand('historyGet'), 'The command historyGet is registered');
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('history.read', function(history) {
+                                .on('history.read', function (history) {
                                     calculator.off('history.read');
                                     assert.deepEqual(history, [], 'history is empty');
                                     resolve();
@@ -1015,15 +1015,15 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyGet');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             assert.equal(
                                 calculator.getLastResult().value,
                                 '0',
                                 'The value of the last result is defaulted'
                             );
                             calculator
-                                .after('evaluate.test', function(result) {
+                                .after('evaluate.test', function (result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '-1', 'The expression "cos PI" is computed');
                                     assert.equal(
@@ -1037,10 +1037,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .evaluate();
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('evaluate.test', function(result) {
+                                .after('evaluate.test', function (result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '-1', 'The expression "cos PI" is computed again');
                                     assert.equal(
@@ -1054,10 +1054,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .evaluate();
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('evaluate.test', function(result) {
+                                .after('evaluate.test', function (result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '0.3', 'The expression ".1+.2" is computed');
                                     assert.equal(
@@ -1071,10 +1071,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .evaluate();
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('history.read', function(history) {
+                                .on('history.read', function (history) {
                                     calculator.off('history.read');
                                     assert.deepEqual(
                                         history,
@@ -1086,10 +1086,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyGet');
                         });
                     })
-                    .then(function(history) {
-                        return new Promise(function(resolve) {
+                    .then(function (history) {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('clear.test', function() {
+                                .on('clear.test', function () {
                                     calculator.off('clear.test');
                                     assert.equal(calculator.getExpression(), '', 'The expression is cleared');
                                     resolve(history);
@@ -1097,15 +1097,15 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .clear();
                         });
                     })
-                    .then(function(history) {
-                        return new Promise(function(resolve) {
+                    .then(function (history) {
+                        return new Promise(function (resolve) {
                             assert.equal(
                                 calculator.getLastResult().value,
                                 '0.3',
                                 'The value of the last result is still 0.3'
                             );
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -1122,10 +1122,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyUp');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('evaluate.test', function(result) {
+                                .after('evaluate.test', function (result) {
                                     calculator.off('evaluate.test');
                                     assert.equal(result.value, '3', 'The expression "1+2" is computed');
                                     assert.equal(
@@ -1139,10 +1139,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .evaluate();
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('history.read', function(history) {
+                                .on('history.read', function (history) {
                                     calculator.off('history.read');
                                     assert.deepEqual(history, ['cos PI', '.1+.2', '1+2'], 'history has been updated');
                                     resolve();
@@ -1150,10 +1150,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyGet');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -1165,15 +1165,15 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .replace('6*7');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             assert.equal(
                                 calculator.getLastResult().value,
                                 '3',
                                 'The value of the last result is still 3'
                             );
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -1190,10 +1190,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyUp');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -1210,10 +1210,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyUp');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -1225,15 +1225,15 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .replace('.1+.2+.3');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             assert.equal(
                                 calculator.getLastResult().value,
                                 '-1',
                                 'The value of the last result is still -1'
                             );
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -1250,10 +1250,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyDown');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -1270,10 +1270,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyUp');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('evaluate.set', function(result) {
+                                .after('evaluate.set', function (result) {
                                     calculator.off('evaluate.set');
                                     assert.equal(result.value, '0.6', 'The expression is computed');
                                     assert.equal(
@@ -1286,10 +1286,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .evaluate();
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('history.read', function(history) {
+                                .on('history.read', function (history) {
                                     calculator.off('history.read');
                                     assert.deepEqual(
                                         history,
@@ -1301,10 +1301,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyGet');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -1321,10 +1321,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyUp');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -1341,10 +1341,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyUp');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -1356,15 +1356,15 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .replace('1+2-1');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             assert.equal(
                                 calculator.getLastResult().value,
                                 '-1',
                                 'The value of the last result is still -1'
                             );
                             calculator
-                                .after('command-historyDown.set', function() {
+                                .after('command-historyDown.set', function () {
                                     calculator.off('command-historyDown.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -1381,10 +1381,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyDown');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -1401,10 +1401,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyUp');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .after('evaluate.set', function(result) {
+                                .after('evaluate.set', function (result) {
                                     calculator.off('evaluate.set');
                                     assert.equal(result.value, '2', 'The expression is computed');
                                     assert.equal(
@@ -1417,10 +1417,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .evaluate();
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('history.read', function(history) {
+                                .on('history.read', function (history) {
                                     calculator.off('history.read');
                                     assert.deepEqual(
                                         history,
@@ -1432,10 +1432,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyGet');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -1452,10 +1452,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyUp');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -1472,10 +1472,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyUp');
                         });
                     })
-                    .then(function() {
-                        return new Promise(function(resolve) {
+                    .then(function () {
+                        return new Promise(function (resolve) {
                             calculator
-                                .on('replace.set', function() {
+                                .on('replace.set', function () {
                                     calculator.off('replace.set');
                                     assert.equal(
                                         calculator.getExpression(),
@@ -1492,14 +1492,14 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/board', 'ui/maths/calculat
                                 .useCommand('historyUp');
                         });
                     })
-                    .catch(function(err) {
-                        assert.ok(false, 'Unexpected failure : ' + err.message);
+                    .catch(function (err) {
+                        assert.ok(false, `Unexpected failure : ${err.message}`);
                     })
-                    .then(function() {
+                    .then(function () {
                         calculator.destroy();
                     });
             })
-            .on('error', function(err) {
+            .on('error', function (err) {
                 // eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');

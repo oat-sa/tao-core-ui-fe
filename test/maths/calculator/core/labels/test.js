@@ -23,29 +23,29 @@ define([
     'lodash',
     'ui/maths/calculator/core/labels',
     'tpl!test/ui/maths/calculator/core/labels/labels'
-], function($, _, labels, labelsTpl) {
+], function ($, _, labels, labelsTpl) {
     'use strict';
 
     QUnit.module('Module');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.expect(1);
         assert.equal(typeof labels, 'object', 'The module exposes an object');
     });
 
-    QUnit.test('labels', function(assert) {
+    QUnit.test('labels', function (assert) {
         assert.expect(1 + _.size(labels));
 
         assert.ok(_.size(labels) > 0, 'A list of labels is exposed');
 
-        _.forEach(labels, function(label, id) {
-            assert.equal(typeof label, 'string', 'The term ' + id + ' has a label');
+        _.forEach(labels, function (label, id) {
+            assert.equal(typeof label, 'string', `The term ${id} has a label`);
         });
     });
 
     QUnit.module('visual test');
 
-    QUnit.test('labels', function(assert) {
+    QUnit.test('labels', function (assert) {
         var $container = $('#visual-test');
 
         assert.expect(2);

@@ -23,7 +23,7 @@ define([
     'lodash',
     'pdfjs-dist/build/pdf',
     'ui/documentViewer/providers/pdfViewer/pdfjs/textManager'
-], function($, _, pdfjs, textManagerFactory) {
+], function ($, _, pdfjs, textManagerFactory) {
     'use strict';
 
     var pdfUrl = location.href.replace('/pdfViewer/textManager/test.html', '/sample/demo.pdf');
@@ -32,7 +32,7 @@ define([
 
     QUnit.module('pdfViewer TextManager factory');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         var config = {
             PDFJS: pdfjs
         };
@@ -60,7 +60,7 @@ define([
         { name: 'destroy', title: 'destroy' }
     ];
 
-    QUnit.cases.init(textLayerApi).test('instance API ', function(data, assert) {
+    QUnit.cases.init(textLayerApi).test('instance API ', function (data, assert) {
         var config = {
             PDFJS: pdfjs
         };
@@ -71,35 +71,35 @@ define([
         assert.equal(
             typeof instance[data.name],
             'function',
-            'The pdfViewer TextManager instance exposes a "' + data.name + '" function'
+            `The pdfViewer TextManager instance exposes a "${data.name}" function`
         );
 
         instance.destroy();
     });
 
     QUnit.module('pdfViewer TextManager implementation', {
-        beforeEach: function(assert) {
+        beforeEach: function () {
             pdfjsBackup.pageCount = pdfjs.pageCount;
             pdfjsBackup.textContent = pdfjs.textContent;
         },
-        afterEach: function(assert) {
+        afterEach: function () {
             pdfjs.removeAllListeners();
             pdfjs.pageCount = pdfjsBackup.pageCount;
             pdfjs.textContent = pdfjsBackup.textContent;
         }
     });
 
-    QUnit.test('error', function(assert) {
+    QUnit.test('error', function (assert) {
         var config = {};
 
         assert.expect(1);
 
-        assert.throws(function() {
+        assert.throws(function () {
             textManagerFactory(config);
         }, 'The pdfViewer TextManager factory triggers an error if PDF.js is missing');
     });
 
-    QUnit.test('setDocument', function(assert) {
+    QUnit.test('setDocument', function (assert) {
         var ready = assert.async();
         var config = {
             PDFJS: pdfjs
@@ -116,7 +116,7 @@ define([
 
         pdfjs
             .getDocument(pdfUrl)
-            .then(function(pdf) {
+            .then(function (pdf) {
                 instance.setDocument(pdf);
 
                 assert.equal(instance.getDocument(), pdf, 'The document has been set');
@@ -126,20 +126,23 @@ define([
 
                 ready();
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(false, 'No error should be triggered');
                 ready();
             });
     });
 
-    QUnit.test('getContents', function(assert) {
+    QUnit.test('getContents', function (assert) {
         var ready = assert.async();
         var pageCount = 2;
         var config = {
             PDFJS: pdfjs
         };
         var instance = textManagerFactory(config);
-        var textContent = [['Page 1', ' ', 'foo'], ['Page 2', ' ', 'bar']];
+        var textContent = [
+            ['Page 1', ' ', 'foo'],
+            ['Page 2', ' ', 'bar']
+        ];
 
         assert.expect(5 + 7 * pageCount);
 
@@ -154,19 +157,19 @@ define([
 
         instance
             .getContents()
-            .then(function() {
+            .then(function () {
                 assert.ok(false, 'The getContents() method should fail when not document is set');
                 ready();
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(true, 'The getContents() method fails when not document is set');
 
                 pdfjs
                     .getDocument(pdfUrl)
-                    .then(function(pdf) {
+                    .then(function (pdf) {
                         instance.setDocument(pdf);
 
-                        return instance.getContents().then(function(contents) {
+                        return instance.getContents().then(function (contents) {
                             assert.ok(contents instanceof Array, 'Received a collection');
                             assert.equal(
                                 contents.length,
@@ -174,7 +177,7 @@ define([
                                 'The collection contains the right number of pages contents'
                             );
 
-                            _.forEach(contents, function(pageContent, index) {
+                            _.forEach(contents, function (pageContent, index) {
                                 assert.equal(typeof pageContent, 'object', 'The page content is an object');
                                 assert.equal(
                                     typeof pageContent.content,
@@ -208,7 +211,7 @@ define([
                                 );
                             });
 
-                            return instance.getContents().then(function(_contents) {
+                            return instance.getContents().then(function (_contents) {
                                 assert.equal(
                                     contents,
                                     _contents,
@@ -221,21 +224,24 @@ define([
                             });
                         });
                     })
-                    .catch(function() {
+                    .catch(function () {
                         assert.ok(false, 'No error should be triggered');
                         ready();
                     });
             });
     });
 
-    QUnit.test('getText', function(assert) {
+    QUnit.test('getText', function (assert) {
         var ready = assert.async();
         var pageCount = 2;
         var config = {
             PDFJS: pdfjs
         };
         var instance = textManagerFactory(config);
-        var textContent = [['Page 1', ' ', 'foo'], ['Page 2', ' ', 'bar']];
+        var textContent = [
+            ['Page 1', ' ', 'foo'],
+            ['Page 2', ' ', 'bar']
+        ];
 
         assert.expect(4 + 2 * pageCount);
 
@@ -250,19 +256,19 @@ define([
 
         instance
             .getText()
-            .then(function() {
+            .then(function () {
                 assert.ok(false, 'The getText() method should fail when not document is set');
                 ready();
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(true, 'The getText() method fails when not document is set');
 
                 pdfjs
                     .getDocument(pdfUrl)
-                    .then(function(pdf) {
+                    .then(function (pdf) {
                         instance.setDocument(pdf);
 
-                        return instance.getText().then(function(texts) {
+                        return instance.getText().then(function (texts) {
                             assert.ok(texts instanceof Array, 'Received a collection');
                             assert.equal(
                                 texts.length,
@@ -270,7 +276,7 @@ define([
                                 'The collection contains the right number of pages texts'
                             );
 
-                            _.forEach(texts, function(text, index) {
+                            _.forEach(texts, function (text, index) {
                                 assert.equal(typeof text, 'string', 'This is a text entry');
                                 assert.equal(text, textContent[index].join(''), 'This is contains the right text');
                             });
@@ -280,14 +286,14 @@ define([
                             ready();
                         });
                     })
-                    .catch(function() {
+                    .catch(function () {
                         assert.ok(false, 'No error should be triggered');
                         ready();
                     });
             });
     });
 
-    QUnit.test('getFullText', function(assert) {
+    QUnit.test('getFullText', function (assert) {
         var ready = assert.async();
         var pageCount = 2;
         var config = {
@@ -309,19 +315,19 @@ define([
 
         instance
             .getFullText()
-            .then(function() {
+            .then(function () {
                 assert.ok(false, 'The getFullText() method should fail when not document is set');
                 ready();
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(true, 'The getFullText() method fails when not document is set');
 
                 pdfjs
                     .getDocument(pdfUrl)
-                    .then(function(pdf) {
+                    .then(function (pdf) {
                         instance.setDocument(pdf);
 
-                        return instance.getFullText().then(function(text) {
+                        return instance.getFullText().then(function (text) {
                             assert.equal(typeof text, 'string', 'Received a string');
                             assert.equal(text, textContent.join(' '), 'This is the right text');
 
@@ -330,21 +336,24 @@ define([
                             ready();
                         });
                     })
-                    .catch(function() {
+                    .catch(function () {
                         assert.ok(false, 'No error should be triggered');
                         ready();
                     });
             });
     });
 
-    QUnit.test('getPageContent', function(assert) {
+    QUnit.test('getPageContent', function (assert) {
         var ready = assert.async();
         var pageCount = 2;
         var config = {
             PDFJS: pdfjs
         };
         var instance = textManagerFactory(config);
-        var textContent = [['Page 1', ' ', 'foo'], ['Page 2', ' ', 'bar']];
+        var textContent = [
+            ['Page 1', ' ', 'foo'],
+            ['Page 2', ' ', 'bar']
+        ];
 
         assert.expect(17);
 
@@ -359,19 +368,19 @@ define([
 
         instance
             .getPageContent(1)
-            .then(function() {
+            .then(function () {
                 assert.ok(false, 'The getPageContent() method should fail when not document is set');
                 ready();
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(true, 'The getPageContent() method fails when not document is set');
 
                 pdfjs
                     .getDocument(pdfUrl)
-                    .then(function(pdf) {
+                    .then(function (pdf) {
                         instance.setDocument(pdf);
 
-                        return instance.getPageContent(2).then(function(pageContent2) {
+                        return instance.getPageContent(2).then(function (pageContent2) {
                             assert.equal(typeof pageContent2, 'object', 'Received an object');
                             assert.equal(
                                 typeof pageContent2.content,
@@ -397,7 +406,7 @@ define([
                                 'The page content contains the right text'
                             );
 
-                            return instance.getPageContent(1).then(function(pageContent1) {
+                            return instance.getPageContent(1).then(function (pageContent1) {
                                 assert.equal(typeof pageContent1, 'object', 'Received an object');
                                 assert.equal(
                                     typeof pageContent1.content,
@@ -438,14 +447,14 @@ define([
                             });
                         });
                     })
-                    .catch(function() {
+                    .catch(function () {
                         assert.ok(false, 'No error should be triggered');
                         ready();
                     });
             });
     });
 
-    QUnit.test('getPageText', function(assert) {
+    QUnit.test('getPageText', function (assert) {
         var ready = assert.async();
         var pageCount = 2;
         var config = {
@@ -467,23 +476,23 @@ define([
 
         instance
             .getPageText(1)
-            .then(function() {
+            .then(function () {
                 assert.ok(false, 'The getPageText() method should fail when not document is set');
                 ready();
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(true, 'The getPageText() method fails when not document is set');
 
                 pdfjs
                     .getDocument(pdfUrl)
-                    .then(function(pdf) {
+                    .then(function (pdf) {
                         instance.setDocument(pdf);
 
-                        return instance.getPageText(2).then(function(pageText2) {
+                        return instance.getPageText(2).then(function (pageText2) {
                             assert.equal(typeof pageText2, 'string', 'Received a string');
                             assert.equal(pageText2, textContent[1], 'This is the right text');
 
-                            return instance.getPageText(1).then(function(pageText1) {
+                            return instance.getPageText(1).then(function (pageText1) {
                                 assert.equal(typeof pageText1, 'string', 'Received a string');
                                 assert.equal(pageText1, textContent[0], 'This is the right text');
 
@@ -495,14 +504,14 @@ define([
                             });
                         });
                     })
-                    .catch(function() {
+                    .catch(function () {
                         assert.ok(false, 'No error should be triggered');
                         ready();
                     });
             });
     });
 
-    QUnit.test('renderPage', function(assert) {
+    QUnit.test('renderPage', function (assert) {
         var ready = assert.async();
         var config = {
             PDFJS: pdfjs
@@ -515,17 +524,17 @@ define([
 
         assert.expect(3);
 
-        pdfjs.on('textLayer', function() {
+        pdfjs.on('textLayer', function () {
             assert.ok(true, 'The text layer is rendering');
         });
 
         pdfjs
             .getDocument(pdfUrl)
-            .then(function(pdf) {
+            .then(function (pdf) {
                 instance.setDocument(pdf);
 
-                return pdf.getPage(1).then(function(page) {
-                    return instance.renderPage(1, page.getViewport()).then(function(layer) {
+                return pdf.getPage(1).then(function (page) {
+                    return instance.renderPage(1, page.getViewport()).then(function (layer) {
                         assert.equal(typeof layer, 'object', 'The result of the rendering process is an object');
                         assert.equal($(layer).text(), expectedFullText, 'The layer contains the right text');
 
@@ -534,13 +543,13 @@ define([
                     });
                 });
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(false, 'No error should be triggered');
                 ready();
             });
     });
 
-    QUnit.test('renderPage multi', function(assert) {
+    QUnit.test('renderPage multi', function (assert) {
         var ready = assert.async();
         var config = {
             PDFJS: pdfjs
@@ -553,20 +562,20 @@ define([
 
         assert.expect(5);
 
-        pdfjs.on('textLayer', function() {
+        pdfjs.on('textLayer', function () {
             assert.ok(true, 'The text layer is rendering');
         });
 
         pdfjs
             .getDocument(pdfUrl)
-            .then(function(pdf) {
+            .then(function (pdf) {
                 instance.setDocument(pdf);
 
-                return pdf.getPage(1).then(function(page) {
+                return pdf.getPage(1).then(function (page) {
                     return Promise.all([
                         instance.renderPage(1, page.getViewport()),
                         instance.renderPage(1, page.getViewport())
-                    ]).then(function(results) {
+                    ]).then(function (results) {
                         assert.equal(typeof results[0], 'undefined', 'The first rendering process has been halted');
                         assert.equal(
                             typeof results[1],
@@ -580,20 +589,23 @@ define([
                     });
                 });
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(false, 'No error should be triggered');
                 ready();
             });
     });
 
-    QUnit.test('destroy', function(assert) {
+    QUnit.test('destroy', function (assert) {
         var ready = assert.async();
         var pageCount = 2;
         var config = {
             PDFJS: pdfjs
         };
         var instance = textManagerFactory(config);
-        var textContent = [['Page 1', ' ', 'foo'], ['Page 2', ' ', 'bar']];
+        var textContent = [
+            ['Page 1', ' ', 'foo'],
+            ['Page 2', ' ', 'bar']
+        ];
 
         assert.expect(8 + 7 * pageCount);
 
@@ -608,13 +620,13 @@ define([
 
         pdfjs
             .getDocument(pdfUrl)
-            .then(function(pdf) {
+            .then(function (pdf) {
                 instance.setDocument(pdf);
 
                 assert.equal(instance.getDocument(), pdf, 'The document has been set');
                 assert.equal(typeof instance.getDocument(), 'object', 'The document is an object');
 
-                return instance.getContents().then(function(contents) {
+                return instance.getContents().then(function (contents) {
                     assert.ok(contents instanceof Array, 'Received a collection');
                     assert.equal(
                         contents.length,
@@ -622,7 +634,7 @@ define([
                         'The collection contains the right number of pages contents'
                     );
 
-                    _.forEach(contents, function(pageContent, index) {
+                    _.forEach(contents, function (pageContent, index) {
                         assert.equal(typeof pageContent, 'object', 'The page content is an object');
                         assert.equal(typeof pageContent.content, 'object', 'The page content contains a content entry');
                         assert.equal(typeof pageContent.strings, 'object', 'The page content contains a strings entry');
@@ -641,7 +653,7 @@ define([
                         );
                     });
 
-                    return instance.getContents().then(function(_contents) {
+                    return instance.getContents().then(function (_contents) {
                         assert.equal(
                             contents,
                             _contents,
@@ -654,18 +666,18 @@ define([
 
                         instance
                             .getContents()
-                            .then(function() {
+                            .then(function () {
                                 assert.ok(false, 'The getContents() method should fail when not document is set');
                                 ready();
                             })
-                            .catch(function() {
+                            .catch(function () {
                                 assert.ok(true, 'The getContents() method fails when not document is set');
                                 ready();
                             });
                     });
                 });
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(false, 'No error should be triggered');
                 ready();
             });

@@ -37,7 +37,7 @@ import selectable from 'ui/resource/selectable';
 import hider from 'ui/hider';
 import listTpl from 'ui/resource/tpl/list';
 import listNodeTpl from 'ui/resource/tpl/listNode';
-import DOMPurify from 'dompurify'
+import DOMPurify from 'dompurify';
 
 var defaultConfig = {
     multiple: true
@@ -103,7 +103,7 @@ export default function resourceListFactory($container, config) {
                         $list.html(
                             _.reduce(
                                 resources.nodes,
-                                function(acc, node) {
+                                function (acc, node) {
                                     node.icon = self.config.icon;
                                     node.label = DOMPurify.sanitize(node.label);
                                     acc += listNodeTpl(node);
@@ -113,7 +113,7 @@ export default function resourceListFactory($container, config) {
                             )
                         );
 
-                        _.forEach(resources.nodes, function(node) {
+                        _.forEach(resources.nodes, function (node) {
                             self.addNode(node.uri, node);
                         });
 
@@ -137,14 +137,14 @@ export default function resourceListFactory($container, config) {
 
     resourceList
         .setTemplate(listTpl)
-        .on('init', function() {
+        .on('init', function () {
             this.classUri = this.config.classUri;
 
             this.setState('multiple', !!this.config.multiple);
 
             this.render($container);
         })
-        .on('render', function() {
+        .on('render', function () {
             var self = this;
 
             var $component = this.getElement();
@@ -152,7 +152,7 @@ export default function resourceListFactory($container, config) {
             $loadMore = $('.more', $component);
 
             //selection
-            $component.on('click', 'li', function(e) {
+            $component.on('click', 'li', function (e) {
                 var $instance = $(e.currentTarget);
                 e.preventDefault();
                 e.stopPropagation();
@@ -164,7 +164,7 @@ export default function resourceListFactory($container, config) {
             });
 
             //load next page
-            $loadMore.on('click', function(e) {
+            $loadMore.on('click', function (e) {
                 e.preventDefault();
 
                 self.query({
@@ -179,20 +179,20 @@ export default function resourceListFactory($container, config) {
                 this.query();
             }
         })
-        .on('query', function() {
+        .on('query', function () {
             this.setState('loading', true);
         })
-        .on('update', function() {
+        .on('update', function () {
             this.setState('loading', false);
         })
-        .on('remove', function(uri) {
+        .on('remove', function (uri) {
             if (this.is('rendered')) {
                 $('[data-uri="' + uri + '"]', this.getElement()).remove();
             }
         });
 
     //always defer the initialization to let consumers listen for init and render events.
-    _.defer(function() {
+    _.defer(function () {
         resourceList.init(config);
     });
 

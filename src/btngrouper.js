@@ -44,7 +44,7 @@ var BtnGrouper = {
      * @fires BtnGrouper#create.btngrouper
      * @returns {jQueryElement} for chaining
      */
-    init: function(options) {
+    init: function (options) {
         //get options using default
         options = _.defaults(options || {}, defaults);
 
@@ -52,8 +52,8 @@ var BtnGrouper = {
             return $.error('Action ' + options.action + ' not supported');
         }
 
-        return this.each(function() {
-            var $elt = $(this);
+        return this.each(function () {
+            let $elt = $(this);
 
             if (!$elt.data(dataNs)) {
                 //add data to the element
@@ -61,7 +61,7 @@ var BtnGrouper = {
 
                 if (options.action === 'toggle') {
                     //at the begining, one inner elt only should have the active class
-                    var $activeElt = $elt.find(options.innerElt + '.' + options.activeClass);
+                    let $activeElt = $elt.find(options.innerElt + '.' + options.activeClass);
                     if ($activeElt.length === 0) {
                         $elt.find(options.innerElt + ':first').addClass(options.activeClass);
                     } else if ($activeElt.length > 1) {
@@ -74,10 +74,10 @@ var BtnGrouper = {
                 //bind an event to trigger the action
                 if (options.bindEvent !== false) {
                     //the event is bound to the
-                    $elt.on(options.bindEvent, options.innerElt, function(e) {
+                    $elt.on(options.bindEvent, options.innerElt, function (e) {
                         e.preventDefault();
                         //execute the private method that corresponds to tha action
-                        var action = '_' + options.action;
+                        let action = '_' + options.action;
                         if (typeof BtnGrouper[action] === 'function') {
                             BtnGrouper[action]($elt, $(this));
                         }
@@ -101,7 +101,7 @@ var BtnGrouper = {
      * @param {jQueryElement} $elt - plugin's element
      * @fires BtnGrouper#toggle.btngrouper
      */
-    _toggle: function($elt) {
+    _toggle: function ($elt) {
         var options = $elt.data(dataNs);
 
         $elt.find(options.innerElt).toggleClass(options.activeClass);
@@ -121,7 +121,7 @@ var BtnGrouper = {
      * @param {jQueryElement} $target - the inner element to switch
      * @fires BtnGrouper#toggle.btngrouper
      */
-    _switch: function($elt, $target) {
+    _switch: function ($elt, $target) {
         var options = $elt.data(dataNs);
 
         $target.toggleClass(options.activeClass);
@@ -137,9 +137,9 @@ var BtnGrouper = {
      * Get the active(s) value(s)
      * @returns {string|array} the text content of the active buttons
      */
-    value: function() {
+    value: function () {
         var value = [];
-        this.each(function() {
+        this.each(function () {
             var $elt = $(this);
             var options = $elt.data(dataNs);
             var eltValue = $elt
@@ -162,8 +162,8 @@ var BtnGrouper = {
      * @example $('selector').btngrouper('destroy');
      * @public
      */
-    destroy: function() {
-        this.each(function() {
+    destroy: function () {
+        this.each(function () {
             var $elt = $(this);
             var options = $elt.data(dataNs);
             if (options.bindEvent !== false) {
@@ -200,8 +200,8 @@ export default function listenDataAttr($container) {
         listenerEvent: 'click',
         namespace: dataNs,
         useTarget: false
-    }).init(function($elt, $target) {
-        $elt.on('create.' + ns, function(e) {
+    }).init(function ($elt, $target) {
+        $elt.on('create.' + ns, function (e) {
             if (e.namespace === ns) {
                 $elt.btngrouper($elt.data('button-group'), $target);
             }

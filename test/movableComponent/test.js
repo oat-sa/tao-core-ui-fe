@@ -16,7 +16,7 @@
  * Copyright (c) 2016 (original work) Open Assessment Technologies SA ;
  */
 
-define(['jquery', 'ui/movableComponent', 'ui/component/placeable'], function(
+define(['jquery', 'ui/movableComponent', 'ui/component/placeable'], function (
     $,
     movableComponentFactory,
     makePlaceable
@@ -25,12 +25,12 @@ define(['jquery', 'ui/movableComponent', 'ui/component/placeable'], function(
 
     QUnit.module('API');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.expect(1);
         assert.equal(typeof movableComponentFactory, 'function', 'The module exposes a function');
     });
 
-    QUnit.test('factory', function(assert) {
+    QUnit.test('factory', function (assert) {
         assert.expect(2);
         assert.equal(typeof movableComponentFactory(), 'object', 'The factory creates an object');
         assert.notDeepEqual(movableComponentFactory(), movableComponentFactory(), 'The factory creates a new object');
@@ -53,13 +53,13 @@ define(['jquery', 'ui/movableComponent', 'ui/component/placeable'], function(
             { name: 'setTemplate', title: 'setTemplate' },
             { name: 'resizeTo', title: 'resizeTo' }
         ])
-        .test('component API contains ', function(data, assert) {
+        .test('component API contains ', function (data, assert) {
             var component = movableComponentFactory();
             assert.expect(1);
-            assert.equal(typeof component[data.name], 'function', 'The component has the method ' + data.name);
+            assert.equal(typeof component[data.name], 'function', `The component has the method ${data.name}`);
         });
 
-    QUnit.test('component is placeable', function(assert) {
+    QUnit.test('component is placeable', function (assert) {
         var component = makePlaceable(movableComponentFactory());
         assert.expect(1);
         assert.ok(makePlaceable.isPlaceable(component), 'created component is placeable');
@@ -67,7 +67,7 @@ define(['jquery', 'ui/movableComponent', 'ui/component/placeable'], function(
 
     QUnit.module('Behavior');
 
-    QUnit.test('DOM', function(assert) {
+    QUnit.test('DOM', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var component = movableComponentFactory();
@@ -80,7 +80,7 @@ define(['jquery', 'ui/movableComponent', 'ui/component/placeable'], function(
         assert.equal(typeof component, 'object', 'The component has been created');
 
         component
-            .on('render', function() {
+            .on('render', function () {
                 var $element = $('.component', $container);
                 assert.equal($element.length, 1, 'The component has been attached to the container');
                 assert.ok($element.hasClass('rendered'), 'The component has the rendered class');
@@ -98,14 +98,14 @@ define(['jquery', 'ui/movableComponent', 'ui/component/placeable'], function(
 
     QUnit.module('Visual');
 
-    QUnit.test('visual test', function(assert) {
+    QUnit.test('visual test', function (assert) {
         var ready = assert.async();
         var $container = $('#outside');
 
         assert.expect(1);
 
         movableComponentFactory()
-            .on('render', function() {
+            .on('render', function () {
                 assert.ok(true);
                 ready();
             })

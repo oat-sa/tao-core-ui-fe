@@ -87,6 +87,24 @@ export default function searchModalFactory(config) {
     const isResourceSelector = !config.hideResourceSelector;
     const rootClassUri = config.rootClassUri;
 
+    // Creates new component
+    const instance = component(
+        {
+            /**
+             * Tells if the advanced search is enabled.
+             * @returns {boolean}
+             */
+            isAdvancedSearchEnabled() {
+                return advancedSearch && advancedSearch.isEnabled();
+            }
+        },
+        defaults
+    )
+        .setTemplate(layoutTpl)
+        .on('selected-store-updated', recreateDatatable)
+        .on('render', renderModal)
+        .on('destroy', destroyModal);
+
     /**
      * Creates search modal, inits template selectors, inits search store, and once is created triggers initial search
      * rootClassUri is sent to advancedSearch factory for disabling in whitelisted sections
@@ -123,24 +141,6 @@ export default function searchModalFactory(config) {
         $('.modal-bg').remove();
         controls = {};
     }
-
-    // Creates new component
-    const instance = component(
-        {
-            /**
-             * Tells if the advanced search is enabled.
-             * @returns {boolean}
-             */
-            isAdvancedSearchEnabled() {
-                return advancedSearch && advancedSearch.isEnabled();
-            }
-        },
-        defaults
-    )
-        .setTemplate(layoutTpl)
-        .on('selected-store-updated', recreateDatatable)
-        .on('render', renderModal)
-        .on('destroy', destroyModal);
 
     /**
      * Creates search modal
@@ -310,7 +310,7 @@ export default function searchModalFactory(config) {
         /**
          * clicking on class filter container will toggle resource selector
          */
-        controls.$classFilterContainer.on('click', e => {
+        controls.$classFilterContainer.on('click', () => {
             controls.$classTreeContainer.toggle();
         });
 
@@ -335,8 +335,8 @@ export default function searchModalFactory(config) {
      */
     function initStores() {
         return Promise.all([
-            store('search').then(store => (searchStore = store)),
-            store('selectedColumns').then(store => (selectedColumnsStore = store))
+            store('search').then(updatedStore => (searchStore = updatedStore)),
+            store('selectedColumns').then(updatedStore => (selectedColumnsStore = updatedStore))
         ]).catch(e => instance.trigger('error', e));
     }
 
@@ -577,8 +577,8 @@ export default function searchModalFactory(config) {
                     {
                         id: 'go-to-item',
                         label: __('View'),
-                        action: function openResource(uri, data) {
-                            instance.trigger('refresh', uri, data);
+                        action: function openResource(uri, updatedData) {
+                            instance.trigger('refresh', uri, updatedData);
                             instance.destroy();
                         }
                     }
@@ -641,9 +641,8 @@ export default function searchModalFactory(config) {
 
     /**
      * Handler for manage columns button click
-     * @param {Event} e
      */
-    function handleManageColumnsBtnClick(e) {
+    function handleManageColumnsBtnClick() {
         const selected = selectedColumns;
         const available = columnsToModel(availableColumns);
 

@@ -42,7 +42,7 @@ define(['lodash', 'jquery', 'ui/tableModel'], function(_, $, tableModelFactory) 
         .test('Instance API', function(data, assert) {
             var instance = tableModelFactory($('<table>'));
             assert.expect(1);
-            assert.ok(typeof instance[data.title] === 'function', 'instance implements ' + data.title);
+            assert.ok(typeof instance[data.title] === 'function', `instance implements ${  data.title}`);
         });
 
     QUnit.cases

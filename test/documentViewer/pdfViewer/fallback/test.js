@@ -64,12 +64,12 @@ define(['jquery', 'ui/documentViewer/providers/pdfViewer/fallback/viewer'], func
             assert.notEqual(
                 $container.find('iframe').width(),
                 expectedWidth,
-                'The iframe is not ' + expectedWidth + ' pixels width'
+                `The iframe is not ${  expectedWidth  } pixels width`
             );
             assert.notEqual(
                 $container.find('iframe').height(),
                 expectedHeight,
-                'The iframe is not ' + expectedHeight + ' pixels height'
+                `The iframe is not ${  expectedHeight  } pixels height`
             );
 
             instance.setSize(expectedWidth, expectedHeight);
@@ -77,12 +77,12 @@ define(['jquery', 'ui/documentViewer/providers/pdfViewer/fallback/viewer'], func
             assert.equal(
                 $container.find('iframe').width(),
                 expectedWidth,
-                'The iframe is now ' + expectedWidth + ' pixels width'
+                `The iframe is now ${  expectedWidth  } pixels width`
             );
             assert.equal(
                 $container.find('iframe').height(),
                 expectedHeight,
-                'The iframe is now ' + expectedHeight + ' pixels height'
+                `The iframe is now ${  expectedHeight  } pixels height`
             );
 
             instance.unload();

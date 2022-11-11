@@ -64,10 +64,10 @@ export default function (options) {
      * an optional passed-in blacklist is merged with local defaults
      * @type {Array}
      */
-    var containersBlackList = _.union(defaultBlackList, options.containersBlackList);
-    var containersBlackListSelector = containersBlackList.join(', ');
-    var containersWhiteListSelector = null;
-    var containersBlackAndWhiteListSelector = containersBlackListSelector;
+    const containersBlackList = _.union(defaultBlackList, options.containersBlackList);
+    const containersBlackListSelector = containersBlackList.join(', ');
+    let containersWhiteListSelector = null;
+    let containersBlackAndWhiteListSelector = containersBlackListSelector;
     if (options.keepEmptyNodes && options.containersWhiteList) {
         containersWhiteListSelector = options.containersWhiteList.join(', ');
         containersBlackAndWhiteListSelector = _.union(containersBlackList, options.containersWhiteList).join(', ');
@@ -77,25 +77,25 @@ export default function (options) {
      * used in recursive loops to decide if we should wrap or not the current node
      * @type {boolean}
      */
-    var isWrapping = false;
+    let isWrapping = false;
 
     /**
      * performance improvement to break out of a potentially big recursive loop once the wrapping has ended
      * @type {boolean}
      */
-    var hasWrapped = false;
+    let hasWrapped = false;
 
     /**
      * used in recursive loops to assign a group Id to the current wrapped node
      * @type {number}
      */
-    var currentGroupId;
+    let currentGroupId;
 
     /**
      * used in recursive loops to build the index of text nodes
      * @type {number}
      */
-    var textNodesIndex;
+    let textNodesIndex;
 
     /**
      * Returns the node in which highlighting is allowed
@@ -150,7 +150,11 @@ export default function (options) {
                     if (!keepEmptyNodes) {
                         range.surroundContents(wrapperNode);
                     } else {
-                        addSplitData(wrapperNode, range.startOffset > 0, range.endOffset < range.commonAncestorContainer.length);
+                        addSplitData(
+                            wrapperNode,
+                            range.startOffset > 0,
+                            range.endOffset < range.commonAncestorContainer.length
+                        );
                         rangeSurroundContentsNoEmptyNodes(range, wrapperNode);
                     }
                 } else if (
@@ -169,9 +173,10 @@ export default function (options) {
                         startNodeContainer: range.startContainer,
                         startOffset: range.startOffset,
 
-                        endNode: isElement(range.endContainer) && range.endOffset > 0
-                            ? range.endContainer.childNodes[range.endOffset - 1]
-                            : range.endContainer,
+                        endNode:
+                            isElement(range.endContainer) && range.endOffset > 0
+                                ? range.endContainer.childNodes[range.endOffset - 1]
+                                : range.endContainer,
                         endNodeContainer: range.endContainer,
                         endOffset: range.endOffset,
                         commonRange: range
@@ -313,9 +318,11 @@ export default function (options) {
                             const wrapperNode = wrapTextNode(currentNode, currentGroupId);
                             if (wrapperNode) {
                                 const splitData = splitDatas.find(d => d.node === currentNode);
-                                addSplitData(wrapperNode,
+                                addSplitData(
+                                    wrapperNode,
                                     splitData ? splitData.beforeWasSplit : false,
-                                    splitData ? splitData.afterWasSplit : false);
+                                    splitData ? splitData.afterWasSplit : false
+                                );
                             }
                         }
 
@@ -343,9 +350,9 @@ export default function (options) {
      * @param {Node} textNode
      * @param {string} activeClass
      * @param {Range} selectedRange
-     * @param {number} currentGroupId
+     * @param {number} groupId
      */
-    function highlightContainerNodes(textNode, activeClass, selectedRange, currentGroupId) {
+    function highlightContainerNodes(textNode, activeClass, selectedRange, groupId) {
         const container = textNode.parentNode;
         const range = new Range();
         range.selectNodeContents(textNode);
@@ -409,13 +416,13 @@ export default function (options) {
             textNode.parentNode.className = activeClass;
         } else if (isSelectionCoversNodeStart) {
             textNode.splitText(selectedRange.endOffset);
-            wrapContainerChildNodes(container, 0, activeClass, currentGroupId);
+            wrapContainerChildNodes(container, 0, activeClass, groupId);
         } else if (isSelectionCoversNodeEnd) {
             textNode.splitText(selectedRange.startOffset);
-            wrapContainerChildNodes(container, 1, activeClass, currentGroupId);
+            wrapContainerChildNodes(container, 1, activeClass, groupId);
         } else {
             textNode.splitText(selectedRange.startOffset).splitText(selectedRange.endOffset);
-            wrapContainerChildNodes(container, 1, activeClass, currentGroupId);
+            wrapContainerChildNodes(container, 1, activeClass, groupId);
         }
     }
 
@@ -425,9 +432,9 @@ export default function (options) {
      * @param {Element} container
      * @param {number} indexToWrapNode
      * @param {string} activeClass
-     * @param {number} currentGroupId
+     * @param {number} groupId
      */
-    function wrapContainerChildNodes(container, indexToWrapNode, activeClass, currentGroupId) {
+    function wrapContainerChildNodes(container, indexToWrapNode, activeClass, groupId) {
         const containerClass = container.className;
         const fragment = new DocumentFragment();
         const childNodesLength = container.childNodes.length;
@@ -435,16 +442,18 @@ export default function (options) {
         container.childNodes.forEach((node, index) => {
             var wrapperNode;
             if (index === indexToWrapNode) {
-                wrapperNode = wrapNode(node.cloneNode(), activeClass, currentGroupId);
+                wrapperNode = wrapNode(node.cloneNode(), activeClass, groupId);
             } else {
-                wrapperNode = wrapNode(node.cloneNode(), containerClass, currentGroupId);
+                wrapperNode = wrapNode(node.cloneNode(), containerClass, groupId);
             }
             fragment.appendChild(wrapperNode);
 
             if (keepEmptyNodes) {
-                addSplitData(wrapperNode,
+                addSplitData(
+                    wrapperNode,
                     index === 0 ? container.dataset.beforeWasSplit : true,
-                    index === childNodesLength - 1 ? container.dataset.afterWasSplit : true);
+                    index === childNodesLength - 1 ? container.dataset.afterWasSplit : true
+                );
             }
         });
 
@@ -476,8 +485,8 @@ export default function (options) {
             return;
         }
 
-        var childNodes = rootNode.childNodes;
-        var i, currentNode, parent;
+        const childNodes = rootNode.childNodes;
+        let i, currentNode, parent;
 
         for (i = 0; i < childNodes.length; i++) {
             currentNode = childNodes[i];
@@ -509,8 +518,8 @@ export default function (options) {
             return;
         }
 
-        var childNodes = rootNode.childNodes;
-        var i, currentNode;
+        const childNodes = rootNode.childNodes;
+        let i, currentNode;
 
         for (i = 0; i < childNodes.length; i++) {
             currentNode = childNodes[i];
@@ -528,7 +537,11 @@ export default function (options) {
                     }
                     currentNode.firstChild.textContent += currentNode.nextSibling.firstChild.textContent;
                     if (keepEmptyNodes) {
-                        addSplitData(currentNode, currentNode.dataset.beforeWasSplit, currentNode.nextSibling.dataset.afterWasSplit);
+                        addSplitData(
+                            currentNode,
+                            currentNode.dataset.beforeWasSplit,
+                            currentNode.nextSibling.dataset.afterWasSplit
+                        );
                     }
                     currentNode.parentNode.removeChild(currentNode.nextSibling);
                 }
@@ -569,12 +582,14 @@ export default function (options) {
             return true;
         }
         const prevNode = node.previousSibling;
-        const canWrapperBeMergedWithPreviousSibling = prevNode && isWrappingNode(prevNode) && prevNode.className === className;
+        const canWrapperBeMergedWithPreviousSibling =
+            prevNode && isWrappingNode(prevNode) && prevNode.className === className;
         if (canWrapperBeMergedWithPreviousSibling) {
             return true;
         }
         const nextNode = node.nextSibling;
-        const canWrapperBeMergedWithNextSibling = nextNode && isWrappingNode(nextNode) && nextNode.className === className;
+        const canWrapperBeMergedWithNextSibling =
+            nextNode && isWrappingNode(nextNode) && nextNode.className === className;
         if (canWrapperBeMergedWithNextSibling) {
             return true;
         }
@@ -615,7 +630,7 @@ export default function (options) {
     function clearHighlights() {
         getHighlightedNodes().each(function (i, elem) {
             if (!keepEmptyNodes) {
-                var $wrapped = $(this);
+                const $wrapped = $(this);
                 $wrapped.replaceWith($wrapped.text());
             } else {
                 clearSingleHighlight({ target: elem });
@@ -650,13 +665,17 @@ export default function (options) {
                 prevNode.textContent += nodeToRemoveText;
                 nodeToRemove.remove();
 
-                if (afterWasSplit && prevNode.nextSibling && isText(prevNode.nextSibling) && prevNode.nextSibling.textContent) {
+                if (
+                    afterWasSplit &&
+                    prevNode.nextSibling &&
+                    isText(prevNode.nextSibling) &&
+                    prevNode.nextSibling.textContent
+                ) {
                     //merge it with next sibling
                     prevNode.textContent += prevNode.nextSibling.textContent;
                     prevNode.nextSibling.remove();
                 }
-            }
-            else if (afterWasSplit && nextNode && isText(nextNode) && nextNode.textContent) {
+            } else if (afterWasSplit && nextNode && isText(nextNode) && nextNode.textContent) {
                 //append text to next sibling
                 nextNode.textContent = nodeToRemoveText + nextNode.textContent;
                 nodeToRemove.remove();
@@ -689,7 +708,7 @@ export default function (options) {
     function getHighlightIndex() {
         var rootNode = getContainer();
         if (!keepEmptyNodes) {
-            var highlightIndex = [];
+            const highlightIndex = [];
             if (rootNode) {
                 rootNode.normalize();
                 textNodesIndex = 0;
@@ -711,8 +730,8 @@ export default function (options) {
      * @param {Object[]} highlightIndex
      */
     function buildHighlightIndex(rootNode, highlightIndex) {
-        var childNodes = rootNode.childNodes;
-        var i, currentNode;
+        const childNodes = rootNode.childNodes;
+        let i, currentNode;
         var nodeInfos, inlineRange, inlineOffset, nodesToSkip;
 
         for (i = 0; i < childNodes.length; i++) {
@@ -812,28 +831,29 @@ export default function (options) {
     function buildHighlightModelKeepEmpty(rootNode) {
         const classNames = options.colors ? Object.values(options.colors) : [className];
         const wrapperNodesSelector = classNames.map(cls => containerSelector + ' .' + cls).join(', ');
-        const wrapperNodes = Array.from(document.querySelectorAll(wrapperNodesSelector))
-            .filter(node => !isBlacklisted(node));
+        const wrapperNodes = Array.from(document.querySelectorAll(wrapperNodesSelector)).filter(
+            node => !isBlacklisted(node)
+        );
 
         if (!wrapperNodes.length) {
             return null;
         }
 
-        var highlightModel = [];
+        const highlightModel = [];
         const indexCache = new Map();
-        for (var k = 0; k < wrapperNodes.length; k++) {
-            var wrapperNode = wrapperNodes[k];
+        for (let k = 0; k < wrapperNodes.length; k++) {
+            const wrapperNode = wrapperNodes[k];
 
             //get info about highlight itself
-            var offsetBefore = 0;
-            var prevNode = wrapperNode.previousSibling;
+            let offsetBefore = 0;
+            const prevNode = wrapperNode.previousSibling;
             if (prevNode && isText(prevNode)) {
                 const beforeWasSplit = wrapperNode.dataset.beforeWasSplit === 'true';
                 if (beforeWasSplit) {
                     offsetBefore = prevNode.textContent.length;
                 }
             }
-            var highlightData = {
+            const highlightData = {
                 groupId: wrapperNode.getAttribute(GROUP_ATTR),
                 c: getColorByClassName(wrapperNode.className),
                 offsetBefore,
@@ -849,7 +869,9 @@ export default function (options) {
                 let indexInModel = indexCache.get(currentNode);
                 if (!indexInModel && indexInModel !== 0) {
                     //should be more reliable to ignore empty nodes when indexing
-                    const childNodes = Array.from(currentNode.parentNode.childNodes).filter(node => !(isText(node) && !node.textContent.length));
+                    const childNodes = Array.from(currentNode.parentNode.childNodes).filter(
+                        node => !(isText(node) && !node.textContent.length)
+                    );
                     //index among its non-empty siblings
                     indexInModel = childNodes.indexOf(currentNode);
                     indexCache.set(currentNode, indexInModel);
@@ -889,7 +911,7 @@ export default function (options) {
      * @param {Node} rootNode
      * @param {Object[]} highlightIndex
      */
-     function restoreHighlight(rootNode, highlightIndex) {
+    function restoreHighlight(rootNode, highlightIndex) {
         var childNodes = rootNode.childNodes;
         var i, currentNode, parent;
         var nodeInfos, nodesToSkip, range, initialChildCount;
@@ -930,7 +952,7 @@ export default function (options) {
                 restoreHighlight(currentNode, highlightIndex);
             }
         }
-     }
+    }
 
     /**
      * For `keepEmptyNodes` option, wraps the text nodes according to highlights data model.
@@ -943,9 +965,9 @@ export default function (options) {
             return;
         }
 
-        var currentModel;
-        var range;
-        for (var k = 0; k < highlightModel.length; k++) {
+        let currentModel;
+        let range;
+        for (let k = 0; k < highlightModel.length; k++) {
             currentModel = highlightModel[k];
 
             //find node to wrap - go through nodes until we reach level where node to wrap will be
@@ -956,9 +978,11 @@ export default function (options) {
             if (!currentModel.path || !currentModel.path.length) {
                 continue; //something went wrong
             }
-            for (var m = 0; m < currentModel.path.length; m++) {
+            for (let m = 0; m < currentModel.path.length; m++) {
                 //path was counted among non-empty nodes
-                childNodes = Array.from(currentParentNode.childNodes).filter(node => !(isText(node) && !node.textContent.length));
+                childNodes = Array.from(currentParentNode.childNodes).filter(
+                    node => !(isText(node) && !node.textContent.length)
+                );
                 indexInModel = currentModel.path[m];
                 currentParentNode = childNodes[indexInModel];
                 if (!currentParentNode && m < currentModel.path.length - 1) {
@@ -972,7 +996,7 @@ export default function (options) {
             }
 
             //add single highlight
-            var nodeAtIndex = null;
+            let nodeAtIndex = null;
             if (!currentModel.offsetBefore) {
                 //wrap starts on this node
                 nodeAtIndex = childNodes[indexInModel];
@@ -981,9 +1005,13 @@ export default function (options) {
                 }
             } else {
                 //split previousSibling to create a node for wrapping
-                var nodeBefore = childNodes[indexInModel - 1];
-                if (!nodeBefore || !isText(nodeBefore) ||
-                        nodeBefore.textContent.length <= currentModel.offsetBefore || isBlacklisted(nodeBefore)) {
+                const nodeBefore = childNodes[indexInModel - 1];
+                if (
+                    !nodeBefore ||
+                    !isText(nodeBefore) ||
+                    nodeBefore.textContent.length <= currentModel.offsetBefore ||
+                    isBlacklisted(nodeBefore)
+                ) {
                     continue; //something went wrong
                 }
                 nodeAtIndex = nodeBefore.splitText(currentModel.offsetBefore);
@@ -1006,11 +1034,11 @@ export default function (options) {
      * Set highlighter color
      * @param {string} color Active highlighter color
      */
-    const setActiveColor = color => {
+    function setActiveColor(color) {
         if (options.colors[color]) {
             className = options.colors[color];
         }
-    };
+    }
 
     /**
      * Helpers
@@ -1022,33 +1050,33 @@ export default function (options) {
      * @param {any} value
      * @return {string|undefined}
      */
-    const getKeyByValue = (object, value) => Object.keys(object).find(key => object[key] === value);
+    function getKeyByValue(object, value) {
+        return Object.keys(object).find(key => object[key] === value);
+    }
 
     /**
      * Returns color identifier for the given class name
      * @param {string} highlighterClassName Class name of highlighter classes
      * @returns {string|number} Color identifier
      */
-    const getColorByClassName = highlighterClassName => {
+    function getColorByClassName(highlighterClassName) {
         if (options.colors) {
             return getKeyByValue(options.colors, highlighterClassName);
         }
-
         return className;
-    };
+    }
 
     /**
      * Returns class name for the given color identifier
      * @param {string|number} color Color identifier
      * @returns {string} Class name
      */
-    const getClassNameByColor = color => {
+    function getClassNameByColor(color) {
         if (options.colors && options.colors[color]) {
             return options.colors[color];
         }
-
         return className;
-    };
+    }
 
     /**
      * Check if the given node is a wrapper
@@ -1090,12 +1118,11 @@ export default function (options) {
     /**
      * Wraps text node to the highlighter wrapper element
      * @param {Node} textNode Text node to wrap
-     * @param {string} className Wrapper class name
+     * @param {string} wrapperClassName Wrapper class name
      * @param {number} groupId Group id
      */
-    function wrapNode(textNode, className, groupId) {
-        const element = getWrapper(groupId, className);
-
+    function wrapNode(textNode, wrapperClassName, groupId) {
+        const element = getWrapper(groupId, wrapperClassName);
         element.appendChild(textNode);
         return element;
     }
@@ -1107,7 +1134,6 @@ export default function (options) {
      */
     function getWrapper(groupId, wrapperClass) {
         const wrapper = document.createElement('span');
-
         wrapper.className = wrapperClass || className;
         wrapper.setAttribute(GROUP_ATTR, `${groupId}`);
         return wrapper;

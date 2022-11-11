@@ -73,7 +73,7 @@ define([
                 this.destroy();
             });
         assert.expect(1);
-        assert.equal(typeof instance[data.title], 'function', 'The instance exposes a "' + data.title + '" function');
+        assert.equal(typeof instance[data.title], 'function', `The instance exposes a "${  data.title  }" function`);
     });
 
     QUnit.cases.init([
@@ -87,7 +87,7 @@ define([
                 this.destroy();
             });
         assert.expect(1);
-        assert.equal(typeof instance[data.title], 'function', 'The instance exposes a "' + data.title + '" function');
+        assert.equal(typeof instance[data.title], 'function', `The instance exposes a "${  data.title  }" function`);
     });
 
     QUnit.cases.init([
@@ -104,7 +104,7 @@ define([
                 this.destroy();
             });
         assert.expect(1);
-        assert.equal(typeof instance[data.title], 'function', 'The instance exposes a "' + data.title + '" function');
+        assert.equal(typeof instance[data.title], 'function', `The instance exposes a "${  data.title  }" function`);
     });
 
     QUnit.module('Life cycle');
@@ -199,8 +199,8 @@ define([
                 assert.equal($container.find('.form-widget .widget-label').length, 2, 'The component contains an area for the label');
                 assert.equal($container.find('.form-widget .widget-field').length, 2, 'The component contains an area for the field');
                 assert.equal($container.find('.form-widget .widget-label label:eq(0)').text().trim(), config.label, 'The component contains the expected label');
-                assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '"]').length, 1, 'The component contains the main field');
-                assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '_confirmation"]').length, 1, 'The component contains the confirmation field');
+                assert.equal($container.find(`.form-widget .widget-field [name="${  config.uri  }"]`).length, 1, 'The component contains the main field');
+                assert.equal($container.find(`.form-widget .widget-field [name="${  config.uri  }_confirmation"]`).length, 1, 'The component contains the confirmation field');
 
                 this.destroy();
             })
@@ -240,28 +240,28 @@ define([
                 assert.equal($container.children().is('.form-widget'), true, 'The container contains the expected element');
                 assert.equal($container.find('.form-widget .widget-label').length, 2, 'The component contains an area for the label');
                 assert.equal($container.find('.form-widget .widget-field').length, 2, 'The component contains an area for the field');
-                assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '"]').length, 1, 'The component contains the main field');
-                assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '_confirmation"]').length, 1, 'The component contains the confirmation field');
+                assert.equal($container.find(`.form-widget .widget-field [name="${  config.uri  }"]`).length, 1, 'The component contains the main field');
+                assert.equal($container.find(`.form-widget .widget-field [name="${  config.uri  }_confirmation"]`).length, 1, 'The component contains the confirmation field');
 
                 assert.equal($container.find('.form-widget:visible').length, 2, 'The component is visible');
                 assert.equal($container.find('.form-widget .widget-label:visible').length, 2, 'The label area is visible');
                 assert.equal($container.find('.form-widget .widget-field:visible').length, 2, 'The field area is visible');
-                assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '"]:visible').length, 1, 'The main field is visible');
-                assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '_confirmation"]:visible').length, 1, 'The confirmation field is visible');
+                assert.equal($container.find(`.form-widget .widget-field [name="${  config.uri  }"]:visible`).length, 1, 'The main field is visible');
+                assert.equal($container.find(`.form-widget .widget-field [name="${  config.uri  }_confirmation"]:visible`).length, 1, 'The confirmation field is visible');
 
                 instance.hide();
                 assert.equal($container.find('.form-widget:visible').length, 0, 'The component is hidden');
                 assert.equal($container.find('.form-widget .widget-label:visible').length, 0, 'The label area is hidden');
                 assert.equal($container.find('.form-widget .widget-field:visible').length, 0, 'The field area is hidden');
-                assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '"]:visible').length, 0, 'The main field is hidden');
-                assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '_confirmation"]:visible').length, 0, 'The confirmation field is hidden');
+                assert.equal($container.find(`.form-widget .widget-field [name="${  config.uri  }"]:visible`).length, 0, 'The main field is hidden');
+                assert.equal($container.find(`.form-widget .widget-field [name="${  config.uri  }_confirmation"]:visible`).length, 0, 'The confirmation field is hidden');
 
                 instance.show();
                 assert.equal($container.find('.form-widget:visible').length, 2, 'The component is visible again');
                 assert.equal($container.find('.form-widget .widget-label:visible').length, 2, 'The label area is visible again');
                 assert.equal($container.find('.form-widget .widget-field:visible').length, 2, 'The field area is visible again');
-                assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '"]:visible').length, 1, 'The main field is visible again');
-                assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '_confirmation"]:visible').length, 1, 'The confirmation field is visible again');
+                assert.equal($container.find(`.form-widget .widget-field [name="${  config.uri  }"]:visible`).length, 1, 'The main field is visible again');
+                assert.equal($container.find(`.form-widget .widget-field [name="${  config.uri  }_confirmation"]:visible`).length, 1, 'The confirmation field is visible again');
 
                 instance.destroy();
             })
@@ -303,16 +303,16 @@ define([
                         assert.equal($container.children().is('.form-widget'), true, 'The container contains the expected element');
                         assert.equal($container.find('.form-widget .widget-label').length, 2, 'The component contains an area for the label');
                         assert.equal($container.find('.form-widget .widget-field').length, 2, 'The component contains an area for the field');
-                        assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '"]:enabled').length, 1, 'The main field is enabled');
-                        assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '_confirmation"]:enabled').length, 1, 'The confirmation field is enabled');
+                        assert.equal($container.find(`.form-widget .widget-field [name="${  config.uri  }"]:enabled`).length, 1, 'The main field is enabled');
+                        assert.equal($container.find(`.form-widget .widget-field [name="${  config.uri  }_confirmation"]:enabled`).length, 1, 'The confirmation field is enabled');
                     })
                     .then(function () {
                         return new Promise(function (resolve) {
                             instance
                                 .off('.test')
                                 .after('disable.test', function () {
-                                    assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '"]:enabled').length, 0, 'The main field is disabled');
-                                    assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '_confirmation"]:enabled').length, 0, 'The confirmation field is disabled');
+                                    assert.equal($container.find(`.form-widget .widget-field [name="${  config.uri  }"]:enabled`).length, 0, 'The main field is disabled');
+                                    assert.equal($container.find(`.form-widget .widget-field [name="${  config.uri  }_confirmation"]:enabled`).length, 0, 'The confirmation field is disabled');
                                     resolve();
                                 })
                                 .disable();
@@ -323,8 +323,8 @@ define([
                             instance
                                 .off('.test')
                                 .after('enable.test', function () {
-                                    assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '"]:enabled').length, 1, 'The main field is enabled again');
-                                    assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '_confirmation"]:enabled').length, 1, 'The confirmation field is enabled again');
+                                    assert.equal($container.find(`.form-widget .widget-field [name="${  config.uri  }"]:enabled`).length, 1, 'The main field is enabled again');
+                                    assert.equal($container.find(`.form-widget .widget-field [name="${  config.uri  }_confirmation"]:enabled`).length, 1, 'The confirmation field is enabled again');
                                     resolve();
                                 })
                                 .enable();
@@ -452,8 +452,8 @@ define([
                         assert.equal($container.children().is('.form-widget'), true, 'The container contains the expected element');
                         assert.equal($container.find('.form-widget .widget-label').length, 2, 'The component contains an area for the label');
                         assert.equal($container.find('.form-widget .widget-field').length, 2, 'The component contains an area for the field');
-                        assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '"]').length, 1, 'The component contains the main field');
-                        assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '_confirmation"]').length, 1, 'The component contains the confirmation field');
+                        assert.equal($container.find(`.form-widget .widget-field [name="${  config.uri  }"]`).length, 1, 'The component contains the main field');
+                        assert.equal($container.find(`.form-widget .widget-field [name="${  config.uri  }_confirmation"]`).length, 1, 'The component contains the confirmation field');
                         assert.deepEqual(instance.getValue(), '', 'Empty value');
                         assert.deepEqual(instance.getRawValue(), {
                             confirmation: '',
@@ -494,7 +494,7 @@ define([
                                     resolve();
                                 });
 
-                            $container.find('.form-widget .widget-field [name="' + config.uri + '"]').val('no').change();
+                            $container.find(`.form-widget .widget-field [name="${  config.uri  }"]`).val('no').change();
                         });
                     })
                     .catch(function (err) {
@@ -548,8 +548,8 @@ define([
                         assert.equal($container.children().is('.form-widget'), true, 'The container contains the expected element');
                         assert.equal($container.find('.form-widget .widget-label').length, 2, 'The component contains an area for the label');
                         assert.equal($container.find('.form-widget .widget-field').length, 2, 'The component contains an area for the field');
-                        assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '"]').length, 1, 'The component contains the main field');
-                        assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '_confirmation"]').length, 1, 'The component contains the confirmation field');
+                        assert.equal($container.find(`.form-widget .widget-field [name="${  config.uri  }"]`).length, 1, 'The component contains the main field');
+                        assert.equal($container.find(`.form-widget .widget-field [name="${  config.uri  }_confirmation"]`).length, 1, 'The component contains the confirmation field');
                         assert.deepEqual(instance.getValue(), '', 'Init value');
                         assert.deepEqual(instance.getRawValue(), {
                             confirmation: '',
@@ -620,8 +620,8 @@ define([
                 assert.equal($container.children().is('.form-widget'), true, 'The container contains the expected element');
                 assert.equal($container.find('.form-widget .widget-label').length, 2, 'The component contains an area for the label');
                 assert.equal($container.find('.form-widget .widget-field').length, 2, 'The component contains an area for the field');
-                assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '"]').length, 1, 'The component contains the main field');
-                assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '_confirmation"]').length, 1, 'The component contains the confirmation field');
+                assert.equal($container.find(`.form-widget .widget-field [name="${  config.uri  }"]`).length, 1, 'The component contains the main field');
+                assert.equal($container.find(`.form-widget .widget-field [name="${  config.uri  }_confirmation"]`).length, 1, 'The component contains the confirmation field');
 
                 instance.validate()
                     .then(function () {
@@ -689,8 +689,8 @@ define([
                         assert.equal($container.children().is('.form-widget'), true, 'The container contains the expected element');
                         assert.equal($container.find('.form-widget .widget-label').length, 2, 'The component contains an area for the label');
                         assert.equal($container.find('.form-widget .widget-field').length, 2, 'The component contains an area for the field');
-                        assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '"]').length, 1, 'The component contains the main field');
-                        assert.equal($container.find('.form-widget .widget-field [name="' + config.uri + '_confirmation"]').length, 1, 'The component contains the confirmation field');
+                        assert.equal($container.find(`.form-widget .widget-field [name="${  config.uri  }"]`).length, 1, 'The component contains the main field');
+                        assert.equal($container.find(`.form-widget .widget-field [name="${  config.uri  }_confirmation"]`).length, 1, 'The component contains the confirmation field');
                         instance.setValue('yes');
                         assert.deepEqual(instance.getValue(), 'yes', 'Init value');
                         assert.deepEqual(instance.getRawValue(), {
@@ -772,7 +772,7 @@ define([
             })
             .on('change', function (value, uri) {
                 this.validate();
-                $outputChange.val('value of [' + uri + '] changed to "' + JSON.stringify(value) + '"\n' + $outputChange.val());
+                $outputChange.val(`value of [${  uri  }] changed to "${  JSON.stringify(value)  }"\n${  $outputChange.val()}`);
             })
             .on('error', function (err) {
                 assert.ok(false, 'The operation should not fail!');

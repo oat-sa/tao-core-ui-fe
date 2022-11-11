@@ -3,7 +3,7 @@ import async from 'async';
 import Report from 'ui/validator/Report';
 import validators from 'ui/validator/validators';
 
-var _buildRule = function(rule) {
+var _buildRule = function (rule) {
     var ret = null;
     var _rules = validators.validators;
     if (_.isString(rule) && _rules[rule]) {
@@ -22,22 +22,22 @@ var _defaultOptions = {
     lazy: false
 };
 
-var _applyRules = function(value, rule, callback, options) {
+var _applyRules = function (value, rule, callback, options) {
     options = _.merge(_.cloneDeep(rule.options), options);
     rule.validate(value, callback, options);
 };
 
-var Validator = function(rules, options) {
+var Validator = function (rules, options) {
     this.options = _.merge(_.cloneDeep(_defaultOptions), options);
     this.rules = [];
     this.addRules(rules);
 };
 
-Validator.getDefaultOptions = function() {
+Validator.getDefaultOptions = function () {
     return _.clone(_defaultOptions);
 };
 
-Validator.prototype.validate = function(value, arg1, arg2) {
+Validator.prototype.validate = function (value, arg1, arg2) {
     var callstack = [],
         callback,
         options = _.cloneDeep(this.options);
@@ -51,21 +51,21 @@ Validator.prototype.validate = function(value, arg1, arg2) {
         }
     }
 
-    _.each(this.rules, function(rule) {
+    _.each(this.rules, function (rule) {
         //note: individual validating option reserved for a later usage:
         var validatorOptions = {},
             message;
 
-        callstack.push(function(cb) {
+        callstack.push(function (cb) {
             _applyRules(
                 value,
                 rule,
-                function(success) {
+                function (success) {
                     if (success) {
                         cb(null, new Report('success', { validator: rule.name }));
                     } else {
                         message = rule.options.message || rule.message;
-                        var report = new Report('failure', { validator: rule.name, message: message });
+                        const report = new Report('failure', { validator: rule.name, message: message });
                         if (options.lazy) {
                             cb(new Error('lazy mode'), report); //stop execution now
                         } else {
@@ -78,7 +78,7 @@ Validator.prototype.validate = function(value, arg1, arg2) {
         });
     });
 
-    async.series(callstack, function(err, results) {
+    async.series(callstack, function (err, results) {
         if (_.isFunction(callback)) {
             callback(results);
         }
@@ -87,7 +87,7 @@ Validator.prototype.validate = function(value, arg1, arg2) {
     return this;
 };
 
-Validator.prototype.addRule = function(rule) {
+Validator.prototype.addRule = function (rule) {
     var _rules = validators.validators;
     if (_.isString(rule) && _rules[rule]) {
         this.rules.push(_rules[rule]);
@@ -97,10 +97,10 @@ Validator.prototype.addRule = function(rule) {
     return this;
 };
 
-Validator.prototype.addRules = function(rules) {
-    var _this = this;
-    _.each(rules, function(rule) {
-        _this.addRule(rule);
+Validator.prototype.addRules = function (rules) {
+    var self = this;
+    _.each(rules, (rule) => {
+        self.addRule(rule);
     });
     return this;
 };

@@ -151,7 +151,7 @@ var dynamicComponent = {
             });
 
             //defer to ensure the next reflow occurs before calculating the content size
-            _.defer(function() {
+            _.defer(function () {
                 self.position.width = self.config.width;
                 self.position.height = self.config.height;
                 self.position.contentWidth = $titleBar.width();
@@ -206,10 +206,10 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
 
     component = componentFactory(specs, defaults)
         .setTemplate(layoutTpl)
-        .on('init', function() {
+        .on('init', function () {
             this.id = uuid();
         })
-        .on('render', function() {
+        .on('render', function () {
             var self = this;
             var $element = this.getElement();
             var config = this.config;
@@ -236,11 +236,11 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
 
             //init controls
             $titleBar
-                .on('click touchstart', '.closer', function(e) {
+                .on('click touchstart', '.closer', function (e) {
                     e.preventDefault();
                     self.hide();
                 })
-                .on('click touchstart', '.reset', function(e) {
+                .on('click touchstart', '.reset', function (e) {
                     e.preventDefault();
                     self.resetSize();
                 });
@@ -267,20 +267,19 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
                 });
 
                 //manually start interactjs draggable on the handle
-                interact($titleBar[0]).on('down', function(event) {
-                    var interaction = event.interaction,
-                        handle = event.currentTarget;
+                interact($titleBar[0]).on('down', function (event) {
+                    var interaction = event.interaction;
 
                     interaction.start(
                         {
-                            name: 'drag',
+                            name: 'drag'
                         },
                         interactElement,
                         $element[0]
                     );
                 });
 
-                $(window).on('resize.dynamic-component-' + self.id, function() {
+                $(window).on('resize.dynamic-component-' + self.id, function () {
                     var container;
 
                     //on browser zoom, reset the position to prevent having
@@ -306,43 +305,43 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
                         bottom: '.dynamic-component-resize-wrapper',
                         top: false
                     },
-                    onmove: e => resizeComponent(e.rect.width, e.rect.height, e.deltaRect.left, e.deltaRect.top),
+                    onmove: e => resizeComponent(e.rect.width, e.rect.height, e.deltaRect.left, e.deltaRect.top)
                 });
             }
 
             interactElement
-                .on('dragstart resizeinertiastart', function() {
+                .on('dragstart resizeinertiastart', function () {
                     $contentOverlay.addClass('dragging-active');
                     $content.addClass('moving');
                     $titleBar.addClass('moving');
                 })
-                .on('dragend', function() {
+                .on('dragend', function () {
                     $contentOverlay.removeClass('dragging-active');
                     $content.removeClass('moving');
                     $titleBar.removeClass('moving');
                 })
-                .on('resizestart', function() {
+                .on('resizestart', function () {
                     $contentOverlay.addClass('dragging-active');
                     $resizeControll.addClass('resizing');
                     $content.addClass('sizing');
                 })
-                .on('resizeend', function() {
+                .on('resizeend', function () {
                     $contentOverlay.removeClass('dragging-active');
                     $resizeControll.removeClass('resizing');
                     $content.removeClass('sizing');
                 });
 
             //interact sometimes doesn't trigger the start event if the move is quick and ends over an iframe...
-            $element.on('mousedown', function() {
-                if (/\-resize/.test($('html').css('cursor')) && !$contentOverlay.hasClass('dragging-active')) {
+            $element.on('mousedown', function () {
+                if (/-resize/.test($('html').css('cursor')) && !$contentOverlay.hasClass('dragging-active')) {
                     $contentOverlay.addClass('dragging-active');
                 }
             });
 
             // use after event because the component is hidden during regular event
             this.after('show', () => {
-                const viewport = (getParent())[0].getBoundingClientRect();
-                let {width, height} = this.position;
+                const viewport = getParent()[0].getBoundingClientRect();
+                let { width, height } = this.position;
                 let x = 0;
                 let y = 0;
                 let resize = false;
@@ -351,8 +350,8 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
                     // if proportional resize enabled calculate scale rate based on width
                     // and apply it to height
                     height = config.proportionalResize
-                      ? config.minHeight * (viewport.width / config.minWidth)
-                      : viewport.width * (this.position.height / this.position.width);
+                        ? config.minHeight * (viewport.width / config.minWidth)
+                        : viewport.width * (this.position.height / this.position.width);
                     width = viewport.width;
 
                     resize = true;
@@ -478,7 +477,7 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
                         height: height + 'px'
                     });
 
-                    _.defer(function() {
+                    _.defer(function () {
                         self.position.contentWidth = $titleBar.width();
                         self.position.contentHeight = $element.height() - $titleBar.outerHeight();
                         $content.css({
@@ -544,7 +543,7 @@ var dynComponentFactory = function dynComponentFactory(specs, defaults) {
                 };
             }
         })
-        .on('destroy', function() {
+        .on('destroy', function () {
             $(window).off('resize.dynamic-component-' + this.id);
         });
 

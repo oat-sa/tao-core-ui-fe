@@ -48,6 +48,6 @@ define([
         {title: 'CHECKBOX'}
     ]).test('constant ', function (data, assert) {
         assert.expect(1);
-        assert.equal(typeof widgetDefinitions[data.title], 'string', 'The object exposes a "' + data.title + '" constant');
+        assert.equal(typeof widgetDefinitions[data.title], 'string', `The object exposes a "${  data.title  }" constant`);
     });
 });

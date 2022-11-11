@@ -367,10 +367,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
                 range.setStart(fixtureContainer.firstChild.firstChild.firstChild, 0); //div->h2->text
                 range.setEnd(fixtureContainer.firstChild.lastChild, 0); //div->p
             },
-            highlightIndex: [
-                { highlighted: true, c: "hl", groupId: "1" },
-                { highlighted: false }
-            ]
+            highlightIndex: [{ highlighted: true, c: 'hl', groupId: '1' }, { highlighted: false }]
         },
 
         // ====================================
@@ -584,8 +581,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
             title: 'highlights a node with an image inside',
             input: 'There is an image <img src="/tao/views/img/logo_tao.png"> in the middle of this selection',
             selection: 'There is an image <img src="/tao/views/img/logo_tao.png"> in the middle of this selection',
-            output:
-                '<span class="hl" data-hl-group="1">There is an image </span><img src="/tao/views/img/logo_tao.png"><span class="hl" data-hl-group="1"> in the middle of this selection</span>',
+            output: '<span class="hl" data-hl-group="1">There is an image </span><img src="/tao/views/img/logo_tao.png"><span class="hl" data-hl-group="1"> in the middle of this selection</span>',
             buildRange: function (range, fixtureContainer) {
                 range.selectNodeContents(fixtureContainer);
             },
@@ -688,12 +684,8 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
         {
             title: 'do not highlight blacklisted container children when selection spans from normal to blacklisted node',
             blacklisted: ['.qti-include'],
-            input:
-                '<p>We <strong>all</strong> live in a </p>' +
-                '<div class="qti-include">blacklisted group</div>',
-            selection:
-                '<p>We <strong>all</strong> live in a </p>' +
-                '<div class="qti-include">blacklisted group</div>',
+            input: '<p>We <strong>all</strong> live in a </p>' + '<div class="qti-include">blacklisted group</div>',
+            selection: '<p>We <strong>all</strong> live in a </p>' + '<div class="qti-include">blacklisted group</div>',
             output:
                 '<p><span class="hl" data-hl-group="1">We </span>' +
                 '<strong><span class="hl" data-hl-group="1">all</span></strong>' +
@@ -770,8 +762,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
 
         {
             title: 'create a single group if two text selections are joined',
-            input:
-                '<span class="hl" data-hl-group="1">I already saw the light</span>, and soon, <span class="hl" data-hl-group="5">we will all had</span>',
+            input: '<span class="hl" data-hl-group="1">I already saw the light</span>, and soon, <span class="hl" data-hl-group="5">we will all had</span>',
             selection: ', and soon, ',
             output: '<span class="hl" data-hl-group="1">I already saw the light, and soon, we will all had</span>',
             buildRange: function (range, fixtureContainer) {
@@ -819,11 +810,9 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
 
         {
             title: 'does not highlight an already highlighted portion of text',
-            input:
-                '<span class="hl" data-hl-group="1">I already have more highlight that I need, leave me alone</span>',
+            input: '<span class="hl" data-hl-group="1">I already have more highlight that I need, leave me alone</span>',
             selection: 'highlight',
-            output:
-                '<span class="hl" data-hl-group="1">I already have more highlight that I need, leave me alone</span>',
+            output: '<span class="hl" data-hl-group="1">I already have more highlight that I need, leave me alone</span>',
             buildRange: function (range, fixtureContainer) {
                 range.setStart(fixtureContainer.firstChild.firstChild, 'I already have more '.length);
                 range.setEnd(fixtureContainer.firstChild.firstChild, 'I already have more highlight'.length);
@@ -982,16 +971,16 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
         fixtureContainer.innerHTML = data.input;
 
         // The following assertion is just to provide a better visual feedback in QUnit UI
-        assert.equal(fixtureContainer.innerHTML, data.input, 'input: ' + data.input);
+        assert.equal(fixtureContainer.innerHTML, data.input, `input: ${data.input}`);
 
         // Create range, then make sure it is correctly built
         data.buildRange(range, fixtureContainer);
         rangeHtml = $('<div>').append(range.cloneContents()).html(); // This conversion to HTML will automatically close partially selected nodes, if any
-        assert.equal(rangeHtml, data.selection, 'selection: ' + data.selection);
+        assert.equal(rangeHtml, data.selection, `selection: ${data.selection}`);
 
         // Highlight
         highlighter.highlightRanges([range]);
-        assert.equal(fixtureContainer.innerHTML, data.output, 'highlight: ' + data.output);
+        assert.equal(fixtureContainer.innerHTML, data.output, `highlight: ${data.output}`);
 
         // Save highlight
         highlightIndex = highlighter.getHighlightIndex();
@@ -1041,32 +1030,32 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
         highlighter.highlightRanges([range]);
 
         // Get higlighted node attributes
-        var highlightsAttributes = $(fixtureContainer)
+        const highlightsAttributes = $(fixtureContainer)
             .find('.hl')
             .map(function (index, node) {
                 return $(node).attr('data-hl-group');
             })
             .toArray();
 
-        assert.deepEqual(highlightsAttributes, ['1', '2', '3'], 'Three separated higlights has been created');
+        assert.deepEqual(highlightsAttributes, ['1', '2', '3'], 'Three separated highlights has been created');
 
         // Clear all highlits
         highlighter.clearHighlights();
 
-        assert.equal($(fixtureContainer).find('.hl').length, 0, 'All higlights has been discarded');
+        assert.equal($(fixtureContainer).find('.hl').length, 0, 'All highlights has been discarded');
     });
 
     QUnit.test('clearSingleHighlight', function (assert) {
         // Setup test
-        var highlighter = highlighterFactory({
+        const highlighter = highlighterFactory({
             className: 'hl',
             containerSelector: '#qunit-fixture',
             containersBlackList: [],
             clearOnClick: true
         });
-        var range = document.createRange();
+        const range = document.createRange();
 
-        var fixtureContainer = document.getElementById('qunit-fixture');
+        const fixtureContainer = document.getElementById('qunit-fixture');
 
         assert.expect(4);
 
@@ -1086,7 +1075,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
         highlighter.highlightRanges([range]);
 
         // Get higlighted node attributes
-        var highlightsAttributes = $(fixtureContainer)
+        const highlightsAttributes = $(fixtureContainer)
             .find('.hl')
             .map(function (index, node) {
                 return $(node).attr('data-hl-group');
@@ -1094,7 +1083,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
             .toArray();
 
         assert.deepEqual(highlightsAttributes, ['1', '2', '3'], 'Three separated higlights has been created');
-        var higlights = $(fixtureContainer).find('.hl');
+        const higlights = $(fixtureContainer).find('.hl');
 
         // Clear first higlight
         higlights[0].click();
@@ -1149,8 +1138,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
                 ]
             },
             {
-                title:
-                    'Highlight with a different color words that has space between. The first highlight at the beginning of sentence',
+                title: 'Highlight with a different color words that has space between. The first highlight at the beginning of sentence',
                 initialContent: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
                 contentBeforeApplyingHighlighter:
                     '<span class="pink" data-hl-group="1">Lorem</span> Ipsum is simply dummy text of the printing and typesetting industry.',
@@ -1245,8 +1233,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
                 ]
             },
             {
-                title:
-                    'Override highlights with a different color the selection contains one highlighted node with a different color',
+                title: 'Override highlights with a different color the selection contains one highlighted node with a different color',
                 initialContent: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
                 contentBeforeApplyingHighlighter:
                     'Lorem Ipsum is simply <span class="pink" data-hl-group="1">dummy</span> text of the printing and typesetting industry.',
@@ -1581,7 +1568,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
             assert.equal(
                 fixtureContainer.innerHTML,
                 data.contentBeforeApplyingHighlighter,
-                'before highlight: ' + data.contentBeforeApplyingHighlighter
+                `before highlight: ${data.contentBeforeApplyingHighlighter}`
             );
 
             // Create range, then make sure it is correctly built
@@ -1592,7 +1579,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
             assert.equal(
                 fixtureContainer.innerHTML,
                 data.contentAfterApplyingHighlighter,
-                'after highlight: ' + data.contentAfterApplyingHighlighter
+                `after highlight: ${data.contentAfterApplyingHighlighter}`
             );
 
             // Save highlight
@@ -1691,7 +1678,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
         fixtureContainer.childNodes[4].dataset.afterWasSplit = 'pqr';
 
         //Create highlight over it: '[Lorem Ipsum is]'
-        var range2 = document.createRange();
+        const range2 = document.createRange();
         range2.setStart(fixtureContainer.childNodes[1], 0);
         range2.setEnd(fixtureContainer.childNodes[3], 1);
         highlighter.highlightRanges([range2]);
@@ -1702,24 +1689,24 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
             'Split data is recalculated on merging highlights'
         );
 
-       assert.equal(fixtureContainer.childNodes[1], emptyNode, 'Empty nodes were not removed');
+        assert.equal(fixtureContainer.childNodes[1], emptyNode, 'Empty nodes were not removed');
     });
 
     QUnit.test('clearHighlights: only nodes split by highlighter are merged back', function (assert) {
-        var highlighter = highlighterFactory({
+        const highlighter = highlighterFactory({
             keepEmptyNodes: true,
             className: 'hl',
             containerSelector: '#qunit-fixture',
             containersBlackList: []
         });
-        var range = document.createRange();
+        const range = document.createRange();
 
-        var fixtureContainer = document.getElementById('qunit-fixture');
+        const fixtureContainer = document.getElementById('qunit-fixture');
 
         function assertChildNodes(node, textContents, message) {
             assert.equal(node.childNodes.length, textContents.length, message);
             textContents.forEach((text, i) => {
-                assert.equal(node.childNodes[i].textContent, text, `${message} ${i+1}`);
+                assert.equal(node.childNodes[i].textContent, text, `${message} ${i + 1}`);
             });
         }
 
@@ -1747,10 +1734,13 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
         assert.equal($(fixtureContainer).find('.hl').length, 0, 'All higlights have been discarded');
 
         assertChildNodes(fixtureContainer.childNodes[0], ['lorem'], 'Nodes splitted by highlighter were merged back');
-        assertChildNodes(fixtureContainer.childNodes[2], ['do', 'lo', 'r'], 'Originally splitted nodes were not merged back');
+        assertChildNodes(
+            fixtureContainer.childNodes[2],
+            ['do', 'lo', 'r'],
+            'Originally splitted nodes were not merged back'
+        );
         assert.equal(fixtureContainer.childNodes[4].lastChild.textContent, '', 'Empty nodes were not removed');
     });
-
 
     QUnit.test('clearSingleHighlight: only nodes split by highlighter are merged back', function (assert) {
         var highlighter = highlighterFactory({
@@ -1766,13 +1756,14 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
         function assertChildNodes(node, textContents, message) {
             assert.equal(node.childNodes.length, textContents.length, message);
             textContents.forEach((text, i) => {
-                assert.equal(node.childNodes[i].textContent, text, `${message} ${i+1}`);
+                assert.equal(node.childNodes[i].textContent, text, `${message} ${i + 1}`);
             });
         }
 
         assert.expect(27);
 
-        fixtureContainer.innerHTML = '<div>lorem</div><div>ipsum</div><div>dolor</div><div>sit</div><div>amet</div><div>consectetur</div><div>adipiscing</div>elit';
+        fixtureContainer.innerHTML =
+            '<div>lorem</div><div>ipsum</div><div>dolor</div><div>sit</div><div>amet</div><div>consectetur</div><div>adipiscing</div>elit';
         //'<div>lorem</div><div>ipsum</div><div>dolor</div><div>sit</div><div>am|et</div><div>consectet|ur</div><div>ad|i|piscing</div>';
         fixtureContainer.childNodes[4].firstChild.splitText(2); //am|et
         fixtureContainer.childNodes[5].firstChild.splitText(9); //consectet|ur
@@ -1810,74 +1801,98 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
         range.setEnd(fixtureContainer.childNodes[6].childNodes[1], 1);
         highlighter.highlightRanges([range]);
 
-        var higlights = $(fixtureContainer).find('.hl');
+        const higlights = $(fixtureContainer).find('.hl');
         assert.equal(higlights.length, 7, 'Seven separated higlights have been created');
 
         // Clear higlights one by one
-        highlighter.clearSingleHighlight({target: higlights[0]});
+        highlighter.clearSingleHighlight({ target: higlights[0] });
         assert.equal($(fixtureContainer).find('.hl').length, 6, 'Higlight discarded: 1');
-        assertChildNodes(fixtureContainer.childNodes[0], ['lorem'], 'Higlight discarded: no adjacent text to merge with');
+        assertChildNodes(
+            fixtureContainer.childNodes[0],
+            ['lorem'],
+            'Higlight discarded: no adjacent text to merge with'
+        );
 
-        highlighter.clearSingleHighlight({target: higlights[1]});
+        highlighter.clearSingleHighlight({ target: higlights[1] });
         assert.equal($(fixtureContainer).find('.hl').length, 5, 'Higlight discarded: 2');
         assertChildNodes(fixtureContainer.childNodes[1], ['ipsum'], 'Higlight discarded: text merged with next');
 
-        highlighter.clearSingleHighlight({target: higlights[2]});
+        highlighter.clearSingleHighlight({ target: higlights[2] });
         assert.equal($(fixtureContainer).find('.hl').length, 4, 'Higlight discarded: 3');
         assertChildNodes(fixtureContainer.childNodes[2], ['dolor'], 'Higlight discarded: text merged with previous');
 
-        highlighter.clearSingleHighlight({target: higlights[3]});
+        highlighter.clearSingleHighlight({ target: higlights[3] });
         assert.equal($(fixtureContainer).find('.hl').length, 3, 'Higlight discarded: 4');
-        assertChildNodes(fixtureContainer.childNodes[3], ['sit'], 'Higlight discarded: text merged with next and previous');
+        assertChildNodes(
+            fixtureContainer.childNodes[3],
+            ['sit'],
+            'Higlight discarded: text merged with next and previous'
+        );
 
-        highlighter.clearSingleHighlight({target: higlights[4]});
+        highlighter.clearSingleHighlight({ target: higlights[4] });
         assert.equal($(fixtureContainer).find('.hl').length, 2, 'Higlight discarded: 5');
         assertChildNodes(fixtureContainer.childNodes[4], ['am', 'et'], 'Higlight discarded: text not merged with next');
 
-        highlighter.clearSingleHighlight({target: higlights[5]});
+        highlighter.clearSingleHighlight({ target: higlights[5] });
         assert.equal($(fixtureContainer).find('.hl').length, 1, 'Higlight discarded: 6');
-        assertChildNodes(fixtureContainer.childNodes[5], ['consectet', 'ur'], 'Higlight discarded: text not merged with previous');
+        assertChildNodes(
+            fixtureContainer.childNodes[5],
+            ['consectet', 'ur'],
+            'Higlight discarded: text not merged with previous'
+        );
 
-        highlighter.clearSingleHighlight({target: higlights[6]});
+        highlighter.clearSingleHighlight({ target: higlights[6] });
         assert.equal($(fixtureContainer).find('.hl').length, 0, 'Higlight discarded: 7');
-        assertChildNodes(fixtureContainer.childNodes[6], ['ad', 'i', 'piscing'], 'Higlight discarded: text not merged with next and previous');
+        assertChildNodes(
+            fixtureContainer.childNodes[6],
+            ['ad', 'i', 'piscing'],
+            'Higlight discarded: text not merged with next and previous'
+        );
 
         assert.equal(fixtureContainer.childNodes[7].textContent, '', 'Empty nodes were not removed');
     });
 
     QUnit.cases
-        .init([{
-            title: 'Second splits first',
-            contentAfterApplyingHighlighter: 'Lorem <span class="pink" data-hl-group="1" data-before-was-split="abc" data-after-was-split="true">Ip</span>' +
-                '<span class="blue" data-hl-group="1" data-before-was-split="true" data-after-was-split="true">su</span>' +
-                '<span class="pink" data-hl-group="1" data-before-was-split="true" data-after-was-split="def">m</span> is',
-            buildRange: function (range, fixtureContainer) {
+        .init([
+            {
+                title: 'Second splits first',
+                contentAfterApplyingHighlighter:
+                    'Lorem <span class="pink" data-hl-group="1" data-before-was-split="abc" data-after-was-split="true">Ip</span>' +
+                    '<span class="blue" data-hl-group="1" data-before-was-split="true" data-after-was-split="true">su</span>' +
+                    '<span class="pink" data-hl-group="1" data-before-was-split="true" data-after-was-split="def">m</span> is',
+                buildRange: function (range, fixtureContainer) {
                     range.setStart(fixtureContainer.childNodes[1].firstChild, 2);
                     range.setEnd(fixtureContainer.childNodes[1].firstChild, 4);
                 }
-            }, {
+            },
+            {
                 title: 'Second covers first fully',
-                contentAfterApplyingHighlighter: '<span class="blue" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">Lorem Ipsum is</span>',
+                contentAfterApplyingHighlighter:
+                    '<span class="blue" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">Lorem Ipsum is</span>',
                 buildRange: function (range, fixtureContainer) {
-                        range.setStart(fixtureContainer.childNodes[0], 0);
-                        range.setEnd(fixtureContainer.childNodes[2], 3);
-                    }
-            }, {
+                    range.setStart(fixtureContainer.childNodes[0], 0);
+                    range.setEnd(fixtureContainer.childNodes[2], 3);
+                }
+            },
+            {
                 title: 'Second cuts start of first',
-                contentAfterApplyingHighlighter: '<span class="blue" data-hl-group="1" data-before-was-split="false" data-after-was-split="true">Lorem Ip</span>' +
+                contentAfterApplyingHighlighter:
+                    '<span class="blue" data-hl-group="1" data-before-was-split="false" data-after-was-split="true">Lorem Ip</span>' +
                     '<span class="pink" data-hl-group="1" data-before-was-split="true" data-after-was-split="def">sum</span> is',
                 buildRange: function (range, fixtureContainer) {
-                        range.setStart(fixtureContainer.childNodes[0], 0);
-                        range.setEnd(fixtureContainer.childNodes[1].firstChild, 2);
-                    }
-            }, {
+                    range.setStart(fixtureContainer.childNodes[0], 0);
+                    range.setEnd(fixtureContainer.childNodes[1].firstChild, 2);
+                }
+            },
+            {
                 title: 'Second cuts end of first',
-                contentAfterApplyingHighlighter: 'Lorem <span class="pink" data-hl-group="1" data-before-was-split="abc" data-after-was-split="true">Ip</span>' +
-                '<span class="blue" data-hl-group="1" data-before-was-split="true" data-after-was-split="false">sum is</span>',
+                contentAfterApplyingHighlighter:
+                    'Lorem <span class="pink" data-hl-group="1" data-before-was-split="abc" data-after-was-split="true">Ip</span>' +
+                    '<span class="blue" data-hl-group="1" data-before-was-split="true" data-after-was-split="false">sum is</span>',
                 buildRange: function (range, fixtureContainer) {
-                        range.setStart(fixtureContainer.childNodes[1].firstChild, 2);
-                        range.setEnd(fixtureContainer.childNodes[2], 3);
-                    }
+                    range.setStart(fixtureContainer.childNodes[1].firstChild, 2);
+                    range.setEnd(fixtureContainer.childNodes[2], 3);
+                }
             }
         ])
         .test('highlightRanges: multi colors', function (data, assert) {
@@ -1913,7 +1928,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
             fixtureContainer.childNodes[1].dataset.afterWasSplit = 'def';
 
             //Create highlight in another color
-            var range2 = document.createRange();
+            const range2 = document.createRange();
             data.buildRange(range2, fixtureContainer);
             highlighter.setActiveColor('blue');
             highlighter.highlightRanges([range2]);
@@ -1961,42 +1976,49 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
         data.buildRange(range, fixtureContainer);
 
         highlighter.highlightRanges([range]);
-        assert.equal(fixtureContainer.innerHTML, data.output, 'highlights for whitelist was created, for blacklist not');
+        assert.equal(
+            fixtureContainer.innerHTML,
+            data.output,
+            'highlights for whitelist was created, for blacklist not'
+        );
     });
 
-    QUnit.test('highlightRanges: highlight across a blacklisted container without coloring its highlights', function (assert) {
-        const data = {
-            blacklisted: ['.bl'],
-            input:
-                '<section><div>Normal text</div>' +
-                '<div class="bl">black <span class="hl" data-hl-group="2" data-before-was-split="false" data-after-was-split="false">painted</span> black</div>' +
-                '<div>Normal text</div></section>',
-            output:
-                '<section><div><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">Normal text</span></div>' +
-                '<div class="bl">black <span class="hl" data-hl-group="2" data-before-was-split="false" data-after-was-split="false">painted</span> black</div>' +
-                '<div><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">Normal text</span></div></section>',
-            buildRange: function (range, fixtureContainer) {
-                range.selectNodeContents(fixtureContainer);
-            }
-        };
+    QUnit.test(
+        'highlightRanges: highlight across a blacklisted container without coloring its highlights',
+        function (assert) {
+            const data = {
+                blacklisted: ['.bl'],
+                input:
+                    '<section><div>Normal text</div>' +
+                    '<div class="bl">black <span class="hl" data-hl-group="2" data-before-was-split="false" data-after-was-split="false">painted</span> black</div>' +
+                    '<div>Normal text</div></section>',
+                output:
+                    '<section><div><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">Normal text</span></div>' +
+                    '<div class="bl">black <span class="hl" data-hl-group="2" data-before-was-split="false" data-after-was-split="false">painted</span> black</div>' +
+                    '<div><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">Normal text</span></div></section>',
+                buildRange: function (range, fixtureContainer) {
+                    range.selectNodeContents(fixtureContainer);
+                }
+            };
 
-        var highlighter = highlighterFactory({
-            keepEmptyNodes: true,
-            className: 'hl',
-            containerSelector: '#qunit-fixture',
-            containersBlackList: data.blacklisted
-        });
-        var range = document.createRange();
-        var fixtureContainer = document.getElementById('qunit-fixture');
+            var highlighter = highlighterFactory({
+                keepEmptyNodes: true,
+                className: 'hl',
+                containerSelector: '#qunit-fixture',
+                containersBlackList: data.blacklisted
+            });
+            var range = document.createRange();
+            var fixtureContainer = document.getElementById('qunit-fixture');
 
-        assert.expect(1);
+            assert.expect(1);
 
-        fixtureContainer.innerHTML = data.input;
-        data.buildRange(range, fixtureContainer);
+            fixtureContainer.innerHTML = data.input;
+            data.buildRange(range, fixtureContainer);
 
-        highlighter.highlightRanges([range]);
-        assert.equal(fixtureContainer.innerHTML, data.output, 'no highlights affected inside blacklisted elt');
-    });
+            highlighter.highlightRanges([range]);
+            assert.equal(fixtureContainer.innerHTML, data.output, 'no highlights affected inside blacklisted elt');
+        }
+    );
 
     QUnit.test('highlightFromIndex: does nothing if index is empty', function (assert) {
         var fixtureContainer = document.getElementById('qunit-fixture');
@@ -2005,7 +2027,7 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
 
         const input1 = '<div>here</div>';
         fixtureContainer.innerHTML = input1;
-        var highlighter1 = highlighterFactory({
+        const highlighter1 = highlighterFactory({
             keepEmptyNodes: true,
             className: 'hl',
             containerSelector: '#qunit-fixture'
@@ -2017,9 +2039,10 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
         highlighter1.highlightFromIndex(null);
         assert.equal(fixtureContainer.innerHTML, input1, 'on restore for "null" index, no error was thrown');
 
-        const input2 = '<div><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">here</span></div>';
+        const input2 =
+            '<div><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">here</span></div>';
         fixtureContainer.innerHTML = input2;
-        var highlighter2 = highlighterFactory({
+        const highlighter2 = highlighterFactory({
             keepEmptyNodes: true,
             className: 'hl',
             containerSelector: '#qunit-fixture'
@@ -2035,37 +2058,37 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
         var highlighter = highlighterFactory({
             keepEmptyNodes: true,
             className: 'hl',
-            colors: {h: 'hl', c: 'c2'},
+            colors: { h: 'hl', c: 'c2' },
             containerSelector: '#qunit-fixture'
         });
 
         const input =
             'midseason' +
             '<div class="row">' +
-                '<div class="col-6">' +
-                    'spring' +
-                    '<p>autumn</p>' +
-                    'midwinter' +
-                '</div>' +
-                '<div class="col-6"><p><b>midsummer</b></p></div>' +
+            '<div class="col-6">' +
+            'spring' +
+            '<p>autumn</p>' +
+            'midwinter' +
+            '</div>' +
+            '<div class="col-6"><p><b>midsummer</b></p></div>' +
             '</div>' +
             '<div class="row">' +
-                '<div class="col-12">summer</div>' +
+            '<div class="col-12">summer</div>' +
             '</div>' +
             'winter';
 
         const output =
             '<span class="c2" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">midseason</span>' +
             '<div class="row">' +
-                '<div class="col-6">' +
-                    's<span class="hl" data-hl-group="2" data-before-was-split="true" data-after-was-split="true">prin</span>g' +
-                    '<p><span class="hl" data-hl-group="3" data-before-was-split="false" data-after-was-split="false">autumn</span></p>' +
-                    'midwinter' +
-                '</div>' +
-                '<div class="col-6"><p><b>midsumme<span class="hl" data-hl-group="4" data-before-was-split="true" data-after-was-split="false">r</span></b></p></div>' +
+            '<div class="col-6">' +
+            's<span class="hl" data-hl-group="2" data-before-was-split="true" data-after-was-split="true">prin</span>g' +
+            '<p><span class="hl" data-hl-group="3" data-before-was-split="false" data-after-was-split="false">autumn</span></p>' +
+            'midwinter' +
+            '</div>' +
+            '<div class="col-6"><p><b>midsumme<span class="hl" data-hl-group="4" data-before-was-split="true" data-after-was-split="false">r</span></b></p></div>' +
             '</div>' +
             '<div class="row">' +
-                '<div class="col-12"><span class="hl" data-hl-group="4" data-before-was-split="false" data-after-was-split="true">s</span>ummer</div>' +
+            '<div class="col-12"><span class="hl" data-hl-group="4" data-before-was-split="false" data-after-was-split="true">s</span>ummer</div>' +
             '</div>' +
             'wi<span class="hl" data-hl-group="5" data-before-was-split="true" data-after-was-split="true">nte</span>r';
 
@@ -2076,8 +2099,8 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
                 c: 'c',
                 offsetBefore: 0,
                 textLength: 9,
-                beforeWasSplit: "false",
-                afterWasSplit: "false",
+                beforeWasSplit: 'false',
+                afterWasSplit: 'false',
                 path: [0]
             },
             {
@@ -2086,8 +2109,8 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
                 c: 'h',
                 offsetBefore: 1,
                 textLength: 4,
-                beforeWasSplit: "true",
-                afterWasSplit: "true",
+                beforeWasSplit: 'true',
+                afterWasSplit: 'true',
                 path: [1, 0, 1]
             },
             {
@@ -2096,8 +2119,8 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
                 c: 'h',
                 offsetBefore: 0,
                 textLength: 6,
-                beforeWasSplit: "false",
-                afterWasSplit: "false",
+                beforeWasSplit: 'false',
+                afterWasSplit: 'false',
                 path: [1, 0, 3, 0]
             },
             {
@@ -2106,8 +2129,8 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
                 c: 'h',
                 offsetBefore: 8,
                 textLength: 1,
-                beforeWasSplit: "true",
-                afterWasSplit: "false",
+                beforeWasSplit: 'true',
+                afterWasSplit: 'false',
                 path: [1, 1, 0, 0, 1]
             },
             {
@@ -2116,8 +2139,8 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
                 c: 'h',
                 offsetBefore: 0,
                 textLength: 1,
-                beforeWasSplit: "false",
-                afterWasSplit: "true",
+                beforeWasSplit: 'false',
+                afterWasSplit: 'true',
                 path: [2, 0, 0]
             },
             {
@@ -2126,11 +2149,11 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
                 c: 'h',
                 offsetBefore: 2,
                 textLength: 3,
-                beforeWasSplit: "true",
-                afterWasSplit: "true",
+                beforeWasSplit: 'true',
+                afterWasSplit: 'true',
                 path: [4]
             }
-        ]
+        ];
 
         assert.expect(8);
 
@@ -2165,8 +2188,16 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
         const actualIndex = highlighter.getHighlightIndex();
         assert.deepEqual(actualIndex.highlightModel, expectedIndex, 'index was built: highlightModel');
         assert.equal(actualIndex.wrapperNodes.length, 6, 'index was built: wrapperNodes (1)');
-        assert.equal(actualIndex.wrapperNodes[0], fixtureContainer.querySelector('.c2'), 'index was built: wrapperNodes (2)');
-        assert.equal(actualIndex.wrapperNodes[1], fixtureContainer.querySelector('.hl'), 'index was built: wrapperNodes (3)');
+        assert.equal(
+            actualIndex.wrapperNodes[0],
+            fixtureContainer.querySelector('.c2'),
+            'index was built: wrapperNodes (2)'
+        );
+        assert.equal(
+            actualIndex.wrapperNodes[1],
+            fixtureContainer.querySelector('.hl'),
+            'index was built: wrapperNodes (3)'
+        );
 
         fixtureContainer.innerHTML = '';
         assert.equal(fixtureContainer.innerHTML, '', 'html was reset');
@@ -2179,17 +2210,18 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
     });
 
     QUnit.test('highlightFromIndex: does not throw in case of html/index mismatches ', function (assert) {
-        var highlighter = highlighterFactory({
+        const highlighter = highlighterFactory({
             keepEmptyNodes: true,
             className: 'hl',
             containerSelector: '#qunit-fixture',
             containersBlackList: ['.bl']
         });
-        var fixtureContainer = document.getElementById('qunit-fixture');
+        const fixtureContainer = document.getElementById('qunit-fixture');
 
         assert.expect(1);
 
-        var input = '<div>cat</div>' +
+        const input =
+            '<div>cat</div>' +
             '<div class="bl">dog</div>' +
             '<div>age</div>' +
             '<div>mix</div>' +
@@ -2204,27 +2236,28 @@ define(['jquery', 'lodash', 'ui/highlighter'], function ($, _, highlighterFactor
             c: 'hl',
             offsetBefore: 0,
             textLength: 3,
-            beforeWasSplit: "false",
-            afterWasSplit: "false",
+            beforeWasSplit: 'false',
+            afterWasSplit: 'false',
             path: [0]
         };
-        var index = [
+        let index = [
             { c: 'zz', path: [0, 0] }, //wrong color -> restores, but with default color
             { path: [1, 0] }, //blacklist
             { path: [2, 1, 2] }, //path not found
-            { path: [3, 2], offsetBefore: 1, textLength: 1, beforeWasSplit: "true" }, //path not found
-            { path: [4, 1], offsetBefore: 3, beforeWasSplit: "true"  }, //text offset
-            { path: [5, 1], offsetBefore: 1, textLength: 3, beforeWasSplit: "true"  }, //text length -> restores until the end of node
+            { path: [3, 2], offsetBefore: 1, textLength: 1, beforeWasSplit: 'true' }, //path not found
+            { path: [4, 1], offsetBefore: 3, beforeWasSplit: 'true' }, //text offset
+            { path: [5, 1], offsetBefore: 1, textLength: 3, beforeWasSplit: 'true' }, //text length -> restores until the end of node
             { path: [6, 0], offsetBefore: 0, textLength: 4 }, //text length -> restores until the end of node
             { path: [7] }, //node is not text
             { path: [8, 0] }, //correct one
-            { path: [9, 0] }, //path not found
+            { path: [9, 0] } //path not found
         ];
         index = index.map(entry => Object.assign({}, baseEntry, entry));
         fixtureContainer.innerHTML = input;
 
         highlighter.highlightFromIndex(index);
-        const output = '<div><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">cat</span></div>' +
+        const output =
+            '<div><span class="hl" data-hl-group="1" data-before-was-split="false" data-after-was-split="false">cat</span></div>' +
             '<div class="bl">dog</div>' +
             '<div>age</div>' +
             '<div>mix</div>' +

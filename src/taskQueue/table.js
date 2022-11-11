@@ -134,7 +134,7 @@ export default function taskQueueTableFactory(config) {
                 //toggle display fo queue table
                 $dataTable.hide();
 
-                var task = _.find(tasks, { id: taskId });
+                const task = _.find(tasks, { id: taskId });
                 if (task && task.status === 'finished' && task.report) {
                     data = task;
                 }
@@ -154,7 +154,7 @@ export default function taskQueueTableFactory(config) {
                     ],
                     data: data
                 })
-                    .on('action-back', function() {
+                    .on('action-back', function () {
                         status.destroy();
                         $dataTable.show();
                     })
@@ -175,11 +175,11 @@ export default function taskQueueTableFactory(config) {
                 var self = this;
                 this.taskQueueApi
                     .remove(taskId)
-                    .then(function() {
+                    .then(function () {
                         self.$component.datatable('refresh');
                         self.trigger('removed', taskId);
                     })
-                    .catch(function(err) {
+                    .catch(function (err) {
                         self.trigger('error', err);
                     });
                 return this;
@@ -189,7 +189,7 @@ export default function taskQueueTableFactory(config) {
 
                 $.fileDownload(this.config.downloadUrl, {
                     data: { taskId: taskId },
-                    failCallback: function() {
+                    failCallback: function () {
                         self.trigger('error', __('File download failed'));
                     }
                 });
@@ -198,7 +198,7 @@ export default function taskQueueTableFactory(config) {
         },
         config
     )
-        .on('init', function() {
+        .on('init', function () {
             this.taskQueueApi = taskQueueApi({
                 url: {
                     status: this.config.serviceUrl,
@@ -206,7 +206,7 @@ export default function taskQueueTableFactory(config) {
                 }
             });
         })
-        .on('render', function() {
+        .on('render', function () {
             var self = this;
             var $component = this.getElement();
             var actions = [
@@ -264,19 +264,19 @@ export default function taskQueueTableFactory(config) {
             //set up the ui/datatable
             $component
                 .addClass('task-queue-table')
-                .on('beforeload.datatable', function(e, dataSet) {
+                .on('beforeload.datatable', function (e, dataSet) {
                     if (dataSet && dataSet.data) {
                         tasks = dataSet.data;
                     }
                 })
-                .on('query.datatable', function() {
+                .on('query.datatable', function () {
                     errorRows = [];
                     self.trigger('loading');
                 })
-                .on('load.datatable', function() {
+                .on('load.datatable', function () {
                     // highlight rows
                     if (_.isArray(errorRows) && errorRows.length) {
-                        _.forEach(errorRows, function(id) {
+                        _.forEach(errorRows, function (id) {
                             $component.datatable('addRowClass', id, 'error');
                         });
                     }
@@ -298,7 +298,7 @@ export default function taskQueueTableFactory(config) {
                             icon: 'reset',
                             title: __('Refresh'),
                             label: __('Refresh'),
-                            action: function() {
+                            action: function () {
                                 self.$component.datatable('refresh');
                                 self.trigger('refresh');
                             }
@@ -312,14 +312,14 @@ export default function taskQueueTableFactory(config) {
                         {
                             id: 'creationDate',
                             label: __('Created'),
-                            transform: function(value) {
+                            transform: function (value) {
                                 return formatDate(value, self.config);
                             }
                         },
                         {
                             id: 'status',
                             label: __('Status'),
-                            transform: function(value, row) {
+                            transform: function (value, row) {
                                 if (row.status === 'finished') {
                                     if (isTaskErrorReport(row.report)) {
                                         errorRows.push(row.id);
@@ -342,7 +342,7 @@ export default function taskQueueTableFactory(config) {
                     selectable: false
                 });
         })
-        .on('reload', function() {
+        .on('reload', function () {
             if (this.$component) {
                 this.$component.datatable('refresh');
             }

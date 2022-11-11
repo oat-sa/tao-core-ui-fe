@@ -59,9 +59,7 @@ function highlighterFactory(options) {
             $field.next('.' + options.errorMessageClass).remove();
         },
 
-        destroy: function($field) {
-            return;
-        }
+        destroy: () => {}
     };
 
     return highlighter;

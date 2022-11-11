@@ -21,44 +21,48 @@
  *
  * @author Bertrand Chevrier <bertrand@taotesting.com>
  */
-define(['jquery', 'ui/resource/selectable'], function($, selectable) {
+define(['jquery', 'ui/resource/selectable'], function ($, selectable) {
     'use strict';
 
-    var noop = function() {};
+    var noop = function () {};
     var componentMock = {
         init: noop,
         render: noop,
         on: noop,
-        is: function() {
+        is: function () {
             return true;
         },
         trigger: noop,
-        getElement: function() {
+        getElement: function () {
             return $('#qunit-fixture .component');
         },
-        getConfig: function() {
+        getConfig: function () {
             return {};
         }
     };
-    var nodesMock = [{ uri: 'item-1', num: 1 }, { uri: 'item-2', num: 2 }, { uri: 'item-3', num: 3 }];
+    var nodesMock = [
+        { uri: 'item-1', num: 1 },
+        { uri: 'item-2', num: 2 },
+        { uri: 'item-3', num: 3 }
+    ];
     var treeMock = [{ uri: 'class-1' }, { uri: 'child-1' }, { uri: 'child-2' }, { uri: 'child-3' }];
 
     QUnit.module('API');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.expect(4);
 
         assert.equal(typeof selectable, 'function', 'The selectable module exposes a function');
 
         assert.throws(
-            function() {
+            function () {
                 selectable();
             },
             TypeError,
             'The selectable expects a component'
         );
         assert.throws(
-            function() {
+            function () {
                 selectable({
                     foo: noop
                 });
@@ -83,16 +87,16 @@ define(['jquery', 'ui/resource/selectable'], function($, selectable) {
             { title: 'select' },
             { title: 'unselect' }
         ])
-        .test('selectable methodh ', function(data, assert) {
+        .test('selectable methodh ', function (data, assert) {
             var instance = selectable(componentMock);
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The selectable instance exposes a "' + data.title + '" method'
+                `The selectable instance exposes a "${data.title}" method`
             );
         });
 
-    QUnit.test('augments', function(assert) {
+    QUnit.test('augments', function (assert) {
         var instance = selectable(componentMock);
 
         assert.expect(5);
@@ -106,7 +110,7 @@ define(['jquery', 'ui/resource/selectable'], function($, selectable) {
 
     QUnit.module('Nodes');
 
-    QUnit.test('accessors', function(assert) {
+    QUnit.test('accessors', function (assert) {
         var negativeNodesMock = {
             'item-1': { uri: 'item-1', num: -1 },
             'item-3': { uri: 'item-3', num: -3 }
@@ -152,7 +156,7 @@ define(['jquery', 'ui/resource/selectable'], function($, selectable) {
 
     QUnit.module('Selection');
 
-    QUnit.test('selects dom', function(assert) {
+    QUnit.test('selects dom', function (assert) {
         var instance;
         assert.expect(18);
 
@@ -191,7 +195,7 @@ define(['jquery', 'ui/resource/selectable'], function($, selectable) {
         assert.ok(!$('[data-uri=item-3]').hasClass('selected'), 'The item-3 has not the selected class anymore');
     });
 
-    QUnit.test('selection', function(assert) {
+    QUnit.test('selection', function (assert) {
         var instance;
         var selection;
         assert.expect(12);
@@ -226,7 +230,7 @@ define(['jquery', 'ui/resource/selectable'], function($, selectable) {
         assert.equal(typeof selection['item-3'], 'undefined', 'The item-3 node is not in the selection anymore');
     });
 
-    QUnit.test('select only', function(assert) {
+    QUnit.test('select only', function (assert) {
         var instance;
         var selection;
         assert.expect(9);
@@ -255,7 +259,7 @@ define(['jquery', 'ui/resource/selectable'], function($, selectable) {
         assert.equal(typeof selection['item-3'], 'undefined', 'The item-3 node is not in the selection');
     });
 
-    QUnit.test('remove selected node', function(assert) {
+    QUnit.test('remove selected node', function (assert) {
         var instance;
         var selection;
         assert.expect(10);
@@ -286,7 +290,7 @@ define(['jquery', 'ui/resource/selectable'], function($, selectable) {
         assert.deepEqual(selection['item-3'], nodesMock[2], 'The item-3 node is in the selection');
     });
 
-    QUnit.test('select class with & without children', function(assert) {
+    QUnit.test('select class with & without children', function (assert) {
         var instance;
         var selection;
         assert.expect(16);

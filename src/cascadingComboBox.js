@@ -34,11 +34,11 @@ var selectedValues = {};
  */
 function createCombobox(level, categoriesDefinitions, categories) {
     if (categoriesDefinitions[level]) {
-        var categoryDef = categoriesDefinitions[level];
-        var _categories, $comboBox;
+        const categoryDef = categoriesDefinitions[level];
+        let _categories, $comboBox;
         if (categoryDef.id) {
             //format categories
-            _categories = _.map(categories, function(cat) {
+            _categories = _.map(categories, function (cat) {
                 var _cat = _.clone(cat);
                 if (_cat.categories) {
                     //encode subcategory in json
@@ -59,13 +59,13 @@ function createCombobox(level, categoriesDefinitions, categories) {
             categoriesDefinitions[level].$comboBox = $comboBox;
 
             //add event handler
-            $comboBox.on('change', function() {
+            $comboBox.on('change', function () {
                 var subCategories, $subComboBox;
                 var $selected = $comboBox.find(':selected');
                 selectedValues = {};
 
                 //clean previously created combo boxes
-                _.forEach(categoriesDefinitions, function(category, key) {
+                _.forEach(categoriesDefinitions, function (category, key) {
                     if (category.$comboBox && key > level) {
                         category.$comboBox.remove();
                         category.$comboBox = null;
@@ -83,9 +83,9 @@ function createCombobox(level, categoriesDefinitions, categories) {
                 }
 
                 //retrieve combobox values
-                _.forEach(categoriesDefinitions, function(value) {
+                _.forEach(categoriesDefinitions, function (value) {
                     if (value.$comboBox) {
-                        var $select = value.$comboBox.find('select');
+                        const $select = value.$comboBox.find('select');
                         selectedValues[value.id] = $select.val();
                     }
                 });
@@ -104,7 +104,7 @@ function createCombobox(level, categoriesDefinitions, categories) {
             return $comboBox;
         }
     } else {
-        throw 'missing category definition on level : ' + level;
+        throw new Error(`missing category definition on level :  ${level}`);
     }
 }
 
@@ -118,7 +118,7 @@ export default function cascadingComboBoxFactory(options) {
     return component()
         .on('render', function render($container) {
             if (_.isArray(options.categoriesDefinitions) && _.isArray(options.categories)) {
-                var $comboBox = createCombobox(0, options.categoriesDefinitions, options.categories);
+                const $comboBox = createCombobox(0, options.categoriesDefinitions, options.categories);
                 $container.append($comboBox);
             }
         })
