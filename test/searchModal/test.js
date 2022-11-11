@@ -359,6 +359,7 @@ define([
             renderTo: '#testable-container',
             rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
             events: {
+                //eslint-disable-next-line no-console
                 trigger: () => console.log('user has been redirected to clicked resource')
             }
         });
@@ -604,6 +605,7 @@ define([
             renderTo: '#testable-container',
             rootClassUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
             events: {
+                //eslint-disable-next-line no-console
                 trigger: () => console.log('user has been redirected to clicked resource')
             }
         });

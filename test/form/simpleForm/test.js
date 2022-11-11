@@ -79,7 +79,7 @@ define([
                 this.destroy();
             });
         assert.expect(1);
-        assert.equal(typeof instance[data.title], 'function', 'The instance exposes a "' + data.title + '" function');
+        assert.equal(typeof instance[data.title], 'function', `The instance exposes a "${  data.title  }" function`);
     });
 
     QUnit.cases.init([
@@ -93,7 +93,7 @@ define([
                 this.destroy();
             });
         assert.expect(1);
-        assert.equal(typeof instance[data.title], 'function', 'The instance exposes a "' + data.title + '" function');
+        assert.equal(typeof instance[data.title], 'function', `The instance exposes a "${  data.title  }" function`);
     });
 
     QUnit.cases.init([
@@ -128,7 +128,7 @@ define([
                 this.destroy();
             });
         assert.expect(1);
-        assert.equal(typeof instance[data.title], 'function', 'The instance exposes a "' + data.title + '" function');
+        assert.equal(typeof instance[data.title], 'function', `The instance exposes a "${  data.title  }" function`);
     });
 
     QUnit.module('Life cycle');
@@ -274,11 +274,11 @@ define([
                 assert.equal($container.find('.form-component .form-actions').children().length, _.size(buttons), 'The component contains the expected amount of buttons');
 
                 _.forEach(widgets, function (widget) {
-                    assert.equal($container.find('.form-component fieldset [name="' + widget.uri + '"]').length, 1, 'The component contains the widget ' + widget.uri);
+                    assert.equal($container.find(`.form-component fieldset [name="${  widget.uri  }"]`).length, 1, `The component contains the widget ${  widget.uri}`);
                 });
 
                 _.forEach(buttons, function (button) {
-                    assert.equal($container.find('.form-component .form-actions [data-control="' + button.id + '"]').length, 1, 'The component contains the button ' + button.id);
+                    assert.equal($container.find(`.form-component .form-actions [data-control="${  button.id  }"]`).length, 1, `The component contains the button ${  button.id}`);
                 });
 
                 assert.deepEqual(instance.getValues(), data.config && data.config.values || {}, 'The component has set the form values');
@@ -1365,7 +1365,7 @@ define([
                                 instance
                                     .off('.test')
                                     .on('buttonremove.test', function (id) {
-                                        assert.equal($container.find('.form-component .form-actions [data-control="' + id + '"]').length, 0, 'The component does not contain the button text anymore');
+                                        assert.equal($container.find(`.form-component .form-actions [data-control="${  id  }"]`).length, 0, 'The component does not contain the button text anymore');
                                         assert.equal(instance.getButton(id), null, 'The button text does not exist anymore');
                                     })
                                     .on('buttonadd.test', function (id, button) {
@@ -2310,14 +2310,14 @@ define([
                 ready();
             })
             .on('change', function (uri, value) {
-                $outputChange.val('value of [' + uri + '] changed to "' + value + '"\n' + $outputChange.val());
+                $outputChange.val(`value of [${  uri  }] changed to "${  value  }"\n${  $outputChange.val()}`);
             })
             .on('reset', function () {
                 $outputChange.val('');
                 $outputSubmit.val('');
             })
             .on('submit', function (values) {
-                $outputSubmit.val('Submitted values:\n' + JSON.stringify(values, null, 2));
+                $outputSubmit.val(`Submitted values:\n${  JSON.stringify(values, null, 2)}`);
             })
             .on('error', function (err) {
                 assert.ok(false, 'The operation should not fail!');

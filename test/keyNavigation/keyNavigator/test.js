@@ -21,36 +21,10 @@ define([
     'ui/keyNavigation/navigator',
     'ui/keyNavigation/navigableDomElement',
     'lib/simulator/jquery.simulate'
-], function (
-    $,
-    _,
-    keyNavigatorFactory,
-    navigableDomElement
-) {
+], function ($, _, keyNavigatorFactory, navigableDomElement) {
     'use strict';
 
-    var testDelay = 2;
-
-    /**
-     * Capture an event, fail if it takes too much time to occur
-     * @param {eventifier} instance
-     * @param {String} event
-     * @returns {Promise<arguments>} When resolved, the promise returns the received arguments
-     */
-    function promiseEvent(instance, event) {
-        return new Promise(function (resolve, reject) {
-            var fail = window.setTimeout(function () {
-                reject();
-            }, 50);
-
-            instance
-                .off('.test')
-                .on(event + '.test', function () {
-                    window.clearTimeout(fail);
-                    resolve(arguments);
-                });
-        });
-    }
+    const testDelay = 2;
 
     QUnit.module('API');
 
@@ -60,45 +34,52 @@ define([
         assert.notDeepEqual(keyNavigatorFactory(), keyNavigatorFactory(), 'The factory creates new objects');
     });
 
-    QUnit.cases.init([
-        {title: 'on'},
-        {title: 'off'},
-        {title: 'trigger'},
-        {title: 'spread'}
-    ]).test('event API ', function (data, assert) {
-        var keyNavigator = keyNavigatorFactory();
-        assert.expect(1);
-        assert.equal(typeof keyNavigator[data.title], 'function', 'The navigator exposes a "' + data.title + '" function');
-    });
+    QUnit.cases
+        .init([{ title: 'on' }, { title: 'off' }, { title: 'trigger' }, { title: 'spread' }])
+        .test('event API ', function (data, assert) {
+            const keyNavigator = keyNavigatorFactory();
+            assert.expect(1);
+            assert.equal(
+                typeof keyNavigator[data.title],
+                'function',
+                `The navigator exposes a "${data.title}" function`
+            );
+        });
 
-    QUnit.cases.init([
-        {title: 'init'},
-        {title: 'destroy'},
-        {title: 'getId'},
-        {title: 'getType'},
-        {title: 'getElement'},
-        {title: 'getCursor'},
-        {title: 'getNavigableAt'},
-        {title: 'getCursorAt'},
-        {title: 'setCursorAt'},
-        {title: 'getCurrentPosition'},
-        {title: 'getCurrentNavigable'},
-        {title: 'getNavigableElements'},
-        {title: 'isVisible'},
-        {title: 'isEnabled'},
-        {title: 'isFocused'},
-        {title: 'first'},
-        {title: 'last'},
-        {title: 'next'},
-        {title: 'previous'},
-        {title: 'activate'},
-        {title: 'blur'},
-        {title: 'focus'}
-    ]).test('component API ', function (data, assert) {
-        var keyNavigator = keyNavigatorFactory();
-        assert.expect(1);
-        assert.equal(typeof keyNavigator[data.title], 'function', 'The navigator exposes a "' + data.title + '" function');
-    });
+    QUnit.cases
+        .init([
+            { title: 'init' },
+            { title: 'destroy' },
+            { title: 'getId' },
+            { title: 'getType' },
+            { title: 'getElement' },
+            { title: 'getCursor' },
+            { title: 'getNavigableAt' },
+            { title: 'getCursorAt' },
+            { title: 'setCursorAt' },
+            { title: 'getCurrentPosition' },
+            { title: 'getCurrentNavigable' },
+            { title: 'getNavigableElements' },
+            { title: 'isVisible' },
+            { title: 'isEnabled' },
+            { title: 'isFocused' },
+            { title: 'first' },
+            { title: 'last' },
+            { title: 'next' },
+            { title: 'previous' },
+            { title: 'activate' },
+            { title: 'blur' },
+            { title: 'focus' }
+        ])
+        .test('component API ', function (data, assert) {
+            var keyNavigator = keyNavigatorFactory();
+            assert.expect(1);
+            assert.equal(
+                typeof keyNavigator[data.title],
+                'function',
+                `The navigator exposes a "${data.title}" function`
+            );
+        });
 
     QUnit.module('Behavior');
 
@@ -122,11 +103,18 @@ define([
         assert.equal(instance.getId().substring(0, 10), 'navigator_', 'The identifier is set with the expected prefix');
 
         assert.notEqual(keyNavigatorFactory().getId(), keyNavigatorFactory().getId(), 'Automatic ID are differents');
-        assert.equal(keyNavigatorFactory({id: 'foo'}).getId(), 'foo', 'Specific ID is taken into account');
+        assert.equal(keyNavigatorFactory({ id: 'foo' }).getId(), 'foo', 'Specific ID is taken into account');
 
-        assert.ok(instance.getNavigableElements() instanceof Array, 'The instance has a collection of navigable elements');
-        assert.equal(instance.getNavigableElements().length, elements.length, 'The instance has the expected number of navigable elements');
-        instance.getNavigableElements().forEach(function(navigable, i) {
+        assert.ok(
+            instance.getNavigableElements() instanceof Array,
+            'The instance has a collection of navigable elements'
+        );
+        assert.equal(
+            instance.getNavigableElements().length,
+            elements.length,
+            'The instance has the expected number of navigable elements'
+        );
+        instance.getNavigableElements().forEach(function (navigable, i) {
             assert.ok(navigableDomElement.isNavigableElement(navigable), 'This is a navigable element');
             assert.equal(navigable.getElement().get(0), elements[i], 'The navigable relates to the expected element');
         });
@@ -163,28 +151,31 @@ define([
             elements: navElements
         });
         var instance2 = keyNavigatorFactory({
-           elements: navigableDomElement.createFromDoms(elements2)
+            elements: navigableDomElement.createFromDoms(elements2)
         });
 
         assert.expect(21);
 
-        Promise
-            .resolve()
-            .then(function() {
+        Promise.resolve()
+            .then(function () {
                 return new Promise(function (resolve) {
                     if (document.activeElement) {
                         document.activeElement.blur();
                     }
 
                     assert.equal(document.activeElement, document.body, 'No element in focus');
-                    assert.equal(group.className, 'interleaved key-navigation-group', 'The fixture has the initial CSS class');
+                    assert.equal(
+                        group.className,
+                        'interleaved key-navigation-group',
+                        'The fixture has the initial CSS class'
+                    );
                     assert.equal(instance.init(), instance, 'The init method is fluent');
                     assert.equal(instance.focus(), instance, 'The focus method is fluent');
 
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
                     assert.equal(document.activeElement, first, 'The first element got the focus');
                     assert.equal(group.classList.contains('focusin'), true, 'The fixture got the focusin CSS class');
@@ -194,7 +185,7 @@ define([
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
                     assert.equal(document.activeElement, document.body, 'No element in focus');
                     assert.equal(group.classList.contains('focusin'), false, 'The fixture loose the focusin CSS class');
@@ -204,7 +195,7 @@ define([
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
                     assert.equal(document.activeElement, first, 'The first element got the focus');
                     assert.equal(group.classList.contains('focusin'), true, 'The fixture got the focusin CSS class');
@@ -215,9 +206,13 @@ define([
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
-                    assert.equal(document.activeElement, elements2[0], 'The first element of another group got the focus');
+                    assert.equal(
+                        document.activeElement,
+                        elements2[0],
+                        'The first element of another group got the focus'
+                    );
                     assert.equal(group.classList.contains('focusin'), false, 'The fixture loose the focusin CSS class');
                     assert.equal(instance.isFocused(), false, 'The group is not focused');
 
@@ -226,7 +221,7 @@ define([
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
                     assert.equal(document.activeElement, last, 'The last element of the group got the focus');
                     assert.equal(group.classList.contains('focusin'), true, 'The fixture got the focusin CSS class');
@@ -237,13 +232,13 @@ define([
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 assert.equal(document.activeElement, document.body, 'No element in focus');
                 assert.equal(group.classList.contains('focusin'), false, 'The fixture loose the focusin CSS class');
 
                 instance2.destroy();
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 assert.pushResult({
                     result: false,
                     message: err
@@ -284,12 +279,12 @@ define([
 
         assert.expect(6);
 
-        assert.deepEqual(instance.getCursorAt(), {position: -1, navigable: null}, 'Undefined position');
-        assert.deepEqual(instance.getCursorAt(-1), {position: -1, navigable: null}, 'Negative position');
-        assert.deepEqual(instance.getCursorAt(0), {position: 0, navigable: navElements[0]}, 'First position');
-        assert.deepEqual(instance.getCursorAt(1), {position: 1, navigable: navElements[1]}, 'Second position');
-        assert.deepEqual(instance.getCursorAt(2), {position: 2, navigable: navElements[2]}, 'Third position');
-        assert.deepEqual(instance.getCursorAt(10), {position: -1, navigable: null}, 'Not existing position');
+        assert.deepEqual(instance.getCursorAt(), { position: -1, navigable: null }, 'Undefined position');
+        assert.deepEqual(instance.getCursorAt(-1), { position: -1, navigable: null }, 'Negative position');
+        assert.deepEqual(instance.getCursorAt(0), { position: 0, navigable: navElements[0] }, 'First position');
+        assert.deepEqual(instance.getCursorAt(1), { position: 1, navigable: navElements[1] }, 'Second position');
+        assert.deepEqual(instance.getCursorAt(2), { position: 2, navigable: navElements[2] }, 'Third position');
+        assert.deepEqual(instance.getCursorAt(10), { position: -1, navigable: null }, 'Not existing position');
 
         instance.destroy();
     });
@@ -307,88 +302,131 @@ define([
 
         assert.expect(17);
 
-        Promise
-            .resolve()
-            .then(function() {
+        Promise.resolve()
+            .then(function () {
                 return new Promise(function (resolve) {
                     if (document.activeElement) {
                         document.activeElement.blur();
                     }
 
                     assert.equal(document.activeElement, document.body, 'No element in focus');
-                    assert.deepEqual(instance.getCursor(), {position: -1, navigable: null}, 'There is no current element yet');
-                    assert.notEqual(instance.getCursor(), instance.getCursor(), 'Different copies of the cursor are returned');
+                    assert.deepEqual(
+                        instance.getCursor(),
+                        { position: -1, navigable: null },
+                        'There is no current element yet'
+                    );
+                    assert.notEqual(
+                        instance.getCursor(),
+                        instance.getCursor(),
+                        'Different copies of the cursor are returned'
+                    );
 
                     instance.focus();
 
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
                     assert.equal(document.activeElement, elements[0], 'The first element got the focus');
-                    assert.deepEqual(instance.getCursor(), {position: 0, navigable: navElements[0]}, 'The current element is the first navigable');
+                    assert.deepEqual(
+                        instance.getCursor(),
+                        { position: 0, navigable: navElements[0] },
+                        'The current element is the first navigable'
+                    );
 
                     document.activeElement.blur();
 
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
                     assert.equal(document.activeElement, document.body, 'No element in focus');
-                    assert.deepEqual(instance.getCursor(), {position: -1, navigable: null}, 'There is no current element again');
+                    assert.deepEqual(
+                        instance.getCursor(),
+                        { position: -1, navigable: null },
+                        'There is no current element again'
+                    );
 
                     instance.focus();
 
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
                     assert.equal(document.activeElement, elements[0], 'The first element got the focus back');
-                    assert.deepEqual(instance.getCursor(), {position: 0, navigable: navElements[0]}, 'The current element is the first navigable');
+                    assert.deepEqual(
+                        instance.getCursor(),
+                        { position: 0, navigable: navElements[0] },
+                        'The current element is the first navigable'
+                    );
 
                     elements[1].focus();
 
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
                     assert.equal(document.activeElement, elements[1], 'The second element got the focus back');
-                    assert.deepEqual(instance.getCursor(), {position: 1, navigable: navElements[1]}, 'The current element is the second navigable');
+                    assert.deepEqual(
+                        instance.getCursor(),
+                        { position: 1, navigable: navElements[1] },
+                        'The current element is the second navigable'
+                    );
 
                     elements2[0].focus();
 
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
-                    assert.equal(document.activeElement, elements2[0], 'The first element of another group got the focus');
-                    assert.deepEqual(instance.getCursor(), {position: -1, navigable: null}, 'There is no current element again');
+                    assert.equal(
+                        document.activeElement,
+                        elements2[0],
+                        'The first element of another group got the focus'
+                    );
+                    assert.deepEqual(
+                        instance.getCursor(),
+                        { position: -1, navigable: null },
+                        'There is no current element again'
+                    );
 
                     elements[elements.length - 1].focus();
 
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
-                    assert.equal(document.activeElement, elements[elements.length - 1], 'The last element of the group got the focus');
-                    assert.deepEqual(instance.getCursor(), {position: elements.length - 1, navigable: navElements[navElements.length - 1]}, 'The current element is the last navigable');
+                    assert.equal(
+                        document.activeElement,
+                        elements[elements.length - 1],
+                        'The last element of the group got the focus'
+                    );
+                    assert.deepEqual(
+                        instance.getCursor(),
+                        { position: elements.length - 1, navigable: navElements[navElements.length - 1] },
+                        'The current element is the last navigable'
+                    );
 
                     instance.destroy();
 
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 assert.equal(document.activeElement, document.body, 'No element in focus');
-                assert.deepEqual(instance.getCursor(), {position: -1, navigable: null}, 'There is no current element now');
+                assert.deepEqual(
+                    instance.getCursor(),
+                    { position: -1, navigable: null },
+                    'There is no current element now'
+                );
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 assert.pushResult({
                     result: false,
                     message: err
@@ -410,9 +448,8 @@ define([
 
         assert.expect(16);
 
-        Promise
-            .resolve()
-            .then(function() {
+        Promise.resolve()
+            .then(function () {
                 return new Promise(function (resolve) {
                     if (document.activeElement) {
                         document.activeElement.blur();
@@ -426,7 +463,7 @@ define([
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
                     assert.equal(document.activeElement, elements[0], 'The first element got the focus');
                     assert.equal(instance.getCurrentPosition(), 0, 'The current element is the first navigable');
@@ -436,7 +473,7 @@ define([
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
                     assert.equal(document.activeElement, document.body, 'No element in focus');
                     assert.equal(instance.getCurrentPosition(), -1, 'There is no current element again');
@@ -446,7 +483,7 @@ define([
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
                     assert.equal(document.activeElement, elements[0], 'The first element got the focus back');
                     assert.equal(instance.getCurrentPosition(), 0, 'The current element is the first navigable');
@@ -456,7 +493,7 @@ define([
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
                     assert.equal(document.activeElement, elements[1], 'The second element got the focus back');
                     assert.equal(instance.getCurrentPosition(), 1, 'The current element is the second navigable');
@@ -466,9 +503,13 @@ define([
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
-                    assert.equal(document.activeElement, elements2[0], 'The first element of another group got the focus');
+                    assert.equal(
+                        document.activeElement,
+                        elements2[0],
+                        'The first element of another group got the focus'
+                    );
                     assert.equal(instance.getCurrentPosition(), -1, 'There is no current element again');
 
                     elements[elements.length - 1].focus();
@@ -476,21 +517,29 @@ define([
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
-                    assert.equal(document.activeElement, elements[elements.length - 1], 'The last element of the group got the focus');
-                    assert.equal(instance.getCurrentPosition(), elements.length - 1, 'The current element is the last navigable');
+                    assert.equal(
+                        document.activeElement,
+                        elements[elements.length - 1],
+                        'The last element of the group got the focus'
+                    );
+                    assert.equal(
+                        instance.getCurrentPosition(),
+                        elements.length - 1,
+                        'The current element is the last navigable'
+                    );
 
                     instance.destroy();
 
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 assert.equal(document.activeElement, document.body, 'No element in focus');
                 assert.deepEqual(instance.getCurrentPosition(), -1, 'There is no current element now');
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 assert.pushResult({
                     result: false,
                     message: err
@@ -512,9 +561,8 @@ define([
 
         assert.expect(16);
 
-        Promise
-            .resolve()
-            .then(function() {
+        Promise.resolve()
+            .then(function () {
                 return new Promise(function (resolve) {
                     if (document.activeElement) {
                         document.activeElement.blur();
@@ -528,17 +576,21 @@ define([
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
                     assert.equal(document.activeElement, elements[0], 'The first element got the focus');
-                    assert.equal(instance.getCurrentNavigable(), navElements[0], 'The current element is the first navigable');
+                    assert.equal(
+                        instance.getCurrentNavigable(),
+                        navElements[0],
+                        'The current element is the first navigable'
+                    );
 
                     document.activeElement.blur();
 
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
                     assert.equal(document.activeElement, document.body, 'No element in focus');
                     assert.equal(instance.getCurrentNavigable(), null, 'There is no current element again');
@@ -548,29 +600,41 @@ define([
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
                     assert.equal(document.activeElement, elements[0], 'The first element got the focus back');
-                    assert.equal(instance.getCurrentNavigable(), navElements[0], 'The current element is the first navigable');
+                    assert.equal(
+                        instance.getCurrentNavigable(),
+                        navElements[0],
+                        'The current element is the first navigable'
+                    );
 
                     elements[1].focus();
 
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
                     assert.equal(document.activeElement, elements[1], 'The second element got the focus back');
-                    assert.equal(instance.getCurrentNavigable(), navElements[1], 'The current element is the second navigable');
+                    assert.equal(
+                        instance.getCurrentNavigable(),
+                        navElements[1],
+                        'The current element is the second navigable'
+                    );
 
                     elements2[0].focus();
 
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
-                    assert.equal(document.activeElement, elements2[0], 'The first element of another group got the focus');
+                    assert.equal(
+                        document.activeElement,
+                        elements2[0],
+                        'The first element of another group got the focus'
+                    );
                     assert.equal(instance.getCurrentNavigable(), null, 'There is no current element again');
 
                     elements[elements.length - 1].focus();
@@ -578,21 +642,29 @@ define([
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
-                    assert.equal(document.activeElement, elements[elements.length - 1], 'The last element of the group got the focus');
-                    assert.equal(instance.getCurrentNavigable(), navElements[navElements.length - 1], 'The current element is the last navigable');
+                    assert.equal(
+                        document.activeElement,
+                        elements[elements.length - 1],
+                        'The last element of the group got the focus'
+                    );
+                    assert.equal(
+                        instance.getCurrentNavigable(),
+                        navElements[navElements.length - 1],
+                        'The current element is the last navigable'
+                    );
 
                     instance.destroy();
 
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 assert.equal(document.activeElement, document.body, 'No element in focus');
                 assert.deepEqual(instance.getCurrentNavigable(), null, 'There is no current element now');
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 assert.pushResult({
                     result: false,
                     message: err
@@ -691,9 +763,8 @@ define([
 
         assert.expect(23);
 
-        Promise
-            .resolve()
-            .then(function() {
+        Promise.resolve()
+            .then(function () {
                 return new Promise(function (resolve) {
                     if (document.activeElement) {
                         document.activeElement.blur();
@@ -708,7 +779,7 @@ define([
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
                     assert.equal(document.activeElement, first, 'The first element got the focus');
                     assert.equal(group.classList.contains('focusin'), true, 'The fixture got the focusin CSS class');
@@ -719,7 +790,7 @@ define([
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
                     assert.equal(document.activeElement, document.body, 'No element in focus');
                     assert.equal(group.classList.contains('focusin'), false, 'The fixture loose the focusin CSS class');
@@ -730,10 +801,18 @@ define([
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
-                    assert.equal(document.activeElement, elements2[0], 'The first element of another group got the focus');
-                    assert.equal(group.classList.contains('focusin'), false, 'The fixture still doesn\'t have the focusin CSS class');
+                    assert.equal(
+                        document.activeElement,
+                        elements2[0],
+                        'The first element of another group got the focus'
+                    );
+                    assert.equal(
+                        group.classList.contains('focusin'),
+                        false,
+                        "The fixture still doesn't have the focusin CSS class"
+                    );
                     assert.equal(instance.isFocused(), false, 'The group is not focused');
 
                     instance.focus();
@@ -741,7 +820,7 @@ define([
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
                     assert.equal(document.activeElement, first, 'The first element got the focus');
                     assert.equal(group.classList.contains('focusin'), true, 'The fixture got the focusin CSS class');
@@ -752,9 +831,13 @@ define([
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
-                    assert.equal(document.activeElement, elements2[0], 'The first element of another group got the focus');
+                    assert.equal(
+                        document.activeElement,
+                        elements2[0],
+                        'The first element of another group got the focus'
+                    );
                     assert.equal(group.classList.contains('focusin'), false, 'The fixture loose the focusin CSS class');
                     assert.equal(instance.isFocused(), false, 'The group is not focused');
 
@@ -763,7 +846,7 @@ define([
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 return new Promise(function (resolve) {
                     assert.equal(document.activeElement, last, 'The last element of the group got the focus');
                     assert.equal(group.classList.contains('focusin'), true, 'The fixture got the focusin CSS class');
@@ -774,14 +857,14 @@ define([
                     setTimeout(resolve, testDelay);
                 });
             })
-            .then(function() {
+            .then(function () {
                 assert.equal(document.activeElement, document.body, 'No element in focus');
                 assert.equal(group.classList.contains('focusin'), false, 'The fixture loose the focusin CSS class');
                 assert.equal(instance.isFocused(), false, 'The group is not focused anymore');
 
                 instance2.destroy();
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 assert.pushResult({
                     result: false,
                     message: err
@@ -803,18 +886,17 @@ define([
         keyNavigator = keyNavigatorFactory({
             elements: elements,
             defaultPosition: elements.length - 1
-        })
-            .on('activate', function (cursor) {
-                assert.ok(true, 'activated');
-                assert.equal(cursor.position, 2, 'activated position is ok');
-                assert.ok(cursor.navigable.getElement() instanceof $, 'navigable element in cursor');
-                assert.equal(cursor.navigable.getElement().data('id'), 'C', 'navigable element in cursor is correct');
-                ready();
-            });
+        }).on('activate', function (cursor) {
+            assert.ok(true, 'activated');
+            assert.equal(cursor.position, 2, 'activated position is ok');
+            assert.ok(cursor.navigable.getElement() instanceof $, 'navigable element in cursor');
+            assert.equal(cursor.navigable.getElement().data('id'), 'C', 'navigable element in cursor is correct');
+            ready();
+        });
 
         keyNavigator.focus();
         assert.equal($(document.activeElement).data('id'), 'C', 'focus on last');
-        $(document.activeElement).simulate('keydown', {keyCode: 13}); //Enter
+        $(document.activeElement).simulate('keydown', { keyCode: 13 }); //Enter
     });
 
     QUnit.test('navigate with API', function (assert) {
@@ -893,22 +975,22 @@ define([
         keyNavigator.focus();
         assert.equal($(document.activeElement).data('id'), 'C', 'default focus on last');
 
-        $(document.activeElement).simulate('keydown', {keyCode: 40}); //Down
+        $(document.activeElement).simulate('keydown', { keyCode: 40 }); //Down
         assert.equal($(document.activeElement).data('id'), 'C', 'stay on last');
 
-        $(document.activeElement).simulate('keydown', {keyCode: 38}); //Up
+        $(document.activeElement).simulate('keydown', { keyCode: 38 }); //Up
         assert.equal($(document.activeElement).data('id'), 'B', 'focus on second');
 
-        $(document.activeElement).simulate('keydown', {keyCode: 37}); //Left
+        $(document.activeElement).simulate('keydown', { keyCode: 37 }); //Left
         assert.equal($(document.activeElement).data('id'), 'A', 'focus on first');
 
-        $(document.activeElement).simulate('keydown', {keyCode: 38}); //Up
+        $(document.activeElement).simulate('keydown', { keyCode: 38 }); //Up
         assert.equal($(document.activeElement).data('id'), 'A', 'stay on first');
 
-        $(document.activeElement).simulate('keydown', {keyCode: 39}); //Right
+        $(document.activeElement).simulate('keydown', { keyCode: 39 }); //Right
         assert.equal($(document.activeElement).data('id'), 'B', 'focus on second');
 
-        $(document.activeElement).simulate('keydown', {keyCode: 13}); //Enter
+        $(document.activeElement).simulate('keydown', { keyCode: 13 }); //Enter
     });
 
     QUnit.test('isFocused', function (assert) {
@@ -921,7 +1003,7 @@ define([
 
         assert.equal(elements.length, 3, 'navigable element created');
 
-        keyNavigator = keyNavigatorFactory({elements: elements});
+        keyNavigator = keyNavigatorFactory({ elements: elements });
 
         assert.ok(!keyNavigator.isFocused(), 'the navigator is not on focus');
         keyNavigator.focus();
@@ -939,23 +1021,23 @@ define([
 
         assert.expect(2);
 
-        keyNavigator = keyNavigatorFactory({elements: elements, group: $container});
+        keyNavigator = keyNavigatorFactory({ elements: elements, group: $container });
         keyNavigator.focus();
 
-        new Promise(function(resolve) {
+        new Promise(function (resolve) {
             setTimeout(resolve, testDelay);
         })
-        .then(function() {
-            return new Promise(function(resolve) {
-                assert.ok($container.hasClass('focusin'), 'container has focusin class');
-                $elements.remove();
-                setTimeout(resolve, testDelay);
+            .then(function () {
+                return new Promise(function (resolve) {
+                    assert.ok($container.hasClass('focusin'), 'container has focusin class');
+                    $elements.remove();
+                    setTimeout(resolve, testDelay);
+                });
+            })
+            .then(function () {
+                assert.ok(!$container.hasClass('focusin'), 'container has no focusin class anymore');
+                ready();
             });
-        })
-        .then(function () {
-            assert.ok(!$container.hasClass('focusin'), 'container has no focusin class anymore');
-            ready();
-        });
     });
 
     QUnit.test('loop', function (assert) {
@@ -1101,17 +1183,17 @@ define([
     });
 
     QUnit.test('activate with space', function (assert) {
-        var ready = assert.async();
-        var $container = $('#qunit-fixture .nav-2');
-        var $elements = $container.find('.nav');
-        var elements = navigableDomElement.createFromDoms($elements);
+        const ready = assert.async();
+        const $container = $('#qunit-fixture .nav-2');
+        const $elements = $container.find('.nav');
+        const elements = navigableDomElement.createFromDoms($elements);
 
-        var $textarea = $('textarea', $container);
+        const $textarea = $('textarea', $container);
         assert.expect(7);
 
         assert.equal(elements.length, 3, 'navigable element created');
 
-        var keyNavigator = keyNavigatorFactory({
+        const keyNavigator = keyNavigatorFactory({
             keepState: true,
             elements: elements
         })
@@ -1129,8 +1211,8 @@ define([
                     ready();
                 });
 
-                $textarea.simulate('keydown', {keyCode: 32}); //Space-> should not blur
-                $textarea.simulate('keyup', {keyCode: 32}); //Space
+                $textarea.simulate('keydown', { keyCode: 32 }); //Space-> should not blur
+                $textarea.simulate('keyup', { keyCode: 32 }); //Space
 
                 setTimeout(function () {
                     keyNavigator.off('blur');
@@ -1141,13 +1223,13 @@ define([
         keyNavigator.focus();
         assert.equal($(document.activeElement).data('id'), 'A', 'focus on first');
 
-        $(document.activeElement).simulate('keydown', {keyCode: 39}); //Right
+        $(document.activeElement).simulate('keydown', { keyCode: 39 }); //Right
         assert.equal($(document.activeElement).data('id'), 'B', 'focus on second');
 
-        $(document.activeElement).simulate('keydown', {keyCode: 39}); //Right
+        $(document.activeElement).simulate('keydown', { keyCode: 39 }); //Right
         assert.equal($(document.activeElement).data('id'), 'C', 'focus on third');
 
-        $(document.activeElement).simulate('keyup', {keyCode: 32}); //Space -> activate
+        $(document.activeElement).simulate('keyup', { keyCode: 32 }); //Space -> activate
     });
 
     QUnit.test('navigate between navigable areas', function (assert) {
@@ -1209,7 +1291,7 @@ define([
         var navigatorSelectors = ['.nav-1', '.nav-2', '.nav-3'];
 
         function createNavigator(selector) {
-            var $group = $container.find(selector)
+            var $group = $container.find(selector);
             return keyNavigatorFactory({
                 elements: navigableDomElement.createFromDoms($group.find('[data-id]')),
                 group: $group
@@ -1224,28 +1306,56 @@ define([
         });
 
         keyNavigator.focus();
-        assert.equal(document.activeElement, $container.find('.nav-1 [data-id=A]').get(0), 'focus on first group, first element');
+        assert.equal(
+            document.activeElement,
+            $container.find('.nav-1 [data-id=A]').get(0),
+            'focus on first group, first element'
+        );
 
         keyNavigator.next();
-        assert.equal(document.activeElement, $container.find('.nav-2 [data-id=A]').get(0), 'focus on second group, first element');
+        assert.equal(
+            document.activeElement,
+            $container.find('.nav-2 [data-id=A]').get(0),
+            'focus on second group, first element'
+        );
 
         keyNavigator.next();
-        assert.equal(document.activeElement, $container.find('.nav-3 [data-id=A]').get(0), 'focus on third group, first element');
+        assert.equal(
+            document.activeElement,
+            $container.find('.nav-3 [data-id=A]').get(0),
+            'focus on third group, first element'
+        );
 
         keyNavigator.previous();
-        assert.equal(document.activeElement, $container.find('.nav-2 [data-id=C]').get(0), 'focus on second group, last element');
+        assert.equal(
+            document.activeElement,
+            $container.find('.nav-2 [data-id=C]').get(0),
+            'focus on second group, last element'
+        );
 
         keyNavigator.previous();
-        assert.equal(document.activeElement, $container.find('.nav-1 [data-id=C]').get(0), 'focus on first group, last element');
+        assert.equal(
+            document.activeElement,
+            $container.find('.nav-1 [data-id=C]').get(0),
+            'focus on first group, last element'
+        );
 
         keyNavigator.next();
-        assert.equal(document.activeElement, $container.find('.nav-2 [data-id=A]').get(0), 'focus on second group, first element');
+        assert.equal(
+            document.activeElement,
+            $container.find('.nav-2 [data-id=A]').get(0),
+            'focus on second group, first element'
+        );
 
         keyNavigator.blur();
         assert.notEqual(document.activeElement, $container.find('.nav-2 [data-id=A]').get(0), 'focus loss');
 
         keyNavigator.focus();
-        assert.equal(document.activeElement, $container.find('.nav-1 [data-id=A]').get(0), 'focus on first group, first element');
+        assert.equal(
+            document.activeElement,
+            $container.find('.nav-1 [data-id=A]').get(0),
+            'focus on first group, first element'
+        );
     });
 
     QUnit.test('position based on movement and default', function (assert) {
@@ -1255,13 +1365,13 @@ define([
         var expectedDirection = 1;
 
         function createNavigator(selector) {
-            var $group = $container.find(selector)
+            var $group = $container.find(selector);
             var $elements = $group.find('[data-id]');
             var elements = navigableDomElement.createFromDoms($elements);
             return keyNavigatorFactory({
                 elements: elements,
                 group: $group,
-                defaultPosition: function(navigableElements, direction) {
+                defaultPosition: function (navigableElements, direction) {
                     var position = -1;
                     assert.deepEqual(navigableElements, elements, 'The list of focusable elements has been supplied');
                     assert.equal(direction, expectedDirection, 'The expected movement direction has been given');
@@ -1289,29 +1399,57 @@ define([
         });
 
         keyNavigator.focus();
-        assert.equal(document.activeElement, $container.find('.nav-1 [data-id=A]').get(0), 'focus on first group, first element');
+        assert.equal(
+            document.activeElement,
+            $container.find('.nav-1 [data-id=A]').get(0),
+            'focus on first group, first element'
+        );
 
         keyNavigator.next();
-        assert.equal(document.activeElement, $container.find('.nav-2 [data-id=A]').get(0), 'focus on second group, first element');
+        assert.equal(
+            document.activeElement,
+            $container.find('.nav-2 [data-id=A]').get(0),
+            'focus on second group, first element'
+        );
 
         keyNavigator.next();
-        assert.equal(document.activeElement, $container.find('.nav-3 [data-id=B]').get(0), 'focus on third group, checked element');
+        assert.equal(
+            document.activeElement,
+            $container.find('.nav-3 [data-id=B]').get(0),
+            'focus on third group, checked element'
+        );
 
         expectedDirection = -1;
         keyNavigator.previous();
-        assert.equal(document.activeElement, $container.find('.nav-2 [data-id=C]').get(0), 'focus on second group, last element');
+        assert.equal(
+            document.activeElement,
+            $container.find('.nav-2 [data-id=C]').get(0),
+            'focus on second group, last element'
+        );
 
         keyNavigator.previous();
-        assert.equal(document.activeElement, $container.find('.nav-1 [data-id=C]').get(0), 'focus on first group, last element');
+        assert.equal(
+            document.activeElement,
+            $container.find('.nav-1 [data-id=C]').get(0),
+            'focus on first group, last element'
+        );
 
         expectedDirection = 1;
         keyNavigator.next();
-        assert.equal(document.activeElement, $container.find('.nav-2 [data-id=A]').get(0), 'focus on second group, first element');
+        assert.equal(
+            document.activeElement,
+            $container.find('.nav-2 [data-id=A]').get(0),
+            'focus on second group, first element'
+        );
 
         keyNavigator.blur();
         assert.notEqual(document.activeElement, $container.find('.nav-2 [data-id=A]').get(0), 'focus loss');
 
         keyNavigator.focus();
-        assert.equal(document.activeElement, $container.find('.nav-1 [data-id=A]').get(0), 'focus on first group, first element');
+        assert.equal(
+            document.activeElement,
+            $container.find('.nav-1 [data-id=A]').get(0),
+            'focus on first group, first element'
+        );
     });
 });

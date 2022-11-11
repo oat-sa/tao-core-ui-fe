@@ -51,7 +51,7 @@ define(['jquery', 'ui/component', 'ui/component/placeable', 'ui/transformer'], f
             var component = makePlaceable(componentFactory());
 
             assert.expect(1);
-            assert.equal(typeof component[data.method], 'function', 'The component has the method ' + data.method);
+            assert.equal(typeof component[data.method], 'function', `The component has the method ${  data.method}`);
         });
 
     QUnit.test('.isPlaceable()', function(assert) {

@@ -26,7 +26,7 @@ define(['jquery', 'core/eventifier'], function ($, eventifier) {
     const STATE_PLAYING = 1;
     const STATE_PAUSED = 2;
 
-    const reYoutube = /([?&\/]v[=\/])([\w-]+)([&\/]?)/;
+    const reYoutube = /([?&/]v[=/])([\w-]+)([&/]?)/;
 
     function youtubeManagerMockFactory() {
         return {
@@ -121,7 +121,7 @@ define(['jquery', 'core/eventifier'], function ($, eventifier) {
                     $elem.attr('data-video-list', '');
                     $elem.attr('data-option-controls', options.controls);
 
-                    player.onReady({ target, });
+                    player.onReady({ target });
                 }, delay);
             },
             remove(elem, player) {

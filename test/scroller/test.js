@@ -18,12 +18,12 @@
 /**
  * @author Christophe Noël <christophe@taotesting.com>
  */
-define(['jquery', 'ui/scroller'], function($, scroller) {
+define(['jquery', 'ui/scroller'], function ($, scroller) {
     'use strict';
 
     QUnit.module('Module');
 
-    QUnit.test('Module export', function(assert) {
+    QUnit.test('Module export', function (assert) {
         assert.expect(1);
 
         assert.ok(typeof scroller === 'object', 'The module expose an object');
@@ -31,9 +31,9 @@ define(['jquery', 'ui/scroller'], function($, scroller) {
 
     QUnit.cases
         .init([{ title: 'scrollTo' }, { title: 'enableScrolling' }, { title: 'disableScrolling' }])
-        .test('API', function(data, assert) {
+        .test('API', function (data, assert) {
             assert.expect(1);
-            assert.ok(typeof scroller[data.title] === 'function', 'instance implements ' + data.title);
+            assert.ok(typeof scroller[data.title] === 'function', `instance implements ${data.title}`);
         });
 
     QUnit.module('ScrollTo');
@@ -45,7 +45,7 @@ define(['jquery', 'ui/scroller'], function($, scroller) {
             { title: 'no scroll', selector: '.el-4', startPosition: 60, expectedPosition: 60 },
             { title: 'no element', selector: '.el-X', startPosition: 0, expectedPosition: 0 }
         ])
-        .test('scroll to element', function(data, assert) {
+        .test('scroll to element', function (data, assert) {
             var $container = $('.container', '#qunit-fixture'),
                 $element = $container.find(data.selector);
             var ready = assert.async();
@@ -55,7 +55,7 @@ define(['jquery', 'ui/scroller'], function($, scroller) {
             $container.scrollTop(data.startPosition);
             assert.equal($container.scrollTop(), data.startPosition, 'The container has the correct start position');
 
-            scroller.scrollTo($element, $container).then(function() {
+            scroller.scrollTo($element, $container).then(function () {
                 assert.equal(
                     $container.scrollTop(),
                     data.expectedPosition,

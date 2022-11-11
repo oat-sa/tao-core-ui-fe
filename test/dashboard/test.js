@@ -81,7 +81,7 @@ define(['jquery', 'ui/dashboard'], function($, dashboard) {
             assert.equal(
                 typeof instance[method],
                 'function',
-                'The dashboard instance exposes a "' + data.title + '" function'
+                `The dashboard instance exposes a "${  data.title  }" function`
             );
         });
     });

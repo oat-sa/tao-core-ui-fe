@@ -16,7 +16,7 @@
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
  */
 
-define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget/comboBox/comboBox'], function(
+define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget/comboBox/comboBox'], function (
     $,
     _,
     generisValidatorFactory,
@@ -65,13 +65,13 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
     var validations = {
         required: {
             message: 'Select something...',
-            predicate: function(value) {
+            predicate: function (value) {
                 return !!value;
             }
         },
         notGerman: {
             message: 'Anything but German',
-            predicate: function(value) {
+            predicate: function (value) {
                 var german = 'http://www.tao.lu/Ontologies/TAO.rdf#Langde-DE';
                 return value !== german;
             }
@@ -83,7 +83,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
      */
     QUnit.module('Api');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.equal(typeof generisWidgetComboBoxFactory, 'function', 'The module exposes a function');
         assert.equal(typeof generisWidgetComboBoxFactory({}, {}), 'object', 'The factory produces an object');
         assert.notStrictEqual(
@@ -102,12 +102,12 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
             { name: 'validate', title: 'validate', type: 'function' },
             { name: 'serialize', title: 'serialize', type: 'function' }
         ])
-        .test('instance', function(data, assert) {
+        .test('instance', function (data, assert) {
             var instance = generisWidgetComboBoxFactory({}, {});
             assert.equal(
                 typeof instance[data.name],
                 data.type,
-                'The instance exposes a(n) "' + data.title + '" ' + data.type
+                `The instance exposes a(n) "${data.title}" ${data.type}`
             );
         });
 
@@ -116,7 +116,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
      */
     QUnit.module('Methods');
 
-    QUnit.test('get', function(assert) {
+    QUnit.test('get', function (assert) {
         var widget = generisWidgetComboBoxFactory(
             {},
             {
@@ -128,7 +128,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
         assert.equal(widget.get(), 'foobar', 'returns correct value');
     });
 
-    QUnit.test('set', function(assert) {
+    QUnit.test('set', function (assert) {
         var widget = generisWidgetComboBoxFactory(
             {},
             {
@@ -141,7 +141,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
         assert.equal(widget.get(), 'baz', 'updates value');
     });
 
-    QUnit.test('setValidator', function(assert) {
+    QUnit.test('setValidator', function (assert) {
         var oldValidator;
         var widget = generisWidgetComboBoxFactory({}, {});
 
@@ -151,7 +151,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
         assert.notEqual(widget.validator, oldValidator, 'validator is replaced');
     });
 
-    QUnit.test('validate', function(assert) {
+    QUnit.test('validate', function (assert) {
         var widget = generisWidgetComboBoxFactory(
             {
                 validator: [validations.notGerman]
@@ -164,7 +164,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
         assert.equal(widget.validator.errors.length, 1, 'validate properly generated errors');
     });
 
-    QUnit.test('serialize', function(assert) {
+    QUnit.test('serialize', function (assert) {
         var obj = {
             uri: 'foo#bar',
             value: 'foobar'
@@ -182,7 +182,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
      */
     QUnit.module('Events');
 
-    QUnit.test('change & blur', function(assert) {
+    QUnit.test('change & blur', function (assert) {
         assert.ok(true, "on('change blur')");
     });
 
@@ -191,7 +191,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
      */
     QUnit.module('Visual Test');
 
-    QUnit.test('Display and play', function(assert) {
+    QUnit.test('Display and play', function (assert) {
         var tb1, tb2;
 
         fields[0].range = ranges[fields[0].range];
@@ -199,25 +199,27 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
 
         tb1 = generisWidgetComboBoxFactory({}, fields[0])
             .setValidator([validations.required])
-            .on('render', function() {
+            .on('render', function () {
                 assert.ok(true);
             })
             .render('#display-and-play > form > fieldset');
 
         tb2 = generisWidgetComboBoxFactory({}, fields[1])
             .setValidator([validations.notGerman])
-            .on('render', function() {
+            .on('render', function () {
                 assert.ok(true);
             })
             .render('#display-and-play > form > fieldset');
 
-        $('#validate').on('click', function(e) {
+        $('#validate').on('click', function (e) {
             e.preventDefault();
 
             tb1.validate();
+            //eslint-disable-next-line no-console
             console.log(tb1.serialize());
 
             tb2.validate();
+            //eslint-disable-next-line no-console
             console.log(tb2.serialize());
 
             return false;

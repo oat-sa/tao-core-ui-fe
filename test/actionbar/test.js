@@ -19,7 +19,7 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
-define(['jquery', 'lodash', 'ui/actionbar'], function($, _, actionbar) {
+define(['jquery', 'lodash', 'ui/actionbar'], function ($, _, actionbar) {
     'use strict';
 
     // Toggle the sample display
@@ -33,29 +33,33 @@ define(['jquery', 'lodash', 'ui/actionbar'], function($, _, actionbar) {
                 {
                     id: 'btn1',
                     label: 'Button 1',
-                    action: function() {
-                        console.log('button 1', arguments);
+                    action: function (...args) {
+                        //eslint-disable-next-line no-console
+                        console.log('button 1', args);
                     }
                 },
                 {
                     id: 'btn2',
                     label: 'Button 2',
-                    action: function() {
-                        console.log('button 2', arguments);
+                    action: function (...args) {
+                        //eslint-disable-next-line no-console
+                        console.log('button 2', args);
                     }
                 },
                 {
                     id: 'btnx',
                     label: 'Button ...',
-                    action: function() {
-                        console.log('button ...', arguments);
+                    action: function (...args) {
+                        //eslint-disable-next-line no-console
+                        console.log('button ...', args);
                     }
                 },
                 {
                     id: 'btnN',
                     label: 'Button N',
-                    action: function() {
-                        console.log('button n', arguments);
+                    action: function (...args) {
+                        //eslint-disable-next-line no-console
+                        console.log('button n', args);
                     }
                 }
             ]
@@ -64,7 +68,7 @@ define(['jquery', 'lodash', 'ui/actionbar'], function($, _, actionbar) {
 
     QUnit.module('actionbar');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.equal(typeof actionbar, 'function', 'The actionbar module exposes a function');
         assert.equal(typeof actionbar(), 'object', 'The actionbar factory produces an object');
         assert.notStrictEqual(
@@ -74,7 +78,7 @@ define(['jquery', 'lodash', 'ui/actionbar'], function($, _, actionbar) {
         );
     });
 
-    var datalistApi = [
+    const datalistApi = [
         { name: 'init', title: 'init' },
         { name: 'destroy', title: 'destroy' },
         { name: 'render', title: 'render' },
@@ -101,19 +105,19 @@ define(['jquery', 'lodash', 'ui/actionbar'], function($, _, actionbar) {
         { name: 'setTemplate', title: 'setTemplate' }
     ];
 
-    QUnit.cases.init(datalistApi).test('instance API ', function(data, assert) {
+    QUnit.cases.init(datalistApi).test('instance API ', function (data, assert) {
         var instance = actionbar();
         assert.equal(
             typeof instance[data.name],
             'function',
-            'The actionbar instance exposes a "' + data.title + '" function'
+            `The actionbar instance exposes a "${data.title}" function`
         );
     });
 
-    QUnit.test('init', function(assert) {
+    QUnit.test('init', function (assert) {
         var buttons = [];
         var config = {
-            nothing: undefined,
+            nothing: void 0,
             dummy: null,
             buttons: buttons
         };
@@ -121,12 +125,12 @@ define(['jquery', 'lodash', 'ui/actionbar'], function($, _, actionbar) {
 
         assert.notEqual(instance.config, config, 'The actionbar instance must duplicate the config set');
         assert.equal(
-            instance.hasOwnProperty('nothing'),
+            Object.prototype.hasOwnProperty.call(instance, 'nothing'),
             false,
             'The actionbar instance must not accept undefined config properties'
         );
         assert.equal(
-            instance.hasOwnProperty('dummy'),
+            Object.prototype.hasOwnProperty.call(instance, 'dummy'),
             false,
             'The actionbar instance must not accept null config properties'
         );
@@ -136,7 +140,7 @@ define(['jquery', 'lodash', 'ui/actionbar'], function($, _, actionbar) {
         instance.destroy();
     });
 
-    QUnit.test('render ', function(assert) {
+    QUnit.test('render ', function (assert) {
         var $dummy = $('<div class="dummy" />');
         var $container = $('#fixture-1').append($dummy);
         var config = {
@@ -177,10 +181,7 @@ define(['jquery', 'lodash', 'ui/actionbar'], function($, _, actionbar) {
         );
         assert.equal(instance.getElement().length, 1, 'The actionbar instance returns the rendered content');
         assert.equal(
-            instance
-                .getElement()
-                .parent()
-                .get(0),
+            instance.getElement().parent().get(0),
             $container.get(0),
             'The actionbar instance is rendered inside the right container'
         );
@@ -197,61 +198,48 @@ define(['jquery', 'lodash', 'ui/actionbar'], function($, _, actionbar) {
             config.buttons.length,
             'The actionbar instance has rendered the buttons'
         );
-        _.forEach(config.buttons, function(button) {
+        _.forEach(config.buttons, function (button) {
             assert.equal(
-                instance.getElement().find('[data-control="' + button.id + '"]').length,
+                instance.getElement().find(`[data-control="${button.id}"]`).length,
                 1,
-                'The actionbar instance has rendered the button ' + button.id
+                `The actionbar instance has rendered the button ${button.id}`
             );
             assert.equal(
-                instance
-                    .getElement()
-                    .find('[data-control="' + button.id + '"]')
-                    .text()
-                    .trim(),
+                instance.getElement().find(`[data-control="${button.id}"]`).text().trim(),
                 button.label,
-                'The actionbar instance has rendered the button ' + button.id + ' with label ' + button.label
+                `The actionbar instance has rendered the button ${button.id} with label ${button.label}`
             );
 
             if (button.icon) {
                 assert.equal(
-                    instance.getElement().find('[data-control="' + button.id + '"] .icon').length,
+                    instance.getElement().find(`[data-control="${button.id}"] .icon`).length,
                     1,
-                    'The actionbar instance has rendered the button ' + button.id + ' with an icon'
+                    `The actionbar instance has rendered the button ${button.id} with an icon`
                 );
                 assert.equal(
-                    instance
-                        .getElement()
-                        .find('[data-control="' + button.id + '"] .icon')
-                        .hasClass('icon-' + button.icon),
+                    instance.getElement().find(`[data-control="${button.id}"] .icon`).hasClass(`icon-${button.icon}`),
                     true,
-                    'The actionbar instance has rendered the button ' + button.id + ' with the icon ' + button.icon
+                    `The actionbar instance has rendered the button ${button.id} with the icon ${button.icon}`
                 );
             } else {
                 assert.equal(
-                    instance.getElement().find('[data-control="' + button.id + '"] .icon').length,
+                    instance.getElement().find(`[data-control="${button.id}"] .icon`).length,
                     0,
-                    'The actionbar instance has rendered the button ' + button.id + ' without an icon'
+                    `The actionbar instance has rendered the button ${button.id} without an icon`
                 );
             }
 
             if (button.conditional) {
                 assert.equal(
-                    instance
-                        .getElement()
-                        .find('[data-control="' + button.id + '"]')
-                        .hasClass('conditional'),
+                    instance.getElement().find(`[data-control="${button.id}"]`).hasClass('conditional'),
                     true,
-                    'The actionbar instance has rendered the button ' + button.id + ' with the class conditional'
+                    `The actionbar instance has rendered the button ${button.id} with the class conditional`
                 );
             } else {
                 assert.equal(
-                    instance
-                        .getElement()
-                        .find('[data-control="' + button.id + '"]')
-                        .hasClass('conditional'),
+                    instance.getElement().find(`[data-control="${button.id}"]`).hasClass('conditional'),
                     false,
-                    'The actionbar instance has rendered the button ' + button.id + ' without the class conditional'
+                    `The actionbar instance has rendered the button ${button.id} without the class conditional`
                 );
             }
         });
@@ -272,7 +260,7 @@ define(['jquery', 'lodash', 'ui/actionbar'], function($, _, actionbar) {
         assert.equal(instance.getElement(), null, 'The actionbar instance has removed its rendered content');
     });
 
-    QUnit.test('show/hide', function(assert) {
+    QUnit.test('show/hide', function (assert) {
         var instance = actionbar().render();
 
         var $component = instance.getElement();
@@ -304,7 +292,7 @@ define(['jquery', 'lodash', 'ui/actionbar'], function($, _, actionbar) {
         instance.destroy();
     });
 
-    QUnit.test('show/hide buttons', function(assert) {
+    QUnit.test('show/hide buttons', function (assert) {
         var config = {
             buttons: [
                 {
@@ -361,7 +349,7 @@ define(['jquery', 'lodash', 'ui/actionbar'], function($, _, actionbar) {
         instance.destroy();
     });
 
-    QUnit.test('toggle buttons', function(assert) {
+    QUnit.test('toggle buttons', function (assert) {
         var config = {
             buttons: [
                 {
@@ -430,7 +418,7 @@ define(['jquery', 'lodash', 'ui/actionbar'], function($, _, actionbar) {
         instance.destroy();
     });
 
-    QUnit.test('enable/disable', function(assert) {
+    QUnit.test('enable/disable', function (assert) {
         var instance = actionbar().render();
         var $component = instance.getElement();
 
@@ -461,7 +449,7 @@ define(['jquery', 'lodash', 'ui/actionbar'], function($, _, actionbar) {
         instance.destroy();
     });
 
-    QUnit.test('state', function(assert) {
+    QUnit.test('state', function (assert) {
         var instance = actionbar().render();
         var $component = instance.getElement();
 
@@ -496,7 +484,7 @@ define(['jquery', 'lodash', 'ui/actionbar'], function($, _, actionbar) {
         instance.destroy();
     });
 
-    QUnit.test('events', function(assert) {
+    QUnit.test('events', function (assert) {
         var ready4 = assert.async();
         var ready3 = assert.async();
         var ready2 = assert.async();
@@ -509,7 +497,7 @@ define(['jquery', 'lodash', 'ui/actionbar'], function($, _, actionbar) {
                 {
                     id: 'button1',
                     label: 'Button 1',
-                    action: function(buttonId) {
+                    action: function (buttonId) {
                         assert.ok(true, 'The actionbar instance call the right action a button is clicked');
                         assert.equal(
                             buttonId,
@@ -523,22 +511,19 @@ define(['jquery', 'lodash', 'ui/actionbar'], function($, _, actionbar) {
         };
         var instance = actionbar(config);
 
-        instance.on('custom', function() {
+        instance.on('custom', function () {
             assert.ok(true, 'The actionbar instance can handle custom events');
             ready1();
         });
 
-        instance.on('render', function() {
+        instance.on('render', function () {
             assert.ok(true, 'The actionbar instance triggers event when it is rendered');
             ready2();
 
-            instance
-                .getElement()
-                .find('[data-control="button1"]')
-                .click();
+            instance.getElement().find('[data-control="button1"]').click();
         });
 
-        instance.on('button', function(buttonId) {
+        instance.on('button', function (buttonId) {
             assert.ok(true, 'The actionbar instance triggers event when aﬁ button is clicked');
             assert.equal(
                 buttonId,
@@ -548,16 +533,13 @@ define(['jquery', 'lodash', 'ui/actionbar'], function($, _, actionbar) {
             ready3();
         });
 
-        instance.on('destroy', function() {
+        instance.on('destroy', function () {
             assert.ok(true, 'The actionbar instance triggers event when it is destroyed');
             ready4();
         });
 
         assert.expect(7);
 
-        instance
-            .render()
-            .trigger('custom')
-            .destroy();
+        instance.render().trigger('custom').destroy();
     });
 });

@@ -23,7 +23,7 @@ define([
     'ui/documentViewer/viewerFactory',
     'ui/documentViewer/providers/pdfViewer',
     'test/ui/documentViewer/pdfViewer/mocks/mockPdfjs'
-], function(_, viewerFactory, pdfViewer, mockPdfjs) {
+], function (_, viewerFactory, pdfViewer, mockPdfjs) {
     'use strict';
 
     var headless = /HeadlessChrome/.test(window.navigator.userAgent);
@@ -41,12 +41,12 @@ define([
     ];
 
     QUnit.module('pdfViewer factory', {
-        afterEach: function(assert) {
+        afterEach: function () {
             viewerFactory.clearProviders();
         }
     });
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.expect(7);
 
         assert.equal(typeof pdfViewer, 'object', 'The pdfViewer module exposes an object');
@@ -67,18 +67,18 @@ define([
     });
 
     QUnit.module('pdfViewer implementation', {
-        beforeEach: function(assert) {
+        beforeEach: function () {
             viewerFactory.registerProvider('pdf', pdfViewer);
         },
-        afterEach: function(assert) {
+        afterEach: function () {
             viewerFactory.clearProviders();
         }
     });
 
-    QUnit.cases.init(contexts).test('render ', function(data, assert) {
+    QUnit.cases.init(contexts).test('render ', function (data, assert) {
         var ready = assert.async();
         assert.expect(headless ? 2 : 3);
-
+        //eslint-disable-next-line no-undef
         requirejs.undef(PDFjsId);
         define(PDFjsId, data.module);
 
@@ -86,7 +86,7 @@ define([
             type: 'pdf',
             url: pdfUrl
         })
-            .on('initialized', function() {
+            .on('initialized', function () {
                 assert.ok(true, 'The viewer is initialized');
 
                 if (headless) {
@@ -95,14 +95,14 @@ define([
                     this.render('#qunit-fixture');
                 }
             })
-            .on('loaded', function() {
+            .on('loaded', function () {
                 var self = this;
                 assert.ok(true, 'The PDF file has been loaded');
-                setTimeout(function() {
+                setTimeout(function () {
                     self.destroy();
                 }, 250);
             })
-            .on('unloaded', function() {
+            .on('unloaded', function () {
                 assert.ok(true, 'The viewer is destroyed');
                 ready();
             });

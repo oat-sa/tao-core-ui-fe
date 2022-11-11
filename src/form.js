@@ -5,18 +5,12 @@ import $ from 'jquery';
  * @param {String} selector - to scope the listening
  */
 var pseudoLabel = function pseudoLabel(selector) {
-    $(document).on('click', selector + ' .pseudo-label-box', function(e) {
+    $(document).on('click', selector + ' .pseudo-label-box', function (e) {
         e.preventDefault();
 
-        var $box = $(this);
-        var $radios = $box
-            .find('input:radio')
-            .not('[disabled]')
-            .not('.disabled');
-        var $checkboxes = $box
-            .find('input:checkbox')
-            .not('[disabled]')
-            .not('.disabled');
+        const $box = $(this);
+        const $radios = $box.find('input:radio').not('[disabled]').not('.disabled');
+        const $checkboxes = $box.find('input:checkbox').not('[disabled]').not('.disabled');
 
         if ($radios.length) {
             $radios.not(':checked').prop('checked', true);
@@ -34,7 +28,7 @@ var pseudoLabel = function pseudoLabel(selector) {
  * @param {String} selector - to scope the listening
  */
 var preventDisabled = function preventDisabled(selector) {
-    $(document).on('click', selector + ' .disabled, ' + selector + ' :disabled', function(e) {
+    $(document).on('click', selector + ' .disabled, ' + selector + ' :disabled', function (e) {
         e.preventDefault();
         return false;
     });

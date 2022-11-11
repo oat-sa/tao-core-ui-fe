@@ -187,6 +187,7 @@ var listBox = {
      * @returns {listBox}
      */
     setSize: function setSize() {
+        //eslint-disable-next-line no-console
         console.warn(
             'The setSize() method has been disabled in the listbox component as its size is handled by CSS flex box'
         );
@@ -221,12 +222,12 @@ var listBoxFactory = function listBoxFactory(config) {
             .setTemplate(mainTpl)
 
             // uninstalls the component
-            .on('destroy', function() {
+            .on('destroy', function () {
                 this.controls = null;
             })
 
             // renders the component
-            .on('render', function() {
+            .on('render', function () {
                 this.controls = {
                     $title: this.$component.find('h1'),
                     $textEmpty: this.$component.find('.empty-list'),

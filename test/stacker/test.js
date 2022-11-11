@@ -18,21 +18,21 @@
 /**
  * @author Christophe Noël <christophe@taotesting.com>
  */
-define(['jquery', 'ui/stacker'], function($, stackerFactory) {
+define(['jquery', 'ui/stacker'], function ($, stackerFactory) {
     'use strict';
 
     var fixtureContainer = '#qunit-fixture';
 
     QUnit.module('stacker');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.expect(1);
         assert.ok(typeof stackerFactory === 'function', 'The module expose a function');
     });
 
     QUnit.module('getCurrent()');
 
-    QUnit.test('returns the current index value', function(assert) {
+    QUnit.test('returns the current index value', function (assert) {
         var stacker = stackerFactory(),
             $container = $(fixtureContainer),
             $div1 = $container.find('#div1'),
@@ -53,7 +53,7 @@ define(['jquery', 'ui/stacker'], function($, stackerFactory) {
 
     QUnit.module('.bringToFront()');
 
-    QUnit.test('set the highest zIndex', function(assert) {
+    QUnit.test('set the highest zIndex', function (assert) {
         var stacker = stackerFactory(),
             $container = $(fixtureContainer),
             $div1 = $container.find('#div1');
@@ -63,13 +63,13 @@ define(['jquery', 'ui/stacker'], function($, stackerFactory) {
         assert.equal($div1.css('z-index'), 'auto', 'no z-index is set');
 
         stacker.bringToFront($div1);
-        assert.equal($div1.css('z-index'), stacker.getCurrent(), 'z-index has been set to ' + stacker.getCurrent());
+        assert.equal($div1.css('z-index'), stacker.getCurrent(), `z-index has been set to ${stacker.getCurrent()}`);
 
         stacker.reset($div1);
         assert.equal($div1.css('z-index'), 'auto', 'z-index has been removed');
     });
 
-    QUnit.test('does not increase z-index if already max', function(assert) {
+    QUnit.test('does not increase z-index if already max', function (assert) {
         var stacker = stackerFactory(),
             $container = $(fixtureContainer),
             $div1 = $container.find('#div1'),
@@ -87,7 +87,7 @@ define(['jquery', 'ui/stacker'], function($, stackerFactory) {
         assert.equal($div1.css('z-index'), index, 'z-index has not been increased again');
     });
 
-    QUnit.test('increase z-index of multiple elements', function(assert) {
+    QUnit.test('increase z-index of multiple elements', function (assert) {
         var stacker = stackerFactory(),
             $container = $(fixtureContainer),
             $div1 = $container.find('#div1'),
@@ -138,7 +138,7 @@ define(['jquery', 'ui/stacker'], function($, stackerFactory) {
 
     QUnit.module('.autoBringToFront()');
 
-    QUnit.test('set the highest zIndex on mousedown', function(assert) {
+    QUnit.test('set the highest zIndex on mousedown', function (assert) {
         var stacker = stackerFactory(),
             $container = $(fixtureContainer),
             $div1 = $container.find('#div1'),
@@ -193,7 +193,7 @@ define(['jquery', 'ui/stacker'], function($, stackerFactory) {
 
     QUnit.module('Scopes');
 
-    QUnit.test('handle different scopes', function(assert) {
+    QUnit.test('handle different scopes', function (assert) {
         var stacker1 = stackerFactory('scope1'),
             stacker2 = stackerFactory('scope2'),
             stacker3 = stackerFactory('scope3'),

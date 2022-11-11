@@ -155,15 +155,16 @@ export default {
      * @return {*}
      */
     applyDimensions: function applyDimensions(conf, dimensions) {
-        conf.precision = !conf || !conf.hasOwnProperty('precision') ? 5 : parseInt(conf.precision, 10);
+        conf.precision =
+            !conf || !Object.prototype.hasOwnProperty.call(conf, 'precision') ? 5 : parseInt(conf.precision, 10);
         if (dimensions) {
-            if (dimensions.hasOwnProperty('width')) {
+            if (Object.prototype.hasOwnProperty.call(dimensions, 'width')) {
                 conf = calculateByWidth(conf, dimensions.width, dimensions.maxWidth);
             }
-            if (dimensions.hasOwnProperty('height')) {
+            if (Object.prototype.hasOwnProperty.call(dimensions, 'height')) {
                 conf = calculateByHeight(conf, dimensions.height, dimensions.maxWidth);
             }
-            if (dimensions.hasOwnProperty('percent')) {
+            if (Object.prototype.hasOwnProperty.call(dimensions, 'percent')) {
                 conf = setPercent(conf, dimensions.percent, dimensions.maxWidth);
             }
         }

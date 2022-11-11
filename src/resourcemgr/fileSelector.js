@@ -38,8 +38,8 @@ function shortenPath(path) {
     let tokens = path.replace(/\/$/, '').split('/');
     let start = tokens.length - 3;
     let end = tokens.length - 1;
-    let title = _.map(tokens, function(token, index) {
-        return index > start && token ? (index < end ? token[0] : token) : undefined;
+    let title = _.map(tokens, function (token, index) {
+        return index > start && token ? (index < end ? token[0] : token) : void 0;
     });
     title = title.filter(Boolean);
     return title.join('/');
@@ -63,7 +63,7 @@ function isTextLarger($element, text) {
     return textSize > $element.width();
 }
 
-export default function(options) {
+export default function (options) {
     let root = options.root || '/';
     let disableUpload = options.disableUpload || false;
     let $container = options.$target;
@@ -71,7 +71,7 @@ export default function(options) {
     let $fileContainer = $('.files', $fileSelector);
     let $placeholder = $('.empty', $fileSelector);
     let $uploader = $('.file-upload-container', $fileSelector);
-    let parentSelector = `#${  $container.attr('id')  } .file-selector`;
+    let parentSelector = `#${$container.attr('id')} .file-selector`;
     let $pathTitle = $fileSelector.find('h1 > .title');
     let $browserTitle = $('.file-browser > h1', $container);
 
@@ -83,7 +83,7 @@ export default function(options) {
         setUpUploader(root);
     }
     //update current folder
-    $container.on(`folderselect.${  ns}`, function(e, fullPath, data, activePath, content) {
+    $container.on(`folderselect.${ns}`, function (e, fullPath, data, activePath, content) {
         let files;
 
         data = data.map(function (dataItem) {
@@ -106,32 +106,27 @@ export default function(options) {
 
         //update content here
         if (_.isArray(data)) {
-            files = _.filter(data, function(item) {
+            files = _.filter(data, function (item) {
                 return !!item.uri;
-            }).map(function(file) {
+            }).map(function (file) {
                 file.type = mimeType.getFileType(file);
-                if (file.identifier === undefined) {
-                    file.display = (`${fullPath  }/${  file.name}`).replace('//', '/');
+                if (typeof file.identifier === 'undefined') {
+                    file.display = `${fullPath}/${file.name}`.replace('//', '/');
                 } else {
                     file.display = file.identifier + file.name;
                 }
 
-                file.viewUrl =
-                    `${options.downloadUrl
-                    }?${
-                        $.param(options.params)
-                    }&${
-                        options.pathParam
-                    }=${
-                        encodeURIComponent(file.uri)}`;
-                file.downloadUrl = `${file.viewUrl  }&svgzsupport=true`;
+                file.viewUrl = `${options.downloadUrl}?${$.param(options.params)}&${
+                    options.pathParam
+                }=${encodeURIComponent(file.uri)}`;
+                file.downloadUrl = `${file.viewUrl}&svgzsupport=true`;
                 return file;
             });
 
             updateFiles(fullPath, files);
 
             if (activePath) {
-                $(`li[data-file="${  activePath  }"]`).trigger('click');
+                $(`li[data-file="${activePath}"]`).trigger('click');
             }
         }
     });
@@ -139,7 +134,7 @@ export default function(options) {
     //listen for file activation
     $(parentSelector)
         .off('click', '.files li')
-        .on('click', '.files li', function(e) {
+        .on('click', '.files li', function (e) {
             const clickedItem = e.target;
             if (clickedItem.hasAttribute('data-delete') || $(clickedItem).hasClass('icon-bin')) {
                 return;
@@ -150,36 +145,31 @@ export default function(options) {
 
             $files.removeClass('active');
             $selected.addClass('active');
-            $container.trigger(`fileselect.${  ns}`, [data]);
+            $container.trigger(`fileselect.${ns}`, [data]);
         });
 
     //select a file
     $(parentSelector)
         .off('click', '.files li a.select')
-        .on('click', '.files li a.select', function(e) {
+        .on('click', '.files li a.select', function (e) {
             e.preventDefault();
-            let data = _.pick(
-                $(this)
-                    .parents('li')
-                    .data(),
-                ['file', 'type', 'mime', 'size', 'alt']
-            );
+            let data = _.pick($(this).parents('li').data(), ['file', 'type', 'mime', 'size', 'alt']);
             if (context.mediaSources && context.mediaSources.length === 0 && data.file.indexOf('local/') > -1) {
                 data.file = data.file.substring(6);
             }
-            $container.trigger(`select.${  ns}`, [[data]]);
+            $container.trigger(`select.${ns}`, [[data]]);
         });
 
     //delete a file
-    $fileContainer.on('delete.deleter', function(e, $target) {
+    $fileContainer.on('delete.deleter', function (e, $target) {
         let path,
             params = {};
         if (e.namespace === 'deleter' && $target.length) {
             path = $target.data('file');
             params[options.pathParam] = path;
-            $.getJSON(options.deleteUrl, _.merge(params, options.params), function(response) {
+            $.getJSON(options.deleteUrl, _.merge(params, options.params), function (response) {
                 if (response.deleted) {
-                    $container.trigger(`filedelete.${  ns}`, [path]);
+                    $container.trigger(`filedelete.${ns}`, [path]);
                 }
             });
         }
@@ -189,24 +179,23 @@ export default function(options) {
         let errors = [];
         let $switcher = $('.upload-switcher a', $fileSelector);
 
-        $uploader.on('upload.uploader', function(e, file, result) {
+        $uploader.on('upload.uploader', function (e, file, result) {
             let path =
-                $(`[data-display="${  currentPath  }"]`).data('path') ||
-                $(`[data-display="/${  currentPath  }"]`).data('path');
+                $(`[data-display="${currentPath}"]`).data('path') || $(`[data-display="/${currentPath}"]`).data('path');
             if (!path) {
                 path = currentPath;
             }
-            $container.trigger(`filenew.${  ns}`, [result, path]);
+            $container.trigger(`filenew.${ns}`, [result, path]);
         });
-        $uploader.on('fail.uploader', function(e, file, err) {
+        $uploader.on('fail.uploader', function (e, file, err) {
             errors.push(__('Unable to upload file %s : %s', file.name, err.message));
         });
 
-        $uploader.on('end.uploader', function() {
+        $uploader.on('end.uploader', function () {
             if (errors.length === 0) {
                 _.delay(switchUpload, 500);
             } else {
-                feedback().error(`<ul><li>${  errors.join('</li><li>')  }</li></ul>`, { encodeHtml: false });
+                feedback().error(`<ul><li>${errors.join('</li><li>')}</li></ul>`, { encodeHtml: false });
             }
             //reset errors
             errors = [];
@@ -215,16 +204,12 @@ export default function(options) {
         $uploader.uploader({
             upload: true,
             multiple: true,
-            uploadUrl: `${options.uploadUrl  }?${  $.param(options.params)  }&${  options.pathParam  }=${  currentPath}`,
-            fileSelect: function(files, done) {
+            uploadUrl: `${options.uploadUrl}?${$.param(options.params)}&${options.pathParam}=${currentPath}`,
+            fileSelect: function (files, done) {
                 let givenLength = files.length;
                 let fileNames = [];
-                $fileContainer.find('li > .desc').each(function() {
-                    fileNames.push(
-                        $(this)
-                            .text()
-                            .toLowerCase()
-                    );
+                $fileContainer.find('li > .desc').each(function () {
+                    fileNames.push($(this).text().toLowerCase());
                 });
 
                 //check the mime-type
@@ -240,7 +225,7 @@ export default function(options) {
                         filters = options.params.filters.split(',');
                     }
                     //TODO check stars
-                    files = _.filter(files, function(file) {
+                    files = _.filter(files, function (file) {
                         // Under rare circumstances a browser may report the mime type
                         // with quotes (e.g. "application/foo" instead of application/foo)
                         let checkType = file.type.replace(/^["']+|['"]+$/g, '');
@@ -255,23 +240,18 @@ export default function(options) {
 
                 async.filter(
                     files,
-                    function(file, cb) {
+                    function (file, cb) {
                         let result = true;
 
                         //try to call a server side service to check whether the selected files exists or not.
                         if (options.fileExistsUrl) {
-                            let pathParam = `${currentPath  }/${  file.name}`;
+                            let pathParam = `${currentPath}/${file.name}`;
                             pathParam.replace('//', '/');
                             $.getJSON(
-                                `${options.fileExistsUrl
-                                }?${
-                                    $.param(options.params)
-                                }&${
-                                    options.pathParam
-                                }=${
-                                    pathParam}`,
-                                function(response) {
+                                `${options.fileExistsUrl}?${$.param(options.params)}&${options.pathParam}=${pathParam}`,
+                                function (response) {
                                     if (response && response.exists === true) {
+                                        //eslint-disable-next-line no-alert
                                         result = window.confirm(__('Do you want to override "%s"?', file.name));
                                     }
                                     cb(result);
@@ -280,6 +260,7 @@ export default function(options) {
                         } else {
                             //fallback on client side check
                             if (_.contains(fileNames, file.name.toLowerCase())) {
+                                //eslint-disable-next-line no-alert
                                 result = window.confirm(__('Do you want to override "%s"?', file.name));
                             }
                             cb(result);
@@ -290,23 +271,16 @@ export default function(options) {
             }
         });
 
-        $container.on(`folderselect.${  ns}`, function(e, fullPath, data, uri) {
+        $container.on(`folderselect.${ns}`, function (e, fullPath, data, uri) {
             currentPath = uri;
             $uploader.uploader('options', {
-                uploadUrl:
-                    `${options.uploadUrl
-                    }?${
-                        $.param(options.params)
-                    }&${
-                        options.pathParam
-                    }=${
-                        currentPath
-                    }&relPath=${
-                        currentPath}`
+                uploadUrl: `${options.uploadUrl}?${$.param(options.params)}&${
+                    options.pathParam
+                }=${currentPath}&relPath=${currentPath}`
             });
         });
 
-        let switchUpload = function switchUpload() {
+        function switchUpload() {
             if ($fileContainer.css('display') === 'none') {
                 $uploader.hide();
                 $fileContainer.show();
@@ -323,10 +297,10 @@ export default function(options) {
                 $browserTitle.text(__('Upload into:'));
                 $uploader.uploader('reset');
             }
-        };
+        }
 
         //switch to upload mode
-        $switcher.click(function(e) {
+        $switcher.click(function (e) {
             e.preventDefault();
             switchUpload();
         });

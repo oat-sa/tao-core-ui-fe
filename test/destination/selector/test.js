@@ -63,7 +63,7 @@ define(['jquery', 'ui/destination/selector', 'json!test/ui/destination/selector/
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The destinationSelector exposes the component method "' + data.title
+                `The destinationSelector exposes the component method "${  data.title}`
             );
         });
 
@@ -74,7 +74,7 @@ define(['jquery', 'ui/destination/selector', 'json!test/ui/destination/selector/
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The destinationSelector exposes the eventifier method "' + data.title
+                `The destinationSelector exposes the eventifier method "${  data.title}`
             );
         });
 
@@ -83,7 +83,7 @@ define(['jquery', 'ui/destination/selector', 'json!test/ui/destination/selector/
         assert.equal(
             typeof instance[data.title],
             'function',
-            'The destinationSelector exposes the method "' + data.title
+            `The destinationSelector exposes the method "${  data.title}`
         );
     });
 
@@ -105,7 +105,7 @@ define(['jquery', 'ui/destination/selector', 'json!test/ui/destination/selector/
                     'https://tao.com/taoDeliveryRdf/Publish/publish',
                     'Default task creation url has been set'
                 );
-                
+
                 this.updateTaskCreationUrl(newTaskCreationUrl);
 
                 assert.equal(

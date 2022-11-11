@@ -61,23 +61,17 @@ export default function itemFilterFactory($container, options) {
                 minimumResultsForSearch: options.minimumResultsForSearch,
                 minimumInputLength: options.minimumInputLength,
                 maximumInputLength: 200,
-                formatResult: _.isFunction(options.formatter)
-                    ? options.formatter
-                    : function(data) {
-                          return _.template(format)(data);
-                      },
+                formatResult: _.isFunction(options.formatter) ? options.formatter : data => _.template(format)(data),
                 ajax: {
                     quietMillis: options.quietMillis,
-                    data: function(term, page) {
-                        return {
-                            q: term, // search term
-                            page: page
-                        };
-                    },
-                    transport: function(params) {
+                    data: (term, page) => ({
+                        q: term, // search term
+                        page: page
+                    }),
+                    transport: function (params) {
                         self.trigger('request', params);
                     },
-                    results: function(data, page) {
+                    results: function (data, page) {
                         var more = page * 25 < data.total;
 
                         return { results: data.items, more: more };
@@ -86,7 +80,7 @@ export default function itemFilterFactory($container, options) {
                 }
             });
             $list.select2('enable', options.enable);
-            $list.on('change.select2', function() {
+            $list.on('change.select2', function () {
                 selected = $list.select2('data');
                 self.trigger('change', selected && selected.uri ? selected.uri : '');
             });

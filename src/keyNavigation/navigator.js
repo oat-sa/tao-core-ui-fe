@@ -69,7 +69,9 @@ export default function keyNavigatorFactory(config) {
     const navigatorConfig = Object.assign({}, defaults, config || {});
 
     const id = navigatorConfig.id || _.uniqueId('navigator_');
-    const $group = navigatorConfig.group && $(navigatorConfig.group).addClass('key-navigation-group').attr('data-navigation-id', id);
+    const $group =
+        navigatorConfig.group &&
+        $(navigatorConfig.group).addClass('key-navigation-group').attr('data-navigation-id', id);
     if (navigatorConfig.group && (!$group.length || !$.contains(document.body, $group.get(0)))) {
         throw new TypeError('group element does not exist');
     }
@@ -146,7 +148,7 @@ export default function keyNavigatorFactory(config) {
                             $group.removeClass('focusin');
                         }
                     });
-                
+
                 focusOutObserver = new MutationObserver(() => {
                     if (!this.isVisible() && $group.hasClass('focusin')) {
                         $group.removeClass('focusin');
@@ -166,7 +168,7 @@ export default function keyNavigatorFactory(config) {
                 }
 
                 if (navigable.getType() === 'element') {
-                    navigable.init({propagateTab: navigatorConfig.propagateTab});
+                    navigable.init({ propagateTab: navigatorConfig.propagateTab });
                 }
 
                 navigable
@@ -192,9 +194,7 @@ export default function keyNavigatorFactory(config) {
          */
         destroy() {
             if ($group) {
-                $group
-                    .off(`.${this.getId()}`)
-                    .removeClass('focusin');
+                $group.off(`.${this.getId()}`).removeClass('focusin');
             }
 
             if (focusOutObserver) {
@@ -265,7 +265,7 @@ export default function keyNavigatorFactory(config) {
          */
         getCursorAt(position) {
             const navigable = this.getNavigableAt(position);
-            return {position: navigable ? position : -1, navigable};
+            return { position: navigable ? position : -1, navigable };
         },
 
         /**
@@ -369,9 +369,7 @@ export default function keyNavigatorFactory(config) {
          * @returns {keyNavigator}
          */
         first() {
-            this.setCursorAt(
-                getClosestPositionRight(0)
-            );
+            this.setCursorAt(getClosestPositionRight(0));
             return this;
         },
 
@@ -380,9 +378,7 @@ export default function keyNavigatorFactory(config) {
          * @returns {keyNavigator}
          */
         last() {
-            this.setCursorAt(
-                getClosestPositionLeft(navigableElements.length - 1)
-            );
+            this.setCursorAt(getClosestPositionLeft(navigableElements.length - 1));
             return this;
         },
 
@@ -524,20 +520,16 @@ export default function keyNavigatorFactory(config) {
                 }
             }
 
-            this.setCursorAt(
-                getClosestPositionRight(position)
-            );
+            this.setCursorAt(getClosestPositionRight(position));
             return this;
         }
     });
 
-    return keyNavigator
-        .init()
-        .on('key', (key, el) => {
-            if (key === 'space' || key === 'enter') {
-                keyNavigator.activate(el);
-            } else {
-                keyNavigator.trigger(key, el);
-            }
-        });
-};
+    return keyNavigator.init().on('key', (key, el) => {
+        if (key === 'space' || key === 'enter') {
+            keyNavigator.activate(el);
+        } else {
+            keyNavigator.trigger(key, el);
+        }
+    });
+}
