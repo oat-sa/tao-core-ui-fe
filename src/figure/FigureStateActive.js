@@ -102,7 +102,8 @@ const initForm = ({ widget, formElement, formTpl, mediaEditor, togglePlaceholder
             baseUrl: widget.options.baseUrl || '',
             src: imageElem.attr('src'),
             alt: imageElem.attr('alt'),
-            figcaption: figcaptionElem ? figcaptionElem.body() : ''
+            figcaption: figcaptionElem ? figcaptionElem.body() : '',
+            showFigure: widget.element.attr('showFigure')
         })
     );
 
