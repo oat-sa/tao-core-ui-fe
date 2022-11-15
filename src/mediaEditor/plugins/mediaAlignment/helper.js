@@ -43,12 +43,20 @@ export const positionFloat = function positionFloat(widget, position) {
     // Update DOM
     widget.$container.addClass(className);
     // Update model
+    const prevClassName = widget.element.attr('class');
     if (className) {
         widget.element.attr('class', className);
     } else {
         widget.element.removeAttr('class');
     }
-
+    
+    if ((prevClassName || className.length) && prevClassName !== className) {
+        if (!className.length) {
+            widget.element.removeCaption();
+        }
+        // Re-build Figure widget to toggle between inline/block
+        widget.refresh(widget.$container);
+    }
     widget.$original.trigger('contentChange.qti-widget');
 };
 
