@@ -127,7 +127,7 @@ const initForm = ({ widget, formElement, formTpl, mediaEditor, togglePlaceholder
     );
 };
 
-export default function (stateFactory, ActiveState, formTpl, formElement, inlineHelper) {
+export default function (stateFactory, ActiveState, formTpl, formElement, inlineHelper, htmlEditor) {
     /**
      * media Editor instance if has been initialized
      * @type {null}
@@ -147,6 +147,7 @@ export default function (stateFactory, ActiveState, formTpl, formElement, inline
                 textareaObserver.unobserve(texareaHTMLElem);
             }
             this.widget.$form.empty();
+            this.destroyEditor();
         }
     );
 
@@ -171,6 +172,15 @@ export default function (stateFactory, ActiveState, formTpl, formElement, inline
             }
         }
     };
+
+    ImgStateActive.prototype.destroyEditor = function () {
+        const widget = this.widget;
+        const $editableContainer = widget.$original.parents('[data-qti-class="_container"]');
+        htmlEditor.buildEditor($editableContainer, {});
+        _.defer(() => {
+            htmlEditor.destroyEditor($editableContainer);
+        });
+    };    
 
     return ImgStateActive;
 }
