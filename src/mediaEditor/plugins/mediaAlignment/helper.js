@@ -51,9 +51,6 @@ export const positionFloat = function positionFloat(widget, position) {
     }
     
     if ((prevClassName || className.length) && prevClassName !== className) {
-        if (!className.length) {
-            widget.element.removeCaption();
-        }
         // Re-build Figure widget to toggle between inline/block
         widget.refresh(widget.$container);
     }

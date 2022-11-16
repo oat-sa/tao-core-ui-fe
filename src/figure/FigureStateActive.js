@@ -97,13 +97,14 @@ const formCallbacks = ({ widget, formElement, mediaEditor, togglePlaceholder }) 
 const initForm = ({ widget, formElement, formTpl, mediaEditor, togglePlaceholder }) => {
     const imageElem = getImageElement(widget);
     const figcaptionElem = getCaptionElement(widget);
+    const showFigure = widget.element.attr('showFigure');
     widget.$form.html(
         formTpl({
             baseUrl: widget.options.baseUrl || '',
             src: imageElem.attr('src'),
             alt: imageElem.attr('alt'),
             figcaption: figcaptionElem ? figcaptionElem.body() : '',
-            showFigure: widget.element.attr('showFigure')
+            showFigure: showFigure
         })
     );
 
