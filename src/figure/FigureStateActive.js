@@ -127,7 +127,18 @@ const initForm = ({ widget, formElement, formTpl, mediaEditor, togglePlaceholder
     );
 };
 
-export default function (stateFactory, ActiveState, formTpl, formElement, inlineHelper, htmlEditor) {
+/**
+ * 
+ * @param {Object} config
+ * @param {Object} config.stateFactory
+ * @param {Object} config.ActiveState
+ * @param {Object} config.formTpl
+ * @param {Object} config.formElement 
+ * @param {Object} config.inlineHelper
+ * @param {Object} config.htmlEditor
+ * @returns 
+ */
+export default function (config) {
     /**
      * media Editor instance if has been initialized
      * @type {null}
@@ -136,8 +147,8 @@ export default function (stateFactory, ActiveState, formTpl, formElement, inline
     let textareaObserver = null;
     let texareaHTMLElem = null;
 
-    const ImgStateActive = stateFactory.extend(
-        ActiveState,
+    const ImgStateActive = config.stateFactory.extend(
+        config.ActiveState,
         function () {
             this.initForm();
         },
@@ -154,10 +165,10 @@ export default function (stateFactory, ActiveState, formTpl, formElement, inline
     ImgStateActive.prototype.initForm = function () {
         initForm({
             widget: this.widget,
-            formElement,
-            formTpl,
+            formElement: config.formElement,
+            formTpl: config.formTpl,
             mediaEditor,
-            togglePlaceholder: inlineHelper.togglePlaceholder
+            togglePlaceholder: config.inlineHelper.togglePlaceholder
         });
         const figurelem = this.widget.element;
         const $texarea = this.widget.$form.find('textarea#figcaption');
@@ -176,11 +187,11 @@ export default function (stateFactory, ActiveState, formTpl, formElement, inline
     ImgStateActive.prototype.destroyEditor = function () {
         const widget = this.widget;
         const $editableContainer = widget.$original.parents('[data-qti-class="_container"]');
-        htmlEditor.buildEditor($editableContainer, {});
+        config.htmlEditor.buildEditor($editableContainer, {});
         _.defer(() => {
-            htmlEditor.destroyEditor($editableContainer);
+            config.htmlEditor.destroyEditor($editableContainer);
         });
-    };    
+    };
 
     return ImgStateActive;
 }
