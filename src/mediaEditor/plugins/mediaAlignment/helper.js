@@ -50,7 +50,7 @@ export const positionFloat = function positionFloat(widget, position) {
         widget.element.removeAttr('class');
     }
     
-    if ((prevClassName || className.length) && prevClassName !== className) {
+    if ((prevClassName || className) && prevClassName !== className) {
         // Re-build Figure widget to toggle between inline/block
         widget.refresh(widget.$container);
     }
