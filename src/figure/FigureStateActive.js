@@ -128,17 +128,15 @@ const initForm = ({ widget, formElement, formTpl, mediaEditor, togglePlaceholder
 };
 
 /**
- * 
- * @param {Object} config
- * @param {Object} config.stateFactory
- * @param {Object} config.ActiveState
- * @param {Object} config.formTpl
- * @param {Object} config.formElement 
- * @param {Object} config.inlineHelper
- * @param {Object} config.htmlEditor
+ * @param {Object} stateFactory
+ * @param {Object} ActiveState
+ * @param {Object} formTpl
+ * @param {Object} formElement 
+ * @param {Object} inlineHelper
+ * @param {Object} htmlEditor
  * @returns 
  */
-export default function (config) {
+export default function ({ stateFactory, ActiveState, formTpl, formElement, inlineHelper, htmlEditor }) {
     /**
      * media Editor instance if has been initialized
      * @type {null}
@@ -147,8 +145,8 @@ export default function (config) {
     let textareaObserver = null;
     let texareaHTMLElem = null;
 
-    const ImgStateActive = config.stateFactory.extend(
-        config.ActiveState,
+    const ImgStateActive = stateFactory.extend(
+        ActiveState,
         function () {
             this.initForm();
         },
@@ -165,10 +163,10 @@ export default function (config) {
     ImgStateActive.prototype.initForm = function () {
         initForm({
             widget: this.widget,
-            formElement: config.formElement,
-            formTpl: config.formTpl,
+            formElement,
+            formTpl,
             mediaEditor,
-            togglePlaceholder: config.inlineHelper.togglePlaceholder
+            togglePlaceholder: inlineHelper.togglePlaceholder
         });
         const figurelem = this.widget.element;
         const $texarea = this.widget.$form.find('textarea#figcaption');
@@ -187,9 +185,9 @@ export default function (config) {
     ImgStateActive.prototype.destroyEditor = function () {
         const widget = this.widget;
         const $editableContainer = widget.$original.parents('[data-qti-class="_container"]');
-        config.htmlEditor.buildEditor($editableContainer, {});
+        htmlEditor.buildEditor($editableContainer, {});
         _.defer(() => {
-            config.htmlEditor.destroyEditor($editableContainer);
+            htmlEditor.destroyEditor($editableContainer);
         });
     };
 
