@@ -133,9 +133,10 @@ const initForm = ({ widget, formElement, formTpl, mediaEditor, togglePlaceholder
  * @param {Object} formTpl
  * @param {Object} formElement 
  * @param {Object} inlineHelper
+ * @param {Object} htmlEditor
  * @returns 
  */
-export default function ({ stateFactory, ActiveState, formTpl, formElement, inlineHelper }) {
+export default function ({ stateFactory, ActiveState, formTpl, formElement, inlineHelper, htmlEditor }) {
     /**
      * media Editor instance if has been initialized
      * @type {null}
@@ -148,6 +149,13 @@ export default function ({ stateFactory, ActiveState, formTpl, formElement, inli
         ActiveState,
         function () {
             this.initForm();
+            $(document).on('positionChange.qti-widget', () => {
+                const $editableContainer = this.widget.$original.parents('[data-qti-class="_container"]');
+                htmlEditor.buildEditor($editableContainer, {});
+                _.defer(() => {
+                    htmlEditor.destroyEditor($editableContainer);
+                });
+            });
         },
         function () {
             this.widget.$form.find('textarea#figcaption').off('.qti-widget');
