@@ -20,6 +20,29 @@ import _ from 'lodash';
 export const FLOAT_LEFT_CLASS = 'wrap-left';
 export const FLOAT_RIGHT_CLASS = 'wrap-right';
 
+const searchRecurse = (parentElement, serial) => {
+    if (!parentElement) {
+        return null;
+    }
+    if (parentElement.serial === serial) {
+        return parentElement;
+    }
+    let found = null;
+    _.some(parentElement['elements'], childElement => {
+        if (childElement.serial === serial) {
+            found = parentElement;
+        } else if (childElement['elements']) {
+            found = searchRecurse(childElement, serial);
+        } else if (childElement['prompt']) {
+            found = searchRecurse(childElement.prompt.bdy, serial);
+        }
+        if (found) {
+            return true;
+        }
+    });
+    return found;
+};
+
 export const positionFloat = function positionFloat(widget, position) {
     if (!position) {
         return;
@@ -44,17 +67,32 @@ export const positionFloat = function positionFloat(widget, position) {
     // Update DOM
     widget.$container.addClass(className);
     // Update model
-    const prevClassName = widget.element.attr('class');
+    const prevClassName = widget.element.attr('class') || '';
     if (className) {
         widget.element.attr('class', className);
     } else {
         widget.element.removeAttr('class');
     }
-    
-    if ((prevClassName || className) && prevClassName !== className) {
+
+    if (prevClassName !== className) {
         // Re-build Figure widget to toggle between inline/block
-        widget.refresh(widget.$container);
-        $(document).trigger('positionChange.qti-widget');
+        const parent = searchRecurse(widget.element.bdy.rootElement.bdy, widget.serial);
+        // avoid changes on Figure in a prompt
+        if (parent.contentModel && parent.contentModel === 'inlineStatic') {
+            return;
+        }
+        widget.element.data('widget').changeState('sleep');
+        _.defer(() => {
+            if (parent && parent.data('widget')) {
+                parent.data('widget').changeState('active');
+                _.defer(() => {
+                    parent.data('widget').changeState('sleep');
+                    _.defer(() => {
+                        widget.element.data('widget').changeState('active');
+                    });
+                });
+            }
+        });
     }
     widget.$original.trigger('contentChange.qti-widget');
 };
