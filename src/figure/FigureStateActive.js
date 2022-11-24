@@ -131,12 +131,11 @@ const initForm = ({ widget, formElement, formTpl, mediaEditor, togglePlaceholder
  * @param {Object} stateFactory
  * @param {Object} ActiveState
  * @param {Object} formTpl
- * @param {Object} formElement 
+ * @param {Object} formElement
  * @param {Object} inlineHelper
- * @param {Object} htmlEditor
- * @returns 
+ * @returns
  */
-export default function ({ stateFactory, ActiveState, formTpl, formElement, inlineHelper, htmlEditor }) {
+export default function ({ stateFactory, ActiveState, formTpl, formElement, inlineHelper }) {
     /**
      * media Editor instance if has been initialized
      * @type {null}
@@ -145,17 +144,10 @@ export default function ({ stateFactory, ActiveState, formTpl, formElement, inli
     let textareaObserver = null;
     let texareaHTMLElem = null;
 
-    const ImgStateActive = stateFactory.extend(
+    const FigureStateActive = stateFactory.extend(
         ActiveState,
         function () {
             this.initForm();
-            $(document).on('positionChange.qti-widget', () => {
-                const $editableContainer = this.widget.$original.parents('[data-qti-class="_container"]');
-                htmlEditor.buildEditor($editableContainer, {});
-                _.defer(() => {
-                    htmlEditor.destroyEditor($editableContainer);
-                });
-            });
         },
         function () {
             this.widget.$form.find('textarea#figcaption').off('.qti-widget');
@@ -166,7 +158,7 @@ export default function ({ stateFactory, ActiveState, formTpl, formElement, inli
         }
     );
 
-    ImgStateActive.prototype.initForm = function () {
+    FigureStateActive.prototype.initForm = function () {
         initForm({
             widget: this.widget,
             formElement,
@@ -188,5 +180,5 @@ export default function ({ stateFactory, ActiveState, formTpl, formElement, inli
         }
     };
 
-    return ImgStateActive;
+    return FigureStateActive;
 }
