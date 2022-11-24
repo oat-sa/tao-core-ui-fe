@@ -20,12 +20,14 @@ import _ from 'lodash';
 import dtdHandler from 'ui/ckeditor/dtdHandler';
 import 'ckeditor';
 import module from 'module';
+import featuresService from 'services/features';
 
 /**
  * Cache original config
  */
 const originalConfig = _.cloneDeep(window.CKEDITOR.config);
 const moduleConfig = module.config();
+const furiganaPluginVisibilityKey = 'ckeditor/TaoFurigana';
 
 function getUserLanguage() {
     const documentLang = window.document.documentElement.getAttribute('lang');
@@ -576,6 +578,7 @@ const ckConfigurator = (function () {
      * @param {Boolean} [options.highlight] - enables the highlight plugin
      * @param {Boolean} [options.mathJax] - enables the mathJax plugin
      * @param {Boolean} [options.horizontalRule] - enables the horizontalRule plugin
+     * @param {Boolean} [options.furiganaPlugin] - enables the furiganaPlugin plugin if feature flag is set
      * @param {String} [options.removePlugins] - a coma-separated list of plugins that should not be loaded: 'plugin1,plugin2,plugin3'
      *
      * @see http://docs.ckeditor.com/#!/api/CKEDITOR.config
@@ -636,6 +639,9 @@ const ckConfigurator = (function () {
             }
             if (options.horizontalRule && ['block', 'inline'].includes(toolbarType)) {
                 positionedPlugins.HorizontalRule = { insertAfter: 'TaoTooltip' };
+            }
+            if (options.furiganaPlugin && featuresService.isVisible(furiganaPluginVisibilityKey, false)) {
+                positionedPlugins.TaoFurigana = {insertAfter: 'Superscript'};
             }
         }
 
