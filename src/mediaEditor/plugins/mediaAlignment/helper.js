@@ -79,6 +79,9 @@ export const positionFloat = function positionFloat(widget, position) {
         const parent = searchRecurse(widget.element.bdy.rootElement.bdy, widget.serial);
         // avoid changes on Figure in a prompt
         if (parent.contentModel && parent.contentModel === 'inlineStatic') {
+            _.defer(() => {
+                widget.element.data('widget').refresh();
+            });
             return;
         }
         widget.element.data('widget').changeState('sleep');
