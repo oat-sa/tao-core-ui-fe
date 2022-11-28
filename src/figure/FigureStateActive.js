@@ -97,12 +97,14 @@ const formCallbacks = ({ widget, formElement, mediaEditor, togglePlaceholder }) 
 const initForm = ({ widget, formElement, formTpl, mediaEditor, togglePlaceholder }) => {
     const imageElem = getImageElement(widget);
     const figcaptionElem = getCaptionElement(widget);
+    const showFigure = widget.element.attr('showFigure');
     widget.$form.html(
         formTpl({
             baseUrl: widget.options.baseUrl || '',
             src: imageElem.attr('src'),
             alt: imageElem.attr('alt'),
-            figcaption: figcaptionElem ? figcaptionElem.body() : ''
+            figcaption: figcaptionElem ? figcaptionElem.body() : '',
+            showFigure: showFigure
         })
     );
 
@@ -125,7 +127,15 @@ const initForm = ({ widget, formElement, formTpl, mediaEditor, togglePlaceholder
     );
 };
 
-export default function (stateFactory, ActiveState, formTpl, formElement, inlineHelper) {
+/**
+ * @param {Object} stateFactory
+ * @param {Object} ActiveState
+ * @param {Object} formTpl
+ * @param {Object} formElement
+ * @param {Object} inlineHelper
+ * @returns
+ */
+export default function ({ stateFactory, ActiveState, formTpl, formElement, inlineHelper }) {
     /**
      * media Editor instance if has been initialized
      * @type {null}
@@ -134,7 +144,7 @@ export default function (stateFactory, ActiveState, formTpl, formElement, inline
     let textareaObserver = null;
     let texareaHTMLElem = null;
 
-    const ImgStateActive = stateFactory.extend(
+    const FigureStateActive = stateFactory.extend(
         ActiveState,
         function () {
             this.initForm();
@@ -148,7 +158,7 @@ export default function (stateFactory, ActiveState, formTpl, formElement, inline
         }
     );
 
-    ImgStateActive.prototype.initForm = function () {
+    FigureStateActive.prototype.initForm = function () {
         initForm({
             widget: this.widget,
             formElement,
@@ -170,5 +180,5 @@ export default function (stateFactory, ActiveState, formTpl, formElement, inline
         }
     };
 
-    return ImgStateActive;
+    return FigureStateActive;
 }
