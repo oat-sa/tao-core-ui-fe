@@ -641,7 +641,13 @@ const ckConfigurator = (function () {
                 positionedPlugins.HorizontalRule = { insertAfter: 'TaoTooltip' };
             }
             if (options.furiganaPlugin && featuresService.isVisible(furiganaPluginVisibilityKey, false)) {
-                positionedPlugins.TaoFurigana = {insertAfter: 'Superscript'};
+                if (!options.toolbar || options.toolbar.find(el => el.items.includes('Superscript'))) {
+                    positionedPlugins.TaoFurigana = {insertAfter: 'Superscript'};
+                } else {
+                    const lastGroup = options.toolbar[options.toolbar.length - 1];
+                    const firstPlugin = lastGroup.items[0];
+                    positionedPlugins.TaoFurigana = {insertBefore: firstPlugin};
+                }
             }
         }
 
