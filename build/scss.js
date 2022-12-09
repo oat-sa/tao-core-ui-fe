@@ -90,8 +90,9 @@ const writeOutResult = async result => {
  */
 const scssDirectories = [scssVendorDir, srcDir];
 
+const globPath = p => p.replace(/\\/g, '/');
 glob(
-    path.join(rootPath, `+(${scssDirectories.map(dir => path.relative(rootPath, dir)).join('|')})`, '**', '[^_]*.scss'),
+    globPath(path.join(rootPath, `+(${scssDirectories.map(dir => path.relative(rootPath, dir)).join('|')})`, '**', '[^_]*.scss')),
     (err, files) => {
         if (err) {
             throw err;
