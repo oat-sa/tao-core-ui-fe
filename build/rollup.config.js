@@ -48,7 +48,8 @@ Handlebars.Visitor.prototype.accept = function() {
 };
 /* --------------------------------------------------------- */
 
-const inputs = glob.sync(path.join(srcDir, '**', '*.js'));
+const globPath = p => p.replace(/\\/g, '/');
+const inputs = glob.sync(globPath(path.join(srcDir, '**', '*.js')));
 
 /**
  * Define all modules as external, so rollup won't bundle them together.
@@ -115,7 +116,7 @@ export default inputs.map(input => {
                     },
                     module: Handlebars
                 },
-                helpers: ['build/tpl.js'],
+                helpers: ['lib/handlebars/helpers'],
                 templateExtension: '.tpl'
             }),
             /**
