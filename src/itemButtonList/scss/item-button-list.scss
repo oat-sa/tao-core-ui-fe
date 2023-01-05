@@ -20,6 +20,8 @@
 $correctColor: $success;
 $incorrectColor: $error;
 $hoverBgColor: hsl(208, 100%, 95%);
+$pendingColor: #6E6E6E;
+$partialColor: #AD5700;
 
 $radiusCircular: 50%;
 $sizeDefault: 4rem;
@@ -121,6 +123,13 @@ $borderMedium: 0.25rem;
     .icon-incorrect::before {
         @include icon-result-nok;
     }
+    .icon-score-pending::before {
+        @include icon-time;
+    }
+
+    .icon-score-partial::before {
+        @include icon-score-partial;
+    }
 
 
     /****** step state styles *******/
@@ -168,6 +177,18 @@ $borderMedium: 0.25rem;
         &.incorrect {
             .buttonlist-score-badge {
                 background-color: $incorrectColor;
+            }
+        }
+
+        &.score-pending {
+            .buttonlist-score-badge {
+                background-color: $pendingColor;
+            }
+        }
+
+        &.score-partial {
+            .buttonlist-score-badge {
+                background-color: $partialColor;
             }
         }
     }
