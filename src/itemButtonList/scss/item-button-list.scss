@@ -126,7 +126,6 @@ $borderMedium: 0.25rem;
     .icon-score-pending::before {
         @include icon-time;
     }
-
     .icon-score-partial::before {
         @include icon-score-partial;
     }
