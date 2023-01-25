@@ -108,11 +108,20 @@ define([
             "scoreType": "incorrect"
         },
         {
+            "id": "item-3",
+            "numericLabel": "3",
+            "position": 2,
+            "status": "viewed",
+            "icon": "info",
+            "ariaLabel": "Question 3",
+            "scoreType": null
+        },
+        {
             "id": "item-4",
             "numericLabel": "4",
             "position": 3,
-            "status": "viewed",
-            "icon": "info",
+            "status": "unseen",
+            "icon": null,
             "ariaLabel": "Question 4",
             "scoreType": null
         },
@@ -120,20 +129,29 @@ define([
             "id": "item-5",
             "numericLabel": "5",
             "position": 4,
-            "status": "unseen",
-            "icon": null,
+            "status": "viewed",
+            "icon": "flagged",
             "ariaLabel": "Question 5",
-            "scoreType": null
+            "scoreType": null,
+            "disabled": true
         },
         {
             "id": "item-6",
             "numericLabel": "6",
             "position": 5,
-            "status": "viewed",
-            "icon": "flagged",
+            "status": "answered",
+            "icon": "time",
             "ariaLabel": "Question 6",
-            "scoreType": null,
-            "disabled": true
+            "scoreType": 'score-pending'
+        },
+        {
+            "id": "item-7",
+            "numericLabel": "7",
+            "position": 6,
+            "status": "answered",
+            "icon": "score-partial",
+            "ariaLabel": "Question 7",
+            "scoreType": 'score-partial'
         }
     ];
 
@@ -148,7 +166,7 @@ define([
         };
         let instance;
 
-        assert.expect(19);
+        assert.expect(21);
 
         // Create an instance with autorendering
         instance = itemButtonList(config);
@@ -179,13 +197,21 @@ define([
             instance.getElement().find('li').eq(3).hasClass('unseen'),
             'The itemButtonList instance has rendered the button with the correct label'
         );
-        // Check li correct/incorrect
+        // Check li correct/incorrect/score-pending/score-partial
         assert.ok(
             instance.getElement().find('li').eq(0).hasClass('correct'),
             'The itemButtonList instance has rendered the button with the correct label'
         );
         assert.ok(
             instance.getElement().find('li').eq(1).hasClass('incorrect'),
+            'The itemButtonList instance has rendered the button with the correct label'
+        );
+        assert.ok(
+            instance.getElement().find('li').eq(5).hasClass('score-pending'),
+            'The itemButtonList instance has rendered the button with the correct label'
+        );
+        assert.ok(
+            instance.getElement().find('li').eq(6).hasClass('score-partial'),
             'The itemButtonList instance has rendered the button with the correct label'
         );
         // Check li disabled
@@ -532,7 +558,7 @@ define([
             },
             {
                 "id": "item-5",
-                "numericLabel": "4",
+                "numericLabel": "5",
                 "position": 4,
                 "status": "unseen",
                 "icon": null,
@@ -551,7 +577,7 @@ define([
             },
             {
                 "id": "item-7",
-                "numericLabel": "5",
+                "numericLabel": "7",
                 "position": 6,
                 "status": "viewed",
                 "icon": "flagged",
@@ -560,7 +586,7 @@ define([
             },
             {
                 "id": "item-8",
-                "numericLabel": "6",
+                "numericLabel": "8",
                 "position": 7,
                 "status": "answered",
                 "icon": "flagged",
@@ -569,13 +595,31 @@ define([
             },
             {
                 "id": "item-9",
-                "numericLabel": "7",
+                "numericLabel": "9",
                 "position": 8,
                 "status": "unseen",
                 "icon": null,
                 "ariaLabel": "Question 7",
                 "scoreType": null,
                 "disabled": true
+            },
+            {
+                "id": "item-10",
+                "numericLabel": "10",
+                "position": 9,
+                "status": "answered",
+                "icon": null,
+                "ariaLabel": "Question 8",
+                "scoreType": "score-partial",
+            },
+            {
+                "id": "item-11",
+                "numericLabel": "11",
+                "position": 10,
+                "status": "answered",
+                "icon": null,
+                "ariaLabel": "Question 8",
+                "scoreType": "score-pending",
             }
         ];
 
@@ -588,9 +632,12 @@ define([
             <li>Answered Incorrect</li>
             <li>Viewed Informational (current)</li>
             <li>Unseen</li>
+            <li>Unseen Informational</li>
             <li>Viewed Flagged</li>
             <li>Answered Flagged</li>
             <li>Unseen Disabled</li>
+            <li>Score partial</li>
+            <li>Score pending</li>
         </ol>`);
 
         const instance = itemButtonList({ items, scrollContainer: $container })

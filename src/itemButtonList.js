@@ -49,7 +49,7 @@ const cssSelectors = {
  * @property {String} numericLabel - displayed number
  * @property {String} ariaLabel
  * @property {String} status - 'answered'/'viewed'/'unseen'
- * @property {String} scoreType - 'correct'/'incorrect'/null
+ * @property {String} scoreType - 'correct'/'incorrect'/'score-pending'/'score-partial'/null
  * @property {String} icon - 'info'/'flagged'/null
  * @property {Boolean} disabled
  * @property {String} [title] - optional tooltip
