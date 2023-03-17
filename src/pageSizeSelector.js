@@ -51,11 +51,11 @@ export default function pageSizeSelectorFactory(config) {
     const pageSizeSelectorSpecs = {
         setSelectedOption() {
             const options = this.config.options;
-            const defaultSize = this.config.defaultSize;
+            const defaultSize = parseInt(this.config.defaultSize, 10);
 
             let selectedOption;
             options.forEach(option => {
-                if (option.value === defaultSize) {
+                if (parseInt(option.value, 10) === defaultSize) {
                     selectedOption = option;
 
                     option.selected = true;
