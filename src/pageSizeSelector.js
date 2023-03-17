@@ -28,7 +28,7 @@ import 'select2';
  * Default config values
  * @type {Object}
  */
-var defaults = {
+const defaults = {
     defaultSize: 25,
     options: [
         { label: '25 ' + __('items per page'), value: 25 },
@@ -47,14 +47,14 @@ var defaults = {
  * @param {Object} [config.items] - available options
  * @returns {pageSizeSelector}
  */
-var pageSizeSelectorFactory = function pageSizeSelectorFactory(config) {
-    var pageSizeSelectorSpecs = {
-        setSelectedOption: function setSelectedOption() {
-            var options = this.config.options;
-            var defaultSize = this.config.defaultSize;
+export default function pageSizeSelectorFactory(config) {
+    const pageSizeSelectorSpecs = {
+        setSelectedOption() {
+            const options = this.config.options;
+            const defaultSize = this.config.defaultSize;
 
-            var selectedOption;
-            options.forEach(function (option) {
+            let selectedOption;
+            options.forEach(option => {
                 if (option.value === defaultSize) {
                     selectedOption = option;
 
@@ -73,34 +73,25 @@ var pageSizeSelectorFactory = function pageSizeSelectorFactory(config) {
 
     return component(pageSizeSelectorSpecs, defaults)
         .setTemplate(pageSizeSelectorTpl)
-        .on('init', function () {
+        .on('init', function onInit() {
             this.setSelectedOption();
         })
-        .on('render', function () {
-            var self = this;
-            var $component = this.getElement();
-
-            $('.select2', $component)
+        .on('render', function onRender() {
+            $('.select2', this.getElement())
                 .select2({
                     dropdownCssClass: 'page-size-dropdown',
                     minimumResultsForSearch: Infinity
                 })
-                .on('change', function (e) {
-                    self.trigger('change', e.val);
+                .on('change', e => {
+                    this.trigger('change', e.val);
                 });
         })
-        .after('render', function () {
-            var $component = this.getElement();
-
+        .after('render', function afterRender() {
             // Notify about the default value after render
-            this.trigger('change', $('select', $component).val());
+            this.trigger('change', $('select', this.getElement()).val());
         })
-        .on('destroy', function () {
-            var $component = this.getElement();
-
-            $('.select2', $component).select2('destroy');
+        .on('destroy', function onDestroy() {
+            $('.select2', this.getElement()).select2('destroy');
         })
         .init(config);
-};
-
-export default pageSizeSelectorFactory;
+}
