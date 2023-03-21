@@ -110,6 +110,24 @@ define(['jquery', 'ui/pageSizeSelector'], function ($, pageSizeSelector) {
         instance.destroy();
     });
 
+    QUnit.test('Accept option even if the defaultSize is given as a string', function (assert) {
+        var instance = pageSizeSelector({
+            renderTo: '#fixture-render-with-config',
+            options: options,
+            defaultSize: `${defaultSize}`
+        });
+        assert.expect(5);
+
+        assert.equal(typeof instance, 'object', 'The dropdown instance is an object');
+        assert.ok(instance.getElement() instanceof $, 'The dropdown instance gets a DOM element');
+        assert.equal(instance.getElement().length, 1, 'The dropdown instance gets a single element');
+
+        assert.equal(instance.getElement().find('option').length, 3, 'The selector rendered with default options');
+        assert.equal(instance.getElement().find('select').val(), '500', 'The default page size option is selected');
+
+        instance.destroy();
+    });
+
     QUnit.test('trigger change event', function (assert) {
         const ready = assert.async(2);
         const instance = pageSizeSelector({
