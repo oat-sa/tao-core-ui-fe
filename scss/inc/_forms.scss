@@ -422,19 +422,19 @@ label {
             color: #222;
         }
         &:checked ~ .icon-checkbox:before {
-            @extend .icon-checkbox-checked:before;
+            @extend %icon-checkbox-checked-before
         }
         &:indeterminate ~ .icon-checkbox:before {
-            @extend .icon-checkbox-indeterminate:before;
+            @extend %icon-checkbox-indeterminate-before
         }
         &:checked ~ .icon-radio:before {
-            @extend .icon-radio-checked:before;
+            @extend %icon-radio-checked-before
         }
         &:checked ~ .icon-checkbox.cross:before {
-            @extend .icon-checkbox-crossed:before;
+            @extend %icon-checkbox-crossed-before
         }
         &:indeterminate ~ .icon-checkbox:before {
-            @extend .icon-checkbox-indeterminate:before;
+            @extend %icon-checkbox-indeterminate-before
         }
         &.disabled, &[disabled], &[readonly] {
             & ~[class^="icon-"],
