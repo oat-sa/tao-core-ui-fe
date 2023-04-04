@@ -17,8 +17,6 @@
  */
 import __ from 'i18n';
 import defaultCalculatorFactory from 'ui/maths/calculator/defaultCalculator';
-import pluginSign from 'ui/maths/calculator/plugins/modifiers/sign';
-import pluginPow10 from 'ui/maths/calculator/plugins/modifiers/pow10';
 import keyboardTpl from 'ui/maths/calculator/tpl/scientificKeyboard';
 import screenTpl from 'ui/maths/calculator/tpl/scientificScreen';
 
@@ -49,9 +47,6 @@ export default function scientificCalculator(config) {
     return defaultCalculatorFactory(
         Object.assign(
             {
-                loadedPlugins: {
-                    modifiers: [pluginSign, pluginPow10]
-                },
                 calculator: {
                     plugins: {
                         templateKeyboard: {
