@@ -15,9 +15,10 @@
  *
  * Copyright (c) 2018-2023 Open Assessment Technologies SA ;
  */
+import context from 'context';
 import dynamicComponent from 'ui/dynamicComponent';
 import calculatorBoardFactory from 'ui/maths/calculator/core/board';
-import pluginsLoader from 'ui/maths/calculator/pluginsLoader';
+import pluginLoaderFactory from 'core/pluginLoader';
 import 'ui/maths/calculator/css/calculator.css';
 
 /**
@@ -59,8 +60,10 @@ export default function calculatorComponentFactory(config) {
             const initialWidth = this.getElement().width();
             const initialHeight = this.getElement().height();
 
-            return pluginsLoader(this.getConfig().loadedPlugins, this.getConfig().dynamicPlugins).then(
-                loadedPlugins => {
+            return pluginLoaderFactory(this.getConfig().loadedPlugins)
+                .addList(this.getConfig().dynamicPlugins)
+                .load(context.bundle)
+                .then(loadedPlugins => {
                     return new Promise(resolve => {
                         calculator = calculatorBoardFactory($content, loadedPlugins, this.getConfig().calculator).on(
                             'ready',
@@ -91,8 +94,7 @@ export default function calculatorComponentFactory(config) {
                             }
                         );
                     });
-                }
-            );
+                });
         })
         .on('destroy', () => {
             return new Promise(resolve => {
