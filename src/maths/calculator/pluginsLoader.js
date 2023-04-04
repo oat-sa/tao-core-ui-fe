@@ -13,10 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2018 Open Assessment Technologies SA ;
- */
-/**
- * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
+ * Copyright (c) 2018-23 Open Assessment Technologies SA ;
  */
 import context from 'context';
 import pluginLoaderFactory from 'core/pluginLoader';
@@ -24,7 +21,6 @@ import pluginDegradFactory from 'ui/maths/calculator/plugins/core/degrad';
 import pluginHistoryFactory from 'ui/maths/calculator/plugins/core/history';
 import pluginRemindFactory from 'ui/maths/calculator/plugins/core/remind';
 import pluginStepNavigationFactory from 'ui/maths/calculator/plugins/core/stepNavigation';
-import _ from 'lodash';
 
 /**
  * Load the plugins dynamically
@@ -36,11 +32,11 @@ export default function loadPlugins(loadedPlugins, dynamicPlugins) {
     // The list of default plugins is directly built here instead of using a module variable to ensure the object
     // is unique to the instance. This wil avoid global polluting by successive instances, as nested objects and
     // arrays might be simply copied.
-    var defaultPlugins = {
+    const defaultPlugins = {
         core: [pluginDegradFactory, pluginHistoryFactory, pluginRemindFactory, pluginStepNavigationFactory]
     };
 
-    return pluginLoaderFactory(_.merge({}, defaultPlugins, loadedPlugins))
+    return pluginLoaderFactory(Object.assign({}, defaultPlugins, loadedPlugins))
         .addList(dynamicPlugins)
         .load(context.bundle);
 }

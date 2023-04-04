@@ -13,16 +13,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2018 Open Assessment Technologies SA ;
+ * Copyright (c) 2018-2023 Open Assessment Technologies SA ;
  */
-/**
- * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
- */
-define(['ui/maths/calculator/core/plugin'], function(pluginFactory) {
+define(['ui/maths/calculator/core/plugin'], function (pluginFactory) {
     'use strict';
 
     return pluginFactory({
         name: 'plugin2',
-        init: function init() {}
+        init() {}
     });
 });
