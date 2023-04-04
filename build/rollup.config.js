@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2019 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2019-2023 (original work) Open Assessment Technologies SA ;
  */
 
 import path from 'path';
@@ -37,14 +37,16 @@ const production = process.env.NODE_ENV === 'production';
  * TODO remove once migrated to hbs >= 3.0.0
  */
 const originalVisitor = Handlebars.Visitor;
-Handlebars.Visitor = function() {
+Handlebars.Visitor = function () {
     return originalVisitor.call(this);
 };
 Handlebars.Visitor.prototype = Object.create(originalVisitor.prototype);
-Handlebars.Visitor.prototype.accept = function() {
+Handlebars.Visitor.prototype.accept = function () {
     try {
         originalVisitor.prototype.accept.apply(this, arguments);
-    } catch (e) {}
+    } catch (e) {
+        // ignore
+    }
 };
 /* --------------------------------------------------------- */
 
@@ -55,11 +57,7 @@ const inputs = glob.sync(globPath(path.join(srcDir, '**', '*.js')));
  * Define all modules as external, so rollup won't bundle them together.
  */
 const localExternals = inputs.map(
-    input =>
-        `ui/${path
-            .relative(srcDir, input)
-            .replace(/\\/g, '/')
-            .replace(/\.js$/, '')}`
+    input => `ui/${path.relative(srcDir, input).replace(/\\/g, '/').replace(/\.js$/, '')}`
 );
 
 export default inputs.map(input => {
@@ -75,7 +73,7 @@ export default inputs.map(input => {
             name
         },
         watch: {
-            clearScreen : false
+            clearScreen: false
         },
         external: [
             'i18n',
@@ -126,7 +124,7 @@ export default inputs.map(input => {
             {
                 name: 'datetime_picker_helper',
                 generateBundle(options, bundle) {
-                    if (options.name.match(/datetime[\/\\]picker/)) {
+                    if (options.name.match(/datetime[/\\]picker/)) {
                         bundle['picker.js'].code = bundle['picker.js'].code.replace(
                             /flatpickrLocalization\.hasOwnProperty\('default'\)/,
                             false
@@ -134,9 +132,7 @@ export default inputs.map(input => {
                     }
                 }
             },
-            ...(process.env.COVERAGE ? [istanbul({
-                exclude: 'build/tpl.js'
-            })] : []),
+            ...(process.env.COVERAGE ? [istanbul({ exclude: 'build/tpl.js' })] : []),
             babel({
                 presets: [
                     [
