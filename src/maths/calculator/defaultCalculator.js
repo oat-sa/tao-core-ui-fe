@@ -13,12 +13,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2018 Open Assessment Technologies SA ;
+ * Copyright (c) 2018-2023 Open Assessment Technologies SA ;
  */
-/**
- * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
- */
-import _ from 'lodash';
 import calculatorComponent from 'ui/maths/calculator/calculatorComponent';
 import pluginKeyboardFactory from 'ui/maths/calculator/plugins/keyboard/templateKeyboard/templateKeyboard';
 import pluginScreenFactory from 'ui/maths/calculator/plugins/screen/simpleScreen/simpleScreen';
@@ -32,21 +28,22 @@ import pluginScreenFactory from 'ui/maths/calculator/plugins/screen/simpleScreen
  * @returns {dynamicComponent}
  */
 export default function defaultCalculatorFactory(config) {
-    var defaultPluginsConfig = {};
+    const defaultPluginsConfig = {};
+    const { keyboardLayout, screenLayout, ...calculatorConfig } = config || {};
 
-    if (config && config.keyboardLayout) {
+    if (keyboardLayout) {
         defaultPluginsConfig.templateKeyboard = {
-            layout: config.keyboardLayout
+            layout: keyboardLayout
         };
     }
 
-    if (config && config.screenLayout) {
+    if (screenLayout) {
         defaultPluginsConfig.simpleScreen = {
-            layout: config.screenLayout
+            layout: screenLayout
         };
     }
 
-    config = _.merge(
+    config = Object.assign(
         {
             // The list of default plugins is directly built here instead of using a module variable to ensure the
             // object is unique to the instance. This wil avoid global polluting by successive instances, as nested
@@ -59,7 +56,7 @@ export default function defaultCalculatorFactory(config) {
                 plugins: defaultPluginsConfig
             }
         },
-        _.omit(config, ['keyboardLayout', 'screenLayout'])
+        calculatorConfig
     );
 
     return calculatorComponent(config);
