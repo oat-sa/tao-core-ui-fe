@@ -13,25 +13,23 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2018 Open Assessment Technologies SA ;
+ * Copyright (c) 2018-2023 Open Assessment Technologies SA ;
  */
 /**
  * Plugin that manages a keyboard for the calculator, with configurable layout.
  * Each key must declare the target command, using DOM attributes:
  * - data-command: the name of the command to call
  * - data-param: the optional parameter to apply to the command
- * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
  */
 import $ from 'jquery';
-import _ from 'lodash';
 import nsHelper from 'util/namespace';
 import pluginFactory from 'ui/maths/calculator/core/plugin';
 import labels from 'ui/maths/calculator/core/labels';
 import defaultKeyboardTpl from 'ui/maths/calculator/plugins/keyboard/templateKeyboard/defaultTemplate';
 
-var pluginName = 'templateKeyboard';
+const pluginName = 'templateKeyboard';
 
-var defaultConfig = {
+const defaultConfig = {
     layout: defaultKeyboardTpl
 };
 
@@ -42,30 +40,30 @@ export default pluginFactory(
         /**
          * Called when the plugin should be initialized.
          */
-        init: function init() {
+        init() {
             // required by the plugin factory to validate this plugin
         },
 
         /**
          * Called when the plugin should be rendered.
          */
-        render: function render() {
-            var calculator = this.getCalculator();
-            var areaBroker = calculator.getAreaBroker();
-            var pluginConfig = this.getConfig();
-            var templateConfig = _.merge({ labels: labels }, pluginConfig);
+        render() {
+            const calculator = this.getCalculator();
+            const areaBroker = calculator.getAreaBroker();
+            const pluginConfig = this.getConfig();
+            const templateConfig = Object.assign({ labels }, pluginConfig);
 
-            if (!_.isFunction(pluginConfig.layout)) {
+            if ('function' !== typeof pluginConfig.layout) {
                 throw new TypeError('The keyboard plugin requires a template to render!');
             }
 
             this.$layout = $(pluginConfig.layout(templateConfig)).on(
                 nsHelper.namespaceAll('click', pluginName),
                 '.key',
-                function() {
-                    var $key = $(this).closest('.key');
-                    var command = $key.data('command');
-                    var param = $key.data('param');
+                function onClick() {
+                    const $key = $(this).closest('.key');
+                    const command = $key.data('command');
+                    const param = $key.data('param');
                     if (command) {
                         calculator.useCommand(command, param);
                     }
@@ -78,13 +76,12 @@ export default pluginFactory(
         /**
          * Called when the plugin is destroyed. Mostly when the host is destroyed itself.
          */
-        destroy: function destroy() {
-            var calculator = this.getCalculator();
+        destroy() {
             if (this.$layout) {
-                this.$layout.off('.' + pluginName).remove();
+                this.$layout.off(`.${pluginName}`).remove();
                 this.$layout = null;
             }
-            calculator.off('.' + pluginName);
+            this.getCalculator().off(`.${pluginName}`);
         }
     },
     defaultConfig
