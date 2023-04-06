@@ -13,145 +13,122 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2018-2019 Open Assessment Technologies SA ;
+ * Copyright (c) 2018-2023 Open Assessment Technologies SA ;
  */
 /**
  * Defines the base component that will host the calculator UI and link it to the engine.
- * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
  */
 
-import _ from 'lodash';
-import __ from 'i18n';
-
-import collections from 'core/collections';
+import { engineFactory, historyPlugin } from '@oat-sa/tao-calculator/dist';
+import areaBrokerFactory from 'ui/areaBroker';
 import componentFactory from 'ui/component';
-import areaBrokerFactory from 'ui/maths/calculator/core/areaBroker';
-import registeredTerms from 'ui/maths/calculator/core/terms';
-import tokensHelper from 'ui/maths/calculator/core/tokens';
-import expressionHelper from 'ui/maths/calculator/core/expression';
-import tokenizerFactory from 'ui/maths/calculator/core/tokenizer';
-import mathsEvaluatorFactory from 'util/mathsEvaluator';
 import boardTpl from 'ui/maths/calculator/core/tpl/board';
 
 /**
  * Default config values
  * @type {Object}
  */
-var defaultConfig = {
+const defaultConfig = {
     expression: '',
     position: 0
 };
 
 /**
- * Name of the variable that contains the last result
- * @type {String}
+ * The list of areas that should be provided by the calculator.
+ * @type {string[]}
  */
-var lastResultVariableName = registeredTerms.ANS.value;
+const calculatorAreas = [
+    'screen', // where the expressions and their result are rendered
+    'input', // where the expressions are input
+    'keyboard' // the keyboard area that should provide a way to interact with the calculator
+];
 
 /**
- * Regex that matches the prefixed function operators
- * @type {RegExp}
+ * Creates a calculator instance.
+ * @param {object} config
+ * @param {string} [config.expression=''] - The current expression.
+ * @param {number} [config.position=0] - The current position in the expression (i.e. the position of the caret).
+ * @param {boolean} [config.instant=false] - Whether the calculator should be in instant mode or not.
+ * @param {boolean} [config.corrector=true] - Whether the calculator should be in corrector mode or not.
+ * @param {object} [config.variables] - An optional list of variables.
+ * @param {object} [config.commands] - An optional list of commands.
+ * @param {object} [config.maths] - An optional config for the maths evaluator (@see mathsEvaluator).
+ * @returns {calculator}
  */
-var rePrefixedTerm = /^@[a-zA-Z_]\w*$/;
-
-/**
- * The internal namespace for built-in events listeners
- * @type {String}
- */
-var ns = 'calculator';
+function calculatorFactory({
+    expression = '',
+    position = 0,
+    instant = false,
+    corrector = true,
+    variables = {},
+    commands = {},
+    maths = {}
+} = {}) {
+    const plugins = { history: historyPlugin };
+    return engineFactory({ expression, position, instant, corrector, variables, commands, maths, plugins });
+}
 
 /**
  * Build the basic UI for a calculator
- * @param {jQuery|HTMLElement|String} $container
- * @param {Function[]} pluginFactories
- * @param {Object} [config]
- * @param {String} [config.expression=''] - The initial expression
- * @param {Number} [config.position=0] - The initial position in the expression
- * @param {Object} [config.maths] - Optional config for the maths evaluator (@see util/mathsEvaluator)
- * @param {Object} [config.plugins] - Optional config for each plugins
+ * @param {jQuery|HTMLElement|string} $container
+ * @param {function[]} pluginFactories
+ * @param {object} [config]
+ * @param {string} [config.expression=''] - The initial expression
+ * @param {number} [config.position=0] - The initial position in the expression
+ * @param {boolean} [config.instant=false] - Whether the calculator should be in instant mode or not.
+ * @param {boolean} [config.corrector=true] - Whether the calculator should be in corrector mode or not.
+ * @param {object} [config.variables] - An optional list of variables.
+ * @param {object} [config.commands] - An optional list of commands.
+ * @param {object} [config.maths] - Optional config for the maths evaluator (@see util/mathsEvaluator)
+ * @param {object} [config.plugins] - Optional config for each plugins
  * @returns {calculator}
  */
 function calculatorBoardFactory($container, pluginFactories, config) {
     /**
-     * Maths expression parser.
-     * @type {Function}
+     * @type {calculator} The calculator engine.
      */
-    var mathsEvaluator;
+    const calculator = calculatorFactory(config);
+
+    /**
+     * @type {Map} The registered plugins
+     */
+    const plugins = new Map();
 
     /**
      * Keep the area broker instance
      * @see ui/maths/calculator/areaBroker
      */
-    var areaBroker;
+    let areaBroker;
 
     /**
-     * @type {Object} the registered plugins
-     */
-    var plugins = {};
-
-    /**
-     * The current expression
-     * @type {String}
-     */
-    var expression = '';
-
-    /**
-     * A list of variables that can be used in the expression
-     * @type {Map}
-     */
-    var variables = new collections.Map();
-
-    /**
-     * A list of registered commands that can be used inside the calculator
-     * @type {Map}
-     */
-    var commands = new collections.Map();
-
-    /**
-     * The current position in the current expression (i.e. the position of the caret)
-     * @type {Number}
-     */
-    var position = 0;
-
-    /**
-     * The tokenizer utilized to split down the expression
-     * @type {calculatorTokenizer}
-     */
-    var tokenizer = tokenizerFactory();
-
-    /**
-     * The list of tokens extracted from the expression
-     * @type {Array|null}
-     */
-    var tokens = null;
-
-    /**
-     *
+     * The component API.
      * @type {Object}
      */
-    var calculatorApi = {
+    const calculatorApi = {
+        /**
+         * Gets the calculator's engine
+         * @returns {calculator}
+         */
+        getCalculator() {
+            return calculator;
+        },
+
         /**
          * Returns the current expression
          * @returns {String}
          */
-        getExpression: function getExpression() {
-            return expression;
+        getExpression() {
+            return calculator.getExpression();
         },
 
         /**
          * Changes the current expression
-         * @param {String} expr
+         * @param {String} expression
          * @returns {calculator}
          * @fires expressionchange after the expression has been changed
          */
-        setExpression: function setExpression(expr) {
-            expression = String(expr || '');
-            tokens = null;
-            /**
-             * @event expressionchange
-             * @param {String} expression
-             */
-            this.trigger('expressionchange', expression);
+        setExpression(expression) {
+            calculator.setExpression(expression);
             return this;
         },
 
@@ -159,23 +136,18 @@ function calculatorBoardFactory($container, pluginFactories, config) {
          * Gets the current position inside the expression
          * @returns {Number}
          */
-        getPosition: function getPosition() {
-            return position;
+        getPosition() {
+            return calculator.getPosition();
         },
 
         /**
          * Sets the current position inside the expression
-         * @param {Number|String} pos
+         * @param {Number|String} position
          * @returns {calculator}
          * @fires positionchange after the position has been changed
          */
-        setPosition: function setPosition(pos) {
-            position = Math.max(0, Math.min(parseInt(pos, 10) || 0, expression.length));
-            /**
-             * @event positionchange
-             * @param {Number} position
-             */
-            this.trigger('positionchange', position);
+        setPosition(position) {
+            calculator.setPosition(position);
             return this;
         },
 
@@ -183,43 +155,32 @@ function calculatorBoardFactory($container, pluginFactories, config) {
          * Gets the tokens from the current expression
          * @returns {token[]}
          */
-        getTokens: function getTokens() {
-            if (tokens === null) {
-                tokens = tokenizer.tokenize(expression);
-            }
-            return tokens;
+        getTokens() {
+            return calculator.getTokens();
         },
 
         /**
          * Gets the token at the current position from the current expression
          * @returns {token|null} Returns the token at the current position, or null if none
          */
-        getToken: function getToken() {
-            var tokensList = this.getTokens();
-            var index = this.getTokenIndex();
-            return tokensList[index] || null;
+        getToken() {
+            return calculator.getToken();
         },
 
         /**
          * Gets token index from the current position in the expression.
          * @returns {Number} Returns the index of the token at the current position.
          */
-        getTokenIndex: function getTokenIndex() {
-            var index = 0;
-            _.forEach(this.getTokens(), function(token, idx) {
-                if (position >= token.offset) {
-                    index = idx;
-                }
-            });
-            return index;
+        getTokenIndex() {
+            return calculator.getTokenIndex();
         },
 
         /**
          * Gets access to the tokenizer
          * @returns {calculatorTokenizer}
          */
-        getTokenizer: function getTokenizer() {
-            return tokenizer;
+        getTokenizer() {
+            return calculator.getTokenizer();
         },
 
         /**
@@ -227,8 +188,8 @@ function calculatorBoardFactory($container, pluginFactories, config) {
          * @param {String} name - The variable name
          * @returns {mathsExpression} The value. Can be another expression.
          */
-        getVariable: function getVariable(name) {
-            return variables.get(name);
+        getVariable(name) {
+            return calculator.getVariable(name);
         },
 
         /**
@@ -236,8 +197,8 @@ function calculatorBoardFactory($container, pluginFactories, config) {
          * @param {String} name
          * @returns {Boolean}
          */
-        hasVariable: function hasVariable(name) {
-            return variables.has(name);
+        hasVariable(name) {
+            return calculator.hasVariable(name);
         },
 
         /**
@@ -247,22 +208,8 @@ function calculatorBoardFactory($container, pluginFactories, config) {
          * @returns {calculator}
          * @fires variableadd after the variable has been set
          */
-        setVariable: function setVariable(name, value) {
-            var errValue;
-            try {
-                value = mathsEvaluator(value);
-            } catch (err) {
-                errValue = (value && value.expression) || value;
-                value = mathsEvaluator('0');
-                value.expression = errValue;
-            }
-            variables.set(name, value);
-            /**
-             * @event variableadd
-             * @param {String} name
-             * @param {String} value
-             */
-            this.trigger('variableadd', name, value);
+        setVariable(name, value) {
+            calculator.setVariable(name, value);
             return this;
         },
 
@@ -272,13 +219,8 @@ function calculatorBoardFactory($container, pluginFactories, config) {
          * @returns {calculator}
          * @fires variabledelete after the variable has been deleted
          */
-        deleteVariable: function deleteVariable(name) {
-            variables.delete(name);
-            /**
-             * @event variabledelete
-             * @param {String} name
-             */
-            this.trigger('variabledelete', name);
+        deleteVariable(name) {
+            calculator.deleteVariable(name);
             return this;
         },
 
@@ -286,12 +228,8 @@ function calculatorBoardFactory($container, pluginFactories, config) {
          * Gets the list of variables defined for the expression.
          * @returns {Object} The list of defined variables.
          */
-        getVariables: function getVariables() {
-            var defs = {};
-            variables.forEach(function(value, name) {
-                defs[name] = value;
-            });
-            return defs;
+        getVariables() {
+            return calculator.getAllVariables();
         },
 
         /**
@@ -300,11 +238,8 @@ function calculatorBoardFactory($container, pluginFactories, config) {
          * @returns {calculator}
          * @fires variableadd after each variable has been set
          */
-        setVariables: function setVariables(defs) {
-            var self = this;
-            _.forEach(defs, function(value, name) {
-                self.setVariable(name, value);
-            });
+        setVariables(defs) {
+            calculator.setVariableList(defs);
             return this;
         },
 
@@ -313,14 +248,8 @@ function calculatorBoardFactory($container, pluginFactories, config) {
          * @returns {calculator}
          * @fires variabledelete after the variables has been deleted
          */
-        deleteVariables: function deleteVariables() {
-            variables.clear();
-            /**
-             * @event variabledelete
-             * @param {null} name
-             */
-            this.trigger('variabledelete', null);
-            this.setLastResult('0');
+        deleteVariables() {
+            calculator.clearVariables();
             return this;
         },
 
@@ -329,11 +258,8 @@ function calculatorBoardFactory($container, pluginFactories, config) {
          * @param {String|Number|mathsExpression} [result='0']
          * @returns {calculator}
          */
-        setLastResult: function setLastResult(result) {
-            if (!result || expressionHelper.containsError(result)) {
-                result = '0';
-            }
-            this.setVariable(lastResultVariableName, result);
+        setLastResult(result) {
+            calculator.setLastResult(result);
             return this;
         },
 
@@ -341,29 +267,19 @@ function calculatorBoardFactory($container, pluginFactories, config) {
          * Gets the value of the last result
          * @returns {mathsExpression}
          */
-        getLastResult: function getLastResult() {
-            return this.getVariable(lastResultVariableName);
+        getLastResult() {
+            return calculator.getLastResult();
         },
 
         /**
          * Registers a command
-         * @param {String} name
-         * @param {String} [label]
-         * @param {String} [description]
+         * @param {string} name
+         * @param {function} action
          * @returns {calculator}
          * @fires commandadd after the command has been set
          */
-        setCommand: function setCommand(name, label, description) {
-            commands.set(name, {
-                name: name,
-                label: label,
-                description: description
-            });
-            /**
-             * @event commandadd
-             * @param {String} name
-             */
-            this.trigger('commandadd', name);
+        setCommand(name, action) {
+            calculator.setCommand(name, action);
             return this;
         },
 
@@ -371,20 +287,16 @@ function calculatorBoardFactory($container, pluginFactories, config) {
          * Gets the definition of a registered command
          * @returns {Object} The registered command
          */
-        getCommand: function getCommand(name) {
-            return commands.get(name);
+        getCommand(name) {
+            return calculator.getCommand(name);
         },
 
         /**
          * Gets the list of registered commands
          * @returns {Object} The list of registered commands
          */
-        getCommands: function getCommands() {
-            var defs = {};
-            commands.forEach(function(value, name) {
-                defs[name] = value;
-            });
-            return defs;
+        getCommands() {
+            return calculator.getAllCommands();
         },
 
         /**
@@ -392,8 +304,8 @@ function calculatorBoardFactory($container, pluginFactories, config) {
          * @param {String} name
          * @returns {Boolean}
          */
-        hasCommand: function hasCommand(name) {
-            return commands.has(name);
+        hasCommand(name) {
+            return calculator.hasCommand(name);
         },
 
         /**
@@ -402,90 +314,8 @@ function calculatorBoardFactory($container, pluginFactories, config) {
          * @returns {calculator}
          * @fires commanddelete after the command has been deleted
          */
-        deleteCommand: function deleteCommand(name) {
-            commands.delete(name);
-            /**
-             * @event commanddelete
-             * @param {String} name
-             */
-            this.trigger('commanddelete', name);
-            return this;
-        },
-
-        /**
-         * Inserts a term in the expression at the current position
-         * @param {String} name - The name of the term to insert
-         * @param {Object} term - The definition of the term to insert
-         * @returns {calculator}
-         * @fires termerror if the term to add is invalid
-         * @fires termadd when the term has been added
-         * @fires termadd-<name> when the term has been added
-         */
-        addTerm: function addTerm(name, term) {
-            var tokensList = this.getTokens();
-            var index = this.getTokenIndex();
-            var currentToken = tokensList[index];
-            var nextToken = tokensList[index + 1];
-            var isIdentifier, needsSpace, value;
-
-            // checks if the aforementioned token requires space around
-            function tokenNeedsSpace(token) {
-                return tokensHelper.isIdentifier(token) || (isIdentifier && !tokensHelper.isSeparator(token));
-            }
-
-            if (!_.isPlainObject(term) || 'undefined' === typeof term.value) {
-                /**
-                 * @event termerror
-                 * @param {TypeError} err
-                 */
-                return this.trigger('termerror', new TypeError('Invalid term: ' + name));
-            }
-
-            value = term.value;
-
-            // will replace the current term if:
-            // - it is a 0, and the term to add is not an operator nor a dot
-            // - it is the last result, and the term to add is not an operator
-            if (
-                !tokensHelper.isOperator(term.type) &&
-                !rePrefixedTerm.test(term.value) &&
-                tokensList.length === 1 &&
-                ((currentToken.type === 'NUM0' && name !== 'DOT') || currentToken.type === 'ANS')
-            ) {
-                this.replace(value);
-            } else {
-                // simply add the term, with potentially spaces around
-                if (expression && !tokensHelper.isSeparator(term.type)) {
-                    isIdentifier = tokensHelper.isIdentifier(term.type);
-                    needsSpace = tokenNeedsSpace(currentToken);
-
-                    // prepend space when either the term to add or the previous term is an identifier
-                    if (position && needsSpace) {
-                        value = ' ' + value;
-                    }
-
-                    // append space when either the term to add or the next term is an identifier
-                    if ((!position && needsSpace) || (position < expression.length && tokenNeedsSpace(nextToken))) {
-                        value += ' ';
-                    }
-                }
-
-                this.insert(value);
-            }
-
-            /**
-             * @event termadd
-             * @param {String} name - The name of the added term
-             * @param {Object} term - The descriptor of the added term
-             */
-            this.trigger('termadd', name, term);
-
-            /**
-             * @event termadd-<name>
-             * @param {Object} term - The descriptor of the added term
-             */
-            this.trigger('termadd-' + name, term);
-
+        deleteCommand(name) {
+            calculator.deleteCommand(name);
             return this;
         },
 
@@ -493,28 +323,12 @@ function calculatorBoardFactory($container, pluginFactories, config) {
          * Inserts a term in the expression at the current position
          * @param {String} name - The name of the term to insert
          * @returns {calculator}
-         * @fires termerror if the term to add is invalid
+         * @fires error if the term to add is invalid
          * @fires termadd when the term has been added
          */
-        useTerm: function useTerm(name) {
-            var term;
-            if (rePrefixedTerm.test(name)) {
-                name = name.substring(1);
-                term = _.clone(registeredTerms[name]);
-                term.value = '@' + term.value;
-            } else {
-                term = registeredTerms[name];
-            }
-
-            if ('undefined' === typeof term) {
-                /**
-                 * @event termerror
-                 * @param {TypeError} err
-                 */
-                return this.trigger('termerror', new TypeError('Invalid term: ' + name));
-            }
-
-            return this.addTerm(name, term);
+        useTerm(name) {
+            calculator.insertTerm(name);
+            return this;
         },
 
         /**
@@ -522,16 +336,11 @@ function calculatorBoardFactory($container, pluginFactories, config) {
          * @param {String|String[]} names - The names of the terms to insert.
          *                                  Could be either an array of names or a list separated by spaces.
          * @returns {calculator}
-         * @fires termerror if a term to add is invalid
+         * @fires error if the term to add is invalid
          * @fires termadd when a term has been added
          */
-        useTerms: function useTerms(names) {
-            if ('string' === typeof names) {
-                names = names.split(/\s+/);
-            }
-
-            _.forEach(names, this.useTerm.bind(this));
-
+        useTerms(names) {
+            calculator.insertTermList(names);
             return this;
         },
 
@@ -539,106 +348,48 @@ function calculatorBoardFactory($container, pluginFactories, config) {
          * Inserts a variable as a term in the expression at the current position
          * @param {String} name - The name of the variable to insert
          * @returns {calculator}
-         * @fires termerror if the term to add is invalid
+         * @fires error if the term to add is invalid
          * @fires termadd when the term has been added
          */
-        useVariable: function useVariable(name) {
-            if (!variables.has(name)) {
-                /**
-                 * @event termerror
-                 * @param {TypeError} err
-                 */
-                return this.trigger('termerror', new TypeError('Invalid variable: ' + name));
-            }
-
-            return this.addTerm('VAR_' + name.toUpperCase(), {
-                label: name,
-                value: name,
-                type: 'variable',
-                description: __('Variable %s', name)
-            });
+        useVariable(name) {
+            calculator.insertVariable(name);
+            return this;
         },
 
         /**
          * Calls a command
          * @param {String} name - The name of the called command
-         * @param {*} ... - additional params for the command
+         * @param {...*} args - additional params for the command
          * @returns {calculator}
          * @fires command with the name and the parameters of the command
          * @fires command-<name> with the parameters of the command
-         * @fires commanderror if the command is invalid
+         * @fires error if the command is invalid
          */
-        useCommand: function useCommand(name) {
-            if (!commands.has(name)) {
-                /**
-                 * @event commanderror
-                 * @param {TypeError} err
-                 */
-                return this.trigger('commanderror', new TypeError('Invalid command: ' + name));
-            }
-
-            /**
-             * @event command
-             * @param {String} name - The name of the called command
-             * @param {*} ... - additional params for the command
-             */
-            this.trigger.apply(this, ['command'].concat([].slice.call(arguments)));
-
-            /**
-             * @event command-<name>
-             * @param {*} ... - additional params for the command
-             */
-            this.trigger.apply(this, ['command-' + name].concat([].slice.call(arguments, 1)));
-
+        useCommand(name, ...args) {
+            calculator.invoke(name, ...args);
             return this;
         },
 
         /**
          * Replaces the expression and move the cursor at the end.
-         * @param {String} newExpression - The new expression to set
-         * @param {Number|String} [newPosition=newExpression.length] - The new position to set
+         * @param {String} expression - The new expression to set
+         * @param {Number|String} [position=newExpression.length] - The new position to set
          * @returns {calculator}
          * @fires replace after the expression has been replaced
          */
-        replace: function replace(newExpression, newPosition) {
-            var oldExpression = expression;
-            var oldPosition = position;
-
-            this.setExpression(newExpression).setPosition(
-                'undefined' !== typeof newPosition ? newPosition : expression.length
-            );
-
-            /**
-             * @event replace
-             * @param {String} expression - the replaced expression
-             * @param {Number} position - the replaced position
-             */
-            this.trigger('replace', oldExpression, oldPosition);
-
+        replace(expression, position) {
+            calculator.replace(expression, position);
             return this;
         },
 
         /**
          * Inserts a sub-expression in the current expression and move the cursor.
-         * @param {String} subExpression - The sub-expression to insert
+         * @param {String} expression - The sub-expression to insert
          * @returns {calculator}
          * @fires insert after the expression has been inserted
          */
-        insert: function insert(subExpression) {
-            var oldExpression = expression;
-            var oldPosition = position;
-
-            this.setExpression(
-                expression.substr(0, position) + subExpression + expression.substr(position)
-            ).setPosition(position + subExpression.length);
-
-            /**
-             * @event insert
-             * @param {String} expression - the replaced expression
-             * @param {Number} position - the replaced position
-             */
-            this.trigger('insert', oldExpression, oldPosition);
-
+        insert(expression) {
+            calculator.insert(expression);
             return this;
         },
 
@@ -647,14 +398,8 @@ function calculatorBoardFactory($container, pluginFactories, config) {
          * @returns {calculator}
          * @fires clear after the expression has been cleared
          */
-        clear: function clear() {
-            this.setExpression('').setPosition(0);
-
-            /**
-             * @event clear
-             */
-            this.trigger('clear');
-
+        clear() {
+            calculator.clear();
             return this;
         },
 
@@ -662,30 +407,11 @@ function calculatorBoardFactory($container, pluginFactories, config) {
          * Evaluates the current expression
          * @returns {mathsExpression|null}
          * @fires evaluate when the expression has been evaluated
+         * @fires result when the result is available
          * @fires syntaxerror when the expression contains an error
          */
-        evaluate: function evaluate() {
-            var result = null;
-            try {
-                if (expression.trim()) {
-                    result = mathsEvaluator(expression, _.mapValues(this.getVariables(), 'result'));
-                } else {
-                    result = mathsEvaluator('0');
-                }
-
-                /**
-                 * @event evaluate
-                 * @param {mathsExpression} result
-                 */
-                this.trigger('evaluate', result);
-            } catch (e) {
-                /**
-                 * @event syntaxerror
-                 * @param {Error} err
-                 */
-                this.trigger('syntaxerror', e);
-            }
-            return result;
+        evaluate() {
+            return calculator.evaluate();
         },
 
         /**
@@ -694,11 +420,11 @@ function calculatorBoardFactory($container, pluginFactories, config) {
          * @param {String} method - the method to run
          * @returns {Promise} once that resolve when all plugins are done
          */
-        runPlugins: function runPlugins(method) {
-            var execStack = [];
+        runPlugins(method) {
+            const execStack = [];
 
-            _.forEach(plugins, function(plugin) {
-                if (_.isFunction(plugin[method])) {
+            plugins.forEach(plugin => {
+                if ('function' === typeof plugin[method]) {
                     execStack.push(plugin[method]());
                 }
             });
@@ -708,10 +434,10 @@ function calculatorBoardFactory($container, pluginFactories, config) {
 
         /**
          * Gets the calculator plugins
-         * @returns {Array} the plugins
+         * @returns {plugin[]} the plugins
          */
-        getPlugins: function getPlugins() {
-            return _.toArray(plugins);
+        getPlugins() {
+            return [...plugins.values()];
         },
 
         /**
@@ -719,15 +445,15 @@ function calculatorBoardFactory($container, pluginFactories, config) {
          * @param {String} name - the plugin name
          * @returns {plugin} the plugin
          */
-        getPlugin: function getPlugin(name) {
-            return plugins[name];
+        getPlugin(name) {
+            return plugins.get(name);
         },
 
         /**
          * Gets access to the areaBroker
          * @returns {areaBroker}
          */
-        getAreaBroker: function getAreaBroker() {
+        getAreaBroker() {
             return areaBroker;
         },
 
@@ -735,107 +461,240 @@ function calculatorBoardFactory($container, pluginFactories, config) {
          * Setups the maths evaluator
          * @returns {calculator}
          */
-        setupMathsEvaluator: function setupMathsEvaluator() {
-            mathsEvaluator = mathsEvaluatorFactory(this.getConfig().maths);
+        setupMathsEvaluator() {
+            calculator.configureMathsEvaluator(this.getConfig().maths);
             return this;
         },
 
         /**
          * Gets access to the mathsEvaluator
-         * @returns {Function}
+         * @returns {function}
          */
-        getMathsEvaluator: function getMathsEvaluator() {
-            return mathsEvaluator;
+        getMathsEvaluator() {
+            return calculator.getMathsEvaluator();
+        },
+
+        /**
+         * Sync the component state with the calculator state.
+         * @returns {calculator}
+         */
+        syncCalculatorState() {
+            const degree = calculator.isDegreeMode();
+            this.setState('degree', degree);
+            this.setState('radian', !degree);
+            return this;
         }
     };
 
     /**
-     * @typedef {component} calculator
+     * The calculator component
+     * @type {component}
      */
-    var calculator = componentFactory(calculatorApi, defaultConfig)
+    const calculatorComponent = componentFactory(calculatorApi, defaultConfig)
         .setTemplate(boardTpl)
-        .before('init', function() {
-            this.setupMathsEvaluator();
-            this.setLastResult('0');
-            if (this.config.expression) {
-                this.setExpression(this.config.expression);
-            }
-            if (this.config.position) {
-                this.setPosition(this.config.position);
-            }
-
-            // built-in commands
-            this.setCommand('clear', __('Clear'), __('Clear expression'))
-                .setCommand('clearAll', __('Clear All'), __('Clear all data'))
-                .setCommand('execute', __('Execute'), __('Compute the expression'))
-                .setCommand('var', __('Variable'), __('Use a variable'))
-                .setCommand('term', __('Term'), __('Use a term'))
-                .on('command-term', this.useTerms.bind(this))
-                .on('command-var', this.useVariable.bind(this))
-                .on('command-execute', this.evaluate.bind(this))
-                .on('command-clearAll', this.deleteVariables.bind(this))
-                .on('command-clear command-clearAll', this.clear.bind(this));
+        .before('init', function beforeInit() {
+            calculator
+                .configureMathsEvaluator(this.config.maths)
+                .on('configure', () => this.syncCalculatorState())
+                .on('expression', expression => this.trigger('expressionchange', expression))
+                .on('position', position => this.trigger('positionchange', position))
+                .on('variableadd', (name, value) => this.trigger('variableadd', name, value))
+                .on('variabledelete', name => this.trigger('variabledelete', name))
+                .on('variableclear', () => this.trigger('variableclear'))
+                .on('commandadd', name => this.trigger('commandadd', name))
+                .on('commanddelete', name => this.trigger('commanddelete', name))
+                .on('term', (name, term) => {
+                    this.trigger('termadd', name, term);
+                    this.trigger(`termadd-${name}`, term);
+                })
+                .on('command', (name, ...args) => {
+                    this.trigger('command', name, ...args);
+                    this.trigger(`command-${name}`, ...args);
+                })
+                .on('replace', (expression, position) => this.trigger('replace', expression, position))
+                .on('insert', (expression, position) => this.trigger('insert', expression, position))
+                .on('clear', () => this.trigger('clear'))
+                .on('reset', () => this.trigger('reset'))
+                .on('correct', () => this.trigger('correct'))
+                .on('evaluate', result => this.trigger('evaluate', result))
+                .on('result', result => this.trigger('result', result))
+                .on('syntaxerror', error => this.trigger('syntaxerror', error))
+                .on('error', error => this.trigger('error', error));
         })
-        .after('evaluate', function(result) {
-            this.setLastResult(result);
-        })
-        .after('init', function() {
+        .after('init', function afterInit() {
             this.render($container);
         })
-        .before('render', function() {
-            var self = this;
-            var pluginsConfig = this.getConfig().plugins || {};
-            var $element = this.getElement();
-
-            areaBroker = areaBrokerFactory($element, {
+        .before('render', function onRender() {
+            const $element = this.getElement();
+            areaBroker = areaBrokerFactory(calculatorAreas, $element, {
                 screen: $element.find('.screen'), // where the expressions and their result are rendered
                 input: $element.find('.input'), // where the expressions are input
                 keyboard: $element.find('.keyboard') // the keyboard area that should provide a way to interact with the calculator
             });
 
-            _.forEach(pluginFactories, function(pluginFactory) {
-                var plugin = pluginFactory(self, self.getAreaBroker());
-                var pluginName = plugin.getName();
-                if (pluginsConfig[pluginName]) {
-                    plugin.setConfig(pluginsConfig[pluginName]);
-                }
-                plugins[plugin.getName()] = plugin;
-            });
+            const pluginsConfig = this.getConfig().plugins || {};
+            if (Array.isArray(pluginFactories)) {
+                pluginFactories.forEach(pluginFactory => {
+                    const plugin = pluginFactory(this, this.getAreaBroker());
+                    const pluginName = plugin.getName();
+                    if (pluginsConfig[pluginName]) {
+                        plugin.setConfig(pluginsConfig[pluginName]);
+                    }
+                    plugins.set(plugin.getName(), plugin);
+                });
+            }
+
+            this.syncCalculatorState();
 
             return this.runPlugins('install')
-                .then(function() {
-                    return self.runPlugins('init');
-                })
-                .then(function() {
-                    return self.runPlugins('render');
-                })
-                .then(function() {
-                    /**
-                     * @event ready
-                     */
-                    self.trigger('ready');
-                })
-                .catch(function(err) {
-                    self.trigger('error', err);
-                });
+                .then(() => this.runPlugins('init'))
+                .then(() => this.runPlugins('render'))
+                .then(() => this.trigger('ready'))
+                .catch(err => this.trigger('error', err));
         })
-        .on('destroy', function() {
-            var self = this;
-            return this.runPlugins('destroy').then(function() {
-                self.off('.' + ns);
-                tokenizer = null;
+        .on('destroy', function onDestroy() {
+            return this.runPlugins('destroy').then(() => {
+                plugins.clear();
+                calculator.off();
+                this.removeAllListeners();
                 areaBroker = null;
-                mathsEvaluator = null;
-                variables.clear();
-                plugins = {};
             });
         });
 
-    _.defer(function() {
-        calculator.init(config);
-    });
+    setTimeout(() => calculatorComponent.init(config), 0);
 
-    return calculator;
+    return calculatorComponent;
 }
 
 export default calculatorBoardFactory;
+
+/**
+ * Notifies the expression has changed.
+ * @event expressionchange
+ * @param {string} expression - The new expression.
+ */
+
+/**
+ * Notifies the position inside the expression has changed.
+ * @event positionchange
+ * @param {number} position - The new position.
+ */
+
+/**
+ * Notifies a variable has been added.
+ * @event variableadd
+ * @param {string} name - The name of the new variable.
+ * @param {string} value - The value of the new variable.
+ */
+
+/**
+ * Notifies a variable has been removed.
+ * @event variabledelete
+ * @param {string} name - The name of the removed variable.
+ */
+
+/**
+ * Notifies all variables have been removed.
+ * @event variableclear
+ */
+
+/**
+ * Notifies a command has been registered.
+ * @event commandadd
+ * @param {string} name - The name of the new command.
+ */
+
+/**
+ * Notifies a command has been removed.
+ * @event commanddelete
+ * @param {string} name - The name of the removed command.
+ */
+
+/**
+ * Notifies a command has been invoked.
+ * @event command
+ * @param {string} name - The name of the called command
+ * @param {...*} args - Additional params for the command
+ */
+
+/**
+ * Notifies a particular command has been invoked.
+ * @event command-<name>
+ * @param {...*} args - Additional params for the command
+ */
+
+/**
+ * Notifies a term has been added to the expression.
+ * @event termadd
+ * @param {string} name - The name of the added term
+ * @param {term} term - The descriptor of the added term
+ */
+
+/**
+ * Notifies the expression has been replaced.
+ * @event replace
+ * @param {string} expression - The replaced expression
+ * @param {number} position - The replaced position
+ */
+
+/**
+ * Notifies a sub-expression has been inserted.
+ * @event insert
+ * @param {string} expression - The replaced expression
+ * @param {number} position - The replaced position
+ */
+
+/**
+ * Notifies the expression has been cleared.
+ * @event clear
+ */
+
+/**
+ * Notifies the calculator has been reset.
+ * @event reset
+ */
+
+/**
+ * Notifies the expression has been corrected.
+ * @event correct
+ */
+
+/**
+ * Notifies the expression has been evaluated.
+ * @event evaluate
+ * @param {mathsExpression} result - The result of the expression.
+ */
+
+/**
+ * Notifies the result is available.
+ * @event result
+ * @param {mathsExpression} result - The result of the expression.
+ */
+
+/**
+ * Notifies the expression has a syntax error.
+ * @event syntaxerror
+ * @param {Error} err - The error object.
+ */
+
+/**
+ * Notifies an error occurred.
+ * @event error
+ * @param {Error} err - The error object.
+ */
+
+/**
+ * @typedef {import('@oat-sa/tao-calculator/src/core/terms.js').term} term
+ */
+
+/**
+ * @typedef {import('@oat-sa/tao-calculator/src/core/tokenizer.js').token} token
+ */
+
+/**
+ * @typedef {import('@oat-sa/tao-calculator/src/core/mathsEvaluator.js').mathsExpression} mathsExpression
+ */
+
+/**
+ * @typedef {import('@oat-sa/tao-calculator/src/core/expression.js').renderTerm} renderTerm
+ */
