@@ -6,8 +6,8 @@
         <span class="spacer">{{{labels.SPACER}}}</span>
         <button class="key command" data-command="historyUp"><span>{{{labels.HISTORYUP}}}</span></button>
         <button class="key command" data-command="historyDown"><span>{{{labels.HISTORYDOWN}}}</span></button>
-        <button class="key command" data-command="stepDeleteLeft"><span>{{{labels.BACKSPACE}}}</span></button>
-        <button class="key command" data-command="clear"><span>{{{labels.CLEARALL}}}</span></button>
+        <button class="key command" data-command="deleteLeft"><span>{{{labels.BACKSPACE}}}</span></button>
+        <button class="key command" data-command="clear"><span>{{{labels.RESET}}}</span></button>
     </div>
     <div class="row">
         <button class="key operator" data-command="term" data-param="SIN"><span>{{{labels.SIN}}}</span></button>
@@ -43,7 +43,7 @@
         <button class="key operator" data-command="term" data-param="SQRT"><span>{{{labels.SQRT}}}</span></button>
         <button class="key operator" data-command="term" data-param="CBRT"><span>{{{labels.CBRT}}}</span></button>
         <button class="key operator" data-command="term" data-param="@NTHRT"><span>{{{labels.NTHRT}}}</span></button>
-        <button class="key operator" data-command="pow10"><span>{{{labels.POW10}}}</span></button>
+        <button class="key operator" data-command="term" data-param="TEN POW"><span>{{{labels.POW10}}}</span></button>
         <button class="key operand" data-command="term" data-param="NUM1"><span>{{{labels.NUM1}}}</span></button>
         <button class="key operand" data-command="term" data-param="NUM2"><span>{{{labels.NUM2}}}</span></button>
         <button class="key operand" data-command="term" data-param="NUM3"><span>{{{labels.NUM3}}}</span></button>
