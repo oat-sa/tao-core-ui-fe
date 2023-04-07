@@ -120,6 +120,7 @@ define(['jquery', 'ui/maths/calculator/core/plugin', 'ui/maths/calculator/core/b
             { title: 'insert' },
             { title: 'clear' },
             { title: 'evaluate' },
+            { title: 'renderExpression' },
             { title: 'runPlugins' },
             { title: 'getPlugins' },
             { title: 'getPlugin' },
@@ -1748,6 +1749,57 @@ define(['jquery', 'ui/maths/calculator/core/plugin', 'ui/maths/calculator/core/b
             .after('ready', function onReady() {
                 assert.equal($container.children().length, 1, 'The container contains an element');
                 this.destroy();
+            })
+            .after('destroy', ready)
+            .on('error', err => {
+                //eslint-disable-next-line no-console
+                console.error(err);
+                assert.ok(false, 'The operation should not fail!');
+                ready();
+            });
+    });
+
+    QUnit.test('renderExpression', assert => {
+        const ready = assert.async();
+        const $container = $('#fixture-renderExpression');
+
+        assert.expect(6);
+
+        assert.equal($container.children().length, 0, 'The container is empty');
+
+        const instance = calculatorBoardFactory($container);
+        instance
+            .on('init', function onInit() {
+                assert.equal(this, instance, 'The instance has been initialized');
+            })
+            .after('ready', function onReady() {
+                assert.equal($container.children().length, 1, 'The container contains an element');
+
+                const expression = '1+2';
+                const rendered =
+                    '<span class="term term-digit" data-value="1" data-token="NUM1" data-type="digit">1</span><span class="term term-operator" data-value="+" data-token="ADD" data-type="operator">+</span><span class="term term-digit" data-value="2" data-token="NUM2" data-type="digit">2</span>';
+
+                assert.equal(this.renderExpression(expression), rendered, `The expression ${expression} is rendered`);
+
+                this.replace(expression);
+
+                assert.equal(this.renderExpression(), rendered, `The recorded expression is rendered`);
+
+                return Promise.resolve()
+                    .then(
+                        () =>
+                            new Promise(resolve => {
+                                this.on('result', () => {
+                                    assert.equal(
+                                        this.renderExpression('ans'),
+                                        '<span class="term term-variable" data-value="ans" data-token="VAR_ANS" data-type="variable"><span class="term term-digit" data-value="3" data-token="NUM3" data-type="digit">3</span></span>',
+                                        `The result is rendered`
+                                    );
+                                    resolve();
+                                }).evaluate();
+                            })
+                    )
+                    .then(() => this.destroy());
             })
             .after('destroy', ready)
             .on('error', err => {
