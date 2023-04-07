@@ -40,7 +40,6 @@ define(['/node_modules/@oat-sa/tao-core-libs/dist/pathdefinition.js'], function(
                 'jquery.mockjax': '/node_modules/jquery-mockjax/dist/jquery.mockjax',
                 'jquery.fileDownload': '/lib/jquery.fileDownload',
                 'lib/flatpickr': '/node_modules/flatpickr/dist',
-                'lib/moo/moo': '/node_modules/moo/moo',
                 helpers: '/lib/helpers',
                 /* LIBS END */
 
