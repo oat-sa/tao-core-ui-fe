@@ -19,10 +19,15 @@
  * Defines the base component that will host the calculator UI and link it to the engine.
  */
 
-import { engineFactory, historyPlugin } from '@oat-sa/tao-calculator/dist';
+import Handlebars from 'handlebars';
+import { engineFactory, historyPlugin, defaultDecimalDigits, expressionHelper } from '@oat-sa/tao-calculator/dist';
 import areaBrokerFactory from 'ui/areaBroker';
 import componentFactory from 'ui/component';
 import boardTpl from 'ui/maths/calculator/core/tpl/board';
+import termsTpl from 'ui/maths/calculator/core/tpl/terms';
+
+Handlebars.registerHelper('isArray', Array.isArray);
+Handlebars.registerPartial('ui-maths-terms', termsTpl);
 
 /**
  * Default config values
@@ -412,6 +417,21 @@ function calculatorBoardFactory($container, pluginFactories, config) {
          */
         evaluate() {
             return calculator.evaluate();
+        },
+
+        /**
+         * Renders the expression into a string
+         * @param {string|object|token[]} expression
+         * @param {number} decimals - The number of decimals to present after the dot in the last result variable.
+         * @returns {string}
+         */
+        renderExpression(expression = null, decimals = defaultDecimalDigits) {
+            const tokens = expression === null ? calculator.getTokens() : expression;
+            const variables = expressionHelper.roundAllVariables(calculator.getAllVariables(), decimals);
+            const renderedTerms = expressionHelper.nestExponents(
+                expressionHelper.render(tokens, variables, calculator.getTokenizer())
+            );
+            return termsTpl(renderedTerms);
         },
 
         /**
