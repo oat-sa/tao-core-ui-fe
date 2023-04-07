@@ -67,6 +67,19 @@
         bottom: -0.5em;
     }
 
+    [data-type='exponent'] {
+        vertical-align: super;
+        font-size: 0.75em;
+    }
+
+    [data-type='variable'] {
+        font-weight: bold;
+    }
+
+    [data-type='function']:not([data-value*='rt']) {
+        padding-right: 0.3em;
+    }
+
     .screen,
     .input {
         position: relative;
