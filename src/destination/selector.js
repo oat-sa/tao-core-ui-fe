@@ -36,7 +36,8 @@ var defaultConfig = {
     title: __('Copy to'),
     description: __('Select a destination'),
     actionName: __('Copy'),
-    icon: 'copy'
+    icon: 'copy',
+    showACL: false
 };
 
 /**
@@ -86,6 +87,7 @@ export default function destinationSelectorFactory($container, config) {
     )
         .setTemplate(selectorTpl)
         .on('init', function() {
+            this.config.showACL = true;
             this.render($container);
         })
         .on('render', function() {
