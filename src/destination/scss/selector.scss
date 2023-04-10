@@ -15,17 +15,17 @@
         @include simple-border;
         background-color: $uiClickableDefaultBg;
         padding: 20px;
-        height: 500px;
+        height: 600px;
         position: relative;
 
-        & > p {
+        & > .section-title {
             font-weight: bold;
         }
     }
 
     .selector-container {
         position: relative;
-        height: calc(100% - 90px);
+        height: calc(100% - 190px);
     }
 
     .actions {
