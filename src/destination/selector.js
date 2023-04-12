@@ -53,6 +53,8 @@ var defaultConfig = {
  * @param {Object} [config.taskQueue] - define the taskQueue model to be used (only useful if the triggered action uses the task queue)
  * @param {String} [config.taskCreationUrl] - the task creation endpoint (only required if the option taskQueue is defined)
  * @param {Object} [config.taskCreationData] - optionally define the data that will be sent to the task creation endpoint
+ * @param {Boolean} [config.showACL] - optionally define if ACL controls shall appear on the interface
+ * @param {Boolean} [config.ACLMode] - define ACL default behavior on the interface
  * @param {Function} [config.preventSelection] - prevent selection callback (@see ui/resource/selectable)
  * @returns {destinationSelector} the component itself
  */
@@ -87,7 +89,6 @@ export default function destinationSelectorFactory($container, config) {
     )
         .setTemplate(selectorTpl)
         .on('init', function() {
-            this.config.showACL = true;
             this.render($container);
         })
         .on('render', function() {
