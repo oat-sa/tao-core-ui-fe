@@ -113,7 +113,7 @@ export default function destinationSelectorFactory($container, config) {
             };
 
             var getSelectedACLTransferMode = function getSelectedACLTransferMode() {
-                return 'acl.keep.original';
+                return $('input[name="acl-mode"]:checked').val();
             };
 
             if (this.config.taskQueue) {
