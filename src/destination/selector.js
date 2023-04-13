@@ -112,6 +112,10 @@ export default function destinationSelectorFactory($container, config) {
                 }
             };
 
+            var getSelectedACLTransferMode = function getSelectedACLTransferMode() {
+                return 'acl.keep.original';
+            };
+
             if (this.config.taskQueue) {
                 this.taskCreationButton = taskCreationButtonFactory({
                     type: 'info',
@@ -146,7 +150,7 @@ export default function destinationSelectorFactory($container, config) {
                          * @event destinationSelector#select
                          * @param {String} classUri - the destination class
                          */
-                        self.trigger('select', getSelectedUri());
+                        self.trigger('select', getSelectedUri(), getSelectedACLTransferMode());
                     }
 
                     if (self.config.confirm) {
