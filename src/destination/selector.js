@@ -37,7 +37,8 @@ var defaultConfig = {
     description: __('Select a destination'),
     actionName: __('Copy'),
     icon: 'copy',
-    showACL: false
+    showACL: false,
+    aclTransferMode: null
 };
 
 /**
