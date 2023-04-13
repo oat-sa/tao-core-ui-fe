@@ -54,7 +54,7 @@ var defaultConfig = {
  * @param {String} [config.taskCreationUrl] - the task creation endpoint (only required if the option taskQueue is defined)
  * @param {Object} [config.taskCreationData] - optionally define the data that will be sent to the task creation endpoint
  * @param {Boolean} [config.showACL] - optionally define if ACL controls shall appear on the interface
- * @param {String} [config.ACLMode] - define ACL default behavior on the interface
+ * @param {String} [config.aclTransferMode] - define ACL default behavior on the interface
  * @param {Function} [config.preventSelection] - prevent selection callback (@see ui/resource/selectable)
  * @returns {destinationSelector} the component itself
  */
