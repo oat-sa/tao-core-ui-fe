@@ -13,16 +13,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2018 Open Assessment Technologies SA ;
+ * Copyright (c) 2018-2023 Open Assessment Technologies SA ;
  */
-/**
- * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
- */
-import _ from 'lodash';
 import __ from 'i18n';
 import defaultCalculatorFactory from 'ui/maths/calculator/defaultCalculator';
-import pluginSign from 'ui/maths/calculator/plugins/modifiers/sign';
-import pluginPow10 from 'ui/maths/calculator/plugins/modifiers/pow10';
 import keyboardTpl from 'ui/maths/calculator/tpl/scientificKeyboard';
 import screenTpl from 'ui/maths/calculator/tpl/scientificScreen';
 
@@ -30,7 +24,7 @@ import screenTpl from 'ui/maths/calculator/tpl/scientificScreen';
  * Default config values
  * @type {Object}
  */
-var defaultConfig = {
+const defaultConfig = {
     title: __('Scientific Calculator'),
     width: 450,
     height: 400,
@@ -51,11 +45,8 @@ export default function scientificCalculator(config) {
     // to the instance. This wil avoid global polluting by successive instances, as nested objects and arrays might
     // be simply copied.
     return defaultCalculatorFactory(
-        _.merge(
+        Object.assign(
             {
-                loadedPlugins: {
-                    modifiers: [pluginSign, pluginPow10]
-                },
                 calculator: {
                     plugins: {
                         templateKeyboard: {
