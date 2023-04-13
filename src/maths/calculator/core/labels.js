@@ -13,63 +13,61 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2019 Open Assessment Technologies SA ;
- */
-/**
- * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
+ * Copyright (c) 2019-2023 Open Assessment Technologies SA ;
  */
 import __ from 'i18n';
+import { exponentLeft, exponentRight, subscriptRight, symbols, terms } from '@oat-sa/tao-calculator/dist';
 import historyUpTpl from 'ui/maths/calculator/core/tpl/historyUp';
 import historyDownTpl from 'ui/maths/calculator/core/tpl/historyDown';
 import backspaceTpl from 'ui/maths/calculator/core/tpl/backspace';
 
 export default {
     // Digits definition
-    NUM0: '0',
-    NUM1: '1',
-    NUM2: '2',
-    NUM3: '3',
-    NUM4: '4',
-    NUM5: '5',
-    NUM6: '6',
-    NUM7: '7',
-    NUM8: '8',
-    NUM9: '9',
-    DOT: '.',
-    EXP10: '\u00D710',
-    POW10: '10<sup>x</sup>',
+    NUM0: terms.NUM0.label,
+    NUM1: terms.NUM1.label,
+    NUM2: terms.NUM2.label,
+    NUM3: terms.NUM3.label,
+    NUM4: terms.NUM4.label,
+    NUM5: terms.NUM5.label,
+    NUM6: terms.NUM6.label,
+    NUM7: terms.NUM7.label,
+    NUM8: terms.NUM8.label,
+    NUM9: terms.NUM9.label,
+    DOT: terms.DOT.label,
+    EXP10: terms.EXP10.label,
+    POW10: exponentRight('10', 'x'),
 
     // Aggregators
-    LPAR: '(',
-    RPAR: ')',
+    LPAR: terms.LPAR.label,
+    RPAR: terms.RPAR.label,
 
     // Separator
-    COMMA: ',',
-    ELLIPSIS: '\u2026',
+    COMMA: terms.COMMA.label,
+    ELLIPSIS: terms.ELLIPSIS.label,
     SPACER: '',
 
     // Operators
-    SUB: '-',
-    ADD: '+',
-    POS: '\u207A',
-    NEG: '\u207B',
-    MUL: '\u00D7',
-    DIV: '\u00F7',
+    SUB: terms.SUB.label,
+    ADD: terms.ADD.label,
+    POS: terms.POS.label,
+    NEG: terms.NEG.label,
+    MUL: terms.MUL.label,
+    DIV: terms.DIV.label,
     MOD: __('modulo'),
-    POW: '^',
-    POW2: 'x<sup>2</sup>',
-    POW3: 'x<sup>3</sup>',
-    POWY: 'x<sup>y</sup>',
-    POWMINUSONE: 'x<sup>\u207B' + '1</sup>',
-    FAC: '!',
-    ASSIGN: '=',
+    POW: terms.POW.label,
+    POW2: exponentRight('x', '2'),
+    POW3: exponentRight('x', '3'),
+    POWY: exponentRight('x', 'y'),
+    POWMINUSONE: exponentRight('x', symbols.minusOne),
+    FAC: terms.FAC.label,
+    ASSIGN: terms.ASSIGN.label,
 
     // Variables
     ANS: __('Ans'),
 
     // Constants
-    PI: '\u03C0',
-    E: 'e',
+    PI: terms.PI.label,
+    E: terms.E.label,
 
     // Errors
     NAN: __('Error'),
@@ -78,10 +76,10 @@ export default {
 
     // Functions
     EXP: __('exp'),
-    EXPX: 'e<sup>x</sup>',
-    SQRT: '\u221A',
-    CBRT: '<sup>3</sup>\u221A',
-    NTHRT: '<sup>y</sup>\u221Ax',
+    EXPX: exponentRight(symbols.euler, 'x'),
+    SQRT: terms.SQRT.label,
+    CBRT: exponentLeft(symbols.squareRoot, '3'),
+    NTHRT: `${exponentLeft(symbols.squareRoot, 'y')}x`,
     FLOOR: __('floor'),
     CEIL: __('ceil'),
     ROUND: __('round'),
@@ -89,23 +87,23 @@ export default {
     SIN: __('sin'),
     COS: __('cos'),
     TAN: __('tan'),
-    ASIN: __('sin') + '<sup>\u207B1</sup>',
-    ACOS: __('cos') + '<sup>\u207B1</sup>',
-    ATAN: __('tan') + '<sup>\u207B1</sup>',
+    ASIN: exponentRight(__('sin'), symbols.minusOne),
+    ACOS: exponentRight(__('cos'), symbols.minusOne),
+    ATAN: exponentRight(__('tan'), symbols.minusOne),
     SINH: __('sinh'),
     COSH: __('cosh'),
     TANH: __('tanh'),
-    ASINH: __('sinh') + '<sup>\u207B1</sup>',
-    ACOSH: __('cosh') + '<sup>\u207B1</sup>',
-    ATANH: __('tanh') + '<sup>\u207B1</sup>',
+    ASINH: exponentRight(__('sinh'), symbols.minusOne),
+    ACOSH: exponentRight(__('cosh'), symbols.minusOne),
+    ATANH: exponentRight(__('tanh'), symbols.minusOne),
     LN: 'ln',
-    LOG: 'log<sub>10</sub>',
+    LOG: subscriptRight('log', '10'),
     ABS: __('abs'),
     RAND: __('random'),
 
     // Actions
     CLEAR: __('C'),
-    CLEARALL: __('AC'),
+    RESET: __('AC'),
     EXECUTE: '=',
     HISTORYUP: historyUpTpl(),
     HISTORYDOWN: historyDownTpl(),
