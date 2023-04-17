@@ -1,11 +1,11 @@
-@import "inc/bootstrap";
+@import 'inc/bootstrap';
 
-.destination-selector{
+.destination-selector {
     position: relative;
 
     width: 400px;
 
-    opacity : 0;
+    opacity: 0;
     &.rendered {
         opacity: 1;
         @include transition(opacity, 300ms, linear);
@@ -31,4 +31,3 @@
         text-align: right;
     }
 }
-

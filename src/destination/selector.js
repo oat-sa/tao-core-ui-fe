@@ -89,10 +89,10 @@ export default function destinationSelectorFactory($container, config) {
         defaultConfig
     )
         .setTemplate(selectorTpl)
-        .on('init', function() {
+        .on('init', function () {
             this.render($container);
         })
-        .on('render', function() {
+        .on('render', function () {
             var self = this;
             var $component = this.getElement();
 
@@ -127,11 +127,11 @@ export default function destinationSelectorFactory($container, config) {
                     taskCreationUrl: this.config.taskCreationUrl,
                     taskReportContainer: $container
                 })
-                    .on('finished', function(result) {
+                    .on('finished', function (result) {
                         self.trigger('finished', result, self.taskCreationButton);
                         this.reset(); //reset the button
                     })
-                    .on('continue', function() {
+                    .on('continue', function () {
                         self.trigger('continue');
                     });
             } else {
@@ -144,7 +144,7 @@ export default function destinationSelectorFactory($container, config) {
             }
 
             this.taskCreationButton
-                .on('started', function() {
+                .on('started', function () {
                     function triggerAction() {
                         /**
                          * @event destinationSelector#select
@@ -154,14 +154,14 @@ export default function destinationSelectorFactory($container, config) {
                     }
 
                     if (self.config.confirm) {
-                        confirmDialog(self.config.confirm, triggerAction, function() {
+                        confirmDialog(self.config.confirm, triggerAction, function () {
                             self.taskCreationButton.terminate().reset();
                         });
                     } else {
                         triggerAction();
                     }
                 })
-                .on('error', function(err) {
+                .on('error', function (err) {
                     self.trigger('error', err);
                 })
                 .render($component.find('.actions'))
@@ -181,7 +181,7 @@ export default function destinationSelectorFactory($container, config) {
             this.resourceSelector.spread(this, ['query', 'error', 'update']);
 
             //enable disable the action button
-            this.resourceSelector.on('change', function(selected) {
+            this.resourceSelector.on('change', function (selected) {
                 if (selected && _.size(selected) > 0) {
                     self.taskCreationButton.enable();
 
@@ -195,7 +195,7 @@ export default function destinationSelectorFactory($container, config) {
             });
         });
 
-    _.defer(function() {
+    _.defer(function () {
         destinationSelector.init(config);
     });
 
