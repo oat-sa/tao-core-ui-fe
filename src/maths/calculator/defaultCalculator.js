@@ -15,6 +15,7 @@
  *
  * Copyright (c) 2018-2023 Open Assessment Technologies SA ;
  */
+import _ from 'lodash';
 import calculatorComponent from 'ui/maths/calculator/calculatorComponent';
 import pluginKeyboardFactory from 'ui/maths/calculator/plugins/keyboard/templateKeyboard/templateKeyboard';
 import pluginScreenFactory from 'ui/maths/calculator/plugins/screen/simpleScreen/simpleScreen';
@@ -29,7 +30,7 @@ import pluginScreenFactory from 'ui/maths/calculator/plugins/screen/simpleScreen
  */
 export default function defaultCalculatorFactory(config) {
     const defaultPluginsConfig = {};
-    const { keyboardLayout, screenLayout, ...calculatorConfig } = config || {};
+    const { keyboardLayout, screenLayout } = config || {};
 
     if (keyboardLayout) {
         defaultPluginsConfig.templateKeyboard = {
@@ -43,7 +44,7 @@ export default function defaultCalculatorFactory(config) {
         };
     }
 
-    config = Object.assign(
+    config = _.merge(
         {
             // The list of default plugins is directly built here instead of using a module variable to ensure the
             // object is unique to the instance. This wil avoid global polluting by successive instances, as nested
@@ -56,7 +57,7 @@ export default function defaultCalculatorFactory(config) {
                 plugins: defaultPluginsConfig
             }
         },
-        calculatorConfig
+        _.omit(config, ['keyboardLayout', 'screenLayout'])
     );
 
     return calculatorComponent(config);

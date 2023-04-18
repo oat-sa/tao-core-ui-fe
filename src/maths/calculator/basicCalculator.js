@@ -15,6 +15,7 @@
  *
  * Copyright (c) 2018-2023 Open Assessment Technologies SA ;
  */
+import _ from 'lodash';
 import defaultCalculatorFactory from 'ui/maths/calculator/defaultCalculator';
 import keyboardTpl from 'ui/maths/calculator/tpl/basicKeyboard';
 import screenTpl from 'ui/maths/calculator/tpl/basicScreen';
@@ -32,7 +33,7 @@ export default function basicCalculatorFactory(config) {
     // to the instance. This wil avoid global polluting by successive instances, as nested objects and arrays might
     // be simply copied.
     return defaultCalculatorFactory(
-        Object.assign(
+        _.merge(
             {
                 calculator: {
                     plugins: {
