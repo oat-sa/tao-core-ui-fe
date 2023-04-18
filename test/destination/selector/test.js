@@ -326,7 +326,9 @@ define(['jquery', 'ui/destination/selector', 'json!test/ui/destination/selector/
         assert.expect(1);
 
         destinationSelectorFactory(container, {
-            classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
+            classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
+            showACL: true,
+            aclTransferMode: 'acl.keep.original'
         })
             .on('query', function(params) {
                 this.update(classes, params);
