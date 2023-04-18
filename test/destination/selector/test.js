@@ -180,7 +180,7 @@ define(['jquery', 'ui/destination/selector', 'json!test/ui/destination/selector/
                 );
 
                 assert.equal($('.permissions-settings-container', $container).length, 1, 'ACL permissions selectors are present');
-                assert.equal($('#acl-keep-original:checked', $container).length, 1, 'ACL mode default value is selected');
+                assert.equal($('.acl-keep-original:checked', $container).length, 1, 'ACL mode default value is selected');
 
                 assert.equal(
                     $element
