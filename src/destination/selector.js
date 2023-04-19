@@ -98,10 +98,6 @@ export default function destinationSelectorFactory($container, config) {
             var self = this;
             var $component = this.getElement();
 
-            $('.acl-mode-radio', $component).change(function () {
-                $('.acl-mode-radio', $component).not(this).prop('checked', false);
-            });
-
             /**
              * Get the current selected class uri
              * @returns {String} the selected uri
@@ -118,7 +114,7 @@ export default function destinationSelectorFactory($container, config) {
                 }
             };
 
-            const getSelectedACLTransferMode = () => $('input.acl-mode-radio:checked', $component).val();
+            const getSelectedACLTransferMode = () => $('input[name="acl-mode"]:checked', $component).val();
 
             if (this.config.taskQueue) {
                 this.taskCreationButton = taskCreationButtonFactory({
