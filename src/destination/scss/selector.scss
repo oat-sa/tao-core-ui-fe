@@ -16,14 +16,19 @@
         background-color: $uiClickableDefaultBg;
         padding: 20px;
         position: relative;
+    }
 
-        & > .section-title {
-            font-weight: bold;
-        }
+    .section-title {
+        font-weight: bold;
     }
 
     .selector-container {
         position: relative;
+        height: 350px;
+    }
+
+    .permissions-settings-container {
+        margin-top: 15px;
     }
 
     .actions {
