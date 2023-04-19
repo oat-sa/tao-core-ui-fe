@@ -5,6 +5,8 @@
   "classUri": null,
   "state": "open",
   "count": 0,
+  "showACL": false,
+  "aclTransferMode": null,
   "children": [{
     "label": "Item_2",
     "type": "class",
