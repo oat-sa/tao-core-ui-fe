@@ -104,7 +104,7 @@ export default function destinationSelectorFactory($container, config) {
              * Get the current selected class uri
              * @returns {String} the selected uri
              */
-            var getSelectedUri = function getSelectedUri() {
+            const getSelectedUri = () => {
                 var select = self.resourceSelector.getSelection();
                 var uris;
                 //validate the selection
