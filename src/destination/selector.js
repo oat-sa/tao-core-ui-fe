@@ -31,6 +31,7 @@ import loadingButtonFactory from 'ui/loadingButton/loadingButton';
 import taskCreationButtonFactory from 'ui/taskQueueButton/standardButton';
 import selectorTpl from 'ui/destination/tpl/selector';
 import 'ui/destination/css/selector.css';
+import uuid from 'lib/uuid';
 
 var defaultConfig = {
     title: __('Copy to'),
@@ -90,6 +91,7 @@ export default function destinationSelectorFactory($container, config) {
     )
         .setTemplate(selectorTpl)
         .on('init', function () {
+            this.config.uniqId = uuid(8);
             this.render($container);
         })
         .on('render', function () {
