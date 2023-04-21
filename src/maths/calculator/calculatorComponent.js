@@ -13,22 +13,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2018-2019 Open Assessment Technologies SA ;
+ * Copyright (c) 2018-2023 Open Assessment Technologies SA ;
  */
-/**
- * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
- */
-import _ from 'lodash';
+import context from 'context';
 import dynamicComponent from 'ui/dynamicComponent';
 import calculatorBoardFactory from 'ui/maths/calculator/core/board';
-import pluginsLoader from 'ui/maths/calculator/pluginsLoader';
+import pluginLoaderFactory from 'core/pluginLoader';
 import 'ui/maths/calculator/css/calculator.css';
 
 /**
  * Default config values
  * @type {Object}
  */
-var defaultConfig = {
+const defaultConfig = {
     preserveAspectRatio: false,
     width: 240,
     height: 360,
@@ -46,70 +43,64 @@ var defaultConfig = {
  * @returns {dynamicComponent}
  */
 export default function calculatorComponentFactory(config) {
-    var calculator, calculatorComponent;
+    let calculator;
 
-    var api = {
+    const api = {
         /**
          * Gets the nested calculator
          * @returns {calculator}
          */
-        getCalculator: function getCalculator() {
+        getCalculator() {
             return calculator;
         }
     };
 
-    calculatorComponent = dynamicComponent(api, defaultConfig)
-        .on('rendercontent', function($content) {
-            const self = this;
-            const initialWidth = self.getElement().width();
-            const initialHeight = self.getElement().height();
+    const calculatorComponent = dynamicComponent(api, defaultConfig)
+        .on('rendercontent', function onRenderContent($content) {
+            const initialWidth = this.getElement().width();
+            const initialHeight = this.getElement().height();
 
-            return pluginsLoader(this.getConfig().loadedPlugins, this.getConfig().dynamicPlugins).then(function(
-                loadedPlugins
-            ) {
-                return new Promise(function(resolve) {
-                    calculator = calculatorBoardFactory($content, loadedPlugins, self.getConfig().calculator).on(
-                        'ready',
-                        function() {
-                            var initialFontSize =
-                                parseInt(
-                                    self
-                                        .getCalculator()
-                                        .getElement()
-                                        .css('fontSize'),
-                                    10
-                                ) || 10;
-                            self.on('resize', function() {
-                                if (self.getElement()) {
-                                    self.getCalculator()
-                                        .getElement()
-                                        .css(
-                                            'fontSize',
-                                            initialFontSize *
-                                                Math.min(
-                                                    self.getElement().width() / initialWidth,
-                                                    self.getElement().height() / initialHeight
-                                                )
-                                        );
-                                }
-                            })
-                                .setContentSize(
-                                    calculator.getElement().outerWidth(),
-                                    calculator.getElement().outerHeight()
-                                )
-                                .setState('ready')
-                                .trigger('ready');
-                            resolve();
-                        }
-                    );
+            return pluginLoaderFactory(this.getConfig().loadedPlugins)
+                .addList(this.getConfig().dynamicPlugins)
+                .load(context.bundle)
+                .then(loadedPlugins => {
+                    return new Promise(resolve => {
+                        calculator = calculatorBoardFactory($content, loadedPlugins, this.getConfig().calculator).on(
+                            'ready',
+                            () => {
+                                var initialFontSize =
+                                    parseInt(this.getCalculator().getElement().css('fontSize'), 10) || 10;
+                                this.on('resize', () => {
+                                    if (this.getElement()) {
+                                        this.getCalculator()
+                                            .getElement()
+                                            .css(
+                                                'fontSize',
+                                                initialFontSize *
+                                                    Math.min(
+                                                        this.getElement().width() / initialWidth,
+                                                        this.getElement().height() / initialHeight
+                                                    )
+                                            );
+                                    }
+                                })
+                                    .setContentSize(
+                                        calculator.getElement().outerWidth(),
+                                        calculator.getElement().outerHeight()
+                                    )
+                                    .setState('ready')
+                                    .trigger('ready');
+                                resolve();
+                            }
+                        );
+                    });
                 });
-            });
         })
-        .on('destroy', function() {
-            return new Promise(function(resolve) {
+        .on('destroy', () => {
+            return new Promise(resolve => {
                 if (calculator) {
                     calculator
-                        .after('destroy', function() {
+                        .after('destroy', () => {
                             calculator = null;
                             resolve();
                         })
@@ -120,9 +111,7 @@ export default function calculatorComponentFactory(config) {
             });
         });
 
-    _.defer(function() {
-        calculatorComponent.init(config);
-    });
+    setTimeout(() => calculatorComponent.init(config), 0);
 
     return calculatorComponent;
 }

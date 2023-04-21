@@ -13,14 +13,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2018 Open Assessment Technologies SA ;
+ * Copyright (c) 2018-2023 Open Assessment Technologies SA ;
  */
-/**
- * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
- */
-define(['jquery', 'lodash', 'ui/maths/calculator/core/plugin', 'ui/maths/calculator/calculatorComponent'], function (
+define(['jquery', 'ui/maths/calculator/core/plugin', 'ui/maths/calculator/calculatorComponent'], function (
     $,
-    _,
     pluginFactory,
     calculatorComponentFactory
 ) {
@@ -28,7 +24,7 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/plugin', 'ui/maths/calcula
 
     QUnit.module('Factory');
 
-    QUnit.test('module', function (assert) {
+    QUnit.test('module', assert => {
         assert.expect(3);
         assert.equal(typeof calculatorComponentFactory, 'function', 'The module exposes a function');
         assert.equal(typeof calculatorComponentFactory(), 'object', 'The factory produces an object');
@@ -57,42 +53,39 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/plugin', 'ui/maths/calcula
             { title: 'setTemplate' },
             { title: 'getConfig' }
         ])
-        .test('inherited API ', function (data, assert) {
-            var instance = calculatorComponentFactory();
+        .test('inherited API ', (data, assert) => {
+            const instance = calculatorComponentFactory();
             assert.expect(1);
             assert.equal(typeof instance[data.title], 'function', `The instance exposes a "${data.title}" function`);
         });
 
     QUnit.cases
         .init([{ title: 'on' }, { title: 'off' }, { title: 'trigger' }, { title: 'spread' }])
-        .test('event API ', function (data, assert) {
-            var instance = calculatorComponentFactory();
+        .test('event API ', (data, assert) => {
+            const instance = calculatorComponentFactory();
             assert.expect(1);
             assert.equal(typeof instance[data.title], 'function', `The instance exposes a "${data.title}" function`);
         });
 
-    QUnit.cases.init([{ title: 'getCalculator' }]).test('calculatorComponentFactory API ', function (data, assert) {
-        var instance = calculatorComponentFactory();
+    QUnit.cases.init([{ title: 'getCalculator' }]).test('calculatorComponentFactory API ', (data, assert) => {
+        const instance = calculatorComponentFactory();
         assert.expect(1);
         assert.equal(typeof instance[data.title], 'function', `The instance exposes a "${data.title}" function`);
     });
 
     QUnit.module('Life cycle');
 
-    QUnit.test('init', function (assert) {
-        var ready = assert.async();
-        var instance;
+    QUnit.test('init', assert => {
+        const ready = assert.async();
         assert.expect(1);
 
-        instance = calculatorComponentFactory()
-            .after('init', function () {
+        const instance = calculatorComponentFactory()
+            .after('init', function onInit() {
                 assert.equal(this, instance, 'The instance has been initialized');
                 this.destroy();
             })
-            .on('destroy', function () {
-                ready();
-            })
-            .on('error', function (err) {
+            .on('destroy', ready)
+            .on('error', err => {
                 //eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
@@ -100,16 +93,15 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/plugin', 'ui/maths/calcula
             });
     });
 
-    QUnit.test('render', function (assert) {
-        var ready = assert.async();
-        var $container = $('#fixture-render');
-        var instance;
+    QUnit.test('render', assert => {
+        const ready = assert.async();
+        const $container = $('#fixture-render');
 
         assert.expect(5);
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
-        instance = calculatorComponentFactory({
+        const instance = calculatorComponentFactory({
             renderTo: $container,
             dynamicPlugins: [
                 {
@@ -124,10 +116,10 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/plugin', 'ui/maths/calcula
                 }
             ]
         })
-            .on('init', function () {
+            .on('init', function onInit() {
                 assert.equal(this, instance, 'The instance has been initialized');
             })
-            .on('ready', function () {
+            .on('ready', function onReady() {
                 assert.equal($container.children().length, 1, 'The container contains an element');
 
                 assert.equal(typeof instance.getCalculator(), 'object', 'The calculator component is reachable');
@@ -135,10 +127,8 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/plugin', 'ui/maths/calcula
 
                 this.destroy();
             })
-            .on('destroy', function () {
-                ready();
-            })
-            .on('error', function (err) {
+            .on('destroy', ready)
+            .on('error', err => {
                 //eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
@@ -146,26 +136,25 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/plugin', 'ui/maths/calcula
             });
     });
 
-    QUnit.test('additional plugins', function (assert) {
-        var ready = assert.async();
-        var $container = $('#fixture-plugin');
-        var instance;
+    QUnit.test('additional plugins', assert => {
+        const ready = assert.async();
+        const $container = $('#fixture-plugin');
 
-        var plugin1 = pluginFactory({
+        const plugin1 = pluginFactory({
             name: 'plugin1',
-            install: function install() {
+            install() {
                 assert.ok(true, 'The plugin1 is installed');
             },
-            init: function init() {
+            init() {
                 assert.ok(true, 'The plugin1 is initialized');
             }
         });
-        var plugin2 = pluginFactory({
+        const plugin2 = pluginFactory({
             name: 'plugin2',
-            install: function install() {
+            install() {
                 assert.ok(true, 'The plugin2 is installed');
             },
-            init: function init() {
+            init() {
                 assert.ok(true, 'The plugin2 is initialized');
             }
         });
@@ -174,24 +163,22 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/plugin', 'ui/maths/calcula
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
-        instance = calculatorComponentFactory({
+        const instance = calculatorComponentFactory({
             loadedPlugins: {
                 additional: [plugin1, plugin2]
             },
             renderTo: $container
         })
-            .on('init', function () {
+            .on('init', function onInit() {
                 assert.equal(this, instance, 'The instance has been initialized');
             })
-            .on('ready', function () {
+            .on('ready', function onReady() {
                 assert.equal($container.children().length, 1, 'The container contains an element');
 
                 this.destroy();
             })
-            .on('destroy', function () {
-                ready();
-            })
-            .on('error', function (err) {
+            .on('destroy', ready)
+            .on('error', err => {
                 //eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
@@ -199,30 +186,29 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/plugin', 'ui/maths/calcula
             });
     });
 
-    QUnit.test('destroy', function (assert) {
-        var ready = assert.async();
-        var $container = $('#fixture-destroy');
-        var instance;
+    QUnit.test('destroy', assert => {
+        const ready = assert.async();
+        const $container = $('#fixture-destroy');
 
         assert.expect(4);
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
-        instance = calculatorComponentFactory({ renderTo: $container })
-            .on('init', function () {
+        const instance = calculatorComponentFactory({ renderTo: $container })
+            .on('init', function onInit() {
                 assert.equal(this, instance, 'The instance has been initialized');
             })
-            .on('ready', function () {
+            .on('ready', function onReady() {
                 assert.equal($container.children().length, 1, 'The container contains an element');
 
                 this.destroy();
             })
-            .after('destroy', function () {
+            .after('destroy', () => {
                 assert.equal($container.children().length, 0, 'The container is now empty');
 
                 ready();
             })
-            .on('error', function (err) {
+            .on('error', err => {
                 //eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');
@@ -232,16 +218,15 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/plugin', 'ui/maths/calcula
 
     QUnit.module('visual test');
 
-    QUnit.test('calculatorComponent', function (assert) {
-        var ready = assert.async();
-        var $container = $('#visual-test');
-        var instance;
+    QUnit.test('calculatorComponent', assert => {
+        const ready = assert.async();
+        const $container = $('#visual-test');
 
         assert.expect(3);
 
         assert.equal($container.children().length, 0, 'The container is empty');
 
-        instance = calculatorComponentFactory({
+        const instance = calculatorComponentFactory({
             renderTo: $container,
             dynamicPlugins: [
                 {
@@ -256,15 +241,15 @@ define(['jquery', 'lodash', 'ui/maths/calculator/core/plugin', 'ui/maths/calcula
                 }
             ]
         })
-            .on('init', function () {
+            .on('init', function onInit() {
                 assert.equal(this, instance, 'The instance has been initialized');
             })
-            .on('ready', function () {
+            .on('ready', function onReady() {
                 assert.equal($container.children().length, 1, 'The container contains an element');
 
                 ready();
             })
-            .on('error', function (err) {
+            .on('error', err => {
                 //eslint-disable-next-line no-console
                 console.error(err);
                 assert.ok(false, 'The operation should not fail!');

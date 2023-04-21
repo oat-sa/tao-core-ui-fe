@@ -13,41 +13,55 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2018 Open Assessment Technologies SA ;
+ * Copyright (c) 2018-2023 Open Assessment Technologies SA ;
  */
 /**
  * Plugin that manages a simple screen for the calculator, with configurable layout.
- * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
  */
 import $ from 'jquery';
-import _ from 'lodash';
 import nsHelper from 'util/namespace';
 import scrollHelper from 'ui/scroller';
-import registeredTerms from 'ui/maths/calculator/core/terms';
-import expressionHelper from 'ui/maths/calculator/core/expression';
+import { terms, tokensHelper } from '@oat-sa/tao-calculator/dist';
 import pluginFactory from 'ui/maths/calculator/core/plugin';
 import historyTpl from 'ui/maths/calculator/plugins/screen/simpleScreen/history';
 import defaultScreenTpl from 'ui/maths/calculator/plugins/screen/simpleScreen/defaultTemplate';
 
-var pluginName = 'simpleScreen';
-
-/**
- * Default displayed value
- * @type {String}
- */
-var defaultExpression = '0';
+const pluginName = 'simpleScreen';
+const lastResultVariable = terms.VAR_ANS.value;
+const errorValue = terms.ERROR.value;
+const defaultExpression = '0';
 
 /**
  * Default plugin config
- * @type {Object}
+ * @type {object}
  */
-var defaultConfig = {
+const defaultConfig = {
     // the layout of the screen
     layout: defaultScreenTpl,
 
     // number of decimal digits shown for decimal numbers
     decimalDigits: 5
 };
+
+/**
+ * Auto scroll to the last child of a container
+ * @param {jQuery} $container
+ * @param {string} [sel]
+ */
+function autoScroll($container, sel) {
+    scrollHelper.scrollTo($container.find(':last-child ' + (sel || '')), $container);
+}
+
+/**
+ * Renders HTML into a container and make sure the last child is visible.
+ * @param {jQuery} $container
+ * @param {string} html
+ * @param {string} [sel]
+ */
+function renderHtml($container, html, sel) {
+    $container.html(html);
+    autoScroll($container, sel);
+}
 
 export default pluginFactory(
     {
@@ -56,134 +70,114 @@ export default pluginFactory(
         /**
          * Called when the plugin should be initialized.
          */
-        init: function init() {
-            var calculator = this.getCalculator();
-
-            /**
-             * Reset the current expression
-             */
-            function reset() {
-                calculator.replace(calculator.getConfig().expression || defaultExpression);
-            }
-
-            reset();
-
-            calculator
-                .after(nsHelper.namespaceAll('expressionchange', pluginName), function (expression) {
-                    // ensure the displayed expression is at least a 0 (never be an empty string)
-                    if (!expression.trim()) {
-                        _.defer(reset);
-                    }
-                })
-                .after(nsHelper.namespaceAll('evaluate', pluginName), function () {
-                    // when the expression is computed, replace it with the result as a variable
-                    calculator.replace(registeredTerms.ANS.value);
-                })
-                .on(nsHelper.namespaceAll('clear', pluginName), reset);
+        init() {
+            // required by the plugin factory to validate this plugin
         },
 
         /**
          * Called when the plugin should be rendered.
          */
-        render: function render() {
-            var self = this;
-            var calculator = this.getCalculator();
-            var areaBroker = calculator.getAreaBroker();
-            var pluginConfig = this.getConfig();
-            var tokenizer = calculator.getTokenizer();
+        render() {
+            const calculator = this.getCalculator();
+            const engine = calculator.getCalculator();
+            const areaBroker = calculator.getAreaBroker();
+            const pluginConfig = this.getConfig();
 
-            /**
-             * Auto scroll to the last child of a container
-             * @param {jQuery} $container
-             * @param {String} [sel]
-             */
-            function autoScroll($container, sel) {
-                scrollHelper.scrollTo($container.find(':last-child ' + (sel || '')), $container);
-            }
-
-            /**
-             * Renders the expression into a string
-             * @param {String|Object|token[]} expression
-             * @returns {String}
-             */
-            function renderExpression(expression) {
-                var variables = expressionHelper.roundLastResultVariable(
-                    calculator.getVariables(),
-                    pluginConfig.decimalDigits
-                );
-                return expressionHelper.render(expression, variables, tokenizer);
-            }
-
-            /**
-             * Updates the expression area
-             * @param {String|Object|token[]} tokens
-             */
-            function showExpression(tokens) {
-                self.controls.$expression.html(renderExpression(tokens));
-                autoScroll(self.controls.$expression);
-            }
-
-            if (!_.isFunction(pluginConfig.layout)) {
+            if ('function' !== typeof pluginConfig.layout) {
                 throw new TypeError('The screen plugin requires a template to render!');
+            }
+
+            if (!calculator.getExpression().trim()) {
+                calculator.replace(defaultExpression);
             }
 
             this.$layout = $(
                 pluginConfig.layout(
-                    _.defaults(
-                        {
-                            expression: renderExpression(calculator.getTokens())
-                        },
-                        pluginConfig
-                    )
+                    Object.assign({}, pluginConfig, {
+                        expression: calculator.renderExpression()
+                    })
                 )
             );
+            areaBroker.getScreenArea().append(this.$layout);
 
-            this.controls = {
-                $history: this.$layout.find('.history'),
-                $expression: this.$layout.find('.expression')
-            };
+            const $history = this.$layout.find('.history');
+            const $expression = this.$layout.find('.expression');
+            const showExpression = tokens => renderHtml($expression, calculator.renderExpression(tokens));
+            let active = false;
 
             calculator
-                .on(nsHelper.namespaceAll('command-clearAll', pluginName), function () {
-                    self.controls.$history.empty();
-                })
-                .on(nsHelper.namespaceAll('expressionchange', pluginName), function () {
-                    calculator.setState('error', false);
+                .on(nsHelper.namespaceAll('expressionchange', pluginName), () => {
                     showExpression(calculator.getTokens());
                 })
-                .on(nsHelper.namespaceAll('evaluate', pluginName), function (result) {
-                    self.controls.$history.html(
+                .on(nsHelper.namespaceAll('result', pluginName), result => {
+                    const { error } = engine;
+                    calculator.setState('error', error);
+                    active = false;
+
+                    renderHtml(
+                        $history,
                         historyTpl({
-                            expression: renderExpression(calculator.getTokens()),
-                            result: renderExpression(result)
-                        })
+                            expression: calculator.renderExpression(),
+                            result: calculator.renderExpression(result)
+                        }),
+                        '.history-result'
                     );
-                    autoScroll(self.controls.$history, '.history-result');
-                })
-                .after(nsHelper.namespaceAll('evaluate', pluginName), function (result) {
-                    if (expressionHelper.containsError(result.value)) {
+                    calculator.replace(lastResultVariable);
+
+                    if (error) {
                         showExpression(result);
                     }
                 })
-                .on(nsHelper.namespaceAll('syntaxerror', pluginName), function () {
-                    calculator.setState('error', true);
-                    showExpression(calculator.getExpression() + registeredTerms.ERROR.value);
-                });
+                .on(nsHelper.namespaceAll('command', pluginName), (name, parameter) => {
+                    if (active || calculator.is('error')) {
+                        return;
+                    }
 
-            areaBroker.getScreenArea().append(this.$layout);
+                    if (engine.isInstantMode()) {
+                        if (name === 'execute') {
+                            calculator.replace(lastResultVariable);
+                        }
+                        return;
+                    }
+
+                    // The expression is inactive.
+                    // The result was just calculated, any command invoked now would start a new expression.
+                    let expr = '';
+
+                    if (name === 'term') {
+                        // If the invoked command introduces an operator, we want to apply it on the last result.
+                        const [token] = parameter.split(/\s+/);
+                        if (tokensHelper.isOperator(terms[token])) {
+                            expr = lastResultVariable;
+                        }
+                    }
+
+                    calculator.replace(expr);
+                })
+                .on(nsHelper.namespaceAll('clear', pluginName), () => {
+                    $history.empty();
+                    calculator.replace(defaultExpression);
+                })
+                .on(nsHelper.namespaceAll('command clear', pluginName), () => {
+                    calculator.setState('error', false);
+                    active = true;
+                })
+                .on(nsHelper.namespaceAll('syntaxerror', pluginName), () => {
+                    showExpression(calculator.getExpression() + errorValue);
+                    calculator.setState('error', true);
+                    active = false;
+                });
         },
 
         /**
          * Called when the plugin is destroyed. Mostly when the host is destroyed itself.
          */
-        destroy: function destroy() {
-            var calculator = this.getCalculator();
+        destroy() {
             if (this.$layout) {
-                this.$layout.off('.' + pluginName).remove();
+                this.$layout.off(`.${pluginName}`).remove();
                 this.$layout = null;
             }
-            this.controls = null;
-            calculator.off('.' + pluginName);
+            this.getCalculator().off(`.${pluginName}`);
         }
     },
     defaultConfig
