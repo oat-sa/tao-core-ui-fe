@@ -4,7 +4,7 @@
         <button class="key operator" data-command="term" data-param="LPAR"><span>{{{labels.LPAR}}}</span></button>
         <button class="key operator" data-command="term" data-param="RPAR"><span>{{{labels.RPAR}}}</span></button>
         <button class="key command" data-command="clear"><span>{{{labels.CLEAR}}}</span></button>
-        <button class="key command" data-command="clearAll"><span>{{{labels.CLEARALL}}}</span></button>
+        <button class="key command" data-command="reset"><span>{{{labels.RESET}}}</span></button>
     </div>
     <div class="row">
         <button class="key operator" data-command="term" data-param="CBRT"><span>{{{labels.CBRT}}}</span></button>
@@ -32,6 +32,6 @@
         <button class="key operand" data-command="term" data-param="NUM0"><span>{{{labels.NUM0}}}</span></button>
         <button class="key operand" data-command="term" data-param="DOT"><span>{{{labels.DOT}}}</span></button>
         <button class="key execute" data-command="execute"><span>{{{labels.EXECUTE}}}</span></button>
-        <button class="key operator" data-command="term" data-param="ADD"><span>{{{labels.SUB}}}</span></button>
+        <button class="key operator" data-command="term" data-param="ADD"><span>{{{labels.ADD}}}</span></button>
     </div>
 </div>

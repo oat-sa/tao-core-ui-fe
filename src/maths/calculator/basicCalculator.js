@@ -13,10 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2018 Open Assessment Technologies SA ;
- */
-/**
- * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
+ * Copyright (c) 2018-2023 Open Assessment Technologies SA ;
  */
 import _ from 'lodash';
 import defaultCalculatorFactory from 'ui/maths/calculator/defaultCalculator';

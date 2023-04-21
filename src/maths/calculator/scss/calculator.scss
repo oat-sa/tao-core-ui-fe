@@ -67,6 +67,19 @@
         bottom: -0.5em;
     }
 
+    [data-type='exponent'] {
+        vertical-align: super;
+        font-size: 0.75em;
+    }
+
+    [data-type='variable'] {
+        font-weight: bold;
+    }
+
+    [data-type='function']:not([data-value*='rt']) {
+        padding-right: 0.3em;
+    }
+
     .screen,
     .input {
         position: relative;
@@ -341,7 +354,7 @@
                 font-weight: bold;
                 color: $calculatorScreenSpecialTxt;
             }
-            &.term-variable[data-token='ANS'] {
+            &.term-variable[data-token='VAR_ANS'] {
                 background: $calculatorScreenSpecialBg;
                 padding: 0;
                 margin: 0 #{$calculatorTermSpace * 2};
