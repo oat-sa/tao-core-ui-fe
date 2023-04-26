@@ -31,12 +31,15 @@ import loadingButtonFactory from 'ui/loadingButton/loadingButton';
 import taskCreationButtonFactory from 'ui/taskQueueButton/standardButton';
 import selectorTpl from 'ui/destination/tpl/selector';
 import 'ui/destination/css/selector.css';
+import uuid from 'lib/uuid';
 
 var defaultConfig = {
     title: __('Copy to'),
     description: __('Select a destination'),
     actionName: __('Copy'),
-    icon: 'copy'
+    icon: 'copy',
+    showACL: false,
+    aclTransferMode: null
 };
 
 /**
@@ -52,6 +55,8 @@ var defaultConfig = {
  * @param {Object} [config.taskQueue] - define the taskQueue model to be used (only useful if the triggered action uses the task queue)
  * @param {String} [config.taskCreationUrl] - the task creation endpoint (only required if the option taskQueue is defined)
  * @param {Object} [config.taskCreationData] - optionally define the data that will be sent to the task creation endpoint
+ * @param {Boolean} [config.showACL] - optionally define if ACL controls shall appear on the interface
+ * @param {String} [config.aclTransferMode] - define ACL default behavior on the interface
  * @param {Function} [config.preventSelection] - prevent selection callback (@see ui/resource/selectable)
  * @returns {destinationSelector} the component itself
  */
@@ -85,10 +90,11 @@ export default function destinationSelectorFactory($container, config) {
         defaultConfig
     )
         .setTemplate(selectorTpl)
-        .on('init', function() {
+        .on('init', function () {
+            this.config.uniqId = uuid(8);
             this.render($container);
         })
-        .on('render', function() {
+        .on('render', function () {
             var self = this;
             var $component = this.getElement();
 
@@ -96,7 +102,7 @@ export default function destinationSelectorFactory($container, config) {
              * Get the current selected class uri
              * @returns {String} the selected uri
              */
-            var getSelectedUri = function getSelectedUri() {
+            const getSelectedUri = () => {
                 var select = self.resourceSelector.getSelection();
                 var uris;
                 //validate the selection
@@ -107,6 +113,8 @@ export default function destinationSelectorFactory($container, config) {
                     }
                 }
             };
+
+            const getSelectedACLTransferMode = () => $('input[name="acl-mode"]:checked', $component).val();
 
             if (this.config.taskQueue) {
                 this.taskCreationButton = taskCreationButtonFactory({
@@ -119,11 +127,11 @@ export default function destinationSelectorFactory($container, config) {
                     taskCreationUrl: this.config.taskCreationUrl,
                     taskReportContainer: $container
                 })
-                    .on('finished', function(result) {
+                    .on('finished', function (result) {
                         self.trigger('finished', result, self.taskCreationButton);
                         this.reset(); //reset the button
                     })
-                    .on('continue', function() {
+                    .on('continue', function () {
                         self.trigger('continue');
                     });
             } else {
@@ -136,24 +144,24 @@ export default function destinationSelectorFactory($container, config) {
             }
 
             this.taskCreationButton
-                .on('started', function() {
+                .on('started', function () {
                     function triggerAction() {
                         /**
                          * @event destinationSelector#select
                          * @param {String} classUri - the destination class
                          */
-                        self.trigger('select', getSelectedUri());
+                        self.trigger('select', getSelectedUri(), getSelectedACLTransferMode());
                     }
 
                     if (self.config.confirm) {
-                        confirmDialog(self.config.confirm, triggerAction, function() {
+                        confirmDialog(self.config.confirm, triggerAction, function () {
                             self.taskCreationButton.terminate().reset();
                         });
                     } else {
                         triggerAction();
                     }
                 })
-                .on('error', function(err) {
+                .on('error', function (err) {
                     self.trigger('error', err);
                 })
                 .render($component.find('.actions'))
@@ -173,7 +181,7 @@ export default function destinationSelectorFactory($container, config) {
             this.resourceSelector.spread(this, ['query', 'error', 'update']);
 
             //enable disable the action button
-            this.resourceSelector.on('change', function(selected) {
+            this.resourceSelector.on('change', function (selected) {
                 if (selected && _.size(selected) > 0) {
                     self.taskCreationButton.enable();
 
@@ -187,7 +195,7 @@ export default function destinationSelectorFactory($container, config) {
             });
         });
 
-    _.defer(function() {
+    _.defer(function () {
         destinationSelector.init(config);
     });
 
