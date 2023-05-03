@@ -22,7 +22,7 @@ Usage:
     $percentage: 0;
     $units: '%';
     $count: length($colorList);
-    $increment: 100 / ($count - 1);
+    $increment: calc(100 / ($count - 1));
     $css: #{$direction + ', '};
     $sep: ', ';
     @each $colorItem in $colorList {
