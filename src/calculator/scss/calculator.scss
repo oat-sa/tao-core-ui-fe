@@ -3,7 +3,7 @@
 
 /* font size mixin specific to calculator to use em instead of rem unit */
 @mixin calc-font-size($em) {
-    font-size: ($em) * 1em !important;
+    font-size: calc(($em) * 1em) !important;
 }
 
 .dynamic-component-container {
