@@ -359,14 +359,15 @@ body {
         top: -10000px;
     }
 
-    .clearfix {
-        &:before, &:after {
-            content: " ";
-            display: table;
-        }
-        &:after {
-            clear: both;
-        }
+    %clearfix-before, .clearfix:before {
+        content: " ";
+        display: table;
+    }
+
+    %clearfix-after, .clearfix:after {
+        content: " ";
+        display: table;
+        clear: both;
     }
 
     .clear {

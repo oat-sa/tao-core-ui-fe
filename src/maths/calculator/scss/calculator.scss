@@ -155,8 +155,8 @@
                     display: inline-block;
                     position: absolute;
                     z-index: 0;
-                    top: calc(50% - #{$calculatorButtonSize / 2} + #{$calculatorButtonPadding});
-                    left: calc(50% - #{$calculatorButtonSize / 2} + #{$calculatorButtonPadding});
+                    top: calc(50% - #{calc($calculatorButtonSize / 2)} + #{$calculatorButtonPadding});
+                    left: calc(50% - #{calc($calculatorButtonSize / 2)} + #{$calculatorButtonPadding});
                     width: calc(#{$calculatorButtonSize} - #{$calculatorButtonPadding * 2});
                     height: calc(#{$calculatorButtonSize} - #{$calculatorButtonPadding * 2});
                 }
@@ -203,8 +203,8 @@
                     display: inline-block;
                     position: absolute;
                     z-index: 0;
-                    top: calc(50% - #{$calculatorFontSizeBtnSwitch / 2}em - #{$calculatorSwitchPadding});
-                    bottom: calc(50% - #{$calculatorFontSizeBtnSwitch / 2}em - #{$calculatorSwitchPadding});
+                    top: calc(50% - #{calc($calculatorFontSizeBtnSwitch / 2)}em - #{$calculatorSwitchPadding});
+                    bottom: calc(50% - #{calc($calculatorFontSizeBtnSwitch / 2)}em - #{$calculatorSwitchPadding});
                     left: 3px;
                     right: 3px;
                 }
@@ -331,8 +331,8 @@
             }
             &.term-operator[data-token='FAC'],
             &.term-operator[data-token='NEG'] {
-                margin-left: -$calculatorTermSpace / 2;
-                margin-right: -$calculatorTermSpace / 2;
+                margin-left: calc(-1 * $calculatorTermSpace / 2);
+                margin-right: calc(-1 * $calculatorTermSpace / 2);
             }
             &.term-operator[data-token='POS'] {
                 display: none;
