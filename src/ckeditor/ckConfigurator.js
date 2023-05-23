@@ -670,7 +670,7 @@ const ckConfigurator = (function () {
 
             //enable sourcedialog plugin upon featureflag (false by default)
             if(context.featureFlags.FEATURE_FLAG_CKEDITOR_SOURCEDIALOG) {
-                ckConfig.toolbar.push({'name': 'sourcedialog', items: ['Sourcedialog']})
+                ckConfig.toolbar.push({'name': 'sourcedialog', items: ['Sourcedialog']});
               }
         }
 
