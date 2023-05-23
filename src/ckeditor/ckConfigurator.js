@@ -19,6 +19,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 import dtdHandler from 'ui/ckeditor/dtdHandler';
 import 'ckeditor';
+import context from 'context';
 import module from 'module';
 import featuresService from 'services/features';
 
@@ -666,6 +667,11 @@ const ckConfigurator = (function () {
         // add the toolbar
         if (typeof toolbars[toolbarType] !== 'undefined') {
             ckConfig.toolbar = toolbars[toolbarType];
+
+            //enable sourcedialog plugin upon featureflag (false by default)
+            if(context.featureFlags.FEATURE_FLAG_CKEDITOR_SOURCEDIALOG) {
+                ckConfig.toolbar.push({'name': 'sourcedialog', items: ['Sourcedialog']})
+              }
         }
 
         // ensures positionedPlugins has the right format
