@@ -57,7 +57,8 @@ const ckConfigurator = (function () {
             {
                 name: 'links',
                 items: ['Link']
-            },{
+            },
+            {
                 name: 'language',
                 items: ['Language']
             }
@@ -455,7 +456,7 @@ const ckConfigurator = (function () {
         disableNativeTableHandles: true
     };
 
-    if(moduleConfig && moduleConfig.specialChars) {
+    if (moduleConfig && moduleConfig.specialChars) {
         ckConfigDefault.specialChars = moduleConfig.specialChars;
     }
 
@@ -643,11 +644,11 @@ const ckConfigurator = (function () {
             }
             if (options.furiganaPlugin && featuresService.isVisible(furiganaPluginVisibilityKey, false)) {
                 if (!options.toolbar || options.toolbar.find(el => el.items.includes('Superscript'))) {
-                    positionedPlugins.TaoFurigana = {insertAfter: 'Superscript'};
+                    positionedPlugins.TaoFurigana = { insertAfter: 'Superscript' };
                 } else {
                     const lastGroup = options.toolbar[options.toolbar.length - 1];
                     const firstPlugin = lastGroup.items[0];
-                    positionedPlugins.TaoFurigana = {insertBefore: firstPlugin};
+                    positionedPlugins.TaoFurigana = { insertBefore: firstPlugin };
                 }
             }
         }
@@ -669,9 +670,9 @@ const ckConfigurator = (function () {
             ckConfig.toolbar = toolbars[toolbarType];
 
             //enable sourcedialog plugin upon featureflag (false by default)
-            if(context.featureFlags.FEATURE_FLAG_CKEDITOR_SOURCEDIALOG) {
-                ckConfig.toolbar.push({'name': 'sourcedialog', items: ['Sourcedialog']});
-              }
+            if (context.featureFlags && context.featureFlags.FEATURE_FLAG_CKEDITOR_SOURCEDIALOG) {
+                ckConfig.toolbar.push({ name: 'sourcedialog', items: ['Sourcedialog'] });
+            }
         }
 
         // ensures positionedPlugins has the right format
