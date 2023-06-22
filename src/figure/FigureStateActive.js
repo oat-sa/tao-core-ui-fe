@@ -97,14 +97,12 @@ const formCallbacks = ({ widget, formElement, mediaEditor, togglePlaceholder }) 
 const initForm = ({ widget, formElement, formTpl, mediaEditor, togglePlaceholder }) => {
     const imageElem = getImageElement(widget);
     const figcaptionElem = getCaptionElement(widget);
-    const showFigure = widget.element.attr('showFigure');
     widget.$form.html(
         formTpl({
             baseUrl: widget.options.baseUrl || '',
             src: imageElem.attr('src'),
             alt: imageElem.attr('alt'),
-            figcaption: figcaptionElem ? figcaptionElem.body() : '',
-            showFigure: showFigure
+            figcaption: figcaptionElem ? figcaptionElem.body() : ''
         })
     );
 
@@ -127,15 +125,7 @@ const initForm = ({ widget, formElement, formTpl, mediaEditor, togglePlaceholder
     );
 };
 
-/**
- * @param {Object} stateFactory
- * @param {Object} ActiveState
- * @param {Object} formTpl
- * @param {Object} formElement
- * @param {Object} inlineHelper
- * @returns
- */
-export default function ({ stateFactory, ActiveState, formTpl, formElement, inlineHelper }) {
+export default function (stateFactory, ActiveState, formTpl, formElement, inlineHelper) {
     /**
      * media Editor instance if has been initialized
      * @type {null}
@@ -144,7 +134,7 @@ export default function ({ stateFactory, ActiveState, formTpl, formElement, inli
     let textareaObserver = null;
     let texareaHTMLElem = null;
 
-    const FigureStateActive = stateFactory.extend(
+    const ImgStateActive = stateFactory.extend(
         ActiveState,
         function () {
             this.initForm();
@@ -158,7 +148,7 @@ export default function ({ stateFactory, ActiveState, formTpl, formElement, inli
         }
     );
 
-    FigureStateActive.prototype.initForm = function () {
+    ImgStateActive.prototype.initForm = function () {
         initForm({
             widget: this.widget,
             formElement,
@@ -180,5 +170,5 @@ export default function ({ stateFactory, ActiveState, formTpl, formElement, inli
         }
     };
 
-    return FigureStateActive;
+    return ImgStateActive;
 }
