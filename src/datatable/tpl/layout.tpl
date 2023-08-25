@@ -90,19 +90,21 @@
                         {{/if}}
 {{! IMPORTANT:START IF YOU'RE GOING TO MAKE CHANGES TO THIS SECTION,
     PLEASE UPDATE shallowUpdate METHOD ACCORDINGLY}}
-                        {{#each @root.options.model as |column|}}
+                        {{#each @root.options.model}}
                             {{#if type}}
                             <td class="actions {{id}}">
-                                {{#each column.actions}}
+                                {{#each actions as |action|}}
                                     {{#if id}}
-                                            {{#unless hidden}}
-                                <button class="btn-info small {{id}}"
-                                    {{#if title}} title="{{title}}"{{/if}}
-                                    {{#if disabled}} disabled="disabled"{{/if}}>
-                                    {{#if icon}}<span class="icon-{{icon}}"></span>{{/if}}
-                                    {{label}}
+                                        {{#with row}}
+                                            {{#unless action.hidden}}
+                                <button class="btn-info small {{action.id}}"
+                                    {{#if action.title}} title="{{action.title}}"{{/if}}
+                                    {{#if action.disabled}} disabled="disabled"{{/if}}>
+                                    {{#if action.icon}}<span class="icon-{{action.icon}}"></span>{{/if}}
+                                    {{action.label}}
                                 </button>
                                             {{/unless}}
+                                        {{/with}}
                                     {{else}}
                                 <button class="btn-info small {{@key}}"
                                     {{#if title}} title="{{title}}"{{/if}}>
@@ -114,32 +116,32 @@
                                 {{/each}}
                             </td>
                             {{else}}
-                            <td class="{{id}}">{{{dompurify (property column.id row)}}}</td>
+                            <td class="{{id}}">{{{dompurify (property id row)}}}</td>
                             {{/if}}
 
                         {{/each}}
 {{! IMPORTANT:END IF YOU'RE GOING TO MAKE CHANGES TO THIS SECTION,
     PLEASE UPDATE shallowUpdate METHOD ACCORDINGLY}}
-                        {{#each @root.options.actions}}
+                        {{#with @root.options.actions}}
                         <td class="actions">
-                            {{!#each this}}
+                            {{#each this as |action|}}
                                 {{#if id}}
-                                    {{!#with ../../../this}}
-                                        {{#unless hidden}}
-                            <button class="btn-info small {{id}}"
-                                {{#if title}} title="{{title}}"{{/if}}
-                                {{#if disabled}} disabled="disabled"{{/if}}>
-                                {{#if icon}}<span class="icon-{{icon}}"></span>{{/if}}
-                                {{label}}
+                                    {{#with row}}
+                                        {{#unless action.hidden}}
+                            <button class="btn-info small {{action.id}}"
+                                {{#if action.title}} title="{{action.title}}"{{/if}}
+                                {{#if action.disabled}} disabled="disabled"{{/if}}>
+                                {{#if action.icon}}<span class="icon-{{action.icon}}"></span>{{/if}}
+                                {{action.label}}
                             </button>
                                         {{/unless}}
-                                    {{!/with}}
+                                    {{/with}}
                                 {{else}}
                             <button class="btn-info small {{@key}}"><span class="icon-{{@key}}"></span> {{@key}}</button>
                                 {{/if}}
-                            {{!/each}}
+                            {{/each}}
                         </td>
-                        {{/each}}
+                        {{/with}}
                     </tr>
                 {{/each}}
             </tbody>
