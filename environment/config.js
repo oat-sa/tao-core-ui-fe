@@ -13,10 +13,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2019 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2019-2023 (original work) Open Assessment Technologies SA ;
  */
 
-define(['/node_modules/@oat-sa/tao-core-libs/dist/pathdefinition.js'], function(libPathDefinition) {
+define(['/node_modules/@oat-sa/tao-core-libs/dist/pathdefinition.js'], function (libPathDefinition) {
     requirejs.config({
         baseUrl: '/',
         paths: Object.assign(
@@ -40,13 +40,12 @@ define(['/node_modules/@oat-sa/tao-core-libs/dist/pathdefinition.js'], function(
                 'jquery.mockjax': '/node_modules/jquery-mockjax/dist/jquery.mockjax',
                 'jquery.fileDownload': '/lib/jquery.fileDownload',
                 'lib/flatpickr': '/node_modules/flatpickr/dist',
-                'lib/moo/moo': '/node_modules/moo/moo',
                 helpers: '/lib/helpers',
                 /* LIBS END */
 
                 basicStyle: '/css',
 
-                'lib/simulator': '/lib/simulator',
+                'lib/simulator': '/node_modules/@oat-sa/tao-core-shared-libs/lib/simulator',
 
                 'ui/tooltip/default': '/src/tooltip/default'
             },
@@ -59,7 +58,7 @@ define(['/node_modules/@oat-sa/tao-core-libs/dist/pathdefinition.js'], function(
             'lib/flatpickr/l10n/index': {
                 deps: ['lib/flatpickr/flatpickr']
             },
-            select2 : {
+            select2: {
                 deps: ['jquery']
             }
         },
@@ -67,11 +66,11 @@ define(['/node_modules/@oat-sa/tao-core-libs/dist/pathdefinition.js'], function(
     });
 
     define('qunitLibs', ['qunit/qunit', 'css!qunit/qunit.css', 'css!basicStyle/basic.css']);
-    define('qunitEnv', ['qunitLibs', 'qunit-parameterize'], function() {
+    define('qunitEnv', ['qunitLibs', 'qunit-parameterize'], function () {
         requirejs.config({ nodeIdCompat: true });
     });
 
-    define('context', ['module'], function(module) {
+    define('context', ['module'], function (module) {
         return module.config();
     });
 

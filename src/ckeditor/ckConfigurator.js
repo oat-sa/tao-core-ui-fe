@@ -13,24 +13,38 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2015 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2015-2022 (original work) Open Assessment Technologies SA ;
  */
 import $ from 'jquery';
 import _ from 'lodash';
 import dtdHandler from 'ui/ckeditor/dtdHandler';
 import 'ckeditor';
+import context from 'context';
+import module from 'module';
+import featuresService from 'services/features';
 
 /**
  * Cache original config
  */
-var originalConfig = _.cloneDeep(window.CKEDITOR.config);
+const originalConfig = _.cloneDeep(window.CKEDITOR.config);
+const moduleConfig = module.config();
+const furiganaPluginVisibilityKey = 'ckeditor/TaoFurigana';
 
-var ckConfigurator = (function() {
+function getUserLanguage() {
+    const documentLang = window.document.documentElement.getAttribute('lang');
+    const documentLocale = documentLang && documentLang.split('-')[0];
+
+    return documentLocale;
+}
+
+const lang = getUserLanguage();
+
+const ckConfigurator = (function () {
     /**
      * Toolbar presets that you normally never would need to change, they can however be overridden with options.toolbar.
      * The argument 'toolbarType' determines which toolbar to use
      */
-    var toolbarPresets = {
+    const toolbarPresets = {
         inline: [
             {
                 name: 'basicstyles',
@@ -43,6 +57,10 @@ var ckConfigurator = (function() {
             {
                 name: 'links',
                 items: ['Link']
+            },
+            {
+                name: 'language',
+                items: ['Language']
             }
         ],
         flow: [
@@ -57,6 +75,10 @@ var ckConfigurator = (function() {
             {
                 name: 'links',
                 items: ['Link']
+            },
+            {
+                name: 'language',
+                items: ['Language']
             }
         ],
         block: [
@@ -71,6 +93,10 @@ var ckConfigurator = (function() {
             {
                 name: 'links',
                 items: ['Link']
+            },
+            {
+                name: 'language',
+                items: ['Language']
             },
             {
                 name: 'styles',
@@ -156,6 +182,32 @@ var ckConfigurator = (function() {
             {
                 name: 'insert',
                 items: ['Link', 'SpecialChar']
+            },
+            {
+                name: 'language',
+                items: ['Language']
+            }
+        ],
+        table: [
+            {
+                name: 'basicstyles',
+                items: ['Bold', 'Italic', 'Subscript', 'Superscript']
+            },
+            {
+                name: 'insert',
+                items: ['SpecialChar', 'TaoQtiTable', 'TaoTooltip']
+            },
+            {
+                name: 'links',
+                items: ['Link']
+            },
+            {
+                name: 'paragraph',
+                items: ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock']
+            },
+            {
+                name: 'language',
+                items: ['Language']
             }
         ]
     };
@@ -163,16 +215,16 @@ var ckConfigurator = (function() {
     /**
      * defaults for editor configuration
      */
-    var ckConfig = {
+    const ckConfigDefault = {
         disableAutoInline: true,
         entities: false,
         entities_processNumerical: true,
         autoParagraph: false,
-        extraPlugins: 'confighelper',
+        extraPlugins: 'confighelper, taolanguage',
         floatSpaceDockedOffsetY: 0,
         forcePasteAsPlainText: true,
         skin: 'tao',
-        language: 'en',
+        language: lang,
         removePlugins: '',
         linkShowAdvancedTab: false,
         justifyClasses: ['txt-lft', 'txt-ctr', 'txt-rgt', 'txt-jty'],
@@ -404,14 +456,18 @@ var ckConfigurator = (function() {
         disableNativeTableHandles: true
     };
 
+    if (moduleConfig && moduleConfig.specialChars) {
+        ckConfigDefault.specialChars = moduleConfig.specialChars;
+    }
+
     /**
      * Insert positioned plugins at position specified in options.positionedPlugins
      *
-     * @param ckConfig
-     * @param positionedPlugins
+     * @param {Object} ckConfig
+     * @param {Object} positionedPlugins
      */
-    var _updatePlugins = function(ckConfig, positionedPlugins) {
-        var itCnt,
+    const _updatePlugins = function (ckConfig, positionedPlugins) {
+        let itCnt,
             tbCnt = ckConfig.toolbar.length,
             itLen,
             method,
@@ -426,9 +482,9 @@ var ckConfigurator = (function() {
         positionedPlugins = positionedPlugins || {};
 
         // add positioned plugins to extraPlugins and let CKEDITOR take care of their registration
-        ckConfig.extraPlugins = (function(positionedPluginArr, extraPlugins) {
-            var pluginIndex = positionedPluginArr.length;
-            var extraPluginArr = extraPlugins.split(',');
+        ckConfig.extraPlugins = (function (positionedPluginArr, extraPlugins) {
+            let pluginIndex = positionedPluginArr.length;
+            let extraPluginArr = extraPlugins.split(',');
 
             while (pluginIndex--) {
                 positionedPluginArr[pluginIndex] = positionedPluginArr[pluginIndex].toLowerCase();
@@ -451,8 +507,8 @@ var ckConfigurator = (function() {
 
         // add positioned plugins to toolbar
         for (plugin in positionedPlugins) {
-            method = (function(pluginProps) {
-                var propIndex = pluginProps.length;
+            method = (function (pluginProps) {
+                let propIndex = pluginProps.length;
                 while (propIndex--) {
                     if (pluginProps[propIndex].indexOf('insert') === 0 || pluginProps[propIndex] === 'replace') {
                         return pluginProps[propIndex];
@@ -502,7 +558,7 @@ var ckConfigurator = (function() {
         }
     };
 
-    var _switchDtd = function _switchDtd(dtdMode) {
+    const _switchDtd = function _switchDtd(dtdMode) {
         dtdHandler.setMode(dtdMode);
         window.CKEDITOR.dtd = dtdHandler.getDtd();
     };
@@ -523,17 +579,19 @@ var ckConfigurator = (function() {
      * @param {Boolean} [options.underline] - enables the underline plugin
      * @param {Boolean} [options.highlight] - enables the highlight plugin
      * @param {Boolean} [options.mathJax] - enables the mathJax plugin
+     * @param {Boolean} [options.horizontalRule] - enables the horizontalRule plugin
+     * @param {Boolean} [options.furiganaPlugin] - enables the furiganaPlugin plugin if feature flag is set
      * @param {String} [options.removePlugins] - a coma-separated list of plugins that should not be loaded: 'plugin1,plugin2,plugin3'
      *
      * @see http://docs.ckeditor.com/#!/api/CKEDITOR.config
      */
-    var getConfig = function(editor, toolbarType, options) {
-        var toolbar, toolbars, config, dtdMode;
+    const getConfig = function (editor, toolbarType, options) {
+        let toolbar, toolbars, config, dtdMode;
 
         // This is different from CKEDITOR.config.extraPlugins since it also allows to position the button
         // Valid positioning keys are insertAfter | insertBefore | replace followed by the button name, e.g. 'Anchor'
         // separator bool, defaults to false
-        var positionedPlugins = {};
+        let positionedPlugins = {};
 
         if (toolbarType === 'reset') {
             return originalConfig;
@@ -545,6 +603,8 @@ var ckConfigurator = (function() {
 
         toolbars = _.clone(toolbarPresets, true);
         dtdMode = options.dtdMode || 'html';
+
+        const ckConfig = _.clone(ckConfigDefault, true);
 
         // modify DTD to either comply with QTI or XHTML
         if (dtdMode === 'qti' || toolbarType.indexOf('qti') === 0) {
@@ -579,6 +639,18 @@ var ckConfigurator = (function() {
             if (options.mathJax) {
                 positionedPlugins.TaoQtiMaths = { insertAfter: 'SpecialChar' };
             }
+            if (options.horizontalRule && ['block', 'inline'].includes(toolbarType)) {
+                positionedPlugins.HorizontalRule = { insertAfter: 'TaoTooltip' };
+            }
+            if (options.furiganaPlugin && featuresService.isVisible(furiganaPluginVisibilityKey, false)) {
+                if (!options.toolbar || options.toolbar.find(el => el.items.includes('Superscript'))) {
+                    positionedPlugins.TaoFurigana = { insertAfter: 'Superscript' };
+                } else {
+                    const lastGroup = options.toolbar[options.toolbar.length - 1];
+                    const firstPlugin = lastGroup.items[0];
+                    positionedPlugins.TaoFurigana = { insertBefore: firstPlugin };
+                }
+            }
         }
 
         // if there is a toolbar in the options add it to the set
@@ -588,7 +660,7 @@ var ckConfigurator = (function() {
 
         // add toolbars to config
         for (toolbar in toolbars) {
-            if (toolbars.hasOwnProperty(toolbar)) {
+            if (Object.prototype.hasOwnProperty.call(toolbars, toolbar)) {
                 ckConfig['toolbar_' + toolbar] = toolbars[toolbar];
             }
         }
@@ -596,6 +668,11 @@ var ckConfigurator = (function() {
         // add the toolbar
         if (typeof toolbars[toolbarType] !== 'undefined') {
             ckConfig.toolbar = toolbars[toolbarType];
+
+            //enable sourcedialog plugin upon featureflag (false by default)
+            if (context.featureFlags && context.featureFlags.FEATURE_FLAG_CKEDITOR_SOURCEDIALOG) {
+                ckConfig.toolbar.push({ name: 'sourcedialog', items: ['Sourcedialog'] });
+            }
         }
 
         // ensures positionedPlugins has the right format
@@ -631,7 +708,7 @@ var ckConfigurator = (function() {
 
         // toggle global DTD depending on the CK instance which is receiving the focus
         // I know that this is rather ugly <= don't worry, we'll keep this a secret ;)
-        editor.on('focus', function() {
+        editor.on('focus', function () {
             _switchDtd(dtdMode);
             // should be 1 on html, undefined on qti
             // console.log(CKEDITOR.dtd.pre.img)
@@ -639,13 +716,13 @@ var ckConfigurator = (function() {
 
         // remove title 'Rich Text Editor, instance n' that CKE sets by default
         // ref: http://tinyurl.com/keedruc
-        editor.on('instanceReady', function(e) {
+        editor.on('instanceReady', function (e) {
             $(e.editor.element.$).removeAttr('title');
         });
 
         // This fixes bug #2855. Unfortunately this can be done on the global object only, not on the instance
-        window.CKEDITOR.on('dialogDefinition', function(e) {
-            var linkTypes, wanted, linkIndex;
+        window.CKEDITOR.on('dialogDefinition', function (e) {
+            let linkTypes, wanted, linkIndex;
 
             if (e.data.name !== 'link') {
                 return;

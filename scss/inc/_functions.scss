@@ -22,7 +22,7 @@ Usage:
     $percentage: 0;
     $units: '%';
     $count: length($colorList);
-    $increment: 100 / ($count - 1);
+    $increment: calc(100 / ($count - 1));
     $css: #{$direction + ', '};
     $sep: ', ';
     @each $colorItem in $colorList {
@@ -43,7 +43,7 @@ Usage:
 
 @mixin grid-unit($span, $numCols: 12, $gutter: 0) {
     $gridPx: 840;
-    $rawSpanPx: (($gridPx - ($numCols * $gutter)) / $numCols);
+    $rawSpanPx: calc((($gridPx - ($numCols * $gutter)) / $numCols));
     $spanPx: $rawSpanPx * $span + (($span - 1) * $gutter);
     $spanPercent: widthPerc($spanPx, $gridPx);
     $marginPercent: widthPerc($gutter, $gridPx);
@@ -193,11 +193,11 @@ Usage:
 }
 
 @function widthPerc($colWidth, $context) {
-    @return ($colWidth * 100 / $context) * 1%
+    @return calc(($colWidth * 100 / $context) * 1%)
 }
 
 @function remDist($fontSizePx) {
-    @return ($fontSizePx / 10) * 1rem
+    @return calc(($fontSizePx / 10) * 1rem)
 }
 
 @function black($alpha: 1) {
@@ -210,12 +210,12 @@ Usage:
 
 @mixin font-size($remPx, $important: false) {
     @if $important == true {
-        font-size: ($remPx) * 1px !important;
-        font-size: ($remPx / 10) * 1rem !important;
+        font-size: calc(($remPx) * 1px) !important;
+        font-size: calc(($remPx / 10) * 1rem) !important;
     }
     @else {
-        font-size: ($remPx) * 1px;
-        font-size: ($remPx / 10) * 1rem;
+        font-size: calc(($remPx) * 1px);
+        font-size: calc(($remPx / 10) * 1rem);
     }
 }
 
@@ -269,4 +269,15 @@ Usage:
 
 @mixin disableSelect() {
     @include vendor-prefix(user-select, none, property);
+}
+
+/* based on "visually-hidden" mixin in LDS for accessibility goals */
+@mixin visuallyHidden() {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(1px, 1px, 1px, 1px);
+    margin: 0;
+    padding: 0;
 }

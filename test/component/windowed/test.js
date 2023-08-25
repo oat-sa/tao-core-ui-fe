@@ -52,7 +52,7 @@ define([
             var component = makeWindowed(componentFactory());
 
             assert.expect(1);
-            assert.equal(typeof component[data.title], 'function', 'The component has the method ' + data.title);
+            assert.equal(typeof component[data.title], 'function', `The component has the method ${  data.title}`);
         });
 
     QUnit.test('auto makes the component placeable', function(assert) {

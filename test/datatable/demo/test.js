@@ -56,7 +56,7 @@ define([
                 filterPattern += '*';
             }
 
-            return new RegExp('^' + filterPattern.replace(/\*/g, '.*?') + '$', 'i');
+            return new RegExp(`^${  filterPattern.replace(/\*/g, '.*?')  }$`, 'i');
         }
         return '';
     }
@@ -191,6 +191,59 @@ define([
                         {
                             id: 'phone',
                             label: 'Phone'
+                        },
+                        {
+                            id: 'country',
+                            label: 'country'
+                        },
+                        {
+                            id: 'state',
+                            label: 'state'
+                        },
+                        {
+                            id: 'city',
+                            label: 'City'
+                        },
+                        {
+                            id: 'street',
+                            label: 'street'
+                        },
+                        {
+                            id: 'zipcode',
+                            label: 'Zip Code'
+                        }
+                    ]
+                }
+            },{
+                title: 'Alias and comment',
+                config: {
+                    url: '/demo-data/alias',
+                    rows: 10,
+                    model: [
+                        {
+                            id: 'login',
+                            label: 'Login',
+                            alias: 'username'
+                        },
+                        {
+                            id: 'email',
+                            label: 'Email',
+                            alias: 'e-mail',
+                            comment: 'without link'
+                        },
+                        {
+                            id: 'firstname',
+                            label: 'First Name'
+                        },
+                        {
+                            id: 'lastname',
+                            label: 'Last Name',
+                            comment: 'surname'
+                        },
+                        {
+                            id: 'phone',
+                            label: 'Phone',
+                            comment: 'extension in parenthesis'
                         },
                         {
                             id: 'country',
@@ -838,7 +891,7 @@ define([
                             icon: 'item',
                             action: function(id, row) {
                                 dialog({
-                                    message: "User's file #" + id,
+                                    message: `User's file #${  id}`,
                                     content: fileTpl(row),
                                     buttons: 'ok',
                                     autoRender: true,
@@ -858,7 +911,7 @@ define([
                             action: function(id, row) {
                                 var dialogConfig = {
                                     message: 'Deletion is not supported yet!',
-                                    content: 'That would affect user id #' + id,
+                                    content: `That would affect user id #${  id}`,
                                     buttons: 'ok',
                                     autoRender: true,
                                     autoDestroy: true
@@ -879,7 +932,7 @@ define([
                             action: function(id) {
                                 dialog({
                                     message: 'Connection is not supported yet!',
-                                    content: 'That would affect user id #' + id,
+                                    content: `That would affect user id #${  id}`,
                                     buttons: 'ok',
                                     autoRender: true,
                                     autoDestroy: true
@@ -896,7 +949,7 @@ define([
                             action: function(id) {
                                 dialog({
                                     message: 'Account creation is not supported yet!',
-                                    content: 'That would affect user id #' + id,
+                                    content: `That would affect user id #${  id}`,
                                     buttons: 'ok',
                                     autoRender: true,
                                     autoDestroy: true
@@ -973,7 +1026,7 @@ define([
                                     icon: 'item',
                                     action: function(id, row) {
                                         dialog({
-                                            message: "User's file #" + id,
+                                            message: `User's file #${  id}`,
                                             content: fileTpl(row),
                                             buttons: 'ok',
                                             autoRender: true,
@@ -993,7 +1046,7 @@ define([
                                     action: function(id, row) {
                                         var dialogConfig = {
                                             message: 'Deletion is not supported yet!',
-                                            content: 'That would affect user id #' + id,
+                                            content: `That would affect user id #${  id}`,
                                             buttons: 'ok',
                                             autoRender: true,
                                             autoDestroy: true
@@ -1014,7 +1067,7 @@ define([
                                     action: function(id) {
                                         dialog({
                                             message: 'Connection is not supported yet!',
-                                            content: 'That would affect user id #' + id,
+                                            content: `That would affect user id #${  id}`,
                                             buttons: 'ok',
                                             autoRender: true,
                                             autoDestroy: true
@@ -1031,7 +1084,7 @@ define([
                                     action: function(id) {
                                         dialog({
                                             message: 'Account creation is not supported yet!',
-                                            content: 'That would affect user id #' + id,
+                                            content: `That would affect user id #${  id}`,
                                             buttons: 'ok',
                                             autoRender: true,
                                             autoDestroy: true
@@ -1070,7 +1123,7 @@ define([
                             massAction: true,
                             action: function(selection) {
                                 dialog({
-                                    message: 'This action will affect users [' + selection.join(', ') + ']',
+                                    message: `This action will affect users [${  selection.join(', ')  }]`,
                                     buttons: 'ok',
                                     autoRender: true,
                                     autoDestroy: true
@@ -1085,7 +1138,7 @@ define([
                             icon: 'item',
                             action: function(id, row) {
                                 dialog({
-                                    message: "User's file #" + id,
+                                    message: `User's file #${  id}`,
                                     content: fileTpl(row),
                                     buttons: 'ok',
                                     autoRender: true,
@@ -1100,7 +1153,7 @@ define([
                             action: function(id) {
                                 dialog({
                                     message: 'Deletion is not supported yet!',
-                                    content: 'That would affect user id #' + id,
+                                    content: `That would affect user id #${  id}`,
                                     buttons: 'ok',
                                     autoRender: true,
                                     autoDestroy: true
@@ -1172,7 +1225,7 @@ define([
                             massAction: true,
                             action: function(selection) {
                                 dialog({
-                                    message: 'This action will affect users [' + selection.join(', ') + ']',
+                                    message: `This action will affect users [${  selection.join(', ')  }]`,
                                     buttons: 'ok',
                                     autoRender: true,
                                     autoDestroy: true
@@ -1187,7 +1240,7 @@ define([
                             icon: 'item',
                             action: function(id, row) {
                                 dialog({
-                                    message: "User's file #" + id,
+                                    message: `User's file #${  id}`,
                                     content: fileTpl(row),
                                     buttons: 'ok',
                                     autoRender: true,
@@ -1202,7 +1255,7 @@ define([
                             action: function(id) {
                                 dialog({
                                     message: 'Deletion is not supported yet!',
-                                    content: 'That would affect user id #' + id,
+                                    content: `That would affect user id #${  id}`,
                                     buttons: 'ok',
                                     autoRender: true,
                                     autoDestroy: true

@@ -14,14 +14,54 @@
             });
         </script>
         <style>
+            div#qunit {
+                position: relative;
+            }
             #visual-test {
                 position: relative;
                 background: #ccc;
+                margin: 4rem auto;
+            }
+            #visual-test input {
+                width: 100%;
+            }
+            #visual-test .input input {
+                background: hsl(43 100% 91%);
+                color: hsl(0 0% 12%);
+            }
+            #visual-test .output input {
+                background: hsl(43 100% 91%);
+                color: hsl(0 0% 12%);
+                font-weight: bold;
+                text-align: right;
+            }
+            #visual-test button {
+                padding: 0;
+                margin: 1px;
+                width: 4rem;
+            }
+            #visual-test .row {
+                display: flex;
+            }
+            #visual-test .operator {
+                background: hsl(208, 100%, 53%);
+                color: hsl(0, 0%, 100%);
+            }
+            #visual-test .operand {
+                background: hsl(109 68% 39%);
+                color: hsl(0, 0%, 100%);
+            }
+            #visual-test .command {
+                background: hsl(41 96% 44%);
+                color: hsl(0, 0%, 100%);
+            }
+            #visual-test .execute {
+                background: hsl(358 86% 45%);
+                color: hsl(0, 0%, 100%);
             }
             .calculator {
                 position: relative;
-                width: 200px;
-                height: 300px;
+                width: 21rem;
             }
         </style>
     </head>

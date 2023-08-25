@@ -18,15 +18,19 @@
 /**
  * @author Anton Tsymuk <anton@taotesting.com>
  */
-define(['jquery', 'ui/pageSizeSelector'], function($, pageSizeSelector) {
+define(['jquery', 'ui/pageSizeSelector'], function ($, pageSizeSelector) {
     'use strict';
 
     var defaultSize = 500;
-    var options = [{ label: '100', value: 100 }, { label: '500', value: 500 }, { label: '1000', value: 1000 }];
+    var options = [
+        { label: '100', value: 100 },
+        { label: '500', value: 500 },
+        { label: '1000', value: 1000 }
+    ];
 
     QUnit.module('pageSizeSelector');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.expect(3);
         assert.equal(typeof pageSizeSelector, 'function', 'The dropdown module exposes a function');
         assert.equal(typeof pageSizeSelector(), 'object', 'The dropdown factory produces an object');
@@ -51,16 +55,16 @@ define(['jquery', 'ui/pageSizeSelector'], function($, pageSizeSelector) {
 
             { title: 'setSelectedOption' }
         ])
-        .test('instance API ', function(data, assert) {
+        .test('instance API ', function (data, assert) {
             var instance = pageSizeSelector();
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The dropdown instance exposes a "' + data.title + '" function'
+                `The dropdown instance exposes a "${data.title}" function`
             );
         });
 
-    QUnit.test('render with default config', function(assert) {
+    QUnit.test('render with default config', function (assert) {
         var instance = pageSizeSelector({
             renderTo: '#fixture-render'
         });
@@ -71,19 +75,12 @@ define(['jquery', 'ui/pageSizeSelector'], function($, pageSizeSelector) {
         assert.equal(instance.getElement().length, 1, 'The dropdown instance gets a single element');
 
         assert.equal(instance.getElement().find('option').length, 5, 'The selector rendered with default options');
-        assert.equal(
-            instance
-                .getElement()
-                .find('select')
-                .val(),
-            '25',
-            'The default page size option is selected'
-        );
+        assert.equal(instance.getElement().find('select').val(), '25', 'The default page size option is selected');
 
         instance.destroy();
     });
 
-    QUnit.test('render with custom config', function(assert) {
+    QUnit.test('render with custom config', function (assert) {
         var instance = pageSizeSelector({
             renderTo: '#fixture-render-with-config',
             options: options,
@@ -96,48 +93,51 @@ define(['jquery', 'ui/pageSizeSelector'], function($, pageSizeSelector) {
         assert.equal(instance.getElement().length, 1, 'The dropdown instance gets a single element');
 
         assert.equal(instance.getElement().find('option').length, 3, 'The selector rendered with default options');
-        assert.equal(
-            instance
-                .getElement()
-                .find('select')
-                .val(),
-            '500',
-            'The default page size option is selected'
-        );
+        assert.equal(instance.getElement().find('select').val(), '500', 'The default page size option is selected');
 
         instance.destroy();
     });
 
-    QUnit.test('use first option as default if there is no option with defaultSize', function(assert) {
+    QUnit.test('use first option as default if there is no option with defaultSize', function (assert) {
         var instance = pageSizeSelector({
             renderTo: '#fixture-default-option',
             defaultSize: 1000
         });
         assert.expect(1);
 
-        assert.equal(
-            instance
-                .getElement()
-                .find('select')
-                .val(),
-            '25',
-            'The default page size option is selected'
-        );
+        assert.equal(instance.getElement().find('select').val(), '25', 'The default page size option is selected');
 
         instance.destroy();
     });
 
-    QUnit.test('trigger change event', function(assert) {
-        var ready = assert.async(2);
-        assert.expect(2);
-
+    QUnit.test('Accept option even if the defaultSize is given as a string', function (assert) {
         var instance = pageSizeSelector({
+            renderTo: '#fixture-render-with-config',
+            options: options,
+            defaultSize: `${defaultSize}`
+        });
+        assert.expect(5);
+
+        assert.equal(typeof instance, 'object', 'The dropdown instance is an object');
+        assert.ok(instance.getElement() instanceof $, 'The dropdown instance gets a DOM element');
+        assert.equal(instance.getElement().length, 1, 'The dropdown instance gets a single element');
+
+        assert.equal(instance.getElement().find('option').length, 3, 'The selector rendered with default options');
+        assert.equal(instance.getElement().find('select').val(), '500', 'The default page size option is selected');
+
+        instance.destroy();
+    });
+
+    QUnit.test('trigger change event', function (assert) {
+        const ready = assert.async(2);
+        const instance = pageSizeSelector({
             renderTo: '#fixture-change-event'
         });
-        var selectedValue = 200;
-        var select2Instance = instance.getElement().find('select');
+        const select2Instance = instance.getElement().find('select');
 
-        instance.on('change', function() {
+        assert.expect(2);
+
+        instance.on('change', function () {
             assert.ok(true, 'The component fires a specific event when a page option is selected');
             ready();
         });
@@ -147,15 +147,15 @@ define(['jquery', 'ui/pageSizeSelector'], function($, pageSizeSelector) {
         instance.destroy();
     });
 
-    QUnit.test('trigger change event after render to notify about selected value', function(assert) {
-        var ready = assert.async();
+    QUnit.test('trigger change event after render to notify about selected value', function (assert) {
+        const ready = assert.async();
         assert.expect(1);
 
-        var instance = pageSizeSelector({
+        const instance = pageSizeSelector({
             renderTo: '#fixture-change-event-after-render'
         });
 
-        instance.on('change', function() {
+        instance.on('change', function () {
             assert.ok(true, 'The component fires a specific event when a page option is selected');
             ready();
         });
@@ -163,7 +163,7 @@ define(['jquery', 'ui/pageSizeSelector'], function($, pageSizeSelector) {
         instance.destroy();
     });
 
-    QUnit.test('playground', function(assert) {
+    QUnit.test('playground', function (assert) {
         pageSizeSelector({
             renderTo: '#visual-test-default-config'
         });

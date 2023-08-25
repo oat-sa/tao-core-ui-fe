@@ -63,7 +63,7 @@ define(['jquery', 'ui/destination/selector', 'json!test/ui/destination/selector/
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The destinationSelector exposes the component method "' + data.title
+                `The destinationSelector exposes the component method "${  data.title}`
             );
         });
 
@@ -74,7 +74,7 @@ define(['jquery', 'ui/destination/selector', 'json!test/ui/destination/selector/
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The destinationSelector exposes the eventifier method "' + data.title
+                `The destinationSelector exposes the eventifier method "${  data.title}`
             );
         });
 
@@ -83,7 +83,7 @@ define(['jquery', 'ui/destination/selector', 'json!test/ui/destination/selector/
         assert.equal(
             typeof instance[data.title],
             'function',
-            'The destinationSelector exposes the method "' + data.title
+            `The destinationSelector exposes the method "${  data.title}`
         );
     });
 
@@ -105,7 +105,7 @@ define(['jquery', 'ui/destination/selector', 'json!test/ui/destination/selector/
                     'https://tao.com/taoDeliveryRdf/Publish/publish',
                     'Default task creation url has been set'
                 );
-                
+
                 this.updateTaskCreationUrl(newTaskCreationUrl);
 
                 assert.equal(
@@ -154,7 +154,7 @@ define(['jquery', 'ui/destination/selector', 'json!test/ui/destination/selector/
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
-        assert.expect(8);
+        assert.expect(10);
 
         assert.equal($('.class-selector', $container).length, 0, 'No class selector in the container');
 
@@ -162,7 +162,9 @@ define(['jquery', 'ui/destination/selector', 'json!test/ui/destination/selector/
             classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
             title: 'Select a foo class',
             description: 'in oder to move a bar in a foo class',
-            actionName: 'foo it'
+            actionName: 'foo it',
+            showACL: true,
+            aclTransferMode: 'acl.keep.original',
         })
             .on('query', function(params) {
                 this.update(classes, params);
@@ -176,6 +178,9 @@ define(['jquery', 'ui/destination/selector', 'json!test/ui/destination/selector/
                     $element[0],
                     'The component element is correct'
                 );
+
+                assert.equal($('.permissions-settings-container', $container).length, 1, 'ACL permissions selectors are present');
+                assert.equal($('.acl-keep-original:checked', $container).length, 1, 'ACL mode default value is selected');
 
                 assert.equal(
                     $element
@@ -321,7 +326,9 @@ define(['jquery', 'ui/destination/selector', 'json!test/ui/destination/selector/
         assert.expect(1);
 
         destinationSelectorFactory(container, {
-            classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item'
+            classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
+            showACL: true,
+            aclTransferMode: 'acl.keep.original'
         })
             .on('query', function(params) {
                 this.update(classes, params);

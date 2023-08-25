@@ -1,0 +1,48 @@
+{
+    "data": {
+        "url": "/test/searchModal/mocks/with-occurrences/dataset.json",
+        "settings": {
+            "availableColumns": [
+                {
+                    "id": "label",
+                    "sortId": "label.raw",
+                    "label": "Label",
+                    "type": "text",
+                    "alias": null,
+                    "classLabel": null,
+                    "isDuplicated": false,
+                    "default": true,
+                    "sortable": true
+                },
+                {
+                    "id": "custom_prop",
+                    "sortId": "custom_prop",
+                    "label": "Custom",
+                    "type": "text",
+                    "alias": "Additional property",
+                    "classLabel": "Custom properties",
+                    "isDuplicated": false,
+                    "default": false,
+                    "sortable": true
+                },
+                {
+                    "id": "custom_label",
+                    "sortId": "custom_label",
+                    "label": "Label",
+                    "type": "text",
+                    "alias": "Custom label",
+                    "classLabel": "Custom properties",
+                    "isDuplicated": true,
+                    "default": false,
+                    "sortable": true
+                }
+            ]
+        },
+        "params": {
+            "rootNode": "http:\\/\\/www.tao.lu\\/Ontologies\\/TAOItem.rdf#Item",
+            "parentNode": "http:\\/\\/www.tao.lu\\/Ontologies\\/TAOItem.rdf#Item",
+            "structure": "items"
+        },
+        "filter": []
+    }
+}

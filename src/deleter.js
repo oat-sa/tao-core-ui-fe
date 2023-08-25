@@ -50,10 +50,10 @@ var deleter = {
      * @fires deleter#create.deleter
      * @returns {jQueryElement} for chaining
      */
-    init: function(options) {
+    init: function (options) {
         options = _.defaults(options, defaults);
 
-        return this.each(function() {
+        return this.each(function () {
             var $elt = $(this);
 
             if (!$elt.data(dataNs)) {
@@ -62,7 +62,7 @@ var deleter = {
 
                 //bind an event to trigger the close
                 if (options.bindEvent !== false) {
-                    $elt.on(options.bindEvent, function(e) {
+                    $elt.on(options.bindEvent, function (e) {
                         e.preventDefault();
                         deleter._delete($elt);
                     });
@@ -89,8 +89,7 @@ var deleter = {
      * @fires deleted
      * @fires deleter#undo.deleter
      */
-    _delete: function($elt) {
-        var self = deleter;
+    _delete: function ($elt) {
         var performDelete = true;
         var $target, $parent, $evtTrigger, $placeholder, $undoBox;
         var options = $elt.data(dataNs);
@@ -103,13 +102,14 @@ var deleter = {
                  * The target has been closed/removed.
                  * @event deleter#deleted.deleter
                  */
-                $evtTrigger.trigger('deleted.' + ns);
+                $evtTrigger.trigger('deleted.' + ns, [$target]);
             }
         };
         if (options && !$elt.hasClass(options.disableClass)) {
             $target = options.target;
 
             if (options.confirm === true) {
+                //eslint-disable-next-line no-alert
                 performDelete = window.confirm(options.confirmMessage);
             }
 
@@ -136,9 +136,9 @@ var deleter = {
 
                 if (options.undo) {
                     //show the feedback
-                    $(document).off('.unundo.' + ns);
-                    $undoBox = self._createUndoBox(options);
-                    $undoBox.find('.undo').click(function(e) {
+                    $(document).off(`.unundo.${ns}`);
+                    $undoBox = deleter._createUndoBox(options);
+                    $undoBox.find('.undo').click(function (e) {
                         e.preventDefault();
 
                         if (typeof timeout === 'number') {
@@ -154,21 +154,21 @@ var deleter = {
                          * The delete has been undone
                          * @event deleter#undo.deleter
                          */
-                        $elt.trigger('undo.' + ns, [$target]);
-                        $target.trigger('undo.' + ns);
+                        $elt.trigger(`undo.${ns}`, [$target]);
+                        $target.trigger(`undo.${ns}`);
                     });
 
-                    undoRemove = function undoRemove() {
+                    undoRemove = () => {
                         if ($undoBox && $undoBox.length) {
                             $undoBox.remove();
                             $placeholder.remove();
                         }
                         realRemove();
-                        $(document).off('.unundo.' + ns);
+                        $(document).off(`.unundo.${ns}`);
                     };
 
                     //clicking on the document force the delete
-                    $(document).one('mousedown.unundo.' + ns, function(e) {
+                    $(document).one(`mousedown.unundo.${ns}`, function (e) {
                         e.preventDefault();
                         e.stopImmediatePropagation();
                         if (
@@ -180,7 +180,7 @@ var deleter = {
                         }
 
                         //retrigger the click then
-                        _.delay(function() {
+                        _.delay(function () {
                             $(e.target).trigger('mousedown');
                         }, 10);
 
@@ -188,7 +188,7 @@ var deleter = {
                     });
 
                     //remove the target once the atteched events may be terminated (no guaranty, this happens after in the event loop)
-                    timeout = setTimeout(function() {
+                    timeout = setTimeout(function () {
                         undoRemove();
                     }, options.undoTimeout);
                 } else {
@@ -205,7 +205,7 @@ var deleter = {
      * @returns {jQueryElement} the undo box
      */
 
-    _createUndoBox: function(options) {
+    _createUndoBox: function (options) {
         var $undoContainer = options.undoContainer || $('#feedback-messages-main');
         if (!$undoContainer.length) {
             //create a global feedback container
@@ -223,8 +223,8 @@ var deleter = {
      * @public
      * @fires deleter#destroy.deleter
      */
-    destroy: function() {
-        this.each(function() {
+    destroy: function () {
+        this.each(function () {
             var $elt = $(this);
             var options = $elt.data(dataNs);
             if (options.bindEvent !== false) {
@@ -261,7 +261,7 @@ export default function listenDataAttr($container) {
         namespace: dataNs,
         bubbled: true
     })
-        .init(function($elt, $target) {
+        .init(function ($elt, $target) {
             var options = {
                 target: $target,
                 bindEvent: false,
@@ -276,7 +276,7 @@ export default function listenDataAttr($container) {
                     options.confirmMessage = confirm;
                 }
             }
-            if (undo !== null && undo !== undefined) {
+            if (typeof undo !== 'undefined' && undo !== null) {
                 if (undo === false) {
                     options.undo = false;
                 } else {
@@ -290,7 +290,7 @@ export default function listenDataAttr($container) {
             }
             $elt.deleter(options);
         })
-        .trigger(function($elt) {
+        .trigger(function ($elt) {
             $elt.deleter('delete');
         });
 }

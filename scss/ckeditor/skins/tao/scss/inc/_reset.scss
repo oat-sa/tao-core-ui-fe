@@ -35,13 +35,9 @@ http://docs.cksource.com/CKEditor_4.x/Skin_SDK/Reset
   height: auto;
   vertical-align: baseline;
   box-sizing: content-box;
-  -moz-box-sizing: content-box;
-  -webkit-box-sizing: content-box;
   position: static;
-  -webkit-transition: none;
-  -moz-transition: none;
-  -ms-transition: none;
   transition: none;
+  z-index: 0 !important;
 }
 
 /* Reset for elements and their children. */
@@ -56,11 +52,6 @@ http://docs.cksource.com/CKEditor_4.x/Skin_SDK/Reset
   height: auto;
   vertical-align: baseline;
   box-sizing: content-box;
-  -moz-box-sizing: content-box;
-  -webkit-box-sizing: content-box;
-  -webkit-transition: none;
-  -moz-transition: none;
-  -ms-transition: none;
   transition: none;
 
   /* These are rule inherited by all children elements. */

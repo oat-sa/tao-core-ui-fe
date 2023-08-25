@@ -1,0 +1,334 @@
+{
+    "mockedResults": {
+        "data": [
+            {
+                "id": "https://tao.docker.localhost/ontologies/tao.rdf#i5f48e105be08844e7d7b605384c562c",
+                "label": "Example_8_Geo 3"
+            }
+        ],
+        "readonly": [],
+        "success": true,
+        "page": 1,
+        "total": 1,
+        "totalCount": 1,
+        "records": 1
+    },
+    "mockedClassTree": {
+        "success": true,
+        "data": {
+            "resources": [
+                {
+                    "label": "Item",
+                    "type": "class",
+                    "uri": "http://www.tao.lu/Ontologies/TAOItem.rdf#Item",
+                    "classUri": null,
+                    "signature": "c875031e47982028c84ac8bd0cd62f7c55fd2e3504555535707728176c490540",
+                    "state": "open",
+                    "count": 0,
+                    "children": [
+                        {
+                            "label": "QTI Interactions",
+                            "type": "class",
+                            "uri": "https://tao0.docker.localhost/ontologies/tao.rdf#i5f51f1d0bdd2b84f4c46880082e771",
+                            "classUri": "http://www.tao.lu/Ontologies/TAOItem.rdf#Item",
+                            "signature": "7aab1b9afa782de3071cb40d7453133c1f2ac0c82d7f295ce68e5fd1087cdb6f",
+                            "state": false,
+                            "count": 0
+                        }
+                    ]
+                }
+            ],
+            "permissions": {
+                "supportedRights": []
+            }
+        },
+        "version": "3.4.0-sprint135"
+    },
+    "mockedClassTreeWithPermissions": {
+        "success": true,
+        "data": {
+            "resources": [
+                {
+                    "label": "Item",
+                    "type": "class",
+                    "uri": "http://www.tao.lu/Ontologies/TAOItem.rdf#Item",
+                    "classUri": null,
+                    "signature": "dc36445fa73ce3b87d63a0073cc6fadc4802b434da0ff69352105624f091060e",
+                    "state": "open",
+                    "count": 0,
+                    "children": [
+                        {
+                            "label": "QTI Interactions",
+                            "type": "class",
+                            "uri": "https://tao0.docker.localhost/ontologies/tao.rdf#i5f71ac09abde474b5fa37ef76d2415d",
+                            "classUri": "http://www.tao.lu/Ontologies/TAOItem.rdf#Item",
+                            "signature": "f08b300e7757cef1d61177e38565eff31ef918c3f99c0fb3610ce03f559b4374",
+                            "state": "closed",
+                            "count": 0
+                        },
+                        {
+                            "label": "private0",
+                            "type": "class",
+                            "uri": "https://tao0.docker.localhost/ontologies/tao.rdf#i5f743e3ee869d685f55538dbd01531",
+                            "classUri": "http://www.tao.lu/Ontologies/TAOItem.rdf#Item",
+                            "signature": "573e3f191e0aad0b3dd409253750e26bbd120dfe41b2a3c2ac5f7cde3db6414f",
+                            "state": false,
+                            "count": 0
+                        }
+                    ]
+                }
+            ],
+            "permissions": {
+                "supportedRights": ["GRANT", "WRITE", "READ"],
+                "data": {
+                    "http://www.tao.lu/Ontologies/TAOItem.rdf#Item": ["GRANT", "READ", "WRITE"],
+                    "https://tao0.docker.localhost/ontologies/tao.rdf#i5f71ac09abde474b5fa37ef76d2415d": [
+                        "GRANT",
+                        "READ",
+                        "WRITE"
+                    ],
+                    "https://tao0.docker.localhost/ontologies/tao.rdf#i5f743e3ee869d685f55538dbd01531": []
+                }
+            }
+        },
+        "version": "3.4.0-sprint135"
+    },
+    "mockedAdvancedCriteria": {
+        "success": true,
+        "data": {
+            "classDefinition": [
+                {
+                    "class": "parent-class",
+                    "metadata": [
+                        {
+                            "id": "in-both-text",
+                            "label": "in-both-text",
+                            "uri": "in-both-text",
+                            "propertyUri": "inBothTextParentUri",
+                            "type": "text",
+                            "alias": null,
+                            "class": {
+                                "label": "ParentClassLabel"
+                            },
+                            "isDuplicated": true
+                        },
+                        {
+                            "id": "in-both-list",
+                            "label": "in-both-list",
+                            "uri": "in-both-list",
+                            "propertyUri": "inBothListParentUri",
+                            "type": "list",
+                            "values": [
+                                "value0",
+                                "value1",
+                                "value2",
+                                "value3"
+                            ],
+                            "alias": null,
+                            "class": {
+                                "label": "ParentClassLabel"
+                            },
+                            "isDuplicated": true
+                        },
+                        {
+                            "id": "in-both-select",
+                            "label": "in-both-select",
+                            "type": "list",
+                            "uri": "in-both-select",
+                            "propertyUri": "inBothSelectParentUri",
+                            "alias": null,
+                            "class": {
+                                "label": "ParentClassLabel"
+                            },
+                            "isDuplicated": true
+                        },
+                        {
+                            "id": "in-parent-text",
+                            "label": "in-parent-text",
+                            "type": "text",
+                            "uri": "in-parent-text-uri",
+                            "propertyUri": "inParentTextUri",
+                            "alias": null,
+                            "class": {
+                                "label": "ParentClassLabel"
+                            },
+                            "isDuplicated": false
+                        }
+                    ]
+                },
+                {
+                    "class": "child-class",
+                    "metadata": [
+                        {
+                            "label": "in-both-text",
+                            "type": "text",
+                            "uri": "in-both-text-uri",
+                            "propertyUri": "inBothTextChildUri",
+                            "alias": null,
+                            "class": {
+                                "label": "ChildClassLabel"
+                            },
+                            "isDuplicated": true
+                        },
+                        {
+                            "label": "in-both-list",
+                            "type": "list",
+                            "values": [
+                                "value0",
+                                "value1",
+                                "value2",
+                                "value3"
+                            ],
+                            "uri": "in-both-list-uri",
+                            "propertyUri": "inBothListChildUri",
+                            "alias": null,
+                            "class": {
+                                "label": "ChildClassLabel"
+                            },
+                            "isDuplicated": true
+                        },
+                        {
+                            "label": "in-both-select",
+                            "type": "list",
+                            "uri": "foo",
+                            "propertyUri": "inBothSelectChildUri",
+                            "alias": null,
+                            "class": {
+                                "label": "ChildClassLabel"
+                            },
+                            "isDuplicated": true
+                        },
+                        {
+                            "label": "in-child-text",
+                            "type": "text",
+                            "uri": "in-child-text-uri",
+                            "propertyUri": "inChildTextUri",
+                            "alias": null,
+                            "class": {
+                                "label": "ChildClassLabel"
+                            },
+                            "isDuplicated": false
+                        }
+                    ]
+                }
+            ],
+            "criteriaMapping": {
+                "list": "uri",
+                "text": "label"
+            }
+        }
+    },
+    "mockedAdvancedCriteriaInChildClass": {
+        "success": true,
+        "data": [
+            {
+                "class": "child-class",
+                "metadata": [
+                    {
+                        "label": "in-both-text",
+                        "uri": "in-both-text-uri",
+                        "propertyUri": "inBothTextChildUri",
+                        "type": "text",
+                        "alias": null,
+                        "class": {
+                            "label": "ChildClassLabel"
+                        },
+                        "isDuplicated": true
+                    },
+                    {
+                        "label": "in-both-list",
+                        "uri": "in-both-list-uri",
+                        "propertyUri": "inBothListChildUri",
+                        "type": "list",
+                        "values": ["value0", "value1", "value2", "value3"],
+                        "alias": null,
+                        "class": {
+                            "label": "ChildClassLabel"
+                        },
+                        "isDuplicated": true
+                    },
+                    {
+                        "label": "in-both-select",
+                        "type": "list",
+                        "uri": "foo",
+                        "propertyUri": "inBothSelectChildUri",
+                        "alias": null,
+                        "class": {
+                            "label": "ChildClassLabel"
+                        },
+                        "isDuplicated": true
+                    },
+                    {
+                        "label": "in-child-text",
+                        "uri": "in-child-text-uri",
+                        "propertyUri": "inChildTextUri",
+                        "type": "text",
+                        "alias": null,
+                        "class": {
+                            "label": "ChildClassLabel"
+                        },
+                        "isDuplicated": false
+                    }
+                ]
+            }
+        ]
+    },
+    "mockedCriteriaStore": {
+        "inBothListParentUri": {
+            "label": "in-both-list",
+            "id": "inBothListParentUri",
+            "type": "list",
+            "values": ["easy", "medium", "hard"],
+            "uri": "in-both-list",
+            "rendered": true,
+            "value": ["easy"]
+        },
+        "inBothTextParentUri": {
+            "label": "in-both-text",
+            "id": "inBothTextParentUri",
+            "type": "text",
+            "values": null,
+            "uri": "in-both-text",
+            "rendered": true,
+            "value": "foo"
+        },
+        "inBothSelectParentUri": {
+            "label": "in-both-select",
+            "id": "inBothSelectParentUri",
+            "type": "list",
+            "values": null,
+            "uri": "/tao/PropertyValues/get?propertyUri=https%3A%2F%2Ftao3.docker.localhost%2Fontologies%2Ftao.rdf%23i5f7dcc4e2e0a56945f7e59e65d0b990",
+            "rendered": true,
+            "value": ["English"]
+        }
+    },
+    "mockedStatusEnabled": {
+        "success": true,
+        "data": {
+            "enabled": true
+        }
+    },
+    "mockedStatusDisabled": {
+        "success": true,
+        "data": {
+            "enabled": false
+        }
+    },
+    "mockedCriteriaSelect": {
+        "success": true,
+        "data": [
+            {
+                "uri": "value0",
+                "label": "value0"
+            },
+            {
+                "uri": "value1",
+                "label": "value1"
+            },
+            {
+                "uri": "value2",
+                "label": "value2"
+            }
+        ]
+    }
+}

@@ -76,7 +76,7 @@ define([
                 this.destroy();
             });
         assert.expect(1);
-        assert.equal(typeof instance[data.title], 'function', 'The instance exposes a "' + data.title + '" function');
+        assert.equal(typeof instance[data.title], 'function', `The instance exposes a "${  data.title  }" function`);
     });
 
     QUnit.cases.init([
@@ -90,7 +90,7 @@ define([
                 this.destroy();
             });
         assert.expect(1);
-        assert.equal(typeof instance[data.title], 'function', 'The instance exposes a "' + data.title + '" function');
+        assert.equal(typeof instance[data.title], 'function', `The instance exposes a "${  data.title  }" function`);
     });
 
     QUnit.cases.init([
@@ -107,7 +107,7 @@ define([
                 this.destroy();
             });
         assert.expect(1);
-        assert.equal(typeof instance[data.title], 'function', 'The instance exposes a "' + data.title + '" function');
+        assert.equal(typeof instance[data.title], 'function', `The instance exposes a "${  data.title  }" function`);
     });
 
     QUnit.module('Life cycle');
@@ -393,7 +393,7 @@ define([
                 assert.equal(this.getWidgetElement(), null, 'There is no form element yet');
             })
             .on('ready', function () {
-                assert.ok(this.getWidgetElement().is($container.find('[name="' + config.uri + '"]')), 'The expected form element is returned');
+                assert.ok(this.getWidgetElement().is($container.find(`[name="${  config.uri  }"]`)), 'The expected form element is returned');
                 this.destroy();
             })
             .after('destroy', function () {
@@ -732,7 +732,7 @@ define([
                 visible
                     .on('ready', resolve)
                     .on('change', function (value, uri) {
-                        $outputChange.val('value of [' + uri + '] changed to "' + value + '"\n' + $outputChange.val());
+                        $outputChange.val(`value of [${  uri  }] changed to "${  value  }"\n${  $outputChange.val()}`);
                         hidden.setValue(`hidden ${value}`);
                     });
             }),
@@ -740,7 +740,7 @@ define([
                 hidden
                     .on('ready', resolve)
                     .on('change', function (value, uri) {
-                        $outputChange.val('value of [' + uri + '] changed to "' + value + '"\n' + $outputChange.val());
+                        $outputChange.val(`value of [${  uri  }] changed to "${  value  }"\n${  $outputChange.val()}`);
                     });
             })
         ])

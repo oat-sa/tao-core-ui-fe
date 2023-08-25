@@ -48,7 +48,7 @@ define([
     ]).test('module API ', function (data, assert) {
         var instance = validatorFactory();
         assert.expect(1);
-        assert.equal(typeof instance[data.title], 'function', 'The instance exposes a "' + data.title + '" function');
+        assert.equal(typeof instance[data.title], 'function', `The instance exposes a "${  data.title  }" function`);
     });
 
     QUnit.module('API');

@@ -36,8 +36,8 @@ var selectedValues = {};
 function createCombobox(level, categoriesDefinitions, categories, selected) {
     if (categoriesDefinitions[level] && categories[level]) {
         selected = selected || [];
-        var categoryDef = categoriesDefinitions[level];
-        var $comboBox;
+        const categoryDef = categoriesDefinitions[level];
+        let $comboBox;
         if (categoryDef.id) {
             //init <select> DOM element
             $comboBox = $(
@@ -51,7 +51,7 @@ function createCombobox(level, categoriesDefinitions, categories, selected) {
             $comboBox.find('select').val(selected[level] || '');
 
             //add event handler
-            $comboBox.on('change', function() {
+            $comboBox.on('change', function () {
                 var $selected = $comboBox.find(':selected');
                 selectedValues[categoryDef.id] = $selected.val();
                 //trigger event
@@ -69,7 +69,7 @@ function createCombobox(level, categoriesDefinitions, categories, selected) {
             return $comboBox;
         }
     } else {
-        throw 'missing category definition on level : ' + level;
+        throw new Error(`missing category definition on level : ${level}`);
     }
 }
 
@@ -84,7 +84,7 @@ export default function groupedComboBoxFactory(options) {
     return component()
         .on('render', function render($container) {
             if (_.isArray(options.categoriesDefinitions) && _.isArray(options.categories)) {
-                options.categoriesDefinitions.forEach(function(k, i) {
+                options.categoriesDefinitions.forEach(function (k, i) {
                     var $comboBox = createCombobox(
                         i,
                         options.categoriesDefinitions,

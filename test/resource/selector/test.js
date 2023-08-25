@@ -29,7 +29,7 @@ define([
     'json!test/ui/resource/tree/root.json',
     'json!test/ui/resource/tree/node.json',
     'json!test/ui/resource/list/nodes.json'
-], function($, _, resourceSelectorFactory, classesData, treeRootData, treeNodeData, listData) {
+], function ($, _, resourceSelectorFactory, classesData, treeRootData, treeNodeData, listData) {
     'use strict';
 
     var labelUri = 'http://www.w3.org/2000/01/rdf-schema#label';
@@ -38,7 +38,7 @@ define([
 
     QUnit.module('API');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.expect(3);
 
         assert.equal(
@@ -70,23 +70,23 @@ define([
             { title: 'getTemplate' },
             { title: 'setTemplate' }
         ])
-        .test('Component API ', function(data, assert) {
+        .test('Component API ', function (data, assert) {
             var instance = resourceSelectorFactory();
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The resourceSelector exposes the component method "' + data.title
+                `The resourceSelector exposes the component method "${data.title}"`
             );
         });
 
     QUnit.cases
         .init([{ title: 'on' }, { title: 'off' }, { title: 'trigger' }, { title: 'before' }, { title: 'after' }])
-        .test('Eventifier API ', function(data, assert) {
+        .test('Eventifier API ', function (data, assert) {
             var instance = resourceSelectorFactory();
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The resourceSelector exposes the eventifier method "' + data.title
+                `The resourceSelector exposes the eventifier method "${data.title}"`
             );
         });
 
@@ -109,18 +109,18 @@ define([
             { title: 'select' },
             { title: 'getNodeType' }
         ])
-        .test('Instance API ', function(data, assert) {
+        .test('Instance API ', function (data, assert) {
             var instance = resourceSelectorFactory();
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The resourceSelector exposes the method "' + data.title
+                `The resourceSelector exposes the method "${data.title}"`
             );
         });
 
     QUnit.module('Behavior');
 
-    QUnit.test('Lifecycle', function(assert) {
+    QUnit.test('Lifecycle', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -130,20 +130,20 @@ define([
             classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
             classes: classesData
         })
-            .on('init', function() {
+            .on('init', function () {
                 assert.ok(!this.is('rendered'), 'The component is not yet rendered');
             })
-            .on('render', function() {
+            .on('render', function () {
                 assert.ok(this.is('rendered'), 'The component is now rendered');
 
                 this.destroy();
             })
-            .on('destroy', function() {
+            .on('destroy', function () {
                 ready();
             });
     });
 
-    QUnit.test('multiple selection rendering', function(assert) {
+    QUnit.test('multiple selection rendering', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -155,7 +155,7 @@ define([
             classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
             selectionMode: modes.multiple,
             classes: classesData
-        }).after('render', function() {
+        }).after('render', function () {
             var $element = this.getElement();
 
             assert.equal($('.resource-selector', $container).length, 1, 'The component has been inserted');
@@ -189,7 +189,7 @@ define([
         });
     });
 
-    QUnit.test('single selection rendering', function(assert) {
+    QUnit.test('single selection rendering', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -201,7 +201,7 @@ define([
             classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
             selectionMode: modes.single,
             classes: classesData
-        }).after('render', function() {
+        }).after('render', function () {
             var $element = this.getElement();
 
             assert.equal($('.resource-selector', $container).length, 1, 'The component has been inserted');
@@ -235,7 +235,7 @@ define([
         });
     });
 
-    QUnit.test('format change', function(assert) {
+    QUnit.test('format change', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -248,7 +248,7 @@ define([
         assert.equal($('.resource-selector', $container).length, 0, 'No resource tree in the container');
 
         resourceSelectorFactory($container, config)
-            .on('update.foo', function() {
+            .on('update.foo', function () {
                 var $element = this.getElement();
                 var $treeSwitch = $('[data-view-format=tree]', $element);
                 var $listSwitch = $('[data-view-format=list]', $element);
@@ -263,12 +263,12 @@ define([
                 assert.equal($('main .resource-tree', $element).length, 1, 'The resource tree is enabled');
                 assert.equal($('main .resource-list', $element).length, 0, 'The resource list is not there');
 
-                this.on('formatchange', function(newFormat) {
+                this.on('formatchange', function (newFormat) {
                     assert.equal(newFormat, 'list', 'the format has changed');
                     assert.equal($listSwitch.hasClass('active'), true, 'The list format switch is now active');
                     assert.equal($treeSwitch.hasClass('active'), false, 'The list format switch is not active');
                 });
-                this.on('update', function() {
+                this.on('update', function () {
                     assert.equal($('main .resource-tree', $element).length, 0, 'The resource tree ihas been removed');
                     assert.equal($('main .resource-list', $element).length, 1, 'The resource list is now enabled');
 
@@ -277,7 +277,7 @@ define([
 
                 $listSwitch.click();
             })
-            .on('query', function(params) {
+            .on('query', function (params) {
                 if (params.format === 'tree') {
                     if (config.classUri === params.classUri) {
                         this.update(treeRootData, params);
@@ -291,7 +291,7 @@ define([
             });
     });
 
-    QUnit.test('multiple selection', function(assert) {
+    QUnit.test('multiple selection', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -306,7 +306,7 @@ define([
         assert.equal($('.resource-selector', $container).length, 0, 'No resource tree in the container');
 
         resourceSelectorFactory($container, config)
-            .on('update', function() {
+            .on('update', function () {
                 var $control = $('.selection-control input', this.getElement());
                 var $node1 = $('[data-uri="http://bertao/tao.rdf#i14918988138981105"]', this.getElement());
                 var $node2 = $('[data-uri="http://bertao/tao.rdf#i14918988538969120"]', this.getElement());
@@ -397,12 +397,12 @@ define([
 
                 ready();
             })
-            .on('query', function(params) {
+            .on('query', function (params) {
                 this.update(listData, params);
             });
     });
 
-    QUnit.test('selectAll policy: visible', function(assert) {
+    QUnit.test('selectAll policy: visible', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -420,7 +420,7 @@ define([
         assert.equal($('.resource-selector', $container).length, 0, 'No resource tree in the container');
 
         resourceSelectorFactory($container, config)
-            .on('update', function() {
+            .on('update', function () {
                 var $control = $('.selection-control input', this.getElement());
                 var $node1 = $('[data-uri="http://bertao/tao.rdf#i1491898771637894"]', this.getElement());
                 var $node2 = $('[data-uri="http://bertao/tao.rdf#i1491898801542197"]', this.getElement());
@@ -522,7 +522,7 @@ define([
                     ready();
                 }
             })
-            .on('query', function(params) {
+            .on('query', function (params) {
                 if (params.format === 'tree') {
                     if (config.classUri === params.classUri) {
                         this.update(treeRootData, params);
@@ -536,7 +536,7 @@ define([
             });
     });
 
-    QUnit.test('selectAll policy: loaded', function(assert) {
+    QUnit.test('selectAll policy: loaded', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -554,7 +554,7 @@ define([
         assert.equal($('.resource-selector', $container).length, 0, 'No resource tree in the container');
 
         resourceSelectorFactory($container, config)
-            .on('update', function() {
+            .on('update', function () {
                 var $control = $('.selection-control input', this.getElement());
                 var $node1 = $('[data-uri="http://bertao/tao.rdf#i1491898771637894"]', this.getElement());
                 var $node2 = $('[data-uri="http://bertao/tao.rdf#i1491898801542197"]', this.getElement());
@@ -657,7 +657,7 @@ define([
                     ready();
                 }
             })
-            .on('query', function(params) {
+            .on('query', function (params) {
                 if (params.format === 'tree') {
                     if (config.classUri === params.classUri) {
                         this.update(treeRootData, params);
@@ -671,7 +671,7 @@ define([
             });
     });
 
-    QUnit.test('single selection', function(assert) {
+    QUnit.test('single selection', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -689,9 +689,9 @@ define([
         assert.equal($('.resource-selector', $container).length, 0, 'No resource tree in the container');
 
         resourceSelectorFactory($container, config)
-            .on('update', function() {
-                var $node1 = $('[data-uri="' + uri1 + '"]', this.getElement());
-                var $node2 = $('[data-uri="' + uri2 + '"]', this.getElement());
+            .on('update', function () {
+                var $node1 = $(`[data-uri="${uri1}"]`, this.getElement());
+                var $node2 = $(`[data-uri="${uri2}"]`, this.getElement());
 
                 var selection = this.getSelection();
 
@@ -734,12 +734,12 @@ define([
 
                 ready();
             })
-            .on('query', function(params) {
+            .on('query', function (params) {
                 this.update(listData, params);
             });
     });
 
-    QUnit.test('API selection', function(assert) {
+    QUnit.test('API selection', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -757,9 +757,9 @@ define([
         assert.equal($('.resource-selector', $container).length, 0, 'No resource tree in the container');
 
         resourceSelectorFactory($container, config)
-            .on('update', function() {
-                var $node1 = $('[data-uri="' + uri1 + '"]', this.getElement());
-                var $node2 = $('[data-uri="' + uri2 + '"]', this.getElement());
+            .on('update', function () {
+                var $node1 = $(`[data-uri="${uri1}"]`, this.getElement());
+                var $node2 = $(`[data-uri="${uri2}"]`, this.getElement());
 
                 var selection = this.getSelection();
 
@@ -791,12 +791,12 @@ define([
 
                 ready();
             })
-            .on('query', function(params) {
+            .on('query', function (params) {
                 this.update(listData, params);
             });
     });
 
-    QUnit.test('selection change', function(assert) {
+    QUnit.test('selection change', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -811,7 +811,7 @@ define([
         assert.equal($('.resource-selector', $container).length, 0, 'No resource tree in the container');
 
         resourceSelectorFactory($container, config)
-            .on('change', function(selection) {
+            .on('change', function (selection) {
                 var $node1 = $('[data-uri="http://bertao/tao.rdf#i14918988138981105"]', this.getElement());
                 assert.ok($node1.hasClass('selected'), 'node1 is now selected');
                 assert.equal(
@@ -821,7 +821,7 @@ define([
                 );
                 ready();
             })
-            .on('update', function() {
+            .on('update', function () {
                 var $node1 = $('[data-uri="http://bertao/tao.rdf#i14918988138981105"]', this.getElement());
 
                 var selection = this.getSelection();
@@ -835,12 +835,12 @@ define([
                 );
                 $node1.click();
             })
-            .on('query', function(params) {
+            .on('query', function (params) {
                 this.update(listData, params);
             });
     });
 
-    QUnit.test('class selection', function(assert) {
+    QUnit.test('class selection', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -858,19 +858,19 @@ define([
         assert.equal($('.resource-selector', $container).length, 0, 'No resource tree in the container');
 
         resourceSelectorFactory($container, config)
-            .on('change', function(selection) {
-                var $class = $('.class[data-uri="' + classUri + '"]', this.getElement());
+            .on('change', function (selection) {
+                var $class = $(`.class[data-uri="${classUri}"]`, this.getElement());
                 assert.ok($class.hasClass('selected'), 'node1 is now selected');
                 assert.equal(typeof selection[classUri], 'object', 'The selection contains the class');
                 ready();
             })
-            .on('update.foobar', function() {
+            .on('update.foobar', function () {
                 var $class;
                 var selection;
 
                 this.off('update.foobar');
 
-                $class = $('.class[data-uri="' + classUri + '"]', this.getElement());
+                $class = $(`.class[data-uri="${classUri}"]`, this.getElement());
                 selection = this.getSelection();
 
                 assert.equal($class.length, 1, 'The class node exists');
@@ -879,12 +879,12 @@ define([
 
                 $class.click();
             })
-            .on('query', function(params) {
+            .on('query', function (params) {
                 this.update(treeRootData, params);
             });
     });
 
-    QUnit.test('change selection mode', function(assert) {
+    QUnit.test('change selection mode', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -899,7 +899,7 @@ define([
         assert.equal($('.resource-selector', $container).length, 0, 'No resource tree in the container');
 
         resourceSelectorFactory($container, config)
-            .on('update', function() {
+            .on('update', function () {
                 var $toggler = $('.selection-toggle', this.getElement());
                 var $indicator = $('.selection-control label', this.getElement());
 
@@ -923,12 +923,12 @@ define([
 
                 ready();
             })
-            .on('query', function(params) {
+            .on('query', function (params) {
                 this.update(listData, params);
             });
     });
 
-    QUnit.test('search', function(assert) {
+    QUnit.test('search', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -940,21 +940,21 @@ define([
         assert.expect(6);
 
         resourceSelectorFactory($container, config)
-            .on('update.foo', function() {
+            .on('update.foo', function () {
                 var $search = $('.search input', this.getElement());
 
                 this.off('update.foo');
 
                 assert.equal($search.length, 1, 'The search field exists');
 
-                this.on('query', function(params) {
+                this.on('query', function (params) {
                     var search = JSON.parse(params.search);
                     assert.equal(search[labelUri], 'foo', 'The pattern is contains now the search value');
                     ready();
                 });
                 $search.val('foo').trigger('keyup');
             })
-            .on('query.bar', function(params) {
+            .on('query.bar', function (params) {
                 var search;
 
                 assert.equal(typeof params.search, 'string', 'The search parameter is an JSON encoded string ');
@@ -969,7 +969,7 @@ define([
             });
     });
 
-    QUnit.test('search query', function(assert) {
+    QUnit.test('search query', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -980,7 +980,7 @@ define([
 
         assert.expect(9);
 
-        resourceSelectorFactory($container, config).on('render', function() {
+        resourceSelectorFactory($container, config).on('render', function () {
             var searchQuery = this.getSearchQuery();
 
             assert.equal(typeof searchQuery, 'object', 'The search is an object');
@@ -1007,7 +1007,7 @@ define([
         });
     });
 
-    QUnit.test('class change', function(assert) {
+    QUnit.test('class change', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -1019,7 +1019,7 @@ define([
         assert.expect(5);
 
         resourceSelectorFactory($container, config)
-            .on('update.foo', function() {
+            .on('update.foo', function () {
                 var $classOptions = $('.class-selector .options', this.getElement());
                 var $subClass = $('[data-uri="http://bertao/tao.rdf#i1491898694361191"]', $classOptions);
 
@@ -1034,7 +1034,7 @@ define([
                     'The selected class matches the root class'
                 );
 
-                this.on('query', function(params) {
+                this.on('query', function (params) {
                     assert.equal(
                         this.classUri,
                         'http://bertao/tao.rdf#i1491898694361191',
@@ -1046,13 +1046,13 @@ define([
 
                 $subClass.click();
             })
-            .on('query.bar', function(params) {
+            .on('query.bar', function (params) {
                 this.update(listData, params);
                 this.off('query.bar');
             });
     });
 
-    QUnit.test('remove a node', function(assert) {
+    QUnit.test('remove a node', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -1066,13 +1066,13 @@ define([
         assert.expect(5);
 
         resourceSelectorFactory($container, config)
-            .on('update.foo', function() {
+            .on('update.foo', function () {
                 var $node;
                 var selection;
 
                 this.off('update.foo');
 
-                $node = $('.instance[data-uri="' + nodeUri + '"]', this.getElement());
+                $node = $(`.instance[data-uri="${nodeUri}"]`, this.getElement());
                 assert.equal($node.length, 1, 'The node exists');
 
                 //Add the node to the selection
@@ -1083,7 +1083,7 @@ define([
 
                 this.removeNode(nodeUri);
 
-                $node = $('.instance[data-uri="' + nodeUri + '"]', this.getElement());
+                $node = $(`.instance[data-uri="${nodeUri}"]`, this.getElement());
                 assert.equal($node.length, 0, 'The node has been remove from the DOM');
 
                 selection = this.getSelection();
@@ -1095,7 +1095,7 @@ define([
 
                 ready();
             })
-            .on('query', function(params) {
+            .on('query', function (params) {
                 if (config.classUri === params.classUri) {
                     this.update(treeRootData, params);
                 } else {
@@ -1104,7 +1104,7 @@ define([
             });
     });
 
-    QUnit.test('add a node', function(assert) {
+    QUnit.test('add a node', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -1122,17 +1122,17 @@ define([
         assert.expect(8);
 
         resourceSelectorFactory($container, config)
-            .on('update.foo', function() {
+            .on('update.foo', function () {
                 var $node;
                 var $parentNode;
                 var selection;
 
                 this.off('update.foo');
 
-                $parentNode = $('.class[data-uri="' + parentUri + '"]', this.getElement());
+                $parentNode = $(`.class[data-uri="${parentUri}"]`, this.getElement());
                 assert.equal($parentNode.length, 1, 'The parent node exists');
 
-                $node = $('.instance[data-uri="' + newNode.uri + '"]', this.getElement());
+                $node = $(`.instance[data-uri="${newNode.uri}"]`, this.getElement());
                 assert.equal($node.length, 0, 'The node does not exist');
 
                 selection = this.getSelection();
@@ -1145,7 +1145,7 @@ define([
                 //Add the node
                 this.addNode(newNode, parentUri);
 
-                $node = $('.instance[data-uri="' + newNode.uri + '"]', this.getElement());
+                $node = $(`.instance[data-uri="${newNode.uri}"]`, this.getElement());
                 assert.equal($node.length, 1, 'The node has been inserted');
                 assert.equal(
                     $node.parents('.class').data('uri'),
@@ -1162,7 +1162,7 @@ define([
 
                 ready();
             })
-            .on('query', function(params) {
+            .on('query', function (params) {
                 if (config.classUri === params.classUri) {
                     this.update(treeRootData, params);
                 } else {
@@ -1171,7 +1171,7 @@ define([
             });
     });
 
-    QUnit.test('has a node', function(assert) {
+    QUnit.test('has a node', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -1186,22 +1186,18 @@ define([
         assert.expect(7);
 
         resourceSelectorFactory($container, config)
-            .on('update.foo', function() {
+            .on('update.foo', function () {
                 this.off('update.foo');
 
                 assert.ok(!this.hasNode('foo'));
                 assert.ok(!this.hasNode({ uri: 'foo' }));
 
-                assert.equal(
-                    $('[data-uri="' + instanceUri + '"]', this.getElement()).length,
-                    1,
-                    'The node is in the tree'
-                );
+                assert.equal($(`[data-uri="${instanceUri}"]`, this.getElement()).length, 1, 'The node is in the tree');
                 assert.ok(this.hasNode(instanceUri));
                 assert.ok(this.hasNode({ uri: instanceUri }));
 
                 assert.equal(
-                    $('.class[data-uri="' + classUri + '"]', this.getElement()).length,
+                    $(`.class[data-uri="${classUri}"]`, this.getElement()).length,
                     1,
                     'The class node is in the tree'
                 );
@@ -1209,7 +1205,7 @@ define([
 
                 ready();
             })
-            .on('query', function(params) {
+            .on('query', function (params) {
                 if (config.classUri === params.classUri) {
                     this.update(treeRootData, params);
                 } else {
@@ -1218,7 +1214,7 @@ define([
             });
     });
 
-    QUnit.test('has a node with selectable classes', function(assert) {
+    QUnit.test('has a node with selectable classes', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -1234,22 +1230,18 @@ define([
         assert.expect(8);
 
         resourceSelectorFactory($container, config)
-            .on('update.foo', function() {
+            .on('update.foo', function () {
                 this.off('update.foo');
 
                 assert.ok(!this.hasNode('foo'));
                 assert.ok(!this.hasNode({ uri: 'foo' }));
 
-                assert.equal(
-                    $('[data-uri="' + instanceUri + '"]', this.getElement()).length,
-                    1,
-                    'The node is in the tree'
-                );
+                assert.equal($(`[data-uri="${instanceUri}"]`, this.getElement()).length, 1, 'The node is in the tree');
                 assert.ok(this.hasNode(instanceUri));
                 assert.ok(this.hasNode({ uri: instanceUri }));
 
                 assert.equal(
-                    $('.class[data-uri="' + classUri + '"]', this.getElement()).length,
+                    $(`.class[data-uri="${classUri}"]`, this.getElement()).length,
                     1,
                     'The class node is in the tree'
                 );
@@ -1258,7 +1250,7 @@ define([
 
                 ready();
             })
-            .on('query', function(params) {
+            .on('query', function (params) {
                 if (config.classUri === params.classUri) {
                     this.update(treeRootData, params);
                 } else {
@@ -1269,7 +1261,7 @@ define([
 
     QUnit.module('Visual');
 
-    QUnit.test('playground 1', function(assert) {
+    QUnit.test('playground 1', function (assert) {
         var ready = assert.async();
         var container = document.getElementById('visual1');
         var config = {
@@ -1280,11 +1272,11 @@ define([
         };
 
         resourceSelectorFactory(container, config)
-            .on('render', function() {
+            .on('render', function () {
                 assert.ok(true);
                 ready();
             })
-            .on('query', function(params) {
+            .on('query', function (params) {
                 if (params.format === 'tree') {
                     if (config.classUri === params.classUri) {
                         this.update(treeRootData, params);
@@ -1298,7 +1290,7 @@ define([
             });
     });
 
-    QUnit.test('playground 2', function(assert) {
+    QUnit.test('playground 2', function (assert) {
         var ready = assert.async();
         var container = document.getElementById('visual2');
         var config = {
@@ -1310,11 +1302,11 @@ define([
         };
 
         resourceSelectorFactory(container, config)
-            .on('render', function() {
+            .on('render', function () {
                 assert.ok(true);
                 ready();
             })
-            .on('query', function(params) {
+            .on('query', function (params) {
                 if (params.format === 'tree') {
                     if (config.classUri === params.classUri) {
                         this.update(treeRootData, params);

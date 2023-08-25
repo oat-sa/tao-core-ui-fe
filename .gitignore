@@ -60,9 +60,14 @@ typings/
 # next.js build output
 .next
 
-/node_modules
-/dist
-css/
-
-# phpstorm files
+# IDE files
 .idea/
+.vscode/
+
+# Platform specifics
+.DS_Store
+
+# Project related
+eslint_report.json
+/dist
+css

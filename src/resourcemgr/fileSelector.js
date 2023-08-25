@@ -30,22 +30,23 @@ import fileSelectTpl from 'ui/resourcemgr/tpl/fileSelect';
 import feedback from 'ui/feedback';
 import context from 'context';
 import 'ui/uploader';
+import updatePermissions from './util/updatePermissions';
 
-var ns = 'resourcemgr';
+let ns = 'resourcemgr';
 
 function shortenPath(path) {
-    var tokens = path.replace(/\/$/, '').split('/');
-    var start = tokens.length - 3;
-    var end = tokens.length - 1;
-    var title = _.map(tokens, function(token, index) {
-        return index > start && token ? (index < end ? token[0] : token) : undefined;
+    let tokens = path.replace(/\/$/, '').split('/');
+    let start = tokens.length - 3;
+    let end = tokens.length - 1;
+    let title = _.map(tokens, function (token, index) {
+        return index > start && token ? (index < end ? token[0] : token) : void 0;
     });
     title = title.filter(Boolean);
     return title.join('/');
 }
 
 function isTextLarger($element, text) {
-    var $dummy = $element
+    let $dummy = $element
         .clone()
         .detach()
         .css({
@@ -56,66 +57,76 @@ function isTextLarger($element, text) {
         })
         .text(text)
         .insertAfter($element);
-    var textSize = $dummy.width();
+    let textSize = $dummy.width();
     $dummy.remove();
 
     return textSize > $element.width();
 }
 
-export default function(options) {
-    var root = options.root || '/';
-    var disableUpload = options.disableUpload || false;
-    var $container = options.$target;
-    var $fileSelector = $('.file-selector', $container);
-    var $fileContainer = $('.files', $fileSelector);
-    var $placeholder = $('.empty', $fileSelector);
-    var $uploader = $('.file-upload-container', $fileSelector);
-    var parentSelector = '#' + $container.attr('id') + ' .file-selector';
-    var $pathTitle = $fileSelector.find('h1 > .title');
-    var $browserTitle = $('.file-browser > h1', $container);
+export default function (options) {
+    let root = options.root || '/';
+    let disableUpload = options.disableUpload || false;
+    let $container = options.$target;
+    let $fileSelector = $('.file-selector', $container);
+    let $fileContainer = $('.files', $fileSelector);
+    let $placeholder = $('.empty', $fileSelector);
+    let $uploader = $('.file-upload-container', $fileSelector);
+    let parentSelector = `#${$container.attr('id')} .file-selector`;
+    let $pathTitle = $fileSelector.find('h1 > .title');
+    let $browserTitle = $('.file-browser > h1', $container);
 
     //set up the uploader
     if (disableUpload) {
-        var $switcher = $('.upload-switcher', $fileSelector);
+        let $switcher = $('.upload-switcher', $fileSelector);
         $switcher.remove();
     } else {
         setUpUploader(root);
     }
     //update current folder
-    $container.on('folderselect.' + ns, function(e, fullPath, data, activePath) {
-        var files;
+    $container.on(`folderselect.${ns}`, function (e, fullPath, data, activePath, content) {
+        let files;
+
+        data = data.map(function (dataItem) {
+            if (Array.isArray(dataItem.permissions)) {
+                updatePermissions(dataItem);
+            }
+            return dataItem;
+        });
+
         //update title
+        if ($container[0].querySelector('.upload')) {
+            if (content && content.permissions && content.permissions.upload) {
+                $container[0].querySelector('.upload').classList.remove('hidden');
+            } else {
+                $container[0].querySelector('.upload').classList.add('hidden');
+            }
+        }
 
         $pathTitle.text(isTextLarger($pathTitle, fullPath) ? shortenPath(fullPath) : fullPath);
 
         //update content here
         if (_.isArray(data)) {
-            files = _.filter(data, function(item) {
+            files = _.filter(data, function (item) {
                 return !!item.uri;
-            }).map(function(file) {
+            }).map(function (file) {
                 file.type = mimeType.getFileType(file);
-                if (file.identifier === undefined) {
-                    file.display = (fullPath + '/' + file.name).replace('//', '/');
+                if (typeof file.identifier === 'undefined') {
+                    file.display = `${fullPath}/${file.name}`.replace('//', '/');
                 } else {
                     file.display = file.identifier + file.name;
                 }
 
-                file.viewUrl =
-                    options.downloadUrl +
-                    '?' +
-                    $.param(options.params) +
-                    '&' +
-                    options.pathParam +
-                    '=' +
-                    encodeURIComponent(file.uri);
-                file.downloadUrl = file.viewUrl + '&svgzsupport=true';
+                file.viewUrl = `${options.downloadUrl}?${$.param(options.params)}&${
+                    options.pathParam
+                }=${encodeURIComponent(file.uri)}`;
+                file.downloadUrl = `${file.viewUrl}&svgzsupport=true`;
                 return file;
             });
 
             updateFiles(fullPath, files);
 
             if (activePath) {
-                $('li[data-file="' + activePath + '"]').trigger('click');
+                $(`li[data-file="${activePath}"]`).trigger('click');
             }
         }
     });
@@ -123,70 +134,68 @@ export default function(options) {
     //listen for file activation
     $(parentSelector)
         .off('click', '.files li')
-        .on('click', '.files li', function(e) {
-            var $selected = $(this);
-            var $files = $('.files > li', $fileSelector);
-            var data = _.clone($selected.data());
+        .on('click', '.files li', function (e) {
+            const clickedItem = e.target;
+            if (clickedItem.hasAttribute('data-delete') || $(clickedItem).hasClass('icon-bin')) {
+                return;
+            }
+            let $selected = $(this);
+            let $files = $('.files > li', $fileSelector);
+            let data = _.clone($selected.data());
 
             $files.removeClass('active');
             $selected.addClass('active');
-            $container.trigger('fileselect.' + ns, [data]);
+            $container.trigger(`fileselect.${ns}`, [data]);
         });
 
     //select a file
     $(parentSelector)
         .off('click', '.files li a.select')
-        .on('click', '.files li a.select', function(e) {
+        .on('click', '.files li a.select', function (e) {
             e.preventDefault();
-            var data = _.pick(
-                $(this)
-                    .parents('li')
-                    .data(),
-                ['file', 'type', 'mime', 'size', 'alt']
-            );
+            let data = _.pick($(this).parents('li').data(), ['file', 'type', 'mime', 'size', 'alt']);
             if (context.mediaSources && context.mediaSources.length === 0 && data.file.indexOf('local/') > -1) {
                 data.file = data.file.substring(6);
             }
-            $container.trigger('select.' + ns, [[data]]);
+            $container.trigger(`select.${ns}`, [[data]]);
         });
 
     //delete a file
-    $fileContainer.on('delete.deleter', function(e, $target) {
-        var path,
+    $fileContainer.on('delete.deleter', function (e, $target) {
+        let path,
             params = {};
         if (e.namespace === 'deleter' && $target.length) {
             path = $target.data('file');
             params[options.pathParam] = path;
-            $.getJSON(options.deleteUrl, _.merge(params, options.params), function(response) {
+            $.getJSON(options.deleteUrl, _.merge(params, options.params), function (response) {
                 if (response.deleted) {
-                    $container.trigger('filedelete.' + ns, [path]);
+                    $container.trigger(`filedelete.${ns}`, [path]);
                 }
             });
         }
     });
 
     function setUpUploader(currentPath) {
-        var errors = [];
-        var $switcher = $('.upload-switcher a', $fileSelector);
+        let errors = [];
+        let $switcher = $('.upload-switcher a', $fileSelector);
 
-        $uploader.on('upload.uploader', function(e, file, result) {
-            var path =
-                $('[data-display="' + currentPath + '"]').data('path') ||
-                $('[data-display="/' + currentPath + '"]').data('path');
+        $uploader.on('upload.uploader', function (e, file, result) {
+            let path =
+                $(`[data-display="${currentPath}"]`).data('path') || $(`[data-display="/${currentPath}"]`).data('path');
             if (!path) {
                 path = currentPath;
             }
-            $container.trigger('filenew.' + ns, [result, path]);
+            $container.trigger(`filenew.${ns}`, [result, path]);
         });
-        $uploader.on('fail.uploader', function(e, file, err) {
+        $uploader.on('fail.uploader', function (e, file, err) {
             errors.push(__('Unable to upload file %s : %s', file.name, err.message));
         });
 
-        $uploader.on('end.uploader', function() {
+        $uploader.on('end.uploader', function () {
             if (errors.length === 0) {
                 _.delay(switchUpload, 500);
             } else {
-                feedback().error('<ul><li>' + errors.join('</li><li>') + '</li></ul>', { encodeHtml: false });
+                feedback().error(`<ul><li>${errors.join('</li><li>')}</li></ul>`, { encodeHtml: false });
             }
             //reset errors
             errors = [];
@@ -195,21 +204,17 @@ export default function(options) {
         $uploader.uploader({
             upload: true,
             multiple: true,
-            uploadUrl: options.uploadUrl + '?' + $.param(options.params) + '&' + options.pathParam + '=' + currentPath,
-            fileSelect: function(files, done) {
-                var givenLength = files.length;
-                var fileNames = [];
-                $fileContainer.find('li > .desc').each(function() {
-                    fileNames.push(
-                        $(this)
-                            .text()
-                            .toLowerCase()
-                    );
+            uploadUrl: `${options.uploadUrl}?${$.param(options.params)}&${options.pathParam}=${currentPath}`,
+            fileSelect: function (files, done) {
+                let givenLength = files.length;
+                let fileNames = [];
+                $fileContainer.find('li > .desc').each(function () {
+                    fileNames.push($(this).text().toLowerCase());
                 });
 
                 //check the mime-type
                 if (options.params.filters) {
-                    var filters = [],
+                    let filters = [],
                         i;
 
                     if (!_.isString(options.params.filters)) {
@@ -220,10 +225,10 @@ export default function(options) {
                         filters = options.params.filters.split(',');
                     }
                     //TODO check stars
-                    files = _.filter(files, function(file) {
+                    files = _.filter(files, function (file) {
                         // Under rare circumstances a browser may report the mime type
                         // with quotes (e.g. "application/foo" instead of application/foo)
-                        var checkType = file.type.replace(/^["']+|['"]+$/g, '');
+                        let checkType = file.type.replace(/^["']+|['"]+$/g, '');
                         return _.contains(filters, checkType);
                     });
 
@@ -235,24 +240,19 @@ export default function(options) {
 
                 async.filter(
                     files,
-                    function(file, cb) {
-                        var result = true;
+                    function (file, cb) {
+                        let result = true;
 
                         //try to call a server side service to check whether the selected files exists or not.
                         if (options.fileExistsUrl) {
-                            var pathParam = currentPath + '/' + file.name;
+                            let pathParam = `${currentPath}/${file.name}`;
                             pathParam.replace('//', '/');
                             $.getJSON(
-                                options.fileExistsUrl +
-                                    '?' +
-                                    $.param(options.params) +
-                                    '&' +
-                                    options.pathParam +
-                                    '=' +
-                                    pathParam,
-                                function(response) {
+                                `${options.fileExistsUrl}?${$.param(options.params)}&${options.pathParam}=${pathParam}`,
+                                function (response) {
                                     if (response && response.exists === true) {
-                                        result = window.confirm('Do you want to override ' + file.name + '?');
+                                        //eslint-disable-next-line no-alert
+                                        result = window.confirm(__('Do you want to override "%s"?', file.name));
                                     }
                                     cb(result);
                                 }
@@ -260,7 +260,8 @@ export default function(options) {
                         } else {
                             //fallback on client side check
                             if (_.contains(fileNames, file.name.toLowerCase())) {
-                                result = window.confirm('Do you want to override ' + file.name + '?');
+                                //eslint-disable-next-line no-alert
+                                result = window.confirm(__('Do you want to override "%s"?', file.name));
                             }
                             cb(result);
                         }
@@ -270,29 +271,16 @@ export default function(options) {
             }
         });
 
-        $container.on('folderselect.' + ns, function(e, fullPath, data, uri) {
+        $container.on(`folderselect.${ns}`, function (e, fullPath, data, uri) {
             currentPath = uri;
             $uploader.uploader('options', {
-                uploadUrl:
-                    options.uploadUrl +
-                    '?' +
-                    $.param(options.params) +
-                    '&' +
-                    options.pathParam +
-                    '=' +
-                    currentPath +
-                    '&relPath=' +
-                    currentPath
+                uploadUrl: `${options.uploadUrl}?${$.param(options.params)}&${
+                    options.pathParam
+                }=${currentPath}&relPath=${currentPath}`
             });
         });
 
-        //switch to upload mode
-        $switcher.click(function(e) {
-            e.preventDefault();
-            switchUpload();
-        });
-
-        var switchUpload = function switchUpload() {
+        function switchUpload() {
             if ($fileContainer.css('display') === 'none') {
                 $uploader.hide();
                 $fileContainer.show();
@@ -309,7 +297,13 @@ export default function(options) {
                 $browserTitle.text(__('Upload into:'));
                 $uploader.uploader('reset');
             }
-        };
+        }
+
+        //switch to upload mode
+        $switcher.click(function (e) {
+            e.preventDefault();
+            switchUpload();
+        });
     }
 
     function updateFiles(path, files) {

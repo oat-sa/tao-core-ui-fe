@@ -39,7 +39,6 @@
  */
 
 import _ from 'lodash';
-import __ from 'i18n';
 import component from 'ui/component';
 import makeTaskable from 'ui/taskQueueButton/taskable';
 import buttonTpl from 'ui/taskQueueButton/tpl/treeButton';
@@ -98,10 +97,10 @@ export default function treeTaskButtonFactory(config) {
      * @typedef {treeTaskButton} the component
      */
     return makeTaskable(component(buttonApi))
-        .on('finished', function() {
+        .on('finished', function () {
             this.stop();
         })
-        .on('enqueued', function() {
+        .on('enqueued', function () {
             this.stop();
         })
         .setTemplate(buttonTpl)

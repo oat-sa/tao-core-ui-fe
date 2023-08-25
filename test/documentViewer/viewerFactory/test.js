@@ -18,7 +18,7 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
-define(['lodash', 'ui/documentViewer/viewerFactory', 'tpl!test/ui/documentViewer/viewerFactory/mock'], function(
+define(['lodash', 'ui/documentViewer/viewerFactory', 'tpl!test/ui/documentViewer/viewerFactory/mock'], function (
     _,
 
     viewerFactory,
@@ -27,15 +27,15 @@ define(['lodash', 'ui/documentViewer/viewerFactory', 'tpl!test/ui/documentViewer
     'use strict';
 
     QUnit.module('viewerFactory factory', {
-        beforeEach: function(assert) {
+        beforeEach: function () {
             viewerFactory.registerProvider('mock', { init: _.noop, load: _.noop });
         },
-        afterEach: function(assert) {
+        afterEach: function () {
             viewerFactory.clearProviders();
         }
     });
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.expect(5);
 
         assert.equal(typeof viewerFactory, 'function', 'The viewerFactory module exposes a function');
@@ -57,7 +57,7 @@ define(['lodash', 'ui/documentViewer/viewerFactory', 'tpl!test/ui/documentViewer
         );
     });
 
-    var viewerFactoryApi = [
+    const viewerFactoryApi = [
         { name: 'init', title: 'init' },
         { name: 'destroy', title: 'destroy' },
         { name: 'render', title: 'render' },
@@ -80,33 +80,33 @@ define(['lodash', 'ui/documentViewer/viewerFactory', 'tpl!test/ui/documentViewer
         { name: 'after', title: 'after' }
     ];
 
-    QUnit.cases.init(viewerFactoryApi).test('has API ', function(data, assert) {
+    QUnit.cases.init(viewerFactoryApi).test('has API ', function (data, assert) {
         var instance = viewerFactory('mock');
         assert.equal(
             typeof instance[data.name],
             'function',
-            'The viewerFactory instance exposes a "' + data.name + '" function'
+            `The viewerFactory instance exposes a "${data.name}" function`
         );
     });
 
     QUnit.module('provider', {
-        beforeEach: function(assert) {
+        beforeEach: function () {
             viewerFactory.clearProviders();
         }
     });
 
-    QUnit.test('register error', function(assert) {
+    QUnit.test('register error', function (assert) {
         assert.expect(4);
 
-        assert.throws(function() {
+        assert.throws(function () {
             viewerFactory.registerProvider('mock');
         }, 'An error is thrown when no provider is provided');
 
-        assert.throws(function() {
+        assert.throws(function () {
             viewerFactory.registerProvider('mock', { load: _.noop });
         }, 'An error is thrown when a provider without init method is provided');
 
-        assert.throws(function() {
+        assert.throws(function () {
             viewerFactory.registerProvider('mock', { init: _.noop });
         }, 'An error is thrown when a provider without load method is provided');
 
@@ -114,7 +114,7 @@ define(['lodash', 'ui/documentViewer/viewerFactory', 'tpl!test/ui/documentViewer
         assert.ok(true, 'No error is thrown when a well formatted provider is provided');
     });
 
-    QUnit.test('init()', function(assert) {
+    QUnit.test('init()', function (assert) {
         var ready = assert.async();
         var expectedConfig = {
             url: 'an/url/to/test',
@@ -129,20 +129,20 @@ define(['lodash', 'ui/documentViewer/viewerFactory', 'tpl!test/ui/documentViewer
         assert.expect(3);
 
         viewerFactory.registerProvider('mock', {
-            init: function() {
+            init: function () {
                 assert.ok(true, 'The init method has been delegated');
                 assert.deepEqual(this.config, expectedConfig, 'The config has been loaded');
             },
             load: _.noop
         });
 
-        viewerFactory('mock', expectedConfig).on('initialized', function() {
+        viewerFactory('mock', expectedConfig).on('initialized', function () {
             assert.ok(true, 'The viewer is initialized');
             ready();
         });
     });
 
-    QUnit.test('destroy()', function(assert) {
+    QUnit.test('destroy()', function (assert) {
         var ready = assert.async();
         var expectedConfig = {
             url: 'an/url/to/test',
@@ -157,30 +157,30 @@ define(['lodash', 'ui/documentViewer/viewerFactory', 'tpl!test/ui/documentViewer
         assert.expect(5);
 
         viewerFactory.registerProvider('mock', {
-            init: function() {
+            init: function () {
                 assert.ok(true, 'The init method has been delegated');
                 assert.deepEqual(this.config, expectedConfig, 'The config has been loaded');
             },
-            unload: function() {
+            unload: function () {
                 assert.ok(true, 'The destroy method has been delegated');
             },
             load: _.noop
         });
 
         viewerFactory('mock', expectedConfig)
-            .on('initialized', function() {
+            .on('initialized', function () {
                 assert.ok(true, 'The viewer is initialized');
 
                 this.destroy();
             })
-            .on('unloaded', function() {
+            .on('unloaded', function () {
                 assert.ok(true, 'The viewer is destroyed');
 
                 ready();
             });
     });
 
-    QUnit.test('render()', function(assert) {
+    QUnit.test('render()', function (assert) {
         var ready = assert.async();
         var expectedConfig = {
             url: 'an/url/to/test',
@@ -195,37 +195,37 @@ define(['lodash', 'ui/documentViewer/viewerFactory', 'tpl!test/ui/documentViewer
         assert.expect(7);
 
         viewerFactory.registerProvider('mock', {
-            init: function() {
+            init: function () {
                 assert.ok(true, 'The init method has been delegated');
                 assert.deepEqual(this.config, expectedConfig, 'The config has been loaded');
             },
-            load: function() {
+            load: function () {
                 assert.ok(true, 'The load method has been delegated');
             },
-            unload: function() {
+            unload: function () {
                 assert.ok(true, 'The destroy method has been delegated');
             }
         });
 
         viewerFactory('mock', expectedConfig)
-            .on('initialized', function() {
+            .on('initialized', function () {
                 assert.ok(true, 'The viewer is initialized');
 
                 this.render();
             })
-            .on('loaded', function() {
+            .on('loaded', function () {
                 assert.ok(true, 'The viewer has loaded the document');
 
                 this.destroy();
             })
-            .on('unloaded', function() {
+            .on('unloaded', function () {
                 assert.ok(true, 'The viewer is destroyed');
 
                 ready();
             });
     });
 
-    QUnit.test('setSize()', function(assert) {
+    QUnit.test('setSize()', function (assert) {
         var ready = assert.async();
         var expectedWidth = 200;
         var expectedHeight = 100;
@@ -242,142 +242,142 @@ define(['lodash', 'ui/documentViewer/viewerFactory', 'tpl!test/ui/documentViewer
         assert.expect(13);
 
         viewerFactory.registerProvider('mock', {
-            init: function() {
+            init: function () {
                 assert.ok(true, 'The init method has been delegated');
                 assert.deepEqual(this.config, expectedConfig, 'The config has been loaded');
             },
-            setSize: function(width, height) {
+            setSize: function (width, height) {
                 assert.ok(true, 'The setSize method has been delegated');
                 assert.equal(width, expectedWidth, 'The expected width has been provided');
                 assert.equal(height, expectedHeight, 'The expected height has been provided');
             },
-            load: function() {
+            load: function () {
                 assert.ok(true, 'The load method has been delegated');
             },
-            unload: function() {
+            unload: function () {
                 assert.ok(true, 'The destroy method has been delegated');
             }
         });
 
         viewerFactory('mock', expectedConfig)
-            .on('initialized', function() {
+            .on('initialized', function () {
                 assert.ok(true, 'The viewer is initialized');
 
                 this.render();
             })
-            .on('loaded', function() {
+            .on('loaded', function () {
                 assert.ok(true, 'The viewer has loaded the document');
 
                 this.setSize(expectedWidth, expectedHeight);
             })
-            .on('resized', function(width, height) {
+            .on('resized', function (width, height) {
                 assert.ok(true, 'The viewer has resized the document');
                 assert.equal(width, expectedWidth, 'The expected width has been provided');
                 assert.equal(height, expectedHeight, 'The expected height has been provided');
 
                 this.destroy();
             })
-            .on('unloaded', function() {
+            .on('unloaded', function () {
                 assert.ok(true, 'The viewer is destroyed');
 
                 ready();
             });
     });
 
-    QUnit.test('init error', function(assert) {
+    QUnit.test('init error', function (assert) {
         var ready = assert.async();
         assert.expect(2);
 
         viewerFactory.registerProvider('mock', {
-            init: function() {
+            init: function () {
                 assert.ok(true, 'The init method has been delegated');
                 return Promise.reject(new Error('test'));
             },
             load: _.noop
         });
 
-        viewerFactory('mock').on('error', function() {
+        viewerFactory('mock').on('error', function () {
             assert.ok(true, 'The viewer has thrown an error when initializing');
 
             ready();
         });
     });
 
-    QUnit.test('load error', function(assert) {
+    QUnit.test('load error', function (assert) {
         var ready = assert.async();
         assert.expect(3);
 
         viewerFactory.registerProvider('mock', {
-            init: function() {
+            init: function () {
                 assert.ok(true, 'The init method has been delegated');
                 this.render();
             },
-            load: function() {
+            load: function () {
                 assert.ok(true, 'The load method has been delegated');
                 return Promise.reject(new Error('test'));
             }
         });
 
-        viewerFactory('mock').on('error', function() {
+        viewerFactory('mock').on('error', function () {
             assert.ok(true, 'The viewer has thrown an error when loading');
 
             ready();
         });
     });
 
-    QUnit.test('setSize error', function(assert) {
+    QUnit.test('setSize error', function (assert) {
         var ready = assert.async();
         assert.expect(4);
 
         viewerFactory.registerProvider('mock', {
-            init: function() {
+            init: function () {
                 assert.ok(true, 'The init method has been delegated');
                 this.render();
             },
-            load: function() {
+            load: function () {
                 assert.ok(true, 'The load method has been delegated');
                 this.setSize(10, 10);
             },
-            setSize: function() {
+            setSize: function () {
                 assert.ok(true, 'The setSize method has been delegated');
                 return Promise.reject(new Error('test'));
             }
         });
 
-        viewerFactory('mock').on('error', function() {
+        viewerFactory('mock').on('error', function () {
             assert.ok(true, 'The viewer has thrown an error when resizing');
 
             ready();
         });
     });
 
-    QUnit.test('unload error', function(assert) {
+    QUnit.test('unload error', function (assert) {
         var ready = assert.async();
         assert.expect(4);
 
         viewerFactory.registerProvider('mock', {
-            init: function() {
+            init: function () {
                 assert.ok(true, 'The init method has been delegated');
                 this.render();
             },
-            load: function() {
+            load: function () {
                 assert.ok(true, 'The load method has been delegated');
                 this.destroy();
             },
-            unload: function() {
+            unload: function () {
                 assert.ok(true, 'The unload method has been delegated');
                 return Promise.reject(new Error('test'));
             }
         });
 
-        viewerFactory('mock').on('error', function() {
+        viewerFactory('mock').on('error', function () {
             assert.ok(true, 'The viewer has thrown an error when unloading');
 
             ready();
         });
     });
 
-    QUnit.test('getType', function(assert) {
+    QUnit.test('getType', function (assert) {
         var viewer;
 
         assert.expect(1);
@@ -387,7 +387,7 @@ define(['lodash', 'ui/documentViewer/viewerFactory', 'tpl!test/ui/documentViewer
         assert.equal(viewer.getType(), 'pdf', 'The type is defined');
     });
 
-    QUnit.test('getUrl', function(assert) {
+    QUnit.test('getUrl', function (assert) {
         var viewer;
 
         assert.expect(1);
@@ -397,7 +397,7 @@ define(['lodash', 'ui/documentViewer/viewerFactory', 'tpl!test/ui/documentViewer
         assert.equal(viewer.getUrl(), '/test.pdf', 'The url is defined');
     });
 
-    QUnit.test('getTemplate()', function(assert) {
+    QUnit.test('getTemplate()', function (assert) {
         var ready = assert.async();
         var expectedConfig = {
             url: 'an/url/to/test',
@@ -412,34 +412,34 @@ define(['lodash', 'ui/documentViewer/viewerFactory', 'tpl!test/ui/documentViewer
         assert.expect(8);
 
         viewerFactory.registerProvider('mock', {
-            init: function() {
+            init: function () {
                 assert.ok(true, 'The init method has been delegated');
                 assert.deepEqual(this.config, expectedConfig, 'The config has been loaded');
             },
-            getTemplate: function() {
+            getTemplate: function () {
                 assert.ok(true, 'The getTemplate method has been called');
                 return mockTpl;
             },
-            unload: function() {
+            unload: function () {
                 assert.ok(true, 'The destroy method has been delegated');
             },
-            load: function() {
+            load: function () {
                 assert.ok(true, 'The load method has been delegated');
             }
         });
 
         viewerFactory('mock', expectedConfig)
-            .on('initialized', function() {
+            .on('initialized', function () {
                 assert.ok(true, 'The viewer is initialized');
 
                 this.render();
             })
-            .on('loaded', function() {
+            .on('loaded', function () {
                 assert.ok(true, 'The viewer has loaded the document');
 
                 this.destroy();
             })
-            .on('unloaded', function() {
+            .on('unloaded', function () {
                 assert.ok(true, 'The viewer is destroyed');
 
                 ready();

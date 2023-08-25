@@ -15,22 +15,22 @@
  *
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
  */
-define(['jquery', 'lodash', 'ui/taskQueue/status'], function($, _, taskQueueStatusFactory) {
+define(['jquery', 'lodash', 'ui/taskQueue/status'], function ($, _, taskQueueStatusFactory) {
     'use strict';
 
     QUnit.module('API');
 
-    QUnit.test('factory', function(assert) {
-        assert.expect(5);
+    QUnit.test('factory', function (assert) {
+        const serviceUrl = 'dummy/service/url';
+        let taskStatus;
+        let taskStatusBis;
 
-        var serviceUrl = 'dummy/service/url';
-        var taskStatus;
-        var taskStatusBis;
+        assert.expect(5);
 
         assert.equal(typeof taskQueueStatusFactory, 'function', 'The module exposes a function');
 
         assert.throws(
-            function() {
+            function () {
                 taskQueueStatusFactory();
             },
             TypeError,
@@ -38,7 +38,7 @@ define(['jquery', 'lodash', 'ui/taskQueue/status'], function($, _, taskQueueStat
         );
 
         assert.throws(
-            function() {
+            function () {
                 taskQueueStatusFactory({ context: '' });
             },
             TypeError,
@@ -53,7 +53,7 @@ define(['jquery', 'lodash', 'ui/taskQueue/status'], function($, _, taskQueueStat
         assert.notDeepEqual(taskStatus, taskStatusBis, 'The factory creates new objects');
     });
 
-    var pluginApi = [
+    const pluginApi = [
         { name: 'init', title: 'init' },
         { name: 'render', title: 'render' },
         { name: 'destroy', title: 'destroy' },
@@ -64,35 +64,35 @@ define(['jquery', 'lodash', 'ui/taskQueue/status'], function($, _, taskQueueStat
         { name: 'stop', title: 'stop' }
     ];
 
-    QUnit.cases.init(pluginApi).test('component method ', function(data, assert) {
+    QUnit.cases.init(pluginApi).test('component method ', function (data, assert) {
+        const serviceUrl = 'dummy/service/url';
+        const status = taskQueueStatusFactory({ serviceUrl: serviceUrl });
+
         assert.expect(1);
 
-        var serviceUrl = 'dummy/service/url';
-        var status = taskQueueStatusFactory({ serviceUrl: serviceUrl });
-
-        assert.equal(typeof status[data.name], 'function', 'The component exposes a "' + data.name + '" function');
+        assert.equal(typeof status[data.name], 'function', `The component exposes a "${data.name}" function`);
     });
 
     QUnit.module('Rendering');
 
-    QUnit.test('status running', function(assert) {
-        var ready = assert.async();
-        assert.expect(6);
-
-        var serviceUrl = '/test/taskQueue/status/data-running.json';
-        var $fixtureContainer = $('#qunit-fixture');
-        var status = taskQueueStatusFactory({
+    QUnit.test('status running', function (assert) {
+        const ready = assert.async();
+        const serviceUrl = '/test/taskQueue/status/data-running.json';
+        const $fixtureContainer = $('#qunit-fixture');
+        const status = taskQueueStatusFactory({
             taskId: 'task#123456xyz',
             serviceUrl: serviceUrl
         });
 
+        assert.expect(6);
+
         status
-            .on('render', function() {
+            .on('render', function () {
                 var $component = $('.task-queue-status ', $fixtureContainer);
                 assert.equal($component.length, 1, 'The component has been appended to the container');
                 assert.ok($component.hasClass('rendered'), 'The component has the rendered class');
             })
-            .on('running', function() {
+            .on('running', function () {
                 status.stop();
 
                 assert.equal(
@@ -122,24 +122,24 @@ define(['jquery', 'lodash', 'ui/taskQueue/status'], function($, _, taskQueueStat
             .start();
     });
 
-    QUnit.test('status finished', function(assert) {
-        var ready = assert.async();
-        assert.expect(7);
-
-        var serviceUrl = '/test/taskQueue/status/data-finished.json';
-        var $fixtureContainer = $('#qunit-fixture');
-        var status = taskQueueStatusFactory({
+    QUnit.test('status finished', function (assert) {
+        const ready = assert.async();
+        const serviceUrl = '/test/taskQueue/status/data-finished.json';
+        const $fixtureContainer = $('#qunit-fixture');
+        const status = taskQueueStatusFactory({
             taskId: 'task#123456xyz',
             serviceUrl: serviceUrl
         });
 
+        assert.expect(7);
+
         status
-            .on('render', function() {
+            .on('render', function () {
                 var $component = $('.task-queue-status ', $fixtureContainer);
                 assert.equal($component.length, 1, 'The component has been appended to the container');
                 assert.ok($component.hasClass('rendered'), 'The component has the rendered class');
             })
-            .on('finished', function() {
+            .on('finished', function () {
                 status.stop();
 
                 assert.equal(
@@ -176,25 +176,25 @@ define(['jquery', 'lodash', 'ui/taskQueue/status'], function($, _, taskQueueStat
 
     QUnit.module('Behaviour');
 
-    QUnit.test('toggle details', function(assert) {
-        var ready = assert.async();
-        assert.expect(12);
-
-        var serviceUrl = '/test/taskQueue/status/data-finished.json';
-        var $fixtureContainer = $('#qunit-fixture');
-        var status = taskQueueStatusFactory({
+    QUnit.test('toggle details', function (assert) {
+        const ready = assert.async();
+        const serviceUrl = '/test/taskQueue/status/data-finished.json';
+        const $fixtureContainer = $('#qunit-fixture');
+        const status = taskQueueStatusFactory({
             taskId: 'task#123456xyz',
             serviceUrl: serviceUrl
         });
-        var $checkbox;
+        let $checkbox;
+
+        assert.expect(12);
 
         status
-            .on('render', function() {
+            .on('render', function () {
                 var $component = $('.task-queue-status ', $fixtureContainer);
                 assert.equal($component.length, 1, 'The component has been appended to the container');
                 assert.ok($component.hasClass('rendered'), 'The component has the rendered class');
             })
-            .on('finished', function() {
+            .on('finished', function () {
                 assert.equal(
                     this.$component.find('.component-report').length,
                     1,
@@ -234,7 +234,7 @@ define(['jquery', 'lodash', 'ui/taskQueue/status'], function($, _, taskQueueStat
                 assert.equal($checkbox.length, 1, 'checkbox found');
                 $checkbox.click(); //Show details
             })
-            .on('hideDetails', function() {
+            .on('hideDetails', function () {
                 assert.equal(
                     status.$component.find('.component-report .hierarchical:visible').length,
                     1,

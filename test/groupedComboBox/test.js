@@ -18,7 +18,7 @@
 /**
  * @author Mikhail Kamarouski, <kamarouski@1pt.com>
  */
-define(['jquery', 'lodash', 'ui/groupedComboBox'], function($, _, groupedComboBox) {
+define(['jquery', 'lodash', 'ui/groupedComboBox'], function ($, _, groupedComboBox) {
     'use strict';
 
     var selectEntries = {
@@ -48,26 +48,28 @@ define(['jquery', 'lodash', 'ui/groupedComboBox'], function($, _, groupedComboBo
                 { id: 'optionB3', label: 'option B-3' },
                 { id: 'optionB4', label: 'option B-4' }
             ],
-            [{ id: 'optionC3', label: 'option C-3' }, { id: 'optionC4', label: 'option C-4' }]
+            [
+                { id: 'optionC3', label: 'option C-3' },
+                { id: 'optionC4', label: 'option C-4' }
+            ]
         ]
     };
 
     QUnit.module('GroupedComboBox');
 
-    QUnit.test('API', function(assert) {
+    QUnit.test('API', function (assert) {
+        const combo = groupedComboBox();
         assert.expect(2);
-        var combo = groupedComboBox();
         assert.ok(typeof combo === 'object', 'The GroupedComboBox function creates an object');
         assert.ok(typeof combo.render === 'function', 'The GroupedComboBox instance has a render method');
     });
 
-    QUnit.test('render', function(assert) {
+    QUnit.test('render', function (assert) {
+        const $container = $('#fixture-1');
+        const combo = groupedComboBox(selectEntries);
+        const instance = combo.render($container);
+
         assert.expect(3);
-
-        var $container = $('#fixture-1');
-        var combo = groupedComboBox(selectEntries);
-
-        var instance = combo.render($container);
 
         assert.equal($container[0], instance.getContainer()[0], 'container ok');
 
@@ -76,87 +78,46 @@ define(['jquery', 'lodash', 'ui/groupedComboBox'], function($, _, groupedComboBo
         assert.equal($container.find('option[value="optionA1"]').length, 1, 'all option already added to DOM');
     });
 
-    QUnit.test('behavior', function(assert) {
+    QUnit.test('behavior', function (assert) {
+        const $container = $('#fixture-1');
         assert.expect(8);
-
-        var $container = $('#fixture-1');
 
         groupedComboBox(selectEntries).render($container);
 
-        $container.on('selected.cascading-combobox', function(x, val) {
+        $container.on('selected.cascading-combobox', function (x, val) {
             assert.equal(val.reason1, 'optionA1', 'select event fired OK');
         });
 
-        $container
-            .find('select')
-            .eq(0)
-            .find('option[value=optionA1]')
-            .prop('selected', 'selected');
-        $container
-            .find('select')
-            .eq(0)
-            .trigger('change');
+        $container.find('select').eq(0).find('option[value=optionA1]').prop('selected', 'selected');
+        $container.find('select').eq(0).trigger('change');
         assert.equal($container.find('.cascading-combo-box').length, 3, "selection doesn't affect other elements OK");
         $container.off('selected.cascading-combobox');
 
-        $container
-            .find('select')
-            .eq(1)
-            .find('option[value=optionB1]')
-            .prop('selected', 'selected');
-        $container
-            .find('select')
-            .eq(1)
-            .trigger('change');
+        $container.find('select').eq(1).find('option[value=optionB1]').prop('selected', 'selected');
+        $container.find('select').eq(1).trigger('change');
         assert.equal($container.find('option[value="optionA1"]').length, 1, 'option still added to DOM');
         assert.equal($container.find('.cascading-combo-box').length, 3, "selection doesn't affect other elements OK");
 
-        $container
-            .find('select')
-            .eq(0)
-            .find('option[value=optionA2]')
-            .prop('selected', 'selected');
-        $container
-            .find('select')
-            .eq(0)
-            .trigger('change');
+        $container.find('select').eq(0).find('option[value=optionA2]').prop('selected', 'selected');
+        $container.find('select').eq(0).trigger('change');
         assert.equal($container.find('.cascading-combo-box').length, 3, 'all options stands in DOM afterwards OK');
         assert.equal($container.find('option[value="optionA1"]').length, 1, 'all options stands in DOM afterwards OK');
 
-        $container.on('selected.cascading-combobox', function(x, val) {
+        $container.on('selected.cascading-combobox', function (x, val) {
             assert.equal(val.reason2, '', 'select event on clear fired OK');
         });
-        $container
-            .find('.select2-search-choice-close')
-            .eq(1)
-            .trigger('mousedown');
-        assert.equal(
-            $container
-                .find('select')
-                .eq(1)
-                .find(':selected')
-                .val(),
-            '',
-            'option clearing OK'
-        );
+        $container.find('.select2-search-choice-close').eq(1).trigger('mousedown');
+        assert.equal($container.find('select').eq(1).find(':selected').val(), '', 'option clearing OK');
         $container.off('selected.cascading-combobox');
     });
 
-    QUnit.test('initial values', function(assert) {
+    QUnit.test('initial values', function (assert) {
+        const $container = $('#fixture-1');
+        const options = _.extend(selectEntries, { selected: ['optionA2'] });
         assert.expect(1);
-        var $container = $('#fixture-1');
 
-        var options = _.extend(selectEntries, { selected: ['optionA2'] });
         groupedComboBox(options).render($container);
 
-        assert.equal(
-            $container
-                .find('select')
-                .eq(0)
-                .find(':selected')
-                .val(),
-            'optionA2',
-            'option clearing OK'
-        );
+        assert.equal($container.find('select').eq(0).find(':selected').val(), 'optionA2', 'option clearing OK');
     });
 });

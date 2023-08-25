@@ -1,4 +1,5 @@
 /* Do not edit */@import "inc/bootstrap";
+.cke .cke_top .cke_toolbar .cke_button_icon {background-image: none!important;}
 .cke_button_icon, .cke_button { @include tao-icon-setup;}
 .cke_button__anchor_icon:before { @include icon-anchor;}
 .cke_button__bgcolor_icon:before { @include icon-background-color;}
@@ -56,3 +57,4 @@
 .cke_button__taountab_icon:before { @include icon-untab;}
 .cke_combo_arrow:before { @include icon-down;}
 .cke_button_arrow:before { @include icon-down;}
+.cke_button__taofurigana_icon::before {@include icon-furigana; padding-left: 2px;}

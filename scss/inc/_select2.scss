@@ -1,6 +1,5 @@
 @import 'inc/bootstrap';
 
-
 .select2-container * {
     text-decoration: none !important
 }
@@ -53,7 +52,6 @@
     height: 26px;
     padding: 0 0 0 8px;
     overflow: hidden;
-    position: relative;
 
     @include simple-border();
     @include border-radius(1);
@@ -148,6 +146,13 @@
     border-top: 0;
 
     border-radius: 0 0 2px 2px;
+
+    &.rtl {
+        direction: rtl;
+    }
+    &.ltr {
+        direction: ltr;
+    }
 }
 
 .select2-drop-auto-width {
@@ -182,7 +187,6 @@
     position: absolute;
     right: 0;
     top: 0;
-
     background-clip: padding-box;
 }
 
@@ -217,8 +221,7 @@
     width: 100%;
     min-height: 26px;
     margin: 0;
-    padding-left: 4px;
-    padding-right: 4px;
+    padding: 4px 4px 0 4px;
 
     position: relative;
     z-index: 100000;
@@ -372,6 +375,10 @@
     display: list-item;
 }
 
+.select2-results .select2-no-results {
+    padding-left: 7px;
+}
+
 .select2-hidden-accessible {
     display: none;
 }
@@ -511,7 +518,7 @@ disabled look for disabled choices in the results dropdown
     user-select: none;
 
     background-color: blacken($uiClickableDefaultBg, .1);
-    
+
     &.partial {
         background-color: whiten($uiClickableDefaultBg, .6);
     }
@@ -588,7 +595,7 @@ disabled look for disabled choices in the results dropdown
     margin: 0 !important;
     padding: 0 !important;
     overflow: hidden !important;
-    position: absolute !important;
+    position: fixed !important;
     outline: 0 !important;
     left: 0px !important;
     top: 0px !important;
@@ -605,4 +612,23 @@ disabled look for disabled choices in the results dropdown
     width: 100px;
     height: 100px;
     overflow: scroll;
+}
+
+.form_radlst[disabled] {
+    .select2-container {
+        pointer-events: none;
+        cursor: default;
+        color: $textColor;
+        opacity: .55 !important;
+
+        .select2-search-field,
+        .select2-search-choice-close,
+        .select2-arrow {
+            display: none;
+        }
+        .select2-search-choice {
+            cursor: default;
+            padding-left: 5px;
+        }
+    }
 }

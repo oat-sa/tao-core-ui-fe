@@ -32,6 +32,7 @@ import pwdRevealTpl from 'ui/login/tpl/passwordReveal';
 var _defaultConfig = {
     disableAutocomplete: false,
     enablePasswordReveal: false,
+    disableAutofocus: false,
     message: {
         error: '',
         info: null
@@ -48,6 +49,7 @@ var _defaultConfig = {
  * @param {Object} config - the component config
  * @param {Object} [config.disableAutocomplete] - depending on this setting autocomplete would be disabled or enabled (and fakeForm rendered)
  * @param {Object} [config.enablePasswordReveal] - depending on this setting password reveal would be disabled or enabled for the password field
+ * @param {Object} [config.disableAutofocus] - depending on this setting autofocus attribute will be added to login filed
  * @param {Object} [config.fieldMessages] - field validation messages
  * @param {String} [config.name] - the component name (used by the element)
  * @param {String} [config.url] - the url to send login form to.
@@ -96,7 +98,10 @@ export default function loginFactory($container, config) {
          * @returns {jQuery} jQuery element
          */
         createFakeForm: function createFakeForm() {
-            var $fakeFormDom = this.getElement().clone();
+            const $element = this.getElement();
+            const $fakeFormDom = $element.clone();
+
+            $element.find('label').remove();
 
             return $fakeFormDom.html(fakeFormTpl({ form: $fakeFormDom.find('form').html() }));
         },
@@ -147,9 +152,9 @@ export default function loginFactory($container, config) {
         attachPasswordRevealEvents: function attachPasswordRevealEvents() {
             var $form, $pwdInput, $inputToggle, $viewIcon, $hideIcon;
 
-            var self = this;
+            const self = this;
 
-            var autoHide = function autoHide(event) {
+            const autoHide = function autoHide(event) {
                 if (
                     !event.target.isSameNode($pwdInput) &&
                     !event.target.isSameNode($hideIcon[0]) &&
@@ -159,7 +164,7 @@ export default function loginFactory($container, config) {
                 }
             };
 
-            var show = function show() {
+            function show() {
                 $viewIcon.hide();
                 $hideIcon.show();
 
@@ -169,9 +174,9 @@ export default function loginFactory($container, config) {
                 window.addEventListener('mousedown', autoHide);
 
                 $pwdInput.focus();
-            };
+            }
 
-            var hide = function hide() {
+            function hide(moveFocus) {
                 $hideIcon.hide();
                 $viewIcon.show();
 
@@ -179,6 +184,18 @@ export default function loginFactory($container, config) {
                 $pwdInput.autocomplete = self.isAutocompleteDisabled() ? 'off' : 'on';
 
                 window.removeEventListener('mousedown', autoHide);
+
+                if (moveFocus) {
+                    $pwdInput.focus();
+                }
+            }
+
+            const togglePassword = function togglePassword() {
+                if ($pwdInput.type === 'password') {
+                    show();
+                } else {
+                    hide(true);
+                }
             };
 
             $form = this.getForm();
@@ -190,23 +207,20 @@ export default function loginFactory($container, config) {
 
             hide();
 
-            $inputToggle.on('click', function() {
-                if ($pwdInput.type === 'password') {
-                    show();
-                } else {
-                    hide();
+            $inputToggle.on('keyup', function (e) {
+                if (e.key === ' ') {
+                    togglePassword();
                 }
             });
 
-            $inputToggle.on('keyup', function(e) {
-                if (e.key === ' ') {
-                    if ($pwdInput.type === 'password') {
-                        show();
-                    } else {
-                        hide();
-                    }
+            $inputToggle.on('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    togglePassword();
+                    e.stopPropagation();
                 }
             });
+
+            $inputToggle.on('click', togglePassword);
         },
 
         /**
@@ -219,11 +233,9 @@ export default function loginFactory($container, config) {
                 messages.error = __('All fields are required');
             }
 
-            _.forEach(messages, function(message, level) {
+            _.forEach(messages, function (message, level) {
                 if (message) {
-                    feedback()
-                        .message(level, message)
-                        .open();
+                    feedback().message(level, message).open();
                     $fields.addClass(level);
                 }
             });
@@ -232,10 +244,10 @@ export default function loginFactory($container, config) {
 
     var loginComponent = component(api, _defaultConfig)
         .setTemplate(loginTpl)
-        .on('init', function() {
+        .on('init', function () {
             this.render($container);
         })
-        .on('render', function() {
+        .on('render', function () {
             var $fakeForm, $loginBtn;
             var $loginForm = this.getRealForm();
             var self = this;
@@ -246,7 +258,7 @@ export default function loginFactory($container, config) {
              */
             var submitForm = function submitForm() {
                 // if the fake form exists, copy all fields values into the real form
-                $fakeForm.find(':input').each(function() {
+                $fakeForm.find(':input').each(function () {
                     var $field = $(this);
                     $loginForm.find('input[name="' + $field.attr('name') + '"]').val($field.val());
                 });
@@ -263,22 +275,20 @@ export default function loginFactory($container, config) {
                 $fakeForm = this.createFakeForm();
 
                 this.hide();
-                this.getElement()
-                    .find('form')
-                    .attr('id', 'loginForm');
+                this.getElement().find('form').attr('id', 'loginForm').attr('aria-hidden', 'true');
                 this.getContainer().prepend($fakeForm);
 
                 // submit the form when the user hit the submit button inside the fake form
                 $fakeForm
                     .find('input[type="submit"], button[type="submit"]')
                     .off('click')
-                    .on('click', function(e) {
+                    .on('click', function (e) {
                         e.preventDefault();
                         submitForm();
                     });
 
                 // submit the form when the user hit the ENTER key inside the fake form
-                $fakeForm.on('keypress', function(e) {
+                $fakeForm.on('keypress', function (e) {
                     if (e.key === 'Enter') {
                         e.preventDefault();
                         submitForm();
@@ -300,7 +310,7 @@ export default function loginFactory($container, config) {
             this.displayMessages(this.getMessages());
         });
 
-    _.defer(function() {
+    _.defer(function () {
         loginComponent.init(config);
     });
     return loginComponent;

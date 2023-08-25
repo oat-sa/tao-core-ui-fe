@@ -65,7 +65,7 @@
         margin: 2rem 0;
     }
 }
-table.datatable{
+table.datatable {
     &.matrix {
         th {
             vertical-align: top;
@@ -109,6 +109,9 @@ table.datatable{
         .sorted.sorted_desc:after{
             @include icon-up;
         }
+        .comment {
+            color: $textSecondary;
+        }
     }
     tr{
         &.selected {
@@ -123,6 +126,12 @@ table.datatable{
         &.checkboxes{
             width: 20px;
             text-align: center;
+            box-sizing: content-box;
+            padding: 4px;
+
+            > input[type="checkbox"]{
+                margin: 0;
+            }
         }
         &.actions {
             text-align: center;

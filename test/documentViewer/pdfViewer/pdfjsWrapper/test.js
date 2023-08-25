@@ -23,7 +23,7 @@ define([
     'core/eventifier',
     'pdfjs-dist/build/pdf',
     'ui/documentViewer/providers/pdfViewer/pdfjs/wrapper'
-], function($, eventifier, pdfjs, wrapperFactory) {
+], function ($, eventifier, pdfjs, wrapperFactory) {
     'use strict';
 
     var pdfUrl = location.href.replace('/pdfViewer/pdfjsWrapper/test.html', '/sample/demo.pdf');
@@ -46,13 +46,13 @@ define([
     var wrapperApi;
 
     QUnit.module('PDF.js Wrapper factory', {
-        afterEach: function(assert) {
+        afterEach: function () {
             events.removeAllListeners();
             pdfjs.removeAllListeners();
         }
     });
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         var $container = $('#qunit-fixture');
         var config = {
             events: events,
@@ -85,7 +85,7 @@ define([
         { name: 'destroy', title: 'destroy' }
     ];
 
-    QUnit.cases.init(wrapperApi).test('instance API ', function(data, assert) {
+    QUnit.cases.init(wrapperApi).test('instance API ', function (data, assert) {
         var $container = $('#qunit-fixture');
         var config = {
             events: events,
@@ -98,34 +98,34 @@ define([
         assert.equal(
             typeof instance[data.name],
             'function',
-            'The PDF.js Wrapper instance exposes a "' + data.name + '" function'
+            `The PDF.js Wrapper instance exposes a "${data.name}" function`
         );
 
         instance.destroy();
     });
 
     QUnit.module('PDF.js Wrapper implementation', {
-        afterEach: function(assert) {
+        afterEach: function () {
             events.removeAllListeners();
             pdfjs.removeAllListeners();
         }
     });
 
-    QUnit.test('error', function(assert) {
+    QUnit.test('error', function (assert) {
         var $container = $('#qunit-fixture');
 
         assert.expect(2);
 
-        assert.throws(function() {
+        assert.throws(function () {
             wrapperFactory($container, { events: events });
         }, 'The PDF.js Wrapper factory triggers an error if PDF.js is missing');
 
-        assert.throws(function() {
+        assert.throws(function () {
             wrapperFactory($container, { PDFJS: pdfjs });
         }, 'The PDF.js Wrapper factory triggers an error if the events hub is missing');
     });
 
-    QUnit.test('attributes', function(assert) {
+    QUnit.test('attributes', function (assert) {
         var $container = $('#qunit-fixture');
         var config = {
             events: events,
@@ -140,7 +140,7 @@ define([
         instance.destroy();
     });
 
-    QUnit.test('load', function(assert) {
+    QUnit.test('load', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -156,16 +156,16 @@ define([
         pdfjs.pageCount = count;
 
         events
-            .on('init.wrapper', function() {
+            .on('init.wrapper', function () {
                 assert.ok(true, 'The wrapper is initialized');
             })
-            .on('loading', function() {
+            .on('loading', function () {
                 assert.ok(true, 'The document is loading');
             })
-            .on('loaded', function() {
+            .on('loaded', function () {
                 assert.ok(true, 'The document has been loaded');
             })
-            .on('destroy.wrapper', function() {
+            .on('destroy.wrapper', function () {
                 assert.ok(true, 'The destroy event has been triggered');
             });
 
@@ -175,11 +175,11 @@ define([
 
         instance
             .load(pdfUrl)
-            .then(function() {
+            .then(function () {
                 assert.ok(instance.getState('loaded'), 'The PDF is loaded');
 
-                assert.equal(instance.getPage(), page, 'The PDF is set on the page ' + page);
-                assert.equal(instance.getPageCount(), count, 'The PDF has ' + count + ' pages');
+                assert.equal(instance.getPage(), page, `The PDF is set on the page ${page}`);
+                assert.equal(instance.getPageCount(), count, `The PDF has ${count} pages`);
                 assert.equal(typeof instance.getDocument(), 'object', 'The PDF document is returned');
 
                 instance.destroy();
@@ -188,13 +188,13 @@ define([
 
                 ready();
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(false, 'No error should be triggered');
                 ready();
             });
     });
 
-    QUnit.test('load base64 content', function(assert) {
+    QUnit.test('load base64 content', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -210,13 +210,13 @@ define([
         pdfjs.pageCount = count;
 
         events
-            .on('loading', function() {
+            .on('loading', function () {
                 assert.ok(true, 'The document is loading');
             })
-            .on('loaded', function() {
+            .on('loaded', function () {
                 assert.ok(true, 'The document has been loaded');
             })
-            .on('destroy.wrapper', function() {
+            .on('destroy.wrapper', function () {
                 assert.ok(true, 'The destroy event has been triggered');
             });
 
@@ -226,11 +226,11 @@ define([
 
         instance
             .load(base64)
-            .then(function() {
+            .then(function () {
                 assert.ok(instance.getState('loaded'), 'The PDF is loaded');
 
-                assert.equal(instance.getPage(), page, 'The PDF is set on the page ' + page);
-                assert.equal(instance.getPageCount(), count, 'The PDF has ' + count + ' pages');
+                assert.equal(instance.getPage(), page, `The PDF is set on the page ${page}`);
+                assert.equal(instance.getPageCount(), count, `The PDF has ${count} pages`);
                 assert.equal(typeof instance.getDocument(), 'object', 'The PDF document is returned');
 
                 instance.destroy();
@@ -239,13 +239,13 @@ define([
 
                 ready();
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(false, 'No error should be triggered');
                 ready();
             });
     });
 
-    QUnit.test('getTextManager', function(assert) {
+    QUnit.test('getTextManager', function (assert) {
         var $container = $('#qunit-fixture');
         var config = {
             events: events,
@@ -259,7 +259,7 @@ define([
         assert.equal(typeof instance.getTextManager(), 'object', 'The text manager has been set');
     });
 
-    QUnit.test('getPagesManager', function(assert) {
+    QUnit.test('getPagesManager', function (assert) {
         var $container = $('#qunit-fixture');
         var config = {
             events: events,
@@ -273,7 +273,7 @@ define([
         assert.equal(typeof instance.getPagesManager(), 'object', 'The page manager has been set');
     });
 
-    QUnit.test('setPage', function(assert) {
+    QUnit.test('setPage', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -288,7 +288,7 @@ define([
 
         pdfjs.pageCount = count;
 
-        events.on('pagechange', function(pageNum) {
+        events.on('pagechange', function (pageNum) {
             assert.ok(true, 'The pagechange event has been triggered');
             assert.equal(pageNum, page, 'The page number is provided with the event');
         });
@@ -297,27 +297,27 @@ define([
 
         instance
             .load(pdfUrl)
-            .then(function() {
+            .then(function () {
                 assert.ok(instance.getState('loaded'), 'The PDF is loaded');
 
-                assert.equal(instance.getPage(), page, 'The PDF is set on the page ' + page);
-                assert.equal(instance.getPageCount(), count, 'The PDF has ' + count + ' pages');
+                assert.equal(instance.getPage(), page, `The PDF is set on the page ${page}`);
+                assert.equal(instance.getPageCount(), count, `The PDF has ${count} pages`);
                 assert.equal(typeof instance.getDocument(), 'object', 'The PDF document is returned');
 
                 page = count;
                 instance
                     .setPage(page)
-                    .then(function() {
-                        assert.equal(instance.getPage(), page, 'The PDF is set on the page ' + page);
+                    .then(function () {
+                        assert.equal(instance.getPage(), page, `The PDF is set on the page ${page}`);
 
                         assert.equal(instance.getState('rendering'), false, 'The PDF is not rendering at this time');
                         assert.equal(instance.getState('rendered'), true, 'The page has been rendered');
 
-                        return instance.setPage(page).then(function() {
-                            assert.equal(instance.getPage(), page, 'The PDF is still set on the page ' + page);
+                        return instance.setPage(page).then(function () {
+                            assert.equal(instance.getPage(), page, `The PDF is still set on the page ${page}`);
 
-                            return instance.setPage(page + 1).then(function() {
-                                assert.equal(instance.getPage(), page, 'The PDF is still set on the page ' + page);
+                            return instance.setPage(page + 1).then(function () {
+                                assert.equal(instance.getPage(), page, `The PDF is still set on the page ${page}`);
 
                                 instance.destroy();
                                 assert.equal(instance.getDocument(), null, 'The PDF document is destroyed');
@@ -326,7 +326,7 @@ define([
                             });
                         });
                     })
-                    .catch(function() {
+                    .catch(function () {
                         assert.ok(false, 'No error should be triggered');
                         ready();
                     });
@@ -334,13 +334,13 @@ define([
                 assert.equal(instance.getState('rendering'), true, 'The PDF is rendering a page');
                 assert.equal(instance.getState('rendered'), false, 'The page is not rendered at this time');
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(false, 'No error should be triggered');
                 ready();
             });
     });
 
-    QUnit.test('renderPage', function(assert) {
+    QUnit.test('renderPage', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -356,19 +356,19 @@ define([
         pdfjs.pageCount = count;
 
         events
-            .on('pagechange', function(pageNum) {
+            .on('pagechange', function (pageNum) {
                 assert.ok(true, 'The pagechange event has been triggered');
                 assert.equal(pageNum, page, 'The page number is provided with the event');
             })
-            .on('rendering', function(pageNum) {
+            .on('rendering', function (pageNum) {
                 assert.ok(true, 'The rendering event has been triggered');
                 assert.equal(pageNum, page, 'The page number is provided with the event');
             })
-            .on('rendered', function(pageNum) {
+            .on('rendered', function (pageNum) {
                 assert.ok(true, 'The rendered event has been triggered');
                 assert.equal(pageNum, page, 'The page number is provided with the event');
             })
-            .on('allrendered', function(pageNum) {
+            .on('allrendered', function (pageNum) {
                 assert.ok(true, 'The allrendered event has been triggered');
                 assert.equal(pageNum, page, 'The page number is provided with the event');
             });
@@ -377,28 +377,28 @@ define([
 
         instance
             .renderPage(page)
-            .then(function() {
+            .then(function () {
                 assert.ok(true, 'We can call renderPage without having loaded a document, and no error is thrown');
 
-                return instance.load(pdfUrl).then(function() {
+                return instance.load(pdfUrl).then(function () {
                     assert.ok(instance.getState('loaded'), 'The PDF is loaded');
 
-                    assert.equal(instance.getPage(), page, 'The PDF is set on the page ' + page);
-                    assert.equal(instance.getPageCount(), count, 'The PDF has ' + count + ' pages');
+                    assert.equal(instance.getPage(), page, `The PDF is set on the page ${page}`);
+                    assert.equal(instance.getPageCount(), count, `The PDF has ${count} pages`);
                     assert.equal(typeof instance.getDocument(), 'object', 'The PDF document is returned');
 
                     page++;
-                    return instance.setPage(page).then(function() {
-                        assert.equal(instance.getPage(), page, 'The PDF is set on the page ' + page);
+                    return instance.setPage(page).then(function () {
+                        assert.equal(instance.getPage(), page, `The PDF is set on the page ${page}`);
 
-                        return instance.setPage(page).then(function() {
-                            assert.equal(instance.getPage(), page, 'The PDF is still set on the page ' + page);
+                        return instance.setPage(page).then(function () {
+                            assert.equal(instance.getPage(), page, `The PDF is still set on the page ${page}`);
 
-                            pdfjs.on('pageRender', function() {
+                            pdfjs.on('pageRender', function () {
                                 assert.ok(true, 'The page has been rendered');
                             });
 
-                            return instance.renderPage(page).then(function() {
+                            return instance.renderPage(page).then(function () {
                                 instance.destroy();
                                 assert.equal(instance.getDocument(), null, 'The PDF document is destroyed');
 
@@ -408,13 +408,13 @@ define([
                     });
                 });
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(false, 'No error should be triggered');
                 ready();
             });
     });
 
-    QUnit.test('refresh', function(assert) {
+    QUnit.test('refresh', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -430,23 +430,23 @@ define([
         pdfjs.pageCount = count;
 
         events
-            .on('pagechange', function(pageNum) {
+            .on('pagechange', function (pageNum) {
                 assert.ok(true, 'The pagechange event has been triggered');
                 assert.equal(pageNum, page, 'The page number is provided with the event');
             })
-            .on('rendering', function(pageNum) {
+            .on('rendering', function (pageNum) {
                 assert.ok(true, 'The rendering event has been triggered');
                 assert.equal(pageNum, page, 'The page number is provided with the event');
             })
-            .on('rendered', function(pageNum) {
+            .on('rendered', function (pageNum) {
                 assert.ok(true, 'The rendered event has been triggered');
                 assert.equal(pageNum, page, 'The page number is provided with the event');
             })
-            .on('allrendered', function(pageNum) {
+            .on('allrendered', function (pageNum) {
                 assert.ok(true, 'The allrendered event has been triggered');
                 assert.equal(pageNum, page, 'The page number is provided with the event');
             })
-            .on('refreshing', function(pageNum) {
+            .on('refreshing', function (pageNum) {
                 assert.ok(true, 'The refreshing event has been triggered');
                 assert.equal(pageNum, page, 'The page number is provided with the event');
             });
@@ -455,25 +455,25 @@ define([
 
         instance
             .load(pdfUrl)
-            .then(function() {
+            .then(function () {
                 assert.ok(instance.getState('loaded'), 'The PDF is loaded');
 
-                assert.equal(instance.getPage(), page, 'The PDF is set on the page ' + page);
-                assert.equal(instance.getPageCount(), count, 'The PDF has ' + count + ' pages');
+                assert.equal(instance.getPage(), page, `The PDF is set on the page ${page}`);
+                assert.equal(instance.getPageCount(), count, `The PDF has ${count} pages`);
                 assert.equal(typeof instance.getDocument(), 'object', 'The PDF document is returned');
 
                 page++;
-                return instance.setPage(page).then(function() {
-                    assert.equal(instance.getPage(), page, 'The PDF is set on the page ' + page);
+                return instance.setPage(page).then(function () {
+                    assert.equal(instance.getPage(), page, `The PDF is set on the page ${page}`);
 
-                    return instance.setPage(page).then(function() {
-                        assert.equal(instance.getPage(), page, 'The PDF is still set on the page ' + page);
+                    return instance.setPage(page).then(function () {
+                        assert.equal(instance.getPage(), page, `The PDF is still set on the page ${page}`);
 
-                        pdfjs.on('pageRender', function() {
+                        pdfjs.on('pageRender', function () {
                             assert.ok(true, 'The page has been refreshed');
                         });
 
-                        return instance.refresh().then(function() {
+                        return instance.refresh().then(function () {
                             instance.destroy();
                             assert.equal(instance.getDocument(), null, 'The PDF document is destroyed');
 
@@ -482,13 +482,13 @@ define([
                     });
                 });
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(false, 'No error should be triggered');
                 ready();
             });
     });
 
-    QUnit.test('concurrency', function(assert) {
+    QUnit.test('concurrency', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -505,16 +505,16 @@ define([
         pdfjs.pageCount = count;
 
         events
-            .on('pagechange', function() {
+            .on('pagechange', function () {
                 assert.ok(true, 'The pagechange event has been triggered');
             })
-            .on('rendering', function() {
+            .on('rendering', function () {
                 assert.ok(true, 'The rendering event has been triggered');
             })
-            .on('rendered', function() {
+            .on('rendered', function () {
                 assert.ok(true, 'The rendered event has been triggered');
             })
-            .on('allrendered', function(pageNum) {
+            .on('allrendered', function (pageNum) {
                 assert.ok(true, 'The allrendered event has been triggered');
                 assert.equal(pageNum, page, 'The page number is provided with the event');
             });
@@ -523,19 +523,19 @@ define([
 
         instance
             .load(pdfUrl)
-            .then(function() {
+            .then(function () {
                 assert.ok(instance.getState('loaded'), 'The PDF is loaded');
 
-                assert.equal(instance.getPage(), page, 'The PDF is set on the page ' + page);
-                assert.equal(instance.getPageCount(), count, 'The PDF has ' + count + ' pages');
+                assert.equal(instance.getPage(), page, `The PDF is set on the page ${page}`);
+                assert.equal(instance.getPageCount(), count, `The PDF has ${count} pages`);
                 assert.equal(typeof instance.getDocument(), 'object', 'The PDF document is returned');
 
                 promises.push(instance.setPage(page++));
                 promises.push(instance.setPage(page++));
                 promises.push(instance.setPage(page));
 
-                return Promise.all(promises).then(function() {
-                    assert.equal(instance.getPage(), page, 'The PDF is set on the page ' + page);
+                return Promise.all(promises).then(function () {
+                    assert.equal(instance.getPage(), page, `The PDF is set on the page ${page}`);
 
                     instance.destroy();
                     assert.equal(instance.getDocument(), null, 'The PDF document is destroyed');
@@ -543,13 +543,13 @@ define([
                     ready();
                 });
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(false, 'No error should be triggered');
                 ready();
             });
     });
 
-    QUnit.test('events', function(assert) {
+    QUnit.test('events', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
         var config = {
@@ -565,15 +565,15 @@ define([
         pdfjs.pageCount = count;
 
         events
-            .on('pagechange', function(pageNum) {
+            .on('pagechange', function (pageNum) {
                 assert.ok(true, 'The pagechange event has been triggered');
                 assert.equal(pageNum, page, 'The page number is provided with the event');
-                assert.equal(instance.getPage(), page, 'The PDF is set on the page ' + page);
+                assert.equal(instance.getPage(), page, `The PDF is set on the page ${page}`);
             })
-            .on('allrendered', function() {
+            .on('allrendered', function () {
                 assert.ok(true, 'The page has been rendered');
 
-                events.off('allrendered').on('allrendered', function() {
+                events.off('allrendered').on('allrendered', function () {
                     assert.ok(true, 'The page has been refreshed');
 
                     instance.destroy();
@@ -584,7 +584,7 @@ define([
 
                 events.trigger('refresh');
             })
-            .on('refreshing', function(pageNum) {
+            .on('refreshing', function (pageNum) {
                 assert.ok(true, 'The refreshing event has been triggered');
                 assert.equal(pageNum, page, 'The page number is provided with the event');
             });
@@ -593,17 +593,17 @@ define([
 
         instance
             .load(pdfUrl)
-            .then(function() {
+            .then(function () {
                 assert.ok(instance.getState('loaded'), 'The PDF is loaded');
 
-                assert.equal(instance.getPage(), page, 'The PDF is set on the page ' + page);
-                assert.equal(instance.getPageCount(), count, 'The PDF has ' + count + ' pages');
+                assert.equal(instance.getPage(), page, `The PDF is set on the page ${page}`);
+                assert.equal(instance.getPageCount(), count, `The PDF has ${count} pages`);
                 assert.equal(typeof instance.getDocument(), 'object', 'The PDF document is returned');
 
                 page++;
                 events.trigger('setpage', page);
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(false, 'No error should be triggered');
                 ready();
             });

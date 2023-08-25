@@ -80,7 +80,7 @@ function delegate(receiver, provider) {
  * @param {String} [options.releaseUrl =  ''] - The url to call to release the lock
  * @param {String} [options.commitUrl =  ''] - The url to call to commit the resource
  */
-var lockApi = {
+const lockApi = {
     level: null,
 
     category: null,
@@ -182,9 +182,7 @@ var lockApi = {
         if (self.content) {
             self.setState(states.displayed);
 
-            $(self.content)
-                .attr('id', self.id)
-                .appendTo(self._container);
+            $(self.content).attr('id', self.id).appendTo(self._container);
 
             self._trigger('display');
 
@@ -192,10 +190,10 @@ var lockApi = {
                 $('.release', self._container).hide();
                 $('.check-in', self._container).hide();
             } else {
-                $('.release', self._container).on('click', function() {
+                $('.release', self._container).on('click', function () {
                     self.release();
                 });
-                $('.check-in', self._container).on('click', function() {
+                $('.check-in', self._container).on('click', function () {
                     self.commit();
                 });
             }
@@ -218,14 +216,14 @@ var lockApi = {
                 type: 'POST',
                 data: { uri: self.options.uri },
                 dataType: 'json',
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         self._trigger('released', response);
                     } else {
                         self._trigger('failed', response);
                     }
                 },
-                error: function() {
+                error: function () {
                     self._trigger('failed');
                 }
             });
@@ -248,7 +246,7 @@ var lockApi = {
             $('.message-container', self._container).slideToggle();
             $('.commit', self._container)
                 .off('click')
-                .on('click', function() {
+                .on('click', function () {
                     var message = $('.message', self._container).val();
                     if (message !== '') {
                         $.ajax({
@@ -256,14 +254,14 @@ var lockApi = {
                             type: 'POST',
                             data: { id: self.options.uri, message: message },
                             dataType: 'json',
-                            success: function(response) {
+                            success: function (response) {
                                 if (response.success) {
                                     self._trigger('committed', response);
                                 } else {
                                     self._trigger('failed', response);
                                 }
                             },
-                            error: function() {
+                            error: function () {
                                 self._trigger('failed');
                             }
                         });
@@ -281,20 +279,20 @@ var lockApi = {
     /**
      * Default behaviour
      */
-    register: function() {
+    register: function () {
         var msg = this._container.data('msg') || defaultOptions.msg;
         var id = this._container.data('id');
         return this.message('hasLock', msg, {
             uri: id,
-            released: function(response) {
+            released: function (response) {
                 feedback().success(response.message);
                 this.close();
             },
-            committed: function(response) {
+            committed: function (response) {
                 feedback().success(response.commitMessage);
                 this.close();
             },
-            failed: function(response) {
+            failed: function (response) {
                 if (typeof response !== 'undefined' && typeof response.message !== 'undefined') {
                     feedback().error(response.message);
                 } else {
@@ -323,7 +321,7 @@ var lockApi = {
  * Contains the current state of the lock and accessors
  * @typedef lockState
  */
-var lockState = {
+const lockState = {
     //the current state
     _state: null,
 
@@ -360,7 +358,7 @@ var lockState = {
  * @returns {Object} the lock object
  * @throws {Error} if the container isn't found
  */
-var lockFactory = function lockFactory($container) {
+const lockFactory = function lockFactory($container) {
     var _container;
     if (!$container) {
         $lockBox = $('#lock-box');
@@ -372,13 +370,13 @@ var lockFactory = function lockFactory($container) {
     }
 
     //if there is already a lock component in this container close it and open a new one
-    _.forEach(currents, function(lockRef) {
+    _.forEach(currents, function (lockRef) {
         if (lockRef !== null && lockRef._container.get(0) === _container.get(0)) {
             lockRef.close();
         }
     });
     //mixin the new object with the state object
-    var lk = _.extend(
+    const lk = _.extend(
         {
             id: 'lock-' + (currents.length + 1),
             _container: _container

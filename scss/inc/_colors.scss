@@ -21,58 +21,73 @@ $websiteBorder: rgb(141, 148, 158);
 
 $textColor: #222;
 $textHighlight: white;
+$textSecondary: #737373;
+$shadowColor: rgba(0, 0, 0, 0.25);
+
+$modalBorderColor: #dddfe2;
+$searchInp: #dddfe2;
 
 $uiGeneralContentBg: white();
 $uiGeneralContentBorder: #ddd;
 
-$uiHeaderBg: #D4D5D7;
+$uiHeaderBg: #d4d5d7;
 
 $uiClickableDefaultBg: #f3f1ef;
-$uiClickableHoverBg: whiten($info, .2);
+$uiClickableHoverBg: whiten($info, 0.2);
 //$uiClickableActiveBg: $uiHeaderBg;
-$uiClickableActiveBg: whiten($websiteBorder, .2);
+$uiClickableActiveBg: whiten($websiteBorder, 0.2);
 //$uiClickableActiveBg: #aaa;
 
-$uiSelectableSelectedBg: whiten($info, .2);
-$uiSelectableSelectedHoverBg: whiten($info, .1);
-$uiSelectableHoverBg: whiten($info, .9);
+$uiSelectableSelectedBg: whiten($info, 0.2);
+$uiSelectableSelectedHoverBg: whiten($info, 0.1);
+$uiSelectableHoverBg: whiten($info, 0.9);
 
 $uiOverlay: $lightBlueGrey;
+
+// new layout. Implemented now only for review panel
+$uiReviewPanelBg: #f2f2f2;
+$uiReviewPanelTextDisabled: hsl(0, 0%, 45%);
+$uiReviewPanelTextDefault: hsl(0, 0%, 12%);
+$uiReviewPanelBgDefault: $uiGeneralContentBg;
+$uiReviewPanelPrimaryHighlight: hsl(208, 100%, 32%);
+$uiReviewPanelBgInverted: $uiReviewPanelTextDefault;
+$uiReviewPanelTextInverted: $uiGeneralContentBg;
 
 // sidebars etc.
 $canvas: mix(#fff, $grey, 85%);
 
 // colors taken from feedback.scss
-$successBgColor: whiten($success, .8);
-$successBorderColor: whiten($success, .1);
+$successBgColor: whiten($success, 0.8);
+$successBorderColor: whiten($success, 0.1);
 
-$infoBgColor: whiten($info, .8);
-$infoBorderColor: whiten($info, .1);
+$infoBgColor: whiten($info, 0.8);
+$infoBorderColor: whiten($info, 0.1);
 
-$warningBgColor: whiten($warning, .8);
-$warningBorderColor: whiten($warning, .1);
+$warningBgColor: whiten($warning, 0.8);
+$warningBorderColor: whiten($warning, 0.1);
 
-$dangerBgColor: whiten($danger, .8);
-$dangerBorderColor: whiten($danger, .1);
+$dangerBgColor: whiten($danger, 0.8);
+$dangerBorderColor: whiten($danger, 0.1);
 
-$errorBgColor: whiten($error, .8);
-$errorBorderColor: whiten($error, .1);
+$errorBgColor: whiten($error, 0.8);
+$errorBorderColor: whiten($error, 0.1);
 
+$darkBar: rgb(51, 51, 51);
+$darkBarTxt: rgb(230, 230, 230);
+$darkBarIcon: rgb(220, 220, 220);
 
-$darkBar : rgb(51, 51, 51);
-$darkBarTxt : rgb(230, 230, 230);
-$darkBarIcon : rgb(220, 220, 220);
+$actionLinkColor: #276d9b;
+$actionLinkHoverColor: #4f83a7;
 
-
-$colorWheel-01: #C3BA13;
-$colorWheel-02: #84A610;
-$colorWheel-03: #2B8E0E;
-$colorWheel-04: #0F9787;
-$colorWheel-05: #0E5D91;
-$colorWheel-06: #0D2689;
-$colorWheel-07: #400D83;
-$colorWheel-08: #960E7D;
-$colorWheel-09: #BA122B;
-$colorWheel-10: #C34713;
-$colorWheel-11: #C36F13;
-$colorWheel-12: #C39413;
+$colorWheel-01: #c3ba13;
+$colorWheel-02: #84a610;
+$colorWheel-03: #2b8e0e;
+$colorWheel-04: #0f9787;
+$colorWheel-05: #0e5d91;
+$colorWheel-06: #0d2689;
+$colorWheel-07: #400d83;
+$colorWheel-08: #960e7d;
+$colorWheel-09: #ba122b;
+$colorWheel-10: #c34713;
+$colorWheel-11: #c36f13;
+$colorWheel-12: #c39413;

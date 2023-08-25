@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2018  (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
  *
  * @author Oleksander Zagovorychev <zagovorichev@gmail.com>
  */
@@ -32,6 +32,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 import component from 'ui/component';
 import mediaDimensionComponent from 'ui/mediaEditor/plugins/mediaDimension/mediaDimensionComponent';
+import mediaAlignmentComponent from 'ui/mediaEditor/plugins/mediaAlignment/mediaAlignmentComponent';
 import tpl from 'ui/mediaEditor/tpl/editor';
 
 /**
@@ -57,8 +58,11 @@ import tpl from 'ui/mediaEditor/tpl/editor';
  * @type mediaEditorConfig
  * @private
  */
-var defaultConfig = {
+const defaultConfig = {
     mediaDimension: {
+        active: false
+    },
+    mediaAlignment: {
         active: false
     }
 };
@@ -76,15 +80,15 @@ export default function mediaEditorFactory($container, media, config) {
      * Active Plugins
      * @type {Array}
      */
-    var plugins = [];
+    const plugins = [];
 
     /**
      * Current component
      */
-    var mediaEditorComponent = component({}, defaultConfig);
+    const mediaEditorComponent = component({}, defaultConfig);
     mediaEditorComponent
         .setTemplate(tpl)
-        .on('init', function() {
+        .on('init', function () {
             if (!media || !media.$node || !media.$node.length) {
                 throw new Error('mediaEditorComponent requires media.$node');
             }
@@ -93,38 +97,43 @@ export default function mediaEditorFactory($container, media, config) {
             }
             this.render($container);
         })
-        .on('render', function() {
-            var self = this;
-            var $dimensionTools = $('.media-dimension', this.getTemplate());
-            var plugin;
+        .on('render', function () {
+            const $dimensionTools = $('.media-dimension', this.getTemplate());
+            const $alignmentTools = $('.media-align', this.getTemplate());
+            let dimensionPlugin;
+            let alignmentPlugin;
             if (this.getConfig().mediaDimension.active) {
-                plugin = mediaDimensionComponent($dimensionTools, media, { responsive: media.responsive }).on(
-                    'change',
-                    function(conf) {
-                        media.responsive = conf.responsive;
-                        if (conf.responsive) {
-                            // percent
-                            media.width = conf.sizeProps['%'].current.width;
-                            media.height = null;
-                        } else {
-                            media.width = conf.sizeProps.px.current.width;
-                            media.height = conf.sizeProps.px.current.height;
-                        }
-
-                        self.trigger('change', media);
+                dimensionPlugin = mediaDimensionComponent($dimensionTools, media, {
+                    responsive: media.responsive,
+                    showResponsiveToggle: this.getConfig().mediaDimension.showResponsiveToggle
+                }).on('change', conf => {
+                    media.responsive = conf.responsive;
+                    if (conf.responsive) {
+                        // percent
+                        media.width = conf.sizeProps['%'].current.width;
+                        media.height = null;
+                    } else {
+                        media.width = conf.sizeProps.px.current.width;
+                        media.height = conf.sizeProps.px.current.height;
                     }
-                );
 
-                plugins.push(plugin);
+                    this.trigger('change', media);
+                });
+
+                plugins.push(dimensionPlugin);
+            }
+            if (this.getConfig().mediaAlignment.active) {
+                alignmentPlugin = mediaAlignmentComponent($alignmentTools, media).spread(this, 'change');
+                plugins.push(alignmentPlugin);
             }
         })
-        .on('destroy', function() {
-            _.forEach(plugins, function(plugin) {
+        .on('destroy', function () {
+            _.forEach(plugins, function (plugin) {
                 plugin.destroy();
             });
         });
 
-    _.defer(function() {
+    _.defer(function () {
         mediaEditorComponent.init(config);
     });
 

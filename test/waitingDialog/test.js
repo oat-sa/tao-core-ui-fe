@@ -48,7 +48,7 @@ define(['jquery', 'ui/waitingDialog/waitingDialog'], function($, waitingDialog) 
                 assert.equal(
                     typeof this[data.title],
                     'function',
-                    'The waitingDialog exposes the component method "' + data.title
+                    `The waitingDialog exposes the component method "${  data.title}`
                 );
                 this.destroy();
                 ready();
@@ -63,7 +63,7 @@ define(['jquery', 'ui/waitingDialog/waitingDialog'], function($, waitingDialog) 
                 assert.equal(
                     typeof this[data.title],
                     'function',
-                    'The waitingDialog exposes the eventifier method "' + data.title
+                    `The waitingDialog exposes the eventifier method "${  data.title}`
                 );
                 this.destroy();
                 ready();
@@ -73,7 +73,7 @@ define(['jquery', 'ui/waitingDialog/waitingDialog'], function($, waitingDialog) 
     QUnit.cases.init([{ title: 'beginWait' }, { title: 'endWait' }]).test('Instance API ', function(data, assert) {
         var ready = assert.async();
         waitingDialog(config).on('init', function() {
-            assert.equal(typeof this[data.title], 'function', 'The waitingDialog exposes the method "' + data.title);
+            assert.equal(typeof this[data.title], 'function', `The waitingDialog exposes the method "${  data.title}`);
             this.destroy();
             ready();
         });

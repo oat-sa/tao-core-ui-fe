@@ -14,7 +14,7 @@ var FileSender = {
      */
     _opts: {
         frame: '__postFrame_',
-        loaded: function(data) {}
+        loaded: () => {}
     },
 
     /**
@@ -26,29 +26,27 @@ var FileSender = {
      *  @param {String} [options.fileNameParamName] - the name of the element of request payload which will contain file name.
      *  @param {FileLoadedCallback} [options.loaded] - executed once received the server response
      */
-    _init: function(options) {
-        var self = FileSender,
-            opts = _.defaults(options, self._opts),
+    _init: function (options) {
+        let opts = _.defaults(options, FileSender._opts),
             xhr2 =
                 typeof XMLHttpRequest !== 'undefined' && new XMLHttpRequest().upload && typeof FormData !== 'undefined',
-            $form = this,
             fileParamName = options.fileParamName || 'content',
             fileNameParamName = options.fileNameParamName || 'contentName',
             $file,
             xhr,
             fd;
 
-        if (!$form.attr('action') && (!opts.url || opts.url.trim().length === 0)) {
+        if (!this.attr('action') && (!opts.url || opts.url.trim().length === 0)) {
             throw new Error('An url is required in the options or at least an action ');
         }
-        $file = $form.find("input[type='file']");
+        $file = this.find("input[type='file']");
         if ($file.length === 0) {
             throw new Error(
                 'This plugin is used to post files, your form should include an input element of type file.'
             );
         }
         //for is not really nessasery when using XHR so moving to fallback section
-        if (!$form || !$form.is('form')) {
+        if (!this || !this.is('form')) {
             throw new Error('This plugin can only be called on a FORM element');
         }
 
@@ -66,10 +64,10 @@ var FileSender = {
 
             xhr.open('POST', opts.url, true);
             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-            xhr.onreadystatechange = function() {
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
-                        var result = $.parseJSON(xhr.responseText);
+                        const result = JSON.parse(xhr.responseText);
                         if (result.error) {
                             if (typeof opts.failed === 'function') {
                                 opts.failed(result.error);
@@ -103,7 +101,7 @@ var FileSender = {
  *  @param {String} [options.frame] - a name for the frame create in background
  *  @param {FileLoadedCallback} [options.loaded] - executed once received the server response
  */
-$.fn.sendfile = function(options) {
+$.fn.sendfile = function (options) {
     return FileSender._init.call(this, options);
 };
 

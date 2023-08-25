@@ -23,7 +23,7 @@ define(['jquery', 'ui/transformer', 'css!test/ui/transformer/style'], function($
         var $fixture = $('#qunit-fixture').empty();
         var $container = $('<div id="container"/>');
         if (transformation) {
-            $container.addClass('pre-' + transformation);
+            $container.addClass(`pre-${  transformation}`);
         }
         $fixture.append($container);
         return $container;

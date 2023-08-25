@@ -30,7 +30,7 @@ var defaults = {
 
 function getText($elt) {
     var text = '';
-    $elt.contents().filter(function() {
+    $elt.contents().filter(function () {
         if (this.nodeType === Node.TEXT_NODE && $.trim(this.nodeValue) !== '') {
             text += $.trim(this.nodeValue);
         }
@@ -46,7 +46,7 @@ function getText($elt) {
 
 function setText($elt, text) {
     var set = false;
-    $elt.contents().filter(function() {
+    $elt.contents().filter(function () {
         if (this.nodeType === Node.TEXT_NODE && set === false) {
             set = true;
             this.nodeValue = text;
@@ -63,8 +63,7 @@ function setText($elt, text) {
  * @param {jQueryElement} $elt - the element to set the text to
  */
 function emptyText($elt) {
-    var set = false;
-    $elt.contents().filter(function() {
+    $elt.contents().filter(function () {
         if (this.nodeType === Node.TEXT_NODE) {
             this.nodeValue = '';
         }
@@ -74,7 +73,7 @@ function emptyText($elt) {
  * The InPlacer component,
  * @exports ui/inplacer
  */
-var InPlacer = {
+const InPlacer = {
     /**
      * Initialize the plugin.
      *
@@ -91,15 +90,15 @@ var InPlacer = {
      * @fires InPlacer#create.inplacer
      * @returns {jQueryElement} for chaining
      */
-    init: function(options) {
+    init: function (options) {
         //get options using default
         options = $.extend(true, {}, defaults, options);
 
-        return this.each(function() {
-            var $elt = $(this);
+        return this.each(function () {
+            const $elt = $(this);
 
             if (!$elt.data(dataNs)) {
-                var $target = options.target;
+                const $target = options.target;
 
                 if (!/^#/.test($target.selector)) {
                     $.error('The target selector must referr to the of an element id or to the element to create.');
@@ -122,7 +121,7 @@ var InPlacer = {
 
                 //bind an event to trigger the toggling
                 if (options.bindEvent !== false) {
-                    $elt.on(options.bindEvent, function(e) {
+                    $elt.on(options.bindEvent, function (e) {
                         if ($elt.children(':text').length === 0) {
                             e.preventDefault();
                             InPlacer._edit($elt);
@@ -147,7 +146,7 @@ var InPlacer = {
      * @param {jQueryElement} $elt - plugin's element
      * @fires InPlacer#toggle.inplacer
      */
-    _toggle: function($elt) {
+    _toggle: function ($elt) {
         if ($elt.children(':text').length > 0) {
             this._leave($elt);
         } else {
@@ -163,7 +162,7 @@ var InPlacer = {
      * @param {jQueryElement} $elt - plugin's element
      * @fires InPlacer#edit.inplacer
      */
-    _edit: function($elt) {
+    _edit: function ($elt) {
         var self = this;
         var options = $elt.data(dataNs);
         var $target = options.target;
@@ -172,7 +171,7 @@ var InPlacer = {
         var $editor;
         emptyText($elt);
         if (_.contains(options.mapping.textarea, $elt.prop('tagName').toLowerCase())) {
-            var height = options.height || $elt.height() + 'px';
+            const height = options.height || $elt.height() + 'px';
             $editor = $elt
                 .append('<textarea>' + text + '</textarea>')
                 .children(':input')
@@ -190,15 +189,15 @@ var InPlacer = {
 
         $editor
             .off('click')
-            .change(function(e) {
+            .change(function (e) {
                 e.stopPropagation(); //the change evt is triggered on the top element on leaving
             })
-            .keyup(function(e) {
+            .keyup(function (e) {
                 if (e.which === 13) {
                     self._leave($elt);
                 }
             })
-            .blur(function() {
+            .blur(function () {
                 self._leave($elt);
             })
             .focus();
@@ -221,7 +220,7 @@ var InPlacer = {
      * @param {jQueryElement} $elt - plugin's element
      * @fires InPlacer#leave.inplacer
      */
-    _leave: function($elt) {
+    _leave: function ($elt) {
         var options = $elt.data(dataNs);
         var $target = options.target;
         var $input = $elt.children(':input');
@@ -249,7 +248,7 @@ var InPlacer = {
      * @param {jQueryElement} $elt - plugin's element
      * @param {jQueryElement} $target - the target to be in sync with
      */
-    _sync: function($elt, $target) {
+    _sync: function ($elt, $target) {
         if ($elt.children(':text').length > 0) {
             $target.val($elt.children(':text').val());
         } else {
@@ -264,8 +263,8 @@ var InPlacer = {
      * @example $('selector').inplacer('destroy');
      * @public
      */
-    destroy: function() {
-        this.each(function() {
+    destroy: function () {
+        this.each(function () {
             var $elt = $(this);
             var options = $elt.data(dataNs);
             $elt.removeClass(options.inplaceClass);
@@ -300,7 +299,7 @@ export default function listenDataAttr($container) {
         listenerEvent: 'click',
         namespace: dataNs
     })
-        .init(function($elt, $target) {
+        .init(function ($elt, $target) {
             var options = {
                 target: $target,
                 bindEvent: false
@@ -310,7 +309,7 @@ export default function listenDataAttr($container) {
             }
             $elt.inplacer(options);
         })
-        .trigger(function($elt) {
+        .trigger(function ($elt) {
             $elt.inplacer('toggle');
         });
 }

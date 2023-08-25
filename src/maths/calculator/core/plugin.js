@@ -13,23 +13,21 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2018 Open Assessment Technologies SA ;
+ * Copyright (c) 2018-2023 Open Assessment Technologies SA ;
  */
 /**
  * Wrapper for calculator plugins factory
- * @author Jean-Sébastien Conan <jean-sebastien@taotesting.com>
  */
-import _ from 'lodash';
 import pluginFactory from 'core/plugin';
 
 /**
  * A pluginFactory configured for the calculator
- * @returns {Function} the preconfigured plugin factory
+ * @returns {Function} the pre-configured plugin factory
  */
 export default function calculatorPluginFactory(provider, defaultConfig) {
     return pluginFactory(
         provider,
-        _.defaults(
+        Object.assign(
             {
                 //alias getHost to getCalculator
                 hostName: 'calculator'

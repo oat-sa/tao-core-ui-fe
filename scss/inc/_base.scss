@@ -210,18 +210,17 @@ body {
 
     sub,
     sup {
-        font-size: .75rem;
-        line-height: 0;
+        font-size: .75em;
         position: relative;
         vertical-align: baseline;
     }
 
     sup {
-        top: -0.5rem;
+        top: -0.5em;
     }
 
     sub {
-        bottom: -0.25rem;
+        bottom: -0.25em;
     }
 
     img {
@@ -269,6 +268,9 @@ body {
         }
         // avoid usage of the IE clear button
         &::-ms-clear {
+            display: none;
+        }
+        &::-ms-reveal {
             display: none;
         }
     }
@@ -357,14 +359,15 @@ body {
         top: -10000px;
     }
 
-    .clearfix {
-        &:before, &:after {
-            content: " ";
-            display: table;
-        }
-        &:after {
-            clear: both;
-        }
+    %clearfix-before, .clearfix:before {
+        content: " ";
+        display: table;
+    }
+
+    %clearfix-after, .clearfix:after {
+        content: " ";
+        display: table;
+        clear: both;
     }
 
     .clear {
@@ -373,14 +376,24 @@ body {
     }
 
 
-    .lft {
+    .lft,
+    .wrap-left {
         display: inline;
         float: left;
     }
 
-    .rgt {
+    .rgt,
+    .wrap-right {
         display: inline;
         float: right;
+    }
+
+    .wrap-left {
+        margin: 20px 20px 20px 0;
+    }
+
+    .wrap-right {
+        margin: 20px 0 20px 20px;
     }
 
     .txt-ctr {

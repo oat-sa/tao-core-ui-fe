@@ -13,12 +13,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2019 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2019-2023 (original work) Open Assessment Technologies SA ;
  */
 
 import path from 'path';
 import glob from 'glob';
 import alias from 'rollup-plugin-alias';
+import clear from 'rollup-plugin-clear';
 import handlebarsPlugin from 'rollup-plugin-handlebars-plus';
 import cssResolve from './css-resolve';
 import resolve from 'rollup-plugin-node-resolve';
@@ -29,17 +30,16 @@ import wildcardExternal from '@oat-sa/rollup-plugin-wildcard-external';
 const { srcDir, outputDir, aliases } = require('./path');
 const Handlebars = require('handlebars');
 
-const inputs = glob.sync(path.join(srcDir, '**', '*.js'));
+const production = process.env.NODE_ENV === 'production';
+
+const globPath = p => p.replace(/\\/g, '/');
+const inputs = glob.sync(globPath(path.join(srcDir, '**', '*.js')));
 
 /**
  * Define all modules as external, so rollup won't bundle them together.
  */
 const localExternals = inputs.map(
-    input =>
-        `ui/${path
-            .relative(srcDir, input)
-            .replace(/\\/g, '/')
-            .replace(/\.js$/, '')}`
+    input => `ui/${path.relative(srcDir, input).replace(/\\/g, '/').replace(/\.js$/, '')}`
 );
 
 export default inputs.map(input => {
@@ -51,7 +51,11 @@ export default inputs.map(input => {
         output: {
             dir: path.join(outputDir, dir),
             format: 'amd',
+            sourcemap: !production,
             name
+        },
+        watch: {
+            clearScreen: false
         },
         external: [
             'i18n',
@@ -73,6 +77,10 @@ export default inputs.map(input => {
             ...localExternals
         ],
         plugins: [
+            clear({
+                targets: [outputDir],
+                watch: false
+            }),
             cssResolve(),
             wildcardExternal(['core/**', 'lib/**', 'util/**', 'layout/**']),
             alias({
@@ -88,7 +96,7 @@ export default inputs.map(input => {
                     },
                     module: Handlebars
                 },
-                helpers: ['build/tpl.js'],
+                helpers: ['lib/handlebars/helpers'],
                 templateExtension: '.tpl'
             }),
             /**
@@ -98,7 +106,7 @@ export default inputs.map(input => {
             {
                 name: 'datetime_picker_helper',
                 generateBundle(options, bundle) {
-                    if (options.name.match(/datetime[\/\\]picker/)) {
+                    if (options.name.match(/datetime[/\\]picker/)) {
                         bundle['picker.js'].code = bundle['picker.js'].code.replace(
                             /flatpickrLocalization\.hasOwnProperty\('default'\)/,
                             false
@@ -106,15 +114,14 @@ export default inputs.map(input => {
                     }
                 }
             },
-            ...(process.env.COVERAGE ? [istanbul({
-                exclude: 'build/tpl.js'
-            })] : []),
+            ...(process.env.COVERAGE ? [istanbul({ exclude: 'build/tpl.js' })] : []),
             babel({
                 presets: [
                     [
                         '@babel/env',
                         {
-                            useBuiltIns: false
+                            useBuiltIns: false,
+                            include: ['@babel/plugin-proposal-object-rest-spread']
                         }
                     ]
                 ]

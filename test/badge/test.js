@@ -53,7 +53,7 @@ define(['jquery', 'lodash', 'ui/badge/badge', 'css!ui/resource/css/selector.css'
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The badge exposes the component method "' + data.title
+                `The badge exposes the component method "${  data.title}`
             );
         });
 
@@ -64,13 +64,13 @@ define(['jquery', 'lodash', 'ui/badge/badge', 'css!ui/resource/css/selector.css'
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The badge exposes the eventifier method "' + data.title
+                `The badge exposes the eventifier method "${  data.title}`
             );
         });
 
     QUnit.cases.init([{ title: 'update' }]).test('Instance API ', function(data, assert) {
         var instance = badgeFactory();
-        assert.equal(typeof instance[data.title], 'function', 'The badge exposes the method "' + data.title);
+        assert.equal(typeof instance[data.title], 'function', `The badge exposes the method "${  data.title}`);
     });
 
     QUnit.module('Behavior');

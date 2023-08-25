@@ -3,74 +3,11 @@ import _ from 'lodash';
 import Report from 'ui/validator/Report';
 import Validator from 'ui/validator/Validator';
 
-/**
- * Validate the set of matched elements (inputs).
- *
- * @example $('input').validator() - validate with default options;
- * @example $('input').validator(options) - validate with custom validation options;
- * @example $('input').validator('validate', {allowEmpty:true}, callback) - validate with custom validation options and callback function;
- * @exports validator/jquery.validator
- * @param {Object|String} options - the validator options or method name to call
- * @param {boolean} [options.allowEmpty = false] - whether the input can be empty
- * @param {object} [options.validator]
- * @param {boolean} [options.validator.lazy]
- * @param {string|Array} [options.events] - event that triggers the validation
- * @param {object} arg1 - the validator options
- * @fires validated.group
- * @returns {jQueryElement} for chaining
- */
-
-$.fn.validator = function(options, arg1, arg2) {
-    var opts = {},
-        method = '',
-        args = [],
-        ret;
-
-    if (typeof options === 'object') {
-        opts = $.extend({}, $.fn.validator.defaults, options);
-    } else if (options === undefined) {
-        opts = $.extend({}, $.fn.validator.defaults); //use default
-    } else if (typeof options === 'string') {
-        if (typeof methods[options] === 'function') {
-            method = options;
-            args = Array.prototype.slice.call(arguments, 1);
-        }
-    }
-
-    this.each(function() {
-        var $this = $(this);
-
-        if (!isCreated($this)) {
-            create($this, opts);
-        }
-        if (method) {
-            if (isCreated($this)) {
-                ret = methods[method].apply($(this), args);
-            } else {
-                $.error('call of method of validator when it is not initialized');
-            }
-        }
-    });
-
-    return ret === undefined ? this : ret;
-};
-
-$.fn.validator.defaults = {
-    allowEmpty: false,
-    validator: {
-        lazy: false
-    }
-};
-
-function isCreated($elt) {
-    return typeof $elt.data('validator-config') === 'object';
-}
-
-var methods = {
-    destroy: function() {
+const methods = {
+    destroy: function () {
         destroy($(this));
     },
-    validate: function(arg1, arg2) {
+    validate: function (arg1, arg2) {
         var callback,
             options = {};
 
@@ -87,10 +24,72 @@ var methods = {
         //event the callback is optional, since we may set an event listener instead
         validate($(this), callback, options);
     },
-    getValidator: function() {
+    getValidator: function () {
         return $(this).data('validator-instance');
     }
 };
+
+/**
+ * Validate the set of matched elements (inputs).
+ *
+ * @example $('input').validator() - validate with default options;
+ * @example $('input').validator(options) - validate with custom validation options;
+ * @example $('input').validator('validate', {allowEmpty:true}, callback) - validate with custom validation options and callback function;
+ * @exports validator/jquery.validator
+ * @param {Object|String} options - the validator options or method name to call
+ * @param {boolean} [options.allowEmpty = false] - whether the input can be empty
+ * @param {object} [options.validator]
+ * @param {boolean} [options.validator.lazy]
+ * @param {string|Array} [options.events] - event that triggers the validation
+ * @fires validated.group
+ * @returns {jQueryElement} for chaining
+ */
+
+$.fn.validator = function (options) {
+    var opts = {},
+        method = '',
+        args = [],
+        ret;
+
+    if (typeof options === 'object') {
+        opts = $.extend({}, $.fn.validator.defaults, options);
+    } else if (typeof options === 'undefined') {
+        opts = $.extend({}, $.fn.validator.defaults); //use default
+    } else if (typeof options === 'string') {
+        if (typeof methods[options] === 'function') {
+            method = options;
+            args = Array.prototype.slice.call(arguments, 1);
+        }
+    }
+
+    this.each(function () {
+        var $this = $(this);
+
+        if (!isCreated($this)) {
+            create($this, opts);
+        }
+        if (method) {
+            if (isCreated($this)) {
+                ret = methods[method].apply($(this), args);
+            } else {
+                $.error('call of method of validator when it is not initialized');
+            }
+        }
+    });
+
+    return typeof ret === 'undefined' ? this : ret;
+};
+
+$.fn.validator.defaults = {
+    allowEmpty: false,
+    validator: {
+        lazy: false
+    }
+};
+
+function isCreated($elt) {
+    return typeof $elt.data('validator-config') === 'object';
+}
 
 /**
  * rule must have been set in the following string format:
@@ -102,42 +101,41 @@ var methods = {
  * @param {type} $elt
  * @returns {object}
  */
-var buildRules = function($elt) {
+function buildRules($elt) {
     var rulesStr = $elt.data('validate'),
         rules = rulesStr ? tokenize(rulesStr) : {};
     return rules;
-};
+}
 
-var tokenize = function(inputStr) {
+function tokenize(inputStr) {
     var ret = []; //return object
 
     var tokens = inputStr.split(/;/);
 
     //get name (and options) for every rules strings:
-    _.each(tokens, function(token) {
+    _.each(tokens, function (token) {
         token = $.trim(token);
-        var key,
-            options = {},
-            rightStr = token.replace(/\$(\w*)/, function($0, k) {
-                key = k;
-                return '';
-            });
+        let key;
+        const options = {};
+        const rightStr = token.replace(/\$(\w*)/, function ($0, k) {
+            key = k;
+            return '';
+        });
         if (key) {
             //remove brackets
-            var optionsStr = rightStr.replace(/^\((.*)\)$/, '$1');
+            let optionsStr = rightStr.replace(/^\((.*)\)$/, '$1');
             //get string options
-            optionsStr = optionsStr.replace(/(\w+)=((\"(\\.|[^\"])*\")|(\'(\\.|[^\'])*\')),?/g, function(
-                $0,
-                optionName,
-                optionValue
-            ) {
-                //replace quotes
-                optionValue = optionValue.replace(/^["'](.*)["']$/g, '$1');
-                options[optionName] = optionValue;
-                return '';
-            });
+            optionsStr = optionsStr.replace(
+                /(\w+)=(("(\\.|[^"])*")|('(\\.|[^'])*')),?/g,
+                function ($0, optionName, optionValue) {
+                    //replace quotes
+                    optionValue = optionValue.replace(/^["'](.*)["']$/g, '$1');
+                    options[optionName] = optionValue;
+                    return '';
+                }
+            );
 
-            optionsStr.replace(/(\w*)=([^\s]*)(,)?/g, function($0, optionName, optionValue) {
+            optionsStr.replace(/(\w*)=([^\s]*)(,)?/g, function ($0, optionName, optionValue) {
                 if (optionValue.charAt(optionValue.length - 1) === ',') {
                     optionValue = optionValue.substring(0, optionValue.length - 1);
                 }
@@ -152,16 +150,16 @@ var tokenize = function(inputStr) {
     });
 
     return ret;
-};
+}
 
-var buildOptions = function($elt) {
+function buildOptions($elt) {
     var optionsStr = $elt.data('validate-option'),
         optionsArray = optionsStr ? tokenize(optionsStr) : {},
         availableCoreValidatorOptions = _.keys(Validator.getDefaultOptions()),
         options = _.clone($.fn.validator.defaults);
 
     //separate core.validator options from jquery.validator options
-    _.each(optionsArray, function(optionArray) {
+    _.each(optionsArray, function (optionArray) {
         if (_.indexOf(availableCoreValidatorOptions, optionArray.name) >= 0) {
             options.validator[optionArray.name] = optionArray.options;
         } else {
@@ -170,13 +168,13 @@ var buildOptions = function($elt) {
     });
 
     return options;
-};
+}
 
-var create = function($elt, options) {
+function create($elt, options) {
     if (isCreated($elt)) {
         return;
     }
-    var rules = buildRules($elt);
+    let rules = buildRules($elt);
     if (options.rules) {
         rules = _.merge(rules, options.rules);
         delete options.rules;
@@ -187,24 +185,24 @@ var create = function($elt, options) {
     $elt.data('validator-config', _.clone(options));
 
     createValidator($elt, rules, options);
-};
+}
 
-var destroy = function($elts) {
+function destroy($elts) {
     $elts.removeData('validator-instance validator-config');
     $elts.off('.validator');
-};
+}
 
-var createValidator = function($elt, rules, options) {
+function createValidator($elt, rules, options) {
     $elt.data('validator-instance', new Validator(rules, options.validator || {}));
     if (options.event) {
         bindEvents($elt, options);
     }
-};
+}
 
-var bindEvents = function($elt, options) {
+function bindEvents($elt, options) {
     var events = _.isArray(options.event) ? options.event : [options.event];
     if (events.length > 0 && _.isFunction(options.validated)) {
-        _.forEach(events, function(event) {
+        _.forEach(events, function (event) {
             if (_.isString(event)) {
                 event = {
                     type: event
@@ -214,7 +212,7 @@ var bindEvents = function($elt, options) {
             switch (event.type) {
                 case 'keyup':
                 case 'keydown':
-                    $elt.on(event.type, function() {
+                    $elt.on(event.type, function () {
                         var v = $elt.val();
                         if (event.length) {
                             if (v && v.length > event.length) {
@@ -228,7 +226,7 @@ var bindEvents = function($elt, options) {
 
                 case 'change':
                 case 'blur':
-                    $elt.on(event.type, function() {
+                    $elt.on(event.type, function () {
                         validate($elt, options.validated, {});
                     });
                     break;
@@ -238,12 +236,12 @@ var bindEvents = function($elt, options) {
             }
         });
     }
-};
+}
 
-var validate = function($elt, callback, options) {
+function validate($elt, callback, options) {
     var value = $elt.val(),
         defaults = $elt.data('validator-config'),
-        execCallback = function(results) {
+        execCallback = function (results) {
             var valid;
 
             //always trigger an event "validated" with associated results:
@@ -261,4 +259,4 @@ var validate = function($elt, callback, options) {
     } else {
         $elt.data('validator-instance').validate(value, options || {}, execCallback);
     }
-};
+}

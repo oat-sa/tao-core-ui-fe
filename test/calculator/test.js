@@ -61,7 +61,7 @@ define([
         assert.equal(
             typeof instance[data.name],
             'function',
-            'The calculator instance exposes a "' + data.title + '" function'
+            `The calculator instance exposes a "${  data.title  }" function`
         );
         instance.destroy();
     });

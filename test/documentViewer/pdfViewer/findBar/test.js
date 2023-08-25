@@ -29,7 +29,7 @@ define([
     'ui/documentViewer/providers/pdfViewer/pdfjs/wrapper',
     'ui/documentViewer/providers/pdfViewer/pdfjs/findBar',
     'tpl!ui/documentViewer/providers/pdfViewer/pdfjs/viewer'
-], function(
+], function (
     $,
     _,
     eventifier,
@@ -48,12 +48,12 @@ define([
     var findBarApi;
 
     QUnit.module('pdfViewer FindBar factory', {
-        afterEach: function(assert) {
+        afterEach: function () {
             pdfjs.removeAllListeners();
         }
     });
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         var textManager = textManagerFactory({ PDFJS: pdfjs });
         var events = eventifier();
         var $container = $('<div />').append(viewerTpl());
@@ -81,9 +81,12 @@ define([
         textManager.destroy();
     });
 
-    findBarApi = [{ name: 'getSearchEngine', title: 'getSearchEngine' }, { name: 'destroy', title: 'destroy' }];
+    findBarApi = [
+        { name: 'getSearchEngine', title: 'getSearchEngine' },
+        { name: 'destroy', title: 'destroy' }
+    ];
 
-    QUnit.cases.init(findBarApi).test('instance API ', function(data, assert) {
+    QUnit.cases.init(findBarApi).test('instance API ', function (data, assert) {
         var textManager = textManagerFactory({ PDFJS: pdfjs });
         var events = eventifier();
         var $container = $('<div />').append(viewerTpl());
@@ -103,7 +106,7 @@ define([
         assert.equal(
             typeof instance[data.name],
             'function',
-            'The pdfViewer FindBar instance exposes a "' + data.name + '" function'
+            `The pdfViewer FindBar instance exposes a "${data.name}" function`
         );
 
         instance.destroy();
@@ -111,18 +114,18 @@ define([
     });
 
     QUnit.module('pdfViewer FindBar implementation', {
-        beforeEach: function(assert) {
+        beforeEach: function () {
             pdfjsBackup.pageCount = pdfjs.pageCount;
             pdfjsBackup.textContent = pdfjs.textContent;
         },
-        afterEach: function(assert) {
+        afterEach: function () {
             pdfjs.removeAllListeners();
             pdfjs.pageCount = pdfjsBackup.pageCount;
             pdfjs.textContent = pdfjsBackup.textContent;
         }
     });
 
-    QUnit.test('error', function(assert) {
+    QUnit.test('error', function (assert) {
         var textManager = textManagerFactory({ PDFJS: pdfjs });
         var events = eventifier();
         var $container = $('<div />').append(viewerTpl());
@@ -135,22 +138,22 @@ define([
 
         assert.expect(3);
 
-        assert.throws(function() {
+        assert.throws(function () {
             findBarFactory({ events: events, areaBroker: broker });
         }, 'The pdfViewer FindBar factory triggers an error if the text manager is missing');
 
-        assert.throws(function() {
+        assert.throws(function () {
             findBarFactory({ events: events, textManager: textManager });
         }, 'The pdfViewer FindBar factory triggers an error if the area broker is missing');
 
-        assert.throws(function() {
+        assert.throws(function () {
             findBarFactory({ areaBroker: broker, textManager: textManager });
         }, 'The pdfViewer FindBar factory triggers an error if the events hub is missing');
 
         textManager.destroy();
     });
 
-    QUnit.test('search button', function(assert) {
+    QUnit.test('search button', function (assert) {
         var textManager = textManagerFactory({ PDFJS: pdfjs });
         var events = eventifier();
         var $container = $('<div />').append(viewerTpl());
@@ -193,7 +196,7 @@ define([
         textManager.destroy();
     });
 
-    QUnit.test('enable/disable', function(assert) {
+    QUnit.test('enable/disable', function (assert) {
         var textManager = textManagerFactory({ PDFJS: pdfjs });
         var events = eventifier();
         var $container = $('<div />').append(viewerTpl());
@@ -235,7 +238,7 @@ define([
         textManager.destroy();
     });
 
-    QUnit.test('highlight all', function(assert) {
+    QUnit.test('highlight all', function (assert) {
         var textManager = textManagerFactory({ PDFJS: pdfjs });
         var events = eventifier();
         var $container = $('<div />').append(viewerTpl());
@@ -263,9 +266,7 @@ define([
         );
         assert.ok(!broker.getContentArea().hasClass('highlight-all'), 'The highlightAll option is not activated');
 
-        $('[data-control="highlight-all"]', $container)
-            .prop('checked', true)
-            .change();
+        $('[data-control="highlight-all"]', $container).prop('checked', true).change();
 
         assert.ok($('[data-control="highlight-all"]', $container).is(':checked'), 'The highlightAll option is checked');
         assert.ok(broker.getContentArea().hasClass('highlight-all'), 'The highlightAll option is activated');
@@ -284,9 +285,7 @@ define([
         assert.ok($('[data-control="highlight-all"]', $container).is(':checked'), 'The highlightAll option is checked');
         assert.ok(broker.getContentArea().hasClass('highlight-all'), 'The highlightAll option is activated');
 
-        $('[data-control="highlight-all"]', $container)
-            .prop('checked', false)
-            .change();
+        $('[data-control="highlight-all"]', $container).prop('checked', false).change();
 
         assert.ok(
             !$('[data-control="highlight-all"]', $container).is(':checked'),
@@ -298,7 +297,7 @@ define([
         textManager.destroy();
     });
 
-    QUnit.test('search', function(assert) {
+    QUnit.test('search', function (assert) {
         var ready = assert.async();
         var $container = $('<div />').append(viewerTpl());
         var broker = areaBroker($container, {
@@ -336,15 +335,15 @@ define([
         assert.equal($('.pdf-find-bar', $container).length, 1, 'The find bar has been added');
 
         pdf.load(pdfUrl)
-            .then(function() {
+            .then(function () {
                 assert.ok(pdf.getState('loaded'), 'The PDF is loaded');
 
                 events
-                    .on('searching.searchSomething', function(query) {
+                    .on('searching.searchSomething', function (query) {
                         assert.ok(true, 'The search is running');
                         assert.equal(query, expectedQuery, 'The search engine is searching for the expected query');
                     })
-                    .on('searchdone.searchSomething', function(query, page) {
+                    .on('searchdone.searchSomething', function (query, page) {
                         assert.ok(true, 'The search is done');
                         assert.equal(query, expectedQuery, 'The search engine has searched for the expected query');
                         assert.equal(page, expectedPage, 'The search engine has found a match on the expected page');
@@ -354,42 +353,42 @@ define([
                             'The search has found the expected matches'
                         );
                     })
-                    .on('setpage.searchSomething', function(page) {
+                    .on('setpage.searchSomething', function (page) {
                         assert.equal(page, expectedPage, 'The find bar has set the right page');
                     })
-                    .on('pagechange.searchSomething', function(page) {
+                    .on('pagechange.searchSomething', function (page) {
                         assert.equal(page, expectedPage, 'The page has been changed');
                     })
-                    .on('allrendered.searchSomething', function(page) {
+                    .on('allrendered.searchSomething', function (page) {
                         assert.equal(page, expectedPage, 'The page has been rendered');
                     })
-                    .on('matchesupdating.searchSomething', function(page) {
+                    .on('matchesupdating.searchSomething', function (page) {
                         assert.equal(page, expectedPage, 'The find bar is displaying the matches');
                     })
-                    .on('matchesupdated.searchSomething', function(page) {
+                    .on('matchesupdated.searchSomething', function (page) {
                         assert.equal(page, expectedPage, 'The find bar has displayed the matches');
 
                         assert.equal($('.selected', broker.getContentArea()).length, 1, 'There is a selected match');
 
                         events
                             .off('.searchSomething')
-                            .on('searching.emptySearch', function() {
+                            .on('searching.emptySearch', function () {
                                 assert.ok(false, 'The search must not be running');
                             })
-                            .on('searchdone.emptySearch', function() {
+                            .on('searchdone.emptySearch', function () {
                                 assert.ok(false, 'The search must not be done');
                             })
-                            .on('refresh.emptySearch', function() {
+                            .on('refresh.emptySearch', function () {
                                 assert.ok(true, 'The find bar has refreshed the page');
                             })
-                            .on('allrendered.emptySearch', function(page) {
-                                assert.equal(page, expectedPage, 'The page has been rendered');
+                            .on('allrendered.emptySearch', function (resultPage) {
+                                assert.equal(resultPage, expectedPage, 'The page has been rendered');
                             })
-                            .on('matchesupdating.emptySearch', function(page) {
-                                assert.equal(page, expectedPage, 'The find bar is displaying the matches');
+                            .on('matchesupdating.emptySearch', function (resultPage) {
+                                assert.equal(resultPage, expectedPage, 'The find bar is displaying the matches');
                             })
-                            .on('matchesupdated.emptySearch', function(page) {
-                                assert.equal(page, expectedPage, 'The find bar has displayed the matches');
+                            .on('matchesupdated.emptySearch', function (resultPage) {
+                                assert.equal(resultPage, expectedPage, 'The find bar has displayed the matches');
                                 assert.equal(
                                     instance.getSearchEngine().getMatchCount(),
                                     0,
@@ -404,7 +403,7 @@ define([
 
                                 events
                                     .off('.emptySearch')
-                                    .on('searching.searchUnknown', function(query) {
+                                    .on('searching.searchUnknown', function (query) {
                                         assert.ok(true, 'The search is running');
                                         assert.equal(
                                             query,
@@ -412,7 +411,7 @@ define([
                                             'The search engine is searching for the expected query'
                                         );
                                     })
-                                    .on('searchdone.searchUnknown', function(query, page) {
+                                    .on('searchdone.searchUnknown', function (query, donePage) {
                                         assert.ok(true, 'The search is done');
                                         assert.equal(
                                             query,
@@ -420,7 +419,7 @@ define([
                                             'The search engine has searched for the expected query'
                                         );
                                         assert.equal(
-                                            page,
+                                            donePage,
                                             expectedPageEmpty,
                                             'The search engine has found a match on the expected page'
                                         );
@@ -430,17 +429,17 @@ define([
                                             'The search has not found any matches'
                                         );
                                     })
-                                    .on('refresh.searchUnknown', function() {
+                                    .on('refresh.searchUnknown', function () {
                                         assert.ok(true, 'The find bar has refreshed the page');
                                     })
-                                    .on('allrendered.searchUnknown', function(page) {
-                                        assert.equal(page, expectedPage, 'The page has been rendered');
+                                    .on('allrendered.searchUnknown', function (donePage) {
+                                        assert.equal(donePage, expectedPage, 'The page has been rendered');
                                     })
-                                    .on('matchesupdating.searchUnknown', function(page) {
-                                        assert.equal(page, expectedPage, 'The find bar is displaying the matches');
+                                    .on('matchesupdating.searchUnknown', function (donePage) {
+                                        assert.equal(donePage, expectedPage, 'The find bar is displaying the matches');
                                     })
-                                    .on('matchesupdated.searchUnknown', function(page) {
-                                        assert.equal(page, expectedPage, 'The find bar has displayed the matches');
+                                    .on('matchesupdated.searchUnknown', function (donePage) {
+                                        assert.equal(donePage, expectedPage, 'The find bar has displayed the matches');
 
                                         assert.equal(
                                             $('.selected', broker.getContentArea()).length,
@@ -454,28 +453,22 @@ define([
                                     });
 
                                 expectedQuery = 'unknown';
-                                $('[data-control="pdf-search-query"]', $container)
-                                    .val(expectedQuery)
-                                    .keypress();
+                                $('[data-control="pdf-search-query"]', $container).val(expectedQuery).keypress();
                             });
 
                         expectedQuery = '';
-                        $('[data-control="pdf-search-query"]', $container)
-                            .val(expectedQuery)
-                            .keypress();
+                        $('[data-control="pdf-search-query"]', $container).val(expectedQuery).keypress();
                     });
 
-                $('[data-control="pdf-search-query"]', $container)
-                    .val(expectedQuery)
-                    .keypress();
+                $('[data-control="pdf-search-query"]', $container).val(expectedQuery).keypress();
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(false, 'No error should be triggered');
                 ready();
             });
     });
 
-    QUnit.test('search case sensitive', function(assert) {
+    QUnit.test('search case sensitive', function (assert) {
         var ready = assert.async();
         var $container = $('<div />').append(viewerTpl());
         var broker = areaBroker($container, {
@@ -517,15 +510,15 @@ define([
         );
 
         pdf.load(pdfUrl)
-            .then(function() {
+            .then(function () {
                 assert.ok(pdf.getState('loaded'), 'The PDF is loaded');
 
                 events
-                    .on('searching.notCaseSensitive', function(query) {
+                    .on('searching.notCaseSensitive', function (query) {
                         assert.ok(true, 'The search is running');
                         assert.equal(query, expectedQuery, 'The search engine is searching for the expected query');
                     })
-                    .on('searchdone.notCaseSensitive', function(query, page) {
+                    .on('searchdone.notCaseSensitive', function (query, page) {
                         assert.ok(true, 'The search is done');
                         assert.equal(query, expectedQuery, 'The search engine has searched for the expected query');
                         assert.equal(page, expectedPage, 'The search engine has found a match on the expected page');
@@ -535,24 +528,24 @@ define([
                             'The search has found the expected matches'
                         );
                     })
-                    .on('setpage.notCaseSensitive', function(page) {
+                    .on('setpage.notCaseSensitive', function (page) {
                         assert.equal(page, expectedPage, 'The find bar has set the right page');
                     })
-                    .on('pagechange.notCaseSensitive', function(page) {
+                    .on('pagechange.notCaseSensitive', function (page) {
                         assert.equal(page, expectedPage, 'The page has been changed');
                     })
-                    .on('allrendered.notCaseSensitive', function(page) {
+                    .on('allrendered.notCaseSensitive', function (page) {
                         assert.equal(page, expectedPage, 'The page has been rendered');
                     })
-                    .on('matchesupdating.notCaseSensitive', function(page) {
+                    .on('matchesupdating.notCaseSensitive', function (page) {
                         assert.equal(page, expectedPage, 'The find bar is displaying the matches');
                     })
-                    .on('matchesupdated.notCaseSensitive', function(page) {
+                    .on('matchesupdated.notCaseSensitive', function (page) {
                         assert.equal(page, expectedPage, 'The find bar has displayed the matches');
 
                         events
                             .off('.notCaseSensitive')
-                            .on('searching', function(query) {
+                            .on('searching', function (query) {
                                 assert.ok(true, 'The search is running');
                                 assert.equal(
                                     query,
@@ -560,7 +553,7 @@ define([
                                     'The search engine is searching for the expected query'
                                 );
                             })
-                            .on('searchdone', function(query, page) {
+                            .on('searchdone', function (query, donePage) {
                                 assert.ok(true, 'The search is done');
                                 assert.equal(
                                     query,
@@ -568,7 +561,7 @@ define([
                                     'The search engine has searched for the expected query'
                                 );
                                 assert.equal(
-                                    page,
+                                    donePage,
                                     expectedPageCaseSensitive,
                                     'The search engine has found a match on the expected page'
                                 );
@@ -578,20 +571,32 @@ define([
                                     'The search has found the expected matches'
                                 );
                             })
-                            .on('setpage', function(page) {
-                                assert.equal(page, expectedPageCaseSensitive, 'The find bar has set the right page');
+                            .on('setpage', function (donePage) {
+                                assert.equal(
+                                    donePage,
+                                    expectedPageCaseSensitive,
+                                    'The find bar has set the right page'
+                                );
                             })
-                            .on('pagechange', function(page) {
-                                assert.equal(page, expectedPageCaseSensitive, 'The page has been changed');
+                            .on('pagechange', function (donePage) {
+                                assert.equal(donePage, expectedPageCaseSensitive, 'The page has been changed');
                             })
-                            .on('allrendered', function(page) {
-                                assert.equal(page, expectedPageCaseSensitive, 'The page has been rendered');
+                            .on('allrendered', function (donePage) {
+                                assert.equal(donePage, expectedPageCaseSensitive, 'The page has been rendered');
                             })
-                            .on('matchesupdating', function(page) {
-                                assert.equal(page, expectedPageCaseSensitive, 'The find bar is displaying the matches');
+                            .on('matchesupdating', function (donePage) {
+                                assert.equal(
+                                    donePage,
+                                    expectedPageCaseSensitive,
+                                    'The find bar is displaying the matches'
+                                );
                             })
-                            .on('matchesupdated', function(page) {
-                                assert.equal(page, expectedPageCaseSensitive, 'The find bar has displayed the matches');
+                            .on('matchesupdated', function (donePage) {
+                                assert.equal(
+                                    donePage,
+                                    expectedPageCaseSensitive,
+                                    'The find bar has displayed the matches'
+                                );
 
                                 instance.destroy();
                                 pdf.destroy();
@@ -599,22 +604,18 @@ define([
                             });
 
                         expectedCount = 1;
-                        $('[data-control="case-sensitive-search"]', $container)
-                            .prop('checked', true)
-                            .change();
+                        $('[data-control="case-sensitive-search"]', $container).prop('checked', true).change();
                     });
 
-                $('[data-control="pdf-search-query"]', $container)
-                    .val(expectedQuery)
-                    .keypress();
+                $('[data-control="pdf-search-query"]', $container).val(expectedQuery).keypress();
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(false, 'No error should be triggered');
                 ready();
             });
     });
 
-    QUnit.test('navigating in search', function(assert) {
+    QUnit.test('navigating in search', function (assert) {
         var ready = assert.async();
         var $container = $('<div />').append(viewerTpl());
         var broker = areaBroker($container, {
@@ -634,7 +635,16 @@ define([
         var expectedQuery = 'page';
         var expectedPage = 2;
         var expectedCount = 4;
-        var expectedMatches = [[], [[27, 31], [46, 50]], [], [[5, 9]], [[5, 9]]];
+        var expectedMatches = [
+            [],
+            [
+                [27, 31],
+                [46, 50]
+            ],
+            [],
+            [[5, 9]],
+            [[5, 9]]
+        ];
         var pages = [
             ['This is a test document'],
             ['The search will match this page. ', 'Because this page contains the searched terms'],
@@ -729,7 +739,7 @@ define([
 
         assert.expect(
             14 + // The first asserts till we reach the navigation start
-            7 * navigationPath.length + // The asserts processed while navigating
+                7 * navigationPath.length + // The asserts processed while navigating
                 7 * 4 // The asserts processed on page changes while navigating
         );
 
@@ -740,15 +750,15 @@ define([
         assert.equal($('.pdf-find-bar', $container).length, 1, 'The find bar has been added');
 
         pdf.load(pdfUrl)
-            .then(function() {
+            .then(function () {
                 assert.ok(pdf.getState('loaded'), 'The PDF is loaded');
 
                 events
-                    .on('searching', function(query) {
+                    .on('searching', function (query) {
                         assert.ok(true, 'The search is running');
                         assert.equal(query, expectedQuery, 'The search engine is searching for the expected query');
                     })
-                    .on('searchdone', function(query, page) {
+                    .on('searchdone', function (query, page) {
                         assert.ok(true, 'The search is done');
                         assert.equal(query, expectedQuery, 'The search engine has searched for the expected query');
                         assert.equal(page, expectedPage, 'The search engine has found a match on the expected page');
@@ -763,19 +773,19 @@ define([
                             'The search has found the expected matches'
                         );
                     })
-                    .on('setpage', function(page) {
+                    .on('setpage', function (page) {
                         assert.equal(page, expectedPage, 'The find bar has set the right page');
                     })
-                    .on('pagechange', function(page) {
+                    .on('pagechange', function (page) {
                         assert.equal(page, expectedPage, 'The page has been changed');
                     })
-                    .on('allrendered', function(page) {
+                    .on('allrendered', function (page) {
                         assert.equal(page, expectedPage, 'The page has been rendered');
                     })
-                    .on('matchesupdating', function(page) {
+                    .on('matchesupdating', function (page) {
                         assert.equal(page, expectedPage, 'The find bar is displaying the matches');
                     })
-                    .on('matchesupdated', function(page) {
+                    .on('matchesupdated', function (page) {
                         assert.equal(page, expectedPage, 'The find bar has displayed the matches');
 
                         current = navigationPath[cursor++];
@@ -791,10 +801,8 @@ define([
                             'The loop to end message is correctly set'
                         );
                         assert.equal(
-                            $('[data-control="pdf-search-position"]', $container)
-                                .text()
-                                .trim(),
-                            current.overall + '/' + expectedCount,
+                            $('[data-control="pdf-search-position"]', $container).text().trim(),
+                            `${current.overall}/${expectedCount}`,
                             'The position message is correctly set'
                         );
                         assert.equal(
@@ -823,17 +831,15 @@ define([
                         }
                     });
 
-                $('[data-control="pdf-search-query"]', $container)
-                    .val(expectedQuery)
-                    .keypress();
+                $('[data-control="pdf-search-query"]', $container).val(expectedQuery).keypress();
             })
-            .catch(function() {
+            .catch(function () {
                 assert.ok(false, 'No error should be triggered');
                 ready();
             });
     });
 
-    QUnit.test('destroy', function(assert) {
+    QUnit.test('destroy', function (assert) {
         var textManager = textManagerFactory({ PDFJS: pdfjs });
         var events = eventifier();
         var $container = $('<div />').append(viewerTpl());

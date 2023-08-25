@@ -18,7 +18,7 @@
 /**
  * @author Jean-Sébastien Conan <jean-sebastien.conan@vesperiagroup.com>
  */
-define(['lodash', 'core/eventifier'], function(_, eventifier) {
+define(['lodash', 'core/eventifier'], function (_, eventifier) {
     'use strict';
 
     /**
@@ -55,9 +55,9 @@ define(['lodash', 'core/eventifier'], function(_, eventifier) {
             var rejectPromise;
             var promiseTo = null;
             var cancelTo = null;
-            var promise = new Promise(function(resolve, reject) {
-                promiseTo = setTimeout(function() {
-                    _.forEach(config.textContent.items, function(item) {
+            var promise = new Promise(function (resolve, reject) {
+                promiseTo = setTimeout(function () {
+                    _.forEach(config.textContent.items, function (item) {
                         var textDiv = document.createElement('div');
                         config.textDivs.push(textDiv);
                         textDiv.textContent = item.str;
@@ -93,10 +93,9 @@ define(['lodash', 'core/eventifier'], function(_, eventifier) {
 
     /**
      * Fakes a PDF.js document object
-     * @param {String} uri
      * @returns {Object}
      */
-    function pdfDocumentFactory(uri) {
+    function pdfDocumentFactory() {
         return {
             numPages: mockPDFJS.pageCount,
 
@@ -110,6 +109,7 @@ define(['lodash', 'core/eventifier'], function(_, eventifier) {
 
     /**
      * Fakes a PDF.js page object
+     * @param {Number} pageNum
      * @returns {Object}
      */
     function pdfPageFactory(pageNum) {
@@ -123,7 +123,7 @@ define(['lodash', 'core/eventifier'], function(_, eventifier) {
                     width: mockPDFJS.viewportWidth,
                     height: mockPDFJS.viewportHeight,
 
-                    clone: function() {
+                    clone: function () {
                         return _.clone(this);
                     }
                 };
@@ -138,7 +138,7 @@ define(['lodash', 'core/eventifier'], function(_, eventifier) {
                 }
 
                 return Promise.resolve({
-                    items: _.map(textContent, function(term) {
+                    items: _.map(textContent, function (term) {
                         return { str: term };
                     })
                 });
@@ -147,7 +147,7 @@ define(['lodash', 'core/eventifier'], function(_, eventifier) {
             render: function render() {
                 mockPDFJS.trigger('pageRender');
                 return {
-                    promise: new Promise(function(resolve) {
+                    promise: new Promise(function (resolve) {
                         setTimeout(resolve, 100);
                     })
                 };

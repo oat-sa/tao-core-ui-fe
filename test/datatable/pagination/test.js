@@ -18,36 +18,27 @@
  * @author Oleksander Zagovorychev <olexander.zagovorychev@1pt.com>
  */
 
-define(['jquery', 'ui/datatable'], function($) {
+define(['jquery', 'ui/datatable'], function ($) {
     'use strict';
 
     QUnit.module('Datatable pagination behavior');
 
-    QUnit.test('disabled', function(assert) {
+    QUnit.test('disabled', function (assert) {
         var ready = assert.async();
         var $elt = $('#container-1');
 
         assert.expect(6);
         assert.ok($elt.length === 1, 'Test the fixture is available');
 
-        $elt.on('create.datatable', function() {
+        $elt.on('create.datatable', function () {
             assert.ok($elt.find('.datatable').length === 1, 'the layout has been inserted');
             assert.ok($elt.find('.icon-backward').length === 1, 'there is 1 backward button');
             assert.ok($elt.find('.icon-forward').length === 1, 'there is 1 forward button');
             assert.ok(
-                $elt
-                    .find('.icon-backward')
-                    .parents('button')
-                    .prop('disabled'),
+                $elt.find('.icon-backward').parents('button').prop('disabled'),
                 'the backward button is disabled'
             );
-            assert.ok(
-                $elt
-                    .find('.icon-forward')
-                    .parents('button')
-                    .prop('disabled'),
-                'the forward button is disabled'
-            );
+            assert.ok($elt.find('.icon-forward').parents('button').prop('disabled'), 'the forward button is disabled');
             ready();
         });
 
@@ -88,36 +79,27 @@ define(['jquery', 'ui/datatable'], function($) {
         });
     });
 
-    QUnit.test('enabled', function(assert) {
+    QUnit.test('enabled', function (assert) {
         var ready = assert.async();
         var $elt = $('#container-1');
 
         assert.expect(7);
         assert.ok($elt.length === 1, 'Test the fixture is available');
 
-        $elt.on('create.datatable', function() {
+        $elt.on('create.datatable', function () {
             assert.ok($elt.find('.datatable').length === 1, 'the layout has been inserted');
             assert.ok($elt.find('.icon-backward').length === 1, 'there is 1 backward buttons');
             assert.ok($elt.find('.icon-forward').length === 1, 'there is 1 forward buttons');
             assert.ok(
-                $elt
-                    .find('.icon-forward:first')
-                    .parents('button')
-                    .prop('disabled') === false,
+                $elt.find('.icon-forward:first').parents('button').prop('disabled') === false,
                 'the forward button is enabled'
             );
             assert.ok(
-                $elt
-                    .find('.icon-forward:last')
-                    .parents('button')
-                    .prop('disabled') === false,
+                $elt.find('.icon-forward:last').parents('button').prop('disabled') === false,
                 'the forward button is disabled'
             );
             assert.ok(
-                $elt
-                    .find('.icon-backward:first')
-                    .parents('button')
-                    .prop('disabled'),
+                $elt.find('.icon-backward:first').parents('button').prop('disabled'),
                 'the backward button is disabled (on the 1st page)'
             );
             ready();
@@ -174,19 +156,19 @@ define(['jquery', 'ui/datatable'], function($) {
         });
     });
 
-    QUnit.test('Simple pagination blocker', function(assert) {
-        var ready3 = assert.async();
-        var ready2 = assert.async();
-        var ready1 = assert.async();
-        var $elt = $('#container-1');
-        var forwardBtn, backwardBtn;
+    QUnit.test('Simple pagination blocker', function (assert) {
+        const ready3 = assert.async();
+        const ready2 = assert.async();
+        const ready1 = assert.async();
+        const $elt = $('#container-1');
+        let forwardBtn, backwardBtn;
 
         assert.expect(13);
         assert.ok($elt.length === 1, 'Test the fixture is available');
 
-        var ready = assert.async();
+        const ready = assert.async();
 
-        $elt.on('create.datatable', function() {
+        $elt.on('create.datatable', function () {
             assert.ok($elt.find('.datatable').length === 1, 'the layout has been inserted');
 
             backwardBtn = $elt.find('.icon-backward').parents('button');
@@ -199,7 +181,7 @@ define(['jquery', 'ui/datatable'], function($) {
             ready();
         });
 
-        $elt.on('query.datatable', function(event, ajaxConfig) {
+        $elt.on('query.datatable', function (event, ajaxConfig) {
             assert.equal(typeof ajaxConfig, 'object', 'the query event is triggered and provides an object');
             assert.equal(
                 typeof ajaxConfig.url,
@@ -223,7 +205,7 @@ define(['jquery', 'ui/datatable'], function($) {
             ready1();
         });
 
-        $elt.on('beforeload.datatable', function(event, response) {
+        $elt.on('beforeload.datatable', function (event, response) {
             assert.equal(typeof response, 'object', 'the beforeload event is triggered and provides the response data');
 
             backwardBtn = $elt.find('.icon-backward').parents('button');
@@ -237,7 +219,7 @@ define(['jquery', 'ui/datatable'], function($) {
             ready2();
         });
 
-        $elt.on('load.datatable', function(event, response) {
+        $elt.on('load.datatable', function (event, response) {
             assert.equal(typeof response, 'object', 'the load event is triggered and provides the response data');
 
             backwardBtn = $elt.find('.icon-backward').parents('button');

@@ -1,0 +1,26 @@
+{
+    "data": {
+        "url": "/test/searchModal/mocks/with-no-occurrences/dataset.json",
+        "settings": {
+            "availableColumns": [
+                {
+                    "id": "label",
+                    "sortId": "label",
+                    "label": "Label",
+                    "type": "text",
+                    "alias": null,
+                    "classLabel": null,
+                    "isDuplicated": false,
+                    "default": true,
+                    "sortable": false
+                }
+            ]
+        },
+        "params": {
+            "rootNode": "http:\\/\\/www.tao.lu\\/Ontologies\\/TAOItem.rdf#Item",
+            "parentNode": "http:\\/\\/www.tao.lu\\/Ontologies\\/TAOItem.rdf#Item",
+            "structure": "items"
+        },
+        "filter": []
+    }
+}

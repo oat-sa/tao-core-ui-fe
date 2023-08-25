@@ -1,21 +1,21 @@
-define(['jquery', 'ui/inplacer'], function($) {
+define(['jquery', 'ui/inplacer'], function ($) {
     'use strict';
 
     QUnit.module('Inplacer Stand Alone Test');
 
-    QUnit.test('plugin', function(assert) {
+    QUnit.test('plugin', function (assert) {
         assert.expect(1);
         assert.ok(typeof $.fn.inplacer === 'function', 'The Inplacer plugin is registered');
     });
 
-    QUnit.test('initialization', function(assert) {
-        var ready = assert.async();
+    QUnit.test('initialization', function (assert) {
+        const ready = assert.async();
         assert.expect(5);
 
-        var $container = $('#div-0');
+        const $container = $('#div-0');
         assert.ok($container.length === 1, 'Test the fixture is available');
 
-        $container.on('create.inplacer', function() {
+        $container.on('create.inplacer', function () {
             assert.ok(typeof $container.data('ui.inplacer') === 'object', 'config object stored in data');
             assert.ok($container.hasClass('inplace'), 'has inplace class');
             assert.equal($container.siblings('#edit-me').length, 1, 'target created');
@@ -28,19 +28,19 @@ define(['jquery', 'ui/inplacer'], function($) {
         });
     });
 
-    QUnit.test('edit and leave a <div>', function(assert) {
-        var ready = assert.async();
+    QUnit.test('edit and leave a <div>', function (assert) {
+        const ready = assert.async();
         assert.expect(5);
 
-        var $container = $('#div-0');
+        const $container = $('#div-0');
         assert.ok($container.length === 1, 'Test the fixture is available');
 
         $container
-            .on('create.inplacer', function() {
+            .on('create.inplacer', function () {
                 //Click the editable to start editing mode
                 $container.click();
             })
-            .on('edit.inplacer', function() {
+            .on('edit.inplacer', function () {
                 assert.equal($container.find('textarea').length, 1, 'input in focus');
 
                 //Make some text change
@@ -49,7 +49,7 @@ define(['jquery', 'ui/inplacer'], function($) {
                 //Leave
                 $container.find('textarea').blur();
             })
-            .on('leave.inplacer', function(e, val) {
+            .on('leave.inplacer', function (e, val) {
                 //Check that the the container has been correctly updated
                 assert.equal($container.find('textarea').length, 0, 'input is blurred');
                 assert.equal(val, 'AAA', 'returned value is correct');
@@ -62,19 +62,19 @@ define(['jquery', 'ui/inplacer'], function($) {
             });
     });
 
-    QUnit.test('edit and leave a <span>', function(assert) {
-        var ready = assert.async();
+    QUnit.test('edit and leave a <span>', function (assert) {
+        const ready = assert.async();
         assert.expect(5);
 
-        var $container = $('#span-0');
+        const $container = $('#span-0');
         assert.ok($container.length === 1, 'Test the fixture is available');
 
         $container
-            .on('create.inplacer', function() {
+            .on('create.inplacer', function () {
                 //Click the editable to start editing mode
                 $container.click();
             })
-            .on('edit.inplacer', function() {
+            .on('edit.inplacer', function () {
                 assert.equal($container.find(':text').length, 1, 'input in focus');
 
                 //Make some text change
@@ -83,7 +83,7 @@ define(['jquery', 'ui/inplacer'], function($) {
                 //Leave
                 $container.find(':text').blur();
             })
-            .on('leave.inplacer', function(e, val) {
+            .on('leave.inplacer', function (e, val) {
                 //Check that the the container has been correctly updated
                 assert.equal($container.find(':text').length, 0, 'input is blurred');
                 assert.equal(val, 'AAA', 'returned value is correct');
@@ -96,15 +96,15 @@ define(['jquery', 'ui/inplacer'], function($) {
             });
     });
 
-    QUnit.test('destroy', function(assert) {
-        var ready = assert.async();
+    QUnit.test('destroy', function (assert) {
+        const ready = assert.async();
         assert.expect(6);
 
-        var $container = $('#span-0');
+        const $container = $('#span-0');
         assert.ok($container.length === 1, 'Test the fixture is available');
 
         $container
-            .on('create.inplacer', function() {
+            .on('create.inplacer', function () {
                 assert.ok(typeof $container.data('ui.inplacer') === 'object', 'config object stored in data');
                 assert.ok($container.hasClass('inplace'), 'has inplace class');
                 assert.equal($container.siblings('#edit-me').length, 1, 'target created');
@@ -112,9 +112,9 @@ define(['jquery', 'ui/inplacer'], function($) {
                 //Test destroy method
                 $container.inplacer('destroy');
             })
-            .on('destroy.inplacer', function() {
+            .on('destroy.inplacer', function () {
                 //Check clean up
-                assert.equal($container.data('ui.inplacer'), undefined, 'data object removed');
+                assert.equal($container.data('ui.inplacer'), void 0, 'data object removed');
                 assert.ok(!$container.hasClass('inplace'), 'inplace class removed');
 
                 ready();

@@ -1,3 +1,5 @@
+// ckeditor js and css files in @oat-sa/tao-core-shared-libs/lib/ckeditor
+// tao-core-shared-libs-fe/lib/ckeditor/README.md - how to update tao skins
 @import "ckeditor/skins/tao/scss/inc/toolbar";
 @import "ckeditor/skins/tao/scss/editor";
 @import "ckeditor/skins/tao/scss/inc/tao";
@@ -26,6 +28,7 @@
     @extend .cke_button;
     height: 18px;
     padding: 4px 6px;
+    float: left;
     [class^="icon-"], [class*=" icon-"] {
         @extend .cke_button_icon;
     }

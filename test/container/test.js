@@ -56,7 +56,7 @@ define(['jquery', 'lodash', 'ui/container'], function($, _, container) {
         assert.equal(
             typeof instance[data.title],
             'function',
-            'The container instance exposes a "' + data.title + '" function'
+            `The container instance exposes a "${  data.title  }" function`
         );
         instance.destroy();
     });

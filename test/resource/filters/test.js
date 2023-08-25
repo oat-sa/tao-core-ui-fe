@@ -26,14 +26,14 @@ define([
     'ui/resource/filters',
     'json!test/ui/resource/filters/properties.json',
     'css!ui/resource/css/selector'
-], function($, filtersFactory, propertiesData) {
+], function ($, filtersFactory, propertiesData) {
     'use strict';
 
     var labelUri = 'http://www.w3.org/2000/01/rdf-schema#label';
 
     QUnit.module('API');
 
-    QUnit.test('module', function(assert) {
+    QUnit.test('module', function (assert) {
         assert.expect(3);
 
         assert.equal(typeof filtersFactory, 'function', 'The filtersFactory module exposes a function');
@@ -61,23 +61,23 @@ define([
             { title: 'getTemplate' },
             { title: 'setTemplate' }
         ])
-        .test('Component API ', function(data, assert) {
+        .test('Component API ', function (data, assert) {
             var instance = filtersFactory();
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The filters exposes the component method "' + data.title
+                `The filters exposes the component method "${data.title}"`
             );
         });
 
     QUnit.cases
         .init([{ title: 'on' }, { title: 'off' }, { title: 'trigger' }, { title: 'before' }, { title: 'after' }])
-        .test('Eventifier API ', function(data, assert) {
+        .test('Eventifier API ', function (data, assert) {
             var instance = filtersFactory();
             assert.equal(
                 typeof instance[data.title],
                 'function',
-                'The filters exposes the eventifier method "' + data.title
+                `The filters exposes the eventifier method "${data.title}"`
             );
         });
 
@@ -89,14 +89,14 @@ define([
             { title: 'getTextualQuery' },
             { title: 'update' }
         ])
-        .test('Instance API ', function(data, assert) {
+        .test('Instance API ', function (data, assert) {
             var instance = filtersFactory();
-            assert.equal(typeof instance[data.title], 'function', 'The filters exposes the method "' + data.title);
+            assert.equal(typeof instance[data.title], 'function', `The filters exposes the method "${data.title}"`);
         });
 
     QUnit.module('Behavior');
 
-    QUnit.test('Lifecycle', function(assert) {
+    QUnit.test('Lifecycle', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -106,20 +106,20 @@ define([
             classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
             data: propertiesData
         })
-            .on('init', function() {
+            .on('init', function () {
                 assert.ok(!this.is('rendered'), 'The component is not yet rendered');
             })
-            .on('render', function() {
+            .on('render', function () {
                 assert.ok(this.is('rendered'), 'The component is now rendered');
 
                 this.destroy();
             })
-            .on('destroy', function() {
+            .on('destroy', function () {
                 ready();
             });
     });
 
-    QUnit.test('Rendering', function(assert) {
+    QUnit.test('Rendering', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -132,7 +132,7 @@ define([
             data: propertiesData,
             title: 'Foo',
             applyLabel: 'Bar'
-        }).on('render', function() {
+        }).on('render', function () {
             var $element = this.getElement();
 
             assert.equal($('.filters', $container).length, 1, 'The component has been inserted');
@@ -141,7 +141,7 @@ define([
             assert.equal($('form', $element).length, 1, 'The component contains a form');
             assert.equal($('fieldset :input', $element).length, 3, 'The component contains 3 input fields');
 
-            assert.equal($('[name="' + labelUri + '"]', $element).length, 1, 'The component contains the label field');
+            assert.equal($(`[name="${labelUri}"]`, $element).length, 1, 'The component contains the label field');
             assert.equal(
                 $('[name="http://bertaodev/tao.rdf#i15012259849560117"]', $element).length,
                 1,
@@ -149,27 +149,15 @@ define([
             );
 
             assert.equal($('h2', $element).length, 1, 'The component contains a title');
-            assert.equal(
-                $('h2', $element)
-                    .text()
-                    .trim(),
-                'Foo',
-                'The component has the correct title'
-            );
+            assert.equal($('h2', $element).text().trim(), 'Foo', 'The component has the correct title');
             assert.equal($('.toolbar :submit', $element).length, 1, 'The component contains the apply button');
-            assert.equal(
-                $('.toolbar :submit', $element)
-                    .text()
-                    .trim(),
-                'Bar',
-                'The apply label is correct'
-            );
+            assert.equal($('.toolbar :submit', $element).text().trim(), 'Bar', 'The apply label is correct');
 
             ready();
         });
     });
 
-    QUnit.test('getValues', function(assert) {
+    QUnit.test('getValues', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -180,9 +168,9 @@ define([
         filtersFactory($container, {
             classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
             data: propertiesData
-        }).on('render', function() {
+        }).on('render', function () {
             var $element = this.getElement();
-            var $label = $('[name="' + labelUri + '"]', $element);
+            var $label = $(`[name="${labelUri}"]`, $element);
             var $apply = $('.toolbar :submit', $element);
             var values;
 
@@ -202,7 +190,7 @@ define([
             assert.equal(typeof values[labelUri], 'string', 'The label has an entry');
             assert.equal(values[labelUri], 'a label', 'The label has the correct value');
 
-            this.on('change', function(newValues) {
+            this.on('change', function (newValues) {
                 assert.deepEqual(newValues, this.getValues(), 'The apply values are the component values');
                 assert.equal(typeof values[labelUri], 'string', 'The label has an entry');
                 assert.equal(values[labelUri], 'a label', 'The label has the correct value');
@@ -213,7 +201,7 @@ define([
         });
     });
 
-    QUnit.test('setValue', function(assert) {
+    QUnit.test('setValue', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
 
@@ -222,9 +210,9 @@ define([
         filtersFactory($container, {
             classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
             data: propertiesData
-        }).on('render', function() {
+        }).on('render', function () {
             var $element = this.getElement();
-            var $label = $('[name="' + labelUri + '"]', $element);
+            var $label = $(`[name="${labelUri}"]`, $element);
             var values;
 
             assert.equal($label.length, 1, 'The component has the label field');
@@ -249,7 +237,7 @@ define([
 
     QUnit.module('Visual');
 
-    QUnit.test('playground', function(assert) {
+    QUnit.test('playground', function (assert) {
         var ready = assert.async();
 
         var container = document.getElementById('visual');
@@ -259,7 +247,7 @@ define([
         filtersFactory(container, {
             classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
             data: propertiesData
-        }).on('render', function() {
+        }).on('render', function () {
             assert.ok(true);
             ready();
         });

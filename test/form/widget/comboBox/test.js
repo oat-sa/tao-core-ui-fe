@@ -73,7 +73,7 @@ define([
                 this.destroy();
             });
         assert.expect(1);
-        assert.equal(typeof instance[data.title], 'function', 'The instance exposes a "' + data.title + '" function');
+        assert.equal(typeof instance[data.title], 'function', `The instance exposes a "${  data.title  }" function`);
     });
 
     QUnit.cases.init([
@@ -87,7 +87,7 @@ define([
                 this.destroy();
             });
         assert.expect(1);
-        assert.equal(typeof instance[data.title], 'function', 'The instance exposes a "' + data.title + '" function');
+        assert.equal(typeof instance[data.title], 'function', `The instance exposes a "${  data.title  }" function`);
     });
 
     QUnit.cases.init([
@@ -104,7 +104,7 @@ define([
                 this.destroy();
             });
         assert.expect(1);
-        assert.equal(typeof instance[data.title], 'function', 'The instance exposes a "' + data.title + '" function');
+        assert.equal(typeof instance[data.title], 'function', `The instance exposes a "${  data.title  }" function`);
     });
 
     QUnit.module('Life cycle');
@@ -766,7 +766,7 @@ define([
                 ready();
             })
             .on('change', function (value, uri) {
-                $outputChange.val('value of [' + uri + '] changed to "' + value + '"\n' + $outputChange.val());
+                $outputChange.val(`value of [${  uri  }] changed to "${  value  }"\n${  $outputChange.val()}`);
             })
             .on('error', function (err) {
                 assert.ok(false, 'The operation should not fail!');

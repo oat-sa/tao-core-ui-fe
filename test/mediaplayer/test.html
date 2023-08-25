@@ -7,6 +7,15 @@
         <script type="text/javascript">
             require(['/environment/config.js'], function() {
                 require(['qunitEnv'], function() {
+                    requirejs.config({
+                        paths: {
+                            'core/store': 'test/mediaplayer/mocks/storeMock',
+                            'util/urlParser': 'test/mediaplayer/mocks/urlParserMock',
+                            'ui/mediaplayer/players/html5': 'test/mediaplayer/mocks/html5Mock',
+                            'ui/mediaplayer/players/youtube': 'test/mediaplayer/mocks/youtubeMock',
+                            'ui/mediaplayer/support': 'test/mediaplayer/mocks/supportMock'
+                        }
+                    });
                     require(['test/ui/mediaplayer/test'], function() {
                         QUnit.start();
                     });
@@ -16,13 +25,6 @@
     </head>
     <body>
         <div id="qunit"></div>
-        <div id="qunit-fixture">
-            <div id="fixture-1"></div>
-            <div id="fixture-2"></div>
-            <div id="fixture-3"></div>
-            <div id="fixture-4"></div>
-            <div id="fixture-5"></div>
-            <div id="fixture-6"></div>
-        </div>
+        <div id="qunit-fixture"></div>
     </body>
 </html>

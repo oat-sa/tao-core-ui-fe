@@ -81,7 +81,7 @@ const writeOutResult = async result => {
 
     // write out map if exist
     if (result.map) {
-        await writeFile(`${outputFile}.map`, result.map, { flag: 'w' });
+        await writeFile(`${outputFile}.map`, result.map.toString(), { flag: 'w' });
     }
 };
 
@@ -90,8 +90,9 @@ const writeOutResult = async result => {
  */
 const scssDirectories = [scssVendorDir, srcDir];
 
+const globPath = p => p.replace(/\\/g, '/');
 glob(
-    path.join(rootPath, `+(${scssDirectories.map(dir => path.relative(rootPath, dir)).join('|')})`, '**', '[^_]*.scss'),
+    globPath(path.join(rootPath, `+(${scssDirectories.map(dir => path.relative(rootPath, dir)).join('|')})`, '**', '[^_]*.scss')),
     (err, files) => {
         if (err) {
             throw err;

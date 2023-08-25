@@ -26,6 +26,8 @@
 import $ from 'jquery';
 import _ from 'lodash';
 import __ from 'i18n';
+import urlUtil from 'util/url';
+import UrlParser from 'util/urlParser';
 
 /**
  * Defines the validation callback
@@ -69,7 +71,7 @@ var validators = {
         name: 'numeric',
         message: __('The value of this field must be numeric'),
         options: {},
-        validate: function(value, callback) {
+        validate: function (value, callback) {
             var parsedValue = parseFloat(value),
                 r = parsedValue.toString() === value.toString() && _.isNumber(parsedValue) && !_.isNaN(parsedValue);
 
@@ -82,7 +84,7 @@ var validators = {
         name: 'notEmpty',
         message: __('this is required'),
         options: {},
-        validate: function(value, callback) {
+        validate: function (value, callback) {
             var r;
             if (_.isNumber(value)) {
                 r = true;
@@ -104,7 +106,7 @@ var validators = {
         name: 'length',
         message: __('required length'),
         options: { min: 0, max: 0 },
-        validate: function(value, callback, options) {
+        validate: function (value, callback, options) {
             var r = false;
             if (value.length >= options.min) {
                 if (options.max) {
@@ -122,37 +124,28 @@ var validators = {
         name: 'fileExists',
         message: __('no file not found in this location'),
         options: { baseUrl: '' },
-        validate: (function() {
-            return function(value, callback, options) {
+        validate: (function () {
+            return function (value, callback, options) {
                 if (!value) {
                     callback(false);
                     return;
                 }
 
-                //FIXME use util/url
-                //valid way to know if it is an url
-                var pattern = new RegExp(
-                    '^(https?:\\/\\/)?' + // protocol
-                    '((([a-z\\d]([a-z\\d-]*[a-z\\d])?)\\.)+[a-z]{2,}|' + // domain name
-                    '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
-                    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
-                    '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
-                        '(\\#[-a-z\\d_]*)?$',
-                    'i'
-                ); // fragment locator
-                if (!pattern.test(value) && !/^data:[^\/]+\/[^;]+(;charset=[\w]+)?;base64,/.test(value)) {
+                const parser = new UrlParser(value);
+                const protocol = parser.get('protocol');
+                const isHttp = protocol === 'http:' || protocol === 'https:';
+
+                if (!(urlUtil.isAbsolute(value) && isHttp) && !urlUtil.isBase64(value)) {
                     //request HEAD only for bandwidth saving
                     $.ajax({
                         type: 'HEAD',
                         //FIXME change this to use an URL without transfomations. the validator should be called with the right URL,
                         //here it works only for the getFile service...
                         url: options.baseUrl + encodeURIComponent(value),
-                        success: function() {
+                        success: function () {
                             callback(true);
                         },
-                        error: function(jqXHR, textStatus, errorThrown) {
-                            callback(false);
-                        }
+                        error: () => callback(false)
                     });
                 } else {
                     callback(true);
@@ -164,9 +157,9 @@ var validators = {
         name: 'validRegex',
         message: __('invalid regular expression'),
         options: {},
-        validate: function(value, callback) {
+        validate: function (value, callback) {
             if (typeof callback === 'function') {
-                var valid = false;
+                let valid = false;
                 if (value !== '') {
                     try {
                         new RegExp('^' + value + '$');
@@ -204,8 +197,7 @@ var register = function registerValidator(name, validator, force) {
 
     if (!_.isObject(validator) || !_.isString(validator.message) || !_.isFunction(validator.validate)) {
         throw new Error(
-            'A validator must be an object with a message and a validate method, but given : ' +
-                JSON.stringify(validator)
+            `A validator must be an object with a message and a validate method, but given : ${JSON.stringify(validator)}`
         );
     }
 

@@ -2,8 +2,8 @@
     <div class="row">
         <button class="key command" data-command="historyUp"><span>{{{labels.HISTORYUP}}}</span></button>
         <button class="key command" data-command="historyDown"><span>{{{labels.HISTORYDOWN}}}</span></button>
-        <button class="key command" data-command="stepDeleteLeft"><span>{{{labels.BACKSPACE}}}</span></button>
-        <button class="key command" data-command="clear"><span>{{{labels.CLEARALL}}}</span></button>
+        <button class="key command" data-command="deleteLeft"><span>{{{labels.BACKSPACE}}}</span></button>
+        <button class="key command" data-command="clear"><span>{{{labels.RESET}}}</span></button>
     </div>
     <div class="row">
         <button class="key operator" data-command="term" data-param="LPAR"><span>{{{labels.LPAR}}}</span></button>

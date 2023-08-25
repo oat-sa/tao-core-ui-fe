@@ -63,7 +63,7 @@ define([
         var instance = getInstance('#fixture-api');
 
         assert.expect(1);
-        assert.strictEqual(typeof instance[data.title], 'function', 'The tabs instance exposes a "' + data.title + '" function');
+        assert.strictEqual(typeof instance[data.title], 'function', `The tabs instance exposes a "${  data.title  }" function`);
     });
 
 
@@ -76,7 +76,7 @@ define([
         var instance = getInstance('#fixture-api');
 
         assert.expect(1);
-        assert.strictEqual(typeof instance[data.title], 'function', 'The tabs instance exposes a "' + data.title + '" function');
+        assert.strictEqual(typeof instance[data.title], 'function', `The tabs instance exposes a "${  data.title  }" function`);
     });
 
     QUnit.cases.init([
@@ -94,7 +94,7 @@ define([
         var instance = getInstance('#fixture-api');
 
         assert.expect(1);
-        assert.strictEqual(typeof instance[data.title], 'function', 'The tabs instance exposes a "' + data.title + '" function');
+        assert.strictEqual(typeof instance[data.title], 'function', `The tabs instance exposes a "${  data.title  }" function`);
     });
 
     QUnit.module('Tabs Life cycle');
@@ -250,7 +250,7 @@ define([
             .on('ready', function () {
                 assert.strictEqual($container.children().length, 1, 'The container contains an element');
                 assert.strictEqual($container.children().is('.tab-group'), true, 'The container contains the expected element');
-                assert.strictEqual($container.find('.tab-group .tab').length, numberOfTabs, 'The component contains ' + numberOfTabs + ' tabs');
+                assert.strictEqual($container.find('.tab-group .tab').length, numberOfTabs, `The component contains ${  numberOfTabs  } tabs`);
 
                 if (numberOfTabs) {
                     assert.strictEqual($container.find('.tab-group .tab.active').length, 1, 'The component contains an active tab');
@@ -262,62 +262,62 @@ define([
 
                 for (index = 0; index < numberOfTabs; index++) {
                     tab = data.config.tabs[index];
-                    assert.deepEqual(instance.getTabs()[index], tab, 'The instance contains the expected tab at index ' + index);
+                    assert.deepEqual(instance.getTabs()[index], tab, `The instance contains the expected tab at index ${  index}`);
                     assert.strictEqual(
-                        $container.find('.tab[data-tab-name="' + tab.name + '"] .action').length,
+                        $container.find(`.tab[data-tab-name="${  tab.name  }"] .action`).length,
                         1,
-                        'The tab ' + tab.name + ' has an action element'
+                        `The tab ${  tab.name  } has an action element`
                     );
                     if (tab.cls) {
                         assert.strictEqual(
-                            $container.find('.tab[data-tab-name="' + tab.name + '"].' + tab.cls).length,
+                            $container.find(`.tab[data-tab-name="${  tab.name  }"].${  tab.cls}`).length,
                             1,
-                            'The tab ' + tab.name + ' is rendered with the expected class'
+                            `The tab ${  tab.name  } is rendered with the expected class`
                         );
                     } else {
                         assert.strictEqual(
-                            $container.find('.tab[data-tab-name="' + tab.name + '"]').length,
+                            $container.find(`.tab[data-tab-name="${  tab.name  }"]`).length,
                             1,
-                            'The tab ' + tab.name + ' is rendered'
+                            `The tab ${  tab.name  } is rendered`
                         );
                     }
                     if (tab.disabled) {
                         assert.strictEqual(
-                            $container.find('.tab[data-tab-name="' + tab.name + '"] .action:disabled').length,
+                            $container.find(`.tab[data-tab-name="${  tab.name  }"] .action:disabled`).length,
                             1,
-                            'The tab ' + tab.name + ' is rendered disabled'
+                            `The tab ${  tab.name  } is rendered disabled`
                         );
                     } else {
                         assert.strictEqual(
-                            $container.find('.tab[data-tab-name="' + tab.name + '"] .action:disabled').length,
+                            $container.find(`.tab[data-tab-name="${  tab.name  }"] .action:disabled`).length,
                             0,
-                            'The tab ' + tab.name + ' is rendered enabled'
+                            `The tab ${  tab.name  } is rendered enabled`
                         );
                     }
                     if (tab.icon) {
                         assert.strictEqual(
-                            $container.find('.tab[data-tab-name="' + tab.name + '"] .icon-' + tab.icon).length,
+                            $container.find(`.tab[data-tab-name="${  tab.name  }"] .icon-${  tab.icon}`).length,
                             1,
-                            'The tab ' + tab.name + ' contains an icon'
+                            `The tab ${  tab.name  } contains an icon`
                         );
                     } else {
                         assert.strictEqual(
-                            $container.find('.tab[data-tab-name="' + tab.name + '"] .icon').length,
+                            $container.find(`.tab[data-tab-name="${  tab.name  }"] .icon`).length,
                             0,
-                            'The tab ' + tab.name + ' does not contain an icon'
+                            `The tab ${  tab.name  } does not contain an icon`
                         );
                     }
                     if (tab.label) {
                         assert.strictEqual(
-                            $container.find('.tab[data-tab-name="' + tab.name + '"]').text().trim(),
+                            $container.find(`.tab[data-tab-name="${  tab.name  }"]`).text().trim(),
                             tab.label,
-                            'The tab ' + tab.name + ' contains the expected label'
+                            `The tab ${  tab.name  } contains the expected label`
                         );
                     } else {
                         assert.strictEqual(
-                            $container.find('.tab[data-tab-name="' + tab.name + '"]').text().trim(),
+                            $container.find(`.tab[data-tab-name="${  tab.name  }"]`).text().trim(),
                             '',
-                            'The tab ' + tab.name + ' does not contain a label'
+                            `The tab ${  tab.name  } does not contain a label`
                         );
                     }
                 }
@@ -786,9 +786,9 @@ define([
 
                 data.config.tabs.forEach(function(tab) {
                     assert.strictEqual(
-                        $container.find('.tab[data-tab-name="' + tab.name + '"]').length,
+                        $container.find(`.tab[data-tab-name="${  tab.name  }"]`).length,
                         1,
-                        'The tab ' + tab.name + ' is rendered'
+                        `The tab ${  tab.name  } is rendered`
                     );
                 });
 
@@ -813,60 +813,60 @@ define([
 
                         data.tabs.forEach(function(tab) {
                             assert.strictEqual(
-                                $container.find('.tab[data-tab-name="' + tab.name + '"] .action').length,
+                                $container.find(`.tab[data-tab-name="${  tab.name  }"] .action`).length,
                                 1,
-                                'The tab ' + tab.name + ' has an action element'
+                                `The tab ${  tab.name  } has an action element`
                             );
                             if (tab.cls) {
                                 assert.strictEqual(
-                                    $container.find('.tab[data-tab-name="' + tab.name + '"].' + tab.cls).length,
+                                    $container.find(`.tab[data-tab-name="${  tab.name  }"].${  tab.cls}`).length,
                                     1,
-                                    'The tab ' + tab.name + ' is rendered with the expected class'
+                                    `The tab ${  tab.name  } is rendered with the expected class`
                                 );
                             } else {
                                 assert.strictEqual(
-                                    $container.find('.tab[data-tab-name="' + tab.name + '"]').length,
+                                    $container.find(`.tab[data-tab-name="${  tab.name  }"]`).length,
                                     1,
-                                    'The tab ' + tab.name + ' is rendered'
+                                    `The tab ${  tab.name  } is rendered`
                                 );
                             }
                             if (tab.disabled) {
                                 assert.strictEqual(
-                                    $container.find('.tab[data-tab-name="' + tab.name + '"] .action:disabled').length,
+                                    $container.find(`.tab[data-tab-name="${  tab.name  }"] .action:disabled`).length,
                                     1,
-                                    'The tab ' + tab.name + ' is rendered disabled'
+                                    `The tab ${  tab.name  } is rendered disabled`
                                 );
                             } else {
                                 assert.strictEqual(
-                                    $container.find('.tab[data-tab-name="' + tab.name + '"] .action:disabled').length,
+                                    $container.find(`.tab[data-tab-name="${  tab.name  }"] .action:disabled`).length,
                                     0,
-                                    'The tab ' + tab.name + ' is rendered enabled'
+                                    `The tab ${  tab.name  } is rendered enabled`
                                 );
                             }
                             if (tab.icon) {
                                 assert.strictEqual(
-                                    $container.find('.tab[data-tab-name="' + tab.name + '"] .icon-' + tab.icon).length,
+                                    $container.find(`.tab[data-tab-name="${  tab.name  }"] .icon-${  tab.icon}`).length,
                                     1,
-                                    'The tab ' + tab.name + ' contains an icon'
+                                    `The tab ${  tab.name  } contains an icon`
                                 );
                             } else {
                                 assert.strictEqual(
-                                    $container.find('.tab[data-tab-name="' + tab.name + '"] .icon').length,
+                                    $container.find(`.tab[data-tab-name="${  tab.name  }"] .icon`).length,
                                     0,
-                                    'The tab ' + tab.name + ' does not contain an icon'
+                                    `The tab ${  tab.name  } does not contain an icon`
                                 );
                             }
                             if (tab.label) {
                                 assert.strictEqual(
-                                    $container.find('.tab[data-tab-name="' + tab.name + '"]').text().trim(),
+                                    $container.find(`.tab[data-tab-name="${  tab.name  }"]`).text().trim(),
                                     tab.label,
-                                    'The tab ' + tab.name + ' contains the expected label'
+                                    `The tab ${  tab.name  } contains the expected label`
                                 );
                             } else {
                                 assert.strictEqual(
-                                    $container.find('.tab[data-tab-name="' + tab.name + '"]').text().trim(),
+                                    $container.find(`.tab[data-tab-name="${  tab.name  }"]`).text().trim(),
                                     '',
-                                    'The tab ' + tab.name + ' does not contain a label'
+                                    `The tab ${  tab.name  } does not contain a label`
                                 );
                             }
                         });
@@ -920,9 +920,9 @@ define([
 
                 config.tabs.forEach(function(tab) {
                     assert.strictEqual(
-                        $container.find('.tab[data-tab-name="' + tab.name + '"]').length,
+                        $container.find(`.tab[data-tab-name="${  tab.name  }"]`).length,
                         1,
-                        'The tab ' + tab.name + ' is rendered'
+                        `The tab ${  tab.name  } is rendered`
                     );
                 });
 
@@ -1072,9 +1072,9 @@ define([
 
                 config.tabs.forEach(function(tab) {
                     assert.strictEqual(
-                        $container.find('.tab[data-tab-name="' + tab.name + '"]').length,
+                        $container.find(`.tab[data-tab-name="${  tab.name  }"]`).length,
                         1,
-                        'The tab ' + tab.name + ' is rendered'
+                        `The tab ${  tab.name  } is rendered`
                     );
                 });
 
@@ -1219,9 +1219,9 @@ define([
 
                 config.tabs.forEach(function(tab) {
                     assert.strictEqual(
-                        $container.find('.tab[data-tab-name="' + tab.name + '"]').length,
+                        $container.find(`.tab[data-tab-name="${  tab.name  }"]`).length,
                         1,
-                        'The tab ' + tab.name + ' is rendered'
+                        `The tab ${  tab.name  } is rendered`
                     );
                 });
 
@@ -1364,9 +1364,9 @@ define([
 
                 config.tabs.forEach(function(tab) {
                     assert.strictEqual(
-                        $container.find('.tab[data-tab-name="' + tab.name + '"]').length,
+                        $container.find(`.tab[data-tab-name="${  tab.name  }"]`).length,
                         1,
-                        'The tab ' + tab.name + ' is rendered'
+                        `The tab ${  tab.name  } is rendered`
                     );
                 });
 
@@ -1529,7 +1529,7 @@ define([
                 ready();
             })
             .on('tabchange', function (name) {
-                $('#visual-fixture .output').html('tabchange event for Tab <strong>' + name + '</strong>');
+                $('#visual-fixture .output').html(`tabchange event for Tab <strong>${  name  }</strong>`);
             })
             .on('error', function (err) {
                 assert.pushResult({
