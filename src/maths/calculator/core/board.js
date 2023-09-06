@@ -27,7 +27,7 @@ import boardTpl from 'ui/maths/calculator/core/tpl/board';
 import termsTpl from 'ui/maths/calculator/core/tpl/terms';
 
 Handlebars.registerHelper('isArray', Array.isArray);
-Handlebars.registerPartial('ui-maths-terms', termsTpl);
+Handlebars.registerPartial('ui/maths/calculator/core/tpl/terms', termsTpl);
 
 /**
  * Default config values

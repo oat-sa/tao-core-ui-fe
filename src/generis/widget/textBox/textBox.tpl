@@ -1,6 +1,6 @@
 <div class="ui-generis-widget text-box">
     <div class="left">
-        {{> ui-generis-widget-label }}
+        {{> 'ui/generis/widget/widget'}}
     </div>
     <div class="right">
         <input name="{{uri}}" value="{{value}}">

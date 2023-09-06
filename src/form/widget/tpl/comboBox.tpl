@@ -1,6 +1,6 @@
 <div class="form-widget {{widgetType}}">
     <div class="widget-label">
-        {{> ui-form-widget-label }}
+        {{> 'ui/form/widget/tpl/label' }}
     </div>
     <div class="widget-field">
         <select class="widget-input-inline" name="{{uri}}">

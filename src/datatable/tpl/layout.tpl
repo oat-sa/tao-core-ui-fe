@@ -10,12 +10,12 @@
     <div class="datatable-header">
         {{#with options.status}}
         <h2>
-            <span class="empty-list hidden">{{#if empty}}{{empty}}{{else}}{{../../options.labels.empty}}{{/if}}</span>
+            <span class="empty-list hidden">{{#if empty}}{{empty}}{{else}}{{@root.options.labels.empty}}{{/if}}</span>
             <span class="available-list hidden">
-                <span class="text">{{#if available}}{{available}}{{else}}{{../../options.labels.available}}{{/if}}</span>:
+                <span class="text">{{#if available}}{{available}}{{else}}{{@root.options.labels.available}}{{/if}}</span>:
                 <span class="count">{{count}}</span>
             </span>
-            <span class="loading">{{#if loading}}{{loading}}{{else}}{{../../options.labels.loading}}{{/if}}...</span>
+            <span class="loading">{{#if loading}}{{loading}}{{else}}{{@root.options.labels.loading}}{{/if}}...</span>
         </h2>
         {{/with}}
 
@@ -83,25 +83,25 @@
                 </tr>
             </thead>
             <tbody>
-                {{#each dataset.data}}
+                {{#each dataset.data as |row|}}
                     <tr data-item-identifier="{{id}}">
-                        {{#if ../options.selectable}}
+                        {{#if @root.options.selectable}}
                         <td class="checkboxes"><input type="checkbox" name="cb[{{id}}]" value="1" /></td>
                         {{/if}}
 {{! IMPORTANT:START IF YOU'RE GOING TO MAKE CHANGES TO THIS SECTION,
     PLEASE UPDATE shallowUpdate METHOD ACCORDINGLY}}
-                        {{#each ../options.model}}
+                        {{#each @root.options.model}}
                             {{#if type}}
                             <td class="actions {{id}}">
-                                {{#each ../actions}}
+                                {{#each actions as |action|}}
                                     {{#if id}}
-                                        {{#with ../../../../this}}
-                                            {{#unless ../hidden}}
-                                <button class="btn-info small {{../../id}}"
-                                    {{#if ../../title}} title="{{../../../title}}"{{/if}}
-                                    {{#if ../../disabled}} disabled="disabled"{{/if}}>
-                                    {{#if ../../icon}}<span class="icon-{{../../../icon}}"></span>{{/if}}
-                                    {{../../label}}
+                                        {{#with row}}
+                                            {{#unless action.hidden}}
+                                <button class="btn-info small {{action.id}}"
+                                    {{#if action.title}} title="{{action.title}}"{{/if}}
+                                    {{#if action.disabled}} disabled="disabled"{{/if}}>
+                                    {{#if action.icon}}<span class="icon-{{action.icon}}"></span>{{/if}}
+                                    {{action.label}}
                                 </button>
                                             {{/unless}}
                                         {{/with}}
@@ -116,23 +116,23 @@
                                 {{/each}}
                             </td>
                             {{else}}
-                            <td class="{{id}}">{{{dompurify (property id ../../this)}}}</td>
+                            <td class="{{id}}">{{{dompurify (property id row)}}}</td>
                             {{/if}}
 
                         {{/each}}
 {{! IMPORTANT:END IF YOU'RE GOING TO MAKE CHANGES TO THIS SECTION,
     PLEASE UPDATE shallowUpdate METHOD ACCORDINGLY}}
-                        {{#with ../options.actions}}
+                        {{#with @root.options.actions}}
                         <td class="actions">
-                            {{#each this}}
+                            {{#each this as |action|}}
                                 {{#if id}}
-                                    {{#with ../../../this}}
-                                        {{#unless ../hidden}}
-                            <button class="btn-info small {{../../id}}"
-                                {{#if ../../title}} title="{{../../../title}}"{{/if}}
-                                {{#if ../../disabled}} disabled="disabled"{{/if}}>
-                                {{#if ../../icon}}<span class="icon-{{../../../icon}}"></span>{{/if}}
-                                {{../../label}}
+                                    {{#with row}}
+                                        {{#unless action.hidden}}
+                            <button class="btn-info small {{action.id}}"
+                                {{#if action.title}} title="{{action.title}}"{{/if}}
+                                {{#if action.disabled}} disabled="disabled"{{/if}}>
+                                {{#if action.icon}}<span class="icon-{{action.icon}}"></span>{{/if}}
+                                {{action.label}}
                             </button>
                                         {{/unless}}
                                     {{/with}}
