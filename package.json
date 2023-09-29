@@ -53,7 +53,7 @@
         "@oat-sa/rollup-plugin-wildcard-external": "^1.0.0",
         "@oat-sa/tao-calculator": "^0.6.2",
         "@oat-sa/tao-core-libs": "^1.0.0",
-        "@oat-sa/tao-core-sdk": "^2.0.1",
+        "@oat-sa/tao-core-sdk": "^3.0.0",
         "@oat-sa/tao-core-shared-libs": "^1.4.1",
         "@oat-sa/tao-qunit-testrunner": "^2.0.0",
         "async": "^0.2.10",
