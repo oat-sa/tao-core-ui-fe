@@ -482,7 +482,7 @@ MediaSizer = {
                                 return chars;
                             })();
 
-                        return _.contains(specChars, c) || (c >= 48 && c <= 57) || (c >= 96 && c <= 105);
+                        return _.includes(specChars, c) || (c >= 48 && c <= 57) || (c >= 96 && c <= 105);
                     });
 
                     _fields[unit][dim].on('keyup blur sliderchange', function(e) {

@@ -170,7 +170,7 @@ const InPlacer = {
         var width = options.width || $elt.width() + 'px';
         var $editor;
         emptyText($elt);
-        if (_.contains(options.mapping.textarea, $elt.prop('tagName').toLowerCase())) {
+        if (_.includes(options.mapping.textarea, $elt.prop('tagName').toLowerCase())) {
             const height = options.height || $elt.height() + 'px';
             $editor = $elt
                 .append('<textarea>' + text + '</textarea>')

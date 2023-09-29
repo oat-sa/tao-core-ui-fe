@@ -77,7 +77,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
                 var testAuthor = 'http://www.tao.lu/Ontologies/TAO.rdf#TestAuthor';
                 var testTaker = 'http://www.tao.lu/Ontologies/TAO.rdf#DeliveryRole';
 
-                return !(_.contains(values, testAuthor) && _.contains(values, testTaker));
+                return !(_.includes(values, testAuthor) && _.includes(values, testTaker));
             }
         },
         sysAdminOnly: {
@@ -85,7 +85,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
             predicate: function (values) {
                 var sysAdmin = 'http://www.tao.lu/Ontologies/TAO.rdf#SysAdminRole';
 
-                return _.contains(values, sysAdmin) ? values.length === 1 : true;
+                return _.includes(values, sysAdmin) ? values.length === 1 : true;
             }
         }
     };
@@ -137,7 +137,7 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
             }
         );
 
-        assert.ok(_.contains(widget.get(), 'foobar'), 'returns correct value');
+        assert.ok(_.includes(widget.get(), 'foobar'), 'returns correct value');
     });
 
     QUnit.test('set', function (assert) {
@@ -149,8 +149,8 @@ define(['jquery', 'lodash', 'ui/generis/validator/validator', 'ui/generis/widget
             }
         );
 
-        assert.ok(_.contains(widget.set('baz'), 'baz'), 'returns updated value');
-        assert.ok(_.contains(widget.get(), 'baz'), 'updates value');
+        assert.ok(_.includes(widget.set('baz'), 'baz'), 'returns updated value');
+        assert.ok(_.includes(widget.get(), 'baz'), 'updates value');
     });
 
     QUnit.test('setValidator', function (assert) {

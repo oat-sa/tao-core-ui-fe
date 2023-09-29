@@ -81,7 +81,7 @@ export default function pageStatusFactory(options) {
      */
     pageStatus = eventifier({});
 
-    if (_.contains(options.track, 'load')) {
+    if (_.includes(options.track, 'load')) {
         //the load event won't be triggered on the current window,
         //the window is already loaded
         win.addEventListener('load', function() {
@@ -94,7 +94,7 @@ export default function pageStatusFactory(options) {
         });
     }
 
-    if (_.contains(options.track, 'visibility')) {
+    if (_.includes(options.track, 'visibility')) {
         //minimize, switch tab, move the window in background (mobile), etc.
         win.addEventListener(visibilityChangeEvent, function(e) {
             _.defer(function() {
@@ -107,7 +107,7 @@ export default function pageStatusFactory(options) {
         });
     }
 
-    if (_.contains(options.track, 'focus')) {
+    if (_.includes(options.track, 'focus')) {
         //losing the window focus, the event can be triggered multiple time
         win.addEventListener(
             'blur',

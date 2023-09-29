@@ -89,8 +89,8 @@ export default function areaBroker(requiredAreas, $container, mapping) {
             }
 
             keys = _.keys(areasMapping);
-            required = _.all(requiredAreas, function(val) {
-                return _.contains(keys, val);
+            required = _.every(requiredAreas, function(val) {
+                return _.includes(keys, val);
             });
             if (!required) {
                 throw new TypeError('You have to define a mapping for at least : ' + requiredAreas.join(', '));

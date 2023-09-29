@@ -249,7 +249,7 @@ function validate($elt, callback, options) {
 
             //call the callback function is given:
             if (_.isFunction(callback)) {
-                valid = _.where(results, { type: 'failure' }).length === 0;
+                valid = _.filter(results, { type: 'failure' }).length === 0;
                 callback.call($elt[0], valid, results);
             }
         };

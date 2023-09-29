@@ -111,7 +111,7 @@ var feedbackFactory = function feedbackFactory($container, config) {
             message: function message(level, msg, params, options) {
                 var displayedMessage = msg;
 
-                if (!level || !_.contains(levels, level)) {
+                if (!level || !_.includes(levels, level)) {
                     level = 'info';
                 }
 

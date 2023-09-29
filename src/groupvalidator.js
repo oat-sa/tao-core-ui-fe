@@ -72,7 +72,7 @@ $.fn.groupValidator.defaults = {
         $elt.siblings('.' + options.errorMessageClass).remove();
 
         if (valid === false) {
-            rule = _.where(results, { type: 'failure' })[0];
+            rule = _.filter(results, { type: 'failure' })[0];
             $elt.addClass(options.errorClass);
             if (rule && rule.data.message) {
                 $elt.after("<span class='" + options.errorMessageClass + "'>" + rule.data.message + '</span>');

@@ -429,7 +429,7 @@ const dataTable = {
 
         // process data by model rules
         if (_.some(model, 'transform')) {
-            const transforms = _.where(model, 'transform');
+            const transforms = _.filter(model, 'transform');
 
             _.forEach(dataset.data, (row, index) => {
                 _.forEach(transforms, field => {
@@ -499,8 +499,8 @@ const dataTable = {
 
                         action.apply($btn, [
                             identifier,
-                            _.first(
-                                _.where(dataset.data, {
+                            _.head(
+                                _.filter(dataset.data, {
                                     id: identifier
                                 })
                             )
@@ -516,7 +516,7 @@ const dataTable = {
 
         // Attach listeners to model.type = action
         if (_.some(options.model, 'type')) {
-            const types = _.where(options.model, 'type');
+            const types = _.filter(options.model, 'type');
             _.forEach(types, field => {
                 if (field.type === 'actions' && field.actions) {
                     attachActionListeners(field.actions);
@@ -617,7 +617,7 @@ const dataTable = {
                 $rows.removeClass('selected');
                 currentRow.toggleClass('selected');
 
-                $elt.trigger('selected.' + ns, _.where(dataset.data, { id: currentRow.data('item-identifier') }));
+                $elt.trigger('selected.' + ns, _.filter(dataset.data, { id: currentRow.data('item-identifier') }));
             });
         }
 

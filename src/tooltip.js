@@ -79,7 +79,7 @@ export default {
                 var $content = DataAttrHandler.getTarget('tooltip', $(this));
                 var opt;
                 var predefinedOptions = _.cloneDeep(defaultOptions);
-                themeName = _.contains(themes, $(this).data('tooltip-theme'))
+                themeName = _.includes(themes, $(this).data('tooltip-theme'))
                     ? $(this).data('tooltip-theme')
                     : 'default';
                 opt = {
@@ -110,7 +110,7 @@ export default {
         var predefinedOptions = _.cloneDeep(defaultOptions);
 
         calculatedOptions = options ? _.merge(predefinedOptions, options) : predefinedOptions;
-        themeName = _.contains(themes, calculatedOptions.theme) ? calculatedOptions.theme : 'default';
+        themeName = _.includes(themes, calculatedOptions.theme) ? calculatedOptions.theme : 'default';
         template = {
             template: themesMap[themeName]
         };

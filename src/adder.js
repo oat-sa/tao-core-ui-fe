@@ -119,7 +119,7 @@ const Adder = {
             }
         }
         //check supported positions
-        if (!_.contains(positions, options.position)) {
+        if (!_.includes(positions, options.position)) {
             return $.error('Unsupported position option');
         }
 
