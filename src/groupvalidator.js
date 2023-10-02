@@ -44,7 +44,7 @@ $.fn.groupValidator = function(options) {
             $container.trigger('validated.group', [
                 _(states)
                     .values()
-                    .contains(false) === false,
+                    .includes(false) === false,
                 this
             ]);
         };

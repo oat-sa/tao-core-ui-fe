@@ -90,7 +90,7 @@ function component(specs, defaults) {
          */
         init: function init(config) {
             this.config = _(config || {})
-                .omit(function(value) {
+                .omitBy(function(value) {
                     return value === null || typeof value === 'undefined';
                 })
                 .defaults(defaults || {})

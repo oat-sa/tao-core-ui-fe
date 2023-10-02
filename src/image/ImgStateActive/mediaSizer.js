@@ -33,7 +33,7 @@ export const mediaSizer = function mediaSizer(media, widget) {
 
     }
 
-    _(['width', 'height']).each(function (sizeAttr) {
+    _(['width', 'height']).forEach(function (sizeAttr) {
         let val;
         if (
             media[sizeAttr] === '' ||
