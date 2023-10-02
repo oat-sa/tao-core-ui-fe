@@ -208,7 +208,7 @@ var feedbackFactory = function feedbackFactory($container, config) {
                 //close others
                 _(currents)
                     .reject(this)
-                    .invoke('close');
+                    .invokeMap('close');
 
                 //and display
                 return this.display();
