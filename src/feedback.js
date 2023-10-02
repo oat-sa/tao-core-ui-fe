@@ -287,7 +287,7 @@ var feedbackFactory = function feedbackFactory($container, config) {
             //for backward compat
             $container.trigger('close.feedback');
 
-            _.remove(currents, this);
+            _.pull(currents, this);
         })
         .init(config);
 };
