@@ -208,7 +208,9 @@ var feedbackFactory = function feedbackFactory($container, config) {
                 //close others
                 _(currents)
                     .reject(this)
-                    .invokeMap('close');
+                    .forEach(function (fb) {
+                        fb.close();
+                    });
 
                 //and display
                 return this.display();
