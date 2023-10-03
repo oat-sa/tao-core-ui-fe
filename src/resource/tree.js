@@ -203,9 +203,7 @@ export default function resourceTreeFactory($container, config) {
                     }
 
                     function reduceNodes(nodeList) {
-                        return _.sortBy(nodeList, function (a, b) {
-                            return b.label - a.label;
-                        }).reduce(reduceNode, '');
+                        return _.sortBy(nodeList, ['label']).reduce(reduceNode, '');
                     }
 
                     if (this.is('rendered')) {
