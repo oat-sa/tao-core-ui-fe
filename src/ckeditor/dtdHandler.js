@@ -33,7 +33,7 @@ var dtdHandler = (function () {
         if (mode.toLowerCase() === 'xhtml') {
             mode = 'html';
         }
-        if (!_.contains(['html', 'qti'], mode)) {
+        if (!_.includes(['html', 'qti'], mode)) {
             throw new Error('Unknown mode ' + mode);
         }
         dtdMode = mode;
@@ -123,7 +123,7 @@ var dtdHandler = (function () {
      * @returns {*}
      */
     var isChildOf = function (child, of) {
-        return _.contains(getChildrenOf(of), _normalizeElement(child));
+        return _.includes(getChildrenOf(of), _normalizeElement(child));
     };
 
     /**
@@ -134,7 +134,7 @@ var dtdHandler = (function () {
      * @returns {*}
      */
     var isParentOf = function (parent, of) {
-        return _.contains(getParentsOf(of), _normalizeElement(parent));
+        return _.includes(getParentsOf(of), _normalizeElement(parent));
     };
 
     /**

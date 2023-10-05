@@ -48,7 +48,7 @@ var BtnGrouper = {
         //get options using default
         options = _.defaults(options || {}, defaults);
 
-        if (!_.contains(availableActions, options.action)) {
+        if (!_.includes(availableActions, options.action)) {
             return $.error('Action ' + options.action + ' not supported');
         }
 

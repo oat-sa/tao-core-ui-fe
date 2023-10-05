@@ -39,7 +39,7 @@ var _widgetFactories = {
 export default function(uri) {
     var factory;
 
-    if (!uri || !_.contains(Object.keys(_widgetFactories), uri)) {
+    if (!uri || !_.includes(Object.keys(_widgetFactories), uri)) {
         factory = _widgetFactories[_default];
     } else {
         factory = _widgetFactories[uri];

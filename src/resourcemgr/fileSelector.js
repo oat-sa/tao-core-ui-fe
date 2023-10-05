@@ -229,7 +229,7 @@ export default function (options) {
                         // Under rare circumstances a browser may report the mime type
                         // with quotes (e.g. "application/foo" instead of application/foo)
                         let checkType = file.type.replace(/^["']+|['"]+$/g, '');
-                        return _.contains(filters, checkType);
+                        return _.includes(filters, checkType);
                     });
 
                     if (files.length !== givenLength) {
@@ -259,7 +259,7 @@ export default function (options) {
                             );
                         } else {
                             //fallback on client side check
-                            if (_.contains(fileNames, file.name.toLowerCase())) {
+                            if (_.includes(fileNames, file.name.toLowerCase())) {
                                 //eslint-disable-next-line no-alert
                                 result = window.confirm(__('Do you want to override "%s"?', file.name));
                             }

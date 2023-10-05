@@ -384,7 +384,7 @@ export default function mediaDimensionFactory($container, media, config) {
                                 }
                                 return chars;
                             })(),
-                            allowed = _.contains(specChars, c) || (c >= 48 && c <= 57) || (c >= 96 && c <= 105);
+                            allowed = _.includes(specChars, c) || (c >= 48 && c <= 57) || (c >= 96 && c <= 105);
 
                         if (!allowed) {
                             e.preventDefault();

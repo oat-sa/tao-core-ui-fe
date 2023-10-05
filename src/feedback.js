@@ -111,7 +111,7 @@ var feedbackFactory = function feedbackFactory($container, config) {
             message: function message(level, msg, params, options) {
                 var displayedMessage = msg;
 
-                if (!level || !_.contains(levels, level)) {
+                if (!level || !_.includes(levels, level)) {
                     level = 'info';
                 }
 
@@ -208,7 +208,9 @@ var feedbackFactory = function feedbackFactory($container, config) {
                 //close others
                 _(currents)
                     .reject(this)
-                    .invoke('close');
+                    .forEach(function (fb) {
+                        fb.close();
+                    });
 
                 //and display
                 return this.display();
@@ -287,7 +289,7 @@ var feedbackFactory = function feedbackFactory($container, config) {
             //for backward compat
             $container.trigger('close.feedback');
 
-            _.remove(currents, this);
+            _.pull(currents, this);
         })
         .init(config);
 };

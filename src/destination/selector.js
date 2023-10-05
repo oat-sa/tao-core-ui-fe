@@ -107,7 +107,7 @@ export default function destinationSelectorFactory($container, config) {
                 var uris;
                 //validate the selection
                 if (_.isPlainObject(select)) {
-                    uris = _.pluck(select, 'uri');
+                    uris = _.map(select, 'uri');
                     if (uris.length) {
                         return uris[0];
                     }

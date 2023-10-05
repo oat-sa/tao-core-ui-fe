@@ -96,7 +96,7 @@ const lockApi = {
      * @returns {lockApi}
      */
     message: function message(category, msg, options) {
-        if (!category || !_.contains(_.keys(categories), category)) {
+        if (!category || !_.includes(_.keys(categories), category)) {
             category = 'hasLock';
         }
         this.setState(states.created);
@@ -334,7 +334,7 @@ const lockState = {
         if (_.isString(verify)) {
             verify = [verify];
         }
-        return _.contains(verify, this._state);
+        return _.includes(verify, this._state);
     },
 
     /**
@@ -343,7 +343,7 @@ const lockState = {
      * @throws {Error} if we try to set an invalid state
      */
     setState: function setState(state) {
-        if (!_.contains(states, state)) {
+        if (!_.includes(states, state)) {
             throw new Error('Unkown state ' + state);
         }
         this._state = state;
