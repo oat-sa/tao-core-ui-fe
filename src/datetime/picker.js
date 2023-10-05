@@ -335,7 +335,7 @@ export default function dateTimePickerFactory(container, options) {
              */
             updateConstraints: function updateConstraints(constraint, constraintValue) {
                 if (this.is('ready')) {
-                    if (_.contains(supportedConstraints, constraint)) {
+                    if (_.includes(supportedConstraints, constraint)) {
                         this.picker.set(constraint, constraintValue);
                     }
                 }
@@ -475,7 +475,7 @@ export default function dateTimePickerFactory(container, options) {
             }
 
             _.forEach(this.config.constraints, function(constraintValue, constraint) {
-                if (_.contains(supportedConstraints, constraint) && constraintValue) {
+                if (_.includes(supportedConstraints, constraint) && constraintValue) {
                     self.pickerConfig[constraint] = constraintValue;
                 }
             });

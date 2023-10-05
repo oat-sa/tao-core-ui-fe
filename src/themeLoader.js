@@ -150,7 +150,7 @@ function themeLoader(config) {
     /*
      * Extract data from config
      */
-    const defaultTheme = config.default || _.first(_.pluck(config.available, 'id'));
+    const defaultTheme = config.default || _.head(_.map(config.available, 'id'));
 
     let activeTheme = defaultTheme;
 
@@ -219,7 +219,7 @@ function themeLoader(config) {
          */
         change(id) {
             //support to change to the "default" theme regardless it's id
-            if (_.contains(['base', 'default'], id) && !isAttached(id)) {
+            if (_.includes(['base', 'default'], id) && !isAttached(id)) {
                 id = defaultTheme;
             }
 

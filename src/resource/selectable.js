@@ -46,7 +46,7 @@ export default function selectableFactory(component, config) {
     var nodes = {};
 
     //validate the component in parameter
-    var isAComponent = _.all(['on', 'trigger', 'init', 'render', 'is', 'getElement'], function(method) {
+    var isAComponent = _.every(['on', 'trigger', 'init', 'render', 'is', 'getElement'], function(method) {
         return _.isFunction(component[method]);
     });
 

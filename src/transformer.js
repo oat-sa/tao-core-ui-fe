@@ -172,7 +172,7 @@ function _transform($elem, transforms) {
 
     $elem.css(cssObj);
     $elem.removeClass('transform-translate transform-rotate transform-skew transform-scale');
-    $elem.addClass(_.unique(classNames).join(' '));
+    $elem.addClass(_.uniq(classNames).join(' '));
 
     $elem.trigger('transform.' + ns, transforms);
 }

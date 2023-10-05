@@ -118,7 +118,7 @@ export default function filtersFactory($container, config) {
                     this.getElement().empty();
 
                     properties = _.filter(data.properties, function(property) {
-                        return _.contains(supportedWidgets, property.widget);
+                        return _.includes(supportedWidgets, property.widget);
                     });
 
                     this.form = generisFormFactory(

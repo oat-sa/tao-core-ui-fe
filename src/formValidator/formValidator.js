@@ -188,7 +188,7 @@ var formValidatorFactory = function formValidatorFactory(options) {
         state.valid = state.valid && valid;
 
         if (!valid) {
-            firstErrorData = _.pluck(_.filter(report, { type: 'failure' }), 'data')[0];
+            firstErrorData = _.map(_.filter(report, { type: 'failure' }), 'data')[0];
             highlightField($field, false, firstErrorData.message);
             state.errors.push(
                 $.extend(
