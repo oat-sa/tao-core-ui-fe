@@ -54,7 +54,7 @@
         "@oat-sa/tao-calculator": "^0.6.2",
         "@oat-sa/tao-core-libs": "^1.0.0",
         "@oat-sa/tao-core-sdk": "^3.0.0",
-        "@oat-sa/tao-core-shared-libs": "^1.4.1",
+        "@oat-sa/tao-core-shared-libs": "^1.6.1",
         "@oat-sa/tao-qunit-testrunner": "^2.0.0",
         "async": "^0.2.10",
         "autoprefixer": "^10.4.14",
