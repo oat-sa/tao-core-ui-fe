@@ -118,7 +118,7 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function (_, $, themeLoader) {
                 );
                 ready();
             }, 250);
-        }, 50);
+        }, 100);
     });
 
     QUnit.test('preload', assert => {

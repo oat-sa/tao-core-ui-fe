@@ -100,7 +100,7 @@ export default inputs.map(input => {
                 watch: false
             }),
             cssResolve(),
-            wildcardExternal(['core/**', 'lib/**', 'util/**', 'layout/**']),
+            wildcardExternal(['core/**', 'lib/**', 'util/**', 'layout/**', 'services/*']),
             alias({
                 resolve: ['.js', '.json', '.tpl'],
                 ...aliases
