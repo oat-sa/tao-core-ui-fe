@@ -173,7 +173,7 @@ var taskableComponent = {
 
             return reportFactory(
                 {
-                    actions: actions
+                    actions
                 },
                 report
             )
