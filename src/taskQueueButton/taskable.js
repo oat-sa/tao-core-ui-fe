@@ -146,10 +146,21 @@ var taskableComponent = {
      * @param {Object} report - the standard report object
      * @param {String} title - the report title
      * @param {String} result - raw result data from the task creation action
+     * @param {boolean} displayContinueButton - display Continue button if true
      */
-    displayReport: function displayReport(report, title, result) {
+    displayReport: function displayReport(report, title, result, displayContinueButton = true) {
         var self = this,
             $reportContainer;
+
+        let actions = [];
+        if (displayContinueButton) {
+            actions = [{
+                id: 'continue',
+                icon: 'right',
+                title: 'continue',
+                label: __('Continue')
+            }];
+        }
 
         if (this.config.taskReportContainer instanceof $) {
             $reportContainer = $(
@@ -162,14 +173,7 @@ var taskableComponent = {
 
             return reportFactory(
                 {
-                    actions: [
-                        {
-                            id: 'continue',
-                            icon: 'right',
-                            title: 'continue',
-                            label: __('Continue')
-                        }
-                    ]
+                    actions
                 },
                 report
             )
