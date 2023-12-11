@@ -13,8 +13,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2021-2022  (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2021-2023  (original work) Open Assessment Technologies SA;
  */
+import context from 'context';
 import _ from 'lodash';
 
 export const FLOAT_LEFT_CLASS = 'wrap-left';
@@ -74,7 +75,7 @@ export const positionFloat = function positionFloat(widget, position) {
         widget.element.removeAttr('class');
     }
 
-    if (prevClassName !== className) {
+    if (!context.featureFlags['FEATURE_FLAG_DISABLE_FIGURE_WIDGET'] && prevClassName !== className) {
         // Re-build Figure widget to toggle between inline/block
         const parent = searchRecurse(widget.element.bdy.rootElement.bdy, widget.serial);
         // avoid changes on Figure in a prompt
