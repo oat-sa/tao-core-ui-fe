@@ -1019,7 +1019,7 @@ function toBoolean(value) {
  * @returns {autocompleter} Returns the instance of the autocompleter component
  */
 function autocompleteFactory(element, options) {
-    var autocomplete = _.clone(autocompleter, true);
+    var autocomplete = _.cloneDeep(autocompleter);
     _.defaults(autocomplete, defaults);
     return autocomplete.init(element, options);
 }

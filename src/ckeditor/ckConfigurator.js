@@ -601,10 +601,10 @@ const ckConfigurator = (function () {
 
         options.resourcemgr = options.resourcemgr || {};
 
-        toolbars = _.clone(toolbarPresets, true);
+        toolbars = _.cloneDeep(toolbarPresets);
         dtdMode = options.dtdMode || 'html';
 
-        const ckConfig = _.clone(ckConfigDefault, true);
+        const ckConfig = _.cloneDeep(ckConfigDefault);
 
         // modify DTD to either comply with QTI or XHTML
         if (dtdMode === 'qti' || toolbarType.indexOf('qti') === 0) {
