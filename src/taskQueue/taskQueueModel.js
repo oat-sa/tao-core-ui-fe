@@ -500,7 +500,7 @@ export default function taskQueueModel(config) {
                 let redirectUrl = (taskData || {}).redirectUrl;
 
                 if (redirectUrl) {
-                    return new Promise(function (resolve, reject) {
+                    return new Promise(function (resolve) {
                         $.fileDownload(redirectUrl, {
                             httpMethod: 'GET',
                             data: {},
