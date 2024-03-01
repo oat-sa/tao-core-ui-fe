@@ -496,17 +496,40 @@ export default function taskQueueModel(config) {
                 throw new TypeError('config.url.download is not configured while download() is being called');
             }
 
-            return new Promise(function(resolve, reject) {
-                $.fileDownload(config.url.download, {
-                    httpMethod: 'POST',
-                    data: { taskId: taskId },
-                    successCallback: function(result) {
-                        resolve(result);
-                    },
-                    failCallback: function(err) {
-                        reject(err);
-                    }
-                });
+            return this.getCached(taskId).then(function (taskData) {
+                let redirectUrl = (taskData || {}).redirectUrl;
+
+                if (redirectUrl) {
+                    return new Promise(function (resolve) {
+                        $.fileDownload(redirectUrl, {
+                            httpMethod: 'GET',
+                            data: {},
+                            successCallback: function (result) {
+                                resolve(result);
+                            },
+                            failCallback: function (err) {
+                                resolve(err);
+                                // Security issue : Failed to read a named property 'document' from 'Window':
+                                // Blocked a frame with origin "https://[domain]" from accessing a cross-origin frame.
+                            }
+                        });
+                    });
+                } else {
+                    return new Promise(function (resolve, reject) {
+                        $.fileDownload(config.url.download, {
+                            httpMethod: 'POST',
+                            data: {
+                                taskId: taskId
+                            },
+                            successCallback: function (result) {
+                                resolve(result);
+                            },
+                            failCallback: function (err) {
+                                reject(err);
+                            }
+                        });
+                    });
+                }
             });
         },
 
