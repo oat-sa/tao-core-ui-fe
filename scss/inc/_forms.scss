@@ -560,9 +560,15 @@ label {
     [class^="btn-"], [class*=" btn-"],
     button, input[type="submit"], input[type="reset"] {
         &.btn-success {
-            @include generic-btn-primary(white(), $info);
+            color: var(--button-primary-info-color);
+            background-color: var(--button-primary-info-background);
+            text-shadow: var(--button-primary-info-shadow);
+
             &.btn-secondary {
-                @include generic-btn-secondary($info, $uiGeneralContentBg);
+                color: var(--button-secondary-info-color);
+                border: var(--button-secondary-info-border);
+                background-color: var(--button-secondary-info-background);
+                text-shadow: none;
             }
         }
     }

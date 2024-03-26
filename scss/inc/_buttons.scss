@@ -1,10 +1,12 @@
 @mixin generic-btn-primary($color, $background) {
+    @warn "The mixin generic-btn-primary is deprecated. Please use CSS variables!";
     color: $color;
     background-color: whiten($background, .1);
     text-shadow: 1px 1px 0 blacken($background, .2);
 }
 
 @mixin generic-btn-secondary($color, $background) {
+    @warn "The mixin generic-btn-secondary is deprecated. Please use CSS variables!";
     color: whiten($color, .1);
     border: 1px solid whiten($color, .1);
     background-color: $background;
@@ -12,9 +14,9 @@
 }
 
 %generic-btn-code {
-    @include border-radius(3);
-    font-size: 14px !important;
-    font-size: 1.4rem !important;
+    border-radius: var(--button-border-radius);
+    font-size: var(--button-font-size-px) !important;
+    font-size: var(--button-font-size-rem) !important;
     cursor: pointer;
     text-decoration: none !important;
     vertical-align: middle;
@@ -22,31 +24,40 @@
     overflow: visible;
     border: none;
     display: inline-block;
-    line-height: 2.5;
+    line-height: var(--button-line-height);
     padding: 0 15px;
     font-weight: normal;
     font-style: normal;
     text-align: center;
-    height: 35px;
-    @include generic-btn-primary(white(), $uiClickableActiveBg);
+    height: var(--button-height);
+
+    color: var(--button-primary-color);
+    background-color: var(--button-primary-background);
+    text-shadow: var(--button-primary-shadow);
+
     &.btn-secondary {
-        @include generic-btn-secondary($uiClickableActiveBg, $uiGeneralContentBg);
-        line-height: 2.3;
+        color: var(--button-secondary-color);
+        border: var(--button-secondary-border);
+        background-color: var(--button-secondary-background);
+        text-shadow: none;
+        line-height: var(--button-secondary-line-height);
     }
     &.small {
-        line-height: 1.8;
-        height: 25px;
+        line-height: var(--button-small-line-height);
+        height: var(--button-small-height);
         &.btn-secondary {
-            line-height: 1.5;
+            line-height: var(--button-small-secondary-line-height);
         }
         [class^="icon-"], [class*=" icon-"] {
-            @include font-size(13);
+            font-size: var(--button-small-font-size-px);
+            font-size: var(--button-small-font-size-rem);
         }
     }
     [class^="icon-"], [class*=" icon-"] {
         font: tao !important;
         font-family:tao;
-        @include font-size(14);
+        font-size: var(--button-font-size-px);
+        font-size: var(--button-font-size-rem);
         line-height: 1;
         padding: 0 9px 0 0;
         position: relative;
@@ -61,29 +72,53 @@
         opacity: .85;
     }
     &.btn-info {
-        @include generic-btn-primary(white(), $info);
+        color: var(--button-primary-info-color);
+        background-color: var(--button-primary-info-background);
+        text-shadow: var(--button-primary-info-shadow);
+
         &.btn-secondary {
-            @include generic-btn-secondary($info, $uiGeneralContentBg);
+            color: var(--button-secondary-info-color);
+            border: var(--button-secondary-info-border);
+            background-color: var(--button-secondary-info-background);
+            text-shadow: none;
         }
     }
     &.btn-error {
-        @include generic-btn-primary(white(), $error);
+        color: var(--button-primary-error-color);
+        background-color: var(--button-primary-error-background);
+        text-shadow: var(--button-primary-error-shadow);
+
         &.btn-secondary {
-            @include generic-btn-secondary($error, $uiGeneralContentBg);
+            color: var(--button-secondary-error-color);
+            border: var(--button-secondary-error-border);
+            background-color: var(--button-secondary-error-background);
+            text-shadow: none;
         }
     }
 
     &.btn-success {
-        @include generic-btn-primary(white(), $success);
+        color: var(--button-primary-success-color);
+        background-color: var(--button-primary-success-background);
+        text-shadow: var(--button-primary-success-shadow);
+
         &.btn-secondary {
-            @include generic-btn-secondary($success, $uiGeneralContentBg);
+            color: var(--button-secondary-success-color);
+            border: var(--button-secondary-success-border);
+            background-color: var(--button-secondary-success-background);
+            text-shadow: none;
         }
     }
 
     &.btn-warning {
-        @include generic-btn-primary(white(), $warning);
+        color: var(--button-primary-warning-color);
+        background-color: var(--button-primary-warning-background);
+        text-shadow: var(--button-primary-warning-shadow);
+
         &.btn-secondary {
-            @include generic-btn-secondary($warning, $uiGeneralContentBg);
+            color: var(--button-secondary-warning-color);
+            border: var(--button-secondary-warning-border);
+            background-color: var(--button-secondary-warning-background);
+            text-shadow: none;
         }
     }
 }
@@ -98,12 +133,12 @@ button, input[type="submit"], input[type="reset"] {
 .disabled, button[disabled] {
     // !important is required here to overwrite any other inherited rule no matter the specificity,
     // as the disabled style must be consistent all across the stylesheet
-    background-color: whiten($websiteBorder, .3) !important;
-    text-shadow: 1px 1px 0 white(.8) !important;
+    background-color: var(--button-disabled-background) !important;
+    text-shadow: var(--button-disabled-shadow) !important;
     cursor: not-allowed !important;
     opacity: .55 !important;
-    color: #000 !important;
-    border: none !important;
+    color: var(--button-disabled-color) !important;
+    border: var(--button-disabled-border) !important;
 }
 
 // jquery ui

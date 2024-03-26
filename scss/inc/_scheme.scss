@@ -1,0 +1,121 @@
+// defines the scheme variables
+
+:root {
+    --button-font-size-px: 14px;
+    --button-font-size-rem: 1.4rem;
+    --button-border-radius: 3px;
+    --button-line-height: 2.5;
+    --button-secondary-line-height: 2.3;
+    --button-height: 35px;
+
+    --button-small-font-size-px: 13px;
+    --button-small-font-size-rem: 1.3rem;
+    --button-small-line-height: 1.8;
+    --button-small-secondary-line-height: 1.5;
+    --button-small-height: 25px;
+
+    --button-primary-color: #{white()};
+    --button-primary-background: #{whiten($uiClickableActiveBg, .1)};
+    --button-primary-shadow: 1px 1px 0 #{blacken($uiClickableActiveBg, .2)};
+
+    --button-primary-info-color: #{white()};
+    --button-primary-info-background: #{whiten($info, .1)};
+    --button-primary-info-shadow: 1px 1px 0 #{blacken($info, .2)};
+
+    --button-primary-error-color: #{white()};
+    --button-primary-error-background: #{whiten($error, .1)};
+    --button-primary-error-shadow: 1px 1px 0 #{blacken($error, .2)};
+
+    --button-primary-success-color: #{white()};
+    --button-primary-success-background: #{whiten($success, .1)};
+    --button-primary-success-shadow: 1px 1px 0 #{blacken($success, .2)};
+
+    --button-primary-warning-color: #{white()};
+    --button-primary-warning-background: #{whiten($warning, .1)};
+    --button-primary-warning-shadow: 1px 1px 0 #{blacken($warning, .2)};
+
+    --button-secondary-color: #{whiten($uiClickableActiveBg, .1)};
+    --button-secondary-background: #{$uiGeneralContentBg};
+    --button-secondary-border: 1px solid #{whiten($uiClickableActiveBg, .1)};
+
+    --button-secondary-info-color: #{whiten($info, .1)};
+    --button-secondary-info-background: #{$uiGeneralContentBg};
+    --button-secondary-info-border: 1px solid #{whiten($info, .1)};
+
+    --button-secondary-error-color: #{whiten($error, .1)};
+    --button-secondary-error-background: #{$uiGeneralContentBg};
+    --button-secondary-error-border: 1px solid #{whiten($error, .1)};
+
+    --button-secondary-success-color: #{whiten($success, .1)};
+    --button-secondary-success-background: #{$uiGeneralContentBg};
+    --button-secondary-success-border: 1px solid #{whiten($success, .1)};
+
+    --button-secondary-warning-color: #{whiten($warning, .1)};
+    --button-secondary-warning-background: #{$uiGeneralContentBg};
+    --button-secondary-warning-border: 1px solid #{whiten($warning, .1)};
+
+    --button-disabled-color: #000;
+    --button-disabled-background: #{whiten($websiteBorder, .3)};
+    --button-disabled-shadow: 1px 1px 0 #{white(.8)};
+    --button-disabled-border: none;
+}
+
+body.solar {
+    --button-font-size-px: 20px;
+    --button-font-size-rem: 2rem;
+    --button-border-radius: 4px;
+    --button-line-height: 2;
+    --button-secondary-line-height: 2;
+    --button-height: 64px;
+
+    --button-small-font-size-px: 20px;
+    --button-small-font-size-rem: 2rem;
+    --button-small-line-height: 2;
+    --button-small-secondary-line-height: 2;
+    --button-small-height: 40px;
+
+    --button-primary-color: #fff;
+    --button-primary-background: #006dcc;
+    --button-primary-shadow: none;
+
+    --button-primary-info-color: #fff;
+    --button-primary-info-background: #006dcc;
+    --button-primary-info-shadow: none;
+
+    --button-primary-error-color: #fff;
+    --button-primary-error-background: #db0000;
+    --button-primary-error-shadow: none;
+
+    --button-primary-success-color: #fff;
+    --button-primary-success-background: #367c36;
+    --button-primary-success-shadow: none;
+
+    --button-primary-warning-color: #fff;
+    --button-primary-warning-background: #ff8c19;
+    --button-primary-warning-shadow: none;
+
+    --button-secondary-color: #006dcc;
+    --button-secondary-background: #fff;
+    --button-secondary-border: 1px solid #006dcc;
+
+    --button-secondary-info-color: #006dcc;
+    --button-secondary-info-background: #fff;
+    --button-secondary-info-border: 1px solid #006dcc;
+
+    --button-secondary-error-color: #db0000;
+    --button-secondary-error-background: #fff;
+    --button-secondary-error-border: 1px solid #db0000;
+
+    --button-secondary-success-color: #367c36;
+    --button-secondary-success-background: #fff;
+    --button-secondary-success-border: 1px solid #367c36;
+
+    --button-secondary-warning-color: #ff8c19;
+    --button-secondary-warning-background: #fff;
+    --button-secondary-warning-border: 1px solid #ff8c19;
+
+    --button-disabled-color: #6e6e6e;
+    --button-disabled-background: #fff;
+    --button-disabled-shadow: none;
+    --button-disabled-border: 1px solid #6e6e6e;
+}
