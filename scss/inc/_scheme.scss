@@ -58,6 +58,10 @@
     --button-disabled-background: #{whiten($websiteBorder, .3)};
     --button-disabled-shadow: 1px 1px 0 #{white(.8)};
     --button-disabled-border: none;
+
+    --form-field-padding: 4px;
+    --form-field-font-size: inherit;
+    --form-label-font-size: inherit;
 }
 
 body.solar {
@@ -118,4 +122,8 @@ body.solar {
     --button-disabled-background: #fff;
     --button-disabled-shadow: none;
     --button-disabled-border: 1px solid #6e6e6e;
+
+    --form-field-padding: 1rem;
+    --form-field-font-size: 1.6rem;
+    --form-label-font-size: 1.6rem;
 }

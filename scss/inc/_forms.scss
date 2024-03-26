@@ -24,6 +24,7 @@ label, .form_desc {
     cursor: pointer;
     margin-bottom: 5px;
     padding-right: 10px;
+    font-size: var(--form-label-font-size);
 
     abbr {
         color: $info;
@@ -258,7 +259,8 @@ select {
     @include simple-border();
     @include border-radius(2);
     font-family: $regularFont;
-    padding: 4px;
+    font-size: var(--form-field-font-size);
+    padding: var(--form-field-padding);
     min-width: 150px;
     background-color: white;
     color: $textColor;
