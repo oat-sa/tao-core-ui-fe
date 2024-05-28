@@ -43,6 +43,8 @@ export default function (options) {
 
     //load the content of the ROOT
     getFolderContent(fileTree, rootPath, function (content) {
+        indexTree(content);
+
         //create the tree node for the ROOT folder by default once the initial content loaded
         $folderContainer.append(rootFolderTpl(content));
 
@@ -81,6 +83,8 @@ export default function (options) {
 
         //get the folder content
         getFolderContent(subTree, fullPath, function (content) {
+            indexTree(fileTree);
+
             if (content) {
                 //either create the inner list of the content is new or just show it
                 let $innerList = $selected.siblings('ul');
@@ -201,6 +205,21 @@ export default function (options) {
             }
         } else {
             cb(content);
+        }
+    }
+
+    /**
+     * Sets the tree level for each node in the tree.
+     * @param {object} tree - the tree model
+     * @param {number} level - the root level
+     */
+    function indexTree(tree, level = 0) {
+        if (!tree) {
+            return;
+        }
+        tree.level = level;
+        if (tree.children) {
+            _.forEach(tree.children, child => indexTree(child, level + 1));
         }
     }
 
@@ -372,6 +391,8 @@ export default function (options) {
 
         //get the folder content
         getFolderContent(subTree, selectedClass.path, function (content) {
+            indexTree(fileTree);
+
             if (content) {
                 //internal event to set the file-selector content
                 $container.trigger(`folderselect.${ns}`, [content.label, getPage(content.children), content.path]);
