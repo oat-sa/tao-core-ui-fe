@@ -52,9 +52,10 @@ export default function (options) {
     var containerSelector = options.containerSelector;
     var keepEmptyNodes = options.keepEmptyNodes;
 
-    let highlightingClasses = [className];
-
+    let highlightingClasses = [options.className];
     // Multi-color mode
+    //if `options.colors` is null or undefined, we assume color can be added dynamically.
+    //  as second class: `txt-highlight id-123`
     if (options.colors) {
         highlightingClasses = Object.values(options.colors);
     }
@@ -160,7 +161,7 @@ export default function (options) {
                 } else if (
                     isWrappable(range.commonAncestorContainer) &&
                     isWrappingNode(range.commonAncestorContainer.parentNode) &&
-                    range.commonAncestorContainer.parentNode !== className
+                    range.commonAncestorContainer.parentNode !== className //hey, you comapre node with string... always false...
                 ) {
                     highlightContainerNodes(range.commonAncestorContainer, className, range, currentGroupId);
 
@@ -829,7 +830,7 @@ export default function (options) {
      * @returns {BuildModelResultKeepEmpty|null} result
      */
     function buildHighlightModelKeepEmpty(rootNode) {
-        const classNames = options.colors ? Object.values(options.colors) : [className];
+        const classNames = options.colors ? Object.values(options.colors) : [options.className];
         const wrapperNodesSelector = classNames.map(cls => containerSelector + ' .' + cls).join(', ');
         const wrapperNodes = Array.from(document.querySelectorAll(wrapperNodesSelector)).filter(
             node => !isBlacklisted(node)
@@ -1035,8 +1036,12 @@ export default function (options) {
      * @param {string} color Active highlighter color
      */
     function setActiveColor(color) {
-        if (options.colors[color]) {
-            className = options.colors[color];
+        if (options.colors) {
+            if (options.colors[color]) {
+                className = options.colors[color];
+            }
+        } else {
+            className = `${options.className} ${color}`;
         }
     }
 
@@ -1063,6 +1068,10 @@ export default function (options) {
         if (options.colors) {
             return getKeyByValue(options.colors, highlighterClassName);
         }
+        const splitHighlighterClassName = highlighterClassName.split(' ');
+        if (splitHighlighterClassName[1]) {
+            return splitHighlighterClassName[1];
+        }
         return className;
     }
 
@@ -1072,10 +1081,18 @@ export default function (options) {
      * @returns {string} Class name
      */
     function getClassNameByColor(color) {
-        if (options.colors && options.colors[color]) {
-            return options.colors[color];
+        if (options.colors) {
+            if (options.colors[color]) {
+                return options.colors[color];
+            }
+            return className;
+        } else {
+            if (color === className) {
+                return className;
+            } else {
+                return `${className} ${color}`;
+            }
         }
-        return className;
     }
 
     /**
@@ -1084,7 +1101,11 @@ export default function (options) {
      * @returns {boolean}
      */
     function isWrappingNode(node) {
-        return isElement(node) && node.tagName.toLowerCase() === 'span' && highlightingClasses.includes(node.className);
+        return (
+            isElement(node) &&
+            node.tagName.toLowerCase() === 'span' &&
+            highlightingClasses.includes(node.className?.split(' ')[0])
+        );
     }
 
     /**
