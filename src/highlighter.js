@@ -1090,7 +1090,7 @@ export default function (options) {
             if (color === className) {
                 return className;
             } else {
-                return `${className} ${color}`;
+                return `${options.className} ${color}`;
             }
         }
     }
