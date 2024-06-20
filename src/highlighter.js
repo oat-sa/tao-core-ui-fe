@@ -118,6 +118,16 @@ export default function (options) {
     }
 
     /**
+     * Returns all highlighted nodes for color, excluding any inside blacklisted elements
+     * @returns {JQuery<HTMLElement>}
+     */
+    function getHighlightedNodesForColor(colorKey) {
+        return $(containerSelector || options.containerElement)
+            .find(`.${getClassNameByColor(colorKey).split(' ').join('.')}`)
+            .filter((i, node) => !isBlacklisted(node));
+    }
+
+    /**
      * Attach data to wrapper node.
      * Use it when deleting this highlight to know if highlight content should be merged with neighbour text nodes or not.
      * Use it when building/restoring index to know if restored highlight content should be split off neighbour text node or not.
@@ -629,9 +639,11 @@ export default function (options) {
 
     /**
      * Remove all wrapping nodes from markup
+     * @param {String?} colorKey - if specified, removes nodes only for this color
      */
-    function clearHighlights() {
-        getHighlightedNodes().each(function (i, elem) {
+    function clearHighlights(colorKey = null) {
+        const highlightedNodes = colorKey ? getHighlightedNodesForColor(colorKey) : getHighlightedNodes();
+        highlightedNodes.each(function (i, elem) {
             if (!keepEmptyNodes) {
                 const $wrapped = $(this);
                 $wrapped.replaceWith($wrapped.text());
@@ -1098,6 +1110,18 @@ export default function (options) {
     }
 
     /**
+     * Returns color identifier for the given node
+     * @param {Node} node
+     * @returns {string|number|null} Color identifier
+     */
+    function getColorKeyForHighlight(node) {
+        if (isWrappingNode(node)) {
+            return getColorByClassName(node.className);
+        }
+        return null;
+    }
+
+    /**
      * Check if the given node is a wrapper
      * @param {Node|Element} node
      * @returns {boolean}
@@ -1210,6 +1234,7 @@ export default function (options) {
         getHighlightIndex: getHighlightIndex,
         clearHighlights: clearHighlights,
         clearSingleHighlight: clearSingleHighlight,
+        getColorKeyForHighlight: getColorKeyForHighlight,
         setActiveColor
     };
 }
