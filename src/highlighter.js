@@ -655,6 +655,7 @@ export default function (options) {
 
     /**
      * Remove unwrap dom node
+     * @param {Object} e
      */
     function clearSingleHighlight(e) {
         if (!keepEmptyNodes) {
@@ -697,6 +698,20 @@ export default function (options) {
             } else if (nodeToRemoveText) {
                 //keep text in a separate text node
                 nodeToRemove.replaceWith(document.createTextNode(nodeToRemoveText));
+                if (afterWasSplit && nextNode && isWrappingNode(nextNode)) {
+                    addSplitData(
+                        nextNode,
+                        nextNode.dataset.beforeWasSplit === 'true' || afterWasSplit,
+                        nextNode.dataset.afterWasSplit
+                    );
+                }
+                if (beforeWasSplit && prevNode && isWrappingNode(prevNode)) {
+                    addSplitData(
+                        prevNode,
+                        prevNode.dataset.beforeWasSplit,
+                        prevNode.dataset.afterWasSplit === 'true' || beforeWasSplit
+                    );
+                }
             } else {
                 //text is empty, just remove it
                 nodeToRemove.remove();
