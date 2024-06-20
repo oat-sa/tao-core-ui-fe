@@ -39,6 +39,7 @@ var defaultBlackList = ['textarea', 'math', 'script', '.select2-container'];
  * @param {Object} options
  * @param {String} options.className - name of the class that will be used by the wrappers tags to highlight text
  * @param {String} options.containerSelector - allows to select the root Node in which highlighting is allowed
+ * @param {String} options.containerElement - instead of selector (for cases where root node itsn't attached to the document)
  * @param {Array<String>} [options.containersBlackList] - additional blacklist selectors to be added to module instance's blacklist
  * @param {Array<String>} [options.containersWhiteList] - whitelist selectors; supported only in `keepEmptyNodes` mode.
  *   Priority of blacklist or whitelist is decided by which selector is closest to the node. If no match found, node is considered whitelisted.
@@ -103,7 +104,7 @@ export default function (options) {
      * @returns {Element}
      */
     function getContainer() {
-        return $(containerSelector).get(0);
+        return $(containerSelector || options.containerElement).get(0);
     }
 
     /**
@@ -111,7 +112,7 @@ export default function (options) {
      * @returns {JQuery<HTMLElement>}
      */
     function getHighlightedNodes() {
-        return $(containerSelector)
+        return $(containerSelector || options.containerElement)
             .find(`.${highlightingClasses.join(',.')}`)
             .filter((i, node) => !isBlacklisted(node));
     }
@@ -202,7 +203,8 @@ export default function (options) {
         });
 
         if (options.clearOnClick) {
-            $(containerSelector + ' .' + className)
+            $(getContainer())
+                .find('.' + className)
                 .off('click')
                 .on('click', clearSingleHighlight);
         }
@@ -831,8 +833,8 @@ export default function (options) {
      */
     function buildHighlightModelKeepEmpty(rootNode) {
         const classNames = options.colors ? Object.values(options.colors) : [options.className];
-        const wrapperNodesSelector = classNames.map(cls => containerSelector + ' .' + cls).join(', ');
-        const wrapperNodes = Array.from(document.querySelectorAll(wrapperNodesSelector)).filter(
+        const wrapperNodesSelector = classNames.map(cls => '.' + cls).join(', ');
+        const wrapperNodes = Array.from(rootNode.querySelectorAll(wrapperNodesSelector)).filter(
             node => !isBlacklisted(node)
         );
 
