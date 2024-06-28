@@ -656,6 +656,7 @@ export default function (options) {
     /**
      * Remove unwrap dom node
      * @param {Object} e
+     * @returns {Range}
      */
     function clearSingleHighlight(e) {
         if (!keepEmptyNodes) {
@@ -676,8 +677,17 @@ export default function (options) {
             const prevNode = nodeToRemove.previousSibling;
             const nextNode = nodeToRemove.nextSibling;
 
+            //create range covering removed highlight
+            const rangeInfo = {
+                node: null,
+                startOffset: 0
+            };
+
             if (beforeWasSplit && prevNode && isText(prevNode) && prevNode.textContent) {
                 //append text to previous sibling
+                rangeInfo.node = prevNode;
+                rangeInfo.startOffset = prevNode.textContent.length;
+
                 prevNode.textContent += nodeToRemoveText;
                 nodeToRemove.remove();
 
@@ -693,11 +703,19 @@ export default function (options) {
                 }
             } else if (afterWasSplit && nextNode && isText(nextNode) && nextNode.textContent) {
                 //append text to next sibling
+                rangeInfo.node = nextNode;
+                rangeInfo.startOffset = 0;
+
                 nextNode.textContent = nodeToRemoveText + nextNode.textContent;
                 nodeToRemove.remove();
             } else if (nodeToRemoveText) {
                 //keep text in a separate text node
-                nodeToRemove.replaceWith(document.createTextNode(nodeToRemoveText));
+                const replacementNode = document.createTextNode(nodeToRemoveText);
+                nodeToRemove.replaceWith(replacementNode);
+
+                rangeInfo.node = replacementNode;
+                rangeInfo.startOffset = 0;
+
                 if (afterWasSplit && nextNode && isWrappingNode(nextNode)) {
                     addSplitData(
                         nextNode,
@@ -716,6 +734,11 @@ export default function (options) {
                 //text is empty, just remove it
                 nodeToRemove.remove();
             }
+
+            const range = new Range();
+            range.setStart(rangeInfo.node, rangeInfo.startOffset);
+            range.setEnd(rangeInfo.node, rangeInfo.startOffset + nodeToRemoveText.length);
+            return range;
         }
     }
 
