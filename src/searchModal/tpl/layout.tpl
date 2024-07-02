@@ -16,7 +16,7 @@
                 </div>
             </div>
             <div class="buttons-container">
-                <button class="btn-clear btn-transparent small">{{__ "Clear"}}</button>
+                <button class="btn-clear btn-info btn-secondary btn-transparent small">{{__ "Clear"}}</button>
                 <button class="btn-search btn-info small">{{__ "Search"}}</button>
             </div>
         </div>

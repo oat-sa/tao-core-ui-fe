@@ -365,7 +365,7 @@ $classTreeVariables: (
     // Overwrite some not customizable styles of datatable and pagination components
     .go-to-item {
         background-color: transparent !important;
-        border: 1px solid black !important;
+        border: 1px solid black;
         color: black !important;
         text-shadow: none !important;
     }
