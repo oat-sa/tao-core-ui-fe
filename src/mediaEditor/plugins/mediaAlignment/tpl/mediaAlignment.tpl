@@ -21,5 +21,12 @@
             <span class="icon-wrap-right"></span>
             {{__ 'Wrap image right'}}
         </label>
+        <br>
+        <label class="smaller-prompt">
+            <input type="radio" name="tao-centered"/>
+            <span class="icon-radio"></span>
+            <span class="icon-align-center"></span>
+            {{__ 'Center'}}
+        </label>
     </fieldset>
 </div>
