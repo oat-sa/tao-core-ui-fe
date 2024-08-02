@@ -26,7 +26,7 @@ import _ from 'lodash';
 import component from 'ui/component';
 import tpl from 'ui/mediaEditor/plugins/mediaAlignment/tpl/mediaAlignment';
 import 'ui/mediaEditor/plugins/mediaAlignment/style.css';
-import { FLOAT_LEFT_CLASS, FLOAT_RIGHT_CLASS } from './helper';
+import { FLOAT_LEFT_CLASS, FLOAT_RIGHT_CLASS, CENTER_CLASS } from './helper';
 
 /**
  * Creates mediaAlignment component
@@ -44,18 +44,19 @@ export default function mediaAlignmentFactory($container, media) {
          */
         update(conf) {
             $template.find('input:checked').prop('checked', false);
+            $template.find(`input[name="${conf}"]`).prop('checked', true);
             switch (conf) {
-                case 'wrap-right':
+                case FLOAT_RIGHT_CLASS:
                     conf = 'right';
-                    $template.find('input[name="wrap-right"]').prop('checked', true);
                     break;
-                case 'wrap-left':
+                case FLOAT_LEFT_CLASS:
                     conf = 'left';
-                    $template.find('input[name="wrap-left"]').prop('checked', true);
+                    break;
+                case CENTER_CLASS:
+                    conf = 'center';
                     break;
                 default:
                     conf = 'default';
-                    $template.find('input[name="wrap-inline"]').prop('checked', true);
                     break;
             }
             media.align = conf;
@@ -78,9 +79,11 @@ export default function mediaAlignmentFactory($container, media) {
             const classListTag = container.classList;
 
             if (classListTag.contains(FLOAT_RIGHT_CLASS)) {
-                this.update('wrap-right');
+                this.update(FLOAT_RIGHT_CLASS);
             } else if (classListTag.contains(FLOAT_LEFT_CLASS)) {
-                this.update('wrap-left');
+                this.update(FLOAT_LEFT_CLASS);
+            } else if (classListTag.contains(CENTER_CLASS)) {
+                this.update(CENTER_CLASS);
             } else {
                 this.update('wrap-inline');
             }

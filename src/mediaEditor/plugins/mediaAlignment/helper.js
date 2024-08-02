@@ -20,6 +20,7 @@ import _ from 'lodash';
 
 export const FLOAT_LEFT_CLASS = 'wrap-left';
 export const FLOAT_RIGHT_CLASS = 'wrap-right';
+export const CENTER_CLASS = 'tao-centered';
 
 const searchRecurse = (parentElement, serial) => {
     if (!parentElement) {
@@ -49,8 +50,8 @@ export const positionFloat = function positionFloat(widget, position) {
         return;
     }
 
-    widget.$container.removeClass(`${FLOAT_LEFT_CLASS} ${FLOAT_RIGHT_CLASS}`);
-    widget.$original.removeClass(`${FLOAT_LEFT_CLASS} ${FLOAT_RIGHT_CLASS}`);
+    widget.$container.removeClass(`${FLOAT_LEFT_CLASS} ${FLOAT_RIGHT_CLASS} ${CENTER_CLASS}`);
+    widget.$original.removeClass(`${FLOAT_LEFT_CLASS} ${FLOAT_RIGHT_CLASS} ${CENTER_CLASS}`);
 
     let className;
 
@@ -60,6 +61,9 @@ export const positionFloat = function positionFloat(widget, position) {
             break;
         case 'left':
             className = FLOAT_LEFT_CLASS;
+            break;
+        case 'center':
+            className = CENTER_CLASS;
             break;
         case 'default':
             className = '';
@@ -107,5 +111,8 @@ export const initAlignment = function initAlignment(widget) {
     }
     if (widget.element.hasClass(FLOAT_RIGHT_CLASS)) {
         return positionFloat(widget, 'right');
+    }
+    if (widget.element.hasClass(CENTER_CLASS)) {
+        return positionFloat(widget, 'center');
     }
 };
