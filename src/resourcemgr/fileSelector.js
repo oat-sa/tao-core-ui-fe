@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2015 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2015-2024 (original work) Open Assessment Technologies SA;
  *
  */
 
@@ -31,8 +31,10 @@ import feedback from 'ui/feedback';
 import context from 'context';
 import 'ui/uploader';
 import updatePermissions from './util/updatePermissions';
+import loggerFactory from 'core/logger';
 
-let ns = 'resourcemgr';
+const ns = 'resourcemgr';
+const logger = loggerFactory(`ui/${ns}`);
 
 function shortenPath(path) {
     let tokens = path.replace(/\/$/, '').split('/');
@@ -161,6 +163,41 @@ export default function (options) {
         });
 
     //delete a file
+    $(parentSelector)
+        .off('click', '.files li a.delete')
+        .on('click', '.files li a.delete', function (e) {
+            // This function replaces ui/deleter and must follow the same logic.
+            // The main difference is that it insert a confirmation dialog before deleting the file.
+            e.preventDefault();
+            const $elt = $(e.target);
+            if ($elt.hasClass(options.disableClass)) {
+                return;
+            }
+
+            const $target = $elt.closest('li');
+            const path = $target.data('file');
+            const hooks = [];
+
+            if (options.hooks && 'function' === typeof options.hooks.deleteFile) {
+                hooks.push(options.hooks.deleteFile(path));
+            }
+
+            Promise.all(hooks)
+                .then(() => {
+                    $(this).trigger('delete.deleter', [$target]);
+                    $target.trigger('delete', [false]);
+
+                    $target.detach();
+                    $target.remove();
+
+                    $fileContainer.trigger('deleted.deleter', [$target]);
+                })
+                .catch(err => {
+                    if (err instanceof Error) {
+                        logger.error(err);
+                    }
+                });
+        });
     $fileContainer.on('delete.deleter', function (e, $target) {
         let path,
             params = {};

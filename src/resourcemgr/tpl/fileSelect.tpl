@@ -1,10 +1,10 @@
 {{#each files}}
-    <li data-type="{{type}}" 
-        data-file="{{uri}}" 
-        data-display="{{display}}" 
-        data-mime="{{mime}}" 
-        data-size="{{size}}" 
-        data-url="{{viewUrl}}" 
+    <li data-type="{{type}}"
+        data-file="{{uri}}"
+        data-display="{{display}}"
+        data-mime="{{mime}}"
+        data-size="{{size}}"
+        data-url="{{viewUrl}}"
         {{#if permissions.download}} data-download="true" {{/if}}
         {{#if permissions.preview}} data-preview="true" {{/if}}
         {{#if permissions.read}} data-select="true" {{/if}}
@@ -25,7 +25,7 @@
                                         <a href="{{downloadUrl}}" download="{{name}}" target="_blank" class="tlb-button-off download" title="{{__ 'Download this file'}}"><span class="icon-download"></span></a>
                                     {{/if}}
                                     {{#if permissions.delete }}
-                                        <a href="#" class="tlb-button-off" title="{{__ 'Remove this file'}}" data-delete=":parent li"><span class="icon-bin"></span></a>
+                                        <a href="#" class="tlb-button-off delete" title="{{__ 'Remove this file'}}"><span class="icon-bin"></span></a>
                                     {{/if}}
                                 </span>
                             {{/if}}
