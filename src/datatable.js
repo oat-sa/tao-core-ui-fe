@@ -887,7 +887,8 @@ const dataTable = {
                         const disabled = getPropertyValue('disabled', action, nextData);
                         const icon = getPropertyValue('icon', action, nextData);
                         const label = getPropertyValue('label', action, nextData);
-                        const $actionButton = $(buttonTpl({ id, icon, label, title, disabled }));
+                        const cls = getPropertyValue('cls', action, nextData);
+                        const $actionButton = $(buttonTpl({ id, icon, label, title, disabled, cls }));
 
                         if (!hidden) {
                             $actionCell.append('\n').append($actionButton);
