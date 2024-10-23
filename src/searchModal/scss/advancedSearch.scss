@@ -78,7 +78,7 @@ $invalidCriteriaBorder: #266d9c;
                     margin-left: 0;
                 }
             }
-            label {
+            div.criterion-container {
                 width: 100%;
                 padding: 0;
                 margin: 0;
@@ -114,9 +114,9 @@ $invalidCriteriaBorder: #266d9c;
             .logic-radio-group {
                 display: flex;
                 justify-content: flex-start;
-                gap: 10px;
+                gap: 16px;
             }
-    
+
         }
         .invalid-criteria-warning-container {
             background-color: $invalidCriteriaBackground;

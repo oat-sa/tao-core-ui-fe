@@ -1,6 +1,6 @@
 <div class="filter-container {{criterion.id}}-filter" data-criteria="{{criterion.label}}" data-type="{{criterion.type}}">
     <button class="icon-result-nok" aria-label="{{__ "Remove criteria"}}"></button>
-    <label>
+    <div class="criterion-container">
         <span class="filter-label-text">{{criterion.label}}
             {{#if criterion.isDuplicated}}
                 {{#if criterion.alias}}<span class="criteria-alias">({{criterion.alias}})</span>{{/if}}
@@ -8,16 +8,16 @@
             {{/if}}
         </span>
         <div class="logic-radio-group">
-            <label>
+            <label class="logic-label">
                 <input type="radio" name="{{criterion.id}}-logic" value="LOGIC_AND"><span class="icon-radio"></span> And
             </label>
-            <label>
+            <label class="logic-label">
                 <input type="radio" name="{{criterion.id}}-logic" value="LOGIC_OR"><span class="icon-radio"></span> Or
             </label>
-            <label>
+            <label class="logic-label">
                 <input type="radio" name="{{criterion.id}}-logic" value="LOGIC_NOT"><span class="icon-radio"></span> Not
             </label>
         </div>
         <input type='text' name="{{criterion.id}}-select">
-    </label>
+    </div>
 </div>
