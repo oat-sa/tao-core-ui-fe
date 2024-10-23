@@ -379,7 +379,7 @@ define([
                 assert.equal(
                     query,
                     // TODO: change 2nd AND to OR when functionality is developed on BE
-                    'inBothTextParentUri:foo0 AND inBothListParentUri:value1 AND value2 AND inBothSelectParentUri:value0',
+                    'inBothTextParentUri:foo0 AND inBothListParentUri:value1 LOGIC_AND inBothListParentUri:value2 AND inBothSelectParentUri:value0',
                     'advanced search query is correctly built'
                 );
                 instance.destroy();
