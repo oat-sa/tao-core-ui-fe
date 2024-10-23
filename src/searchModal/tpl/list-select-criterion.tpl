@@ -7,6 +7,17 @@
                 {{#if criterion.class.label}}<span class="class-path">/ {{criterion.class.label}}</span>{{/if}}
             {{/if}}
         </span>
+        <div class="logic-radio-group">
+            <label>
+                <input type="radio" name="{{criterion.id}}-logic" value="LOGIC_AND"><span class="icon-radio"></span> And
+            </label>
+            <label>
+                <input type="radio" name="{{criterion.id}}-logic" value="LOGIC_OR"><span class="icon-radio"></span> Or
+            </label>
+            <label>
+                <input type="radio" name="{{criterion.id}}-logic" value="LOGIC_NOT"><span class="icon-radio"></span> Not
+            </label>
+        </div>
         <input type='text' name="{{criterion.id}}-select">
     </label>
 </div>

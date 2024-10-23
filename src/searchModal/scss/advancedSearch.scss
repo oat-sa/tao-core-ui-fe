@@ -111,6 +111,12 @@ $invalidCriteriaBorder: #266d9c;
                     width: 100%;
                 }
             }
+            .logic-radio-group {
+                display: flex;
+                justify-content: flex-start;
+                gap: 10px;
+            }
+    
         }
         .invalid-criteria-warning-container {
             background-color: $invalidCriteriaBackground;
