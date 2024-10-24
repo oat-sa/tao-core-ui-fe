@@ -9,13 +9,13 @@
         </span>
         <div class="logic-radio-group">
             <label class="logic-label">
-                <input type="radio" name="{{criterion.id}}-logic" value="LOGIC_AND"><span class="icon-radio"></span> And
+                <input type="radio" name="{{criterion.id}}-logic" value="LOGIC_AND"><span class="icon-radio"></span> {{__ "Exact match"}}
             </label>
             <label class="logic-label">
-                <input type="radio" name="{{criterion.id}}-logic" value="LOGIC_OR"><span class="icon-radio"></span> Or
+                <input type="radio" name="{{criterion.id}}-logic" value="LOGIC_OR"><span class="icon-radio"></span> {{__ "In"}}
             </label>
             <label class="logic-label">
-                <input type="radio" name="{{criterion.id}}-logic" value="LOGIC_NOT"><span class="icon-radio"></span> Not
+                <input type="radio" name="{{criterion.id}}-logic" value="LOGIC_NOT"><span class="icon-radio"></span> {{__ "Not in"}}
             </label>
         </div>
         <input type='text' name="{{criterion.id}}-select">
