@@ -73,6 +73,11 @@ export default function advancedSearchFactory(config) {
         text: 'text',
         list: 'list'
     };
+    const criteriaLogic = {
+        and: 'LOGIC_AND',
+        or: 'LOGIC_OR',
+        not: 'LOGIC_NOT',
+    }
 
     let isAdvancedSearchStatusEnabled;
     let isCriteriaListUpdated = false;
@@ -127,6 +132,7 @@ export default function advancedSearchFactory(config) {
             _.forEach(criteriaState, criterion => {
                 criterion.rendered = false;
                 criterion.value = null;
+                criterion.logic = null;
             });
         },
         /**
@@ -147,8 +153,11 @@ export default function advancedSearchFactory(config) {
                     }
                 } else if (renderedCriterion.type === criteriaTypes.list) {
                     if (renderedCriterion.value && renderedCriterion.value.length > 0) {
-                        /* Temp replaced OR with AND. See ADF-7 for details */
-                        query += `${queryParam}:${renderedCriterion.value.join(' AND ')}`;
+                        if(renderedCriterion.value.length === 1 && renderedCriterion.logic === criteriaLogic.not) {
+                            //we have to pass NOT logic anyways, so add empty member to have NOT logic modifier in the query
+                            renderedCriterion.value.push('');
+                        }
+                        query += renderedCriterion.value.map(value=>`${queryParam}:${value}`).join(` ${renderedCriterion.logic} `);
                     }
                 }
             });
@@ -431,9 +440,15 @@ export default function advancedSearchFactory(config) {
                 if (criterion.value) {
                     $(`input[name=${criterion.id}-select]`, $criterionContainer).select2('data', initialCriterion);
                 }
+                criterion.logic = criterion.logic || criteriaLogic.and;
+                $(`input[name="${criterion.id}-logic"][value="${criterion.logic}"]`, $criterionContainer).prop('checked', true);
                 // set event to bind input value to critariaState
                 $(`input[name=${criterion.id}-select]`, $criterionContainer).on('change', event => {
                     criterion.value = event.val;
+                });
+                // set event to bind logic selector to critariaState
+                $(`input[name="${criterion.id}-logic"]`, $criterionContainer).on('change', event => {
+                    criterion.logic = event.target.value;
                 });
             } else {
                 // set initial value
