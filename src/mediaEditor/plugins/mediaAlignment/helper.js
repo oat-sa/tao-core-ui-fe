@@ -82,14 +82,14 @@ export const positionFloat = function positionFloat(widget, position) {
     if (!context.featureFlags['FEATURE_FLAG_DISABLE_FIGURE_WIDGET'] && prevClassName !== className) {
         // Re-build Figure widget to toggle between inline/block
         const parent = searchRecurse(widget.element.bdy.rootElement.bdy, widget.serial);
-        // avoid changes on Figure in a prompt
-        if (parent.contentModel && parent.contentModel === 'inlineStatic') {
+        // If Figure is not in A-block (Prompt, TextReader PCI)
+        if (parent.contentModel === 'inlineStatic' || widget.$container.closest('.qti-customInteraction').length) {
             _.defer(() => {
                 widget.element.data('widget').refresh();
             });
             return;
         }
-        // in A-block, text is inside '<p>'. When'<figure>' is added inside, this '<p>' tag gets split and a linebreak appears.
+        // If Figure is in A-block, text is inside '<p>'. When'<figure>' is added inside, this '<p>' tag gets split and a linebreak appears.
         // here we change state to sleep-active so that the user will see that reflected in UI immediately.
         // otherwise, he will see this linebreak only if he focuses text in this A-block again, or reopens the item.
         widget.element.data('widget').changeState('sleep');
@@ -104,8 +104,8 @@ export const positionFloat = function positionFloat(widget, position) {
                 });
             }
         });
-        widget.$original.trigger('contentChange.qti-widget');
     }
+    widget.$original.trigger('contentChange.qti-widget');
 };
 
 export const initAlignment = function initAlignment(widget) {
