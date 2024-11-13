@@ -169,6 +169,7 @@ export default function ({ stateFactory, ActiveState, formTpl, formElement, inli
         const figurelem = this.widget.element;
         const $texarea = this.widget.$form.find('textarea#figcaption');
         texareaHTMLElem = $texarea[0];
+        texareaHTMLElem.style.minHeight = '2em';
         function outputsize() {
             figurelem.data('heigthCaptionInput', $texarea.height());
         }
