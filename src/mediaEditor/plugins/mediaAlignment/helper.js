@@ -81,7 +81,11 @@ export const positionFloat = function positionFloat(widget, position) {
 
     if (!context.featureFlags['FEATURE_FLAG_DISABLE_FIGURE_WIDGET'] && prevClassName !== className) {
         // Re-build Figure widget to toggle between inline/block
-        const parent = searchRecurse(widget.element.bdy.rootElement.bdy, widget.serial);
+        const parent = searchRecurse(widget.element.rootElement.bdy, widget.serial);
+        // If it's Image not Figure (Choice, GapMatch/HotText qti-flow-container)
+        if (!parent) {
+            return;
+        }
         // If Figure is not in A-block (Prompt, TextReader PCI)
         if (parent.contentModel === 'inlineStatic' || widget.$container.closest('.qti-customInteraction').length) {
             _.defer(() => {
