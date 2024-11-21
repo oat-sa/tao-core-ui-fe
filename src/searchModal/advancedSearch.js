@@ -119,7 +119,7 @@ export default function advancedSearchFactory(config) {
          * Access to component state
          * @returns {Object} - criteria state
          */
-        getState() {
+        getState(){
             return criteriaState;
         },
         /**
@@ -158,6 +158,9 @@ export default function advancedSearchFactory(config) {
                             renderedCriterion.value.push('');
                         }
                         query += renderedCriterion.value.map(value=>`${queryParam}:${value}`).join(` ${renderedCriterion.logic} `);
+                        
+                        //we need to remove empty member from renderedCriterion.value because renderedCriterion can be reused after the query is done
+                        renderedCriterion.value = renderedCriterion.value.filter((value)=>value !== '');
                     }
                 }
             });
