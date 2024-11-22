@@ -301,7 +301,7 @@ define([
             statusUrl: 'undefined/tao/AdvancedSearch/status'
         });
         const ready = assert.async();
-        assert.expect(9);
+        assert.expect(11);
 
         instance.on('ready', function () {
             assert.ok(instance.isEnabled(), 'the advanced search is enabled');
@@ -326,19 +326,12 @@ define([
                 const $criterionTextInput = $criteriaContainer.find('.inBothTextParentUri-filter input');
                 const $criterionSelectInput = $criteriaContainer.find('.inBothSelectParentUri-filter input');
 
-                // Checkboxes are temporary replaced with select2
-                // const $criterionListSelected = $criteriaContainer
-                //     .find('.-filter input[type=checkbox]:checked')
-                //     .get()
-                //     .map(checkbox => {
-                //         return checkbox.value;
-                //     });
-
                 const $criterionListSelected = $criteriaContainer.find('.inBothListParentUri-filter input');
 
                 // check default value on each criterion type
                 await nextTick();
                 assert.equal($criterionTextInput.val(), 'default value0', 'text criterion correctly initialized');
+                await nextTick();
                 assert.deepEqual(
                     $criterionSelectInput.select2('val'),
                     ['value0'],
@@ -354,11 +347,6 @@ define([
                 // update value on each criterion
                 $criterionTextInput.val('foo0').trigger('change');
 
-                // Checkboxes are temporary replaced with select2
-                // $criteriaContainer
-                //     .find('.inBothListParentUri-filter input[type=checkbox][value=value2]')
-                //     .prop('checked', true)
-                //     .trigger('change');
                 $criteriaContainer.find('.inBothListParentUri-filter .select2-choices').click();
                 await nextTick(200);
                 $('.select2-results .select2-selected + * .select2-result-label').mouseup();
@@ -374,14 +362,32 @@ define([
                     ['value1', 'value2'],
                     'list criteria correctly updated'
                 );
-
+                
                 const query = instance.getAdvancedCriteriaQuery();
                 assert.equal(
                     query,
-                    // TODO: change 2nd AND to OR when functionality is developed on BE
-                    'inBothTextParentUri:foo0 AND inBothListParentUri:value1 AND value2 AND inBothSelectParentUri:value0',
+                    'inBothTextParentUri:foo0 AND inBothListParentUri:value1 LOGIC_AND inBothListParentUri:value2 AND inBothSelectParentUri:value0',
                     'advanced search query is correctly built'
                 );
+
+                $criteriaContainer.find('input[name="inBothListParentUri-logic"][value="LOGIC_OR"]').prop('checked', true).change();
+                await nextTick(200);
+                const queryOr = instance.getAdvancedCriteriaQuery();
+                assert.equal(
+                    queryOr,
+                    'inBothTextParentUri:foo0 AND inBothListParentUri:value1 LOGIC_OR inBothListParentUri:value2 AND inBothSelectParentUri:value0',
+                    'advanced search query with OR logic is correctly built'
+                );
+
+                $criteriaContainer.find('input[name="inBothListParentUri-logic"][value="LOGIC_NOT"]').prop('checked', true).change();
+                await nextTick(200);
+                const queryNot = instance.getAdvancedCriteriaQuery();
+                assert.equal(
+                    queryNot,
+                    'inBothTextParentUri:foo0 AND inBothListParentUri:value1 LOGIC_NOT inBothListParentUri:value2 AND inBothSelectParentUri:value0',
+                    'advanced search query with NOT logic is correctly built'
+                );
+
                 instance.destroy();
                 ready();
             });
