@@ -76,8 +76,8 @@ export default function advancedSearchFactory(config) {
     const criteriaLogic = {
         and: 'LOGIC_AND',
         or: 'LOGIC_OR',
-        not: 'LOGIC_NOT',
-    }
+        not: 'LOGIC_NOT'
+    };
 
     let isAdvancedSearchStatusEnabled;
     let isCriteriaListUpdated = false;
@@ -119,7 +119,7 @@ export default function advancedSearchFactory(config) {
          * Access to component state
          * @returns {Object} - criteria state
          */
-        getState(){
+        getState() {
             return criteriaState;
         },
         /**
@@ -153,14 +153,16 @@ export default function advancedSearchFactory(config) {
                     }
                 } else if (renderedCriterion.type === criteriaTypes.list) {
                     if (renderedCriterion.value && renderedCriterion.value.length > 0) {
-                        if(renderedCriterion.value.length === 1 && renderedCriterion.logic === criteriaLogic.not) {
+                        if (renderedCriterion.value.length === 1 && renderedCriterion.logic === criteriaLogic.not) {
                             //we have to pass NOT logic anyways, so add empty member to have NOT logic modifier in the query
                             renderedCriterion.value.push('');
                         }
-                        query += renderedCriterion.value.map(value=>`${queryParam}:${value}`).join(` ${renderedCriterion.logic} `);
-                        
+                        query += renderedCriterion.value
+                            .map(value => `${queryParam}:${value}`)
+                            .join(` ${renderedCriterion.logic} `);
+
                         //we need to remove empty member from renderedCriterion.value because renderedCriterion can be reused after the query is done
-                        renderedCriterion.value = renderedCriterion.value.filter((value)=>value !== '');
+                        renderedCriterion.value = renderedCriterion.value.filter(value => value !== '');
                     }
                 }
             });
@@ -444,7 +446,10 @@ export default function advancedSearchFactory(config) {
                     $(`input[name=${criterion.id}-select]`, $criterionContainer).select2('data', initialCriterion);
                 }
                 criterion.logic = criterion.logic || criteriaLogic.and;
-                $(`input[name="${criterion.id}-logic"][value="${criterion.logic}"]`, $criterionContainer).prop('checked', true);
+                $(`input[name="${criterion.id}-logic"][value="${criterion.logic}"]`, $criterionContainer).prop(
+                    'checked',
+                    true
+                );
                 // set event to bind input value to critariaState
                 $(`input[name=${criterion.id}-select]`, $criterionContainer).on('change', event => {
                     criterion.value = event.val;
