@@ -496,10 +496,12 @@ export default function taskQueueModel(config) {
                 throw new TypeError('config.url.download is not configured while download() is being called');
             }
 
-            return this.getCached(taskId).then(function (taskData) {
-                let redirectUrl = (taskData || {}).redirectUrl;
+            return this.getCached(taskId).then(function (taskData = {}) {
+                const { redirectUrl, category } = taskData;
 
-                if (redirectUrl) {
+                // if the task is an update task, we should not use redirectUrl for download
+                // it only uses for DOCX file download (export category)
+                if (redirectUrl && category !== 'update') {
                     return new Promise(function (resolve) {
                         $.fileDownload(redirectUrl, {
                             httpMethod: 'GET',
