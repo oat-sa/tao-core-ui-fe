@@ -128,7 +128,8 @@ export default function (options) {
             if (root !== 'local' || !_.find(subTree.children, { name: file.name })) {
                 updatePermissions(file);
                 const childrenFilesOnly = _.filter(subTree.children, function (child) {
-                    return !child.hasOwnProperty('path');
+                    // Only file object has link property
+                    return Object.prototype.hasOwnProperty.call(child, 'link');
                 });
 
                 if (childrenFilesOnly.length === subTree.total) {
