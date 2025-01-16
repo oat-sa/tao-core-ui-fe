@@ -147,8 +147,9 @@ $invalidCriteriaBorder: #266d9c;
 .criteria-dropdown-select2 {
     border: 1px solid $uiGeneralContentBorder;
     box-shadow: $uiGeneralContentBorder 1px 1px 1px;
-    input {
+    .select2-search input {
         min-width: initial;
+        max-width: unset;
         background-image: initial;
     }
 }
