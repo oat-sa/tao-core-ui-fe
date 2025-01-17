@@ -35,6 +35,7 @@ import filtersTpl from 'ui/resource/tpl/filters';
  * FIXME add radio as soon as supported
  */
 var supportedWidgets = [
+    'http://www.tao.lu/datatypes/WidgetDefinitions.rdf#Readonly',
     'http://www.tao.lu/datatypes/WidgetDefinitions.rdf#TextBox',
     'http://www.tao.lu/datatypes/WidgetDefinitions.rdf#CheckBox',
     'http://www.tao.lu/datatypes/WidgetDefinitions.rdf#ComboBox',

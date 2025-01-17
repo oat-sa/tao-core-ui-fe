@@ -282,6 +282,7 @@ $classTreeVariables: (
         }
         .filter-container {
             position: relative;
+            z-index: 1;
             margin-bottom: 8px;
             &:last-child {
                 padding-bottom: 16px;
