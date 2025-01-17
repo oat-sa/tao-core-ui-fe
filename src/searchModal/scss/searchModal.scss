@@ -305,6 +305,7 @@ $classTreeVariables: (
             > textarea {
                 width: 100%;
                 padding-left: 28px;
+                max-width: unset;
             }
             .class-filter {
                 cursor: pointer;
