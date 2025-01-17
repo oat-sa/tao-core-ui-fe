@@ -175,7 +175,7 @@ export default function searchModalFactory(config) {
                 //set up the inner resource selector
                 selectionMode: 'single',
                 selectClass: true,
-                classUri: rootClassUri,
+                classUri: initialClassUri,
                 showContext: false,
                 showSelection: false
             });
