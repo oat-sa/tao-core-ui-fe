@@ -127,7 +127,12 @@ export default function (options) {
             }
             if (root !== 'local' || !_.find(subTree.children, { name: file.name })) {
                 updatePermissions(file);
-                if (subTree.children.length === subTree.total) {
+                const childrenFilesOnly = _.filter(subTree.children, function (child) {
+                    // Only file object has link property
+                    return Object.prototype.hasOwnProperty.call(child, 'link');
+                });
+
+                if (childrenFilesOnly.length === subTree.total) {
                     // all children loaded new file can be pushed to the end of tree
                     // if not all, new file will be loaded with next page
                     subTree.children.push(file);
