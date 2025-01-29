@@ -22,6 +22,7 @@ $dark : #404040;
 .tooltip[role="tooltip"] {
   position: absolute;
   /*background: #FFC107;*/
+  writing-mode: horizontal-tb; /* vertical-rl sizing & anchoring not implemented */
 
   color: black;
   min-width: 100px;
