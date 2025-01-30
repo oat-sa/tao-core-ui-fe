@@ -635,21 +635,21 @@ disabled look for disabled choices in the results dropdown
 
 /* writing-mode vertical-rl, only for single select without search */
 .writing-mode-vertical-rl {
-    & .select2-container .select2-choice {
+    &.select2-container .select2-choice {
         height: auto;
         block-size: 26px;
         padding-block: 0;
         padding-inline: 8px 0;
     }
-    & .select2-container.select2-allowclear .select2-choice .select2-chosen {
+    &.select2-container.select2-allowclear .select2-choice .select2-chosen {
         margin-right: 0;
         margin-inline-end: 42px;
     }
-    & .select2-container .select2-choice > .select2-chosen {
+    &.select2-container .select2-choice > .select2-chosen {
         margin-right: 0;
         margin-inline-end: 26px;
     }
-    & .select2-container .select2-choice .select2-arrow {
+    &.select2-container .select2-choice .select2-arrow {
         width: auto;
         height: auto;
         right: auto;
@@ -659,10 +659,10 @@ disabled look for disabled choices in the results dropdown
         inset-inline-end: 0;
         inset-block-start: 0;
     }
-    & .select2-container .select2-choice .select2-arrow b {
+    &.select2-container .select2-choice .select2-arrow b {
         overflow: hidden;
     }
-    & .select2-container .select2-choice .select2-arrow b:before {
+    &.select2-container .select2-choice .select2-arrow b:before {
         display: inline-block;
         transform: rotate(90deg);
     }
