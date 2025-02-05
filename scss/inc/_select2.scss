@@ -707,7 +707,7 @@ disabled look for disabled choices in the results dropdown
         overflow-y: hidden;
     }
     & .select2-results .select2-result-label {
-        min-height: none;
+        min-height: auto;
         min-block-size: 1em;
         padding-block: 3px 4px;
         padding-inline: 7px;
