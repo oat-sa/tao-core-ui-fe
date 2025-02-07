@@ -34,6 +34,20 @@
     }
 }
 
+.writing-mode-vertical-rl {
+    .grid-row, .fixed-grid-row {
+        block-size: auto;
+        inline-size: 100%;
+
+        [class*=" col-"], [class^="col-"] {
+            &.col-12 {
+                block-size: auto;
+                inline-size: 100%;
+            }
+        }
+    }
+}
+
 #icon-editor {
 
     .grid-row {
