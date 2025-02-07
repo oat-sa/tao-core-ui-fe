@@ -1,3 +1,23 @@
+ul, ol {
+    padding-left: 40px;
+    &.plain, &.none {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+    li {
+        vertical-align: text-top !important;
+    }
+}
+
+nav {
+    ul {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+}
+
 /*
 This SCSS generates CSS classes for custom list styling, it:
 - For classes like .list-style-disc, .list-style-decimal-period etc.
