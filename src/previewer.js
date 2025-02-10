@@ -139,6 +139,7 @@ const previewer = {
      * @private
      */
     _clearPlayer: function($elt) {
+        if ($elt.parents('.qti-prompt').length) return; // avoid clear in prompt
         if ($elt && $elt.data('player')) {
             $elt.data('player').destroy();
             $elt.removeData('player');
