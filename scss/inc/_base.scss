@@ -101,7 +101,8 @@ body {
     blockquote, dd, dl, fieldset, figure, h1, h2, h3, h4, h5, h6,
     hr, ol, p, pre, ul {
         display: block;
-        margin-bottom: 10px;
+        margin-block-end: 10px;
+        margin-inline-end: 0;
         white-space: normal;
     }
 
