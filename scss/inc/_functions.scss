@@ -51,6 +51,16 @@ Usage:
     width: $spanPercent;
 }
 
+@mixin grid-unit-writing-mode($span, $numCols: 12, $gutter: 0) {
+    $gridPx: 840;
+    $rawSpanPx: calc((($gridPx - ($numCols * $gutter)) / $numCols));
+    $spanPx: $rawSpanPx * $span + (($span - 1) * $gutter);
+    $spanPercent: widthPerc($spanPx, $gridPx);
+    $marginPercent: widthPerc($gutter, $gridPx);
+    margin-inline-start: $marginPercent;
+    inline-size: $spanPercent;
+}
+
 
 @mixin vendor-prefix($property, $value, $whatToPrefix: property, $prefixes: (-webkit-, -moz-, -ms-, -o-, '')) {
     @if $whatToPrefix == 'property' {

@@ -1,8 +1,8 @@
 [class*=" col-"], [class^="col-"] {
     float: left;
-    min-height: 1rem;
+    min-block-size: 1rem;
     &:first-child {
-        margin-left: 0;
+        margin-inline-start: 0;
     }
     &.grid-container {
         margin-bottom: 0;
@@ -19,15 +19,15 @@
 
 .grid-row, .fixed-grid-row {
     @extend .clearfix;
-    width: widthPerc(852, 840);
+    inline-size: widthPerc(852, 840);
 }
 .colrow {
     @extend .clearfix;
 }
 @for $i from 1 through 12 {
     .col-#{$i} {
-        @include grid-unit($i, 12, 12);
-        margin-bottom: 12px;
+        @include grid-unit-writing-mode($i, 12, 12);
+        margin-block-end: 12px;
     }
     .alpha {
         margin-left: 0 !important
@@ -35,16 +35,9 @@
 }
 
 .writing-mode-vertical-rl {
-    .grid-row, .fixed-grid-row {
+    .grid-row.grid-row, .fixed-grid-row.fixed-grid-row {
         block-size: auto;
         inline-size: 100%;
-
-        [class*=" col-"], [class^="col-"] {
-            &.col-12 {
-                block-size: auto;
-                inline-size: 100%;
-            }
-        }
     }
 }
 
@@ -52,7 +45,7 @@
 
     .grid-row {
         @extend .clearfix;
-        width: 100%
+        width: 100%;
     }
     @for $i from 1 through 12 {
         .col-#{$i} {
