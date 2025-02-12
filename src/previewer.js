@@ -139,7 +139,10 @@ const previewer = {
      * @private
      */
     _clearPlayer: function($elt) {
-        if ($elt.parents('.qti-item').length) return; // avoid clear in qti mode
+        if ($elt.parents('.qti-item').length) {
+            // avoid clear in qti mode
+            return;
+        }
         if ($elt && $elt.data('player')) {
             $elt.data('player').destroy();
             $elt.removeData('player');
