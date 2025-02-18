@@ -26,7 +26,7 @@
 }
 @for $i from 1 through 12 {
     .col-#{$i} {
-        @include grid-unit-writing-mode($i, 12, 12);
+        @include grid-unit($i, 12, 12);
         margin-block-end: 12px;
     }
     .alpha {
@@ -38,6 +38,11 @@
     .grid-row.grid-row, .fixed-grid-row.fixed-grid-row {
         block-size: auto;
         inline-size: 100%;
+    }
+    @for $i from 1 through 12 {
+        :where(.col-#{$i}) {
+            @include grid-unit-writing-mode-margin($i, 12, 12);
+        }
     }
 }
 

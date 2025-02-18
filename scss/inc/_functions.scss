@@ -48,17 +48,13 @@ Usage:
     $spanPercent: widthPerc($spanPx, $gridPx);
     $marginPercent: widthPerc($gutter, $gridPx);
     margin-left: $marginPercent;
-    width: $spanPercent;
+    inline-size: $spanPercent;
 }
-
-@mixin grid-unit-writing-mode($span, $numCols: 12, $gutter: 0) {
+@mixin grid-unit-writing-mode-margin($span, $numCols: 12, $gutter: 0) {
     $gridPx: 840;
-    $rawSpanPx: calc((($gridPx - ($numCols * $gutter)) / $numCols));
-    $spanPx: $rawSpanPx * $span + (($span - 1) * $gutter);
-    $spanPercent: widthPerc($spanPx, $gridPx);
     $marginPercent: widthPerc($gutter, $gridPx);
     margin-inline-start: $marginPercent;
-    inline-size: $spanPercent;
+    margin-left: 0;
 }
 
 
