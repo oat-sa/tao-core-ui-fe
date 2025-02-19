@@ -2,7 +2,7 @@
     float: left;
     min-block-size: 1rem;
     &:first-child {
-        margin-inline-start: 0;
+        margin-left: 0;
     }
     &.grid-container {
         margin-bottom: 0;
@@ -39,9 +39,13 @@
         block-size: auto;
         inline-size: 100%;
     }
-    @for $i from 1 through 12 {
-        :where(.col-#{$i}) {
-            @include grid-unit-writing-mode-margin($i, 12, 12);
+    [class*=" col-"], [class^="col-"] {
+        &:first-child {
+            margin-inline-start: 0;
+            margin-block-end: 12px;
+        }
+        &:last-child {
+            margin-inline-end: 0;
         }
     }
 }
