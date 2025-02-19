@@ -47,10 +47,9 @@ Usage:
     $spanPx: $rawSpanPx * $span + (($span - 1) * $gutter);
     $spanPercent: widthPerc($spanPx, $gridPx);
     $marginPercent: widthPerc($gutter, $gridPx);
-    margin-left: $marginPercent;
-    width: $spanPercent;
+    margin-inline-start: $marginPercent;
+    inline-size: $spanPercent;
 }
-
 
 @mixin vendor-prefix($property, $value, $whatToPrefix: property, $prefixes: (-webkit-, -moz-, -ms-, -o-, '')) {
     @if $whatToPrefix == 'property' {
