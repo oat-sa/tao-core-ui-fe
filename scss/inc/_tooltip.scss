@@ -24,11 +24,12 @@ $dark : #404040;
   /*background: #FFC107;*/
 
   color: black;
-  min-width: 100px;
-  max-width: 250px;
+  min-inline-size: 100px;
+  max-inline-size: 250px;
   /*box-shadow: 0 0 2px rgba(0,0,0,0.5);*/
   box-shadow: none;
-  padding: 2px 5px;
+  padding-block: 2px;
+  padding-inline: 5px;
   text-align: left;
   font-size: .8em;
   z-index: 2000;
