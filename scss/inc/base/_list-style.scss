@@ -18,41 +18,50 @@ nav {
     }
 }
 
-// according to https://developer.mozilla.org/en-US/docs/Web/CSS/list-style-type these styles are the most compatible ones
-// disc|circle|square|decimal|decimal-leading-zero|lower-roman|upper-roman|lower-greek|lower-latin|upper-latin|armenian|georgian|lower-alpha|upper-alpha|none. lower|upper-latin are aliases of lower|upper-roman
-$list_styles: disc,circle,square,decimal,decimal-leading-zero,lower-roman,upper-roman,lower-greek,lower-latin,upper-latin,armenian,georgian,lower-alpha,upper-alpha,none;
+/*
+This SCSS generates CSS classes for custom list styling, it:
+- For classes like .list-style-disc, .list-style-decimal-period etc.
+- Uses counter-reset for automatic item numbering
+- Supports base styles (disc, decimal etc.) and suffix variants (-period ".", -parenthesis ")")
+- Easy addition of new styles using $list_styles array and new suffixes and $suffixes map
+*/
 
+//https://developer.mozilla.org/en-US/docs/Web/CSS/list-style-type
+$list_styles: disc, circle, square, decimal, decimal-leading-zero, lower-roman, upper-roman,
+lower-greek, lower-latin, upper-latin, armenian, georgian, lower-alpha, upper-alpha;
 
-@for $i from 1 through length($list_styles) {
-    ul.#{nth($list_styles, $i)}, ol.#{nth($list_styles, $i)} {
-        list-style-type: #{nth($list_styles, $i)};
-    }
-}
-
-// this part enables list styles on all elements by using CSS counter, the required class name is e.g. list-style-disc
-// exp.
-// <parent class="list-style-disc">
-//    <child> -> parent > p | parent > div | parent > li has a bullet
+$suffixes: (
+    'parenthesis': ')',
+    'period': '.'
+);
 
 [class^="list-style-"], [class*=" list-style-"] {
-
     counter-reset: custom-counter;
 
-    &>p, &>div, &>li {
+    &>p, &>div, &>li.qti-choice {
+        position: relative;
         &::before {
             counter-increment: custom-counter;
+            position: absolute;
+            left: -25px;
             width: 20px;
             display: inline-block;
             text-align: center;
         }
     }
 
-    @for $i from 1 through length($list_styles) {
-        &.list-style-#{nth($list_styles, $i)} {
-            &>p, &>div, &>li {
-                &::before {
-                    content: counter(custom-counter, #{nth($list_styles, $i)});
-                }
+    @each $style in $list_styles {
+        &.list-style-#{$style} {
+            &>p, &>div, &>li.qti-choice::before {
+                content: counter(custom-counter, #{$style});
+            }
+        }
+    }
+
+    @each $style in $list_styles {
+        @each $suffix, $symbol in $suffixes {
+            &.list-style-#{$style}-#{$suffix} > li.qti-choice::before {
+                content: counter(custom-counter, #{$style}) "#{$symbol}";
             }
         }
     }
