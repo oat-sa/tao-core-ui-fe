@@ -259,10 +259,10 @@ select {
     @include border-radius(2);
     font-family: $regularFont;
     padding: 4px;
-    min-width: 150px;
+    min-inline-size: 150px;
     background-color: white;
     color: $textColor;
-    max-width: 300px;
+    max-inline-size: 300px;
 
     &.disabled, &[disabled], &[readonly] {
         color: $textColor;

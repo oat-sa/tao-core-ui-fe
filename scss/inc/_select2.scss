@@ -143,7 +143,7 @@
     background: $uiGeneralContentBg;
     color: $textColor;
     @include simple-border();
-    border-top: 0;
+    border-top-width: 0;
 
     border-radius: 0 0 2px 2px;
 
@@ -167,14 +167,14 @@
 .select2-drop.select2-drop-above {
     margin-top: 1px;
     border-top: 1px solid $uiGeneralContentBorder;
-    border-bottom: 0;
+    border-bottom-width: 0;
 
     border-radius: 2px 2px 0 0;
 }
 
 .select2-drop-active {
     @include simple-border();
-    border-top: none;
+    border-top-width: 0;
 }
 
 .select2-drop.select2-drop-above.select2-drop-active {
@@ -630,5 +630,90 @@ disabled look for disabled choices in the results dropdown
             cursor: default;
             padding-left: 5px;
         }
+    }
+}
+
+/* writing-mode vertical-rl, only for single select without search */
+.writing-mode-vertical-rl {
+    &.select2-container .select2-choice {
+        height: auto;
+        block-size: 26px;
+        padding-block: 0;
+        padding-inline: 8px 0;
+    }
+    &.select2-container.select2-allowclear .select2-choice .select2-chosen {
+        margin-right: 0;
+        margin-inline-end: 42px;
+    }
+    &.select2-container .select2-choice > .select2-chosen {
+        margin-right: 0;
+        margin-inline-end: 26px;
+    }
+    &.select2-container .select2-choice .select2-arrow {
+        width: auto;
+        height: auto;
+        right: auto;
+        top: auto;
+        inline-size: 18px;
+        block-size: 100%;
+        inset-inline-end: 0;
+        inset-block-start: 0;
+    }
+    &.select2-container .select2-choice .select2-arrow b {
+        overflow: hidden;
+    }
+    &.select2-container .select2-choice .select2-arrow b:before {
+        display: inline-block;
+        transform: rotate(90deg);
+    }
+
+    &.select2-drop {
+        writing-mode: vertical-rl;
+        width: auto;
+        margin-top: 0;
+        top: auto;
+        border-top-width: 1px;
+        inline-size: 100%;
+        margin-block-start: -1px;
+        inset-block-start: 100%;
+        border-block-start-width: 0;
+        border-start-start-radius: 0;
+        border-start-end-radius: 0;
+        border-end-end-radius: 2px;
+        border-end-start-radius: 2px;
+    }
+    &.select2-drop.select2-drop-above {
+        margin-top: 0;
+        border-top-width: 1px;
+        border-bottom-width: 1px;
+        margin-block-start: 1px;
+        border-block-start-width: 1px;
+        border-block-end-width: 0;
+        border-start-start-radius: 2px;
+        border-start-end-radius: 2px;
+        border-end-end-radius: 0;
+        border-end-start-radius: 0;
+    }
+    &.select2-drop-active {
+        border-top-width: 1px;
+        border-block-start-width: 0;
+    }
+    & .select2-results {
+        max-height: none;
+        max-block-size: 200px;
+        margin-block: 4px;
+        margin-inline: 0;
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+    & .select2-results .select2-result-label {
+        min-height: auto;
+        min-block-size: 1em;
+        padding-block: 3px 4px;
+        padding-inline: 7px;
+    }
+    & .select2-results .select2-no-results {
+        padding-left: 0;
+        padding-inline-start: 7px;
     }
 }
