@@ -21,7 +21,7 @@ import _ from 'lodash';
 import async from 'async';
 import UrlParser from 'util/urlParser';
 import request from 'core/dataProvider/request';
-import urlUtil from 'util/url';
+import encode from 'util/encode';
 import eventifier from 'core/eventifier';
 import mimetype from 'core/mimetype';
 import store from 'core/store';
@@ -932,7 +932,7 @@ function mediaplayerFactory(config) {
         _initTranscription() {
             request(
                 this.config.transcription.resourceMetadataUrl,
-                urlUtil.encode(this.config.transcription.metadataUri)
+                encode(this.config.transcription.metadataUri)
             )
                 .then(response => {
                     if (response.success && response.data && response.data.value) {
