@@ -200,7 +200,7 @@ const previewer = {
                     const height = options.height || defSize.height;
                     const transcription = {
                         resourceMetadataUrl: options.resourceMetadataUrl,
-                        metadata: options.metadata.metadataUri
+                        metadata: options.metadataUri
                     };
                     player = mediaplayer({
                         url: options.url,
