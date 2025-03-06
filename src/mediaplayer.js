@@ -20,6 +20,8 @@ import $ from 'jquery';
 import _ from 'lodash';
 import async from 'async';
 import UrlParser from 'util/urlParser';
+import request from 'core/dataProvider/request';
+import urlUtil from 'util/url';
 import eventifier from 'core/eventifier';
 import mimetype from 'core/mimetype';
 import store from 'core/store';
@@ -260,6 +262,7 @@ function mediaplayerFactory(config) {
                     _.defer(() => this.render());
                 }
             });
+            this._initTranscription();
 
             return this;
         },
@@ -924,6 +927,21 @@ function mediaplayerFactory(config) {
 
             this._setState('cors', isCORS);
             this._setState('ready', false);
+        },
+
+        _initTranscription() {
+            request(
+                this.config.transcriptionUrl,
+                urlUtil.encode(this.config.metadataUri)
+            )
+                .then(response => {
+                    if (response.success && response.data && response.data.value) {
+                        $container.find('.transcription')
+                            .replaceWith('<div class="transcription">' + response.data.value + '</div>');
+                    } else {
+                        console.error('Failed to load transcription metadata');
+                    }
+                })
         },
 
         /**
