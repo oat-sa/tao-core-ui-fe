@@ -931,7 +931,7 @@ function mediaplayerFactory(config) {
 
         _initTranscription() {
             request(
-                this.config.transcription.transcriptionUrl,
+                this.config.transcription.resourceMetadataUrl,
                 urlUtil.encode(this.config.transcription.metadataUri)
             )
                 .then(response => {
