@@ -200,17 +200,13 @@ const previewer = {
                     const defSize = _defaultSize[type] || _defaultSize.video;
                     const width = options.width || defSize.width;
                     const height = options.height || defSize.height;
-                    const transcription = {
-                        resourceMetadataUrl: options.resourceMetadataUrl,
-                        metadataUri: options.metadataUri
-                    };
                     player = mediaplayer({
                         url: options.url,
                         type: options.mime,
                         renderTo: $content,
+                        transcriptionUrl: options.transcriptionUrl,
                         width,
                         height,
-                        transcription
                     })
                     .on('ready', function() {
                         /**
