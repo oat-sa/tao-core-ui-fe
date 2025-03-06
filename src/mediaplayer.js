@@ -238,14 +238,11 @@ function mediaplayerFactory(config) {
         init(mediaPlayerConfig) {
             // load the config set, discard null values in order to allow defaults to be set
             this.config = _.omitBy(mediaPlayerConfig || {}, value => typeof value === 'undefined' || value === null);
-            const metadataUriKey = this.config.transcription.metadataUri;
-            this.requestParameters[metadataUriKey] =
             _.defaults(this.config, defaults.options);
             if (!this.config.mimeType && 'string' === typeof this.config.type && this.config.type.indexOf('/') > 0) {
                 this.config.mimeType = this.config.type;
             }
             this._setType(this.config.type || defaults.type);
-
             this._reset();
             this._updateVolumeFromStore();
             this._initEvents();
