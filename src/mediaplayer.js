@@ -21,7 +21,6 @@ import _ from 'lodash';
 import async from 'async';
 import UrlParser from 'util/urlParser';
 import request from 'core/dataProvider/request';
-import encode from 'util/encode';
 import eventifier from 'core/eventifier';
 import mimetype from 'core/mimetype';
 import store from 'core/store';
@@ -930,10 +929,7 @@ function mediaplayerFactory(config) {
         },
 
         _initTranscription() {
-            request(
-                this.config.transcription.resourceMetadataUrl,
-                encode(this.config.transcription.metadataUri)
-            )
+            request(this.config.transcription)
                 .then(response => {
                     if (response.success && response.data && response.data.value) {
                         $container.find('.transcription')
