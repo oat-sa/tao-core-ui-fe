@@ -238,6 +238,8 @@ function mediaplayerFactory(config) {
         init(mediaPlayerConfig) {
             // load the config set, discard null values in order to allow defaults to be set
             this.config = _.omitBy(mediaPlayerConfig || {}, value => typeof value === 'undefined' || value === null);
+            const metadataUriKey = this.config.transcription.metadataUri;
+            this.requestParameters[metadataUriKey] =
             _.defaults(this.config, defaults.options);
             if (!this.config.mimeType && 'string' === typeof this.config.type && this.config.type.indexOf('/') > 0) {
                 this.config.mimeType = this.config.type;
@@ -929,7 +931,7 @@ function mediaplayerFactory(config) {
         },
 
         _initTranscription() {
-            request(this.config.transcription)
+            request(this.config.transcriptionUrl)
                 .then(response => {
                     if (response.success && response.data && response.data.value) {
                         $container.find('.transcription')
