@@ -19,6 +19,7 @@
 import $ from 'jquery';
 import _ from 'lodash';
 import async from 'async';
+import UrlParser from 'util/urlParser';
 import request from 'core/dataProvider/request';
 import eventifier from 'core/eventifier';
 import mimetype from 'core/mimetype';
@@ -928,13 +929,11 @@ function mediaplayerFactory(config) {
 
         async _initTranscription() {
             try {
-                const response = await request(this.config.transcriptionUrl);
-                if (response.success && response.data && response.data.value) {
-                    $container.find('.transcription')
-                        .replaceWith('<div class="transcription">' + response.data.value + '</div>');
-                } else {
-                    console.error('Failed to load transcription metadata');
-                }
+                const response = await request(this.config.transcriptionUrl).then(response => {
+                    if (response && response.transcription) {
+                        this.transcription = response.transcription;
+                    }
+                });
             } catch (error) {
                 console.error('Error fetching transcription metadata:', error);
             }
