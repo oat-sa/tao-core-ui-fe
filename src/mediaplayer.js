@@ -928,14 +928,16 @@ function mediaplayerFactory(config) {
         },
 
         async _initTranscription() {
-            try {
-                const response = await request(this.config.transcriptionUrl);
-                if (response && response.value) {
-                    this.$container.find('.transcription')
-                        .replaceWith('<div class="transcription">' + response.value + '</div>');
+            if (this.config.transcriptionUrl) {
+                try {
+                    const response = await request(this.config.transcriptionUrl);
+                    if (response && response.value) {
+                        this.$container.find('.transcription')
+                            .replaceWith('<div class="transcription">' + response.value + '</div>');
+                    }
+                } catch (error) {
+                    console.error('Error fetching transcription metadata:', error);
                 }
-            } catch (error) {
-                console.error('Error fetching transcription metadata:', error);
             }
         },
 
