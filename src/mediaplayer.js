@@ -932,7 +932,9 @@ function mediaplayerFactory(config) {
                 try {
                     const response = await request(this.config.transcriptionUrl);
                     if (response && response.value) {
-                        this.$container.find('.transcription')
+                        this
+                            .$component
+                            .find('.transcription')
                             .replaceWith('<div class="transcription">' + response.value + '</div>');
                     }
                 } catch (error) {
