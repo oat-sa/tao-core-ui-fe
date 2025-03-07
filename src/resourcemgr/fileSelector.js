@@ -151,8 +151,8 @@ export default function (options) {
             let $files = $('.files > li', $fileSelector);
             let data = _.clone($selected.data());
             data.transcriptionUrl = injectTranscriptionMetadata(
-                options.transcriptionMetadata,
                 options.resourceMetadataUrl,
+                options.transcriptionMetadata,
                 data.file
             );
 
