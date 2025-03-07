@@ -930,8 +930,9 @@ function mediaplayerFactory(config) {
         async _initTranscription() {
             try {
                 const response = await request(this.config.transcriptionUrl).then(response => {
-                    if (response && response.transcription) {
-                        this.transcription = response.transcription;
+                    if (response && response.value) {
+                        $container.find('.transcription')
+                            .replaceWith('<div class="transcription">' + response.data.value + '</div>');
                     }
                 });
             } catch (error) {
