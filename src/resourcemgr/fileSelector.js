@@ -133,10 +133,16 @@ export default function (options) {
         }
     });
 
+    function injectTranscriptionMetadata(transcriptionUrl, metadataUri, resourceUri) {
+        return `${transcriptionUrl}?metadataUri=${encodeURIComponent(metadataUri)}&resourceUri=${
+            resourceUri.replace('taomedia://mediamanager/', '')
+        }`;
+    }
+
     //listen for file activation
     $(parentSelector)
         .off('click', '.files li')
-        .on('click', '.files li', function (e) {
+        .on('click', '.files li', async function (e) {
             const clickedItem = e.target;
             if (clickedItem.hasAttribute('data-delete') || $(clickedItem).hasClass('icon-bin')) {
                 return;
@@ -144,6 +150,11 @@ export default function (options) {
             let $selected = $(this);
             let $files = $('.files > li', $fileSelector);
             let data = _.clone($selected.data());
+            data.transcriptionUrl = injectTranscriptionMetadata(
+                options.transcriptionMetadata,
+                options.resourceMetadataUrl,
+                data.file
+            );
 
             $files.removeClass('active');
             $selected.addClass('active');
