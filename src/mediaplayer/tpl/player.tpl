@@ -31,8 +31,8 @@
             </div>
         </div>
     </div>
-    <div class="transcription"></div>
     <div class="error">
         <div class="message">{{__ 'This media cannot be played!'}}</div>
     </div>
 </div>
+<div class="transcription"></div>
