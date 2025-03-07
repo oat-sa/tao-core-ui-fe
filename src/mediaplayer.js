@@ -929,12 +929,11 @@ function mediaplayerFactory(config) {
 
         async _initTranscription() {
             try {
-                const response = await request(this.config.transcriptionUrl).then(response => {
-                    if (response && response.value) {
-                        $container.find('.transcription')
-                            .replaceWith('<div class="transcription">' + response.data.value + '</div>');
-                    }
-                });
+                const response = await request(this.config.transcriptionUrl);
+                if (response && response.value) {
+                    this.$container.find('.transcription')
+                        .replaceWith('<div class="transcription">' + response.data.value + '</div>');
+                }
             } catch (error) {
                 console.error('Error fetching transcription metadata:', error);
             }
