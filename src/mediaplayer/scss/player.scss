@@ -132,6 +132,8 @@ $controlsHeight: 36px;
     }
 
     .controls {
+        background-color: $playerBackground;
+        color: $playerTextOverlay;
         visibility: hidden;
         position: relative;
         padding: 5px;
@@ -560,6 +562,7 @@ $controlsHeight: 36px;
     }
 
     .transcription {
+        background-color: $playerBackground;
         color: $playerTextOverlay;
         font-size: 14px;
         line-height: 1.5;
