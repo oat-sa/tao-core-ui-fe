@@ -559,6 +559,18 @@ $controlsHeight: 36px;
         }
     }
 
+    .transcription {
+        color: $playerTextOverlay;
+        font-size: 14px;
+        line-height: 1.5;
+        max-height: 200px;
+        overflow-y: auto;
+
+        &.hidden {
+            display: none;
+        }
+    }
+
     &.video:not(.preview):not(.error) {
         .player-overlay {
             [data-control="start"] {
