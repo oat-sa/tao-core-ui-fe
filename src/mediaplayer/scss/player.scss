@@ -562,13 +562,13 @@ $controlsHeight: 36px;
     }
 
     .transcription {
-        background-color: white;
-        color: black;
+        background-color: $playerBackground;
+        color: $playerTextOverlay;
         font-size: 14px;
         line-height: 1.5;
         max-height: 200px;
         overflow-y: auto;
-
+        overflow-x: hidden;
         &.hidden {
             display: none;
         }
