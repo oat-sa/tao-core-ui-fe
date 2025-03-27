@@ -567,7 +567,8 @@ $controlsHeight: 36px;
         color: black;
         font-size: 14px;
         line-height: 1.5;
-        max-height: 200px;
+        max-height: 60px;
+        margin-bottom: 2px;
         overflow-y: scroll;
         &.hidden {
             display: none;

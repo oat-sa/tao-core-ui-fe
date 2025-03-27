@@ -1283,9 +1283,7 @@ function mediaplayerFactory(config) {
                 this.play();
             }
 
-            if (this.config.preview && this.$container && this.config.height && this.config.height !== 'auto') {
-                this._setMaxHeight();
-            }
+            this._setMaxHeight();
         },
 
         /**
@@ -1294,18 +1292,20 @@ function mediaplayerFactory(config) {
          * @private
          */
         _setMaxHeight() {
-            const $video = this.$container.find('video.video');
-            const controlsHeight = parseInt(window.getComputedStyle(this.$controls[0]).height);
-            const scale = $video.height() / this.config.height;
-            const transcriptionHeight = this.$component.find('.transcription').height();
-            const playerWidth = this.$container.find('.player').width();
-            const videoWidth = $video.width() / scale;
+            if (this.config.preview && this.$container && this.config.height && this.config.height !== 'auto') {
+                const $video = this.$container.find('video.video');
+                const controlsHeight = parseInt(window.getComputedStyle(this.$controls[0]).height);
+                const scale = $video.height() / this.config.height;
+                const transcriptionHeight = this.$component.find('.transcription').height();
+                const playerWidth = this.$container.find('.player').width();
+                const videoWidth = $video.width() / scale;
 
-            if (videoWidth > playerWidth) {
-                this.execute('setSize', '100%', 'auto');
-            } else {
-                this.$component.css({ maxHeight: `${this.config.height + controlsHeight + transcriptionHeight}px` });
-                this.execute('setSize', Math.floor(videoWidth), 'auto');
+                if (videoWidth > playerWidth) {
+                    this.execute('setSize', '100%', 'auto');
+                } else {
+                    this.$component.css({maxHeight: `${this.config.height + controlsHeight + transcriptionHeight}px`});
+                    this.execute('setSize', Math.floor(videoWidth), 'auto');
+                }
             }
         },
 
