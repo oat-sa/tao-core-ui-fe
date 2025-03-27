@@ -3,7 +3,6 @@
 $playerActionSize: 2.2rem;
 $playerActionSpace: 1rem;
 $playerBackground: black();
-$playerBorder: $darkBar;
 $playerText: #999;
 $playerIcon: $darkBarIcon;
 $playerTextOverlay: white();
@@ -562,13 +561,12 @@ $controlsHeight: 36px;
     }
 
     .transcription {
-        background-color: $playerBackground;
-        color: $playerTextOverlay;
+        background-color: white;
+        color: black;
         font-size: 14px;
         line-height: 1.5;
         max-height: 200px;
-        overflow-y: auto;
-        overflow-x: hidden;
+        overflow-y: scroll;
         &.hidden {
             display: none;
         }
