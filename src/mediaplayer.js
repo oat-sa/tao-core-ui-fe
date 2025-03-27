@@ -261,6 +261,7 @@ function mediaplayerFactory(config) {
                 }
             });
             this._initTranscription();
+            this._setMaxHeight();
 
             return this;
         },
@@ -937,6 +938,7 @@ function mediaplayerFactory(config) {
                             .find('.transcription')
                             .replaceWith('<div class="transcription">' + response.value + '</div>');
                     }
+                    this._setMaxHeight();
                 } catch (error) {
                     console.error('Error fetching transcription metadata:', error);
                 }

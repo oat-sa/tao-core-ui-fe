@@ -23,6 +23,7 @@ $controlsHeight: 36px;
     min-height: $controlsHeight;
     min-width: 200px;
     direction: ltr;
+    padding: 2px;
 
     &.youtube {
         .player {
