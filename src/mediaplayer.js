@@ -938,7 +938,6 @@ function mediaplayerFactory(config) {
                             .find('.transcription')
                             .replaceWith('<div class="transcription">' + response.value + '</div>');
                     }
-                    this._setMaxHeight();
                 } catch (error) {
                     console.error('Error fetching transcription metadata:', error);
                 }
@@ -1299,12 +1298,8 @@ function mediaplayerFactory(config) {
                 const transcriptionHeight = this.$component.find('.transcription').height();
                 const playerWidth = this.$container.find('.player').width();
                 const videoWidth = $video.width() / scale;
-
                 if (videoWidth > playerWidth) {
                     this.execute('setSize', '100%', 'auto');
-                } else {
-                    this.$component.css({maxHeight: `${this.config.height + controlsHeight + transcriptionHeight}px`});
-                    this.execute('setSize', Math.floor(videoWidth), 'auto');
                 }
             }
         },
