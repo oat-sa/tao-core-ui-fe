@@ -9,8 +9,6 @@ import mediaplayer from 'ui/mediaplayer';
 import iframeNotifier from 'iframeNotifier';
 import documentViewer from 'ui/documentViewer';
 import pdfViewer from 'ui/documentViewer/providers/pdfViewer';
-import request from 'core/dataProvider/request';
-import urlUtil from 'util/url';
 
 const ns = 'previewer';
 const dataNs = `ui.${ns}`;

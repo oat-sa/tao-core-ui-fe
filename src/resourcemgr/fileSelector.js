@@ -142,7 +142,7 @@ export default function (options) {
     //listen for file activation
     $(parentSelector)
         .off('click', '.files li')
-        .on('click', '.files li', async function (e) {
+        .on('click', '.files li', function (e) {
             const clickedItem = e.target;
             if (clickedItem.hasAttribute('data-delete') || $(clickedItem).hasClass('icon-bin')) {
                 return;
@@ -150,12 +150,13 @@ export default function (options) {
             let $selected = $(this);
             let $files = $('.files > li', $fileSelector);
             let data = _.clone($selected.data());
-            data.transcriptionUrl = injectTranscriptionMetadata(
-                options.resourceMetadataUrl,
-                options.transcriptionMetadata,
-                data.file
-            );
-
+            if (options.resourceMetadataUrl && options.transcriptionMetadata && data.file) {
+                data.transcriptionUrl = injectTranscriptionMetadata(
+                    options.resourceMetadataUrl,
+                    options.transcriptionMetadata,
+                    data.file
+                );
+            }
             $files.removeClass('active');
             $selected.addClass('active');
             $container.trigger(`fileselect.${ns}`, [data]);
