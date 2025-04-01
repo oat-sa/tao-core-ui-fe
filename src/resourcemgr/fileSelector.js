@@ -150,7 +150,11 @@ export default function (options) {
             let $selected = $(this);
             let $files = $('.files > li', $fileSelector);
             let data = _.clone($selected.data());
-            if (options.resourceMetadataUrl && options.transcriptionMetadata && data.file) {
+            if (
+                options.resourceMetadataUrl
+                && options.transcriptionMetadata
+                && data.file.includes('taomedia://mediamanager/')
+            ) {
                 data.transcriptionUrl = injectTranscriptionMetadata(
                     options.resourceMetadataUrl,
                     options.transcriptionMetadata,
