@@ -20,6 +20,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 import async from 'async';
 import UrlParser from 'util/urlParser';
+import request from 'core/dataProvider/request';
 import eventifier from 'core/eventifier';
 import mimetype from 'core/mimetype';
 import store from 'core/store';
@@ -242,7 +243,6 @@ function mediaplayerFactory(config) {
                 this.config.mimeType = this.config.type;
             }
             this._setType(this.config.type || defaults.type);
-
             this._reset();
             this._updateVolumeFromStore();
             this._initEvents();
@@ -260,6 +260,8 @@ function mediaplayerFactory(config) {
                     _.defer(() => this.render());
                 }
             });
+            this._initTranscription();
+            this._setMaxHeight();
 
             return this;
         },
@@ -926,6 +928,22 @@ function mediaplayerFactory(config) {
             this._setState('ready', false);
         },
 
+        async _initTranscription() {
+            if (this.config.transcriptionUrl) {
+                try {
+                    const response = await request(this.config.transcriptionUrl);
+                    if (response && response.value) {
+                        this
+                            .$component
+                            .find('.transcription')
+                            .replaceWith('<div class="transcription">' + response.value + '</div>');
+                    }
+                } catch (error) {
+                    console.log('Error fetching transcription metadata:', error);
+                }
+            }
+        },
+
         /**
          * Resets the internals attributes
          * @private
@@ -1264,9 +1282,7 @@ function mediaplayerFactory(config) {
                 this.play();
             }
 
-            if (this.config.preview && this.$container && this.config.height && this.config.height !== 'auto') {
-                this._setMaxHeight();
-            }
+            this._setMaxHeight();
         },
 
         /**
@@ -1275,17 +1291,14 @@ function mediaplayerFactory(config) {
          * @private
          */
         _setMaxHeight() {
-            const $video = this.$container.find('video.video');
-            const controlsHeight = parseInt(window.getComputedStyle(this.$controls[0]).height);
-            const scale = $video.height() / this.config.height;
-            const playerWidth = this.$container.find('.player').width();
-            const videoWidth = $video.width() / scale;
-
-            if (videoWidth > playerWidth) {
-                this.execute('setSize', '100%', 'auto');
-            } else {
-                this.$component.css({ maxHeight: `${this.config.height + controlsHeight}px` });
-                this.execute('setSize', Math.floor(videoWidth), 'auto');
+            if (this.config.preview && this.$container && this.config.height && this.config.height !== 'auto') {
+                const $video = this.$container.find('video.video');
+                const scale = $video.height() / this.config.height;
+                const playerWidth = this.$container.find('.player').width();
+                const videoWidth = $video.width() / scale;
+                if (videoWidth > playerWidth) {
+                    this.execute('setSize', '100%', 'auto');
+                }
             }
         },
 

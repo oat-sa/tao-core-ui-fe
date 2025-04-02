@@ -23,6 +23,7 @@ $controlsHeight: 36px;
     min-height: $controlsHeight;
     min-width: 200px;
     direction: ltr;
+    padding: 2px;
 
     &.youtube {
         .player {
@@ -132,6 +133,8 @@ $controlsHeight: 36px;
     }
 
     .controls {
+        background-color: $playerBackground;
+        color: $playerTextOverlay;
         visibility: hidden;
         position: relative;
         padding: 5px;
@@ -556,6 +559,19 @@ $controlsHeight: 36px;
             [data-control="reload"] {
                 display: inline-block;
             }
+        }
+    }
+
+    .transcription {
+        background-color: white;
+        color: black;
+        font-size: 14px;
+        line-height: 1.5;
+        max-height: 60px;
+        margin-bottom: 2px;
+        overflow-y: scroll;
+        &.hidden {
+            display: none;
         }
     }
 
