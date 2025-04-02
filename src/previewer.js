@@ -202,8 +202,9 @@ const previewer = {
                         url: options.url,
                         type: options.mime,
                         renderTo: $content,
+                        transcriptionUrl: options.transcriptionUrl,
                         width,
-                        height
+                        height,
                     })
                     .on('ready', function() {
                         /**
