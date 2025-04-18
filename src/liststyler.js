@@ -57,7 +57,13 @@ var listStyles = {
     'upper-roman': 'I',
     'lower-greek': '\u03b1',
     armenian: '\u0531',
-    georgian: '\u10d0'
+    georgian: '\u10d0',
+    'decimal-period': '1.',
+    'decimal-parenthesis': '1)',
+    'lower-alpha-period': 'a.',
+    'lower-alpha-parenthesis': 'a)',
+    'upper-alpha-period': 'A.',
+    'upper-alpha-parenthesis': 'A)'
 };
 
 /**
