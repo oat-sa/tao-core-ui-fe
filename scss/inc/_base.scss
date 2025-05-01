@@ -1,7 +1,7 @@
 // this combines the most common features from normalize, h5bp main and tao base
 
 //these vars enables you to include this base in a scoped env.
-$mainContainer : html !default;
+$mainContainer: html !default;
 
 // Those styles can't be scoped because it's the base to use REM
 html {
@@ -29,17 +29,21 @@ body {
 }
 
 // cannot be scoped
-::-webkit-scrollbar-corner { background-color: ThreeDHighlight;}
+::-webkit-scrollbar-corner {
+    background-color: ThreeDHighlight;
+}
 
 #{$mainContainer} {
-
-    *, *:before, *:after {
+    *,
+    *:before,
+    *:after {
         -moz-box-sizing: border-box;
         -webkit-box-sizing: border-box;
         box-sizing: border-box;
     }
 
-    &, body{
+    &,
+    body {
         color: $textColor;
         font-family: $regularFont;
         font-weight: normal;
@@ -51,13 +55,41 @@ body {
         line-height: 1.4;
         background: white;
         border-width: 1px;
-        @if($mainContainer != html){
+        @if ($mainContainer != html) {
             @include font-size(14);
         }
     }
 
-    address, article, aside, audio, blockquote, dd, div, dl, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, header,
-    hr, noscript, ol, output, p, pre, section, summary, ul, main {
+    address,
+    article,
+    aside,
+    audio,
+    blockquote,
+    dd,
+    div,
+    dl,
+    fieldset,
+    figcaption,
+    figure,
+    footer,
+    form,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    header,
+    hr,
+    noscript,
+    ol,
+    output,
+    p,
+    pre,
+    section,
+    summary,
+    ul,
+    main {
         margin-top: 0;
         padding-top: 0;
         padding-bottom: 0;
@@ -98,14 +130,33 @@ body {
         margin: 1em 40px;
     }
 
-    blockquote, dd, dl, fieldset, figure, h1, h2, h3, h4, h5, h6,
-    hr, ol, p, pre, ul {
+    blockquote,
+    dd,
+    dl,
+    fieldset,
+    figure,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    hr,
+    ol,
+    p,
+    pre,
+    ul {
         display: block;
         margin-block-end: 10px;
         white-space: normal;
     }
 
-    h1, h2, h3, h4, h5, h6 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
         font-weight: normal;
         font-style: normal;
     }
@@ -140,7 +191,8 @@ body {
         &:hover {
             text-decoration: underline;
             color: $info;
-            &:before, &:after {
+            &:before,
+            &:after {
                 text-decoration: none !important;
             }
         }
@@ -149,7 +201,7 @@ body {
             text-decoration: none;
             display: block;
         }
-        &[rel="external"] span.icon-external {
+        &[rel='external'] span.icon-external {
             &:before {
                 @include font-size(11);
                 padding: 0 0 0 4px;
@@ -159,15 +211,25 @@ body {
         }
     }
 
-    b, .b, strong, .strong {
+    b,
+    .b,
+    strong,
+    .strong {
         font-weight: bold;
     }
 
-    i, .i, em, .em, dfn {
+    i,
+    .i,
+    em,
+    .em,
+    dfn {
         font-style: italic;
     }
 
-    code, pre, kdb, samp {
+    code,
+    pre,
+    kdb,
+    samp {
         font-family: $monospaceFont;
         @include font-size(14);
     }
@@ -179,7 +241,7 @@ body {
     }
 
     code {
-        background: whiten($lightBlueGrey, .5);
+        background: whiten($lightBlueGrey, 0.5);
         padding: 2px 6px;
         display: inline-block;
         margin: 0 3px;
@@ -196,7 +258,7 @@ body {
     }
 
     q {
-        quotes: "\201C" "\201D" "\2018" "\2019";
+        quotes: '\201C''\201D''\2018''\2019';
         &:before,
         &:after {
             content: '';
@@ -210,7 +272,7 @@ body {
 
     sub,
     sup {
-        font-size: .75em;
+        font-size: 0.75em;
         position: relative;
         vertical-align: baseline;
     }
@@ -232,7 +294,6 @@ body {
         overflow: hidden;
     }
 
-
     fieldset {
         border: 0;
         margin: 0;
@@ -250,7 +311,8 @@ body {
         resize: vertical;
     }
 
-    label, button {
+    label,
+    button {
         cursor: pointer;
     }
 
@@ -261,7 +323,8 @@ body {
         border: none;
     }
 
-    button, input {
+    button,
+    input {
         &::-moz-focus-inner {
             border: 0;
             padding: 0;
@@ -287,9 +350,9 @@ body {
     }
 
     button,
-    html input[type="button"],
-    input[type="reset"],
-    input[type="submit"] {
+    html input[type='button'],
+    input[type='reset'],
+    input[type='submit'] {
         -webkit-appearance: button;
         cursor: pointer;
     }
@@ -298,7 +361,7 @@ body {
         @include simple-border();
         @include border-radius(1);
 
-        &[type="search"] {
+        &[type='search'] {
             -webkit-appearance: textfield;
             -moz-box-sizing: content-box;
             -webkit-box-sizing: content-box;
@@ -309,8 +372,8 @@ body {
             }
         }
 
-        &[type="checkbox"],
-        &[type="radio"] {
+        &[type='checkbox'],
+        &[type='radio'] {
             box-sizing: border-box;
             padding: 0;
         }
@@ -321,9 +384,12 @@ body {
     }
 
     audio:not([controls]),
-    [hidden], template,
-    .hidden, .deleted,
-    .js, .js-hide {
+    [hidden],
+    template,
+    .hidden,
+    .deleted,
+    .js,
+    .js-hide {
         display: none !important;
     }
 
@@ -359,13 +425,15 @@ body {
         top: -10000px;
     }
 
-    %clearfix-before, .clearfix:before {
-        content: " ";
+    %clearfix-before,
+    .clearfix:before {
+        content: ' ';
         display: table;
     }
 
-    %clearfix-after, .clearfix:after {
-        content: " ";
+    %clearfix-after,
+    .clearfix:after {
+        content: ' ';
         display: table;
         clear: both;
     }
@@ -374,7 +442,6 @@ body {
         display: block;
         clear: both;
     }
-
 
     .lft,
     .wrap-left {
@@ -389,15 +456,18 @@ body {
     }
 
     .wrap-left {
-        margin: 20px 20px 20px 0;
+        margin-block: 20px;
+        margin-inline: 0 20px;
     }
 
     .wrap-right {
-        margin: 20px 0 20px 20px;
+        margin-block: 20px;
+        margin-inline: 20px 0;
     }
 
     .tao-centered {
-        margin: 20px auto;
+        margin-block: 20px;
+        margin-inline: auto;
         display: block;
     }
 
@@ -420,12 +490,12 @@ body {
     // added to make _u_ in ck QTI compatible
     .txt-underline {
         text-decoration: underline;
-        font-size : inherit;
+        font-size: inherit;
     }
 
     .txt-highlight {
         padding: 0 5px;
-        background: #FF6416;
+        background: #ff6416;
         color: white;
     }
 
@@ -461,13 +531,15 @@ body {
         text-overflow: ellipsis;
     }
 
-    .disabled, *:disabled {
+    .disabled,
+    *:disabled {
         cursor: default;
-        opacity: .7;
+        opacity: 0.7;
     }
 
-    .overlay, .ui-widget-overlay {
-        background: white(.9);
+    .overlay,
+    .ui-widget-overlay {
+        background: white(0.9);
     }
 
     .ui-widget {
@@ -479,12 +551,13 @@ body {
         font-size: 1.4rem !important;
     }
 
-    .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
+    .ui-widget input,
+    .ui-widget select,
+    .ui-widget textarea,
+    .ui-widget button {
         font-family: $regularFont;
         font-size: 1.4rem !important;
     }
-
-
 
     // everything on list styles and counters
     @import 'base/list-style';
@@ -497,5 +570,4 @@ body {
 
     // everything user highlight
     @import 'base/highlight';
-
 }
