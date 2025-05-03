@@ -1,4 +1,5 @@
-[class*=" col-"], [class^="col-"] {
+[class*=' col-'],
+[class^='col-'] {
     float: left;
     min-block-size: 1rem;
     &:first-child {
@@ -17,7 +18,8 @@
     overflow-x: hidden;
 }
 
-.grid-row, .fixed-grid-row {
+.grid-row,
+.fixed-grid-row {
     @extend .clearfix;
     inline-size: widthPerc(852, 840);
 }
@@ -30,16 +32,18 @@
         margin-block-end: 12px;
     }
     .alpha {
-        margin-left: 0 !important
+        margin-left: 0 !important;
     }
 }
 
 .writing-mode-vertical-rl {
-    .grid-row.grid-row, .fixed-grid-row.fixed-grid-row {
+    .grid-row.grid-row,
+    .fixed-grid-row.fixed-grid-row {
         block-size: auto;
         inline-size: 100%;
     }
-    [class*=" col-"], [class^="col-"] {
+    [class*=' col-'],
+    [class^='col-'] {
         &:first-child {
             margin-inline-start: 0;
             margin-block-end: 12px;
@@ -48,10 +52,15 @@
             margin-inline-end: 0;
         }
     }
+    .grid-row:last-child {
+        [class*=' col-'],
+        [class^='col-'] {
+            margin-block-end: 0;
+        }
+    }
 }
 
 #icon-editor {
-
     .grid-row {
         @extend .clearfix;
         width: 100%;
