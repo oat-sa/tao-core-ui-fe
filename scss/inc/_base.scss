@@ -90,44 +90,51 @@ body {
     summary,
     ul,
     main {
-        margin-top: 0;
-        padding-top: 0;
-        padding-bottom: 0;
+        margin-block-start: 0;
+        padding-block-start: 0;
+        padding-block-end: 0;
         white-space: normal;
     }
 
     h1 {
         font-size: 2em;
-        margin: 0.67em 0;
+        margin-block: 0.67em;
+        margin-inline: 0;
     }
 
     h2 {
         font-size: 1.5em;
-        margin: 0.83em 0;
+        margin-block: 0.83em;
+        margin-inline: 0;
     }
 
     h3 {
         font-size: 1.17em;
-        margin: 1em 0;
+        margin-block: 1em;
+        margin-inline: 0;
     }
 
     h4 {
         font-size: 1em;
-        margin: 1.33em 0;
+        margin-block: 1.33em;
+        margin-inline: 0;
     }
 
     h5 {
         font-size: 0.83em;
-        margin: 1.67em 0;
+        margin-block: 1.67em;
+        margin-inline: 0;
     }
 
     h6 {
         font-size: 0.67em;
-        margin: 2.33em 0;
+        margin-block: 2.33em;
+        margin-inline: 0;
     }
 
     blockquote {
-        margin: 1em 40px;
+        margin-block: 1em;
+        margin-inline: 40px;
     }
 
     blockquote,
@@ -494,10 +501,9 @@ body {
     }
     .writing-mode-vertical-rl .txt-underline {
         // should be 'text-underline-position: right', but for now to support Safari < 18.2:
-        // (box-shadow may also give space to ruby tags)
+        // ('box-shadow' instead of 'border' also gives a bit more space to ruby tags)
         text-decoration: none;
-        box-shadow: -1px 0 0 -0.5px currentColor inset;
-        border-right: 1px solid currentColor;
+        box-shadow: -2px 0 0 -1px currentColor inset;
     }
 
     .txt-highlight {
