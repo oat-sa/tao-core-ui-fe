@@ -500,10 +500,12 @@ body {
         font-size: inherit;
     }
     .writing-mode-vertical-rl .txt-underline {
-        // should be 'text-underline-position: right', but for now to support Safari < 18.2:
-        // ('box-shadow' instead of 'border' also gives a bit more space to ruby tags)
+        text-underline-position: right;
+    }
+    .writing-mode-vertical-rl[data-useragent-browser='safari'] .txt-underline {
+        // for Safari < 18.2 which doesn't support "text-underline-position: right"
         text-decoration: none;
-        box-shadow: -2px 0 0 -1px currentColor inset;
+        border-right: 1px solid currentColor;
     }
 
     .txt-highlight {
