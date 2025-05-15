@@ -31,9 +31,9 @@
         @include grid-unit($i, 12, 12);
         margin-block-end: 12px;
     }
-    .alpha {
-        margin-left: 0 !important;
-    }
+}
+.alpha {
+    margin-inline-start: 0 !important;
 }
 
 .writing-mode-vertical-rl {
