@@ -1,6 +1,8 @@
-ul, ol {
-    padding-left: 40px;
-    &.plain, &.none {
+ul,
+ol {
+    padding-inline-start: 40px;
+    &.plain,
+    &.none {
         padding: 0;
         margin: 0;
         list-style: none;
@@ -27,18 +29,21 @@ This SCSS generates CSS classes for custom list styling, it:
 */
 
 //https://developer.mozilla.org/en-US/docs/Web/CSS/list-style-type
-$list_styles: disc, circle, square, decimal, decimal-leading-zero, lower-roman, upper-roman,
-lower-greek, lower-latin, upper-latin, armenian, georgian, lower-alpha, upper-alpha;
+$list_styles: disc, circle, square, decimal, decimal-leading-zero, lower-roman, upper-roman, lower-greek, lower-latin,
+    upper-latin, armenian, georgian, lower-alpha, upper-alpha;
 
 $suffixes: (
     'parenthesis': ')',
     'period': '.'
 );
 
-[class^="list-style-"], [class*=" list-style-"] {
+[class^='list-style-'],
+[class*=' list-style-'] {
     counter-reset: custom-counter;
 
-    &>p, &>div, &>li.qti-choice {
+    & > p,
+    & > div,
+    & > li.qti-choice {
         position: relative;
         &::before {
             counter-increment: custom-counter;
@@ -52,7 +57,9 @@ $suffixes: (
 
     @each $style in $list_styles {
         &.list-style-#{$style} {
-            &>p, &>div, &>li.qti-choice::before {
+            & > p,
+            & > div,
+            & > li.qti-choice::before {
                 content: counter(custom-counter, #{$style});
             }
         }
@@ -61,7 +68,7 @@ $suffixes: (
     @each $style in $list_styles {
         @each $suffix, $symbol in $suffixes {
             &.list-style-#{$style}-#{$suffix} > li.qti-choice::before {
-                content: counter(custom-counter, #{$style}) "#{$symbol}";
+                content: counter(custom-counter, #{$style}) '#{$symbol}';
             }
         }
     }
