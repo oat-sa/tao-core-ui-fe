@@ -673,10 +673,6 @@ const ckConfigurator = (function () {
             if (context.featureFlags && context.featureFlags.FEATURE_FLAG_CKEDITOR_SOURCEDIALOG) {
                 ckConfig.toolbar.push({ name: 'sourcedialog', items: ['Sourcedialog'] });
             }
-            //enable interactionsource plugin upon featureflag (false by default)
-            if (context.featureFlags && context.featureFlags.FEATURE_FLAG_CKEDITOR_INTERACTION_SOURCE) {
-                ckConfig.toolbar.push({ name: 'interactionsource', items: ['InteractionSource'] });
-            }
         }
 
         // ensures positionedPlugins has the right format
