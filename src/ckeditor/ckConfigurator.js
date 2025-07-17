@@ -61,6 +61,15 @@ const ckConfigurator = (function () {
             {
                 name: 'language',
                 items: ['Language']
+
+            },
+            {
+                name: 'styles',
+                items: ['Format']
+            },
+            {
+                name: 'paragraph',
+                items: ['NumberedList', 'BulletedList', '-', 'Blockquote', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock']
             },
             {
                 name: 'interactionsource',
