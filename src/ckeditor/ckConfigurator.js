@@ -61,6 +61,10 @@ const ckConfigurator = (function () {
             {
                 name: 'language',
                 items: ['Language']
+            },
+            {
+                name: 'interactionsource',
+                items: ['InteractionSource']
             }
         ],
         flow: [
@@ -79,6 +83,10 @@ const ckConfigurator = (function () {
             {
                 name: 'language',
                 items: ['Language']
+            },
+            {
+                name: 'interactionsource',
+                items: ['InteractionSource']
             }
         ],
         block: [
@@ -114,6 +122,10 @@ const ckConfigurator = (function () {
                     'JustifyRight',
                     'JustifyBlock'
                 ]
+            },
+            {
+                name: 'interactionsource',
+                items: ['InteractionSource']
             }
         ],
         extendedText: [
@@ -186,6 +198,10 @@ const ckConfigurator = (function () {
             {
                 name: 'language',
                 items: ['Language']
+            },
+            {
+                name: 'interactionsource',
+                items: ['InteractionSource']
             }
         ],
         table: [
@@ -208,6 +224,10 @@ const ckConfigurator = (function () {
             {
                 name: 'language',
                 items: ['Language']
+            },
+            {
+                name: 'interactionsource',
+                items: ['InteractionSource']
             }
         ]
     };
@@ -220,7 +240,7 @@ const ckConfigurator = (function () {
         entities: false,
         entities_processNumerical: true,
         autoParagraph: false,
-        extraPlugins: 'confighelper, taolanguage',
+        extraPlugins: 'confighelper, taolanguage, interactionsource',
         floatSpaceDockedOffsetY: 0,
         forcePasteAsPlainText: true,
         skin: 'tao',
