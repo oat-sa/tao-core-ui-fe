@@ -176,7 +176,11 @@ interactHelper = {
                 e.preventDefault();
             }
         }
-        window.addEventListener('touchmove', e => touchmoveListener(e), { passive: false });
+        window.addEventListener('touchmove', touchmoveListener, { passive: false });
+
+        function contextmenuListener(e) {
+            e.preventDefault();
+        }
 
         return {
             /**
@@ -186,9 +190,19 @@ interactHelper = {
              * @param {Object} interactable
              * @returns {Object}
              */
-            actionChecker: (pointer, event, action, interactable) => {
+            actionChecker: (pointer, event, action, interactable, element) => {
                 if (event && action && action.name === 'drag') {
-                    interactable.options[action.name].delay = event.pointerType === 'touch' ? delayBefore : 0;
+                    const isTouch = event.pointerType === 'touch';
+                    interactable.options[action.name].delay = isTouch ? delayBefore : 0;
+
+                    if (isTouch && !element.dataset.noContextMenu) {
+                        if (element.querySelector('img')) {
+                            //prevent image context menu on longpress on Android
+                            //this listener can stay forever until the element is destroyed
+                            element.addEventListener('contextmenu', contextmenuListener);
+                        }
+                        element.dataset.noContextMenu = true;
+                    }
                 }
                 return action;
             },
