@@ -196,9 +196,10 @@ interactHelper = {
                     interactable.options[action.name].delay = isTouch ? delayBefore : 0;
 
                     if (isTouch && !element.dataset.noContextMenu) {
+                        //prevent context menu on longpress
+                        //this listener can stay forever until the element is destroyed
+                        element.addEventListener('contextmenu', contextmenuListener);
                         if (element.querySelector('img')) {
-                            //prevent image context menu on longpress on Android
-                            //this listener can stay forever until the element is destroyed
                             element.addEventListener('contextmenu', contextmenuListener);
                         }
                         element.dataset.noContextMenu = true;
