@@ -159,7 +159,6 @@ interactHelper = {
 `         touchPatch.destroy()
           interact(selector).unset();
         }
-     * @param {Object} draggableInstance - what was returned by `interact(selector)` call
      * @returns {Object}
      */
     touchPatchFactory: function touchPatchFactory() {
