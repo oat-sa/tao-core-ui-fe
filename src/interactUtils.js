@@ -134,6 +134,190 @@ interactHelper = {
 
         domElement.setAttribute('data-x', 0);
         domElement.setAttribute('data-y', 0);
+    },
+
+    /**
+     * Improve touch devices support:
+     *  - prevent native scroll while dragging
+     *  - start drag only after longpress:
+     *    when user is scrolling through the long page, he can accidentally get his finger on the draggable element:
+     *    this will cause unwanted, unnoticed drag and can mess up his response.
+     * @example
+     *  touchPatch = interactUtils.touchPatchFactory();
+     *  interact(selector)
+     *      .draggable({
+                onstart: () => {
+                    touchPatch.onstart();
+                },
+                onend: () => {
+                    touchPatch.onend();
+                }
+            })
+            .actionChecker(touchPatch.actionChecker);
+        ...
+        function destroy() {
+`         touchPatch.destroy()
+          interact(selector).unset();
+        }
+     * @returns {Object}
+     */
+    touchPatchFactory: function touchPatchFactory() {
+        const delayBefore = 300;
+        const distanceTolerance = 20; //while waiting for delayBefore, finger can move a little bit
+
+        interact.pointerMoveTolerance(distanceTolerance);
+        let isDragging = false;
+
+        // webKit requires cancelable `touchmove` events to be added as early as possible
+        // alternative: `touch-action: pinch-zoom` css: add it after drag start [?]; or have it always - worse ux
+        function touchmoveListener(e) {
+            if (isDragging) {
+                e.preventDefault();
+            }
+        }
+        window.addEventListener('touchmove', touchmoveListener, { passive: false });
+
+        function contextmenuListener(e) {
+            e.preventDefault();
+        }
+
+        return {
+            /**
+             * @param {PointerEvent} pointer
+             * @param {PointerEvent} event
+             * @param {Object} action
+             * @param {Object} interactable
+             * @returns {Object}
+             */
+            actionChecker: (pointer, event, action, interactable, element) => {
+                if (event && action && action.name === 'drag') {
+                    const isTouch = event.pointerType === 'touch';
+                    interactable.options[action.name].delay = isTouch ? delayBefore : 0;
+
+                    if (isTouch && !element.dataset.noContextMenu) {
+                        //prevent context menu on longpress
+                        //this listener can stay forever until the element is destroyed
+                        element.addEventListener('contextmenu', contextmenuListener);
+                        element.dataset.noContextMenu = true;
+                    }
+                }
+                return action;
+            },
+            onstart: () => {
+                isDragging = true;
+            },
+            onend: () => {
+                isDragging = false;
+            },
+            destroy: () => {
+                window.removeEventListener('touchmove', touchmoveListener);
+            }
+        };
+    },
+
+    /**
+     * Builds a scroll observer that will make sure the dragged element keeps an accurate positioning
+     * @example
+     * scrollObserver = interactUtils.scrollObserverFactory($container);
+     * dragOptions = {
+            autoScroll: {
+                container: scrollObserver.getScrollContainer().get(0)
+            },
+            onstart: function (e) {
+                scrollObserver.start($activeChoice);
+            },
+            onend: function (e) {
+                scrollObserver.stop();
+            }
+        };
+     * @param {jQuery} $scrollContainer
+     * @returns {scrollObserver}
+     */
+    scrollObserverFactory: function scrollObserverFactory($scrollContainer) {
+        let currentDraggable = null;
+        let beforeY = 0;
+        let beforeX = 0;
+        let afterY = 0;
+        let afterX = 0;
+
+        // reset the scroll observer context
+        function resetScrollObserver() {
+            currentDraggable = null;
+            beforeY = 0;
+            beforeX = 0;
+            afterY = 0;
+            afterX = 0;
+        }
+
+        // keep the position of the dragged element accurate with the scroll position
+        function onScrollCb() {
+            let x;
+            let y;
+            if (currentDraggable) {
+                beforeY = afterY;
+                beforeX = afterX;
+
+                if (afterY === 0 && beforeY === 0) beforeY = this.scrollTop;
+                if (afterX === 0 && beforeX === 0) beforeX = this.scrollLeft;
+
+                afterY = this.scrollTop;
+                afterX = this.scrollLeft;
+
+                y = (parseInt(currentDraggable.getAttribute('data-y'), 10) || 0) + (afterY - beforeY);
+                x = (parseInt(currentDraggable.getAttribute('data-x'), 10) || 0) + (afterX - beforeX);
+
+                // translate the element
+                currentDraggable.style.webkitTransform = currentDraggable.style.transform = `translate(${x}px, ${y}px)`;
+
+                // update the position attributes
+                currentDraggable.setAttribute('data-x', x);
+                currentDraggable.setAttribute('data-y', y);
+            }
+        }
+
+        // find the scroll container within the parents if any
+        $scrollContainer.parents().each(function findScrollContainer() {
+            const $el = $(this);
+            const ovf = $el.css('overflow');
+            if (ovf !== 'hidden' && ovf !== 'visible') {
+                $scrollContainer = $el;
+                return false;
+            }
+        });
+
+        // make sure the drop zones will follow the scroll
+        interact.dynamicDrop(true);
+
+        /**
+         * @typedef {Object} scrollObserver
+         */
+        return {
+            /**
+             * Gets the scroll container
+             * @returns {jQuery}
+             */
+            getScrollContainer: function getScrollContainer() {
+                return $scrollContainer;
+            },
+
+            /**
+             * Initializes the scroll observer while dragging a choice
+             * @param {HTMLElement|jQuery} draggedElement
+             */
+            start: function start(draggedElement) {
+                resetScrollObserver();
+                currentDraggable = draggedElement instanceof $ ? draggedElement.get(0) : draggedElement;
+                $scrollContainer.on('scroll.scrollObserver', _.throttle(onScrollCb, 50));
+            },
+
+            /**
+             * Tears down the the scroll observer once the dragging is done
+             */
+            stop: function stop() {
+                $scrollContainer.off('.scrollObserver');
+                resetScrollObserver();
+            }
+        };
     }
 };
 
