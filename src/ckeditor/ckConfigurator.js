@@ -148,7 +148,7 @@ const ckConfigurator = (function () {
         extendedText: [
             {
                 name: 'basicstyles',
-                items: ['Bold', 'Italic', 'Strike', 'Underline', 'Subscript', 'Superscript']
+                items: ['Bold', 'Italic', 'Underline', 'Subscript', 'Superscript']
             },
             {
                 name: 'insert',
@@ -182,7 +182,7 @@ const ckConfigurator = (function () {
         htmlField: [
             {
                 name: 'basicstyles',
-                items: ['Bold', 'Italic', 'Strike', 'Underline']
+                items: ['Bold', 'Italic', 'Underline']
             },
             {
                 name: 'exponent',
@@ -681,7 +681,7 @@ const ckConfigurator = (function () {
                 }
                 if (options.underline) {
                     positionedPlugins.TaoUnderline = {
-                        insertAfter: 'TaoStrike'
+                       insertAfter: options.strike ? 'TaoStrike' : 'Italic'
                     };
                 }
             }
