@@ -280,6 +280,10 @@ const ckConfigurator = (function () {
             element: 'sub',
             attributes: { class: 'txt-subscript' }
         },
+        coreStyles_superscript: {
+            element: 'sup',
+            attributes: { class: 'txt-superscript' }
+        },
         coreStyles_highlight: {
             element: 'span',
             attributes: { class: 'txt-highlight' }
