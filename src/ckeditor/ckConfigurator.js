@@ -685,7 +685,7 @@ const ckConfigurator = (function () {
                 }
                 if (options.underline) {
                     positionedPlugins.TaoUnderline = {
-                    insertAfter: options.strike ? 'TaoStrike' : 'Italic'
+                        insertAfter: options.strike ? 'TaoStrike' : 'Italic'
                     };
                 }
             }
