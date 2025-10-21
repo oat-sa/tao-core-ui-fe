@@ -499,9 +499,32 @@ body {
         text-decoration: underline;
         font-size: inherit;
     }
-    .writing-mode-vertical-rl .txt-underline {
-        text-underline-position: right;
+    .txt-dashed {
+        text-decoration: underline dashed;
+        text-underline-offset: 0.4em;
     }
+
+    .txt-wavy {
+        text-decoration: underline wavy;
+        text-underline-offset: 0.4em;
+    }
+
+    .txt-strike {
+        text-decoration: line-through;
+    }
+    
+    .writing-mode-vertical-rl {
+        .txt-underline {
+            text-underline-position: right;
+        }
+        .txt-subscript {
+            right: -0.6em;
+        }
+        .txt-superscript {
+            left: -0.6em;
+        }
+    }
+
     .writing-mode-vertical-rl[data-useragent-browser='safari'] .txt-underline {
         // for Safari < 18.2 which doesn't support "text-underline-position: right"
         text-decoration: none;
