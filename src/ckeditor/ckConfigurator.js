@@ -29,6 +29,7 @@ import featuresService from 'services/features';
 const originalConfig = _.cloneDeep(window.CKEDITOR.config);
 const moduleConfig = module.config();
 const furiganaPluginVisibilityKey = 'ckeditor/TaoFurigana';
+const decorationsOn = !!(context.featureFlags && context.featureFlags.FEATURE_FLAG_CKEDITOR_DECORATIONS);
 
 function getUserLanguage() {
     const documentLang = window.document.documentElement.getAttribute('lang');
@@ -278,11 +279,11 @@ const ckConfigurator = (function () {
         },
         coreStyles_subscript: {
             element: 'sub',
-            attributes: { class: 'txt-subscript' }
+            attributes: { class: decorationsOn ? 'txt-subscript' : ''}
         },
         coreStyles_superscript: {
             element: 'sup',
-            attributes: { class: 'txt-superscript' }
+            attributes: { class: decorationsOn ? 'txt-superscript': '' }
         },
         coreStyles_highlight: {
             element: 'span',
@@ -548,7 +549,6 @@ const ckConfigurator = (function () {
                 positionedPluginArr[pluginIndex] = positionedPluginArr[pluginIndex].toLowerCase();
             }
 
-            // 🚫 do not add native buttons to extraPlugins
             positionedPluginArr = positionedPluginArr.filter(p => !NATIVE_BUTTONS.has(p));
 
             extraPluginArr = _.compact(_.union(extraPluginArr, positionedPluginArr));
@@ -687,7 +687,6 @@ const ckConfigurator = (function () {
             if (options.qtiInclude) {
                 positionedPlugins.TaoQtiInclude = { insertAfter: 'SpecialChar' };
             }
-            const decorationsOn = !!(context.featureFlags && context.featureFlags.FEATURE_FLAG_CKEDITOR_DECORATIONS);
             if (decorationsOn) {
                 positionedPlugins.Strike = { insertAfter: 'Italic' };
                 if (options.underline) {
