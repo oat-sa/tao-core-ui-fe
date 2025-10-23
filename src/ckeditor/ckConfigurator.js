@@ -29,6 +29,7 @@ import featuresService from 'services/features';
 const originalConfig = _.cloneDeep(window.CKEDITOR.config);
 const moduleConfig = module.config();
 const furiganaPluginVisibilityKey = 'ckeditor/TaoFurigana';
+const decorationsOn = !!(context.featureFlags && context.featureFlags.FEATURE_FLAG_CKEDITOR_DECORATIONS);
 
 function getUserLanguage() {
     const documentLang = window.document.documentElement.getAttribute('lang');
@@ -278,11 +279,11 @@ const ckConfigurator = (function () {
         },
         coreStyles_subscript: {
             element: 'sub',
-            attributes: { class: 'txt-subscript' }
+            attributes: { class: decorationsOn ? 'txt-subscript' : ''}
         },
         coreStyles_superscript: {
             element: 'sup',
-            attributes: { class: 'txt-superscript' }
+            attributes: { class: decorationsOn ? 'txt-superscript': '' }
         },
         coreStyles_highlight: {
             element: 'span',
@@ -537,13 +538,22 @@ const ckConfigurator = (function () {
             let pluginIndex = positionedPluginArr.length;
             let extraPluginArr = extraPlugins.split(',');
 
+            const NATIVE_BUTTONS = new Set([
+                'bold', 'italic', 'underline', 'strike', 'subscript', 'superscript',
+                'numberedlist', 'bulletedlist', 'blockquote',
+                'justifyleft', 'justifycenter', 'justifyright', 'justifyblock',
+                'link', 'unlink', 'image', 'specialchar', 'format', 'font', 'fontsize', 'textcolor', 'language'
+            ]);
+
             while (pluginIndex--) {
                 positionedPluginArr[pluginIndex] = positionedPluginArr[pluginIndex].toLowerCase();
             }
 
+            positionedPluginArr = positionedPluginArr.filter(p => !NATIVE_BUTTONS.has(p));
+
             extraPluginArr = _.compact(_.union(extraPluginArr, positionedPluginArr));
             return extraPluginArr.join(',');
-        })(_.keys(positionedPlugins), ckConfig.extraPlugins);
+        }(_.keys(positionedPlugins), ckConfig.extraPlugins));
 
         // capture line breaks (/) and such
         // and turn them into a objects temporarily
@@ -677,24 +687,20 @@ const ckConfigurator = (function () {
             if (options.qtiInclude) {
                 positionedPlugins.TaoQtiInclude = { insertAfter: 'SpecialChar' };
             }
-            if (context.featureFlags && context.featureFlags.FEATURE_FLAG_CKEDITOR_DECORATIONS) {
-                if (options.strike) {
-                    positionedPlugins.TaoStrike = {
-                        insertAfter: 'Italic'
-                    };
-                }
+            if (decorationsOn) {
+                positionedPlugins.Strike = { insertAfter: 'Italic' };
                 if (options.underline) {
-                    positionedPlugins.TaoUnderline = {
-                        insertAfter: options.strike ? 'TaoStrike' : 'Italic'
-                    };
+                    positionedPlugins.TaoUnderline = { insertAfter: 'Strike' };
+                }
+            } else {
+                if (options.underline) {
+                    positionedPlugins.Underline = { insertAfter: 'Italic' };
                 }
             }
             if (options.highlight) {
-                if (options.underline) {
-                    positionedPlugins.TaoHighlight = { insertAfter: 'TaoUnderline' };
-                } else {
-                    positionedPlugins.TaoHighlight = { insertAfter: 'Italic' };
-                }
+                positionedPlugins.TaoHighlight = {
+                    insertAfter: (decorationsOn && options.underline) ? 'TaoUnderline' : (options.underline ? 'Underline' : 'Italic')
+                };
             }
             if (options.mathJax) {
                 positionedPlugins.TaoQtiMaths = { insertAfter: 'SpecialChar' };
