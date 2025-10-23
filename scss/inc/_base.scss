@@ -527,6 +527,10 @@ body {
             inset-block-end: -0.4em;
             top: 0;
         }
+        ruby rt {
+            position: relative;
+            inset-block-start: -0.8em;
+        }
     }
 
     .writing-mode-vertical-rl[data-useragent-browser='safari'] .txt-underline {
