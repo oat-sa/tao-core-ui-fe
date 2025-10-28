@@ -512,8 +512,16 @@ body {
     .txt-strike {
         text-decoration: line-through;
     }
-    
+
+    .writing-mode-horizontal-tb {
+        writing-mode: horizontal-tb;
+    }
+
     .writing-mode-vertical-rl {
+        writing-mode: vertical-rl;
+    }
+
+    @include writing-mode-vertical-rl {
         .txt-underline {
             text-underline-position: right;
         }
@@ -525,10 +533,14 @@ body {
         }
     }
 
-    .writing-mode-vertical-rl[data-useragent-browser='safari'] .txt-underline {
-        // for Safari < 18.2 which doesn't support "text-underline-position: right"
-        text-decoration: none;
-        border-right: 1px solid currentColor;
+    body[data-useragent-browser='safari'] {
+        @include writing-mode-vertical-rl {
+            .txt-underline {
+                // for Safari < 18.2 which doesn't support "text-underline-position: right"
+                text-decoration: none;
+                border-right: 1px solid currentColor;
+            }
+        }
     }
 
     .txt-combine-upright-all {
