@@ -501,27 +501,39 @@ body {
     }
     .txt-dashed {
         text-decoration: underline dashed;
-        text-underline-offset: 0.4em;
     }
 
     .txt-wavy {
         text-decoration: underline wavy;
-        text-underline-offset: 0.4em;
     }
 
     .txt-strike {
         text-decoration: line-through;
     }
-    
+
     .writing-mode-vertical-rl {
+        .txt-dashed,
+        .txt-underline {
+            text-underline-offset: 0.2em;
+        }
         .txt-underline {
             text-underline-position: right;
         }
         .txt-subscript {
-            right: -0.6em;
+            inset-block-start: -0.4em;
+            bottom: 0;
         }
         .txt-superscript {
-            left: -0.6em;
+            inset-block-end: -0.4em;
+            top: 0;
+        }
+        .txt-underline,
+        .txt-dashed,
+        .txt-wavy {
+            ruby rt {
+                position: relative;
+                inset-block-start: -0.8em;
+            }
         }
     }
 
