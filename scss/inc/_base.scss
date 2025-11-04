@@ -521,25 +521,40 @@ body {
         writing-mode: vertical-rl;
     }
 
-    @include writing-mode-vertical-rl {
-        .txt-underline {
+    .txt-underline {
+        @include writing-mode-vertical-rl {
             text-underline-position: right;
         }
-        .txt-subscript {
+        @include writing-mode-horizontal-tb {
+            text-underline-position: auto;
+        }
+    }
+    .txt-subscript {
+        @include writing-mode-vertical-rl {
             right: -0.6em;
         }
-        .txt-superscript {
+        @include writing-mode-horizontal-tb {
+            right: auto;
+        }
+    }
+    .txt-superscript {
+        @include writing-mode-vertical-rl {
             left: -0.6em;
+        }
+        @include writing-mode-horizontal-tb {
+            left: auto;
         }
     }
 
     body[data-useragent-browser='safari'] {
-        @include writing-mode-vertical-rl {
-            .txt-underline {
-                // for Safari < 18.2 which doesn't support "text-underline-position: right"
-                text-decoration: none;
-                border-right: 1px solid currentColor;
-            }
+        .writing-mode-vertical-rl .txt-underline {
+            // for Safari < 18.2 which doesn't support "text-underline-position: right"
+            text-decoration: none;
+            border-right: 1px solid currentColor;
+        }
+        .writing-mode-vertical-rl .writing-mode-horizontal-tb .txt-underline {
+            text-decoration: underline;
+            border-right: none;
         }
     }
 

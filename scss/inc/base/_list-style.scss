@@ -19,13 +19,22 @@ nav {
         list-style: none;
     }
 }
-@include writing-mode-vertical-rl {
-    ol {
-        li::marker {
+
+ol {
+    li::marker {
+        @include writing-mode-vertical-rl {
             text-combine-upright: all;
         }
-        li {
+        @include writing-mode-horizontal-tb {
+            text-combine-upright: none;
+        }
+    }
+    li {
+        @include writing-mode-vertical-rl {
             padding-inline-start: 6px;
+        }
+        @include writing-mode-horizontal-tb {
+            padding-inline-start: 0px;
         }
     }
 }

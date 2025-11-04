@@ -286,15 +286,24 @@ Usage:
     padding: 0;
 }
 
-/* writing-mode is defined on:
-     a) item (.qti-itemBody), b) text block (.custom-text-box), c) interaction (.qti-interaction).
-  use this mixin for content inside those blocks
+/*
+ * Every style defined here must be mirrored with `writing-mode-horizontal-tb` mixin.
+   Because writing-mode can be defined on 2 levels: a) item, b) text block or interaction;
+     so if there's a horizontal block inside vertical item, vertical styles should *not* be used for it.
  */
 @mixin writing-mode-vertical-rl {
-    .writing-mode-vertical-rl,
-        .writing-mode-vertical-rl > :where(.grid-row) > :where(*), /* [class*=' col-'],[class^='col-'] */
-        .writing-mode-vertical-rl :where(.colrow) {
-        &:where(:not(:has(.writing-mode-horizontal-tb))) {
+    @at-root {
+        #{selector-replace(&, $mainContainer, $mainContainer + " .writing-mode-vertical-rl")} {
+            @content;
+        }
+    }
+}
+@mixin writing-mode-horizontal-tb {
+    & {
+        @content;
+    }
+    @at-root {
+        #{selector-replace(&, $mainContainer, $mainContainer + " .writing-mode-vertical-rl .writing-mode-horizontal-tb")} {
             @content;
         }
     }

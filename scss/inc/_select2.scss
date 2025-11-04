@@ -665,7 +665,7 @@ disabled look for disabled choices in the results dropdown
 }
 
 /* writing-mode vertical-rl, only for single select without search */
-@include writing-mode-vertical-rl {
+.writing-mode-vertical-rl {
     &.select2-container .select2-choice {
         height: auto;
         block-size: 26px;
@@ -729,7 +729,7 @@ disabled look for disabled choices in the results dropdown
         border-top-width: 1px;
         border-block-start-width: 0;
     }
-    & .select2-results {
+    &:where(.select2-drop) .select2-results {
         max-height: none;
         max-block-size: 200px;
         margin-block: 4px;
@@ -737,13 +737,13 @@ disabled look for disabled choices in the results dropdown
         overflow-x: auto;
         overflow-y: hidden;
     }
-    & .select2-results .select2-result-label {
+    &:where(.select2-drop) .select2-results .select2-result-label {
         min-height: auto;
         min-block-size: 1em;
         padding-block: 3px 4px;
         padding-inline: 7px;
     }
-    & .select2-results .select2-no-results {
+    &:where(.select2-drop) .select2-results .select2-no-results {
         padding-left: 0;
         padding-inline-start: 7px;
     }
