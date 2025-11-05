@@ -501,12 +501,10 @@ body {
     }
     .txt-dashed {
         text-decoration: underline dashed;
-        text-underline-offset: 0.4em;
     }
 
     .txt-wavy {
         text-decoration: underline wavy;
-        text-underline-offset: 0.4em;
     }
 
     .txt-strike {
@@ -521,6 +519,16 @@ body {
         writing-mode: vertical-rl;
     }
 
+    .txt-dashed,
+    .txt-underline {
+        @include writing-mode-vertical-rl {
+            text-underline-offset: 0.2em;
+        }
+        @include writing-mode-horizontal-tb {
+            text-underline-offset: auto;
+        }
+    }
+
     .txt-underline {
         @include writing-mode-vertical-rl {
             text-underline-position: right;
@@ -531,18 +539,36 @@ body {
     }
     .txt-subscript {
         @include writing-mode-vertical-rl {
-            right: -0.6em;
+            inset-block-start: -0.9em;
+            bottom: 0;
         }
         @include writing-mode-horizontal-tb {
-            right: auto;
+            inset-block-start: auto;
+            bottom: auto;
         }
     }
     .txt-superscript {
         @include writing-mode-vertical-rl {
-            left: -0.6em;
+            inset-block-end: -0.4em;
+            top: 0;
         }
         @include writing-mode-horizontal-tb {
-            left: auto;
+            inset-block-end: auto;
+            top: auto;
+        }
+    }
+
+    .txt-underline,
+    .txt-dashed,
+    .txt-wavy {
+        ruby rt {
+            position: relative;
+            @include writing-mode-vertical-rl {
+                inset-block-start: -0.8em;
+            }
+            @include writing-mode-horizontal-tb {
+                inset-block-start: auto;
+            }
         }
     }
 
