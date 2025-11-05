@@ -546,13 +546,13 @@ body {
         }
     }
 
-    body[data-useragent-browser='safari'] {
-        .writing-mode-vertical-rl .txt-underline {
+    [data-useragent-browser='safari'].writing-mode-vertical-rl {
+        .txt-underline {
             // for Safari < 18.2 which doesn't support "text-underline-position: right"
             text-decoration: none;
             border-right: 1px solid currentColor;
         }
-        .writing-mode-vertical-rl .writing-mode-horizontal-tb .txt-underline {
+        .writing-mode-horizontal-tb .txt-underline {
             text-decoration: underline;
             border-right: none;
         }
