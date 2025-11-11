@@ -1,11 +1,10 @@
 @import 'inc/bootstrap';
 
 .select2-container * {
-    text-decoration: none !important
+    text-decoration: none !important;
 }
 
 .select2-drop {
-
     font-family: $regularFont;
     font-weight: 400;
     //@include font-size(12);
@@ -22,7 +21,6 @@
 }
 
 .select2-container {
-
     margin: 0;
     position: relative;
     display: inline-block;
@@ -255,7 +253,7 @@
 }
 
 .select2-search input.select2-active {
-    background: $uiGeneralContentBg
+    background: $uiGeneralContentBg;
 }
 
 .select2-container-active .select2-choice,
@@ -289,7 +287,7 @@
     position: relative;
     overflow-x: hidden;
     overflow-y: auto;
-    font-size: inherit
+    font-size: inherit;
 }
 
 .select2-results ul.select2-result-sub {
@@ -298,31 +296,61 @@
 }
 
 .select2-results ul.select2-result-sub > li .select2-result-label {
-    padding-left: 20px
+    padding-left: 20px;
 }
 
 .select2-results ul.select2-result-sub ul.select2-result-sub > li .select2-result-label {
-    padding-left: 40px
+    padding-left: 40px;
 }
 
 .select2-results ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub > li .select2-result-label {
-    padding-left: 60px
+    padding-left: 60px;
 }
 
-.select2-results ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub > li .select2-result-label {
-    padding-left: 80px
+.select2-results
+    ul.select2-result-sub
+    ul.select2-result-sub
+    ul.select2-result-sub
+    ul.select2-result-sub
+    > li
+    .select2-result-label {
+    padding-left: 80px;
 }
 
-.select2-results ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub > li .select2-result-label {
-    padding-left: 100px
+.select2-results
+    ul.select2-result-sub
+    ul.select2-result-sub
+    ul.select2-result-sub
+    ul.select2-result-sub
+    ul.select2-result-sub
+    > li
+    .select2-result-label {
+    padding-left: 100px;
 }
 
-.select2-results ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub > li .select2-result-label {
-    padding-left: 110px
+.select2-results
+    ul.select2-result-sub
+    ul.select2-result-sub
+    ul.select2-result-sub
+    ul.select2-result-sub
+    ul.select2-result-sub
+    ul.select2-result-sub
+    > li
+    .select2-result-label {
+    padding-left: 110px;
 }
 
-.select2-results ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub ul.select2-result-sub > li .select2-result-label {
-    padding-left: 120px
+.select2-results
+    ul.select2-result-sub
+    ul.select2-result-sub
+    ul.select2-result-sub
+    ul.select2-result-sub
+    ul.select2-result-sub
+    ul.select2-result-sub
+    ul.select2-result-sub
+    > li
+    .select2-result-label {
+    padding-left: 120px;
 }
 
 .select2-results li {
@@ -461,7 +489,6 @@ disabled look for disabled choices in the results dropdown
 .select2-container-multi.select2-container-active .select2-choices {
     border: 1px solid $uiGeneralContentBorder;
     outline: none;
-
 }
 
 .select2-container-multi .select2-choices li {
@@ -517,10 +544,10 @@ disabled look for disabled choices in the results dropdown
     -ms-user-select: none;
     user-select: none;
 
-    background-color: blacken($uiClickableDefaultBg, .1);
+    background-color: blacken($uiClickableDefaultBg, 0.1);
 
     &.partial {
-        background-color: whiten($uiClickableDefaultBg, .6);
+        background-color: whiten($uiClickableDefaultBg, 0.6);
     }
 }
 
@@ -580,14 +607,18 @@ disabled look for disabled choices in the results dropdown
     background-color: $uiClickableDefaultBg;
 }
 
-.select2-container-multi.select2-container-disabled .select2-choices .select2-search-choice .select2-search-choice-close {
+.select2-container-multi.select2-container-disabled
+    .select2-choices
+    .select2-search-choice
+    .select2-search-choice-close {
     display: none;
     background: none;
 }
 
 /* end multiselect */
 
-.select2-offscreen, .select2-offscreen:focus {
+.select2-offscreen,
+.select2-offscreen:focus {
     clip: rect(0 0 0 0) !important;
     width: 1px !important;
     height: 1px !important;
@@ -619,7 +650,7 @@ disabled look for disabled choices in the results dropdown
         pointer-events: none;
         cursor: default;
         color: $textColor;
-        opacity: .55 !important;
+        opacity: 0.55 !important;
 
         .select2-search-field,
         .select2-search-choice-close,
@@ -698,7 +729,7 @@ disabled look for disabled choices in the results dropdown
         border-top-width: 1px;
         border-block-start-width: 0;
     }
-    & .select2-results {
+    &:where(.select2-drop) .select2-results {
         max-height: none;
         max-block-size: 200px;
         margin-block: 4px;
@@ -706,13 +737,13 @@ disabled look for disabled choices in the results dropdown
         overflow-x: auto;
         overflow-y: hidden;
     }
-    & .select2-results .select2-result-label {
+    &:where(.select2-drop) .select2-results .select2-result-label {
         min-height: auto;
         min-block-size: 1em;
         padding-block: 3px 4px;
         padding-inline: 7px;
     }
-    & .select2-results .select2-no-results {
+    &:where(.select2-drop) .select2-results .select2-no-results {
         padding-left: 0;
         padding-inline-start: 7px;
     }
