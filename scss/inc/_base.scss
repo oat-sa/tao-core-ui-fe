@@ -514,18 +514,10 @@ body {
     }
 
     .writing-mode-vertical-rl {
-        .txt-underline,
+        text-underline-position: right;
         .txt-dashed,
-        .txt-wavy {
-            // for Safari < 18.2 which doesn't support "text-underline-position"
-            text-underline-position: left !important;
-        }
-        .txt-wavy {
-            text-underline-offset: -1.4em;
-        }
-        .txt-underline, 
-        .txt-dashed {
-            text-underline-offset: -1.2em;
+        .txt-underline {
+            text-underline-offset: 0.1em;
         }
         .txt-subscript {
             inset-block-start: -0.9em;
@@ -545,10 +537,8 @@ body {
         }
     }
 
-    .writing-mode-vertical-rl[data-useragent-browser='safari'] .txt-underline {
-        // for Safari < 18.2 which doesn't support "text-underline-position: right"
-        text-decoration: none;
-        border-right: 1px solid currentColor;
+    .writing-mode-vertical-rl[data-useragent-browser='safari'] .txt-dashed, .txt-underline {
+        text-underline-offset: 0;
     }
 
     .txt-combine-upright-all {
