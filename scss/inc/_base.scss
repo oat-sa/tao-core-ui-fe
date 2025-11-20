@@ -513,6 +513,11 @@ body {
         text-decoration: line-through;
     }
 
+    ruby rt span {
+        // hide text decorations on ruby tags (ckeditor fix)
+        text-decoration: none !important;
+    }
+
     .writing-mode-vertical-rl {
         text-underline-position: right;
         .txt-dashed,
@@ -537,7 +542,8 @@ body {
         }
     }
 
-    .writing-mode-vertical-rl[data-useragent-browser='safari'] .txt-dashed, .txt-underline {
+    .writing-mode-vertical-rl[data-useragent-browser='safari'] .txt-dashed,
+    .txt-underline {
         text-underline-offset: 0;
     }
 
