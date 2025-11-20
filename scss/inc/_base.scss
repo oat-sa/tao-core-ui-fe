@@ -512,10 +512,6 @@ body {
     }
 
     .writing-mode-vertical-rl {
-        .txt-dashed,
-        .txt-underline {
-            text-underline-offset: 0.2em;
-        }
         .txt-underline {
             text-underline-position: right;
         }
