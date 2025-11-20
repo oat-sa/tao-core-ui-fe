@@ -518,7 +518,13 @@ body {
         .txt-dashed,
         .txt-wavy {
             // for Safari < 18.2 which doesn't support "text-underline-position"
-            text-underline-position: left;
+            text-underline-position: left !important;
+        }
+        .txt-wavy {
+            text-underline-offset: -1.4em;
+        }
+        .txt-underline, 
+        .txt-dashed {
             text-underline-offset: -1.2em;
         }
         .txt-subscript {
