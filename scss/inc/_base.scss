@@ -512,10 +512,17 @@ body {
     .txt-strike {
         text-decoration: line-through;
     }
-
-    ruby rt span {
-        // hide text decorations on ruby tags (ckeditor fix)
-        text-decoration: none !important;
+    
+    .qti-item ruby rt {
+        span {
+            &.txt-underline,
+            &.txt-dashed,
+            &.txt-wavy,
+            &.txt-strike {
+                // hide text decorations on ruby tags (ckeditor fix)
+                text-decoration: none;
+            }
+        }
     }
 
     .writing-mode-vertical-rl {
