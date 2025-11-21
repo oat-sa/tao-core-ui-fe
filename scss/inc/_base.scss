@@ -511,36 +511,79 @@ body {
         text-decoration: line-through;
     }
 
+    .writing-mode-horizontal-tb {
+        writing-mode: horizontal-tb;
+    }
+
     .writing-mode-vertical-rl {
-        .txt-dashed,
-        .txt-underline {
+        writing-mode: vertical-rl;
+    }
+
+    .txt-dashed,
+    .txt-underline {
+        @include writing-mode-vertical-rl {
             text-underline-offset: 0.2em;
         }
-        .txt-underline {
+        @include writing-mode-horizontal-tb {
+            text-underline-offset: auto;
+        }
+    }
+
+    .txt-underline {
+        @include writing-mode-vertical-rl {
             text-underline-position: right;
         }
-        .txt-subscript {
+        @include writing-mode-horizontal-tb {
+            text-underline-position: auto;
+        }
+    }
+    .txt-subscript {
+        @include writing-mode-vertical-rl {
             inset-block-start: -0.9em;
             bottom: 0;
         }
-        .txt-superscript {
+        @include writing-mode-horizontal-tb {
+            inset-block-start: auto;
+            bottom: auto;
+        }
+    }
+    .txt-superscript {
+        @include writing-mode-vertical-rl {
             inset-block-end: -0.4em;
             top: 0;
         }
-        .txt-underline,
-        .txt-dashed,
-        .txt-wavy {
-            ruby rt {
-                position: relative;
+        @include writing-mode-horizontal-tb {
+            inset-block-end: auto;
+            top: auto;
+        }
+    }
+
+    .txt-underline,
+    .txt-dashed,
+    .txt-wavy {
+        ruby rt {
+            position: relative;
+            @include writing-mode-vertical-rl {
                 inset-block-start: -0.8em;
+            }
+            @include writing-mode-horizontal-tb {
+                inset-block-start: auto;
             }
         }
     }
 
-    .writing-mode-vertical-rl[data-useragent-browser='safari'] .txt-underline {
-        // for Safari < 18.2 which doesn't support "text-underline-position: right"
-        text-decoration: none;
-        border-right: 1px solid currentColor;
+    // for Safari < 18.2
+    @supports not (text-underline-position: right) {
+        .writing-mode-vertical-rl {
+            .txt-underline {
+                text-decoration: none;
+                border-right: 1px solid currentColor;
+            }
+            .writing-mode-horizontal-tb .txt-underline {
+                text-decoration: underline;
+                border-right: none;
+            }
+        }
     }
 
     .txt-combine-upright-all {
