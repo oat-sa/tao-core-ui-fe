@@ -500,24 +500,36 @@ body {
         font-size: inherit;
     }
     .txt-dashed {
-        text-decoration: underline dashed;
+        text-decoration: underline;
+        text-decoration-style: dashed;
     }
 
     .txt-wavy {
-        text-decoration: underline wavy;
+        text-decoration: underline;
+        text-decoration-style: wavy;
     }
 
     .txt-strike {
         text-decoration: line-through;
     }
+    
+    .qti-item ruby rt {
+        span {
+            &.txt-underline,
+            &.txt-dashed,
+            &.txt-wavy,
+            &.txt-strike {
+                // hide text decorations on ruby tags (ckeditor fix)
+                text-decoration: none;
+            }
+        }
+    }
 
     .writing-mode-vertical-rl {
+        text-underline-position: right;
         .txt-dashed,
         .txt-underline {
-            text-underline-offset: 0.2em;
-        }
-        .txt-underline {
-            text-underline-position: right;
+            text-underline-offset: 0.1em;
         }
         .txt-subscript {
             inset-block-start: -0.9em;
@@ -537,10 +549,9 @@ body {
         }
     }
 
-    .writing-mode-vertical-rl[data-useragent-browser='safari'] .txt-underline {
-        // for Safari < 18.2 which doesn't support "text-underline-position: right"
-        text-decoration: none;
-        border-right: 1px solid currentColor;
+    .writing-mode-vertical-rl[data-useragent-browser='safari'] .txt-dashed,
+    .txt-underline {
+        text-underline-offset: 0;
     }
 
     .txt-combine-upright-all {

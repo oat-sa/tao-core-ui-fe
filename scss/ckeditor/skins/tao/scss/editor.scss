@@ -97,11 +97,13 @@ legend.cke_voice_label {
 }
 
 .txt-dashed {
-  text-decoration: underline dashed;
+  text-decoration: underline;
+  text-decoration-style: dashed;
 }
 
 .txt-wavy {
-  text-decoration: underline wavy;
+  text-decoration: underline;
+  text-decoration-style: wavy;
 }
 
 .txt-strike {
