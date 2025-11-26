@@ -500,15 +500,29 @@ body {
         font-size: inherit;
     }
     .txt-dashed {
-        text-decoration: underline dashed;
+        text-decoration: underline;
+        text-decoration-style: dashed;
     }
 
     .txt-wavy {
-        text-decoration: underline wavy;
+        text-decoration: underline;
+        text-decoration-style: wavy;
     }
 
     .txt-strike {
         text-decoration: line-through;
+    }
+
+    .qti-item ruby rt {
+        span {
+            &.txt-underline,
+            &.txt-dashed,
+            &.txt-wavy,
+            &.txt-strike {
+                // hide text decorations on ruby tags (ckeditor fix)
+                text-decoration: none;
+            }
+        }
     }
 
     .writing-mode-horizontal-tb {
@@ -519,17 +533,7 @@ body {
         writing-mode: vertical-rl;
     }
 
-    .txt-dashed,
-    .txt-underline {
-        @include writing-mode-vertical-rl {
-            text-underline-offset: 0.2em;
-        }
-        @include writing-mode-horizontal-tb {
-            text-underline-offset: auto;
-        }
-    }
-
-    .txt-underline {
+    & {
         @include writing-mode-vertical-rl {
             text-underline-position: right;
         }
@@ -537,6 +541,17 @@ body {
             text-underline-position: auto;
         }
     }
+
+    .txt-dashed,
+    .txt-underline {
+        @include writing-mode-vertical-rl {
+            text-underline-offset: 0.1em;
+        }
+        @include writing-mode-horizontal-tb {
+            text-underline-offset: 0;
+        }
+    }
+
     .txt-subscript {
         @include writing-mode-vertical-rl {
             inset-block-start: -0.9em;
@@ -572,18 +587,9 @@ body {
         }
     }
 
-    // for Safari < 18.2
-    @supports not (text-underline-position: right) {
-        .writing-mode-vertical-rl {
-            .txt-underline {
-                text-decoration: none;
-                border-right: 1px solid currentColor;
-            }
-            .writing-mode-horizontal-tb .txt-underline {
-                text-decoration: underline;
-                border-right: none;
-            }
-        }
+    // TODO
+    .writing-mode-vertical-rl[data-useragent-browser='safari'] .txt-dashed {
+        text-underline-offset: 0;
     }
 
     .txt-combine-upright-all {
