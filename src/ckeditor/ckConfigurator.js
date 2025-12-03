@@ -29,7 +29,9 @@ import featuresService from 'services/features';
 const originalConfig = _.cloneDeep(window.CKEDITOR.config);
 const moduleConfig = module.config();
 const furiganaPluginVisibilityKey = 'ckeditor/TaoFurigana';
-const decorationsOn = !!(context.featureFlags && context.featureFlags.FEATURE_FLAG_CKEDITOR_DECORATIONS);
+const decorationsOn =
+  context.featureFlags &&
+  context.featureFlags.FEATURE_FLAG_CKEDITOR_DECORATIONS !== false;
 
 function getUserLanguage() {
     const documentLang = window.document.documentElement.getAttribute('lang');
