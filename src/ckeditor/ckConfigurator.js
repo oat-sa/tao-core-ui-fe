@@ -29,6 +29,7 @@ import featuresService from 'services/features';
 const originalConfig = _.cloneDeep(window.CKEDITOR.config);
 const moduleConfig = module.config();
 const furiganaPluginVisibilityKey = 'ckeditor/TaoFurigana';
+// Check if decorations feature flag is explicitly set to false
 const decorationsOn =
   context.featureFlags &&
   context.featureFlags.FEATURE_FLAG_CKEDITOR_DECORATIONS !== false;
