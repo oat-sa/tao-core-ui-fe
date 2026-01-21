@@ -567,22 +567,12 @@ body {
     }
 
     .txt-underline,
-    .txt-dashed {
-        ruby rt {
-            position: relative;
-            @include writing-mode-vertical-rl {
-                inset-block-start: -0.3em;
-            }
-            @include writing-mode-horizontal-tb {
-                inset-block-start: auto;
-            }
-        }
-    }
+    .txt-dashed,
     .txt-wavy {
         ruby rt {
             position: relative;
             @include writing-mode-vertical-rl {
-                inset-block-start: -0.7em;
+                inset-block-start: -0.3em;
             }
             @include writing-mode-horizontal-tb {
                 inset-block-start: auto;
