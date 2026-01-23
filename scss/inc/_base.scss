@@ -559,7 +559,7 @@ body {
     .txt-wavy {
         @include writing-mode-vertical-rl {
             text-underline-position: right;
-            text-underline-offset: .75rem;
+            text-underline-offset: 1rem;
         }
         @include writing-mode-horizontal-tb {
             text-underline-position: auto;
