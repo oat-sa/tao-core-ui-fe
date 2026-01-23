@@ -29,6 +29,10 @@ import featuresService from 'services/features';
 const originalConfig = _.cloneDeep(window.CKEDITOR.config);
 const moduleConfig = module.config();
 const furiganaPluginVisibilityKey = 'ckeditor/TaoFurigana';
+// Check if decorations feature flag is explicitly set to false
+const decorationsOn =
+  context.featureFlags &&
+  context.featureFlags.FEATURE_FLAG_CKEDITOR_DECORATIONS !== false;
 
 function getUserLanguage() {
     const documentLang = window.document.documentElement.getAttribute('lang');
@@ -61,6 +65,27 @@ const ckConfigurator = (function () {
             {
                 name: 'language',
                 items: ['Language']
+            },
+            {
+                name: 'styles',
+                items: ['Format']
+            },
+            {
+                name: 'paragraph',
+                items: [
+                    'NumberedList',
+                    'BulletedList',
+                    '-',
+                    'Blockquote',
+                    'JustifyLeft',
+                    'JustifyCenter',
+                    'JustifyRight',
+                    'JustifyBlock'
+                ]
+            },
+            {
+                name: 'interactionsource',
+                items: ['InteractionSource']
             }
         ],
         flow: [
@@ -79,6 +104,10 @@ const ckConfigurator = (function () {
             {
                 name: 'language',
                 items: ['Language']
+            },
+            {
+                name: 'interactionsource',
+                items: ['InteractionSource']
             }
         ],
         block: [
@@ -114,6 +143,10 @@ const ckConfigurator = (function () {
                     'JustifyRight',
                     'JustifyBlock'
                 ]
+            },
+            {
+                name: 'interactionsource',
+                items: ['InteractionSource']
             }
         ],
         extendedText: [
@@ -153,7 +186,7 @@ const ckConfigurator = (function () {
         htmlField: [
             {
                 name: 'basicstyles',
-                items: ['Bold', 'Italic', 'Strike', 'Underline']
+                items: ['Bold', 'Italic', 'Underline']
             },
             {
                 name: 'exponent',
@@ -186,6 +219,10 @@ const ckConfigurator = (function () {
             {
                 name: 'language',
                 items: ['Language']
+            },
+            {
+                name: 'interactionsource',
+                items: ['InteractionSource']
             }
         ],
         table: [
@@ -208,6 +245,10 @@ const ckConfigurator = (function () {
             {
                 name: 'language',
                 items: ['Language']
+            },
+            {
+                name: 'interactionsource',
+                items: ['InteractionSource']
             }
         ]
     };
@@ -220,7 +261,7 @@ const ckConfigurator = (function () {
         entities: false,
         entities_processNumerical: true,
         autoParagraph: false,
-        extraPlugins: 'confighelper, taolanguage',
+        extraPlugins: 'confighelper, taolanguage, interactionsource',
         floatSpaceDockedOffsetY: 0,
         forcePasteAsPlainText: true,
         skin: 'tao',
@@ -232,6 +273,20 @@ const ckConfigurator = (function () {
         coreStyles_underline: {
             element: 'span',
             attributes: { class: 'txt-underline' }
+        },
+        coreStyles_strike: {
+            element: 'span',
+            attributes: {
+                class: 'txt-strike'
+            }
+        },
+        coreStyles_subscript: {
+            element: 'sub',
+            attributes: { class: decorationsOn ? 'txt-subscript' : ''}
+        },
+        coreStyles_superscript: {
+            element: 'sup',
+            attributes: { class: decorationsOn ? 'txt-superscript': '' }
         },
         coreStyles_highlight: {
             element: 'span',
@@ -486,13 +541,22 @@ const ckConfigurator = (function () {
             let pluginIndex = positionedPluginArr.length;
             let extraPluginArr = extraPlugins.split(',');
 
+            const NATIVE_BUTTONS = new Set([
+                'bold', 'italic', 'underline', 'strike', 'subscript', 'superscript',
+                'numberedlist', 'bulletedlist', 'blockquote',
+                'justifyleft', 'justifycenter', 'justifyright', 'justifyblock',
+                'link', 'unlink', 'image', 'specialchar', 'format', 'font', 'fontsize', 'textcolor', 'language'
+            ]);
+
             while (pluginIndex--) {
                 positionedPluginArr[pluginIndex] = positionedPluginArr[pluginIndex].toLowerCase();
             }
 
+            positionedPluginArr = positionedPluginArr.filter(p => !NATIVE_BUTTONS.has(p));
+
             extraPluginArr = _.compact(_.union(extraPluginArr, positionedPluginArr));
             return extraPluginArr.join(',');
-        })(_.keys(positionedPlugins), ckConfig.extraPlugins);
+        }(_.keys(positionedPlugins), ckConfig.extraPlugins));
 
         // capture line breaks (/) and such
         // and turn them into a objects temporarily
@@ -626,15 +690,20 @@ const ckConfigurator = (function () {
             if (options.qtiInclude) {
                 positionedPlugins.TaoQtiInclude = { insertAfter: 'SpecialChar' };
             }
-            if (options.underline) {
-                positionedPlugins.TaoUnderline = { insertAfter: 'Italic' };
+            if (decorationsOn) {
+                positionedPlugins.Strike = { insertAfter: 'Italic' };
+                if (options.underline) {
+                    positionedPlugins.TaoUnderline = { insertAfter: 'Strike' };
+                }
+            } else {
+                if (options.underline) {
+                    positionedPlugins.Underline = { insertAfter: 'Italic' };
+                }
             }
             if (options.highlight) {
-                if (options.underline) {
-                    positionedPlugins.TaoHighlight = { insertAfter: 'TaoUnderline' };
-                } else {
-                    positionedPlugins.TaoHighlight = { insertAfter: 'Italic' };
-                }
+                positionedPlugins.TaoHighlight = {
+                    insertAfter: (decorationsOn && options.underline) ? 'TaoUnderline' : (options.underline ? 'Underline' : 'Italic')
+                };
             }
             if (options.mathJax) {
                 positionedPlugins.TaoQtiMaths = { insertAfter: 'SpecialChar' };
@@ -696,6 +765,7 @@ const ckConfigurator = (function () {
                 'qtiImage',
                 'qtiInclude',
                 'underline',
+                'strike',
                 'highlight',
                 'mathJax',
                 'toolbar',

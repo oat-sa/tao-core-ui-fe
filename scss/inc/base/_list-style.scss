@@ -20,6 +20,25 @@ nav {
     }
 }
 
+ol {
+    li::marker {
+        @include writing-mode-vertical-rl {
+            text-combine-upright: all;
+        }
+        @include writing-mode-horizontal-tb {
+            text-combine-upright: none;
+        }
+    }
+    li {
+        @include writing-mode-vertical-rl {
+            padding-inline-start: 6px;
+        }
+        @include writing-mode-horizontal-tb {
+            padding-inline-start: 0px;
+        }
+    }
+}
+
 /*
 This SCSS generates CSS classes for custom list styling, it:
 - For classes like .list-style-disc, .list-style-decimal-period etc.

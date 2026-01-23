@@ -549,13 +549,111 @@ body {
         inset-block-end: auto;
         top: -0.5em;
     }
-    .writing-mode-vertical-rl .txt-underline {
-        text-underline-position: right;
+    .txt-dashed {
+        text-decoration: underline;
+        text-decoration-style: dashed;
     }
-    .writing-mode-vertical-rl[data-useragent-browser='safari'] .txt-underline {
-        // for Safari < 18.2 which doesn't support "text-underline-position: right"
-        text-decoration: none;
-        border-right: 1px solid currentColor;
+
+    .txt-wavy {
+        text-decoration: underline;
+        text-decoration-style: wavy;
+    }
+
+    .txt-strike {
+        text-decoration: line-through;
+    }
+
+    .qti-item ruby rt {
+        span {
+            &.txt-underline,
+            &.txt-dashed,
+            &.txt-wavy,
+            &.txt-strike {
+                // hide text decorations on ruby tags (ckeditor fix)
+                text-decoration: none;
+            }
+        }
+    }
+
+    .writing-mode-horizontal-tb {
+        writing-mode: horizontal-tb;
+    }
+
+    .writing-mode-vertical-rl {
+        writing-mode: vertical-rl;
+    }
+
+    .txt-subscript {
+        @include writing-mode-vertical-rl {
+            inset-block-start: -0.9em;
+            bottom: 0;
+        }
+        @include writing-mode-horizontal-tb {
+            inset-block-start: auto;
+            bottom: auto;
+        }
+    }
+    .txt-superscript {
+        @include writing-mode-vertical-rl {
+            inset-block-end: -0.4em;
+            top: 0;
+        }
+        @include writing-mode-horizontal-tb {
+            inset-block-end: auto;
+            top: auto;
+        }
+    }
+
+    .txt-underline,
+    .txt-dashed,
+    .txt-wavy {
+        @include writing-mode-vertical-rl {
+            text-underline-position: right;
+        }
+        @include writing-mode-horizontal-tb {
+            text-underline-position: auto;
+        }
+    }
+
+    .txt-underline,
+    .txt-dashed {
+        ruby rt {
+            position: relative;
+            @include writing-mode-vertical-rl {
+                inset-block-start: -0.3em;
+            }
+            @include writing-mode-horizontal-tb {
+                inset-block-start: auto;
+            }
+        }
+    }
+    .txt-wavy {
+        ruby rt {
+            position: relative;
+            @include writing-mode-vertical-rl {
+                inset-block-start: -0.7em;
+            }
+            @include writing-mode-horizontal-tb {
+                inset-block-start: auto;
+            }
+        }
+    }
+
+    [data-useragent-browser='safari'] {
+        &.writing-mode-vertical-rl,
+        .writing-mode-vertical-rl {
+            .txt-underline,
+            .txt-dashed {
+                text-underline-offset: -0.1em;
+            }
+        }
+        &,
+        .writing-mode-horizontal-tb {
+            .txt-underline,
+            .txt-dashed {
+                text-underline-offset: auto;
+            }
+        }
     }
 
     .txt-combine-upright-all {
