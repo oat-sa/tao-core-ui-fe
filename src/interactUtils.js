@@ -318,6 +318,50 @@ interactHelper = {
                 resetScrollObserver();
             }
         };
+    },
+
+    /**
+     * Animate movement of the element from one position to another.
+     * Element is cloned, this clone is animated.
+     * @param {Object} options
+     * @param {JQuery} options.$appendTo - should have `position:relative`
+     * @param {JQuery} options.$fromElement
+     * @param {JQuery} options.$toElement
+     * @param {Function} [options.endCallback]
+     * @param {Number} [options.duration]
+     * @returns {JQuery} $clone - use to adjust styles of the clone
+     */
+    animateMoveElement: function animateMoveElement({ $appendTo, $fromElement, $toElement, endCallback, duration }) {
+        const appendToOffset = $appendTo.offset();
+        const fromOffset = $fromElement.offset();
+        const toOffset = $toElement.offset();
+
+        const $clone = $fromElement.clone();
+
+        $clone.css({
+            position: 'absolute',
+            display: 'block',
+            'z-index': 10000,
+            top: fromOffset.top - appendToOffset.top,
+            left: fromOffset.left - appendToOffset.left
+        });
+
+        $clone.appendTo($appendTo);
+        $clone.animate(
+            {
+                top: toOffset.top - appendToOffset.top,
+                left: toOffset.left - appendToOffset.left
+            },
+            duration >= 0 ? duration : 300,
+            function animationEnd() {
+                $clone.remove();
+                if (endCallback) {
+                    endCallback();
+                }
+            }
+        );
+
+        return $clone;
     }
 };
 
