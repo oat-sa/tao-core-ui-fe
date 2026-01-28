@@ -580,6 +580,15 @@ body {
         }
     }
 
+    ruby rt {
+        & > .txt-wavy {
+            @include writing-mode-vertical-rl {
+                position: relative;
+                left: .5rem;
+            }
+        }
+    }
+
     [data-useragent-browser='safari'] {
         &.writing-mode-vertical-rl,
         .writing-mode-vertical-rl {
