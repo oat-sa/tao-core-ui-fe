@@ -519,6 +519,46 @@ body {
         text-decoration: underline;
         font-size: inherit;
     }
+
+    .txt-subscript {
+        inset-block-start: auto;
+        bottom: -0.25em;
+    }
+
+    .txt-superscript {
+        inset-block-end: auto;
+        top: -0.5em;
+    }
+
+    .qti-item sub.txt-subscript {
+        inset-block-start: auto;
+        bottom: -0.25em;
+    }
+
+    .qti-item sup.txt-superscript {
+        inset-block-end: auto;
+        top: -0.5em;
+    }
+
+    .writing-mode-vertical-rl .txt-subscript {
+        inset-block-start: -0.9em;
+        bottom: 0;
+    }
+
+    .writing-mode-vertical-rl .txt-superscript {
+        inset-block-end: -0.4em;
+        top: 0;
+    }
+
+    .writing-mode-vertical-rl .writing-mode-horizontal-tb .txt-subscript {
+        inset-block-start: auto;
+        bottom: -0.25em;
+    }
+
+    .writing-mode-vertical-rl .writing-mode-horizontal-tb .txt-superscript {
+        inset-block-end: auto;
+        top: -0.5em;
+    }
     .txt-dashed {
         text-decoration: underline;
         text-decoration-style: dashed;
@@ -551,16 +591,6 @@ body {
 
     .writing-mode-vertical-rl {
         writing-mode: vertical-rl;
-    }
-
-    .qti-item .qti-itemBody.writing-mode-vertical-rl {
-        hr {
-            height: 100%;
-            max-height: 100%;
-            margin: 0 12px;
-            border: none;
-            border-right: 1px solid #8c8c8c;
-        }
     }
 
     .txt-subscript {
@@ -607,7 +637,6 @@ body {
             }
         }
     }
-
     .txt-wavy {
         ruby rt {
             position: relative;
@@ -616,15 +645,6 @@ body {
             }
             @include writing-mode-horizontal-tb {
                 inset-block-start: auto;
-            }
-        }
-    }
-
-    ruby rt {
-        & > .txt-wavy {
-            @include writing-mode-vertical-rl {
-                position: relative;
-                left: .5rem;
             }
         }
     }
