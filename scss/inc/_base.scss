@@ -530,6 +530,16 @@ body {
         top: -0.5em;
     }
 
+    .qti-item sub.txt-subscript {
+        inset-block-start: auto;
+        bottom: -0.25em;
+    }
+
+    .qti-item sup.txt-superscript {
+        inset-block-end: auto;
+        top: -0.5em;
+    }
+
     .writing-mode-vertical-rl .txt-subscript {
         inset-block-start: -0.9em;
         bottom: 0;
