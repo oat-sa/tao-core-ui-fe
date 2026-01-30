@@ -594,7 +594,15 @@ body {
         & > .txt-wavy {
             @include writing-mode-vertical-rl {
                 position: relative;
-                left: .5rem;
+                left: 5px;
+            }
+        }
+
+        & > .txt-underline,
+        & > .txt-dashed {
+            @include writing-mode-vertical-rl {
+                position: relative;
+                left: 2px;
             }
         }
     }
@@ -612,6 +620,14 @@ body {
             .txt-underline,
             .txt-dashed {
                 text-underline-offset: auto;
+            }
+        }
+        ruby rt {
+            & > .txt-wavy {
+                @include writing-mode-vertical-rl {
+                    position: relative;
+                    left: 0;
+                }
             }
         }
     }
