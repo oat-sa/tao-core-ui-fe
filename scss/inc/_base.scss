@@ -292,6 +292,26 @@ body {
         bottom: -0.25em;
     }
 
+    .writing-mode-vertical-rl sub {
+        inset-block-start: -0.9em;
+        bottom: 0;
+    }
+
+    .writing-mode-vertical-rl sup {
+        inset-block-end: -0.4em;
+        top: 0;
+    }
+
+    .writing-mode-vertical-rl .writing-mode-horizontal-tb sub {
+        inset-block-start: auto;
+        bottom: -0.25em;
+    }
+
+    .writing-mode-vertical-rl .writing-mode-horizontal-tb sup {
+        inset-block-end: auto;
+        top: -0.5em;
+    }
+
     img {
         border: 0;
         max-width: 100%;
@@ -498,6 +518,46 @@ body {
     .txt-underline {
         text-decoration: underline;
         font-size: inherit;
+    }
+
+    .txt-subscript {
+        inset-block-start: auto;
+        bottom: -0.25em;
+    }
+
+    .txt-superscript {
+        inset-block-end: auto;
+        top: -0.5em;
+    }
+
+    .qti-item sub.txt-subscript {
+        inset-block-start: auto;
+        bottom: -0.25em;
+    }
+
+    .qti-item sup.txt-superscript {
+        inset-block-end: auto;
+        top: -0.5em;
+    }
+
+    .writing-mode-vertical-rl .txt-subscript {
+        inset-block-start: -0.9em;
+        bottom: 0;
+    }
+
+    .writing-mode-vertical-rl .txt-superscript {
+        inset-block-end: -0.4em;
+        top: 0;
+    }
+
+    .writing-mode-vertical-rl .writing-mode-horizontal-tb .txt-subscript {
+        inset-block-start: auto;
+        bottom: -0.25em;
+    }
+
+    .writing-mode-vertical-rl .writing-mode-horizontal-tb .txt-superscript {
+        inset-block-end: auto;
+        top: -0.5em;
     }
     .txt-dashed {
         text-decoration: underline;
