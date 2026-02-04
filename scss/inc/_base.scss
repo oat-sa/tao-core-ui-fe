@@ -649,6 +649,21 @@ body {
         }
     }
 
+    .qti-item .writing-mode-vertical-rl {
+        .grid-row:has(.mediaplayer.video),
+        .qti-interaction,
+        .qti-prompt-container,
+        .qti-prompt,
+        .qti-object-container,
+        .media-container,
+        [data-type="video/mp4"]{
+            block-size: 100%;
+        }
+        .mediaplayer.video {
+            writing-mode: horizontal-tb;
+        }
+    }
+
     [data-useragent-browser='safari'] {
         &.writing-mode-vertical-rl,
         .writing-mode-vertical-rl {
