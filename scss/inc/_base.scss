@@ -650,17 +650,43 @@ body {
     }
 
     .qti-item .writing-mode-vertical-rl {
-        .grid-row:has(.mediaplayer.video),
-        .qti-interaction,
-        .qti-prompt-container,
-        .qti-prompt,
-        .qti-object-container,
-        .media-container,
-        [data-type="video/mp4"]{
-            block-size: 100%;
-        }
-        .mediaplayer.video {
+        .media-container,.qti-object-container.previewer:has(.mediaplayer) {
             writing-mode: horizontal-tb;
+            direction: rtl;
+
+            .mediaplayer {
+                .controls {
+                    display: inline-block;
+                    width: 100%;
+
+                    .bar {
+                        display: flex;
+                        width: 100%;
+                        align-items: center;
+
+                        .control {
+                            display: block;
+
+                            &.actions .action{
+                                position: relative;
+                                top: 3px;
+                            }
+                            &.seek {
+                                width: 100%;
+                            }
+                            &.infos.timer {
+                                white-space: nowrap;
+                            }
+                        }
+                    }
+                }
+
+                &.playing {
+                    [data-control=pause] {
+                        display: block;
+                    }
+                }
+            }
         }
     }
 
