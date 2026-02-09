@@ -649,37 +649,34 @@ body {
         }
     }
 
-    .qti-item .writing-mode-vertical-rl {
-        .media-container,.qti-object-container.previewer:has(.mediaplayer) {
-            writing-mode: horizontal-tb;
-            direction: rtl;
+    .qti-item .writing-mode-vertical-rl .media-container,
+    .qti-item .writing-mode-vertical-rl .qti-object-container.previewer:has(.mediaplayer) {
+        writing-mode: horizontal-tb;
+        direction: rtl;
 
-            .mediaplayer {
-                .controls {
-                    display: inline-block;
-                    width: 100%;
+        .mediaplayer .controls {
+            display: inline-block;
+            width: 100%;
 
-                    .bar {
-                        display: flex;
-                        width: 100%;
-                        align-items: center;
+            .bar {
+                display: flex;
+                width: 100%;
+                align-items: center;
+            }
+        }
 
-                        .control {
-                            display: block;
+        .mediaplayer .controls .control {
+            display: block;
 
-                            &.actions .action{
-                                position: relative;
-                                top: 3px;
-                            }
-                            &.seek {
-                                width: 100%;
-                            }
-                            &.infos.timer {
-                                white-space: nowrap;
-                            }
-                        }
-                    }
-                }
+            &.actions .action{
+                position: relative;
+                top: 3px;
+            }
+            &.seek {
+                width: 100%;
+            }
+            &.infos.timer {
+                white-space: nowrap;
             }
         }
     }
