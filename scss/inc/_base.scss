@@ -680,12 +680,6 @@ body {
                         }
                     }
                 }
-
-                &.playing {
-                    [data-control=pause] {
-                        display: block;
-                    }
-                }
             }
         }
     }
