@@ -647,6 +647,7 @@ body {
             }
         }
     }
+
     .txt-wavy {
         ruby rt {
             position: relative;
@@ -659,6 +660,31 @@ body {
         }
     }
 
+    ruby rt {
+        & > .txt-wavy {
+            @include writing-mode-vertical-rl {
+                position: relative;
+                left: 5px;
+            }
+            @include writing-mode-horizontal-tb {
+                position: relative;
+                left: auto;
+            }
+        }
+
+        & > .txt-underline,
+        & > .txt-dashed {
+            @include writing-mode-vertical-rl {
+                position: relative;
+                left: 2px;
+            }
+            @include writing-mode-horizontal-tb {
+                position: relative;
+                left: auto;
+            }
+        }
+    }
+
     [data-useragent-browser='safari'] {
         &.writing-mode-vertical-rl,
         .writing-mode-vertical-rl {
@@ -666,12 +692,26 @@ body {
             .txt-dashed {
                 text-underline-offset: -0.1em;
             }
+            ruby rt {
+                & > .txt-wavy,
+                & > .txt-underline,
+                & > .txt-dashed {
+                    left: 0;
+                }
+            }
         }
         &,
         .writing-mode-horizontal-tb {
             .txt-underline,
             .txt-dashed {
                 text-underline-offset: auto;
+            }
+            ruby rt {
+                & > .txt-wavy,
+                & > .txt-underline,
+                & > .txt-dashed {
+                    left: auto;
+                }
             }
         }
     }
