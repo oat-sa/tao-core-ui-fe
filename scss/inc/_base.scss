@@ -604,6 +604,16 @@ body {
                 border-right: 1px solid #8c8c8c;
             }
         }
+        .writing-mode-horizontal-tb,
+        &.writing-mode-horizontal-tb {
+            hr {
+                height: 1px;
+                max-height: 1px;
+                margin: 12px 0;
+                border: none;
+                border-top: 1px solid #8c8c8c;
+            }
+        }
     }
 
     .txt-subscript {
