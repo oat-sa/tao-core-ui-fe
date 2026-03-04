@@ -323,6 +323,12 @@ function mediaplayerFactory(config) {
             } else {
                 this.resize(this.config.width, this.config.height);
             }
+
+            // Change size axis for vertical writing view mode
+            if($('body').hasClass('item-writing-mode-vertical-rl')) {
+                this.resize(this.config.height, this.config.width);
+            }
+
             this.config.is.rendered = true;
 
             if (renderTo) {
