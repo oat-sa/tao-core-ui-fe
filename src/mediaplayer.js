@@ -317,12 +317,18 @@ function mediaplayerFactory(config) {
             this._initPlayer();
             this._initSize();
 
-            // Resize for old items with defined height to avoid big jump
-            if (this.config.height && this.config.height !== 'auto') {
-                this.resize('100%', 'auto');
+            if ($('body').hasClass('item-writing-mode-vertical-rl')) {
+                // Change size axis for vertical writing view mode
+                this.resize(this.config.height, this.config.width);
             } else {
-                this.resize(this.config.width, this.config.height);
+                // Resize for old items with defined height to avoid big jump
+                if (this.config.height && this.config.height !== 'auto') {
+                    this.resize('100%', 'auto');
+                } else {
+                    this.resize(this.config.width, this.config.height);
+                }
             }
+
             this.config.is.rendered = true;
 
             if (renderTo) {
