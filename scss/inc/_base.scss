@@ -702,6 +702,8 @@ body {
     .qti-item .writing-mode-vertical-rl .qti-object-container.previewer:has(.mediaplayer) {
         writing-mode: horizontal-tb;
         direction: rtl;
+        height: 100%;
+        width: auto;
 
         .mediaplayer .controls {
             display: inline-block;
