@@ -705,6 +705,12 @@ body {
         height: 100%;
         width: auto;
 
+        div[data-src][data-type] {
+            // need for overwrite scripted inline sizing
+            width: auto !important;
+            height: 100%;
+        }
+
         .mediaplayer .controls {
             display: inline-block;
             width: 100%;
