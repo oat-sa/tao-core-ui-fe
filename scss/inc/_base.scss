@@ -706,7 +706,7 @@ body {
         width: auto;
 
         div[data-src][data-type] {
-            // need for overwrite scripted inline sizing
+            // script sets inline width only — override it; height fills container for nesting
             width: auto !important;
             height: 100%;
         }
