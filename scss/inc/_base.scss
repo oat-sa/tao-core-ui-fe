@@ -711,6 +711,13 @@ body {
             height: 100%;
         }
 
+        .mediaplayer .player {
+            .media:not(.youtube) {
+                width: auto;
+                height: 100%;
+            }
+        }
+
         .mediaplayer .controls {
             display: inline-block;
             width: 100%;
