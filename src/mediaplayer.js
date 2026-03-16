@@ -301,6 +301,7 @@ function mediaplayerFactory(config) {
          */
         render(to) {
             const renderTo = to || this.config.renderTo || this.$container;
+            const isVertical = $('body').hasClass('item-writing-mode-vertical-rl') && !$(renderTo).closest('.writing-mode-horizontal-tb').length;
 
             if (this.$component) {
                 this.destroy();
@@ -317,7 +318,7 @@ function mediaplayerFactory(config) {
             this._initPlayer();
             this._initSize();
 
-            if ($('body').hasClass('item-writing-mode-vertical-rl')) {
+            if (isVertical) {
                 // Change size axis for vertical writing view mode
                 this.resize(this.config.height, this.config.width);
             } else {

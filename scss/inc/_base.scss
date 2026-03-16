@@ -745,6 +745,25 @@ body {
         }
     }
 
+    .qti-item .writing-mode-horizontal-tb .media-container,
+    .qti-item .writing-mode-horizontal-tb .qti-object-container.previewer:has(.mediaplayer) {
+        direction: ltr;
+        width: calc(100% - 1rem);
+        height: auto;
+
+        div[data-src][data-type] {
+            width: inherit !important;
+            height: auto;
+        }
+
+        .mediaplayer .player {
+            .media:not(.youtube) {
+                width: 100%;
+                height: auto;
+            }
+        }
+    }
+
     [data-useragent-browser='safari'] {
         &.writing-mode-vertical-rl,
         .writing-mode-vertical-rl {
