@@ -63,31 +63,37 @@ define(['jquery', 'ui/resizeObserver'], function ($, resizeObserver) {
         const ready = assert.async();
         const $fixture = $('#qunit-fixture');
         const $element = $fixture.find('#test-element');
+        let callback1, callback2;
         let callback1Count = 0;
         let callback2Count = 0;
 
         assert.expect(4);
 
-        const callback1 = function () {
+        const checkDone = function () {
+            if (callback2Count === 1) {
+                assert.strictEqual(callback1Count, 1, 'First element callback was called');
+                assert.strictEqual(callback2Count, 1, 'Second element callback was called');
+                resizeObserver.unobserve($element, callback1);
+                $element.css('width', '250px');
+            } else if (callback2Count === 2) {
+                assert.strictEqual(callback1Count, 1, 'First callback stopped after unobserve');
+                assert.strictEqual(callback2Count, 2, 'Second callback still receives updates');
+                resizeObserver.unobserve($element, callback2);
+                ready();
+            }
+        };
+
+        callback1 = function () {
             requestAnimationFrame(() => {
                 callback1Count++;
+                checkDone();
             });
         };
 
-        const callback2 = function () {
+        callback2 = function () {
             requestAnimationFrame(() => {
                 callback2Count++;
-                if (callback2Count === 1) {
-                    assert.strictEqual(callback1Count, 1, 'First element callback was called');
-                    assert.strictEqual(callback2Count, 1, 'Second element callback was called');
-                    resizeObserver.unobserve($element, callback1);
-                    $element.css('width', '250px');
-                } else if (callback2Count === 2) {
-                    assert.strictEqual(callback1Count, 1, 'First callback stopped after unobserve');
-                    assert.strictEqual(callback2Count, 2, 'Second callback still receives updates');
-                    resizeObserver.unobserve($element, callback2);
-                    ready();
-                }
+                checkDone();
             });
         };
 
