@@ -58,11 +58,14 @@ export default {
         }
 
         ensureResizeObserverInstance();
-        resizeObserver.unobserve(node);
 
         const nodeCallbacks = callbacks.get(node);
+        if (!nodeCallbacks) {
+            return;
+        }
         nodeCallbacks.delete(callback);
         if (nodeCallbacks.size < 1) {
+            resizeObserver.unobserve(node);
             callbacks.delete(node);
         }
     }
@@ -75,7 +78,7 @@ function ensureResizeObserverInstance() {
             for (const entry of entries) {
                 const entryCallbacks = callbacks.get(entry.target);
                 if (!entryCallbacks) {
-                    return;
+                    continue;
                 }
                 for (const entryCallback of entryCallbacks) {
                     entryCallback(entry, observer);
