@@ -704,6 +704,7 @@ body {
         direction: rtl;
         height: 100%;
         width: auto;
+        margin: 0;
 
         div[data-src][data-type] {
             // script sets inline width only — override it; height fills container for nesting
@@ -732,7 +733,7 @@ body {
         .mediaplayer .controls .control {
             display: block;
 
-            &.actions .action{
+            &.actions .action {
                 position: relative;
                 top: 3px;
             }
@@ -748,7 +749,7 @@ body {
     .qti-item .writing-mode-horizontal-tb .media-container,
     .qti-item .writing-mode-horizontal-tb .qti-object-container.previewer:has(.mediaplayer) {
         direction: ltr;
-        width: calc(100% - 1rem);
+        width: 100%;
         height: auto;
 
         div[data-src][data-type] {

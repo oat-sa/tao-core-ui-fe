@@ -301,8 +301,9 @@ function mediaplayerFactory(config) {
          */
         render(to) {
             const renderTo = to || this.config.renderTo || this.$container;
-            const isVertical = $('body').hasClass('item-writing-mode-vertical-rl') && !$(renderTo).closest('.writing-mode-horizontal-tb').length;
-
+            const isVertical = ($('body').hasClass('item-writing-mode-vertical-rl')
+                    || $(renderTo).closest('.qti-interaction, .custom-text-box').hasClass('writing-mode-vertical-rl'))
+                    && !$(renderTo).closest('.qti-interaction, .custom-text-box').hasClass('writing-mode-horizontal-tb');
             if (this.$component) {
                 this.destroy();
             }
