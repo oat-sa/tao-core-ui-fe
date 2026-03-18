@@ -698,6 +698,17 @@ body {
         }
     }
 
+    ruby rb:has(.txt-wavy) + rt {
+        @include writing-mode-vertical-rl {
+            position: relative;
+            left: 5px;
+        }
+        @include writing-mode-horizontal-tb {
+            position: relative;
+            left: auto;
+        }
+    }
+
     .qti-item .writing-mode-vertical-rl .media-container,
     .qti-item .writing-mode-vertical-rl .qti-object-container.previewer:has(.mediaplayer) {
         writing-mode: horizontal-tb;
@@ -779,6 +790,9 @@ body {
                     left: 0;
                 }
             }
+            ruby rb:has(.txt-wavy) + rt {
+                left: 0;
+            }
         }
         &,
         .writing-mode-horizontal-tb {
@@ -792,6 +806,9 @@ body {
                 & > .txt-dashed {
                     left: auto;
                 }
+            }
+            ruby rb:has(.txt-wavy) + rt {
+                left: auto;
             }
         }
     }
