@@ -673,35 +673,21 @@ body {
         }
     }
 
-    ruby rt {
-        & > .txt-wavy {
-            @include writing-mode-vertical-rl {
-                position: relative;
-                left: 5px;
-            }
-            @include writing-mode-horizontal-tb {
-                position: relative;
-                left: auto;
-            }
-        }
-
-        & > .txt-underline,
-        & > .txt-dashed {
-            @include writing-mode-vertical-rl {
-                position: relative;
-                left: 2px;
-            }
-            @include writing-mode-horizontal-tb {
-                position: relative;
-                left: auto;
-            }
-        }
-    }
-
     ruby rb:has(.txt-wavy) + rt {
         @include writing-mode-vertical-rl {
             position: relative;
             left: 5px;
+        }
+        @include writing-mode-horizontal-tb {
+            position: relative;
+            left: auto;
+        }
+    }
+
+    ruby rb:has(.txt-underline, .txt-dashed) + rt {
+        @include writing-mode-vertical-rl {
+            position: relative;
+            left: 2px;
         }
         @include writing-mode-horizontal-tb {
             position: relative;
@@ -783,12 +769,8 @@ body {
             .txt-dashed {
                 text-underline-offset: -0.1em;
             }
-            ruby rt {
-                & > .txt-wavy,
-                & > .txt-underline,
-                & > .txt-dashed {
-                    left: 0;
-                }
+            ruby rb:has(.txt-wavy,.txt-underline,.txt-dashed) + rt {
+                left: 0;
             }
             ruby rb:has(.txt-wavy) + rt {
                 left: 0;
@@ -800,14 +782,7 @@ body {
             .txt-dashed {
                 text-underline-offset: auto;
             }
-            ruby rt {
-                & > .txt-wavy,
-                & > .txt-underline,
-                & > .txt-dashed {
-                    left: auto;
-                }
-            }
-            ruby rb:has(.txt-wavy) + rt {
+            ruby rb:has(.txt-wavy,.txt-underline,.txt-dashed) + rt {
                 left: auto;
             }
         }
