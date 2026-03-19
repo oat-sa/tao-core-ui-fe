@@ -673,28 +673,25 @@ body {
         }
     }
 
-    ruby rt {
-        & > .txt-wavy {
-            @include writing-mode-vertical-rl {
-                position: relative;
-                left: 5px;
-            }
-            @include writing-mode-horizontal-tb {
-                position: relative;
-                left: auto;
-            }
+    ruby rb:has(.txt-wavy) + rt {
+        @include writing-mode-vertical-rl {
+            position: relative;
+            left: 5px;
         }
+        @include writing-mode-horizontal-tb {
+            position: relative;
+            left: auto;
+        }
+    }
 
-        & > .txt-underline,
-        & > .txt-dashed {
-            @include writing-mode-vertical-rl {
-                position: relative;
-                left: 2px;
-            }
-            @include writing-mode-horizontal-tb {
-                position: relative;
-                left: auto;
-            }
+    ruby rb:has(.txt-underline, .txt-dashed) + rt {
+        @include writing-mode-vertical-rl {
+            position: relative;
+            left: 2px;
+        }
+        @include writing-mode-horizontal-tb {
+            position: relative;
+            left: auto;
         }
     }
 
@@ -704,6 +701,20 @@ body {
         direction: rtl;
         height: 100%;
         width: auto;
+        margin: 0;
+
+        div[data-src][data-type] {
+            // script sets inline width only — override it; height fills container for nesting
+            width: auto !important;
+            height: 100%;
+        }
+
+        .mediaplayer .player {
+            .media:not(.youtube) {
+                width: auto;
+                height: 100%;
+            }
+        }
 
         .mediaplayer .controls {
             display: inline-block;
@@ -719,7 +730,7 @@ body {
         .mediaplayer .controls .control {
             display: block;
 
-            &.actions .action{
+            &.actions .action {
                 position: relative;
                 top: 3px;
             }
@@ -732,6 +743,25 @@ body {
         }
     }
 
+    .qti-item .writing-mode-horizontal-tb .media-container,
+    .qti-item .writing-mode-horizontal-tb .qti-object-container.previewer:has(.mediaplayer) {
+        direction: ltr;
+        width: 100%;
+        height: auto;
+
+        div[data-src][data-type] {
+            width: inherit !important;
+            height: auto;
+        }
+
+        .mediaplayer .player {
+            .media:not(.youtube) {
+                width: 100%;
+                height: auto;
+            }
+        }
+    }
+
     [data-useragent-browser='safari'] {
         &.writing-mode-vertical-rl,
         .writing-mode-vertical-rl {
@@ -739,12 +769,11 @@ body {
             .txt-dashed {
                 text-underline-offset: -0.1em;
             }
-            ruby rt {
-                & > .txt-wavy,
-                & > .txt-underline,
-                & > .txt-dashed {
-                    left: 0;
-                }
+            ruby rb:has(.txt-wavy,.txt-underline,.txt-dashed) + rt {
+                left: 0;
+            }
+            ruby rb:has(.txt-wavy) + rt {
+                left: 0;
             }
         }
         &,
@@ -753,12 +782,8 @@ body {
             .txt-dashed {
                 text-underline-offset: auto;
             }
-            ruby rt {
-                & > .txt-wavy,
-                & > .txt-underline,
-                & > .txt-dashed {
-                    left: auto;
-                }
+            ruby rb:has(.txt-wavy,.txt-underline,.txt-dashed) + rt {
+                left: auto;
             }
         }
     }
