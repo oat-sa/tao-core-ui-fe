@@ -673,25 +673,31 @@ body {
         }
     }
 
-    ruby rb:has(.txt-wavy) + rt {
-        @include writing-mode-vertical-rl {
-            position: relative;
-            left: 5px;
-        }
-        @include writing-mode-horizontal-tb {
-            position: relative;
-            left: auto;
+    &.writing-mode-vertical-rl,
+    .writing-mode-vertical-rl {
+        ruby {
+            rb:has(.txt-wavy) + rt {
+                position: relative;
+                left: 5px;
+            }
+            rb:has(.txt-underline, .txt-dashed) + rt {
+                position: relative;
+                left: 2px;
+            }
         }
     }
 
-    ruby rb:has(.txt-underline, .txt-dashed) + rt {
-        @include writing-mode-vertical-rl {
-            position: relative;
-            left: 2px;
-        }
-        @include writing-mode-horizontal-tb {
-            position: relative;
-            left: auto;
+    &.writing-mode-horizontal-tb,
+    .writing-mode-horizontal-tb {
+        ruby {
+            rb:has(.txt-wavy) + rt {
+                position: relative;
+                left: auto;
+            }
+            rb:has(.txt-underline, .txt-dashed) + rt {
+                position: relative;
+                left: auto;
+            }
         }
     }
 
@@ -776,7 +782,7 @@ body {
                 left: 0;
             }
         }
-        &,
+        &.writing-mode-horizontal-tb,
         .writing-mode-horizontal-tb {
             .txt-underline,
             .txt-dashed {
