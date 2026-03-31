@@ -1,0 +1,48 @@
+# This workflow will do a clean install of node dependencies, build the source code and publish packages to npm.
+# It does not do the release or version bump.
+
+name: Publish tag to NPM
+
+on:
+    workflow_dispatch:
+        inputs:
+            ref:
+                description: 'Tag'
+                required: true
+            npmTag:
+                description: 'NPM tag'
+                required: true
+                default: 'latest'
+
+jobs:
+    npm-publish:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  registry-url: https://registry.npmjs.org
+
+            - name: Validate tag
+              run: |
+                  if ! echo "${{ github.event.inputs.ref }}" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$'; then
+                    echo "Error: '${{ github.event.inputs.ref }}' is not a valid tag format (expected: v1.2.3 or v1.2.3-suffix)"
+                    exit 1
+                  fi
+
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  ref: ${{ github.event.inputs.ref }}
+
+            - name: Install packages
+              run: npm ci
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.CI_NPM_RELEASE_TOKEN }}
+
+            - name: Publish to npm
+              id: publish_npm
+              run: npm publish --tag ${{ github.event.inputs.npmTag || 'latest' }}
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.CI_NPM_RELEASE_TOKEN }}
