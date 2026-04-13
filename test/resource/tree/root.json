@@ -48,11 +48,6 @@
     "type": "instance",
     "uri": "http:\/\/bertao\/tao.rdf#i14918988061562102",
     "accessMode": "denied"
-  }, {
-    "label": "Maths Partial test 5",
-    "type": "instance",
-    "uri": "http:\/\/bertao\/tao.rdf#i14918988061562103",
-    "accessMode": "partial"
   }],
   "count": 9
 }]
