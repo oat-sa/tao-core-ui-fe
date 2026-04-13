@@ -382,6 +382,44 @@ define([
         });
     });
 
+    QUnit.test('nodes sorted by type (classes first) then label', function (assert) {
+        const ready = assert.async();
+        const $container = $('#qunit-fixture');
+
+        assert.expect(3);
+
+        resourceTreeFactory($container, {
+            classUri: 'http://bertao/tao.rdf#i1491898694361191',
+            nodes: rootData
+        }).on('render', function () {
+            const $element = this.getElement();
+            const $children = $('> ul > li > ul > li', $element);
+            const classLabels = [];
+            const instanceLabels = [];
+
+            $children.each(function () {
+                const label = $(this).find('> a').attr('title');
+                if ($(this).hasClass('class')) {
+                    classLabels.push(label);
+                } else {
+                    instanceLabels.push(label);
+                }
+            });
+
+            // Verify classes come before instances (by checking collected arrays match DOM order)
+            const allLabels = $children.map(function () {
+                return $(this).find('> a').attr('title');
+            }).get();
+            assert.deepEqual(allLabels, classLabels.concat(instanceLabels), 'All classes appear before instances');
+
+            // Verify labels are sorted within each type
+            assert.deepEqual(classLabels, classLabels.slice().sort(), 'Classes are sorted alphabetically');
+            assert.deepEqual(instanceLabels, instanceLabels.slice().sort(), 'Instances are sorted alphabetically');
+
+            ready();
+        });
+    });
+
     QUnit.test('remove a node', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
