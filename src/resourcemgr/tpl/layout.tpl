@@ -1,6 +1,6 @@
 <div class="resourcemgr modal {{#if className}}{{className}}{{/if}}">
 
-    <h2>{{title}}</h2>
+    <h2>{{{ title }}}</h2>
 
     <div class="file-wrapper">
 
