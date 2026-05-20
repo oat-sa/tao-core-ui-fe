@@ -39,7 +39,7 @@
     {{#if multiple}}
     <footer>
         <div class="get-selection">
-           <span>{{__ 'Selected'}} {{type}} : </span><span class="selected-num">0</span>
+           <span>{{__ 'Selected'}} {{{ type }}} : </span><span class="selected-num">0</span>
         </div>
     </footer>
     {{/if}}
