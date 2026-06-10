@@ -142,6 +142,38 @@ export default function html5PlayerFactory($container, config = {}) {
             $media = $(tpl({ cors, preload, poster, link }));
             $container.append($media);
 
+            if (type === 'video') {
+                $container.css({
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    overflow: 'hidden'
+                });
+
+                $media.css({
+                    width: '100%',
+                    height: '100%',
+                    maxWidth: '100%',
+                    maxHeight: '100%',
+                    margin: '0 auto',
+                    objectFit: 'contain',
+                    objectPosition: 'center center',
+                    boxSizing: 'border-box'
+                });
+
+                const isVerticalLayout =
+                    $container.closest('.writing-mode-vertical-rl, .item-writing-mode-vertical-rl').length > 0;
+
+                if (isVerticalLayout) {
+                    $media.css({
+                        width: 'auto',
+                        height: '100%',
+                        maxWidth: 'none',
+                        maxHeight: '100%'
+                    });
+                }
+            }
+
             media = $media.get(0);
             result = !!(media && support.checkSupport(media));
 
