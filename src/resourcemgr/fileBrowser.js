@@ -107,7 +107,7 @@ export default function (options) {
                 $selected.parent('li').addClass('active');
 
                 //internal event to set the file-selector content
-                updateSelectedClass(fullPath, subTree.total, $selected.data('children-limit'));
+                updateSelectedClass(fullPath, content.total, content.childrenLimit);
                 $container.trigger(`folderselect.${ns}`, [
                     content.label,
                     getPage(content.children),
@@ -137,9 +137,11 @@ export default function (options) {
                     // if not all, new file will be loaded with next page
                     subTree.children.push(file);
                 }
-                subTree.total++;
-                selectedClass.total++;
-                $container.trigger(`folderselect.${ns}`, [subTree.label, getPage(subTree.children), path]);
+                subTree.total = Number.isFinite(Number(subTree.total)) ? Number(subTree.total) + 1 : 1;
+                if (selectedClass.path === path) {
+                    selectedClass.total = subTree.total;
+                }
+                $container.trigger(`folderselect.${ns}`, [subTree.label, getPage(subTree.children), path, subTree]);
                 renderPagination();
             }
         }
@@ -201,7 +203,11 @@ export default function (options) {
                     const loadedFiles = _.filter(data.children, function (item) {
                         return !!item.uri;
                     });
-                    setToPath(tree, path, { children: loadedFiles });
+                    setToPath(tree, path, {
+                        children: loadedFiles,
+                        total: data.total,
+                        childrenLimit: data.childrenLimit
+                    });
                     content = getByPath(tree, path);
                     cb(content);
                 });
@@ -263,7 +269,12 @@ export default function (options) {
         if (tree) {
             if (tree.path === path) {
                 tree.children = tree.children ? tree.children.concat(data.children) : data.children;
-                tree.total = data.total;
+                if (Object.prototype.hasOwnProperty.call(data, 'total')) {
+                    tree.total = data.total;
+                }
+                if (Object.prototype.hasOwnProperty.call(data, 'childrenLimit')) {
+                    tree.childrenLimit = data.childrenLimit;
+                }
             } else if (tree.children) {
                 _.forEach(tree.children, function (child) {
                     done = setToPath(child, path, data);
@@ -356,10 +367,16 @@ export default function (options) {
      * @param {Number} childrenLimit - page size
      */
     function updateSelectedClass(path, total, childrenLimit) {
+        const normalizedTotal = Number(total);
+        const normalizedChildrenLimit = Number(childrenLimit);
+
         selectedClass = {
             path,
-            total,
-            childrenLimit,
+            total: Number.isFinite(normalizedTotal) && normalizedTotal >= 0 ? normalizedTotal : 0,
+            childrenLimit:
+                Number.isFinite(normalizedChildrenLimit) && normalizedChildrenLimit > 0
+                    ? normalizedChildrenLimit
+                    : selectedClass.childrenLimit || 10,
             page: 1
         };
     }
@@ -368,10 +385,17 @@ export default function (options) {
      */
     function renderPagination() {
         const $paginationContainer = $('.pagination-bottom', $container);
-        $paginationContainer.empty();
-        const totalPages = Math.ceil(selectedClass.total / selectedClass.childrenLimit);
+        const total = Number(selectedClass.total);
+        const childrenLimit = Number(selectedClass.childrenLimit);
 
-        if (selectedClass.total && totalPages > 1) {
+        if (!Number.isFinite(total) || !Number.isFinite(childrenLimit) || childrenLimit <= 0) {
+            return;
+        }
+
+        $paginationContainer.empty();
+        const totalPages = Math.ceil(total / childrenLimit);
+
+        if (total > 0 && totalPages > 1) {
             paginationComponent({
                 mode: 'simple',
                 activePage: selectedClass.page,
