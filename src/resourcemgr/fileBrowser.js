@@ -388,11 +388,12 @@ export default function (options) {
         const total = Number(selectedClass.total);
         const childrenLimit = Number(selectedClass.childrenLimit);
 
+        $paginationContainer.empty();
+
         if (!Number.isFinite(total) || !Number.isFinite(childrenLimit) || childrenLimit <= 0) {
             return;
         }
 
-        $paginationContainer.empty();
         const totalPages = Math.ceil(total / childrenLimit);
 
         if (total > 0 && totalPages > 1) {
