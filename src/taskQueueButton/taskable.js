@@ -86,9 +86,17 @@ var taskableComponent = {
         taskQueue
             .create(requestUrl, requestData)
             .then(function(result) {
-                var infoBox,
-                    message,
+                var message,
                     task = result.task;
+
+                var notifyTaskCreated = function notifyTaskCreated(taskData, feedbackMessage, feedbackType) {
+                    var box = feedback(null, {
+                        encodeHtml: false,
+                        timeout: { [feedbackType]: 8000 }
+                    })[feedbackType](feedbackMessage);
+
+                    taskQueue.trigger('taskcreated', { task: taskData, sourceDom: box.getElement() });
+                };
 
                 if (result.finished) {
                     if (task.hasFile) {
@@ -108,27 +116,15 @@ var taskableComponent = {
                                 taskQueue.pollAll();
                             });
                     } else {
-                        //immediately archive the finished task as there is no need to display this task in the queue list
-                        taskQueue
-                            .archive(task.id)
-                            .then(function() {
-                                self.trigger('finished', result);
-                                taskQueue.pollAll();
-                            })
-                            .catch(function(err) {
-                                self.trigger('error', err);
-                                taskQueue.pollAll();
-                            });
+                        message = __('<strong> %s </strong> has been completed.', task.taskLabel);
+                        notifyTaskCreated(task, message, 'success');
+                        self.trigger('finished', result);
+                        taskQueue.pollAll();
                     }
                 } else {
                     //enqueuing process:
                     message = __('<strong> %s </strong> has been moved to the background.', task.taskLabel);
-                    infoBox = feedback(null, {
-                        encodeHtml: false,
-                        timeout: { info: 8000 }
-                    }).info(message);
-
-                    taskQueue.trigger('taskcreated', { task: task, sourceDom: infoBox.getElement() });
+                    notifyTaskCreated(task, message, 'info');
                     self.trigger('enqueued', result);
                 }
                 loadingBar.stop();

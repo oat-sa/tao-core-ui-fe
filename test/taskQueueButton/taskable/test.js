@@ -83,6 +83,7 @@ define([
 
     QUnit.test('finished', function(assert) {
         var ready = assert.async();
+        var taskCreatedTriggered = false;
         var taskQueue = taskQueueModelFactory({
             url: {
                 all: '/test/taskQueueButton/taskable/samples/getAll.json',
@@ -90,6 +91,10 @@ define([
                 archive: '/test/taskQueueButton/taskable/samples/archive-success.json'
             }
         })
+            .on('taskcreated', function(data) {
+                taskCreatedTriggered = true;
+                assert.equal(data.task.id, 'rdf#i15083379701993186432222', 'taskcreated emitted with created task payload');
+            })
             .on('pollSingle', function() {
                 //After the first poll, simulate a prompt completion of the task to trigger the finished even on time
                 this.setEndpoints({
@@ -113,6 +118,7 @@ define([
                 assert.ok(false, 'should not have any error');
             })
             .on('finished', function() {
+                assert.ok(taskCreatedTriggered, 'fast finished task emits taskcreated event');
                 assert.ok(true, 'finished !');
                 ready();
             })
