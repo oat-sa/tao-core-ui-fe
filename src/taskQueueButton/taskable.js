@@ -89,6 +89,13 @@ var taskableComponent = {
                 var message,
                     task = result.task;
 
+                /**
+                 * Creates feedback box and notifies task queue listeners.
+                 * @param {Object} taskData
+                 * @param {String} feedbackMessage
+                 * @param {String} feedbackType
+                 * @returns {void}
+                 */
                 var notifyTaskCreated = function notifyTaskCreated(taskData, feedbackMessage, feedbackType) {
                     var box = feedback(null, {
                         encodeHtml: false,
@@ -116,14 +123,22 @@ var taskableComponent = {
                                 taskQueue.pollAll();
                             });
                     } else {
-                        message = __('<strong> %s </strong> has been completed.', task.taskLabel);
+                        message = __('<strong> %s </strong> has been completed.', _.escape(task.taskLabel));
                         notifyTaskCreated(task, message, 'success');
-                        self.trigger('finished', result);
-                        taskQueue.pollAll();
+                        taskQueue
+                            .archive(task.id)
+                            .then(function() {
+                                self.trigger('finished', result);
+                                taskQueue.pollAll();
+                            })
+                            .catch(function(err) {
+                                self.trigger('error', err);
+                                taskQueue.pollAll();
+                            });
                     }
                 } else {
                     //enqueuing process:
-                    message = __('<strong> %s </strong> has been moved to the background.', task.taskLabel);
+                    message = __('<strong> %s </strong> has been moved to the background.', _.escape(task.taskLabel));
                     notifyTaskCreated(task, message, 'info');
                     self.trigger('enqueued', result);
                 }
