@@ -24,6 +24,8 @@
                 </div>
             {{/if}}
         </div>
-        <div class="form-toolbar"><input type="submit" id="connect" name="connect" disabled="disabled" class="disabled" value="{{__ "Log in"}}"></div>
+        <div class="form-toolbar">
+            <button type="submit" id="connect" name="connect" disabled="disabled" class="disabled">{{__ "Log in"}}</button>
+        </div>
     </form>
 </div>
