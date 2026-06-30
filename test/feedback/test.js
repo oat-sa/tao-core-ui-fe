@@ -211,6 +211,39 @@ define(['jquery', 'ui/feedback'], function($, feedback) {
                     popup: true,
                     message: 'It seems you suffer from hippopotomonstrosesq. uipedaliophobia'
                 }
+            },
+            {
+                title: 'ruby annotation success',
+                level: 'success',
+                message: 'Assets saved <ruby><rb>6</rb><rt>7</rt></ruby>',
+                params: [],
+                options: {},
+                expected: {
+                    popup: true,
+                    message: 'Assets saved <ruby><rb>6</rb><rt>7</rt></ruby>'
+                }
+            },
+            {
+                title: 'plain text still encoded',
+                level: 'success',
+                message: 'Plain success',
+                params: [],
+                options: {},
+                expected: {
+                    popup: true,
+                    message: 'Plain success'
+                }
+            },
+            {
+                title: 'script tags still encoded',
+                level: 'success',
+                message: 'Evil <script>alert(1)</script>',
+                params: [],
+                options: {},
+                expected: {
+                    popup: true,
+                    message: 'Evil &lt;script&gt;alert(1)&lt;/script&gt;'
+                }
             }
         ])
         .test('message ', function(data, assert) {

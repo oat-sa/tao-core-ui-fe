@@ -50,6 +50,8 @@ var currents = [];
 //available levels
 var levels = ['info', 'success', 'warning', 'danger', 'error'];
 
+const RUBY_HTML = /<\s*(?:ruby|rt|rp|rb)\b/i;
+
 var defaultOptions = {
     timeout: {
         info: 2000,
@@ -125,7 +127,10 @@ var feedbackFactory = function feedbackFactory($container, config) {
                 this.config.level = level;
 
                 // encode plain text string to html
-                if (this.config.encodeHtml) {
+                if (
+                    this.config.encodeHtml &&
+                    !(typeof displayedMessage === 'string' && RUBY_HTML.test(displayedMessage))
+                ) {
                     displayedMessage = encode.html(displayedMessage);
                 }
 
