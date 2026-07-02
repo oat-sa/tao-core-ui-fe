@@ -1,6 +1,6 @@
 {
     "name": "@oat-sa/tao-core-ui",
-    "version": "3.19.1",
+    "version": "3.20.0",
     "displayName": "TAO Core UI",
     "description": "UI libraries of TAO",
     "scripts": {
@@ -52,7 +52,7 @@
         "@oat-sa/prettier-config": "^0.1.1",
         "@oat-sa/rollup-plugin-wildcard-external": "^1.0.0",
         "@oat-sa/tao-calculator": "^0.6.2",
-        "@oat-sa/tao-core-libs": "github:oat-sa/tao-core-libs-fe#feat/INF-493/ruby-placeholder-parse",
+        "@oat-sa/tao-core-libs": "^1.2.1",
         "@oat-sa/tao-core-sdk": "^3.0.0",
         "@oat-sa/tao-core-shared-libs": "^1.6.1",
         "@oat-sa/tao-qunit-testrunner": "^2.0.0",
