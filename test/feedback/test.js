@@ -220,7 +220,7 @@ define(['jquery', 'ui/feedback'], function($, feedback) {
                 options: {},
                 expected: {
                     popup: true,
-                    message: 'Assets saved <ruby><rb>6</rb><rt>7</rt></ruby>'
+                    message: 'Assets saved <ruby>6<rt>7</rt></ruby>'
                 }
             },
             {
@@ -232,7 +232,7 @@ define(['jquery', 'ui/feedback'], function($, feedback) {
                 expected: {
                     popup: true,
                     message:
-                        'Assets saved <ruby><rb>6</rb><rt>7</rt></ruby> &lt;script&gt;alert(1)&lt;/script&gt;'
+                        'Assets saved <ruby>6<rt>7</rt></ruby> &lt;script&gt;alert(1)&lt;/script&gt;'
                 }
             },
             {
