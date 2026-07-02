@@ -115,6 +115,48 @@ export default function html5PlayerFactory($container, config = {}) {
     const debug = (action, ...args) =>
         (config.debug === true || config.debug === action) && window.console.log(getDebugContext(action), ...args);
 
+    const isVerticalLayout = () => {
+        const $layoutContext = $container.closest('.qti-interaction, .custom-text-box');
+
+        return (
+            ($('body').hasClass('item-writing-mode-vertical-rl') || $layoutContext.hasClass('writing-mode-vertical-rl')) &&
+            !$layoutContext.hasClass('writing-mode-horizontal-tb')
+        );
+    };
+
+    const applyVideoSizing = () => {
+        if (type !== 'video' || !$media || !$media.length) {
+            return;
+        }
+
+        $container.css({
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden'
+        });
+
+        $media.css({
+            width: '100%',
+            height: '100%',
+            maxWidth: '100%',
+            maxHeight: '100%',
+            margin: '0 auto',
+            objectFit: 'contain',
+            objectPosition: 'center center',
+            boxSizing: 'border-box'
+        });
+
+        if (isVerticalLayout()) {
+            $media.css({
+                width: 'auto',
+                height: '100%',
+                maxWidth: 'none',
+                maxHeight: '100%'
+            });
+        }
+    };
+
     return eventifier({
         init() {
             const tpl = 'audio' === type ? audioTpl : videoTpl;
@@ -141,6 +183,8 @@ export default function html5PlayerFactory($container, config = {}) {
 
             $media = $(tpl({ cors, preload, poster, link }));
             $container.append($media);
+
+            applyVideoSizing();
 
             media = $media.get(0);
             result = !!(media && support.checkSupport(media));
@@ -378,7 +422,7 @@ export default function html5PlayerFactory($container, config = {}) {
                     $media.height($media.height());
                     $media.on('loadedmetadata.recover', () => {
                         $media.off('loadedmetadata.recover');
-                        $media.css({ width: '', height: '' });
+                        applyVideoSizing();
                     });
                 }
 
