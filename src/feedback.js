@@ -50,6 +50,28 @@ var currents = [];
 //available levels
 var levels = ['info', 'success', 'warning', 'danger', 'error'];
 
+var defaultOptions = {
+    timeout: {
+        info: 2000,
+        success: 2000,
+        warning: 4000,
+        danger: 4000,
+        error: 8000
+    },
+    // Note: value depends on font, font-weight and such.
+    // 40 is pretty good in the current setup but will
+    // never be exact with a non-proportional font.
+    wrapLongWordsAfter: 40,
+
+    //by default HTML content is encoded
+    encodeHtml: true,
+
+    //change the display (absolute or in the flow)
+    popup: true
+};
+
+var feedbackFactory;
+
 const RUBY_HTML = /<\s*(?:ruby|rt|rp|rb)\b/i;
 const RUBY_BLOCK = /<ruby\b[^>]*>[\s\S]*?<\/ruby>/gi;
 
@@ -78,26 +100,6 @@ function encodeHtmlPreservingRuby(str) {
     }).join('');
 }
 
-var defaultOptions = {
-    timeout: {
-        info: 2000,
-        success: 2000,
-        warning: 4000,
-        danger: 4000,
-        error: 8000
-    },
-    // Note: value depends on font, font-weight and such.
-    // 40 is pretty good in the current setup but will
-    // never be exact with a non-proportional font.
-    wrapLongWordsAfter: 40,
-
-    //by default HTML content is encoded
-    encodeHtml: true,
-
-    //change the display (absolute or in the flow)
-    popup: true
-};
-
 /**
  * Creates a feedback object.
  *
@@ -111,7 +113,7 @@ var defaultOptions = {
  * @returns {feedback} the feedback object
  * @throws {TypeError} without a container
  */
-var feedbackFactory = function feedbackFactory($container, config) {
+feedbackFactory = function ($container, config) {
     var feedback;
     const codeEnter = 13;
     const codeSpace = 32;
