@@ -224,6 +224,18 @@ define(['jquery', 'ui/feedback'], function($, feedback) {
                 }
             },
             {
+                title: 'ruby with unsafe html still escaped',
+                level: 'success',
+                message: 'Assets saved <ruby><rb>6</rb><rt>7</rt></ruby> <script>alert(1)</script>',
+                params: [],
+                options: {},
+                expected: {
+                    popup: true,
+                    message:
+                        'Assets saved <ruby><rb>6</rb><rt>7</rt></ruby> &lt;script&gt;alert(1)&lt;/script&gt;'
+                }
+            },
+            {
                 title: 'plain text still encoded',
                 level: 'success',
                 message: 'Plain success',
