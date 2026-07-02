@@ -70,6 +70,36 @@ var defaultOptions = {
     popup: true
 };
 
+var feedbackFactory;
+
+const RUBY_HTML = /<\s*(?:ruby|rt|rp|rb)\b/i;
+const RUBY_BLOCK = /<ruby\b[^>]*>[\s\S]*?<\/ruby>/gi;
+
+/**
+ * HTML-encodes a string while preserving ruby annotation blocks.
+ *
+ * @param {String} str
+ * @returns {String}
+ */
+function encodeHtmlPreservingRuby(str) {
+    var parts = [];
+    var rubies = [];
+    var lastIndex = 0;
+    var match;
+
+    RUBY_BLOCK.lastIndex = 0;
+    while ((match = RUBY_BLOCK.exec(str)) !== null) {
+        parts.push(str.slice(lastIndex, match.index));
+        rubies.push(match[0]);
+        lastIndex = match.index + match[0].length;
+    }
+    parts.push(str.slice(lastIndex));
+
+    return parts.map(function(part, index) {
+        return encode.html(part) + (rubies[index] || '');
+    }).join('');
+}
+
 /**
  * Creates a feedback object.
  *
@@ -83,7 +113,7 @@ var defaultOptions = {
  * @returns {feedback} the feedback object
  * @throws {TypeError} without a container
  */
-var feedbackFactory = function feedbackFactory($container, config) {
+feedbackFactory = function ($container, config) {
     var feedback;
     const codeEnter = 13;
     const codeSpace = 32;
@@ -124,13 +154,18 @@ var feedbackFactory = function feedbackFactory($container, config) {
                 this.config = _.defaults(options || {}, this.config);
                 this.config.level = level;
 
+                const hasRubyHtml =
+                    typeof displayedMessage === 'string' && RUBY_HTML.test(displayedMessage);
+
                 // encode plain text string to html
                 if (this.config.encodeHtml) {
-                    displayedMessage = encode.html(displayedMessage);
+                    displayedMessage = hasRubyHtml
+                        ? encodeHtmlPreservingRuby(displayedMessage)
+                        : encode.html(displayedMessage);
                 }
 
                 // wrap long words
-                if (this.config.wrapLongWordsAfter) {
+                if (this.config.wrapLongWordsAfter && !hasRubyHtml) {
                     displayedMessage = wrapLongWords(displayedMessage, this.config.wrapLongWordsAfter);
                 }
 
