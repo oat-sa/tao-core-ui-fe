@@ -64,7 +64,7 @@
                                 data-sort-by="{{#if sortId}}{{sortId}}{{else}}{{id}}{{/if}}"
                                 {{#if sorttype}}data-sort-type="{{sorttype}}"{{/if}}
                                 tabindex="0"
-                            {{/if}}>{{label}}{{#if alias}} <span class="alias">({{alias}})</span>{{/if}}{{#if comment}} <span class="comment">/ {{comment}}</span>{{/if}}</div>
+                            {{/if}}>{{{label}}}{{#if alias}} <span class="alias">({{alias}})</span>{{/if}}{{#if comment}} <span class="comment">/ {{comment}}</span>{{/if}}</div>
                         {{#if filterable}}
                         <aside data-column="{{id}}" class="filter column
                             {{#if customFilter}} customInput" >
@@ -132,7 +132,7 @@
                                 {{#if ../../title}} title="{{../../../title}}"{{/if}}
                                 {{#if ../../disabled}} disabled="disabled"{{/if}}>
                                 {{#if ../../icon}}<span class="icon-{{../../../icon}}"></span>{{/if}}
-                                {{../../label}}
+                                {{{../../label}}}
                             </button>
                                         {{/unless}}
                                     {{/with}}
