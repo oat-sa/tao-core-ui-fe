@@ -231,14 +231,10 @@ export default function (options) {
     function setUpUploader(currentPath) {
         let errors = [];
         let $switcher = $('.upload-switcher a', $fileSelector);
+        let isUploadMode = false;
 
         $uploader.on('upload.uploader', function (e, file, result) {
-            let path =
-                $(`[data-display="${currentPath}"]`).data('path') || $(`[data-display="/${currentPath}"]`).data('path');
-            if (!path) {
-                path = currentPath;
-            }
-            $container.trigger(`filenew.${ns}`, [result, path]);
+            $container.trigger(`filenew.${ns}`, [result, currentPath]);
         });
         $uploader.on('fail.uploader', function (e, file, err) {
             errors.push(__('Unable to upload file %s : %s', file.name, err.message));
@@ -246,7 +242,7 @@ export default function (options) {
 
         $uploader.on('end.uploader', function () {
             if (errors.length === 0) {
-                _.delay(switchUpload, 500);
+                setUploadMode(false);
             } else {
                 feedback().error(`<ul><li>${errors.join('</li><li>')}</li></ul>`, { encodeHtml: false });
             }
@@ -333,8 +329,9 @@ export default function (options) {
             });
         });
 
-        function switchUpload() {
-            if ($fileContainer.css('display') === 'none') {
+        function setUploadMode(enableUploadMode) {
+            if (!enableUploadMode) {
+                isUploadMode = false;
                 $uploader.hide();
                 $fileContainer.show();
                 // Note: show() would display as inline, not inline-block!
@@ -342,6 +339,7 @@ export default function (options) {
                 $switcher.filter('.listing').hide();
                 $browserTitle.text(__('Browse folders:'));
             } else {
+                isUploadMode = true;
                 $fileContainer.hide();
                 $placeholder.hide();
                 $uploader.show();
@@ -355,8 +353,14 @@ export default function (options) {
         //switch to upload mode
         $switcher.click(function (e) {
             e.preventDefault();
-            switchUpload();
+            if ($(this).hasClass('upload')) {
+                setUploadMode(true);
+            } else if ($(this).hasClass('listing')) {
+                setUploadMode(false);
+            }
         });
+
+        setUploadMode(isUploadMode);
     }
 
     function updateFiles(path, files) {
