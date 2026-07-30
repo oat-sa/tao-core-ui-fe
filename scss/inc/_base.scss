@@ -265,7 +265,7 @@ body {
     }
 
     q {
-        quotes: '\201C''\201D''\2018''\2019';
+        quotes: '\201C' '\201D' '\2018' '\2019';
         &:before,
         &:after {
             content: '';
@@ -775,7 +775,7 @@ body {
             .txt-dashed {
                 text-underline-offset: -0.1em;
             }
-            ruby rb:has(.txt-wavy,.txt-underline,.txt-dashed) + rt {
+            ruby rb:has(.txt-wavy, .txt-underline, .txt-dashed) + rt {
                 left: 0;
             }
             ruby rb:has(.txt-wavy) + rt {
@@ -788,7 +788,7 @@ body {
             .txt-dashed {
                 text-underline-offset: auto;
             }
-            ruby rb:has(.txt-wavy,.txt-underline,.txt-dashed) + rt {
+            ruby rb:has(.txt-wavy, .txt-underline, .txt-dashed) + rt {
                 left: auto;
             }
         }
@@ -875,4 +875,18 @@ body {
 
     // everything user highlight
     @import 'base/highlight';
+}
+
+.qti-itemBody {
+    &.writing-mode-vertical-rl {
+        line-height: 1.8;
+    }
+    .custom-text-box.writing-mode-vertical-rl,
+    .qti-interaction.writing-mode-vertical-rl:has(.qti-prompt ruby) {
+        padding-block-start: 12px; /* fit ruby tags (with underlines) on the first line of a-block or interaction prompt */
+    }
+    &.writing-mode-vertical-rl .custom-text-box:not(.writing-mode-horizontal-tb),
+    &.writing-mode-vertical-rl .qti-interaction:not(.writing-mode-horizontal-tb):has(.qti-prompt ruby) {
+        padding-block-start: 12px; /* fit ruby tags (with underlines) on the first line of a-block or interaction prompt */
+    }
 }
