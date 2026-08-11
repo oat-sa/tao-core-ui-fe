@@ -52,10 +52,45 @@
             margin-inline-end: 0;
         }
     }
-    .grid-row:last-child {
-        [class*=' col-'],
-        [class^='col-'] {
-            margin-block-end: 0;
+}
+
+.grid-row:last-child {
+    & > [class*=' col-'],
+    & > [class^='col-'] {
+        margin-block-end: 0;
+    }
+}
+
+.qti-item.runtime .separator-between-columns {
+    & > .grid-row {
+        display: flex;
+        flex-direction: row;
+
+        &::before,
+        &::after {
+            content: none; /* revert "@extend .clearfix" */
+        }
+
+        & > [class*=' col-'],
+        & > [class^='col-'] {
+            position: relative;
+            float: none;
+
+            &:not(:first-child) {
+                margin-inline-start: 10px;
+            }
+            &:not(:last-child) {
+                margin-inline-end: 10px;
+            }
+            &:not(:first-child)::before {
+                content: '';
+                position: absolute;
+                inset-block-start: 0;
+                inset-block-end: 0;
+                inset-inline-start: -11px;
+                inline-size: 2px;
+                background: $colorGsDark;
+            }
         }
     }
 }
