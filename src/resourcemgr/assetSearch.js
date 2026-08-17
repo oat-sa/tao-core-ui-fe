@@ -1,0 +1,312 @@
+/**
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; under version 2
+ * of the License (non-upgradable).
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * Copyright (c) 2026 (original work) Open Assessment Technologies SA;
+ */
+
+/**
+ * Scoped asset search UI + client for Resource Manager.
+ * Browse mode remains the default; non-empty query switches to search mode.
+ *
+ * @exports ui/resourcemgr/assetSearch
+ */
+import $ from 'jquery';
+import _ from 'lodash';
+import __ from 'i18n';
+import paginationComponent from 'ui/pagination';
+import {
+    DEFAULT_PAGE_SIZE,
+    DEFAULT_SORT,
+    applyLocalSearchFallback,
+    buildSearchRequestParams,
+    isBrowseShapedSearchPayload,
+    normalizeSearchResponse
+} from 'ui/resourcemgr/assetSearchContract';
+
+const ns = 'resourcemgr';
+const DEFAULT_DEBOUNCE_MS = 300;
+
+/**
+ * @param {Object} options - Resource Manager options
+ */
+export default function assetSearch(options) {
+    if (!options || !options.searchUrl) {
+        return;
+    }
+
+    const $container = options.$target;
+    const $fileSelector = $('.file-selector', $container);
+    const $searchRoot = $('.asset-search', $container);
+    const $input = $('.asset-search-input', $searchRoot);
+    const $status = $('.asset-search-status', $searchRoot);
+    const $loading = $('.asset-search-loading', $fileSelector);
+    const $error = $('.asset-search-error', $fileSelector);
+    const $errorMessage = $('.asset-search-error-message', $error);
+    const $retry = $('.asset-search-retry', $error);
+    const $paginationContainer = $('.pagination-bottom', $container);
+    const $uploadSwitcher = $('.upload-switcher', $fileSelector);
+
+    let scopePath = options.initialPath || options.path || '/';
+    let scopeLabel = scopePath;
+    let query = '';
+    let sort = Object.assign({}, DEFAULT_SORT);
+    let page = 1;
+    let pageSize = DEFAULT_PAGE_SIZE;
+    let total = 0;
+    let searchMode = false;
+    let requestSeq = 0;
+    let lastBrowsePayload = null;
+
+    $searchRoot.removeClass('hidden').removeAttr('hidden');
+    $input.attr('aria-label', __('Search assets'));
+    $status.attr('aria-live', 'polite');
+
+    /**
+     * Keep the search field focused whenever the picker opens.
+     */
+    function focusSearchInput() {
+        window.setTimeout(function () {
+            if ($input.is(':visible') && !$input.prop('disabled')) {
+                $input.trigger('focus');
+            }
+        }, 0);
+    }
+
+    $container.on('opened.modal', focusSearchInput);
+    focusSearchInput();
+
+    $container.on(`folderselect.${ns}`, function (e, label, files, folderPath) {
+        if (searchMode) {
+            return;
+        }
+        scopeLabel = label || folderPath || scopePath;
+        scopePath = folderPath || scopePath;
+        lastBrowsePayload = {
+            label: scopeLabel,
+            files: files || [],
+            path: scopePath
+        };
+        page = 1;
+    });
+
+    $container.on(`folderpath.${ns}`, function (e, folderPath, label) {
+        scopePath = folderPath || scopePath;
+        scopeLabel = label || scopePath;
+    });
+
+    const debounceMs = Number.isFinite(Number(options.searchDebounceMs))
+        ? Number(options.searchDebounceMs)
+        : DEFAULT_DEBOUNCE_MS;
+    const runSearchDebounced =
+        debounceMs > 0
+            ? _.debounce(function () {
+                runSearch();
+            }, debounceMs)
+            : runSearch;
+
+    $input.on('input', function () {
+        query = String($input.val() || '').trim();
+        page = 1;
+        if (!query) {
+            exitSearchMode();
+            return;
+        }
+        enterSearchMode();
+        runSearchDebounced();
+    });
+
+    $retry.on('click', function (e) {
+        e.preventDefault();
+        runSearch();
+    });
+
+    /**
+     * Enter search mode UI.
+     */
+    function enterSearchMode() {
+        searchMode = true;
+        $fileSelector.addClass('search-mode');
+        $uploadSwitcher.addClass('hidden');
+        $container.trigger(`searchmode.${ns}`, [true]);
+    }
+
+    /**
+     * Leave search mode and restore last browse listing.
+     */
+    function exitSearchMode() {
+        const wasSearch = searchMode;
+        searchMode = false;
+        requestSeq += 1;
+        $fileSelector.removeClass('search-mode');
+        $uploadSwitcher.removeClass('hidden');
+        hideLoading();
+        hideError();
+        setStatus('');
+        $paginationContainer.empty();
+        $container.trigger(`searchmode.${ns}`, [false]);
+
+        if (wasSearch) {
+            if (lastBrowsePayload) {
+                $container.trigger(`folderselect.${ns}`, [
+                    lastBrowsePayload.label,
+                    lastBrowsePayload.files,
+                    lastBrowsePayload.path
+                ]);
+            } else {
+                $container.trigger(`searchclear.${ns}`, [scopePath]);
+            }
+        }
+    }
+
+    /**
+     * Execute the scoped search request.
+     */
+    function runSearch() {
+        if (!query) {
+            exitSearchMode();
+            return;
+        }
+
+        const seq = ++requestSeq;
+        showLoading();
+        hideError();
+        setStatus(__('Searching…'));
+
+        const data = buildSearchRequestParams({
+            path: scopePath,
+            query,
+            sort,
+            page,
+            pageSize,
+            pathParam: options.pathParam || 'path',
+            params: options.params
+        });
+
+        $.ajax({
+            url: options.searchUrl,
+            method: 'GET',
+            dataType: 'json',
+            data
+        })
+            .done(function (response) {
+                if (seq !== requestSeq) {
+                    return;
+                }
+                hideLoading();
+                let normalized = normalizeSearchResponse(response);
+                // Temporary: searchUrl may still point at browse (`ItemContent/files`),
+                // which ignores query — filter/sort/page locally until a real search API exists.
+                if (isBrowseShapedSearchPayload(response)) {
+                    normalized = applyLocalSearchFallback(normalized, {
+                        query,
+                        sort,
+                        page,
+                        pageSize
+                    });
+                }
+                total = normalized.total;
+                page = normalized.page;
+                pageSize = normalized.pageSize;
+
+                // Render search rows as-is (no client MIME/auth filtering).
+                $container.trigger(`searchresults.${ns}`, [
+                    {
+                        query,
+                        path: scopePath,
+                        items: normalized.items,
+                        total: normalized.total,
+                        page: normalized.page,
+                        pageSize: normalized.pageSize,
+                        sort: Object.assign({}, sort),
+                        initialSelection: options.initialSelection
+                    }
+                ]);
+
+                if (normalized.total === 0) {
+                    setStatus(__('No assets match your search.'));
+                } else {
+                    setStatus(__('Found %s asset(s)', String(normalized.total)));
+                }
+                renderPagination();
+            })
+            .fail(function () {
+                if (seq !== requestSeq) {
+                    return;
+                }
+                hideLoading();
+                showError(__('Unable to search assets. Please try again.'));
+                setStatus('');
+                $container.trigger(`searchresults.${ns}`, [
+                    {
+                        query,
+                        path: scopePath,
+                        items: [],
+                        total: 0,
+                        page: 1,
+                        pageSize,
+                        sort: Object.assign({}, sort),
+                        error: true
+                    }
+                ]);
+            });
+    }
+
+    function renderPagination() {
+        $paginationContainer.empty();
+        const totalPages = Math.ceil(total / pageSize);
+        if (!(total > 0 && totalPages > 1)) {
+            return;
+        }
+
+        paginationComponent({
+            mode: 'simple',
+            activePage: page,
+            totalPages
+        })
+            .on('prev', function () {
+                page -= 1;
+                runSearch();
+            })
+            .on('next', function () {
+                page += 1;
+                runSearch();
+            })
+            .render($paginationContainer);
+    }
+
+    function showLoading() {
+        $loading.removeClass('hidden').removeAttr('hidden');
+        $loading.attr('aria-busy', 'true');
+    }
+
+    function hideLoading() {
+        $loading.addClass('hidden').attr('hidden', 'hidden');
+        $loading.attr('aria-busy', 'false');
+    }
+
+    function showError(message) {
+        $errorMessage.text(message);
+        $error.removeClass('hidden').removeAttr('hidden');
+    }
+
+    function hideError() {
+        $error.addClass('hidden').attr('hidden', 'hidden');
+        $errorMessage.text('');
+    }
+
+    function setStatus(message) {
+        $status.text(message || '');
+    }
+}

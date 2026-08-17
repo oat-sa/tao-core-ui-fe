@@ -1,0 +1,144 @@
+{
+    "browseRoot": {
+        "data": {
+            "path": "/",
+            "label": "Media",
+            "childrenLimit": 10,
+            "total": 2,
+            "permissions": ["READ", "WRITE", "UPLOAD"],
+            "children": [
+                {
+                    "path": "/images",
+                    "label": "Images",
+                    "childrenLimit": 10,
+                    "total": 1,
+                    "permissions": ["READ", "WRITE", "UPLOAD"],
+                    "children": []
+                },
+                {
+                    "uri": "asset://root-banner",
+                    "name": "banner.png",
+                    "mime": "image/png",
+                    "size": 1024,
+                    "permissions": ["READ", "DOWNLOAD"]
+                },
+                {
+                    "uri": "asset://root-intro",
+                    "name": "intro.mp3",
+                    "mime": "audio/mpeg",
+                    "size": 2048,
+                    "permissions": ["READ", "DOWNLOAD"]
+                }
+            ]
+        }
+    },
+    "browseImages": {
+        "data": {
+            "path": "/images",
+            "label": "Images",
+            "childrenLimit": 10,
+            "total": 1,
+            "permissions": ["READ", "WRITE", "UPLOAD"],
+            "children": [
+                {
+                    "uri": "asset://cat",
+                    "name": "cat.png",
+                    "mime": "image/png",
+                    "size": 512,
+                    "permissions": ["READ", "DOWNLOAD"]
+                }
+            ]
+        }
+    },
+    "searchResults": {
+        "data": {
+            "items": [
+                {
+                    "uri": "asset://cat",
+                    "label": "cat.png",
+                    "name": "cat.png",
+                    "mime": "image/png",
+                    "location": "/images",
+                    "updatedAt": "2026-08-01T10:00:00Z",
+                    "permissions": ["READ", "DOWNLOAD"]
+                },
+                {
+                    "uri": "asset://catalog",
+                    "label": "catalog.pdf",
+                    "name": "catalog.pdf",
+                    "mime": "application/pdf",
+                    "location": "/docs",
+                    "updatedAt": "2026-08-02T11:00:00Z",
+                    "permissions": ["READ", "DOWNLOAD"]
+                }
+            ],
+            "total": 2,
+            "page": 1,
+            "pageSize": 10
+        }
+    },
+    "searchEmpty": {
+        "data": {
+            "items": [],
+            "total": 0,
+            "page": 1,
+            "pageSize": 10
+        }
+    },
+    "searchBrowseFallback": {
+        "success": true,
+        "data": {
+            "path": "taomedia://mediamanager/Media",
+            "label": "Assets",
+            "childrenLimit": 15,
+            "total": 4,
+            "permissions": ["READ", "WRITE"],
+            "children": [
+                {
+                    "name": "video-example.mp4",
+                    "uri": "taomedia://mediamanager/video-example",
+                    "mime": "video/mp4",
+                    "permissions": ["READ"]
+                },
+                {
+                    "name": "colorbars.mp4",
+                    "uri": "taomedia://mediamanager/colorbars",
+                    "mime": "video/mp4",
+                    "permissions": ["READ"]
+                },
+                {
+                    "name": "beep.mp3",
+                    "uri": "taomedia://mediamanager/beep",
+                    "mime": "audio/mpeg",
+                    "permissions": ["READ"]
+                },
+                {
+                    "path": "/folders",
+                    "label": "Folders",
+                    "childrenLimit": 10,
+                    "total": 0,
+                    "permissions": ["READ"],
+                    "children": []
+                }
+            ]
+        }
+    },
+    "searchPage2": {
+        "data": {
+            "items": [
+                {
+                    "uri": "asset://page2",
+                    "label": "page2.png",
+                    "name": "page2.png",
+                    "mime": "image/png",
+                    "location": "/images",
+                    "updatedAt": "2026-08-03T12:00:00Z",
+                    "permissions": ["READ", "DOWNLOAD"]
+                }
+            ],
+            "total": 12,
+            "page": 2,
+            "pageSize": 10
+        }
+    }
+}

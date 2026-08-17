@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import _ from 'lodash';
 import Pluginifier from 'core/pluginifier';
+import assetSearch from 'ui/resourcemgr/assetSearch';
 import fileBrowser from 'ui/resourcemgr/fileBrowser';
 import filePreview from 'ui/resourcemgr/filePreview';
 import fileSelector from 'ui/resourcemgr/fileSelector';
@@ -15,7 +16,8 @@ var defaults = {
     mediaSources: [{ root: 'local', path: '/' }],
     open: true,
     appendContainer: '.tao-scope:first',
-    title: ''
+    title: '',
+    pathParam: 'path'
 };
 
 /**
@@ -35,6 +37,10 @@ var resourceMgr = {
      * @param {Object} options - the plugin options
      * @param {Sring|Boolean} [options.bindEvent = 'click'] - the event that trigger the toggling
      * @param {String} options.url - the URL of the service used to retrieve the resources.
+     * @param {String} [options.searchUrl] - scoped asset-search endpoint; omit for browse-only
+     * @param {String} [options.initialPath] - folder to open on start (within the media source tree)
+     * @param {String} [options.initialSelection] - asset URI to preselect when present in results
+     * @param {String} [options.pathParam='path'] - query parameter name for folder/asset path
      * @fires ResourceMgr#create.resourcemgr
      * @returns {jQueryElement} for chaining
      */
@@ -107,6 +113,7 @@ var resourceMgr = {
                 $fileBrowser.find('li.root:last').addClass('active');
                 fileSelector(options);
                 filePreview(options);
+                assetSearch(options);
 
                 /**
                  * The plugin have been created.
@@ -136,7 +143,8 @@ var resourceMgr = {
             options.$target = $(
                 layout({
                     title: options.title || '',
-                    className: options.className || ''
+                    className: options.className || '',
+                    assetSearchInputId: options.targetId + '-asset-search'
                 })
             );
 

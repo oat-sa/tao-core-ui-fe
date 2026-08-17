@@ -30,7 +30,49 @@
         overflow-y: auto;
         margin: 0 #{$rmSideMargin * 1px};
         height: calc(100% - 40px - 40px - 40px); // full height - h2.padding - h2.height - modal.bottom-padding
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    .asset-search {
+        flex: 0 0 auto;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 5px;
+        border-bottom: 1px solid $uiGeneralContentBorder;
+        background-color: $uiGeneralContentBg;
+
+        &.hidden,
+        &[hidden] {
+            display: none;
+        }
+
+        .asset-search-label {
+            @include font-size(12);
+            margin: 0;
+        }
+
+        .asset-search-input {
+            flex: 1 1 160px;
+            min-width: 120px;
+        }
+
+        .asset-search-status {
+            flex: 1 1 100%;
+            @include font-size(12);
+            color: #666;
+            min-height: 1.2em;
+        }
+    }
+
+    .file-panels {
         @include flex-container();
+        flex: 1 1 auto;
+        min-height: 0;
+        height: 100%;
     }
 
     .file-browser {
@@ -178,6 +220,28 @@
             text-align: center;
         }
 
+        .asset-search-loading,
+        .asset-search-error {
+            padding: 10px 5px;
+            text-align: center;
+            @include font-size(14);
+
+            &.hidden,
+            &[hidden] {
+                display: none;
+            }
+        }
+
+        .asset-search-error {
+            color: $error;
+        }
+
+        &.search-mode {
+            .upload-switcher {
+                display: none;
+            }
+        }
+
         ul.files {
             position: relative;
             margin-bottom: 0;
@@ -222,6 +286,15 @@
                     margin-left: 25px;
                 }
 
+                .meta {
+                    display: none;
+                    @include font-size(12);
+                    color: #666;
+                    margin-left: 10px;
+                    max-width: 140px;
+                    vertical-align: top;
+                }
+
                 .actions {
                     top: 0;
                     right: 0;
@@ -238,6 +311,15 @@
                             @include box-shadow(0, 0, 0);
                         }
                     }
+                }
+            }
+
+            &.has-search-columns li {
+                .desc {
+                    max-width: calc(40% - 40px);
+                }
+                .meta {
+                    display: inline-block;
                 }
             }
         }

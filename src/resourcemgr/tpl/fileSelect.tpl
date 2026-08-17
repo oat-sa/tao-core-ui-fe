@@ -5,11 +5,17 @@
         data-mime="{{mime}}"
         data-size="{{size}}"
         data-url="{{viewUrl}}"
+        {{#if location}} data-location="{{location}}" {{/if}}
+        {{#if updatedAt}} data-updated="{{updatedAt}}" {{/if}}
         {{#if permissions.download}} data-download="true" {{/if}}
         {{#if permissions.preview}} data-preview="true" {{/if}}
         {{#if permissions.read}} data-select="true" {{/if}}
         data-alt="{{alt}}">
         <span class="desc truncate">{{name}}</span>
+        {{#if showSearchColumns}}
+            <span class="meta location truncate" title="{{location}}">{{location}}</span>
+            <span class="meta updated truncate" title="{{updatedAt}}">{{updatedAt}}</span>
+        {{/if}}
         <div class="actions">
             <div class="tlb">
                 <div class="tlb-top">

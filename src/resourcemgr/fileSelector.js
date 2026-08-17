@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2015-2024 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2015-2026 (original work) Open Assessment Technologies SA;
  *
  */
 
@@ -76,6 +76,8 @@ export default function (options) {
     let parentSelector = `#${$container.attr('id')} .file-selector`;
     let $pathTitle = $fileSelector.find('h1 > .title');
     let $browserTitle = $('.file-browser > h1', $container);
+    let searchMode = false;
+    let initialSelectionApplied = false;
 
     //set up the uploader
     if (disableUpload) {
@@ -84,9 +86,19 @@ export default function (options) {
     } else {
         setUpUploader(root);
     }
+
+    $container.on(`searchmode.${ns}`, function (e, enabled) {
+        searchMode = !!enabled;
+        $fileSelector.toggleClass('search-mode', searchMode);
+    });
+
     //update current folder
     $container.on(`folderselect.${ns}`, function (e, fullPath, data, activePath, content) {
         let files;
+
+        if (searchMode) {
+            return;
+        }
 
         data = data.map(function (dataItem) {
             if (Array.isArray(dataItem.permissions)) {
@@ -111,25 +123,29 @@ export default function (options) {
             files = _.filter(data, function (item) {
                 return !!item.uri;
             }).map(function (file) {
-                file.type = mimeType.getFileType(file);
-                if (typeof file.identifier === 'undefined') {
-                    file.display = `${fullPath}/${file.name}`.replace('//', '/');
-                } else {
-                    file.display = file.identifier + file.name;
-                }
-
-                file.viewUrl = `${options.downloadUrl}?${$.param(options.params)}&${
-                    options.pathParam
-                }=${encodeURIComponent(file.uri)}`;
-                file.downloadUrl = `${file.viewUrl}&svgzsupport=true`;
-                return file;
+                return prepareFileForDisplay(file, fullPath, false);
             });
 
-            updateFiles(fullPath, files);
+            updateFiles(fullPath, files, false);
+            applyInitialSelection();
+        }
+    });
 
-            if (activePath) {
-                $(`li[data-file="${activePath}"]`).trigger('click');
+    // Render scoped search results from the service as-is (no client MIME/auth filtering).
+    $container.on(`searchresults.${ns}`, function (e, result) {
+        const items = (result && result.items) || [];
+        const files = items.map(function (file) {
+            if (Array.isArray(file.permissions)) {
+                updatePermissions(file);
             }
+            return prepareFileForDisplay(file, result.path || '', true);
+        });
+
+        $pathTitle.text(__('Search results'));
+        updateFiles(result.path || '', files, true);
+
+        if (!(result && result.error)) {
+            applyInitialSelection(result && result.initialSelection);
         }
     });
 
@@ -137,6 +153,47 @@ export default function (options) {
         return `${transcriptionUrl}?metadataUri=${encodeURIComponent(metadataUri)}&resourceUri=${
             resourceUri.replace('taomedia://mediamanager/', '')
         }`;
+    }
+
+    /**
+     * Map a service file record to the selector display model.
+     * @param {Object} file
+     * @param {String} fullPath
+     * @param {Boolean} showSearchColumns
+     * @returns {Object}
+     */
+    function prepareFileForDisplay(file, fullPath, showSearchColumns) {
+        file.type = mimeType.getFileType(file);
+        if (typeof file.identifier === 'undefined') {
+            file.display = `${fullPath}/${file.name}`.replace('//', '/');
+        } else {
+            file.display = file.identifier + file.name;
+        }
+
+        file.viewUrl = `${options.downloadUrl}?${$.param(options.params)}&${
+            options.pathParam || 'path'
+        }=${encodeURIComponent(file.uri)}`;
+        file.downloadUrl = `${file.viewUrl}&svgzsupport=true`;
+        file.showSearchColumns = !!showSearchColumns;
+        return file;
+    }
+
+    /**
+     * Preselect initialSelection once when the matching row is present.
+     * @param {String} [selection]
+     */
+    function applyInitialSelection(selection) {
+        const target = selection || options.initialSelection;
+        if (!target || initialSelectionApplied) {
+            return;
+        }
+        const $item = $fileContainer.find('li').filter(function () {
+            return $(this).data('file') === target;
+        });
+        if ($item.length) {
+            initialSelectionApplied = true;
+            $item.first().trigger('click');
+        }
     }
 
     //listen for file activation
@@ -219,7 +276,7 @@ export default function (options) {
             params = {};
         if (e.namespace === 'deleter' && $target.length) {
             path = $target.data('file');
-            params[options.pathParam] = path;
+            params[options.pathParam || 'path'] = path;
             $.getJSON(options.deleteUrl, _.merge(params, options.params), function (response) {
                 if (response.deleted) {
                     $container.trigger(`filedelete.${ns}`, [path]);
@@ -253,7 +310,7 @@ export default function (options) {
         $uploader.uploader({
             upload: true,
             multiple: true,
-            uploadUrl: `${options.uploadUrl}?${$.param(options.params)}&${options.pathParam}=${currentPath}`,
+            uploadUrl: `${options.uploadUrl}?${$.param(options.params)}&${options.pathParam || 'path'}=${currentPath}`,
             fileSelect: function (files, done) {
                 let givenLength = files.length;
                 let fileNames = [];
@@ -297,7 +354,7 @@ export default function (options) {
                             let pathParam = `${currentPath}/${file.name}`;
                             pathParam.replace('//', '/');
                             $.getJSON(
-                                `${options.fileExistsUrl}?${$.param(options.params)}&${options.pathParam}=${pathParam}`,
+                                `${options.fileExistsUrl}?${$.param(options.params)}&${options.pathParam || 'path'}=${pathParam}`,
                                 function (response) {
                                     if (response && response.exists === true) {
                                         //eslint-disable-next-line no-alert
@@ -324,7 +381,7 @@ export default function (options) {
             currentPath = uri;
             $uploader.uploader('options', {
                 uploadUrl: `${options.uploadUrl}?${$.param(options.params)}&${
-                    options.pathParam
+                    options.pathParam || 'path'
                 }=${currentPath}&relPath=${currentPath}`
             });
         });
@@ -363,8 +420,9 @@ export default function (options) {
         setUploadMode(isUploadMode);
     }
 
-    function updateFiles(path, files) {
+    function updateFiles(path, files, showSearchColumns) {
         $fileContainer.empty();
+        $fileContainer.toggleClass('has-search-columns', !!showSearchColumns);
         if (files.length) {
             $placeholder.hide();
             $fileContainer.append(

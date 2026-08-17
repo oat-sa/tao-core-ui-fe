@@ -13,11 +13,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2018-2020 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2018-2026 (original work) Open Assessment Technologies SA;
  */
 import $ from 'jquery';
 import _ from 'lodash';
-import request from 'core/request';
 import paginationComponent from 'ui/pagination';
 import rootFolderTpl from 'ui/resourcemgr/tpl/rootFolder';
 import folderTpl from 'ui/resourcemgr/tpl/folder';
@@ -28,10 +27,12 @@ const ns = 'resourcemgr';
 export default function (options) {
     const root = options.root || 'local';
     const rootPath = options.path || '/';
+    const initialPath = options.initialPath || rootPath;
     const $container = options.$target;
     const $fileBrowser = $('.file-browser .file-browser-wrapper', $container);
     const $divContainer = $(`.${root}`, $fileBrowser);
     const $folderContainer = $('.folders', $divContainer);
+    const $paginationContainer = $('.pagination-bottom', $container);
     const fileTree = {};
     // for pagination
     let selectedClass = {
@@ -40,9 +41,27 @@ export default function (options) {
         total: 0,
         page: 1
     };
+    let searchMode = false;
+
+    $container.on(`searchmode.${ns}`, function (e, enabled) {
+        searchMode = !!enabled;
+    });
+
+    $container.on(`searchclear.${ns}`, function (e, path) {
+        const targetPath = path || selectedClass.path;
+        const subTree = getByPath(fileTree, targetPath) || fileTree;
+        getFolderContent(subTree, targetPath, function (content) {
+            if (content) {
+                selectFolder(content, targetPath);
+            }
+        });
+    });
 
     //load the content of the ROOT
     getFolderContent(fileTree, rootPath, function (content) {
+        if (!content) {
+            return;
+        }
         indexTree(content);
 
         //create the tree node for the ROOT folder by default once the initial content loaded
@@ -56,16 +75,12 @@ export default function (options) {
         }
         updateFolders(content, $innerList);
 
-        if (content.permissions.read && !options.hasAlreadySelected) {
-            $('.file-browser').find('li.active').removeClass('active');
-            updateSelectedClass(content.path, content.total, content.childrenLimit);
-            $container.trigger('folderselect.'.concat(ns), [
-                content.label,
-                getPage(content.children),
-                content.path,
-                content
-            ]);
-            renderPagination();
+        if (content.permissions && content.permissions.read && !options.hasAlreadySelected) {
+            if (initialPath && initialPath !== rootPath) {
+                openInitialPath(initialPath);
+            } else {
+                selectFolder(content, content.path);
+            }
 
             if (root !== 'local') {
                 options.hasAlreadySelected = true;
@@ -107,14 +122,7 @@ export default function (options) {
                 $selected.parent('li').addClass('active');
 
                 //internal event to set the file-selector content
-                updateSelectedClass(fullPath, content.total, content.childrenLimit);
-                $container.trigger(`folderselect.${ns}`, [
-                    content.label,
-                    getPage(content.children),
-                    content.path,
-                    content
-                ]);
-                renderPagination();
+                selectFolder(content, fullPath);
             }
         });
     });
@@ -153,6 +161,62 @@ export default function (options) {
             loadPage();
         }
     });
+
+    /**
+     * Open and select an initial folder path after the root tree is available.
+     * @param {String} path
+     */
+    function openInitialPath(path) {
+        getFolderContent(fileTree, path, function (content) {
+            indexTree(fileTree);
+            if (!content) {
+                const rootContent = getByPath(fileTree, rootPath) || fileTree;
+                selectFolder(rootContent, rootContent.path || rootPath);
+                return;
+            }
+
+            // Expand ancestors when possible and mark the target active.
+            const $targetLink = $folderContainer.find('a').filter(function () {
+                return $(this).data('path') === path;
+            });
+            if ($targetLink.length) {
+                $targetLink.parents('li').each(function () {
+                    const $li = $(this);
+                    const $anchor = $li.children('a');
+                    const $list = $li.children('ul');
+                    $anchor.addClass('opened');
+                    if ($list.length) {
+                        $list.show();
+                    }
+                });
+                $('.folders li', $fileBrowser).removeClass('active');
+                $targetLink.parent('li').addClass('active');
+            }
+
+            selectFolder(content, path);
+        });
+    }
+
+    /**
+     * Select a folder and publish its page of files to the selector.
+     * @param {Object} content
+     * @param {String} path
+     */
+    function selectFolder(content, path) {
+        if (searchMode || !content) {
+            return;
+        }
+        updateSelectedClass(path, content.total, content.childrenLimit);
+        $container.trigger(`folderpath.${ns}`, [path, content.label]);
+        $container.trigger(`folderselect.${ns}`, [
+            content.label,
+            getPage(content.children || []),
+            path,
+            content
+        ]);
+        renderPagination();
+    }
+
     /**
      * Get files for page
      * @param {Array} children
@@ -192,6 +256,8 @@ export default function (options) {
                     tree.empty = true;
                 }
                 cb(data);
+            }).catch(function () {
+                cb(null);
             });
         } else if (content.children) {
             const files = _.filter(content.children, function (item) {
@@ -209,6 +275,8 @@ export default function (options) {
                         childrenLimit: data.childrenLimit
                     });
                     content = getByPath(tree, path);
+                    cb(content);
+                }).catch(function () {
                     cb(content);
                 });
             } else {
@@ -316,28 +384,28 @@ export default function (options) {
     /**
      * Get the content of a folder
      * @param {String} path - the folder path
-     * @returns {jQuery.Deferred} the defferred object to run done/complete/fail
+     * @returns {Promise} resolves with folder content
      */
     function loadContent(path) {
         const parameters = {};
-        parameters[options.pathParam] = path;
-        return request({
-            url: options.browseUrl,
-            method: 'GET',
-            dataType: 'json',
-            data: _.merge(parameters, options.params, {
-                childrenOffset: (selectedClass.page - 1) * selectedClass.childrenLimit
-            }),
-            noToken: true
-        })
-            .then(response => response.data)
-            .then(response => {
-                response = updatePermissions(response);
-                if (response.children && response.children.length > 0) {
-                    response.children.map(responseChildren => updatePermissions(responseChildren));
-                }
-                return response;
-            });
+        parameters[options.pathParam || 'path'] = path;
+        return Promise.resolve(
+            $.ajax({
+                url: options.browseUrl,
+                method: 'GET',
+                dataType: 'json',
+                data: _.merge(parameters, options.params, {
+                    childrenOffset: (selectedClass.page - 1) * selectedClass.childrenLimit
+                })
+            })
+        ).then(function (response) {
+            let data = response && response.data ? response.data : response;
+            data = updatePermissions(data);
+            if (data.children && data.children.length > 0) {
+                data.children.map(responseChildren => updatePermissions(responseChildren));
+            }
+            return data;
+        });
     }
 
     /**
@@ -384,7 +452,9 @@ export default function (options) {
      * Render pagination
      */
     function renderPagination() {
-        const $paginationContainer = $('.pagination-bottom', $container);
+        if (searchMode) {
+            return;
+        }
         const total = Number(selectedClass.total);
         const childrenLimit = Number(selectedClass.childrenLimit);
 
@@ -425,7 +495,7 @@ export default function (options) {
 
             if (content) {
                 //internal event to set the file-selector content
-                $container.trigger(`folderselect.${ns}`, [content.label, getPage(content.children), content.path]);
+                $container.trigger(`folderselect.${ns}`, [content.label, getPage(content.children), content.path, content]);
             }
         });
     }
