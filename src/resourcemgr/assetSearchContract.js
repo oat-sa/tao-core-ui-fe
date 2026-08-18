@@ -11,7 +11,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * Foundation, Inc., 31 Milk St # 960789 Boston, MA 02196 USA.
  *
  * Copyright (c) 2026 (original work) Open Assessment Technologies SA;
  */
@@ -127,8 +127,8 @@ export function isBrowseShapedSearchPayload(payload) {
 }
 
 /**
- * Temporary PoC adapter: when searchUrl still points at browse, filter/sort/page locally.
- * Proper search endpoints that return `items` are left untouched.
+ * Local filter/sort/page for browse-shaped payloads (`children`, no `items`).
+ * Search endpoints that return `items` are left untouched.
  *
  * @param {Object} normalized - output of normalizeSearchResponse
  * @param {Object} options

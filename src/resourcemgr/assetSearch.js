@@ -11,7 +11,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * Foundation, Inc., 31 Milk St # 960789 Boston, MA 02196 USA.
  *
  * Copyright (c) 2026 (original work) Open Assessment Technologies SA;
  */
@@ -206,8 +206,8 @@ export default function assetSearch(options) {
                 }
                 hideLoading();
                 let normalized = normalizeSearchResponse(response);
-                // Temporary: searchUrl may still point at browse (`ItemContent/files`),
-                // which ignores query — filter/sort/page locally until a real search API exists.
+                // Browse-shaped payloads (`children`, no `items`) are filtered locally.
+                // Search payloads with `items` are used as returned by the service.
                 if (isBrowseShapedSearchPayload(response)) {
                     normalized = applyLocalSearchFallback(normalized, {
                         query,
