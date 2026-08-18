@@ -104,7 +104,8 @@ export function normalizeSearchResponse(payload) {
     const items = (Array.isArray(rawItems) ? rawItems : []).map(normalizeSearchItem);
     const pageSize = Number(body.pageSize || body.childrenLimit || DEFAULT_PAGE_SIZE);
     const page = Number(body.page || 1);
-    const total = Number.isFinite(Number(body.total)) ? Number(body.total) : items.length;
+    const total =
+        body.total == null || !Number.isFinite(Number(body.total)) ? items.length : Number(body.total);
 
     return {
         items,

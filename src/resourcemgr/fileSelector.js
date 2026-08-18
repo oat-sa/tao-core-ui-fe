@@ -100,12 +100,7 @@ export default function (options) {
             return;
         }
 
-        data = data.map(function (dataItem) {
-            if (Array.isArray(dataItem.permissions)) {
-                updatePermissions(dataItem);
-            }
-            return dataItem;
-        });
+        data = data.map(ensurePermissions);
 
         //update title
         if ($container[0].querySelector('.upload')) {
@@ -135,10 +130,7 @@ export default function (options) {
     $container.on(`searchresults.${ns}`, function (e, result) {
         const items = (result && result.items) || [];
         const files = items.map(function (file) {
-            if (Array.isArray(file.permissions)) {
-                updatePermissions(file);
-            }
-            return prepareFileForDisplay(file, result.path || '', true);
+            return prepareFileForDisplay(ensurePermissions(file), result.path || '', true);
         });
 
         $pathTitle.text(__('Search results'));
@@ -153,6 +145,18 @@ export default function (options) {
         return `${transcriptionUrl}?metadataUri=${encodeURIComponent(metadataUri)}&resourceUri=${
             resourceUri.replace('taomedia://mediamanager/', '')
         }`;
+    }
+
+    /**
+     * Normalize ACL flags unless they are already a boolean permission map.
+     * @param {Object} item
+     * @returns {Object}
+     */
+    function ensurePermissions(item) {
+        if (item.permissions && !Array.isArray(item.permissions) && typeof item.permissions === 'object') {
+            return item;
+        }
+        return updatePermissions(item);
     }
 
     /**

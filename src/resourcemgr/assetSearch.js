@@ -246,6 +246,7 @@ export default function assetSearch(options) {
                     return;
                 }
                 hideLoading();
+                page = 1;
                 showError(__('Unable to search assets. Please try again.'));
                 setStatus('');
                 $container.trigger(`searchresults.${ns}`, [
@@ -263,6 +264,9 @@ export default function assetSearch(options) {
             });
     }
 
+    /**
+     * Render search pagination when more than one page is available.
+     */
     function renderPagination() {
         $paginationContainer.empty();
         const totalPages = Math.ceil(total / pageSize);
@@ -286,26 +290,43 @@ export default function assetSearch(options) {
             .render($paginationContainer);
     }
 
+    /**
+     * Show the search loading indicator.
+     */
     function showLoading() {
         $loading.removeClass('hidden').removeAttr('hidden');
         $loading.attr('aria-busy', 'true');
     }
 
+    /**
+     * Hide the search loading indicator.
+     */
     function hideLoading() {
         $loading.addClass('hidden').attr('hidden', 'hidden');
         $loading.attr('aria-busy', 'false');
     }
 
+    /**
+     * Show a recoverable search error.
+     * @param {string} message
+     */
     function showError(message) {
         $errorMessage.text(message);
         $error.removeClass('hidden').removeAttr('hidden');
     }
 
+    /**
+     * Hide the search error UI.
+     */
     function hideError() {
         $error.addClass('hidden').attr('hidden', 'hidden');
         $errorMessage.text('');
     }
 
+    /**
+     * Update the live search status text.
+     * @param {string} message
+     */
     function setStatus(message) {
         $status.text(message || '');
     }

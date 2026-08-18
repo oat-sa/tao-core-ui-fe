@@ -90,7 +90,7 @@ define([
     QUnit.module('assetSearchContract');
 
     QUnit.test('builds request params and normalizes responses', function (assert) {
-        assert.expect(6);
+        assert.expect(7);
 
         const params = contract.buildSearchRequestParams({
             path: '/images',
@@ -110,6 +110,11 @@ define([
         const normalized = contract.normalizeSearchResponse(fixtures.searchResults);
         assert.equal(normalized.items.length, 2, 'items are normalized');
         assert.equal(normalized.total, 2, 'total is preserved');
+        assert.equal(
+            contract.normalizeSearchResponse({ items: [{ uri: 'a' }], total: null }).total,
+            1,
+            'null total falls back to items length'
+        );
     });
 
     QUnit.module('Resource Manager search', {

@@ -399,6 +399,9 @@ export default function (options) {
                 })
             })
         ).then(function (response) {
+            if (response && response.success === false) {
+                return Promise.reject(response);
+            }
             let data = response && response.data ? response.data : response;
             data = updatePermissions(data);
             if (data.children && data.children.length > 0) {
