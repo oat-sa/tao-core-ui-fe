@@ -104,8 +104,11 @@ export function normalizeSearchResponse(payload) {
     const items = (Array.isArray(rawItems) ? rawItems : []).map(normalizeSearchItem);
     const pageSize = Number(body.pageSize || body.childrenLimit || DEFAULT_PAGE_SIZE);
     const page = Number(body.page || 1);
+    const rawTotal = Number(body.total);
     const total =
-        body.total == null || !Number.isFinite(Number(body.total)) ? items.length : Number(body.total);
+        typeof body.total === 'undefined' || body.total === null || !Number.isFinite(rawTotal)
+            ? items.length
+            : rawTotal;
 
     return {
         items,
@@ -157,17 +160,7 @@ export function applyLocalSearchFallback(normalized, options) {
         });
     }
 
-    items = items.slice().sort(function (a, b) {
-        const left = getSortValue(a, sort.field);
-        const right = getSortValue(b, sort.field);
-        if (left < right) {
-            return sort.direction === 'desc' ? 1 : -1;
-        }
-        if (left > right) {
-            return sort.direction === 'desc' ? -1 : 1;
-        }
-        return 0;
-    });
+    items = sortAssetItems(items, sort);
 
     const total = items.length;
     const safePageSize = pageSize > 0 ? pageSize : DEFAULT_PAGE_SIZE;
@@ -242,6 +235,48 @@ function getSearchableText(item) {
         .filter(Boolean)
         .join(' ')
         .toLowerCase();
+}
+
+/**
+ * Sort asset rows by the picker contract (label / location / updatedAt).
+ * Equal keys fall back to label so the order is stable when a column is tied.
+ *
+ * @param {Array} items
+ * @param {{field: string, direction: string}} [sort]
+ * @returns {Array}
+ */
+export function sortAssetItems(items, sort) {
+    const resolved = Object.assign({}, DEFAULT_SORT, sort || {});
+    return (items || []).slice().sort(function (a, b) {
+        const primary = compareSortValues(
+            getSortValue(a, resolved.field),
+            getSortValue(b, resolved.field),
+            resolved.direction
+        );
+        if (primary !== 0) {
+            return primary;
+        }
+        if (resolved.field === SORT_FIELDS.LABEL) {
+            return 0;
+        }
+        return compareSortValues(getSortValue(a, SORT_FIELDS.LABEL), getSortValue(b, SORT_FIELDS.LABEL), 'asc');
+    });
+}
+
+/**
+ * @param {string} left
+ * @param {string} right
+ * @param {string} direction
+ * @returns {number}
+ */
+function compareSortValues(left, right, direction) {
+    if (left < right) {
+        return direction === 'desc' ? 1 : -1;
+    }
+    if (left > right) {
+        return direction === 'desc' ? -1 : 1;
+    }
+    return 0;
 }
 
 /**

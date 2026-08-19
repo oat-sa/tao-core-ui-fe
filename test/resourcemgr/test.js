@@ -87,10 +87,25 @@ define([
         return $launcher;
     }
 
+    function whenTableRows($modal, callback) {
+        const started = Date.now();
+        (function poll() {
+            if ($modal.find('.files-list tr').length) {
+                callback();
+                return;
+            }
+            if (Date.now() - started > 2000) {
+                callback();
+                return;
+            }
+            window.setTimeout(poll, 20);
+        })();
+    }
+
     QUnit.module('assetSearchContract');
 
     QUnit.test('builds request params and normalizes responses', function (assert) {
-        assert.expect(7);
+        assert.expect(8);
 
         const params = contract.buildSearchRequestParams({
             path: '/images',
@@ -115,6 +130,12 @@ define([
             1,
             'null total falls back to items length'
         );
+
+        const sorted = contract.sortAssetItems(
+            [{ name: 'banner.png' }, { name: 'intro.mp3' }],
+            { field: 'label', direction: 'desc' }
+        );
+        assert.equal(sorted[0].name, 'intro.mp3', 'label desc puts intro first');
     });
 
     QUnit.module('Resource Manager search', {
@@ -153,7 +174,7 @@ define([
 
     QUnit.test('search context renders service results without client filtering', function (assert) {
         const ready = assert.async();
-        assert.expect(5);
+        assert.expect(6);
         let finished = false;
 
         mockSearch(function () {
@@ -174,8 +195,13 @@ define([
                 }
                 finished = true;
                 assert.equal(result.items.length, 2, 'service results are kept as-is');
-                assert.equal($modal.find('.files li').length, 2, 'result rows are rendered');
-                assert.ok($modal.find('.files li .meta.location').length > 0, 'location column is shown');
+                assert.equal($modal.find('.files-list tr').length, 2, 'result rows are rendered');
+                assert.ok($modal.find('.files-list tr .meta.location').length > 0, 'location column is shown');
+                assert.equal(
+                    $modal.find('.files-list tr[data-file="asset://cat"] .meta.updated').text(),
+                    '01/08/2026 - 10:00',
+                    'updatedAt is formatted'
+                );
                 ready();
             });
 
@@ -210,7 +236,7 @@ define([
                 assert.equal(result.total, 1, 'query filters browse children');
                 assert.equal(result.items.length, 1, 'one matching asset remains');
                 assert.equal(result.items[0].name, 'colorbars.mp4', 'matched asset is returned');
-                assert.equal($modal.find('.files li').length, 1, 'one result row is rendered');
+                assert.equal($modal.find('.files-list tr').length, 1, 'one result row is rendered');
                 ready();
             });
 
@@ -286,7 +312,198 @@ define([
             const $input = $modal.find('.asset-search-input');
 
             $modal.one('searchresults.resourcemgr', function () {
-                $modal.find('.files li[data-file="asset://cat"] a.select').trigger('click');
+                $modal.find('.files-list tr[data-file="asset://cat"] a.select').trigger('click');
+            });
+
+            $input.val('cat').trigger('input');
+        });
+
+        createManager();
+    });
+
+    QUnit.test('browse listing renders a sortable asset table', function (assert) {
+        const ready = assert.async();
+        assert.expect(8);
+        const browseCalls = [];
+
+        $.mockjax.clear();
+        $.mockjax({
+            url: browseUrl,
+            dataType: 'json',
+            response: function (settings) {
+                browseCalls.push(settings.data || {});
+                this.responseText =
+                    settings.data && settings.data.path === '/images'
+                        ? fixtures.browseImages
+                        : fixtures.browseRoot;
+            }
+        });
+
+        const $launcher = $('#launcher');
+        $launcher.on('create.resourcemgr', function () {
+            const $modal = $('#outside-container .resourcemgr');
+            whenTableRows($modal, function () {
+                assert.equal($modal.find('table.files thead th').length, 3, 'three column headers');
+                assert.ok($modal.find('.files-list tr').length > 0, 'browse rows are rendered');
+                assert.ok($modal.find('.files-list tr .meta.location').length > 0, 'location is shown in browse');
+                assert.equal(
+                    $modal.find('.files-list tr .desc').first().text(),
+                    'banner.png',
+                    'default label sort is ascending'
+                );
+
+                const callsBeforeSort = browseCalls.length;
+                $modal.find('.files thead th[data-sort-by="label"]').trigger('click');
+
+                const started = Date.now();
+                (function poll() {
+                    const last = browseCalls[browseCalls.length - 1] || {};
+                    if (browseCalls.length > callsBeforeSort && last.sortBy === 'label' && last.sortDir === 'desc') {
+                        assert.equal(browseCalls.length, callsBeforeSort + 1, 'browse is refetched once');
+                        assert.equal(last.sortBy, 'label', 'same column is kept');
+                        assert.equal(last.sortDir, 'desc', 'direction is toggled');
+                        assert.equal(
+                            $modal.find('.files-list tr .desc').first().text(),
+                            'intro.mp3',
+                            'rows are reordered even if the service ignores sort'
+                        );
+                        ready();
+                        return;
+                    }
+                    if (Date.now() - started > 2000) {
+                        assert.equal(browseCalls.length, callsBeforeSort + 1, 'browse is refetched once');
+                        assert.equal(last.sortBy, 'label', 'same column is kept');
+                        assert.equal(last.sortDir, 'desc', 'direction is toggled');
+                        assert.equal(
+                            $modal.find('.files-list tr .desc').first().text(),
+                            'intro.mp3',
+                            'rows are reordered even if the service ignores sort'
+                        );
+                        ready();
+                        return;
+                    }
+                    window.setTimeout(poll, 20);
+                })();
+            });
+        });
+
+        createManager();
+    });
+
+    QUnit.test('browse sort refetches only the active media source', function (assert) {
+        const ready = assert.async();
+        assert.expect(2);
+        const browseCalls = [];
+        const mediaSourcesUrl = '/mock/resourcemgr/media-sources';
+
+        $.mockjax.clear();
+        $.mockjax({
+            url: mediaSourcesUrl,
+            dataType: 'json',
+            responseText: [
+                { root: 'local', path: '/' },
+                { root: 'mediamanager', path: '/' }
+            ]
+        });
+        $.mockjax({
+            url: browseUrl,
+            dataType: 'json',
+            response: function (settings) {
+                browseCalls.push(settings.data || {});
+                this.responseText = fixtures.browseRoot;
+            }
+        });
+
+        const $launcher = $('#launcher');
+        $launcher.on('create.resourcemgr', function () {
+            const $modal = $('#outside-container .resourcemgr');
+            const started = Date.now();
+
+            (function waitForBothSources() {
+                const bothTrees =
+                    $modal.find('.file-browser .local li.root').length > 0 &&
+                    $modal.find('.file-browser .mediamanager li.root').length > 0;
+                if (bothTrees && $modal.find('.files-list tr').length && browseCalls.length >= 2) {
+                    const callsBeforeSort = browseCalls.length;
+                    $modal.find('.files thead th[data-sort-by="location"]').trigger('click');
+
+                    const sortStarted = Date.now();
+                    (function poll() {
+                        if (browseCalls.length > callsBeforeSort) {
+                            assert.equal(browseCalls.length, callsBeforeSort + 1, 'only the active source is refetched');
+                            assert.equal(
+                                browseCalls[browseCalls.length - 1].sortBy,
+                                'location',
+                                'active source uses the new sort'
+                            );
+                            ready();
+                            return;
+                        }
+                        if (Date.now() - sortStarted > 2000) {
+                            assert.equal(browseCalls.length, callsBeforeSort + 1, 'only the active source is refetched');
+                            assert.equal(
+                                browseCalls[browseCalls.length - 1].sortBy,
+                                'location',
+                                'active source uses the new sort'
+                            );
+                            ready();
+                            return;
+                        }
+                        window.setTimeout(poll, 20);
+                    })();
+                    return;
+                }
+                if (Date.now() - started > 2000) {
+                    assert.ok(false, 'both media sources should finish loading');
+                    assert.ok(false, 'sort refetch should run');
+                    ready();
+                    return;
+                }
+                window.setTimeout(waitForBothSources, 20);
+            })();
+        });
+
+        createManager({ mediaSourcesUrl: mediaSourcesUrl });
+    });
+
+    QUnit.test('search column click refetches with toggled sortDir', function (assert) {
+        const ready = assert.async();
+        assert.expect(4);
+        const searchCalls = [];
+
+        mockSearch(function (settings) {
+            searchCalls.push(settings.data || {});
+            return fixtures.searchResults;
+        });
+
+        const $launcher = $('#launcher');
+        $launcher.on('create.resourcemgr', function () {
+            const $modal = $('#outside-container .resourcemgr');
+            const $input = $modal.find('.asset-search-input');
+
+            $modal.one('searchresults.resourcemgr', function () {
+                assert.equal(searchCalls[0].sortBy, 'label', 'search starts with label sort');
+                assert.equal(searchCalls[0].sortDir, 'asc', 'search starts ascending');
+
+                $modal.find('.files thead th[data-sort-by="label"]').trigger('click');
+
+                const started = Date.now();
+                (function poll() {
+                    const last = searchCalls[searchCalls.length - 1] || {};
+                    if (searchCalls.length > 1 && last.sortDir === 'desc') {
+                        assert.equal(last.sortBy, 'label', 'same column is kept');
+                        assert.equal(last.sortDir, 'desc', 'direction is toggled');
+                        ready();
+                        return;
+                    }
+                    if (Date.now() - started > 2000) {
+                        assert.equal(last.sortBy, 'label', 'same column is kept');
+                        assert.equal(last.sortDir, 'desc', 'direction is toggled');
+                        ready();
+                        return;
+                    }
+                    window.setTimeout(poll, 20);
+                })();
             });
 
             $input.val('cat').trigger('input');

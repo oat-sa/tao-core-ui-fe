@@ -21,6 +21,7 @@ import paginationComponent from 'ui/pagination';
 import rootFolderTpl from 'ui/resourcemgr/tpl/rootFolder';
 import folderTpl from 'ui/resourcemgr/tpl/folder';
 import updatePermissions from './util/updatePermissions';
+import { DEFAULT_SORT, sortAssetItems } from 'ui/resourcemgr/assetSearchContract';
 
 const ns = 'resourcemgr';
 
@@ -42,13 +43,29 @@ export default function (options) {
         page: 1
     };
     let searchMode = false;
+    let sort = Object.assign({}, DEFAULT_SORT);
 
     $container.on(`searchmode.${ns}`, function (e, enabled) {
         searchMode = !!enabled;
     });
 
+    $container.on(`sortchange.${ns}`, function (e, nextSort) {
+        sort = Object.assign({}, DEFAULT_SORT, nextSort || {});
+        selectedClass.page = 1;
+        invalidateFolderFiles(selectedClass.path);
+        if (searchMode || !isActiveBrowser()) {
+            return;
+        }
+        reloadSortedFolder();
+    });
+
     $container.on(`searchclear.${ns}`, function (e, path) {
         const targetPath = path || selectedClass.path;
+        selectedClass.page = 1;
+        invalidateFolderFiles(targetPath);
+        if (!isActiveBrowser()) {
+            return;
+        }
         const subTree = getByPath(fileTree, targetPath) || fileTree;
         getFolderContent(subTree, targetPath, function (content) {
             if (content) {
@@ -198,6 +215,14 @@ export default function (options) {
     }
 
     /**
+     * Whether this media source currently owns the file table.
+     * @returns {Boolean}
+     */
+    function isActiveBrowser() {
+        return $container.data('activeFileBrowserRoot') === root;
+    }
+
+    /**
      * Select a folder and publish its page of files to the selector.
      * @param {Object} content
      * @param {String} path
@@ -206,6 +231,7 @@ export default function (options) {
         if (searchMode || !content) {
             return;
         }
+        $container.data('activeFileBrowserRoot', root);
         updateSelectedClass(path, content.total, content.childrenLimit);
         $container.trigger(`folderpath.${ns}`, [path, content.label]);
         $container.trigger(`folderselect.${ns}`, [
@@ -223,9 +249,12 @@ export default function (options) {
      * @returns {Array} files for this page
      */
     function getPage(children) {
-        const files = _.filter(children, function (item) {
-            return !!item.uri;
-        });
+        const files = sortAssetItems(
+            _.filter(children, function (item) {
+                return !!item.uri;
+            }),
+            sort
+        );
         if (selectedClass.childrenLimit) {
             return files.slice(
                 (selectedClass.page - 1) * selectedClass.childrenLimit,
@@ -382,6 +411,47 @@ export default function (options) {
     }
 
     /**
+     * Drop cached file rows for a folder so the next load hits the service
+     * with the current sort. Nested folder nodes are kept.
+     * @param {String} path
+     */
+    function invalidateFolderFiles(path) {
+        const content = getByPath(fileTree, path);
+        if (content && Array.isArray(content.children)) {
+            content.children = content.children.filter(function (child) {
+                return child.path && !child.uri;
+            });
+        }
+    }
+
+    /**
+     * Replace a folder node with a freshly loaded payload (files + folders).
+     * @param {String} path
+     * @param {Object} data
+     */
+    function replaceFolderContent(path, data) {
+        const content = getByPath(fileTree, path);
+        if (!content || !data) {
+            return;
+        }
+        if (data.children) {
+            content.children = data.children;
+        }
+        if (Object.prototype.hasOwnProperty.call(data, 'total')) {
+            content.total = data.total;
+        }
+        if (Object.prototype.hasOwnProperty.call(data, 'childrenLimit')) {
+            content.childrenLimit = data.childrenLimit;
+        }
+        if (data.label) {
+            content.label = data.label;
+        }
+        if (data.path) {
+            content.path = data.path;
+        }
+    }
+
+    /**
      * Get the content of a folder
      * @param {String} path - the folder path
      * @returns {Promise} resolves with folder content
@@ -395,7 +465,9 @@ export default function (options) {
                 method: 'GET',
                 dataType: 'json',
                 data: _.merge(parameters, options.params, {
-                    childrenOffset: (selectedClass.page - 1) * selectedClass.childrenLimit
+                    childrenOffset: (selectedClass.page - 1) * selectedClass.childrenLimit,
+                    sortBy: sort.field,
+                    sortDir: sort.direction
                 })
             })
         ).then(function (response) {
@@ -487,10 +559,25 @@ export default function (options) {
         }
     }
     /**
+     * Re-fetch the current folder with the active sort and publish files.
+     */
+    function reloadSortedFolder() {
+        const path = selectedClass.path;
+        loadContent(path).then(function (data) {
+            if (!data) {
+                return;
+            }
+            replaceFolderContent(path, data);
+            const content = getByPath(fileTree, path) || data;
+            selectFolder(content, content.path || path);
+        });
+    }
+
+    /**
      * Load page
      */
     function loadPage() {
-        const subTree = getByPath(fileTree, selectedClass.path);
+        const subTree = getByPath(fileTree, selectedClass.path) || fileTree;
 
         //get the folder content
         getFolderContent(subTree, selectedClass.path, function (content) {

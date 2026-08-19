@@ -59,7 +59,6 @@ export default function assetSearch(options) {
     const $uploadSwitcher = $('.upload-switcher', $fileSelector);
 
     let scopePath = options.initialPath || options.path || '/';
-    let scopeLabel = scopePath;
     let query = '';
     let sort = Object.assign({}, DEFAULT_SORT);
     let page = 1;
@@ -67,7 +66,6 @@ export default function assetSearch(options) {
     let total = 0;
     let searchMode = false;
     let requestSeq = 0;
-    let lastBrowsePayload = null;
 
     $searchRoot.removeClass('hidden').removeAttr('hidden');
     $input.attr('aria-label', __('Search assets'));
@@ -91,19 +89,12 @@ export default function assetSearch(options) {
         if (searchMode) {
             return;
         }
-        scopeLabel = label || folderPath || scopePath;
-        scopePath = folderPath || scopePath;
-        lastBrowsePayload = {
-            label: scopeLabel,
-            files: files || [],
-            path: scopePath
-        };
+        scopePath = folderPath || label || scopePath;
         page = 1;
     });
 
-    $container.on(`folderpath.${ns}`, function (e, folderPath, label) {
+    $container.on(`folderpath.${ns}`, function (e, folderPath) {
         scopePath = folderPath || scopePath;
-        scopeLabel = label || scopePath;
     });
 
     const debounceMs = Number.isFinite(Number(options.searchDebounceMs))
@@ -132,6 +123,15 @@ export default function assetSearch(options) {
         runSearch();
     });
 
+    $container.on(`sortchange.${ns}`, function (e, nextSort) {
+        sort = Object.assign({}, DEFAULT_SORT, nextSort || {});
+        if (!searchMode || !query) {
+            return;
+        }
+        page = 1;
+        runSearch();
+    });
+
     /**
      * Enter search mode UI.
      */
@@ -143,7 +143,7 @@ export default function assetSearch(options) {
     }
 
     /**
-     * Leave search mode and restore last browse listing.
+     * Leave search mode and reload the browse listing with the current sort.
      */
     function exitSearchMode() {
         const wasSearch = searchMode;
@@ -158,15 +158,7 @@ export default function assetSearch(options) {
         $container.trigger(`searchmode.${ns}`, [false]);
 
         if (wasSearch) {
-            if (lastBrowsePayload) {
-                $container.trigger(`folderselect.${ns}`, [
-                    lastBrowsePayload.label,
-                    lastBrowsePayload.files,
-                    lastBrowsePayload.path
-                ]);
-            } else {
-                $container.trigger(`searchclear.${ns}`, [scopePath]);
-            }
+            $container.trigger(`searchclear.${ns}`, [scopePath]);
         }
     }
 

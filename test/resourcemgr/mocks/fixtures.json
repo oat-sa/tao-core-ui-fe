@@ -20,6 +20,8 @@
                     "name": "banner.png",
                     "mime": "image/png",
                     "size": 1024,
+                    "location": "/",
+                    "updatedAt": "2026-08-12T14:32:00Z",
                     "permissions": ["READ", "DOWNLOAD"]
                 },
                 {
@@ -27,6 +29,8 @@
                     "name": "intro.mp3",
                     "mime": "audio/mpeg",
                     "size": 2048,
+                    "location": "/",
+                    "updatedAt": "2026-08-12T14:32:00Z",
                     "permissions": ["READ", "DOWNLOAD"]
                 }
             ]
@@ -45,6 +49,8 @@
                     "name": "cat.png",
                     "mime": "image/png",
                     "size": 512,
+                    "location": "/images",
+                    "updatedAt": "2026-08-01T10:00:00Z",
                     "permissions": ["READ", "DOWNLOAD"]
                 }
             ]
