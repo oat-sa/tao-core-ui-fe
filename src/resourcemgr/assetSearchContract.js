@@ -158,7 +158,7 @@ export function applyLocalSearchFallback(normalized, options) {
     const allowedMimes = normalizeMimeFilters(options && options.filters);
     if (allowedMimes.length) {
         items = items.filter(function (item) {
-            return allowedMimes.indexOf(String(item.mime || '')) !== -1;
+            return allowedMimes.indexOf(normalizeMimeFilterValue(item.mime)) !== -1;
         });
     }
     if (query) {
@@ -191,7 +191,7 @@ function normalizeMimeFilters(filters) {
     if (Array.isArray(filters)) {
         return filters
             .map(function (filter) {
-                return filter && filter.mime ? String(filter.mime) : '';
+                return filter && filter.mime ? normalizeMimeFilterValue(filter.mime) : '';
             })
             .filter(Boolean);
     }
@@ -199,12 +199,20 @@ function normalizeMimeFilters(filters) {
         return filters
             .split(',')
             .map(function (filter) {
-                return filter.trim();
+                return normalizeMimeFilterValue(filter);
             })
             .filter(Boolean);
     }
 
     return [];
+}
+
+/**
+ * @param {string} value
+ * @returns {string}
+ */
+function normalizeMimeFilterValue(value) {
+    return String(value || '').trim().toLowerCase();
 }
 
 /**

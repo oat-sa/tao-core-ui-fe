@@ -116,6 +116,9 @@ export default function assetSearch(options) {
             }, debounceMs)
             : runSearch;
 
+    /**
+     * Detach asset-search handlers and cancel any pending debounced search.
+     */
     function teardown() {
         requestSeq += 1;
         if (typeof runSearchDebounced.cancel === 'function') {
@@ -129,6 +132,9 @@ export default function assetSearch(options) {
     $container.data('assetSearchTeardown', teardown);
     $container.on(`destroy.${ns}.${EVENT_NS}`, teardown);
 
+    /**
+     * Handle search input changes and trigger debounced search requests.
+     */
     $input.on(`input.${EVENT_NS}`, function () {
         query = String($input.val() || '').trim();
         page = 1;
@@ -140,11 +146,20 @@ export default function assetSearch(options) {
         runSearchDebounced();
     });
 
+    /**
+     * Retry the last failed search request.
+     * @param {jQuery.Event} e
+     */
     $retry.on(`click.${EVENT_NS}`, function (e) {
         e.preventDefault();
         runSearch();
     });
 
+    /**
+     * Re-run search when the table sort changes in search mode.
+     * @param {jQuery.Event} e
+     * @param {{field: string, direction: string}} nextSort
+     */
     $container.on(`sortchange.${ns}.${EVENT_NS}`, function (e, nextSort) {
         sort = Object.assign({}, DEFAULT_SORT, nextSort || {});
         if (!searchMode || !query) {

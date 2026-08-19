@@ -302,6 +302,12 @@ export default function (options) {
     $(parentSelector)
         .off('click', ROW_SELECTOR)
         .on('click', ROW_SELECTOR, function (e) {
+            if ($(e.target).closest('.row-actions').length) {
+                return;
+            }
+            if ($(e.target).closest('a.select, a.download, a.delete').length) {
+                return;
+            }
             const clickedItem = e.target;
             if (clickedItem.hasAttribute('data-delete') || $(clickedItem).hasClass('icon-bin')) {
                 return;
@@ -535,6 +541,11 @@ export default function (options) {
                     files: sorted
                 })
             );
+            $fileContainer.find('a.download').each(function () {
+                this.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                });
+            });
         } else if ($filesWrapper.css('display') !== 'none' && $fileSelector.find('.asset-search-error:not([hidden])').length === 0) {
             $placeholder.show();
         }

@@ -197,8 +197,19 @@ define([
                 assert.equal(result.items.length, 2, 'service results are kept as-is');
                 assert.equal($modal.find('.files-list tr').length, 2, 'result rows are rendered');
                 assert.ok($modal.find('.files-list tr .meta.location').length > 0, 'location column is shown');
-                assert.ok(
-                    /\d{1,2}\/\d{1,2}\/2026.*10:00/.test($modal.find('.files-list tr[data-file="asset://cat"] .meta.updated').text()),
+                const updatedAtIso = fixtures.searchResults.data.items[0].updatedAt;
+                const expectedUpdatedAt = new Intl.DateTimeFormat('en-US', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false,
+                    timeZone: 'UTC'
+                }).format(new Date(updatedAtIso));
+                assert.equal(
+                    $modal.find('.files-list tr[data-file="asset://cat"] .meta.updated').text(),
+                    expectedUpdatedAt,
                     'updatedAt is formatted with the configured locale'
                 );
                 ready();
@@ -313,6 +324,47 @@ define([
 
             $modal.one('searchresults.resourcemgr', function () {
                 $modal.find('.files-list tr[data-file="asset://cat"] a.select').trigger('click');
+            });
+
+            $input.val('cat').trigger('input');
+        });
+
+        createManager();
+    });
+
+    QUnit.test('download action does not change row selection', function (assert) {
+        const ready = assert.async();
+        assert.expect(3);
+
+        mockSearch(function () {
+            return fixtures.searchResults;
+        });
+
+        const $launcher = $('#launcher');
+        $launcher.on('create.resourcemgr', function () {
+            const $modal = $('#outside-container .resourcemgr');
+            const $input = $modal.find('.asset-search-input');
+
+            $modal.one('searchresults.resourcemgr', function () {
+                const $catRow = $modal.find('.files-list tr[data-file="asset://cat"]');
+                const $catalogRow = $modal.find('.files-list tr[data-file="asset://catalog"]');
+
+                $catRow.find('.desc').trigger('click');
+                assert.ok($catRow.hasClass('active'), 'cat row is selected before download click');
+
+                const $download = $catalogRow.find('a.download');
+                assert.ok($download.length, 'catalog row exposes a download action');
+                $download.trigger('focus');
+                $download.on('click.test', function (e) {
+                    e.preventDefault();
+                });
+                $download.trigger('click');
+                $download.off('click.test');
+
+                const $selectedCat = $modal.find('.files-list tr[data-file="asset://cat"]');
+                const $selectedCatalog = $modal.find('.files-list tr[data-file="asset://catalog"]');
+                assert.ok($selectedCat.hasClass('active') && !$selectedCatalog.hasClass('active'), 'download click keeps prior selection');
+                ready();
             });
 
             $input.val('cat').trigger('input');

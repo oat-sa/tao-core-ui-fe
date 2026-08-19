@@ -24,8 +24,8 @@ import loggerFactory from 'core/logger';
 import updatePermissions from './util/updatePermissions';
 import { DEFAULT_SORT, sortAssetItems } from 'ui/resourcemgr/assetSearchContract';
 
-const ns = 'resourcemgr';
-const logger = loggerFactory(`ui/${ns}`);
+const NS = 'resourcemgr';
+const LOGGER = loggerFactory(`ui/${NS}`);
 const DEFAULT_AJAX_TIMEOUT_MS = 10000;
 
 export default function (options) {
@@ -51,11 +51,11 @@ export default function (options) {
         ? Number(options.ajaxTimeoutMs)
         : DEFAULT_AJAX_TIMEOUT_MS;
 
-    $container.on(`searchmode.${ns}`, function (e, enabled) {
+    $container.on(`searchmode.${NS}`, function (e, enabled) {
         searchMode = !!enabled;
     });
 
-    $container.on(`sortchange.${ns}`, function (e, nextSort) {
+    $container.on(`sortchange.${NS}`, function (e, nextSort) {
         sort = Object.assign({}, DEFAULT_SORT, nextSort || {});
         selectedClass.page = 1;
         invalidateFolderFiles(selectedClass.path);
@@ -65,7 +65,7 @@ export default function (options) {
         reloadSortedFolder();
     });
 
-    $container.on(`searchclear.${ns}`, function (e, path) {
+    $container.on(`searchclear.${NS}`, function (e, path) {
         const targetPath = path || selectedClass.path;
         selectedClass.page = 1;
         invalidateFolderFiles(targetPath);
@@ -150,7 +150,7 @@ export default function (options) {
         });
     });
 
-    $container.on(`filenew.${ns}`, function (e, file, path) {
+    $container.on(`filenew.${NS}`, function (e, file, path) {
         const subTree = getByPath(fileTree, path);
         if (subTree) {
             if (!subTree.children) {
@@ -172,13 +172,13 @@ export default function (options) {
                 if (selectedClass.path === path) {
                     selectedClass.total = subTree.total;
                 }
-                $container.trigger(`folderselect.${ns}`, [subTree.label, getPage(subTree.children), path, subTree]);
+                $container.trigger(`folderselect.${NS}`, [subTree.label, getPage(subTree.children), path, subTree]);
                 renderPagination();
             }
         }
     });
 
-    $container.on(`filedelete.${ns}`, function (e, path) {
+    $container.on(`filedelete.${NS}`, function (e, path) {
         if (removeFromPath(fileTree, path)) {
             selectedClass.total--;
             loadPage();
@@ -239,8 +239,8 @@ export default function (options) {
         }
         $container.data('activeFileBrowserRoot', root);
         updateSelectedClass(path, content.total, content.childrenLimit);
-        $container.trigger(`folderpath.${ns}`, [path, content.label]);
-        $container.trigger(`folderselect.${ns}`, [
+        $container.trigger(`folderpath.${NS}`, [path, content.label]);
+        $container.trigger(`folderselect.${NS}`, [
             content.label,
             getPage(content.children || []),
             path,
@@ -463,8 +463,11 @@ export default function (options) {
         if (!content || !data) {
             return;
         }
-        if (data.children) {
+        if (Object.prototype.hasOwnProperty.call(data, 'children')) {
             content.children = data.children;
+        } else {
+            content.children = [];
+            content.empty = true;
         }
         if (Object.prototype.hasOwnProperty.call(data, 'total')) {
             content.total = data.total;
@@ -603,7 +606,7 @@ export default function (options) {
                 selectFolder(content, content.path || path);
             })
             .catch(function (error) {
-                logger.error(error);
+                LOGGER.error(error);
             });
     }
 
@@ -619,7 +622,7 @@ export default function (options) {
 
             if (content) {
                 //internal event to set the file-selector content
-                $container.trigger(`folderselect.${ns}`, [content.label, getPage(content.children), content.path, content]);
+                $container.trigger(`folderselect.${NS}`, [content.label, getPage(content.children), content.path, content]);
             }
         });
     }
