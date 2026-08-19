@@ -20,10 +20,13 @@ import _ from 'lodash';
 import paginationComponent from 'ui/pagination';
 import rootFolderTpl from 'ui/resourcemgr/tpl/rootFolder';
 import folderTpl from 'ui/resourcemgr/tpl/folder';
+import loggerFactory from 'core/logger';
 import updatePermissions from './util/updatePermissions';
 import { DEFAULT_SORT, sortAssetItems } from 'ui/resourcemgr/assetSearchContract';
 
 const ns = 'resourcemgr';
+const logger = loggerFactory(`ui/${ns}`);
+const DEFAULT_AJAX_TIMEOUT_MS = 10000;
 
 export default function (options) {
     const root = options.root || 'local';
@@ -44,6 +47,9 @@ export default function (options) {
     };
     let searchMode = false;
     let sort = Object.assign({}, DEFAULT_SORT);
+    const ajaxTimeoutMs = Number.isFinite(Number(options.ajaxTimeoutMs)) && Number(options.ajaxTimeoutMs) > 0
+        ? Number(options.ajaxTimeoutMs)
+        : DEFAULT_AJAX_TIMEOUT_MS;
 
     $container.on(`searchmode.${ns}`, function (e, enabled) {
         searchMode = !!enabled;
@@ -355,6 +361,29 @@ export default function (options) {
     }
 
     /**
+     * Get a subtree by exact path equality.
+     * @param {Object} tree
+     * @param {String} path
+     * @returns {Object|undefined}
+     */
+    function getByExactPath(tree, path) {
+        let match;
+        if (tree) {
+            if (tree.path === path) {
+                match = tree;
+            } else if (tree.children) {
+                _.forEach(tree.children, function (child) {
+                    match = getByExactPath(child, path);
+                    if (match) {
+                        return false;
+                    }
+                });
+            }
+        }
+        return match;
+    }
+
+    /**
      * Merge data into at into the subtree
      * @param {Object} tree - the tree model
      * @param {String} path - the path (relative to the root)
@@ -416,7 +445,7 @@ export default function (options) {
      * @param {String} path
      */
     function invalidateFolderFiles(path) {
-        const content = getByPath(fileTree, path);
+        const content = getByExactPath(fileTree, path);
         if (content && Array.isArray(content.children)) {
             content.children = content.children.filter(function (child) {
                 return child.path && !child.uri;
@@ -430,7 +459,7 @@ export default function (options) {
      * @param {Object} data
      */
     function replaceFolderContent(path, data) {
-        const content = getByPath(fileTree, path);
+        const content = getByExactPath(fileTree, path);
         if (!content || !data) {
             return;
         }
@@ -464,6 +493,7 @@ export default function (options) {
                 url: options.browseUrl,
                 method: 'GET',
                 dataType: 'json',
+                timeout: ajaxTimeoutMs,
                 data: _.merge(parameters, options.params, {
                     childrenOffset: (selectedClass.page - 1) * selectedClass.childrenLimit,
                     sortBy: sort.field,
@@ -563,14 +593,18 @@ export default function (options) {
      */
     function reloadSortedFolder() {
         const path = selectedClass.path;
-        loadContent(path).then(function (data) {
-            if (!data) {
-                return;
-            }
-            replaceFolderContent(path, data);
-            const content = getByPath(fileTree, path) || data;
-            selectFolder(content, content.path || path);
-        });
+        loadContent(path)
+            .then(function (data) {
+                if (!data) {
+                    return;
+                }
+                replaceFolderContent(path, data);
+                const content = getByExactPath(fileTree, path) || data;
+                selectFolder(content, content.path || path);
+            })
+            .catch(function (error) {
+                logger.error(error);
+            });
     }
 
     /**

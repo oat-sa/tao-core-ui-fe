@@ -140,6 +140,7 @@ export function isBrowseShapedSearchPayload(payload) {
  * @param {{field: string, direction: string}} [options.sort]
  * @param {number} [options.page]
  * @param {number} [options.pageSize]
+ * @param {Array|String} [options.filters]
  * @returns {{items: Array, total: number, page: number, pageSize: number}}
  */
 export function applyLocalSearchFallback(normalized, options) {
@@ -154,6 +155,12 @@ export function applyLocalSearchFallback(normalized, options) {
     const page = Number(options && options.page) > 0 ? Number(options.page) : 1;
 
     let items = (normalized.items || []).filter(isSearchableAsset);
+    const allowedMimes = normalizeMimeFilters(options && options.filters);
+    if (allowedMimes.length) {
+        items = items.filter(function (item) {
+            return allowedMimes.indexOf(String(item.mime || '')) !== -1;
+        });
+    }
     if (query) {
         items = items.filter(function (item) {
             return getSearchableText(item).indexOf(query) !== -1;
@@ -174,6 +181,30 @@ export function applyLocalSearchFallback(normalized, options) {
         page: safePage,
         pageSize: safePageSize
     };
+}
+
+/**
+ * @param {Array|String} filters
+ * @returns {Array}
+ */
+function normalizeMimeFilters(filters) {
+    if (Array.isArray(filters)) {
+        return filters
+            .map(function (filter) {
+                return filter && filter.mime ? String(filter.mime) : '';
+            })
+            .filter(Boolean);
+    }
+    if (typeof filters === 'string') {
+        return filters
+            .split(',')
+            .map(function (filter) {
+                return filter.trim();
+            })
+            .filter(Boolean);
+    }
+
+    return [];
 }
 
 /**

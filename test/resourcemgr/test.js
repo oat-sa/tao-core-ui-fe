@@ -197,10 +197,9 @@ define([
                 assert.equal(result.items.length, 2, 'service results are kept as-is');
                 assert.equal($modal.find('.files-list tr').length, 2, 'result rows are rendered');
                 assert.ok($modal.find('.files-list tr .meta.location').length > 0, 'location column is shown');
-                assert.equal(
-                    $modal.find('.files-list tr[data-file="asset://cat"] .meta.updated').text(),
-                    '01/08/2026 - 10:00',
-                    'updatedAt is formatted'
+                assert.ok(
+                    /\d{1,2}\/\d{1,2}\/2026.*10:00/.test($modal.find('.files-list tr[data-file="asset://cat"] .meta.updated').text()),
+                    'updatedAt is formatted with the configured locale'
                 );
                 ready();
             });
@@ -214,7 +213,7 @@ define([
         });
     });
 
-    QUnit.test('browse-shaped searchUrl response is filtered locally by query', function (assert) {
+    QUnit.test('browse-shaped searchUrl response is filtered locally by query and mime filters', function (assert) {
         const ready = assert.async();
         assert.expect(4);
         let finished = false;
@@ -235,12 +234,12 @@ define([
                 finished = true;
                 assert.equal(result.total, 1, 'query filters browse children');
                 assert.equal(result.items.length, 1, 'one matching asset remains');
-                assert.equal(result.items[0].name, 'colorbars.mp4', 'matched asset is returned');
+                assert.equal(result.items[0].name, 'beep.mp3', 'matched asset respects mime filters');
                 assert.equal($modal.find('.files-list tr').length, 1, 'one result row is rendered');
                 ready();
             });
 
-            $input.val('colorbars.mp4').trigger('input');
+            $input.val('beep.mp3').trigger('input');
         });
 
         createManager();
@@ -248,7 +247,7 @@ define([
 
     QUnit.test('empty and error search states are recoverable', function (assert) {
         const ready = assert.async();
-        assert.expect(4);
+        assert.expect(5);
         let step = 0;
 
         mockSearch(function () {
@@ -283,6 +282,7 @@ define([
 
                 assert.ok(result.error, 'error flag is set');
                 assert.equal($modal.find('.asset-search-error:not([hidden])').length, 1, 'error UI is visible');
+                assert.equal($modal.find('.empty:visible').length, 0, 'empty placeholder stays hidden on error');
                 ready();
             });
 

@@ -52,6 +52,7 @@
 
         .asset-search-label {
             @include font-size(12);
+
             margin: 0;
         }
 
@@ -63,6 +64,7 @@
         .asset-search-status {
             flex: 1 1 100%;
             @include font-size(12);
+
             color: #666;
             min-height: 1.2em;
         }
@@ -70,6 +72,7 @@
 
     .file-panels {
         @include flex-container();
+
         flex: 1 1 auto;
         min-height: 0;
         height: 100%;
@@ -271,6 +274,7 @@
                     &:after {
                         @include tao-icon-setup;
                         @include icon-down;
+
                         position: absolute;
                         right: 6px;
                         top: 50%;
@@ -290,11 +294,13 @@
 
                 &.sorted.sorted_asc:after {
                     @include icon-down;
+
                     opacity: 1;
                 }
 
                 &.sorted.sorted_desc:after {
                     @include icon-up;
+
                     opacity: 1;
                 }
             }
@@ -361,11 +367,14 @@
 
             .meta {
                 @include font-size(12);
+
                 color: #666;
             }
 
             .row-actions {
-                display: none;
+                display: flex;
+                opacity: 0;
+                pointer-events: none;
                 position: absolute;
                 right: 0;
                 top: 0;
@@ -389,7 +398,8 @@
 
             tbody tr:hover .row-actions,
             tbody tr:focus-within .row-actions {
-                display: flex;
+                opacity: 1;
+                pointer-events: auto;
                 background-color: $activeColor;
             }
         }
@@ -397,7 +407,7 @@
             display: none;
             padding: 0 5px;
         }
-        .pagination-bottom {  
+        .pagination-bottom {
             align-self: flex-end;
             width: 100%;
             padding: 5px 10px 0;

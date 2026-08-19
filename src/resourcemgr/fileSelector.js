@@ -36,7 +36,7 @@ import { DEFAULT_SORT, sortAssetItems } from 'ui/resourcemgr/assetSearchContract
 
 const ns = 'resourcemgr';
 const logger = loggerFactory(`ui/${ns}`);
-const rowSelector = '.files-list tr';
+const ROW_SELECTOR = '.files-list tr';
 
 function shortenPath(path) {
     let tokens = path.replace(/\/$/, '').split('/');
@@ -165,7 +165,7 @@ export default function (options) {
     }
 
     /**
-     * Format an ISO (or Date-parsable) timestamp as DD/MM/YYYY - HH:mm in UTC.
+     * Format an ISO (or Date-parsable) timestamp in the configured locale using UTC.
      * Unparseable values are returned as-is; empty values stay empty.
      * @param {String} value
      * @returns {String}
@@ -178,12 +178,19 @@ export default function (options) {
         if (Number.isNaN(date.getTime())) {
             return String(value);
         }
-        function pad(n) {
-            return (n < 10 ? '0' : '') + n;
-        }
-        return `${pad(date.getUTCDate())}/${pad(date.getUTCMonth() + 1)}/${date.getUTCFullYear()} - ${pad(
-            date.getUTCHours()
-        )}:${pad(date.getUTCMinutes())}`;
+        const locale = options.params && options.params.lang
+            ? String(options.params.lang)
+            : window.document.documentElement.getAttribute('lang') || [];
+
+        return new Intl.DateTimeFormat(locale, {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+            timeZone: 'UTC'
+        }).format(date);
     }
 
     /**
@@ -265,7 +272,7 @@ export default function (options) {
             return;
         }
         const $item = $fileContainer.find('tr').filter(function () {
-            return $(this).data('file') === target;
+            return $(this).attr('data-file') === String(target);
         });
         if ($item.length) {
             initialSelectionApplied = true;
@@ -293,14 +300,14 @@ export default function (options) {
 
     //listen for file activation
     $(parentSelector)
-        .off('click', rowSelector)
-        .on('click', rowSelector, function (e) {
+        .off('click', ROW_SELECTOR)
+        .on('click', ROW_SELECTOR, function (e) {
             const clickedItem = e.target;
             if (clickedItem.hasAttribute('data-delete') || $(clickedItem).hasClass('icon-bin')) {
                 return;
             }
             let $selected = $(this);
-            let $files = $(rowSelector, $fileSelector);
+            let $files = $(ROW_SELECTOR, $fileSelector);
             let data = _.clone($selected.data());
             if (
                 options.resourceMetadataUrl
@@ -320,8 +327,8 @@ export default function (options) {
 
     //select a file
     $(parentSelector)
-        .off('click', `${rowSelector} a.select`)
-        .on('click', `${rowSelector} a.select`, function (e) {
+        .off('click', `${ROW_SELECTOR} a.select`)
+        .on('click', `${ROW_SELECTOR} a.select`, function (e) {
             e.preventDefault();
             let data = _.pick($(this).closest('tr').data(), ['file', 'type', 'mime', 'size', 'alt']);
             if (context.mediaSources && context.mediaSources.length === 0 && data.file.indexOf('local/') > -1) {
@@ -332,8 +339,8 @@ export default function (options) {
 
     //delete a file
     $(parentSelector)
-        .off('click', `${rowSelector} a.delete`)
-        .on('click', `${rowSelector} a.delete`, function (e) {
+        .off('click', `${ROW_SELECTOR} a.delete`)
+        .on('click', `${ROW_SELECTOR} a.delete`, function (e) {
             // This function replaces ui/deleter and must follow the same logic.
             // The main difference is that it insert a confirmation dialog before deleting the file.
             e.preventDefault();
@@ -528,7 +535,7 @@ export default function (options) {
                     files: sorted
                 })
             );
-        } else if ($filesWrapper.css('display') !== 'none') {
+        } else if ($filesWrapper.css('display') !== 'none' && $fileSelector.find('.asset-search-error:not([hidden])').length === 0) {
             $placeholder.show();
         }
     }

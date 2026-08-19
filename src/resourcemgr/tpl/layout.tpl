@@ -34,11 +34,11 @@
                     </div>
                 </h1>
 
-                <div class="asset-search-loading hidden" hidden aria-busy="false">
+                <div class="asset-search-loading hidden" hidden>
                     {{__ 'Loading…'}}
                 </div>
 
-                <div class="asset-search-error hidden" hidden>
+                <div class="asset-search-error hidden" hidden role="alert">
                     <p class="asset-search-error-message"></p>
                     <button type="button" class="btn-info small asset-search-retry">{{__ 'Retry'}}</button>
                 </div>
@@ -47,7 +47,7 @@
                     {{__ 'No files'}}
                 </div>
 
-                <div class="files-wrapper">
+                <div class="files-wrapper" aria-busy="false">
                     <table class="files">
                         <thead>
                             <tr>

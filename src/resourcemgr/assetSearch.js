@@ -36,7 +36,9 @@ import {
 } from 'ui/resourcemgr/assetSearchContract';
 
 const ns = 'resourcemgr';
+const EVENT_NS = 'resourcemgrAssetSearch';
 const DEFAULT_DEBOUNCE_MS = 300;
+const DEFAULT_AJAX_TIMEOUT_MS = 10000;
 
 /**
  * @param {Object} options - Resource Manager options
@@ -55,6 +57,7 @@ export default function assetSearch(options) {
     const $error = $('.asset-search-error', $fileSelector);
     const $errorMessage = $('.asset-search-error-message', $error);
     const $retry = $('.asset-search-retry', $error);
+    const $resultsRegion = $('.files-wrapper', $fileSelector);
     const $paginationContainer = $('.pagination-bottom', $container);
     const $uploadSwitcher = $('.upload-switcher', $fileSelector);
 
@@ -67,9 +70,12 @@ export default function assetSearch(options) {
     let searchMode = false;
     let requestSeq = 0;
 
+    const previousTeardown = $container.data('assetSearchTeardown');
+    if (typeof previousTeardown === 'function') {
+        previousTeardown();
+    }
+
     $searchRoot.removeClass('hidden').removeAttr('hidden');
-    $input.attr('aria-label', __('Search assets'));
-    $status.attr('aria-live', 'polite');
 
     /**
      * Keep the search field focused whenever the picker opens.
@@ -82,10 +88,10 @@ export default function assetSearch(options) {
         }, 0);
     }
 
-    $container.on('opened.modal', focusSearchInput);
+    $container.on(`opened.modal.${EVENT_NS}`, focusSearchInput);
     focusSearchInput();
 
-    $container.on(`folderselect.${ns}`, function (e, label, files, folderPath) {
+    $container.on(`folderselect.${ns}.${EVENT_NS}`, function (e, label, files, folderPath) {
         if (searchMode) {
             return;
         }
@@ -93,13 +99,16 @@ export default function assetSearch(options) {
         page = 1;
     });
 
-    $container.on(`folderpath.${ns}`, function (e, folderPath) {
+    $container.on(`folderpath.${ns}.${EVENT_NS}`, function (e, folderPath) {
         scopePath = folderPath || scopePath;
     });
 
     const debounceMs = Number.isFinite(Number(options.searchDebounceMs))
         ? Number(options.searchDebounceMs)
         : DEFAULT_DEBOUNCE_MS;
+    const ajaxTimeoutMs = Number.isFinite(Number(options.ajaxTimeoutMs)) && Number(options.ajaxTimeoutMs) > 0
+        ? Number(options.ajaxTimeoutMs)
+        : DEFAULT_AJAX_TIMEOUT_MS;
     const runSearchDebounced =
         debounceMs > 0
             ? _.debounce(function () {
@@ -107,7 +116,20 @@ export default function assetSearch(options) {
             }, debounceMs)
             : runSearch;
 
-    $input.on('input', function () {
+    function teardown() {
+        requestSeq += 1;
+        if (typeof runSearchDebounced.cancel === 'function') {
+            runSearchDebounced.cancel();
+        }
+        $container.off(`.${EVENT_NS}`);
+        $input.off(`.${EVENT_NS}`);
+        $retry.off(`.${EVENT_NS}`);
+    }
+
+    $container.data('assetSearchTeardown', teardown);
+    $container.on(`destroy.${ns}.${EVENT_NS}`, teardown);
+
+    $input.on(`input.${EVENT_NS}`, function () {
         query = String($input.val() || '').trim();
         page = 1;
         if (!query) {
@@ -118,12 +140,12 @@ export default function assetSearch(options) {
         runSearchDebounced();
     });
 
-    $retry.on('click', function (e) {
+    $retry.on(`click.${EVENT_NS}`, function (e) {
         e.preventDefault();
         runSearch();
     });
 
-    $container.on(`sortchange.${ns}`, function (e, nextSort) {
+    $container.on(`sortchange.${ns}.${EVENT_NS}`, function (e, nextSort) {
         sort = Object.assign({}, DEFAULT_SORT, nextSort || {});
         if (!searchMode || !query) {
             return;
@@ -190,6 +212,7 @@ export default function assetSearch(options) {
             url: options.searchUrl,
             method: 'GET',
             dataType: 'json',
+            timeout: ajaxTimeoutMs,
             data
         })
             .done(function (response) {
@@ -205,7 +228,8 @@ export default function assetSearch(options) {
                         query,
                         sort,
                         page,
-                        pageSize
+                        pageSize,
+                        filters: options.params && options.params.filters
                     });
                 }
                 total = normalized.total;
@@ -239,8 +263,9 @@ export default function assetSearch(options) {
                 }
                 hideLoading();
                 page = 1;
-                showError(__('Unable to search assets. Please try again.'));
-                setStatus('');
+                const message = __('Unable to search assets. Please try again.');
+                showError(message);
+                setStatus(message);
                 $container.trigger(`searchresults.${ns}`, [
                     {
                         query,
@@ -287,7 +312,7 @@ export default function assetSearch(options) {
      */
     function showLoading() {
         $loading.removeClass('hidden').removeAttr('hidden');
-        $loading.attr('aria-busy', 'true');
+        $resultsRegion.attr('aria-busy', 'true');
     }
 
     /**
@@ -295,7 +320,7 @@ export default function assetSearch(options) {
      */
     function hideLoading() {
         $loading.addClass('hidden').attr('hidden', 'hidden');
-        $loading.attr('aria-busy', 'false');
+        $resultsRegion.attr('aria-busy', 'false');
     }
 
     /**
@@ -303,8 +328,8 @@ export default function assetSearch(options) {
      * @param {string} message
      */
     function showError(message) {
-        $errorMessage.text(message);
         $error.removeClass('hidden').removeAttr('hidden');
+        $errorMessage.text(message);
     }
 
     /**

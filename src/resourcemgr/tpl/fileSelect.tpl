@@ -28,9 +28,7 @@
                                 <span class="tlb-start"></span>
                                 {{#if permissions.read }}
                                     <span class="tlb-group">
-                                        {{#if permissions.read}}
-                                            <a href="#" class="tlb-button-off select" title="{{__ 'Select this file'}}"><span class="icon-move-item"></span></a>
-                                        {{/if}}
+                                        <a href="#" class="tlb-button-off select" title="{{__ 'Select this file'}}"><span class="icon-move-item"></span></a>
                                         {{#if permissions.download}}
                                             <a href="{{downloadUrl}}" download="{{name}}" target="_blank" class="tlb-button-off download" title="{{__ 'Download this file'}}"><span class="icon-download"></span></a>
                                         {{/if}}
