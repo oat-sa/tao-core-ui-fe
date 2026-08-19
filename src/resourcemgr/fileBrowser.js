@@ -468,6 +468,7 @@ export default function (options) {
         } else {
             content.children = [];
             content.empty = true;
+            content.total = 0;
         }
         if (Object.prototype.hasOwnProperty.call(data, 'total')) {
             content.total = data.total;
