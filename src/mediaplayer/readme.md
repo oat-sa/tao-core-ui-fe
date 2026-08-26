@@ -24,6 +24,7 @@ require(['ui/mediaplayer'], function(mediaplayer) {
 - *Number* **volume** - Sets the sound volume (default: 80)
 - *Number* **width** - Sets the width of the player (default: depends on media type)
 - *Number* **height** - Sets the height of the player (default: depends on media type)
+- *String* **crossOriginMode** - CORS mode for cross-domain HTML5 sources: `anonymous` (default, bare `crossorigin`) or `use-credentials` (`crossorigin="use-credentials"`)
 - *Function* **onrender** - Event listener called when the player is rendering
 - *Function* **onready** - Event listener called when the player is fully ready
 - *Function* **onplay** - Event listener called when the playback is starting
@@ -32,6 +33,22 @@ require(['ui/mediaplayer'], function(mediaplayer) {
 - *Function* **onended** - Event listener called when the playback is ended
 - *Function* **onlimitreached** - Event listener called when the play limit has been reached
 - *Function* **ondestroy** - Event listener called when the player is destroying
+
+### Module configuration
+
+Set a default `crossOriginMode` for all player instances via RequireJS:
+
+```javascript
+require.config({
+    config: {
+        'ui/mediaplayer': {
+            crossOriginMode: 'use-credentials'
+        }
+    }
+});
+```
+
+Per-instance `crossOriginMode` overrides the module default.
 
 ### Events
 
