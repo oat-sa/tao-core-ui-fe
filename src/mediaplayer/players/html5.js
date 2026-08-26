@@ -25,6 +25,7 @@ import videoTpl from 'ui/mediaplayer/tpl/video';
 import sourceTpl from 'ui/mediaplayer/tpl/source';
 import reminderManagerFactory from 'ui/mediaplayer/utils/reminder';
 import timeObserverFactory from 'ui/mediaplayer/utils/timeObserver';
+import crossOriginUtil from 'ui/mediaplayer/utils/crossOrigin';
 
 /**
  * CSS namespace
@@ -91,6 +92,7 @@ const playerEvents = ['end', 'error', 'pause', 'play', 'playing', 'ready', 'resi
  * @param {string} [config.type] - The type of player (video or audio) (default: video)
  * @param {boolean} [config.preview] - Enables the media preview (load media metadata)
  * @param {boolean} [config.debug] - Enables the debug mode
+ * @param {'anonymous'|'use-credentials'} [config.crossOriginMode] - CORS credentials mode for cross-domain sources
  * @param {number} [config.config.stalledDetectionDelay] - The delay before considering a media is stalled
  * @returns {object} player
  */
@@ -161,7 +163,6 @@ export default function html5PlayerFactory($container, config = {}) {
         init() {
             const tpl = 'audio' === type ? audioTpl : videoTpl;
             const page = new UrlParser(window.location);
-            let cors = false;
             let preload = config.preview ? 'metadata' : 'none';
             let poster = '';
             let link = '';
@@ -170,9 +171,6 @@ export default function html5PlayerFactory($container, config = {}) {
             state = {};
 
             sources.forEach(source => {
-                if (!page.sameDomain(source.src)) {
-                    cors = true;
-                }
                 if (source.poster) {
                     poster = source.poster;
                 }
@@ -181,7 +179,19 @@ export default function html5PlayerFactory($container, config = {}) {
                 }
             });
 
-            $media = $(tpl({ cors, preload, poster, link }));
+            const crossOriginAttr = crossOriginUtil.resolveCrossOriginAttribute(
+                sources,
+                config.crossOriginMode,
+                page
+            );
+
+            $media = $(tpl({
+                crossOrigin: crossOriginAttr === 'anonymous',
+                crossOriginUseCredentials: crossOriginAttr === 'use-credentials',
+                preload,
+                poster,
+                link
+            }));
             $container.append($media);
 
             applyVideoSizing();

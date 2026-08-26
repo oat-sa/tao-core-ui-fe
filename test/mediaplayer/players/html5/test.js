@@ -137,6 +137,19 @@ define([
                 preview: false,
                 controls: false,
                 cors: true,
+                crossOriginUseCredentials: false,
+                preload: 'none',
+                sources: [audioMP3]
+            },
+            {
+                title: 'audio with crossorigin use-credentials',
+                type: 'audio',
+                support: true,
+                preview: false,
+                controls: false,
+                cors: true,
+                crossOriginUseCredentials: true,
+                crossOriginMode: 'use-credentials',
                 preload: 'none',
                 sources: [audioMP3]
             },
@@ -200,6 +213,20 @@ define([
                 preview: false,
                 controls: false,
                 cors: true,
+                crossOriginUseCredentials: false,
+                preload: 'none',
+                poster: '',
+                sources: [videoWebM]
+            },
+            {
+                title: 'video with crossorigin use-credentials',
+                type: 'video',
+                support: true,
+                preview: false,
+                controls: false,
+                cors: true,
+                crossOriginUseCredentials: true,
+                crossOriginMode: 'use-credentials',
                 preload: 'none',
                 poster: '',
                 sources: [videoWebM]
@@ -251,7 +278,8 @@ define([
             }
         ])
         .test('render ', (data, assert) => {
-            assert.expect(9 + 3 * data.sources.length * data.support);
+            const extraCrossOriginAsserts = data.cors && !data.crossOriginUseCredentials ? 1 : 0;
+            assert.expect(9 + extraCrossOriginAsserts + 3 * data.sources.length * data.support);
             const $container = $('#qunit-fixture');
             const { type, sources, preview } = data;
 
@@ -259,7 +287,12 @@ define([
             support.setSupport(data.support);
             UrlParser.setSame(!data.cors);
 
-            const player = playerFactory($container, { type, sources, preview });
+            const player = playerFactory($container, {
+                type,
+                sources,
+                preview,
+                crossOriginMode: data.crossOriginMode
+            });
 
             assert.equal($container.children().length, 0, 'The container is empty');
             assert.equal(player.init(), data.support, 'The initialisation completed as expected');
@@ -269,11 +302,26 @@ define([
             assert.equal($media.length, 1, 'The player has been rendered');
             assert.equal(media.tagName, data.type.toUpperCase(), 'The player is using the right type');
             assert.equal(media.hasAttribute('controls'), !data.controls, 'The player has set the controls as expected');
-            assert.equal(
-                media.hasAttribute('crossorigin'),
-                data.cors,
-                'The player has set the crossorigin as expected'
-            );
+            if (data.crossOriginUseCredentials) {
+                assert.equal(
+                    media.getAttribute('crossorigin'),
+                    'use-credentials',
+                    'The player has set crossorigin="use-credentials" as expected'
+                );
+            } else {
+                assert.equal(
+                    media.hasAttribute('crossorigin'),
+                    data.cors,
+                    'The player has set the crossorigin as expected'
+                );
+                if (data.cors) {
+                    assert.notEqual(
+                        media.getAttribute('crossorigin'),
+                        'use-credentials',
+                        'The player keeps bare crossorigin for anonymous mode'
+                    );
+                }
+            }
             assert.equal($media.attr('preload'), data.preload, 'The player has set the expected preload attribute');
             assert.equal($media.attr('poster'), data.poster, 'The player has set the poster attribute as expected');
             assert.equal($media.find('a').attr('href'), data.link, 'The player has set the link as expected');
