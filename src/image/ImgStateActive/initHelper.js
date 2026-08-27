@@ -56,6 +56,10 @@ export const initUpload = function (widget) {
             deleteUrl: options.mediaManager.deleteUrl,
             downloadUrl: options.mediaManager.downloadUrl,
             fileExistsUrl: options.mediaManager.fileExistsUrl,
+            rootClassUri: options.mediaManager.rootClassUri,
+            classMappingUrl: options.mediaManager.classMappingUrl,
+            statusUrl: options.mediaManager.statusUrl,
+            maxListSize: options.mediaManager.maxListSize,
             params: {
                 uri: options.uri,
                 lang: options.lang,
@@ -70,6 +74,7 @@ export const initUpload = function (widget) {
             pathParam: 'path',
             path: options.mediaManager.path,
             root: options.mediaManager.root,
+            currentAsset: $src.val() || undefined,
             select: function (e, files) {
                 let file, alt;
                 let confirmBox, cancel, save;

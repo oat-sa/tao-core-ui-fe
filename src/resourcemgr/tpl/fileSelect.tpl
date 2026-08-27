@@ -16,7 +16,7 @@
             <span class="desc truncate">{{name}}</span>
         </td>
         <td class="files-location">
-            <span class="meta location truncate" title="{{location}}">{{location}}</span>
+            <span class="meta location truncate" title="{{locationDisplay}}">{{locationDisplay}}</span>
         </td>
         <td class="files-updated">
             <span class="meta updated truncate" title="{{updatedAtDisplay}}">{{updatedAtDisplay}}</span>

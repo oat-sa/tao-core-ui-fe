@@ -29,6 +29,10 @@ const LOGGER = loggerFactory(`ui/${NS}`);
 const DEFAULT_AJAX_TIMEOUT_MS = 10000;
 
 export default function (options) {
+    if (!options.browseUrl && options.url) {
+        options.browseUrl = options.url;
+    }
+
     const root = options.root || 'local';
     const rootPath = options.path || '/';
     const initialPath = options.initialPath || rootPath;
@@ -72,12 +76,23 @@ export default function (options) {
         if (!isActiveBrowser()) {
             return;
         }
-        const subTree = getByPath(fileTree, targetPath) || fileTree;
+        const subTree = getByExactPath(fileTree, targetPath) || getByPath(fileTree, targetPath) || fileTree;
         getFolderContent(subTree, targetPath, function (content) {
             if (content) {
                 selectFolder(content, targetPath);
             }
         });
+    });
+
+    // Reopen with resolved parent (AC3 edit/change): leave search, open folder again.
+    $container.on(`applycontext.${NS}`, function (e, ctx) {
+        const path = (ctx && ctx.path) || rootPath;
+        if (searchMode) {
+            searchMode = false;
+            $container.trigger(`searchmode.${NS}`, [false]);
+        }
+        selectedClass.page = 1;
+        openInitialPath(path);
     });
 
     //load the content of the ROOT
@@ -114,6 +129,10 @@ export default function (options) {
     // by clicking on the tree (using a live binding  because content is not complete yet)
     $divContainer.off('click', '.folders a').on('click', '.folders a', function (e) {
         e.preventDefault();
+        // AC2: ignore tree clicks in search mode so `.active` / scopePath stay in sync.
+        if (searchMode) {
+            return;
+        }
         const $selected = $(this);
         const $folders = $('.folders li', $fileBrowser);
         const fullPath = $selected.data('path');
@@ -298,8 +317,15 @@ export default function (options) {
             const files = _.filter(content.children, function (item) {
                 return !!item.uri;
             });
-            // if files less then total and need toload this page
-            if (files.length < selectedClass.total && files.length < selectedClass.page * selectedClass.childrenLimit) {
+            // Use folder total (not selectedClass): openInitialPath runs before selectFolder.
+            const expectedTotal = Number(content.total);
+            const pageSize = Number(content.childrenLimit) || selectedClass.childrenLimit || 10;
+            const page = selectedClass.page || 1;
+            if (
+                Number.isFinite(expectedTotal) &&
+                files.length < expectedTotal &&
+                files.length < page * pageSize
+            ) {
                 loadContent(path).then(function (data) {
                     const loadedFiles = _.filter(data.children, function (item) {
                         return !!item.uri;
@@ -309,7 +335,7 @@ export default function (options) {
                         total: data.total,
                         childrenLimit: data.childrenLimit
                     });
-                    content = getByPath(tree, path);
+                    content = getByExactPath(tree, path) || getByPath(tree, path);
                     cb(content);
                 }).catch(function () {
                     cb(content);
@@ -426,8 +452,11 @@ export default function (options) {
                 return child.path === path || (child.name && tree.path + child.name === path) || child.uri === path;
             });
             done = removed.length > 0;
-            tree.total--;
-            if (!done) {
+            if (done) {
+                tree.total = Number.isFinite(Number(tree.total))
+                    ? Math.max(0, Number(tree.total) - removed.length)
+                    : 0;
+            } else {
                 _.forEach(tree.children, function (child) {
                     done = removeFromPath(child, path);
                     if (done) {

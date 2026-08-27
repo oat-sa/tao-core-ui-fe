@@ -53,14 +53,20 @@ export const DEFAULT_PAGE_SIZE = 10;
  *
  * Request minimum:
  * - path/scope (folder subtree)
- * - query text
+ * - query text (universal search only; metadata is separate)
+ * - optional metadata map (propertyUri → value)
  * - sort field + direction
  * - page / pageSize
  * - existing picker params (uri, lang, filters) passed through as-is
  *
+ * Metadata filters are sent as nested `metadata[propertyUri]=value` (jQuery
+ * serializes a plain object). Independently supplied properties combine with AND
+ * on the API. Universal `query` and metadata also combine with AND.
+ *
  * @param {Object} options
  * @param {string} options.path - folder scope
- * @param {string} options.query - universal search text
+ * @param {string} options.query - universal search text only
+ * @param {Object.<string, string>} [options.metadata] - property URI → value
  * @param {{field: string, direction: string}} options.sort
  * @param {number} options.page - 1-based page
  * @param {number} [options.pageSize]
@@ -81,7 +87,72 @@ export function buildSearchRequestParams(options) {
     params.page = options.page || 1;
     params.pageSize = pageSize;
 
+    const metadata = normalizeMetadataMap(options.metadata);
+    if (Object.keys(metadata).length) {
+        params.metadata = metadata;
+    }
+
     return params;
+}
+
+/**
+ * Build a flat metadata map from advancedSearch.getState().
+ * Text criteria use trimmed string values; list criteria use the first
+ * non-empty selected value only.
+ *
+ * Follow-up: multi-value list criteria and LOGIC_AND/OR/NOT require BE contract
+ * changes (flat metadata[propertyUri]=value supports AND-only today). See HKD-1996.
+ *
+ * @param {Object} [criteriaState]
+ * @returns {Object.<string, string>}
+ */
+export function buildMetadataFromCriteriaState(criteriaState) {
+    const metadata = {};
+    if (!criteriaState || typeof criteriaState !== 'object') {
+        return metadata;
+    }
+
+    Object.keys(criteriaState).forEach(function (key) {
+        const criterion = criteriaState[key];
+        if (!criterion || !criterion.rendered || !criterion.propertyUri) {
+            return;
+        }
+        if (criterion.type === 'text') {
+            const value = String(criterion.value || '').trim();
+            if (value) {
+                metadata[criterion.propertyUri] = value;
+            }
+            return;
+        }
+        if (criterion.type === 'list' && Array.isArray(criterion.value)) {
+            const first = criterion.value.find(function (entry) {
+                return entry !== '' && entry != null;
+            });
+            if (first != null && first !== '') {
+                metadata[criterion.propertyUri] = String(first);
+            }
+        }
+    });
+
+    return metadata;
+}
+
+/**
+ * @param {Object} [metadata]
+ * @returns {Object.<string, string>}
+ */
+function normalizeMetadataMap(metadata) {
+    const normalized = {};
+    if (!metadata || typeof metadata !== 'object') {
+        return normalized;
+    }
+    Object.keys(metadata).forEach(function (uri) {
+        const value = metadata[uri];
+        if (typeof value === 'string' && value !== '') {
+            normalized[uri] = value;
+        }
+    });
+    return normalized;
 }
 
 /**
@@ -133,6 +204,7 @@ export function isBrowseShapedSearchPayload(payload) {
 /**
  * Local filter/sort/page for browse-shaped payloads (`children`, no `items`).
  * Search endpoints that return `items` are left untouched.
+ * MIME eligibility stays server-side (AC: no client-side MIME decisions).
  *
  * @param {Object} normalized - output of normalizeSearchResponse
  * @param {Object} options
@@ -140,10 +212,24 @@ export function isBrowseShapedSearchPayload(payload) {
  * @param {{field: string, direction: string}} [options.sort]
  * @param {number} [options.page]
  * @param {number} [options.pageSize]
- * @param {Array|String} [options.filters]
  * @returns {{items: Array, total: number, page: number, pageSize: number}}
  */
 export function applyLocalSearchFallback(normalized, options) {
+    const metadata = normalizeMetadataMap(options && options.metadata);
+    if (Object.keys(metadata).length) {
+        const pageSize =
+            Number(options && options.pageSize) > 0
+                ? Number(options.pageSize)
+                : normalized.pageSize || DEFAULT_PAGE_SIZE;
+        return {
+            items: [],
+            total: 0,
+            page: 1,
+            pageSize,
+            metadataUnsupported: true
+        };
+    }
+
     const query = String((options && options.query) || '')
         .trim()
         .toLowerCase();
@@ -155,16 +241,16 @@ export function applyLocalSearchFallback(normalized, options) {
     const page = Number(options && options.page) > 0 ? Number(options.page) : 1;
 
     let items = (normalized.items || []).filter(isSearchableAsset);
-    const allowedMimes = normalizeMimeFilters(options && options.filters);
-    if (allowedMimes.length) {
-        items = items.filter(function (item) {
-            return allowedMimes.indexOf(normalizeMimeFilterValue(item.mime)) !== -1;
-        });
-    }
     if (query) {
-        items = items.filter(function (item) {
-            return getSearchableText(item).indexOf(query) !== -1;
-        });
+        const queryTokens = tokenizeSearchText(query);
+        if (queryTokens.length === 0) {
+            // Delimiter-only query: no searchable tokens → empty (matches BE).
+            items = [];
+        } else {
+            items = items.filter(function (item) {
+                return matchesQueryTokens(getSearchableText(item), queryTokens);
+            });
+        }
     }
 
     items = sortAssetItems(items, sort);
@@ -181,38 +267,6 @@ export function applyLocalSearchFallback(normalized, options) {
         page: safePage,
         pageSize: safePageSize
     };
-}
-
-/**
- * @param {Array|String} filters
- * @returns {Array}
- */
-function normalizeMimeFilters(filters) {
-    if (Array.isArray(filters)) {
-        return filters
-            .map(function (filter) {
-                return filter && filter.mime ? normalizeMimeFilterValue(filter.mime) : '';
-            })
-            .filter(Boolean);
-    }
-    if (typeof filters === 'string') {
-        return filters
-            .split(',')
-            .map(function (filter) {
-                return normalizeMimeFilterValue(filter);
-            })
-            .filter(Boolean);
-    }
-
-    return [];
-}
-
-/**
- * @param {string} value
- * @returns {string}
- */
-function normalizeMimeFilterValue(value) {
-    return String(value || '').trim().toLowerCase();
 }
 
 /**
@@ -274,6 +328,42 @@ function getSearchableText(item) {
         .filter(Boolean)
         .join(' ')
         .toLowerCase();
+}
+
+/**
+ * Split search text into lowercase alphanumeric tokens (aligned with BE
+ * AssetSearchBuilder::tokenize).
+ *
+ * @param {string} value
+ * @returns {string[]}
+ */
+function tokenizeSearchText(value) {
+    const normalized = String(value || '')
+        .trim()
+        .toLowerCase();
+    if (!normalized) {
+        return [];
+    }
+    return normalized.split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+}
+
+/**
+ * Every query token must be a prefix of at least one haystack token (AND).
+ *
+ * @param {string} haystackText
+ * @param {string[]} queryTokens
+ * @returns {boolean}
+ */
+function matchesQueryTokens(haystackText, queryTokens) {
+    const haystackTokens = tokenizeSearchText(haystackText);
+    if (haystackTokens.length === 0) {
+        return false;
+    }
+    return queryTokens.every(function (token) {
+        return haystackTokens.some(function (candidate) {
+            return candidate.indexOf(token) === 0;
+        });
+    });
 }
 
 /**

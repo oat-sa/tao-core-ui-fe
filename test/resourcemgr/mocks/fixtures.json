@@ -97,7 +97,7 @@
             "path": "taomedia://mediamanager/Media",
             "label": "Assets",
             "childrenLimit": 15,
-            "total": 4,
+            "total": 3,
             "permissions": ["READ", "WRITE"],
             "children": [
                 {
@@ -144,6 +144,43 @@
             ],
             "total": 12,
             "page": 2,
+            "pageSize": 10
+        }
+    },
+    "searchPaginated": {
+        "data": {
+            "items": [
+                { "uri": "asset://p01", "name": "page1-01.png", "mime": "image/png", "location": "/images", "updatedAt": "2026-08-01T10:00:00Z", "permissions": ["READ"] },
+                { "uri": "asset://p02", "name": "page1-02.png", "mime": "image/png", "location": "/images", "updatedAt": "2026-08-01T11:00:00Z", "permissions": ["READ"] },
+                { "uri": "asset://p03", "name": "page1-03.png", "mime": "image/png", "location": "/images", "updatedAt": "2026-08-01T12:00:00Z", "permissions": ["READ"] },
+                { "uri": "asset://p04", "name": "page1-04.png", "mime": "image/png", "location": "/images", "updatedAt": "2026-08-01T13:00:00Z", "permissions": ["READ"] },
+                { "uri": "asset://p05", "name": "page1-05.png", "mime": "image/png", "location": "/images", "updatedAt": "2026-08-01T14:00:00Z", "permissions": ["READ"] },
+                { "uri": "asset://p06", "name": "page1-06.png", "mime": "image/png", "location": "/images", "updatedAt": "2026-08-01T15:00:00Z", "permissions": ["READ"] },
+                { "uri": "asset://p07", "name": "page1-07.png", "mime": "image/png", "location": "/images", "updatedAt": "2026-08-01T16:00:00Z", "permissions": ["READ"] },
+                { "uri": "asset://p08", "name": "page1-08.png", "mime": "image/png", "location": "/images", "updatedAt": "2026-08-01T17:00:00Z", "permissions": ["READ"] },
+                { "uri": "asset://p09", "name": "page1-09.png", "mime": "image/png", "location": "/images", "updatedAt": "2026-08-01T18:00:00Z", "permissions": ["READ"] },
+                { "uri": "asset://p10", "name": "page1-10.png", "mime": "image/png", "location": "/images", "updatedAt": "2026-08-01T19:00:00Z", "permissions": ["READ"] }
+            ],
+            "total": 12,
+            "page": 1,
+            "pageSize": 10
+        }
+    },
+    "searchDeletable": {
+        "data": {
+            "items": [
+                {
+                    "uri": "asset://deletable",
+                    "label": "deletable.png",
+                    "name": "deletable.png",
+                    "mime": "image/png",
+                    "location": "/images",
+                    "updatedAt": "2026-08-01T10:00:00Z",
+                    "permissions": ["READ", "WRITE", "DOWNLOAD"]
+                }
+            ],
+            "total": 1,
+            "page": 1,
             "pageSize": 10
         }
     }

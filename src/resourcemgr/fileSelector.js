@@ -49,6 +49,70 @@ function shortenPath(path) {
     return title.join('/');
 }
 
+/**
+ * Normalize a catalog folder path for the Location column.
+ * Strips URI schemes and media-root labels (Assets/Media); keeps directory path only.
+ * @param {String} location
+ * @returns {String}
+ */
+function formatLocationDisplay(location) {
+    if (location === null || typeof location === 'undefined' || location === '') {
+        return '';
+    }
+    let path = String(location).trim().replace(/\\/g, '/');
+    if (!path) {
+        return '';
+    }
+
+    // Drop URI schemes (taomedia://…, https://…, asset://…)
+    path = path.replace(/^[a-z][a-z0-9+.-]*:\/\//i, '');
+    // Residual host/path from http(s) after scheme strip
+    if (path.indexOf('/') > 0 && /^[^/]+\.[^/]+\//.test(path)) {
+        path = path.slice(path.indexOf('/'));
+    }
+
+    const segments = path.replace(/^\/+|\/+$/g, '').split('/').filter(Boolean);
+    if (!segments.length) {
+        return '/';
+    }
+
+    // Directory path only: drop trailing filename-like segment
+    const last = segments[segments.length - 1];
+    if (segments.length > 1 && /\.[a-z0-9]{1,8}$/i.test(last)) {
+        segments.pop();
+    }
+
+    // Strip media-tree root label prefix (Assets, Media, …)
+    const rootLabels = ['assets', 'media', 'mediamanager'];
+    if (segments.length && rootLabels.indexOf(segments[0].toLowerCase()) !== -1) {
+        segments.shift();
+    }
+
+    return segments.length ? `/${segments.join('/')}` : '/';
+}
+
+/**
+ * Format updatedAt as a fixed UTC date-time (YYYY-MM-DD HH:mm).
+ * @param {String} value
+ * @returns {String}
+ */
+function formatUpdatedAtUtc(value) {
+    if (!value) {
+        return '';
+    }
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+        return String(value);
+    }
+    const pad = function (n) {
+        return String(n).padStart(2, '0');
+    };
+    return (
+        `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())} ` +
+        `${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}`
+    );
+}
+
 function isTextLarger($element, text) {
     let $dummy = $element
         .clone()
@@ -78,7 +142,10 @@ export default function (options) {
     let $uploader = $('.file-upload-container', $fileSelector);
     let parentSelector = `#${$container.attr('id')} .file-selector`;
     let $pathTitle = $fileSelector.find('h1 > .title');
-    let $browserTitle = $('.file-browser > h1', $container);
+    let $browserTitle = $('.file-browser > h1.resources-title', $container);
+    if (!$browserTitle.length) {
+        $browserTitle = $('.file-browser > h1', $container);
+    }
     let searchMode = false;
     let initialSelectionApplied = false;
     let sort = Object.assign({}, DEFAULT_SORT);
@@ -105,8 +172,6 @@ export default function (options) {
             return;
         }
 
-        data = data.map(ensurePermissions);
-
         //update title
         if ($container[0].querySelector('.upload')) {
             if (content && content.permissions && content.permissions.upload) {
@@ -120,7 +185,7 @@ export default function (options) {
 
         //update content here
         if (_.isArray(data)) {
-            files = _.filter(data, function (item) {
+            files = _.filter(data.map(ensurePermissions), function (item) {
                 return !!item.uri;
             }).map(function (file) {
                 return prepareFileForDisplay(file, fullPath, activePath);
@@ -134,15 +199,29 @@ export default function (options) {
     // Render scoped search results from the service as-is (no client MIME/auth filtering).
     $container.on(`searchresults.${ns}`, function (e, result) {
         const items = (result && result.items) || [];
-        const files = items.map(function (file) {
-            return prepareFileForDisplay(ensurePermissions(file), result.path || '', result.path);
-        });
+        const files = items
+            .filter(function (item) {
+                return item && !!item.uri;
+            })
+            .map(function (file) {
+                return prepareFileForDisplay(ensureSearchPermissions(file), result.path || '', result.path);
+            });
 
         $pathTitle.text(__('Search results'));
         updateFiles(files);
 
         if (!(result && result.error)) {
             applyInitialSelection(result && result.initialSelection);
+        }
+    });
+
+    // Reopen resolve (AC3): allow preselect again after folder reload via folderselect.
+    $container.on(`applycontext.${ns}`, function (e, ctx) {
+        initialSelectionApplied = false;
+        options.initialSelection = ctx && ctx.selection ? ctx.selection : null;
+        options.currentAssetItem = ctx && ctx.currentAssetItem ? ctx.currentAssetItem : null;
+        if (!options.initialSelection) {
+            $fileContainer.find('tr.active').removeClass('active');
         }
     });
 
@@ -165,32 +244,31 @@ export default function (options) {
     }
 
     /**
-     * Format an ISO (or Date-parsable) timestamp in the configured locale using UTC.
-     * Unparseable values are returned as-is; empty values stay empty.
-     * @param {String} value
-     * @returns {String}
+     * Search results often omit ACL (indexed gateway). Missing/empty ACL must stay pickable
+     * (read/preview/download) without inventing write/delete/upload. Explicit ACL arrays and
+     * boolean maps are preserved / mapped via updatePermissions.
+     * @param {Object} item
+     * @returns {Object}
      */
-    function formatUpdatedAt(value) {
-        if (!value) {
-            return '';
+    function ensureSearchPermissions(item) {
+        if (!item) {
+            return item;
         }
-        const date = new Date(value);
-        if (Number.isNaN(date.getTime())) {
-            return String(value);
+        if (item.permissions && !Array.isArray(item.permissions) && typeof item.permissions === 'object') {
+            return item;
         }
-        const locale = options.params && options.params.lang
-            ? String(options.params.lang)
-            : window.document.documentElement.getAttribute('lang') || [];
-
-        return new Intl.DateTimeFormat(locale, {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-            timeZone: 'UTC'
-        }).format(date);
+        if (!item.permissions || (Array.isArray(item.permissions) && item.permissions.length === 0)) {
+            item.permissions = {
+                read: true,
+                write: false,
+                preview: true,
+                download: true,
+                upload: false,
+                delete: false
+            };
+            return item;
+        }
+        return updatePermissions(item);
     }
 
     /**
@@ -215,7 +293,8 @@ export default function (options) {
         if (!file.location) {
             file.location = folderPath || fullPath || '';
         }
-        file.updatedAtDisplay = formatUpdatedAt(file.updatedAt);
+        file.locationDisplay = formatLocationDisplay(file.location);
+        file.updatedAtDisplay = formatUpdatedAtUtc(file.updatedAt);
         return file;
     }
 
@@ -264,6 +343,7 @@ export default function (options) {
 
     /**
      * Preselect initialSelection once when the matching row is present.
+     * When resolve returned a currentAssetItem missing from the page, inject it.
      * @param {String} [selection]
      */
     function applyInitialSelection(selection) {
@@ -271,9 +351,20 @@ export default function (options) {
         if (!target || initialSelectionApplied) {
             return;
         }
-        const $item = $fileContainer.find('tr').filter(function () {
+        let $item = $fileContainer.find('tr').filter(function () {
             return $(this).attr('data-file') === String(target);
         });
+        if (!$item.length && options.currentAssetItem && String(options.currentAssetItem.uri) === String(target)) {
+            const injected = prepareFileForDisplay(
+                ensurePermissions(Object.assign({}, options.currentAssetItem)),
+                options.currentAssetItem.location || '',
+                options.currentAssetItem.location || ''
+            );
+            updateFiles([injected].concat(lastFiles || []));
+            $item = $fileContainer.find('tr').filter(function () {
+                return $(this).attr('data-file') === String(target);
+            });
+        }
         if ($item.length) {
             initialSelectionApplied = true;
             $item.first().trigger('click');
@@ -402,7 +493,9 @@ export default function (options) {
             $container.trigger(`filenew.${ns}`, [result, currentPath]);
         });
         $uploader.on('fail.uploader', function (e, file, err) {
-            errors.push(__('Unable to upload file %s : %s', file.name, err.message));
+            errors.push(
+                __('Unable to upload file %s : %s', _.escape(file && file.name), _.escape(err && err.message))
+            );
         });
 
         $uploader.on('end.uploader', function () {
@@ -503,7 +596,7 @@ export default function (options) {
                 // Note: show() would display as inline, not inline-block!
                 $switcher.filter('.upload').css({ display: 'inline-block' });
                 $switcher.filter('.listing').hide();
-                $browserTitle.text(__('Browse folders:'));
+                $browserTitle.text(__('Resources'));
             } else {
                 isUploadMode = true;
                 $filesWrapper.hide();
@@ -536,6 +629,7 @@ export default function (options) {
         $fileContainer.empty();
         if (sorted.length) {
             $placeholder.hide();
+            $filesWrapper.show();
             $fileContainer.append(
                 fileSelectTpl({
                     files: sorted
@@ -546,8 +640,13 @@ export default function (options) {
                     e.stopPropagation();
                 });
             });
-        } else if ($filesWrapper.css('display') !== 'none' && $fileSelector.find('.asset-search-error:not([hidden])').length === 0) {
-            $placeholder.show();
+        } else if ($fileSelector.find('.asset-search-error:not([hidden])').length === 0) {
+            $filesWrapper.hide();
+            // Stylesheet defaults `.empty` to display:none; force visible for empty states.
+            $placeholder.css('display', 'block');
+        } else {
+            $filesWrapper.hide();
+            $placeholder.hide();
         }
     }
 }
