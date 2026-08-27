@@ -27,8 +27,12 @@ import store from 'core/store';
 import support from 'ui/mediaplayer/support';
 import players from 'ui/mediaplayer/players';
 import playerTpl from 'ui/mediaplayer/tpl/player';
+import crossOriginUtil from 'ui/mediaplayer/utils/crossOrigin';
+import module from 'module';
 import 'ui/mediaplayer/css/player.css';
 import 'nouislider';
+
+const moduleConfig = module.config ? module.config() : {};
 
 /**
  * CSS namespace
@@ -212,6 +216,7 @@ const isResponsiveSize = sizeProps => {
  * @param {Number} [config.height] - Sets the height of the player (default: depends on media type)
  * @param {Boolean} [config.preview] - Enables the media preview (load media metadata)
  * @param {Boolean} [config.debug] - Enables the debug mode
+ * @param {'anonymous'|'use-credentials'} [config.crossOriginMode] - CORS credentials mode for cross-domain HTML5 sources (default: module config, then anonymous)
  * @param {number} [config.config.stalledDetectionDelay] - The delay before considering a media is stalled
  * @event render - Event triggered when the player is rendering
  * @event error - Event triggered when the player throws an unrecoverable error
@@ -239,6 +244,10 @@ function mediaplayerFactory(config) {
             // load the config set, discard null values in order to allow defaults to be set
             this.config = _.omitBy(mediaPlayerConfig || {}, value => typeof value === 'undefined' || value === null);
             _.defaults(this.config, defaults.options);
+            this.config.crossOriginMode = crossOriginUtil.resolveCrossOriginMode(
+                this.config.crossOriginMode,
+                moduleConfig.crossOriginMode
+            );
             if (!this.config.mimeType && 'string' === typeof this.config.type && this.config.type.indexOf('/') > 0) {
                 this.config.mimeType = this.config.type;
             }
@@ -882,6 +891,7 @@ function mediaplayerFactory(config) {
                         sources: this.getSources(),
                         preview: this.config.preview,
                         debug: this.config.debug,
+                        crossOriginMode: this.config.crossOriginMode,
                         stalledDetectionDelay: this.config.stalledDetectionDelay
                     };
                     this.player = playerFactory(this.$player, playerConfig)
