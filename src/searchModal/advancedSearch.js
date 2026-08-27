@@ -33,6 +33,7 @@ import 'ui/modal';
 import 'ui/datatable';
 import 'select2';
 import request from 'core/dataProvider/request';
+import __ from 'i18n';
 
 /**
  * Sort an array by a particular property.
@@ -67,6 +68,7 @@ export default function advancedSearchFactory(config) {
     let $addCriteriaInput = null;
     let $criteriaSelect = null;
     let $advancedCriteriaContainer = null;
+    let $appliedFiltersSummary = null;
     let criteriaState = null;
     let criteriaMapping = {};
     const criteriaTypes = {
@@ -102,7 +104,7 @@ export default function advancedSearchFactory(config) {
                 return Promise.resolve();
             }
 
-            const $criteriaIcon = $('.add-criteria-container a span').eq(0);
+            const $criteriaIcon = $addCriteria ? $('a span', $addCriteria).eq(0) : $();
             $criteriaIcon.toggleClass('icon-add').toggleClass('icon-loop');
             return request(route)
                 .then(response => {
@@ -113,7 +115,10 @@ export default function advancedSearchFactory(config) {
                     isCriteriaListUpdated = true;
                     $criteriaIcon.toggleClass('icon-add').toggleClass('icon-loop');
                 })
-                .catch(e => instance.trigger('error', e));
+                .catch(e => {
+                    instance.trigger('error', e);
+                    throw e;
+                });
         },
         /**
          * Access to component state
@@ -129,10 +134,19 @@ export default function advancedSearchFactory(config) {
         clear() {
             $advancedCriteriaContainer.removeClass(['scrollable', 'scroll-separator-top', 'scroll-separator-bottom']);
             $advancedCriteriaContainer.empty();
+            updateAppliedFiltersSummary(0);
+            // Rebuild selectable options: adding a criterion removes its <option>,
+            // so Clear must restore them (searchModal recovers via class re-select + updateCriteria).
+            if ($criteriaSelect && $criteriaSelect.length) {
+                $criteriaSelect.find('option:not(:first-child)').remove();
+            }
             _.forEach(criteriaState, criterion => {
                 criterion.rendered = false;
                 criterion.value = null;
                 criterion.logic = null;
+                if ($criteriaSelect && $criteriaSelect.length) {
+                    $criteriaSelect.append(createCriteriaOption(criterion));
+                }
             });
         },
         /**
@@ -170,7 +184,7 @@ export default function advancedSearchFactory(config) {
             return query;
         }
     })
-        .setTemplate(advancedSearchTpl)
+        .setTemplate(config.layoutTemplate || advancedSearchTpl)
         .on('render', () => {
             initUiSelectors();
             initAddCriteriaSelector()
@@ -191,6 +205,14 @@ export default function advancedSearchFactory(config) {
         $addCriteriaInput = $('.add-criteria-container a', $container);
         $criteriaSelect = $('.add-criteria-container select', $container);
         $advancedCriteriaContainer = $('.advanced-criteria-container', $container);
+        $appliedFiltersSummary = $('.applied-filters-summary', $container);
+
+        if (config.collapsibleCriteria && $appliedFiltersSummary.length) {
+            $appliedFiltersSummary.off('click.advancedSearch').on('click.advancedSearch', function (e) {
+                e.preventDefault();
+                togglePreviousFilters();
+            });
+        }
 
         $advancedCriteriaContainer.on('scroll', _.throttle(animateScroll, 100));
     }
@@ -252,15 +274,25 @@ export default function advancedSearchFactory(config) {
                 });
 
                 // open dropdown when user clicks on add criteria input
-                $addCriteriaInput.on('click', () => {
-                    if (isCriteriaListUpdated) {
-                        $criteriaSelect.select2('open');
-                        // if dropdown is opened above addCriteria input, top property is slightly decreased to avoid overlapping with addCriteria icon
-                        if ($('.criteria-dropdown-select2').hasClass('select2-drop-above')) {
-                            $('.criteria-dropdown-select2').css(
-                                'top',
-                                $('.criteria-dropdown-select2').css('top').split('px')[0] - 10 + 'px'
-                            );
+                $addCriteriaInput.on('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const hasOptions =
+                        $criteriaSelect.find('option').filter(function () {
+                            return Boolean(this.value);
+                        }).length > 0;
+                    // Never open an empty select2 (mask-only / no results). Wait for ClassMetadata options.
+                    if (!hasOptions) {
+                        return;
+                    }
+                    isCriteriaListUpdated = true;
+                    $criteriaSelect.select2('open');
+                    // if dropdown is opened above addCriteria input, top property is slightly decreased to avoid overlapping with addCriteria icon
+                    const $dropdown = $('.criteria-dropdown-select2');
+                    if ($dropdown.hasClass('select2-drop-above')) {
+                        const top = parseFloat($dropdown.css('top'));
+                        if (!Number.isNaN(top)) {
+                            $dropdown.css('top', `${top - 10}px`);
                         }
                     }
                 });
@@ -325,8 +357,12 @@ export default function advancedSearchFactory(config) {
         const criterion = criteriaState[criterionToAdd];
         const $criterionContainer = renderCriterion(criterion);
 
+        if (config.collapsibleCriteria) {
+            wrapCriterionAsSpoiler($criterionContainer, criterion);
+        }
+
         // set logic to remove criterion
-        $('.icon-result-nok', $criterionContainer).on('click', { criterion }, removeCriterion);
+        $criterionContainer.find('.icon-result-nok, .filter-spoiler-delete').on('click', { criterion }, removeCriterion);
 
         // set initial value and manage value changes
         bindCriterionValue(criterion, $criterionContainer);
@@ -337,6 +373,107 @@ export default function advancedSearchFactory(config) {
         }
 
         criterion.rendered = true;
+
+        if (config.collapsibleCriteria) {
+            reorganizeFilterLayout();
+        }
+    }
+
+    /**
+     * @returns {jQuery}
+     */
+    function getAllRenderedFilters() {
+        return $advancedCriteriaContainer.children('.filter-container').not('.invalid-criteria-warning-container');
+    }
+
+    /**
+     * @param {jQuery} $filter
+     * @param {boolean} open
+     */
+    function setFilterSpoilerOpen($filter, open) {
+        const $spoiler = $filter.find('.filter-spoiler').first();
+        if (!$spoiler.length) {
+            return;
+        }
+        $spoiler.toggleClass('is-open', open);
+        $filter.find('.filter-spoiler-toggle').attr('aria-expanded', open);
+        $spoiler
+            .find('.filter-spoiler-icon')
+            .toggleClass('icon-up', open)
+            .toggleClass('icon-down', !open);
+    }
+
+    /**
+     * @param {number} appliedCount
+     * @returns {string}
+     */
+    function getAppliedFiltersSummaryText(appliedCount) {
+        return appliedCount === 1 ? __('1 filter applied') : __('%s filters applied', String(appliedCount));
+    }
+
+    /**
+     * Keeps each filter as its own spoiler card: newest expanded, previous collapsed (headers stay visible).
+     */
+    function reorganizeFilterLayout() {
+        const $filters = getAllRenderedFilters();
+        const count = $filters.length;
+
+        updateAppliedFiltersSummary(count);
+
+        if (count === 0) {
+            return;
+        }
+
+        $filters.each(function (index) {
+            setFilterSpoilerOpen($(this), index === count - 1);
+        });
+
+        if ($appliedFiltersSummary && $appliedFiltersSummary.length) {
+            $appliedFiltersSummary.attr('aria-expanded', 'false');
+        }
+    }
+
+    /**
+     * Updates the "N filters applied" summary next to Add filter.
+     * @param {number} appliedCount
+     */
+    function updateAppliedFiltersSummary(appliedCount) {
+        if (!$appliedFiltersSummary || !$appliedFiltersSummary.length) {
+            return;
+        }
+
+        if (appliedCount > 0) {
+            $appliedFiltersSummary
+                .text(getAppliedFiltersSummaryText(appliedCount))
+                .removeClass('hidden')
+                .prop('hidden', false);
+        } else {
+            $appliedFiltersSummary.addClass('hidden').prop('hidden', true).text('').attr('aria-expanded', 'false');
+        }
+    }
+
+    /**
+     * Toggles expand/collapse for all filters except the newest one.
+     */
+    function togglePreviousFilters() {
+        const $filters = getAllRenderedFilters();
+        if ($filters.length <= 1) {
+            return;
+        }
+
+        const $previous = $filters.slice(0, -1);
+        const anyOpen = $previous.filter(function () {
+            return $(this).find('.filter-spoiler').first().hasClass('is-open');
+        }).length > 0;
+        const open = !anyOpen;
+
+        $previous.each(function () {
+            setFilterSpoilerOpen($(this), open);
+        });
+
+        if ($appliedFiltersSummary && $appliedFiltersSummary.length) {
+            $appliedFiltersSummary.attr('aria-expanded', open);
+        }
     }
 
     /**
@@ -432,15 +569,18 @@ export default function advancedSearchFactory(config) {
      * @param {object} $criterionContainer - rendered criterion
      */
     function bindCriterionValue(criterion, $criterionContainer) {
+        if (criterion.type === criteriaTypes.text) {
+            // Bind synchronously so typing / Search right after Add filter is not lost
+            // (getInitialCriterionLabel resolves on a microtask).
+            $('input', $criterionContainer).val(criterion.value);
+            $('input', $criterionContainer).on('input change', function () {
+                criterion.value = $(this).val() || null;
+            });
+            return;
+        }
+
         getInitialCriterionLabel(criterion).then(initialCriterion => {
-            if (criterion.type === criteriaTypes.text) {
-                // set initial value
-                $('input', $criterionContainer).val(criterion.value);
-                // set event to bind input value to critariaState
-                $('input', $criterionContainer).on('change', function () {
-                    criterion.value = $(this).val() || null;
-                });
-            } else if (criterion.type === criteriaTypes.list && criterion.uri) {
+            if (criterion.type === criteriaTypes.list && criterion.uri) {
                 // set initial value
                 if (criterion.value) {
                     $(`input[name=${criterion.id}-select]`, $criterionContainer).select2('data', initialCriterion);
@@ -478,6 +618,55 @@ export default function advancedSearchFactory(config) {
     }
 
     /**
+     * Wraps a rendered criterion in a collapsible spoiler (Resource Manager UX).
+     * @param {jQuery} $criterionContainer
+     * @param {object} criterion
+     */
+    function wrapCriterionAsSpoiler($criterionContainer, criterion) {
+        let $deleteBtn = $criterionContainer.find('.icon-result-nok').first();
+        if (!$deleteBtn.length) {
+            $deleteBtn = $('<button>', {
+                type: 'button',
+                class: 'filter-spoiler-delete icon-bin',
+                'aria-label': __('Remove criteria')
+            });
+        } else {
+            $deleteBtn
+                .attr('type', 'button')
+                .removeClass('icon-result-nok')
+                .addClass('filter-spoiler-delete icon-bin')
+                .attr('aria-label', __('Remove criteria'));
+        }
+        const $title = $('<span>', { class: 'filter-spoiler-title', text: criterion.label });
+        const $icon = $('<span>', { class: 'icon-up filter-spoiler-icon', 'aria-hidden': 'true' });
+        const $toggle = $('<button>', {
+            type: 'button',
+            class: 'filter-spoiler-toggle',
+            'aria-expanded': 'true'
+        }).append($title, $icon);
+
+        const $header = $('<div>', { class: 'filter-spoiler-header' }).append($toggle, $deleteBtn);
+
+        const $body = $('<div>', { class: 'filter-spoiler-body' });
+        $criterionContainer.children().appendTo($body);
+
+        const $spoiler = $('<div>', { class: 'filter-spoiler is-open' }).append($header, $body);
+        $criterionContainer.empty().append($spoiler);
+        $criterionContainer.addClass('filter-spoiler-wrapper');
+
+        $toggle.on('click', function (e) {
+            e.preventDefault();
+            const $spoilerEl = $criterionContainer.find('.filter-spoiler').first();
+            const open = $spoilerEl.toggleClass('is-open').hasClass('is-open');
+            $(this).attr('aria-expanded', open);
+            $spoilerEl
+                .find('.filter-spoiler-icon')
+                .toggleClass('icon-up', open)
+                .toggleClass('icon-down', !open);
+        });
+    }
+
+    /**
      * Removes a criterion from advanced criteria container when user clicks on the criterion close icon.
      * It also adds the option element to criteria select so removed criterion can be rendered again
      * @param {object} event - click event triggered on closing icon
@@ -488,7 +677,7 @@ export default function advancedSearchFactory(config) {
         const criterionKey = getCriterionStateId(criterion);
 
         // remove criterion and append new criterion to select options
-        $(this).parent().remove();
+        $(this).closest('.filter-container').remove();
         $criteriaSelect.append(newOption);
 
         // reset criterion values on criteriaState
@@ -498,6 +687,10 @@ export default function advancedSearchFactory(config) {
         // check if advanced criteria container is no longer scrollable
         if ($advancedCriteriaContainer.get(0).scrollHeight <= $advancedCriteriaContainer.outerHeight()) {
             $advancedCriteriaContainer.removeClass('scrollable');
+        }
+
+        if (config.collapsibleCriteria) {
+            reorganizeFilterLayout();
         }
     }
 
@@ -512,13 +705,21 @@ export default function advancedSearchFactory(config) {
         let criteria = [];
 
         _.forEach(classTree, classInstance => {
-            criteria.push(...classInstance.metadata);
+            const metadata = classInstance && classInstance.metadata;
+            if (Array.isArray(metadata) && metadata.length) {
+                criteria.push(...metadata);
+            }
         });
 
         // extends each criterion with an id that can be use as a valid css class
-        _.forEach(criteria, criterion => {
+        criteria = criteria.filter(criterion => {
+            const id = String((criterion && criterion.propertyUri) || '').replace(/^[^a-zA-Z]*|[^a-zA-Z0-9]*/g, '');
+            if (!id) {
+                return false;
+            }
             criterion.label = getCriterionLabel(criterion);
-            criterion.id = criterion.propertyUri.replace(/^[^a-zA-Z]*|[^a-zA-Z0-9]*/g, '');
+            criterion.id = id;
+            return true;
         });
 
         return criteria;
@@ -537,6 +738,9 @@ export default function advancedSearchFactory(config) {
         const invalidCriteria = deleteDeprecatedCriteria(criteria);
         extendCriteria(criteria);
         renderWarningMessage(invalidCriteria);
+        if (config.collapsibleCriteria) {
+            reorganizeFilterLayout();
+        }
     }
 
     /**

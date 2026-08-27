@@ -11,9 +11,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * Foundation, Inc., 31 Milk St # 960789 Boston, MA 02196 USA.
  *
- * Copyright (c) 2015-2024 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2015-2026 (original work) Open Assessment Technologies SA;
  *
  */
 
@@ -32,9 +32,11 @@ import context from 'context';
 import 'ui/uploader';
 import updatePermissions from './util/updatePermissions';
 import loggerFactory from 'core/logger';
+import { DEFAULT_SORT, sortAssetItems } from 'ui/resourcemgr/assetSearchContract';
 
 const ns = 'resourcemgr';
 const logger = loggerFactory(`ui/${ns}`);
+const ROW_SELECTOR = '.files-list tr';
 
 function shortenPath(path) {
     let tokens = path.replace(/\/$/, '').split('/');
@@ -45,6 +47,70 @@ function shortenPath(path) {
     });
     title = title.filter(Boolean);
     return title.join('/');
+}
+
+/**
+ * Normalize a catalog folder path for the Location column.
+ * Strips URI schemes and media-root labels (Assets/Media); keeps directory path only.
+ * @param {String} location
+ * @returns {String}
+ */
+function formatLocationDisplay(location) {
+    if (location === null || typeof location === 'undefined' || location === '') {
+        return '';
+    }
+    let path = String(location).trim().replace(/\\/g, '/');
+    if (!path) {
+        return '';
+    }
+
+    // Drop URI schemes (taomedia://…, https://…, asset://…)
+    path = path.replace(/^[a-z][a-z0-9+.-]*:\/\//i, '');
+    // Residual host/path from http(s) after scheme strip
+    if (path.indexOf('/') > 0 && /^[^/]+\.[^/]+\//.test(path)) {
+        path = path.slice(path.indexOf('/'));
+    }
+
+    const segments = path.replace(/^\/+|\/+$/g, '').split('/').filter(Boolean);
+    if (!segments.length) {
+        return '/';
+    }
+
+    // Directory path only: drop trailing filename-like segment
+    const last = segments[segments.length - 1];
+    if (segments.length > 1 && /\.[a-z0-9]{1,8}$/i.test(last)) {
+        segments.pop();
+    }
+
+    // Strip media-tree root label prefix (Assets, Media, …)
+    const rootLabels = ['assets', 'media', 'mediamanager'];
+    if (segments.length && rootLabels.indexOf(segments[0].toLowerCase()) !== -1) {
+        segments.shift();
+    }
+
+    return segments.length ? `/${segments.join('/')}` : '/';
+}
+
+/**
+ * Format updatedAt as a fixed UTC date-time (YYYY-MM-DD HH:mm).
+ * @param {String} value
+ * @returns {String}
+ */
+function formatUpdatedAtUtc(value) {
+    if (!value) {
+        return '';
+    }
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+        return String(value);
+    }
+    const pad = function (n) {
+        return String(n).padStart(2, '0');
+    };
+    return (
+        `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())} ` +
+        `${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}`
+    );
 }
 
 function isTextLarger($element, text) {
@@ -70,12 +136,20 @@ export default function (options) {
     let disableUpload = options.disableUpload || false;
     let $container = options.$target;
     let $fileSelector = $('.file-selector', $container);
-    let $fileContainer = $('.files', $fileSelector);
+    let $filesWrapper = $('.files-wrapper', $fileSelector);
+    let $fileContainer = $('.files-list', $fileSelector);
     let $placeholder = $('.empty', $fileSelector);
     let $uploader = $('.file-upload-container', $fileSelector);
     let parentSelector = `#${$container.attr('id')} .file-selector`;
     let $pathTitle = $fileSelector.find('h1 > .title');
-    let $browserTitle = $('.file-browser > h1', $container);
+    let $browserTitle = $('.file-browser > h1.resources-title', $container);
+    if (!$browserTitle.length) {
+        $browserTitle = $('.file-browser > h1', $container);
+    }
+    let searchMode = false;
+    let initialSelectionApplied = false;
+    let sort = Object.assign({}, DEFAULT_SORT);
+    let lastFiles = [];
 
     //set up the uploader
     if (disableUpload) {
@@ -84,16 +158,19 @@ export default function (options) {
     } else {
         setUpUploader(root);
     }
+
+    $container.on(`searchmode.${ns}`, function (e, enabled) {
+        searchMode = !!enabled;
+        $fileSelector.toggleClass('search-mode', searchMode);
+    });
+
     //update current folder
     $container.on(`folderselect.${ns}`, function (e, fullPath, data, activePath, content) {
         let files;
 
-        data = data.map(function (dataItem) {
-            if (Array.isArray(dataItem.permissions)) {
-                updatePermissions(dataItem);
-            }
-            return dataItem;
-        });
+        if (searchMode) {
+            return;
+        }
 
         //update title
         if ($container[0].querySelector('.upload')) {
@@ -108,28 +185,43 @@ export default function (options) {
 
         //update content here
         if (_.isArray(data)) {
-            files = _.filter(data, function (item) {
+            files = _.filter(data.map(ensurePermissions), function (item) {
                 return !!item.uri;
             }).map(function (file) {
-                file.type = mimeType.getFileType(file);
-                if (typeof file.identifier === 'undefined') {
-                    file.display = `${fullPath}/${file.name}`.replace('//', '/');
-                } else {
-                    file.display = file.identifier + file.name;
-                }
-
-                file.viewUrl = `${options.downloadUrl}?${$.param(options.params)}&${
-                    options.pathParam
-                }=${encodeURIComponent(file.uri)}`;
-                file.downloadUrl = `${file.viewUrl}&svgzsupport=true`;
-                return file;
+                return prepareFileForDisplay(file, fullPath, activePath);
             });
 
-            updateFiles(fullPath, files);
+            updateFiles(files);
+            applyInitialSelection();
+        }
+    });
 
-            if (activePath) {
-                $(`li[data-file="${activePath}"]`).trigger('click');
-            }
+    // Render scoped search results from the service as-is (no client MIME/auth filtering).
+    $container.on(`searchresults.${ns}`, function (e, result) {
+        const items = (result && result.items) || [];
+        const files = items
+            .filter(function (item) {
+                return item && !!item.uri;
+            })
+            .map(function (file) {
+                return prepareFileForDisplay(ensureSearchPermissions(file), result.path || '', result.path);
+            });
+
+        $pathTitle.text(__('Search results'));
+        updateFiles(files);
+
+        if (!(result && result.error)) {
+            applyInitialSelection(result && result.initialSelection);
+        }
+    });
+
+    // Reopen resolve (AC3): allow preselect again after folder reload via folderselect.
+    $container.on(`applycontext.${ns}`, function (e, ctx) {
+        initialSelectionApplied = false;
+        options.initialSelection = ctx && ctx.selection ? ctx.selection : null;
+        options.currentAssetItem = ctx && ctx.currentAssetItem ? ctx.currentAssetItem : null;
+        if (!options.initialSelection) {
+            $fileContainer.find('tr.active').removeClass('active');
         }
     });
 
@@ -139,16 +231,180 @@ export default function (options) {
         }`;
     }
 
+    /**
+     * Normalize ACL flags unless they are already a boolean permission map.
+     * @param {Object} item
+     * @returns {Object}
+     */
+    function ensurePermissions(item) {
+        if (item.permissions && !Array.isArray(item.permissions) && typeof item.permissions === 'object') {
+            return item;
+        }
+        return updatePermissions(item);
+    }
+
+    /**
+     * Search results often omit ACL (indexed gateway). Missing/empty ACL must stay pickable
+     * (read/preview/download) without inventing write/delete/upload. Explicit ACL arrays and
+     * boolean maps are preserved / mapped via updatePermissions.
+     * @param {Object} item
+     * @returns {Object}
+     */
+    function ensureSearchPermissions(item) {
+        if (!item) {
+            return item;
+        }
+        if (item.permissions && !Array.isArray(item.permissions) && typeof item.permissions === 'object') {
+            return item;
+        }
+        if (!item.permissions || (Array.isArray(item.permissions) && item.permissions.length === 0)) {
+            item.permissions = {
+                read: true,
+                write: false,
+                preview: true,
+                download: true,
+                upload: false,
+                delete: false
+            };
+            return item;
+        }
+        return updatePermissions(item);
+    }
+
+    /**
+     * Map a service file record to the selector display model.
+     * @param {Object} file
+     * @param {String} fullPath
+     * @param {String} [folderPath]
+     * @returns {Object}
+     */
+    function prepareFileForDisplay(file, fullPath, folderPath) {
+        file.type = mimeType.getFileType(file);
+        if (typeof file.identifier === 'undefined') {
+            file.display = `${fullPath}/${file.name}`.replace('//', '/');
+        } else {
+            file.display = file.identifier + file.name;
+        }
+
+        file.viewUrl = `${options.downloadUrl}?${$.param(options.params)}&${
+            options.pathParam || 'path'
+        }=${encodeURIComponent(file.uri)}`;
+        file.downloadUrl = `${file.viewUrl}&svgzsupport=true`;
+        if (!file.location) {
+            file.location = folderPath || fullPath || '';
+        }
+        file.locationDisplay = formatLocationDisplay(file.location);
+        file.updatedAtDisplay = formatUpdatedAtUtc(file.updatedAt);
+        return file;
+    }
+
+    /**
+     * Sync sort classes and aria-sort on table headers.
+     */
+    function applySortHeader() {
+        $fileSelector.find('.files thead th[data-sort-by]').each(function () {
+            const $th = $(this);
+            const field = $th.attr('data-sort-by');
+            $th.removeClass('sorted sorted_asc sorted_desc');
+            if (field === sort.field) {
+                $th.addClass('sorted').addClass(sort.direction === 'desc' ? 'sorted_desc' : 'sorted_asc');
+                $th.attr('aria-sort', sort.direction === 'desc' ? 'descending' : 'ascending');
+            } else {
+                $th.attr('aria-sort', 'none');
+            }
+        });
+    }
+
+    /**
+     * Apply a column click to sort state and notify listeners.
+     * @param {String} field
+     */
+    function changeSort(field) {
+        if (!field) {
+            return;
+        }
+        if (field === sort.field) {
+            sort = {
+                field,
+                direction: sort.direction === 'asc' ? 'desc' : 'asc'
+            };
+        } else {
+            sort = {
+                field,
+                direction: 'asc'
+            };
+        }
+        applySortHeader();
+        if (lastFiles.length) {
+            updateFiles(lastFiles);
+        }
+        $container.trigger(`sortchange.${ns}`, [Object.assign({}, sort)]);
+    }
+
+    /**
+     * Preselect initialSelection once when the matching row is present.
+     * When resolve returned a currentAssetItem missing from the page, inject it.
+     * @param {String} [selection]
+     */
+    function applyInitialSelection(selection) {
+        const target = selection || options.initialSelection;
+        if (!target || initialSelectionApplied) {
+            return;
+        }
+        let $item = $fileContainer.find('tr').filter(function () {
+            return $(this).attr('data-file') === String(target);
+        });
+        if (!$item.length && options.currentAssetItem && String(options.currentAssetItem.uri) === String(target)) {
+            const injected = prepareFileForDisplay(
+                ensurePermissions(Object.assign({}, options.currentAssetItem)),
+                options.currentAssetItem.location || '',
+                options.currentAssetItem.location || ''
+            );
+            updateFiles([injected].concat(lastFiles || []));
+            $item = $fileContainer.find('tr').filter(function () {
+                return $(this).attr('data-file') === String(target);
+            });
+        }
+        if ($item.length) {
+            initialSelectionApplied = true;
+            $item.first().trigger('click');
+        }
+    }
+
+    applySortHeader();
+
+    $(parentSelector)
+        .off('click.resourcemgr', '.files thead th[data-sort-by]')
+        .on('click.resourcemgr', '.files thead th[data-sort-by]', function (e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            changeSort($(this).attr('data-sort-by'));
+        })
+        .off('keydown.resourcemgr', '.files thead th[data-sort-by]')
+        .on('keydown.resourcemgr', '.files thead th[data-sort-by]', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                changeSort($(this).attr('data-sort-by'));
+            }
+        });
+
     //listen for file activation
     $(parentSelector)
-        .off('click', '.files li')
-        .on('click', '.files li', function (e) {
+        .off('click', ROW_SELECTOR)
+        .on('click', ROW_SELECTOR, function (e) {
+            if ($(e.target).closest('.row-actions').length) {
+                return;
+            }
+            if ($(e.target).closest('a.select, a.download, a.delete').length) {
+                return;
+            }
             const clickedItem = e.target;
             if (clickedItem.hasAttribute('data-delete') || $(clickedItem).hasClass('icon-bin')) {
                 return;
             }
             let $selected = $(this);
-            let $files = $('.files > li', $fileSelector);
+            let $files = $(ROW_SELECTOR, $fileSelector);
             let data = _.clone($selected.data());
             if (
                 options.resourceMetadataUrl
@@ -168,10 +424,10 @@ export default function (options) {
 
     //select a file
     $(parentSelector)
-        .off('click', '.files li a.select')
-        .on('click', '.files li a.select', function (e) {
+        .off('click', `${ROW_SELECTOR} a.select`)
+        .on('click', `${ROW_SELECTOR} a.select`, function (e) {
             e.preventDefault();
-            let data = _.pick($(this).parents('li').data(), ['file', 'type', 'mime', 'size', 'alt']);
+            let data = _.pick($(this).closest('tr').data(), ['file', 'type', 'mime', 'size', 'alt']);
             if (context.mediaSources && context.mediaSources.length === 0 && data.file.indexOf('local/') > -1) {
                 data.file = data.file.substring(6);
             }
@@ -180,8 +436,8 @@ export default function (options) {
 
     //delete a file
     $(parentSelector)
-        .off('click', '.files li a.delete')
-        .on('click', '.files li a.delete', function (e) {
+        .off('click', `${ROW_SELECTOR} a.delete`)
+        .on('click', `${ROW_SELECTOR} a.delete`, function (e) {
             // This function replaces ui/deleter and must follow the same logic.
             // The main difference is that it insert a confirmation dialog before deleting the file.
             e.preventDefault();
@@ -190,7 +446,7 @@ export default function (options) {
                 return;
             }
 
-            const $target = $elt.closest('li');
+            const $target = $elt.closest('tr');
             const path = $target.data('file');
             const hooks = [];
 
@@ -219,7 +475,7 @@ export default function (options) {
             params = {};
         if (e.namespace === 'deleter' && $target.length) {
             path = $target.data('file');
-            params[options.pathParam] = path;
+            params[options.pathParam || 'path'] = path;
             $.getJSON(options.deleteUrl, _.merge(params, options.params), function (response) {
                 if (response.deleted) {
                     $container.trigger(`filedelete.${ns}`, [path]);
@@ -237,7 +493,9 @@ export default function (options) {
             $container.trigger(`filenew.${ns}`, [result, currentPath]);
         });
         $uploader.on('fail.uploader', function (e, file, err) {
-            errors.push(__('Unable to upload file %s : %s', file.name, err.message));
+            errors.push(
+                __('Unable to upload file %s : %s', _.escape(file && file.name), _.escape(err && err.message))
+            );
         });
 
         $uploader.on('end.uploader', function () {
@@ -253,11 +511,11 @@ export default function (options) {
         $uploader.uploader({
             upload: true,
             multiple: true,
-            uploadUrl: `${options.uploadUrl}?${$.param(options.params)}&${options.pathParam}=${currentPath}`,
+            uploadUrl: `${options.uploadUrl}?${$.param(options.params)}&${options.pathParam || 'path'}=${currentPath}`,
             fileSelect: function (files, done) {
                 let givenLength = files.length;
                 let fileNames = [];
-                $fileContainer.find('li > .desc').each(function () {
+                $fileContainer.find('.desc').each(function () {
                     fileNames.push($(this).text().toLowerCase());
                 });
 
@@ -297,7 +555,7 @@ export default function (options) {
                             let pathParam = `${currentPath}/${file.name}`;
                             pathParam.replace('//', '/');
                             $.getJSON(
-                                `${options.fileExistsUrl}?${$.param(options.params)}&${options.pathParam}=${pathParam}`,
+                                `${options.fileExistsUrl}?${$.param(options.params)}&${options.pathParam || 'path'}=${pathParam}`,
                                 function (response) {
                                     if (response && response.exists === true) {
                                         //eslint-disable-next-line no-alert
@@ -324,7 +582,7 @@ export default function (options) {
             currentPath = uri;
             $uploader.uploader('options', {
                 uploadUrl: `${options.uploadUrl}?${$.param(options.params)}&${
-                    options.pathParam
+                    options.pathParam || 'path'
                 }=${currentPath}&relPath=${currentPath}`
             });
         });
@@ -333,13 +591,15 @@ export default function (options) {
             if (!enableUploadMode) {
                 isUploadMode = false;
                 $uploader.hide();
+                $filesWrapper.show();
                 $fileContainer.show();
                 // Note: show() would display as inline, not inline-block!
                 $switcher.filter('.upload').css({ display: 'inline-block' });
                 $switcher.filter('.listing').hide();
-                $browserTitle.text(__('Browse folders:'));
+                $browserTitle.text(__('Resources'));
             } else {
                 isUploadMode = true;
+                $filesWrapper.hide();
                 $fileContainer.hide();
                 $placeholder.hide();
                 $uploader.show();
@@ -363,17 +623,30 @@ export default function (options) {
         setUploadMode(isUploadMode);
     }
 
-    function updateFiles(path, files) {
+    function updateFiles(files) {
+        lastFiles = Array.isArray(files) ? files.slice() : [];
+        const sorted = sortAssetItems(lastFiles, sort);
         $fileContainer.empty();
-        if (files.length) {
+        if (sorted.length) {
             $placeholder.hide();
+            $filesWrapper.show();
             $fileContainer.append(
                 fileSelectTpl({
-                    files: files
+                    files: sorted
                 })
             );
-        } else if ($fileContainer.css('display') !== 'none') {
-            $placeholder.show();
+            $fileContainer.find('a.download').each(function () {
+                this.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                });
+            });
+        } else if ($fileSelector.find('.asset-search-error:not([hidden])').length === 0) {
+            $filesWrapper.hide();
+            // Stylesheet defaults `.empty` to display:none; force visible for empty states.
+            $placeholder.css('display', 'block');
+        } else {
+            $filesWrapper.hide();
+            $placeholder.hide();
         }
     }
 }

@@ -11,27 +11,36 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * Foundation, Inc., 31 Milk St # 960789 Boston, MA 02196 USA.
  *
- * Copyright (c) 2018-2020 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2018-2026 (original work) Open Assessment Technologies SA;
  */
 import $ from 'jquery';
 import _ from 'lodash';
-import request from 'core/request';
 import paginationComponent from 'ui/pagination';
 import rootFolderTpl from 'ui/resourcemgr/tpl/rootFolder';
 import folderTpl from 'ui/resourcemgr/tpl/folder';
+import loggerFactory from 'core/logger';
 import updatePermissions from './util/updatePermissions';
+import { DEFAULT_SORT, sortAssetItems } from 'ui/resourcemgr/assetSearchContract';
 
-const ns = 'resourcemgr';
+const NS = 'resourcemgr';
+const LOGGER = loggerFactory(`ui/${NS}`);
+const DEFAULT_AJAX_TIMEOUT_MS = 10000;
 
 export default function (options) {
+    if (!options.browseUrl && options.url) {
+        options.browseUrl = options.url;
+    }
+
     const root = options.root || 'local';
     const rootPath = options.path || '/';
+    const initialPath = options.initialPath || rootPath;
     const $container = options.$target;
     const $fileBrowser = $('.file-browser .file-browser-wrapper', $container);
     const $divContainer = $(`.${root}`, $fileBrowser);
     const $folderContainer = $('.folders', $divContainer);
+    const $paginationContainer = $('.pagination-bottom', $container);
     const fileTree = {};
     // for pagination
     let selectedClass = {
@@ -40,9 +49,57 @@ export default function (options) {
         total: 0,
         page: 1
     };
+    let searchMode = false;
+    let sort = Object.assign({}, DEFAULT_SORT);
+    const ajaxTimeoutMs = Number.isFinite(Number(options.ajaxTimeoutMs)) && Number(options.ajaxTimeoutMs) > 0
+        ? Number(options.ajaxTimeoutMs)
+        : DEFAULT_AJAX_TIMEOUT_MS;
+
+    $container.on(`searchmode.${NS}`, function (e, enabled) {
+        searchMode = !!enabled;
+    });
+
+    $container.on(`sortchange.${NS}`, function (e, nextSort) {
+        sort = Object.assign({}, DEFAULT_SORT, nextSort || {});
+        selectedClass.page = 1;
+        invalidateFolderFiles(selectedClass.path);
+        if (searchMode || !isActiveBrowser()) {
+            return;
+        }
+        reloadSortedFolder();
+    });
+
+    $container.on(`searchclear.${NS}`, function (e, path) {
+        const targetPath = path || selectedClass.path;
+        selectedClass.page = 1;
+        invalidateFolderFiles(targetPath);
+        if (!isActiveBrowser()) {
+            return;
+        }
+        const subTree = getByExactPath(fileTree, targetPath) || getByPath(fileTree, targetPath) || fileTree;
+        getFolderContent(subTree, targetPath, function (content) {
+            if (content) {
+                selectFolder(content, targetPath);
+            }
+        });
+    });
+
+    // Reopen with resolved parent (AC3 edit/change): leave search, open folder again.
+    $container.on(`applycontext.${NS}`, function (e, ctx) {
+        const path = (ctx && ctx.path) || rootPath;
+        if (searchMode) {
+            searchMode = false;
+            $container.trigger(`searchmode.${NS}`, [false]);
+        }
+        selectedClass.page = 1;
+        openInitialPath(path);
+    });
 
     //load the content of the ROOT
     getFolderContent(fileTree, rootPath, function (content) {
+        if (!content) {
+            return;
+        }
         indexTree(content);
 
         //create the tree node for the ROOT folder by default once the initial content loaded
@@ -56,16 +113,12 @@ export default function (options) {
         }
         updateFolders(content, $innerList);
 
-        if (content.permissions.read && !options.hasAlreadySelected) {
-            $('.file-browser').find('li.active').removeClass('active');
-            updateSelectedClass(content.path, content.total, content.childrenLimit);
-            $container.trigger('folderselect.'.concat(ns), [
-                content.label,
-                getPage(content.children),
-                content.path,
-                content
-            ]);
-            renderPagination();
+        if (content.permissions && content.permissions.read && !options.hasAlreadySelected) {
+            if (initialPath && initialPath !== rootPath) {
+                openInitialPath(initialPath);
+            } else {
+                selectFolder(content, content.path);
+            }
 
             if (root !== 'local') {
                 options.hasAlreadySelected = true;
@@ -76,6 +129,10 @@ export default function (options) {
     // by clicking on the tree (using a live binding  because content is not complete yet)
     $divContainer.off('click', '.folders a').on('click', '.folders a', function (e) {
         e.preventDefault();
+        // AC2: ignore tree clicks in search mode so `.active` / scopePath stay in sync.
+        if (searchMode) {
+            return;
+        }
         const $selected = $(this);
         const $folders = $('.folders li', $fileBrowser);
         const fullPath = $selected.data('path');
@@ -107,19 +164,12 @@ export default function (options) {
                 $selected.parent('li').addClass('active');
 
                 //internal event to set the file-selector content
-                updateSelectedClass(fullPath, content.total, content.childrenLimit);
-                $container.trigger(`folderselect.${ns}`, [
-                    content.label,
-                    getPage(content.children),
-                    content.path,
-                    content
-                ]);
-                renderPagination();
+                selectFolder(content, fullPath);
             }
         });
     });
 
-    $container.on(`filenew.${ns}`, function (e, file, path) {
+    $container.on(`filenew.${NS}`, function (e, file, path) {
         const subTree = getByPath(fileTree, path);
         if (subTree) {
             if (!subTree.children) {
@@ -141,27 +191,95 @@ export default function (options) {
                 if (selectedClass.path === path) {
                     selectedClass.total = subTree.total;
                 }
-                $container.trigger(`folderselect.${ns}`, [subTree.label, getPage(subTree.children), path, subTree]);
+                $container.trigger(`folderselect.${NS}`, [subTree.label, getPage(subTree.children), path, subTree]);
                 renderPagination();
             }
         }
     });
 
-    $container.on(`filedelete.${ns}`, function (e, path) {
+    $container.on(`filedelete.${NS}`, function (e, path) {
         if (removeFromPath(fileTree, path)) {
             selectedClass.total--;
             loadPage();
         }
     });
+
+    /**
+     * Open and select an initial folder path after the root tree is available.
+     * @param {String} path
+     */
+    function openInitialPath(path) {
+        getFolderContent(fileTree, path, function (content) {
+            indexTree(fileTree);
+            if (!content) {
+                const rootContent = getByPath(fileTree, rootPath) || fileTree;
+                selectFolder(rootContent, rootContent.path || rootPath);
+                return;
+            }
+
+            // Expand ancestors when possible and mark the target active.
+            const $targetLink = $folderContainer.find('a').filter(function () {
+                return $(this).data('path') === path;
+            });
+            if ($targetLink.length) {
+                $targetLink.parents('li').each(function () {
+                    const $li = $(this);
+                    const $anchor = $li.children('a');
+                    const $list = $li.children('ul');
+                    $anchor.addClass('opened');
+                    if ($list.length) {
+                        $list.show();
+                    }
+                });
+                $('.folders li', $fileBrowser).removeClass('active');
+                $targetLink.parent('li').addClass('active');
+            }
+
+            selectFolder(content, path);
+        });
+    }
+
+    /**
+     * Whether this media source currently owns the file table.
+     * @returns {Boolean}
+     */
+    function isActiveBrowser() {
+        return $container.data('activeFileBrowserRoot') === root;
+    }
+
+    /**
+     * Select a folder and publish its page of files to the selector.
+     * @param {Object} content
+     * @param {String} path
+     */
+    function selectFolder(content, path) {
+        if (searchMode || !content) {
+            return;
+        }
+        $container.data('activeFileBrowserRoot', root);
+        updateSelectedClass(path, content.total, content.childrenLimit);
+        $container.trigger(`folderpath.${NS}`, [path, content.label]);
+        $container.trigger(`folderselect.${NS}`, [
+            content.label,
+            getPage(content.children || []),
+            path,
+            content
+        ]);
+        renderPagination();
+    }
+
     /**
      * Get files for page
      * @param {Array} children
      * @returns {Array} files for this page
      */
     function getPage(children) {
-        const files = _.filter(children, function (item) {
-            return !!item.uri;
-        });
+        const files = sortAssetItems(
+            _.filter(children, function (item) {
+                return !!item.uri;
+            }),
+            sort
+        );
         if (selectedClass.childrenLimit) {
             return files.slice(
                 (selectedClass.page - 1) * selectedClass.childrenLimit,
@@ -192,13 +310,22 @@ export default function (options) {
                     tree.empty = true;
                 }
                 cb(data);
+            }).catch(function () {
+                cb(null);
             });
         } else if (content.children) {
             const files = _.filter(content.children, function (item) {
                 return !!item.uri;
             });
-            // if files less then total and need toload this page
-            if (files.length < selectedClass.total && files.length < selectedClass.page * selectedClass.childrenLimit) {
+            // Use folder total (not selectedClass): openInitialPath runs before selectFolder.
+            const expectedTotal = Number(content.total);
+            const pageSize = Number(content.childrenLimit) || selectedClass.childrenLimit || 10;
+            const page = selectedClass.page || 1;
+            if (
+                Number.isFinite(expectedTotal) &&
+                files.length < expectedTotal &&
+                files.length < page * pageSize
+            ) {
                 loadContent(path).then(function (data) {
                     const loadedFiles = _.filter(data.children, function (item) {
                         return !!item.uri;
@@ -208,7 +335,9 @@ export default function (options) {
                         total: data.total,
                         childrenLimit: data.childrenLimit
                     });
-                    content = getByPath(tree, path);
+                    content = getByExactPath(tree, path) || getByPath(tree, path);
+                    cb(content);
+                }).catch(function () {
                     cb(content);
                 });
             } else {
@@ -248,6 +377,29 @@ export default function (options) {
             } else if (tree.children) {
                 _.forEach(tree.children, function (child) {
                     match = getByPath(child, path);
+                    if (match) {
+                        return false;
+                    }
+                });
+            }
+        }
+        return match;
+    }
+
+    /**
+     * Get a subtree by exact path equality.
+     * @param {Object} tree
+     * @param {String} path
+     * @returns {Object|undefined}
+     */
+    function getByExactPath(tree, path) {
+        let match;
+        if (tree) {
+            if (tree.path === path) {
+                match = tree;
+            } else if (tree.children) {
+                _.forEach(tree.children, function (child) {
+                    match = getByExactPath(child, path);
                     if (match) {
                         return false;
                     }
@@ -300,8 +452,11 @@ export default function (options) {
                 return child.path === path || (child.name && tree.path + child.name === path) || child.uri === path;
             });
             done = removed.length > 0;
-            tree.total--;
-            if (!done) {
+            if (done) {
+                tree.total = Number.isFinite(Number(tree.total))
+                    ? Math.max(0, Number(tree.total) - removed.length)
+                    : 0;
+            } else {
                 _.forEach(tree.children, function (child) {
                     done = removeFromPath(child, path);
                     if (done) {
@@ -314,30 +469,81 @@ export default function (options) {
     }
 
     /**
+     * Drop cached file rows for a folder so the next load hits the service
+     * with the current sort. Nested folder nodes are kept.
+     * @param {String} path
+     */
+    function invalidateFolderFiles(path) {
+        const content = getByExactPath(fileTree, path);
+        if (content && Array.isArray(content.children)) {
+            content.children = content.children.filter(function (child) {
+                return child.path && !child.uri;
+            });
+        }
+    }
+
+    /**
+     * Replace a folder node with a freshly loaded payload (files + folders).
+     * @param {String} path
+     * @param {Object} data
+     */
+    function replaceFolderContent(path, data) {
+        const content = getByExactPath(fileTree, path);
+        if (!content || !data) {
+            return;
+        }
+        if (Object.prototype.hasOwnProperty.call(data, 'children')) {
+            content.children = data.children;
+        } else {
+            content.children = [];
+            content.empty = true;
+            content.total = 0;
+        }
+        if (Object.prototype.hasOwnProperty.call(data, 'total')) {
+            content.total = data.total;
+        }
+        if (Object.prototype.hasOwnProperty.call(data, 'childrenLimit')) {
+            content.childrenLimit = data.childrenLimit;
+        }
+        if (data.label) {
+            content.label = data.label;
+        }
+        if (data.path) {
+            content.path = data.path;
+        }
+    }
+
+    /**
      * Get the content of a folder
      * @param {String} path - the folder path
-     * @returns {jQuery.Deferred} the defferred object to run done/complete/fail
+     * @returns {Promise} resolves with folder content
      */
     function loadContent(path) {
         const parameters = {};
-        parameters[options.pathParam] = path;
-        return request({
-            url: options.browseUrl,
-            method: 'GET',
-            dataType: 'json',
-            data: _.merge(parameters, options.params, {
-                childrenOffset: (selectedClass.page - 1) * selectedClass.childrenLimit
-            }),
-            noToken: true
-        })
-            .then(response => response.data)
-            .then(response => {
-                response = updatePermissions(response);
-                if (response.children && response.children.length > 0) {
-                    response.children.map(responseChildren => updatePermissions(responseChildren));
-                }
-                return response;
-            });
+        parameters[options.pathParam || 'path'] = path;
+        return Promise.resolve(
+            $.ajax({
+                url: options.browseUrl,
+                method: 'GET',
+                dataType: 'json',
+                timeout: ajaxTimeoutMs,
+                data: _.merge(parameters, options.params, {
+                    childrenOffset: (selectedClass.page - 1) * selectedClass.childrenLimit,
+                    sortBy: sort.field,
+                    sortDir: sort.direction
+                })
+            })
+        ).then(function (response) {
+            if (response && response.success === false) {
+                return Promise.reject(response);
+            }
+            let data = response && response.data ? response.data : response;
+            data = updatePermissions(data);
+            if (data.children && data.children.length > 0) {
+                data.children.map(responseChildren => updatePermissions(responseChildren));
+            }
+            return data;
+        });
     }
 
     /**
@@ -384,7 +590,9 @@ export default function (options) {
      * Render pagination
      */
     function renderPagination() {
-        const $paginationContainer = $('.pagination-bottom', $container);
+        if (searchMode) {
+            return;
+        }
         const total = Number(selectedClass.total);
         const childrenLimit = Number(selectedClass.childrenLimit);
 
@@ -414,10 +622,29 @@ export default function (options) {
         }
     }
     /**
+     * Re-fetch the current folder with the active sort and publish files.
+     */
+    function reloadSortedFolder() {
+        const path = selectedClass.path;
+        loadContent(path)
+            .then(function (data) {
+                if (!data) {
+                    return;
+                }
+                replaceFolderContent(path, data);
+                const content = getByExactPath(fileTree, path) || data;
+                selectFolder(content, content.path || path);
+            })
+            .catch(function (error) {
+                LOGGER.error(error);
+            });
+    }
+
+    /**
      * Load page
      */
     function loadPage() {
-        const subTree = getByPath(fileTree, selectedClass.path);
+        const subTree = getByPath(fileTree, selectedClass.path) || fileTree;
 
         //get the folder content
         getFolderContent(subTree, selectedClass.path, function (content) {
@@ -425,7 +652,7 @@ export default function (options) {
 
             if (content) {
                 //internal event to set the file-selector content
-                $container.trigger(`folderselect.${ns}`, [content.label, getPage(content.children), content.path]);
+                $container.trigger(`folderselect.${NS}`, [content.label, getPage(content.children), content.path, content]);
             }
         });
     }

@@ -30,7 +30,52 @@
         overflow-y: auto;
         margin: 0 #{$rmSideMargin * 1px};
         height: calc(100% - 40px - 40px - 40px); // full height - h2.padding - h2.height - modal.bottom-padding
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    .asset-search {
+        flex: 0 0 auto;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 5px;
+        border-bottom: 1px solid $uiGeneralContentBorder;
+        background-color: $uiGeneralContentBg;
+
+        &.hidden,
+        &[hidden] {
+            display: none;
+        }
+
+        .asset-search-label {
+            @include font-size(12);
+
+            margin: 0;
+        }
+
+        .asset-search-input {
+            flex: 1 1 160px;
+            min-width: 120px;
+        }
+
+        .asset-search-status {
+            flex: 1 1 100%;
+            @include font-size(12);
+
+            color: #666;
+            min-height: 1.2em;
+        }
+    }
+
+    .file-panels {
         @include flex-container();
+
+        flex: 1 1 auto;
+        min-height: 0;
+        height: 100%;
     }
 
     .file-browser {
@@ -178,74 +223,191 @@
             text-align: center;
         }
 
-        ul.files {
+        .asset-search-loading,
+        .asset-search-error {
+            padding: 10px 5px;
+            text-align: center;
+            @include font-size(14);
+
+            &.hidden,
+            &[hidden] {
+                display: none;
+            }
+        }
+
+        .asset-search-error {
+            color: $error;
+        }
+
+        &.search-mode {
+            .upload-switcher {
+                display: none;
+            }
+        }
+
+        .files-wrapper {
             position: relative;
-            margin-bottom: 0;
-            padding: 0;
-            list-style-type: none;
             flex-grow: 1;
             overflow-y: auto;
-            li {
-                height: 35px;
-                line-height: 35px;
-                margin-bottom: 0;
-                padding: 0 0 0 5px;
-                position: relative;
+            min-height: 0;
+        }
 
-                &:before {
-                    @include tao-icon-setup;
-                    @include icon-document;
-                    @include font-size(16);
-                    vertical-align: top;
-                    line-height: 2.2;
-                    position: absolute;
-                    left: 8px;
-                }
-                &[data-type='image']:before{
-                    @include icon-image;
-                }
-                &[data-type='audio']:before{
-                    @include icon-media;
-                }
-                &[data-type='video']:before{
-                    @include icon-video;
-                }
+        table.files {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+            table-layout: fixed;
 
-                &.active, &:hover {
-                    background-color: $activeColor;
+            thead th {
+                text-align: left;
+                font-weight: bold;
+                padding: 8px 10px;
+                border-bottom: 1px solid $uiGeneralContentBorder;
+                white-space: nowrap;
+                user-select: none;
+
+                &.sortable {
                     cursor: pointer;
+                    position: relative;
+                    padding-right: 24px;
+
+                    &:after {
+                        @include tao-icon-setup;
+                        @include icon-down;
+
+                        position: absolute;
+                        right: 6px;
+                        top: 50%;
+                        margin-top: -7px;
+                        color: $uiClickableActiveBg;
+                        opacity: 0.35;
+                    }
+
+                    &:hover,
+                    &:focus {
+                        &:after {
+                            color: $uiClickableHoverBg;
+                            opacity: 1;
+                        }
+                    }
+                }
+
+                &.sorted.sorted_asc:after {
+                    @include icon-down;
+
+                    opacity: 1;
+                }
+
+                &.sorted.sorted_desc:after {
+                    @include icon-up;
+
+                    opacity: 1;
+                }
+            }
+
+            tbody tr {
+                cursor: pointer;
+
+                &.active,
+                &:hover {
+                    background-color: $activeColor;
+                }
+
+                td {
+                    padding: 8px 10px;
+                    border-bottom: 1px solid $uiGeneralContentBorder;
+                    vertical-align: middle;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+            }
+
+            .files-label {
+                width: 36%;
+
+                .file-icon {
+                    display: inline-block;
+                    width: 18px;
+                    margin-right: 6px;
+                    vertical-align: middle;
+
+                    &:before {
+                        @include tao-icon-setup;
+                        @include icon-document;
+                        @include font-size(16);
+                    }
                 }
 
                 .desc {
                     display: inline-block;
-                    max-width: calc(100% - 130px);// 130 = icon left + toolbar right + some air
-                    margin-left: 25px;
+                    max-width: calc(100% - 28px);
+                    vertical-align: middle;
                 }
+            }
 
-                .actions {
-                    top: 0;
-                    right: 0;
-                    position: absolute;
-                    height: 35px;
-                    width: 100px;
-                    .tlb {
-                        display: inline-block;
-                        background: none;
-                        @include font-size(14);
-                        .tlb-top {
-                            background: none !important;
-                            border-width: 0 !important;
-                            @include box-shadow(0, 0, 0);
-                        }
+            tr[data-type='image'] .file-icon:before {
+                @include icon-image;
+            }
+            tr[data-type='audio'] .file-icon:before {
+                @include icon-media;
+            }
+            tr[data-type='video'] .file-icon:before {
+                @include icon-video;
+            }
+
+            .files-location {
+                width: 32%;
+            }
+
+            .files-updated {
+                width: 32%;
+                position: relative;
+            }
+
+            .meta {
+                @include font-size(12);
+
+                color: #666;
+            }
+
+            .row-actions {
+                display: flex;
+                opacity: 0;
+                pointer-events: none;
+                position: absolute;
+                right: 0;
+                top: 0;
+                height: 100%;
+                padding: 0 8px;
+                align-items: center;
+                background-color: inherit;
+
+                .tlb {
+                    display: inline-block;
+                    background: none;
+                    @include font-size(14);
+
+                    .tlb-top {
+                        background: none !important;
+                        border-width: 0 !important;
+                        @include box-shadow(0, 0, 0);
                     }
                 }
+            }
+
+            tbody tr:hover .row-actions,
+            tbody tr:focus-within .row-actions {
+                opacity: 1;
+                pointer-events: auto;
+                background-color: $activeColor;
             }
         }
         .file-upload-container {
             display: none;
             padding: 0 5px;
         }
-        .pagination-bottom {  
+        .pagination-bottom {
             align-self: flex-end;
             width: 100%;
             padding: 5px 10px 0;
