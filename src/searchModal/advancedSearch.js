@@ -105,7 +105,8 @@ export default function advancedSearchFactory(config) {
             }
 
             const $criteriaIcon = $addCriteria ? $('a span', $addCriteria).eq(0) : $();
-            $criteriaIcon.toggleClass('icon-add').toggleClass('icon-loop');
+            const idleIconClass = $criteriaIcon.hasClass('icon-plus') ? 'icon-plus' : 'icon-add';
+            $criteriaIcon.removeClass('icon-add icon-plus').addClass('icon-loop');
             return request(route)
                 .then(response => {
                     criteriaMapping = response.criteriaMapping || {};
@@ -113,9 +114,10 @@ export default function advancedSearchFactory(config) {
                     const criteria = formatCriteria(classTree);
                     updateCriteria(criteria);
                     isCriteriaListUpdated = true;
-                    $criteriaIcon.toggleClass('icon-add').toggleClass('icon-loop');
+                    $criteriaIcon.removeClass('icon-loop').addClass(idleIconClass);
                 })
                 .catch(e => {
+                    $criteriaIcon.removeClass('icon-loop').addClass(idleIconClass);
                     instance.trigger('error', e);
                     throw e;
                 });
@@ -413,6 +415,7 @@ export default function advancedSearchFactory(config) {
 
     /**
      * Keeps each filter as its own spoiler card: newest expanded, previous collapsed (headers stay visible).
+     * With collapsibleCriteria, newest is prepended (index 0); otherwise newest is last.
      */
     function reorganizeFilterLayout() {
         const $filters = getAllRenderedFilters();
@@ -424,8 +427,9 @@ export default function advancedSearchFactory(config) {
             return;
         }
 
+        const openIndex = config.collapsibleCriteria ? 0 : count - 1;
         $filters.each(function (index) {
-            setFilterSpoilerOpen($(this), index === count - 1);
+            setFilterSpoilerOpen($(this), index === openIndex);
         });
 
         if ($appliedFiltersSummary && $appliedFiltersSummary.length) {
@@ -438,22 +442,23 @@ export default function advancedSearchFactory(config) {
      * @param {number} appliedCount
      */
     function updateAppliedFiltersSummary(appliedCount) {
-        if (!$appliedFiltersSummary || !$appliedFiltersSummary.length) {
-            return;
+        if ($appliedFiltersSummary && $appliedFiltersSummary.length) {
+            if (appliedCount > 0) {
+                $appliedFiltersSummary
+                    .text(getAppliedFiltersSummaryText(appliedCount))
+                    .removeClass('hidden')
+                    .prop('hidden', false);
+            } else {
+                $appliedFiltersSummary.addClass('hidden').prop('hidden', true).text('').attr('aria-expanded', 'false');
+            }
         }
 
-        if (appliedCount > 0) {
-            $appliedFiltersSummary
-                .text(getAppliedFiltersSummaryText(appliedCount))
-                .removeClass('hidden')
-                .prop('hidden', false);
-        } else {
-            $appliedFiltersSummary.addClass('hidden').prop('hidden', true).text('').attr('aria-expanded', 'false');
-        }
+        instance.trigger('criteriachange', { count: appliedCount });
     }
 
     /**
      * Toggles expand/collapse for all filters except the newest one.
+     * With collapsibleCriteria (prepend), newest is first; otherwise newest is last.
      */
     function togglePreviousFilters() {
         const $filters = getAllRenderedFilters();
@@ -461,7 +466,7 @@ export default function advancedSearchFactory(config) {
             return;
         }
 
-        const $previous = $filters.slice(0, -1);
+        const $previous = config.collapsibleCriteria ? $filters.slice(1) : $filters.slice(0, -1);
         const anyOpen = $previous.filter(function () {
             return $(this).find('.filter-spoiler').first().hasClass('is-open');
         }).length > 0;
@@ -492,7 +497,11 @@ export default function advancedSearchFactory(config) {
             templateToUse = listCheckboxCriterionTpl;
         }
 
-        $advancedCriteriaContainer.append(templateToUse({ criterion }));
+        if (config.collapsibleCriteria) {
+            $advancedCriteriaContainer.prepend(templateToUse({ criterion }));
+        } else {
+            $advancedCriteriaContainer.append(templateToUse({ criterion }));
+        }
 
         const $criterionContainer = $(`.${criterion.id}-filter`, $container);
         const valueMapping = criteriaMapping[criterion.type];
@@ -657,12 +666,15 @@ export default function advancedSearchFactory(config) {
         $toggle.on('click', function (e) {
             e.preventDefault();
             const $spoilerEl = $criterionContainer.find('.filter-spoiler').first();
-            const open = $spoilerEl.toggleClass('is-open').hasClass('is-open');
-            $(this).attr('aria-expanded', open);
-            $spoilerEl
-                .find('.filter-spoiler-icon')
-                .toggleClass('icon-up', open)
-                .toggleClass('icon-down', !open);
+            const willOpen = !$spoilerEl.hasClass('is-open');
+            if (willOpen && config.collapsibleCriteria) {
+                getAllRenderedFilters().each(function () {
+                    if (this !== $criterionContainer.get(0)) {
+                        setFilterSpoilerOpen($(this), false);
+                    }
+                });
+            }
+            setFilterSpoilerOpen($criterionContainer, willOpen);
         });
     }
 

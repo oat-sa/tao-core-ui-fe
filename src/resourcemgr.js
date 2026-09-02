@@ -8,6 +8,7 @@ import fileSelector from 'ui/resourcemgr/fileSelector';
 import feedback from 'ui/feedback';
 import layout from 'ui/resourcemgr/tpl/layout';
 import urlUtil from 'util/url';
+import __ from 'i18n';
 import 'ui/modal';
 import 'ui/resourcemgr/css/resourcemgr.css';
 
@@ -98,7 +99,15 @@ var resourceMgr = {
                     $elt.trigger('close.' + ns);
                 });
 
-                that._resolveCurrentAssetContext(options).always(function(resolvedOptions) {
+                options.contextToken = 1;
+                const initToken = options.contextToken;
+                $elt.data(dataNs, options);
+
+                that._resolveCurrentAssetContext(options, initToken).always(function(resolvedOptions) {
+                    const current = $elt.data(dataNs);
+                    if (!current || current.contextToken !== initToken) {
+                        return;
+                    }
                     options = resolvedOptions;
                     $elt.data(dataNs, options);
                     // coderabbit: ignored — create/open must follow _startBrowsers so the modal is not empty; ajaxTimeoutMs already bounds context resolution
@@ -150,8 +159,9 @@ var resourceMgr = {
         const token = stored.contextToken;
         $elt.data(dataNs, stored);
 
-        that._resolveCurrentAssetContext(stored).always(function(resolved) {
-            if (resolved.contextToken !== token) {
+        that._resolveCurrentAssetContext(stored, token).always(function(resolved) {
+            const current = $elt.data(dataNs);
+            if (!current || current.contextToken !== token) {
                 return;
             }
             $elt.data(dataNs, resolved);
@@ -181,10 +191,14 @@ var resourceMgr = {
     /**
      * Resolve currentAsset via browse/search endpoint into initialPath/initialSelection.
      * @param {Object} options
+     * @param {number} [expectedToken] - contextToken that must still match before mutating options
      * @returns {Promise}
      */
-    _resolveCurrentAssetContext: function(options) {
+    _resolveCurrentAssetContext: function(options, expectedToken) {
         const deferred = $.Deferred();
+        const isStale = function() {
+            return expectedToken != null && options.contextToken !== expectedToken;
+        };
         if (!options.currentAsset || (!options.browseUrl && !options.searchUrl)) {
             deferred.resolve(options);
             return deferred.promise();
@@ -205,6 +219,10 @@ var resourceMgr = {
             data: params
         })
             .done(function(response) {
+                if (isStale()) {
+                    deferred.resolve(options);
+                    return;
+                }
                 const payload = response && response.data ? response.data : response;
                 if (payload && payload.parentPath) {
                     options.initialPath = payload.parentPath;
@@ -219,12 +237,16 @@ var resourceMgr = {
                 deferred.resolve(options);
             })
             .fail(function() {
+                if (isStale()) {
+                    deferred.resolve(options);
+                    return;
+                }
                 // AC6: keep RM usable without selection; surface recoverable feedback.
                 options.initialSelection = null;
                 options.currentAssetItem = null;
                 if (options.$target && options.$target.length) {
                     feedback(options.$target).warning(
-                        'Unable to resolve the current asset. You can still browse and select another file.'
+                        __('Unable to resolve the current asset. You can still browse and select another file.')
                     );
                 }
                 deferred.resolve(options);
@@ -285,7 +307,8 @@ var resourceMgr = {
                 layout({
                     title: options.title || '',
                     className: options.className || '',
-                    assetSearchInputId: options.targetId + '-asset-search'
+                    assetSearchInputId: options.targetId + '-asset-search',
+                    assetSearchBodyId: options.targetId + '-asset-search-body'
                 })
             );
 

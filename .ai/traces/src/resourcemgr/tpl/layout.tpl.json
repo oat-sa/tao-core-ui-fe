@@ -1,0 +1,69 @@
+{
+  "file": "src/resourcemgr/tpl/layout.tpl",
+  "generatedAt": "2026-09-02T12:44:58.095Z",
+  "status": "current",
+  "functions": [
+    {
+      "name": "asset-search-left-pane",
+      "lines": "8-30",
+      "codeHash": "aut-4665-layout-search-left",
+      "reasoning": [
+        "Поиск и фильтры перенесены в левую колонку (.file-browser) по approved UX AUT-4665 — мокап показывает Search / Add filter / Clear all / Search над деревом Resources.",
+        "Mount .asset-search-filters принимает ui/searchModal/advancedSearch без форка шаблонов criteria.",
+        "Кнопки Search и Clear all — primary trigger как в searchModal; debounce по input сохранён для PoC-тестов.",
+        "Заголовок Resources отделён от mid-панели Assets; spoiler File Properties/Actions убраны — Type/Size/Download/Select всегда видны."
+      ],
+      "alternativesConsidered": [
+        {
+          "option": "keep-full-width-search-spoiler",
+          "status": "rejected",
+          "reason": "не совпадает с approved mockup AUT-4665"
+        },
+        {
+          "option": "fork-add-criteria-templates",
+          "status": "rejected",
+          "reason": "дублирование advancedSearch; переиспользуем готовый компонент"
+        }
+      ],
+      "constraints": [
+        "Контракт select.resourcemgr и searchUrl/browse без регрессии AUT-4664",
+        "UI поиска opt-in через options.searchUrl"
+      ],
+      "dependencies": [
+        "src/resourcemgr/assetSearch.js",
+        "src/searchModal/advancedSearch.js",
+        "src/resourcemgr/scss/resourcemgr.scss"
+      ],
+      "edgeCases": [
+        "Без searchUrl весь блок .asset-search остаётся hidden"
+      ]
+    },
+    {
+      "name": "asset-search-chrome-u8-u12",
+      "lines": "10-48",
+      "codeHash": "269f16a38f251647400f3c4cca9b5efe85d8c229c877c3d00200c30924b9c435",
+      "reasoning": [
+        "Header/toggle/scope/applied-count вне collapsible body — видны при collapse (U8–U11)."
+      ],
+      "alternativesConsidered": [
+        {
+          "option": "scope внутри body",
+          "status": "rejected",
+          "reason": "исчезнет при collapse"
+        }
+      ],
+      "constraints": [
+        "Search expanded by default (aria-expanded true)"
+      ],
+      "dependencies": [
+        "src/resourcemgr/assetSearch.js"
+      ],
+      "edgeCases": []
+    }
+  ],
+  "moduleLevel": {
+    "reasoning": [],
+    "constraints": []
+  },
+  "fileHash": "269f16a38f251647400f3c4cca9b5efe85d8c229c877c3d00200c30924b9c435"
+}

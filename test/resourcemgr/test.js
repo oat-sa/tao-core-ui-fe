@@ -1703,6 +1703,219 @@ define([
         $('#outside-container .resourcemgr').trigger('select.resourcemgr');
     });
 
+    QUnit.module('AUT-4665 U8–U12 search chrome', {
+        beforeEach: function () {
+            advancedSearchEnabled = true;
+            clearDom();
+            mockAdvancedSearchApis();
+            mockBrowse();
+        },
+        afterEach: clearDom
+    });
+
+    QUnit.test('U8/U9 scope line updates with folder and subfolders phrase', function (assert) {
+        const ready = assert.async();
+        assert.expect(7);
+        const safety = window.setTimeout(function () {
+            assert.ok(false, 'timed out waiting for scope line updates');
+            ready();
+        }, 8000);
+
+        const $launcher = $('#launcher');
+        $launcher.on('create.resourcemgr', function () {
+            const $modal = $('#outside-container .resourcemgr');
+            const started = Date.now();
+
+            (function waitRootScope() {
+                const $scopeName = $modal.find('.asset-search-scope-name');
+                const $subfolders = $modal.find('.asset-search-scope-subfolders');
+                const label = String($scopeName.text() || '').trim();
+                const subfoldersVisible =
+                    $subfolders.length &&
+                    !$subfolders.is('[hidden]') &&
+                    !$subfolders.hasClass('hidden');
+                if (label === 'Media' && subfoldersVisible) {
+                    assert.ok($modal.find('.asset-search-scope').length === 1, 'scope line is present');
+                    assert.equal(label, 'Media', 'root folder label is shown');
+                    assert.equal($scopeName.attr('title'), 'Media', 'tooltip carries full folder name');
+                    assert.ok(subfoldersVisible, 'root with child dirs shows subfolders phrase');
+
+                    const $imagesLink = $modal.find('.folders a').filter(function () {
+                        return $(this).data('path') === '/images';
+                    });
+                    assert.ok($imagesLink.length > 0, 'images folder link exists');
+
+                    $modal.one('folderselect.resourcemgr', function () {
+                        window.setTimeout(function () {
+                            window.clearTimeout(safety);
+                            assert.equal(
+                                String($modal.find('.asset-search-scope-name').text()).trim(),
+                                'Images',
+                                'scope label updates on folder click'
+                            );
+                            assert.ok(
+                                $modal.find('.asset-search-scope-subfolders').is('[hidden]') ||
+                                    $modal.find('.asset-search-scope-subfolders').hasClass('hidden'),
+                                'leaf folder omits subfolders phrase'
+                            );
+                            ready();
+                        }, 30);
+                    });
+                    $imagesLink.trigger('click');
+                    return;
+                }
+                if (Date.now() - started > 5000) {
+                    window.clearTimeout(safety);
+                    assert.ok(false, 'scope line did not receive root folder label');
+                    ready();
+                    return;
+                }
+                window.setTimeout(waitRootScope, 20);
+            })();
+        });
+
+        createManager();
+    });
+
+    QUnit.test('U10/U11 collapse toggle and applied filter count exclude text query', function (assert) {
+        const ready = assert.async();
+        assert.expect(8);
+        const safety = window.setTimeout(function () {
+            assert.ok(false, 'timed out waiting for collapse / applied count');
+            ready();
+        }, 8000);
+
+        const $launcher = $('#launcher');
+        $launcher.on('create.resourcemgr', function () {
+            const $modal = $('#outside-container .resourcemgr');
+            const $toggle = $modal.find('.asset-search-toggle');
+            const $search = $modal.find('.asset-search');
+            const $count = $modal.find('.asset-search-applied-count');
+
+            assert.equal($toggle.attr('aria-expanded'), 'true', 'Search is expanded by default');
+            assert.ok(!$search.hasClass('is-collapsed'), 'collapsed class is absent by default');
+
+            $modal.find('.asset-search-input').val('only-text');
+            $toggle.trigger('click');
+            assert.ok($search.hasClass('is-collapsed'), 'header toggle collapses Search');
+            assert.equal($toggle.attr('aria-expanded'), 'false', 'aria-expanded is false when collapsed');
+            assert.ok(
+                $count.hasClass('hidden') || $count.is('[hidden]'),
+                'text query alone does not show applied count'
+            );
+
+            $toggle.trigger('click');
+            assert.ok(!$search.hasClass('is-collapsed'), 'toggle expands Search again');
+
+            const started = Date.now();
+            (function waitReady() {
+                const $addCriteria = $modal.find('.add-criteria-container');
+                const $select = $modal.find('.add-criteria-container select');
+                const optionCount = $select.find('option').filter(function () {
+                    return Boolean($(this).val());
+                }).length;
+
+                if ($addCriteria.length && !$addCriteria.hasClass('disabled') && optionCount > 0) {
+                    $select.select2('val', 'inBothTextParentUri').trigger('change');
+                    $select.select2('val', 'inParentTextUri').trigger('change');
+
+                    window.setTimeout(function () {
+                        assert.equal(
+                            $modal.find('.advanced-criteria-container .filter-container').length,
+                            2,
+                            'two metadata filters are rendered'
+                        );
+                        $toggle.trigger('click');
+                        window.clearTimeout(safety);
+                        const countText = String($modal.find('.asset-search-applied-count').text());
+                        assert.ok(
+                            !$modal.find('.asset-search-applied-count').is('[hidden]') &&
+                                !$modal.find('.asset-search-applied-count').hasClass('hidden') &&
+                                /2/.test(countText) &&
+                                /applied/i.test(countText),
+                            'collapsed header shows metadata filter count, got: ' + countText
+                        );
+                        ready();
+                    }, 50);
+                    return;
+                }
+                if (Date.now() - started > 5000) {
+                    window.clearTimeout(safety);
+                    assert.ok(false, 'Add filter did not become ready');
+                    ready();
+                    return;
+                }
+                window.setTimeout(waitReady, 20);
+            })();
+        });
+
+        createManager();
+    });
+
+    QUnit.test('U12 new filters prepend and only one expands at a time', function (assert) {
+        const ready = assert.async();
+        assert.expect(5);
+        const safety = window.setTimeout(function () {
+            assert.ok(false, 'timed out waiting for filter accordion behaviour');
+            ready();
+        }, 8000);
+
+        const $launcher = $('#launcher');
+        $launcher.on('create.resourcemgr', function () {
+            const $modal = $('#outside-container .resourcemgr');
+            const started = Date.now();
+
+            (function waitReady() {
+                const $addCriteria = $modal.find('.add-criteria-container');
+                const $select = $modal.find('.add-criteria-container select');
+                const optionCount = $select.find('option').filter(function () {
+                    return Boolean($(this).val());
+                }).length;
+
+                if ($addCriteria.length && !$addCriteria.hasClass('disabled') && optionCount > 0) {
+                    $select.select2('val', 'inBothTextParentUri').trigger('change');
+                    $select.select2('val', 'inParentTextUri').trigger('change');
+
+                    window.setTimeout(function () {
+                        const $filters = $modal.find('.advanced-criteria-container > .filter-container');
+                        assert.equal($filters.length, 2, 'two filters rendered');
+                        assert.ok(
+                            $filters.first().hasClass('inParentTextUri-filter'),
+                            'newest filter is prepended at the top'
+                        );
+                        assert.ok(
+                            $filters.first().find('.filter-spoiler').hasClass('is-open'),
+                            'newest filter is expanded'
+                        );
+                        assert.ok(
+                            !$filters.eq(1).find('.filter-spoiler').hasClass('is-open'),
+                            'older filter is collapsed'
+                        );
+
+                        $filters.eq(1).find('.filter-spoiler-toggle').trigger('click');
+                        window.clearTimeout(safety);
+                        assert.ok(
+                            $filters.eq(1).find('.filter-spoiler').hasClass('is-open') &&
+                                !$filters.first().find('.filter-spoiler').hasClass('is-open'),
+                            'opening one filter collapses the other'
+                        );
+                        ready();
+                    }, 50);
+                    return;
+                }
+                if (Date.now() - started > 5000) {
+                    window.clearTimeout(safety);
+                    assert.ok(false, 'Add filter did not become ready');
+                    ready();
+                    return;
+                }
+                window.setTimeout(waitReady, 20);
+            })();
+        });
+
+        createManager();
+    });
+
     QUnit.module('Destroy', {
         beforeEach: clearDom,
         afterEach: clearDom

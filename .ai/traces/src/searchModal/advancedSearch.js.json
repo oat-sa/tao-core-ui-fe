@@ -1,0 +1,48 @@
+{
+  "file": "src/searchModal/advancedSearch.js",
+  "generatedAt": "2026-09-02T12:44:58.059Z",
+  "status": "current",
+  "functions": [
+    {
+      "name": "initAddCriteriaSelector.click",
+      "lines": "266-290",
+      "codeHash": "aut-4665-no-empty-select2-open",
+      "reasoning": [
+        "Открывать select2 только при наличии option с value: иначе после updateCriteria с пустым metadata появлялся только #select2-drop-mask без списка.",
+        "Прежний guard (!isCriteriaListUpdated && !hasOptions) пропускал open когда список уже «обновлён», но пуст."
+      ],
+      "alternativesConsidered": [
+        {
+          "option": "open-always-after-updated-flag",
+          "status": "rejected",
+          "reason": "пустая маска select2 без критериев"
+        }
+      ]
+    },
+    {
+      "name": "renderCriterion",
+      "lines": "485-540",
+      "codeHash": "2760d76a62889a00ac6024b256a047f61cb466a9c28398ddaae3d76324fcf384",
+      "reasoning": [
+        "U12: при collapsibleCriteria prepend + accordion; Content Bank (flag off) остаётся append."
+      ],
+      "alternativesConsidered": [
+        {
+          "option": "менять CB поведение",
+          "status": "rejected",
+          "reason": "регрессия Advanced Search"
+        }
+      ],
+      "constraints": [
+        "Только gated by collapsibleCriteria"
+      ],
+      "dependencies": [
+        "src/resourcemgr/assetSearch.js"
+      ],
+      "edgeCases": [
+        "criteriachange эмитится из updateAppliedFiltersSummary"
+      ]
+    }
+  ],
+  "fileHash": "2760d76a62889a00ac6024b256a047f61cb466a9c28398ddaae3d76324fcf384"
+}

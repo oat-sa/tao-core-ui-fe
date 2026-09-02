@@ -1,0 +1,75 @@
+{
+  "file": "src/resourcemgr/scss/resourcemgr.scss",
+  "generatedAt": "2026-08-25T14:36:00.000Z",
+  "status": "current",
+  "functions": [
+    {
+      "name": "asset-search-left-pane-styles",
+      "lines": "95-180",
+      "codeHash": "aut-4665-scss-search-left",
+      "reasoning": [
+        "Левая колонка flex-column: поиск сверху, Resources, дерево с flex-grow — высота дерева больше не calc(100%-50px).",
+        "Стили .asset-search-field с icon-find и кнопок Clear all / Search соответствуют мокапу.",
+        "Вложенные override для .advanced-search-container уменьшают padding/max-height под узкую колонку RM.",
+        "Правила .row-actions (opacity 0 → 1 на tr:hover/focus-within) сохранены без изменений — регрессия AUT-4664/UX."
+      ],
+      "alternativesConsidered": [
+        {
+          "option": "restyle-row-actions-always-visible",
+          "status": "rejected",
+          "reason": "ломает привычное hover-поведение иконок строки"
+        }
+      ],
+      "constraints": [
+        "После правок SCSS нужен build:scss",
+        "Не менять hit-area и pointer-events логику .row-actions"
+      ],
+      "dependencies": [
+        "src/resourcemgr/tpl/layout.tpl",
+        "src/searchModal/css/advancedSearch.css"
+      ],
+      "edgeCases": [
+        "select2 dropdown может выходить за колонку — класс criteria-dropdown-select2 как в searchModal"
+      ]
+    },
+    {
+      "name": "rm-figma-palette",
+      "lines": "4-69",
+      "codeHash": "aut-4665-rm-palette",
+      "reasoning": [
+        "Локально в .resourcemgr переопределены токены под Figma: dark #222222, light #FFFFFF, mid-gray #DDDFE2, active #286D9C, darkBar #333333 — без смены глобального _colors.scss.",
+        "btn-info внутри RM явно перекрашен в active (Search) и secondary outline (Clear all), т.к. глобальные btn-* компилируются со старым $info.",
+        "Заголовки Resources/Assets/Preview и thead — mid-gray; Search spoiler и filter cards — white; selection/hover — mix(light, active, 90%)."
+      ],
+      "alternativesConsidered": [
+        {
+          "option": "change-global-_colors.scss",
+          "status": "rejected",
+          "reason": "сломает палитру всего TAO UI вне Resource Manager"
+        },
+        {
+          "option": "use-generic-btn-primary-mixin",
+          "status": "rejected",
+          "reason": "mixin недоступен через inc/bootstrap в этом entrypoint — Undefined mixin при build:scss"
+        }
+      ],
+      "constraints": [
+        "Палитра только в скоупе .resourcemgr",
+        "После правок обязателен npm run build:scss"
+      ],
+      "dependencies": [
+        "scss/inc/_colors.scss",
+        "src/resourcemgr/tpl/layout.tpl"
+      ],
+      "edgeCases": [
+        "Pagination Previous/Next — .pagination-bottom .btn-info как текстовые ссылки active, не solid кнопки",
+        "Add file(s) — outline mid-gray, не solid active"
+      ]
+    }
+  ],
+  "moduleLevel": {
+    "reasoning": [],
+    "constraints": []
+  },
+  "fileHash": "aut-4665-rm-palette"
+}

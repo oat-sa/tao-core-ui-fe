@@ -83,6 +83,10 @@ export default function assetSearch(options) {
     const $container = options.$target;
     const $fileSelector = $('.file-selector', $container);
     const $searchRoot = $('.asset-search', $container);
+    const $searchToggle = $('.asset-search-toggle', $searchRoot);
+    const $scopeName = $('.asset-search-scope-name', $searchRoot);
+    const $scopeSubfolders = $('.asset-search-scope-subfolders', $searchRoot);
+    const $appliedCount = $('.asset-search-applied-count', $searchRoot);
     const $input = $('.asset-search-input', $searchRoot);
     const $status = $('.asset-search-status', $searchRoot);
     const $filtersMount = $('.asset-search-filters', $searchRoot);
@@ -102,6 +106,7 @@ export default function assetSearch(options) {
     const maxListSize = options.maxListSize || 5;
 
     let scopePath = options.initialPath || options.path || '/';
+    let scopeLabel = '';
     let query = '';
     let metadata = {};
     let sort = Object.assign({}, DEFAULT_SORT);
@@ -109,6 +114,8 @@ export default function assetSearch(options) {
     let pageSize = DEFAULT_PAGE_SIZE;
     let total = 0;
     let searchMode = false;
+    let searchCollapsed = false;
+    let appliedFilterCount = 0;
     let requestSeq = 0;
     let advancedSearch = null;
     let shortcuts = null;
@@ -119,6 +126,82 @@ export default function assetSearch(options) {
     }
 
     $searchRoot.removeClass('hidden').removeAttr('hidden');
+
+    /**
+     * Whether browse tree content already lists directory children.
+     * Conservative: only true when FE knows dirs exist; omit phrase when unknown/leaf.
+     * @param {Object} [content]
+     * @returns {boolean}
+     */
+    function folderHasSubfolders(content) {
+        if (!content || content.empty === true) {
+            return false;
+        }
+        if (!Array.isArray(content.children)) {
+            return false;
+        }
+        return content.children.some(function (child) {
+            return Boolean(child && child.path);
+        });
+    }
+
+    /**
+     * Render U8/U9 scope line from folder label + optional browse payload.
+     * @param {string} [folderLabel]
+     * @param {Object} [content]
+     */
+    function updateScopeDisplay(folderLabel, content) {
+        if (folderLabel) {
+            scopeLabel = folderLabel;
+        }
+        const label = scopeLabel || scopePath || '/';
+        $scopeName.text(label).attr('title', label);
+        if (folderHasSubfolders(content)) {
+            $scopeSubfolders.removeClass('hidden').removeAttr('hidden');
+        } else if (content !== undefined) {
+            $scopeSubfolders.addClass('hidden').attr('hidden', 'hidden');
+        }
+    }
+
+    /**
+     * Count rendered metadata filter cards (U11 — text query is never included).
+     * @returns {number}
+     */
+    function countRenderedFilters() {
+        return $('.advanced-criteria-container > .filter-container', $filtersMount).not(
+            '.invalid-criteria-warning-container'
+        ).length;
+    }
+
+    /**
+     * Collapsed-header applied-filter count (U11). Text query is never counted.
+     */
+    function updateCollapsedAppliedCount() {
+        appliedFilterCount = countRenderedFilters();
+        if (searchCollapsed && appliedFilterCount > 0) {
+            $appliedCount
+                .text(`${appliedFilterCount} ${__('applied')}`)
+                .removeClass('hidden')
+                .prop('hidden', false);
+        } else {
+            $appliedCount.addClass('hidden').prop('hidden', true).text('');
+        }
+    }
+
+    /**
+     * Expand or collapse the Search section (U10). Session-only; default expanded.
+     * @param {boolean} collapsed
+     */
+    function setSearchCollapsed(collapsed) {
+        searchCollapsed = Boolean(collapsed);
+        $searchRoot.toggleClass('is-collapsed', searchCollapsed);
+        $searchToggle.attr('aria-expanded', searchCollapsed ? 'false' : 'true');
+        $searchToggle
+            .find('.asset-search-chevron')
+            .toggleClass('icon-up', !searchCollapsed)
+            .toggleClass('icon-down', searchCollapsed);
+        updateCollapsedAppliedCount();
+    }
 
     /**
      * Push pending text-criterion DOM values into advancedSearch state
@@ -170,20 +253,29 @@ export default function assetSearch(options) {
 
     $container.on(`opened.modal.${EVENT_NS}`, focusSearchInput);
     focusSearchInput();
+    setSearchCollapsed(false);
+    updateScopeDisplay(scopeLabel || scopePath);
 
-    $container.on(`folderselect.${ns}.${EVENT_NS}`, function (e, label, files, folderPath) {
-        if (searchMode) {
-            return;
-        }
-        scopePath = folderPath || label || scopePath;
-        page = 1;
+    $searchToggle.on(`click.${EVENT_NS}`, function (e) {
+        e.preventDefault();
+        setSearchCollapsed(!searchCollapsed);
     });
 
-    $container.on(`folderpath.${ns}.${EVENT_NS}`, function (e, folderPath) {
-        if (searchMode) {
-            return;
+    $container.on(`folderselect.${ns}.${EVENT_NS}`, function (e, label, files, folderPath, content) {
+        if (!searchMode) {
+            scopePath = folderPath || label || scopePath;
+            page = 1;
         }
-        scopePath = folderPath || scopePath;
+        updateScopeDisplay(label || (content && content.label), content);
+    });
+
+    $container.on(`folderpath.${ns}.${EVENT_NS}`, function (e, folderPath, folderLabel) {
+        if (!searchMode) {
+            scopePath = folderPath || scopePath;
+        }
+        if (folderLabel) {
+            updateScopeDisplay(folderLabel);
+        }
     });
 
     const ajaxTimeoutMs = Number.isFinite(Number(options.ajaxTimeoutMs)) && Number(options.ajaxTimeoutMs) > 0
@@ -279,6 +371,9 @@ export default function assetSearch(options) {
                         setAddFilterReady(false);
                     });
             })
+            .on('criteriachange', function () {
+                updateCollapsedAppliedCount();
+            })
             .on('error', function () {
                 setAddFilterReady(false);
             });
@@ -300,6 +395,7 @@ export default function assetSearch(options) {
         $retry.off(`.${EVENT_NS}`);
         $clearButton.off(`.${EVENT_NS}`);
         $searchButton.off(`.${EVENT_NS}`);
+        $searchToggle.off(`.${EVENT_NS}`);
         if (shortcuts && typeof shortcuts.clear === 'function') {
             shortcuts.clear();
         }
@@ -308,6 +404,8 @@ export default function assetSearch(options) {
             advancedSearch.destroy();
         }
         advancedSearch = null;
+        appliedFilterCount = 0;
+        searchCollapsed = false;
     }
 
     $container.data('assetSearchTeardown', teardown);
@@ -358,6 +456,8 @@ export default function assetSearch(options) {
         }
         query = '';
         metadata = {};
+        appliedFilterCount = 0;
+        updateCollapsedAppliedCount();
         exitSearchMode();
         focusSearchInput();
     }

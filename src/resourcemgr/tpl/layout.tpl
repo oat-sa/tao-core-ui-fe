@@ -4,30 +4,57 @@
 
     <div class="file-wrapper">
 
-        <div class="asset-search hidden" hidden>
-            <label class="asset-search-label" for="{{assetSearchInputId}}">{{__ 'Search'}}</label>
-            <input
-                id="{{assetSearchInputId}}"
-                type="search"
-                class="asset-search-input"
-                placeholder="{{__ 'Search assets'}}"
-                autocomplete="off"
-            />
-            <div class="asset-search-status" role="status" aria-live="polite"></div>
-        </div>
-
         <div class="file-panels">
-            <!-- left section: items selection -->
+            <!-- left section: search, filters, folder tree -->
             <section class="file-browser">
-                <h1>{{__ 'Browse resources'}}</h1>
+                <div class="asset-search hidden" hidden>
+                    <div class="asset-search-header">
+                        <button
+                            type="button"
+                            class="asset-search-toggle"
+                            aria-expanded="true"
+                            aria-controls="{{assetSearchBodyId}}"
+                        >
+                            <h1 class="asset-search-title">{{__ 'Search'}}</h1>
+                            <span class="asset-search-chevron icon-up" aria-hidden="true"></span>
+                        </button>
+                        <span class="asset-search-applied-count hidden" hidden></span>
+                        <p class="asset-search-scope" aria-live="polite">
+                            <span class="asset-search-scope-prefix">{{__ 'Searching in:'}}</span>
+                            <span class="asset-search-scope-name"></span>
+                            <span class="asset-search-scope-subfolders hidden" hidden>{{__ 'and its subfolders'}}</span>
+                        </p>
+                    </div>
+                    <div class="asset-search-body" id="{{assetSearchBodyId}}">
+                        <div class="asset-search-field">
+                            <span class="icon-find" aria-hidden="true"></span>
+                            <label class="asset-search-label" for="{{assetSearchInputId}}">{{__ 'Search by name or label'}}</label>
+                            <input
+                                id="{{assetSearchInputId}}"
+                                type="search"
+                                class="asset-search-input"
+                                placeholder="{{__ 'Search by name or label'}}"
+                                autocomplete="off"
+                            />
+                        </div>
+                        <div class="asset-search-filters"></div>
+                        <div class="asset-search-actions">
+                            <button type="button" class="btn-clear btn-info btn-secondary btn-transparent small asset-search-clear">{{__ 'Clear all'}}</button>
+                            <button type="button" class="btn-search btn-info small asset-search-submit">{{__ 'Search'}}</button>
+                        </div>
+                        <div class="asset-search-status" role="status" aria-live="polite"></div>
+                    </div>
+                </div>
+
+                <h1 class="resources-title">{{__ 'Resources'}}</h1>
                 <div class="file-browser-wrapper"></div>
             </section>
 
-            <!-- test editor  -->
+            <!-- center: asset listing -->
             <section class="file-selector">
 
                 <h1>
-                    <div class="title lft"></div>
+                    <div class="title lft">{{__ 'Assets'}}</div>
                     <div class="upload-switcher rgt">
                         <a href="#" class="btn-info small upload hidden"><span class="icon-add"></span>{{__ 'Add file(s)'}}</a>
                         <a href="#" class="btn-info small listing"><span class="icon-undo"></span>{{__ 'Back to listing'}}</a>
@@ -80,8 +107,6 @@
                     <p class="nopreview"></p>
                 </div>
 
-                <h2 class="toggler" data-toggle="~ .file-properties">{{__ 'File Properties'}}</h2>
-
                 <div class="file-properties">
 
                     <div class="grid-row">
@@ -101,17 +126,13 @@
                     <div class="grid-row prop-url">
                         <div class="actions">
                             <a href="#" download="" target="_blank" class="tlb-button-off download hidden" title="{{__ 'Download this file'}}">
-                                <button class="btn-info small">
-                                    <span class="icon-download"></span>{{__ 'Download this file'}}
-                                </button>
+                                <span class="icon-download"></span>{{__ 'Download this file'}}
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <h2 class="toggler" data-toggle="~ .actions">{{__ 'Actions'}}</h2>
-
-                <div class="actions">
+                <div class="actions select-actions">
                     <button class="btn-success select-action small" disabled>
                         <span class="icon-move-item"></span>{{__ 'Select'}}
                     </button>

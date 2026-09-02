@@ -2,9 +2,25 @@
 
 /* tooltip */
 .resourcemgr {
+    // Figma Resource Manager palette (Insert Media modal)
+    $rmDark: #222222;
+    $rmLight: #ffffff;
+    $rmMidGray: #dddfe2;
+    $rmActive: #286d9c;
+    $rmDarkBar: #333333;
 
-    $activeColor:  whiten($uiClickableHoverBg, 0.9);
-    $rmBrowserWidth: 260;
+    // Remap shared tokens for this modal only
+    $textColor: $rmDark;
+    $uiGeneralContentBg: $rmLight;
+    $uiGeneralContentBorder: $rmMidGray;
+    $uiHeaderBg: $rmMidGray;
+    $uiClickableDefaultBg: $rmLight;
+    $info: $rmActive;
+    $uiClickableHoverBg: $rmActive;
+    $uiClickableActiveBg: $rmActive;
+    $darkBar: $rmDarkBar;
+    $activeColor: mix($rmLight, $rmActive, 90%);
+    $rmBrowserWidth: 280;
     $rmPreviewWidth: 300;
     $rmMaxContainerWidth: 1400;
     $rmSideMargin: 40;
@@ -12,18 +28,70 @@
     width: 90%;
     height: 100%;
     max-width: $rmMaxContainerWidth * 1px;
+    color: $textColor;
+    background-color: $uiGeneralContentBg;
+    border-color: $uiGeneralContentBorder;
 
     #mediaManager &.modal {
         max-height: 700px;
         top: 40px !important;
         bottom: 40px;
         padding: 0;
+        border: 1px solid $uiGeneralContentBorder;
+        background-color: $uiGeneralContentBg;
+        border-radius: 0;
     }
 
     & > h2 {
         @include font-size(15);
         margin: 20px 40px 10px;
         height: 40px;
+        color: $textColor;
+    }
+
+    // Align global btn-info with Figma active blue inside RM
+    .btn-info {
+        color: $rmLight;
+        background-color: $rmActive;
+        border: 1px solid $rmActive;
+        text-shadow: none;
+        box-shadow: none;
+
+        &:hover,
+        &:focus,
+        &:active {
+            color: $rmLight;
+            background-color: $rmActive;
+            border-color: $rmActive;
+            text-shadow: none;
+            box-shadow: none;
+            opacity: 0.9;
+        }
+
+        &.btn-secondary,
+        &.btn-transparent {
+            color: $rmActive;
+            background-color: $rmLight;
+            border: 1px solid $rmActive;
+            text-shadow: none;
+            box-shadow: none;
+
+            &:hover,
+            &:focus,
+            &:active {
+                color: $rmActive;
+                background-color: $rmLight;
+                border-color: $rmActive;
+                text-shadow: none;
+                box-shadow: none;
+                opacity: 0.9;
+            }
+        }
+    }
+
+    .btn-success {
+        text-shadow: none;
+        box-shadow: none;
     }
 
     .file-wrapper {
@@ -33,41 +101,6 @@
         display: flex;
         flex-direction: column;
         min-height: 0;
-    }
-
-    .asset-search {
-        flex: 0 0 auto;
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 5px;
-        border-bottom: 1px solid $uiGeneralContentBorder;
-        background-color: $uiGeneralContentBg;
-
-        &.hidden,
-        &[hidden] {
-            display: none;
-        }
-
-        .asset-search-label {
-            @include font-size(12);
-
-            margin: 0;
-        }
-
-        .asset-search-input {
-            flex: 1 1 160px;
-            min-width: 120px;
-        }
-
-        .asset-search-status {
-            flex: 1 1 100%;
-            @include font-size(12);
-
-            color: #666;
-            min-height: 1.2em;
-        }
     }
 
     .file-panels {
@@ -80,6 +113,9 @@
 
     .file-browser {
         @include simple-flex-box($rmBrowserWidth * 1px);
+
+        // Keep select2 criteria dropdown usable (appended near control / body)
+        overflow: visible;
     }
 
     .file-preview {
@@ -96,24 +132,27 @@
         vertical-align: top;
         height: 100% !important;
         color: $textColor;
+        border-radius: 0;
 
         h1 {
             @include font-size(16);
             line-height: 1.6;
 
             color: $textColor;
-            margin-top: 1px;
-            padding: 5px;
+            margin: 0;
+            padding: 8px 10px;
+            border-radius: 0;
         }
         h2 {
             @include font-size(13);
             line-height: 1.3;
             background-color: $uiHeaderBg;
             color: $textColor;
-            margin-top: 1px;
+            margin: 0;
             padding: 6px;
             position: relative;
             clear: both;
+            border-radius: 0;
 
             &.toggler{
                 cursor: pointer;
@@ -128,13 +167,505 @@
 
     .file-browser{
         background-color: $uiClickableDefaultBg;
-        & > h1 {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+
+        & > h1.resources-title {
             background-color: $uiHeaderBg;
+            flex: 0 0 auto;
+        }
+
+        .asset-search {
+            flex: 0 1 auto;
+            max-height: 55%;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            color: $textColor;
+            padding: 0;
+            border-bottom: 1px solid $uiGeneralContentBorder;
+            background-color: $uiGeneralContentBg;
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
+
+            &.hidden,
+            &[hidden] {
+                display: none;
+            }
+
+            &.is-collapsed {
+                max-height: none;
+                overflow: visible;
+
+                .asset-search-body {
+                    display: none;
+                }
+            }
+        }
+
+        .asset-search-header {
+            flex: 0 0 auto;
+            background-color: $uiHeaderBg;
+            padding: 0 0 8px;
+        }
+
+        .asset-search-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            margin: 0;
+            padding: 8px 10px;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            color: $textColor;
+            cursor: pointer;
+            text-align: left;
+            text-shadow: none;
+            box-shadow: none;
+
+            &:hover,
+            &:active {
+                background: transparent;
+                text-shadow: none;
+                box-shadow: none;
+            }
+
+            &:focus {
+                outline: 1px dotted $darkBar;
+            }
+        }
+
+        .asset-search-title {
+            @include font-size(16);
+
+            display: inline;
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            color: $textColor;
+            line-height: 1.6;
+            flex: 1 1 auto;
+        }
+
+        .asset-search-chevron {
+            @include font-size(12);
+
+            flex: 0 0 auto;
+            margin-left: 8px;
+            line-height: 1;
+        }
+
+        .asset-search-applied-count {
+            @include font-size(12);
+
+            display: inline-block;
+            margin: 0 10px 6px;
+            color: lighten($textColor, 25%);
+            font-weight: normal;
+
+            &.hidden,
+            &[hidden] {
+                display: none;
+            }
+        }
+
+        .asset-search-scope {
+            @include font-size(12);
+
+            display: flex;
+            align-items: baseline;
+            gap: 0.25em;
+            margin: 0 10px;
+            min-width: 0;
+            color: lighten($textColor, 25%);
+            line-height: 1.4;
+        }
+
+        .asset-search-scope-prefix {
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
+
+        .asset-search-scope-name {
+            flex: 0 1 auto;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: $textColor;
+            font-weight: bold;
+        }
+
+        .asset-search-scope-subfolders {
+            flex: 0 0 auto;
+            white-space: nowrap;
+
+            &.hidden,
+            &[hidden] {
+                display: none;
+            }
+        }
+
+        .asset-search-body {
+            flex: 1 1 auto;
+            min-height: 0;
+            padding: 12px;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .asset-search-field {
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 0;
+        }
+
+        .asset-search-field .icon-find {
+            position: absolute;
+            left: 10px;
+            color: lighten($textColor, 40%);
+            pointer-events: none;
+
+            @include font-size(14);
+        }
+
+        .asset-search-input {
+            width: 100%;
+            height: 32px;
+            padding: 6px 10px 6px 30px;
+            border: 1px solid $uiGeneralContentBorder;
+            border-radius: 2px;
+            background-color: $uiGeneralContentBg;
+            box-sizing: border-box;
+
+            &:focus {
+                border-color: $info;
+                outline: none;
+            }
+        }
+
+        .asset-search-label {
+            @include visuallyHidden;
+        }
+
+        .asset-search-filters {
+            margin-top: 8px;
+            overflow: visible;
+            position: relative;
+            z-index: 3;
+        }
+
+        .asset-search .advanced-search-container {
+            padding: 0;
+        }
+
+        .asset-search .add-criteria-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            position: relative;
+            padding: 0;
+            margin: 8px 0 0;
+            min-height: 24px;
+        }
+
+        .asset-search .add-criteria-container a.toggle-modal-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin: 0;
+            padding: 0;
+            color: $info;
+            text-decoration: none;
+            font-weight: normal;
+            line-height: 1;
+            vertical-align: middle;
+
+            @include font-size(13);
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+
+        .asset-search .add-criteria-container .icon-plus,
+        .asset-search .add-criteria-container .icon-add {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            flex: 0 0 auto;
+            margin: 0;
+
+            @include font-size(12);
+
+            &:before {
+                line-height: 1;
+                vertical-align: middle;
+            }
+        }
+
+        .asset-search .applied-filters-summary {
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            height: auto;
+            padding: 0;
+            margin: 0;
+            color: lighten($textColor, 40%);
+            cursor: pointer;
+            font-weight: normal;
+            line-height: 1;
+            text-shadow: none;
+            box-shadow: none;
+
+            @include font-size(12);
+
+            &:not(.hidden)::before {
+                content: '\00b7';
+                display: inline-block;
+                margin: 0 6px;
+                color: lighten($textColor, 55%);
+            }
+
+            &.hidden {
+                display: none;
+            }
+
+            &:hover,
+            &:active {
+                color: $textColor;
+                text-decoration: underline;
+                background: transparent;
+                text-shadow: none;
+                box-shadow: none;
+            }
+
+            &:focus {
+                outline: 1px dotted $darkBar;
+            }
+        }
+
+        .asset-search .criteria-select2 {
+            visibility: hidden;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: calc(100% - 8px);
+        }
+
+        .asset-search .advanced-criteria-container {
+            padding-right: 0;
+            max-height: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .asset-search .filter-container {
+            margin-bottom: 0;
+            position: relative;
+        }
+
+        .asset-search .filter-spoiler-wrapper {
+            padding: 0;
+            border: 0;
+            background: transparent;
+        }
+
+        .asset-search .filter-spoiler {
+            border: 1px solid $uiGeneralContentBorder;
+            border-radius: 2px;
+            background: $uiGeneralContentBg;
+            overflow: hidden;
+        }
+
+        .asset-search .filter-spoiler.is-open .filter-spoiler-body {
+            display: block;
+        }
+
+        .asset-search .filter-spoiler.is-open .filter-spoiler-header {
+            border-bottom: 1px solid $uiGeneralContentBorder;
+        }
+
+        .asset-search .filter-spoiler:not(.is-open) .filter-spoiler-body {
+            display: none;
+        }
+
+        .asset-search .filter-spoiler:not(.is-open) .filter-spoiler-header {
+            border-bottom: 0;
+        }
+
+        .asset-search .filter-spoiler-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            background-color: $uiGeneralContentBg;
+        }
+
+        .asset-search .filter-spoiler-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex: 1 1 auto;
+            min-width: 0;
+            height: auto;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            color: $textColor;
+            font-weight: bold;
+            line-height: 1.3;
+            text-align: left;
+            text-shadow: none;
+            box-shadow: none;
+            cursor: pointer;
+
+            &:focus {
+                outline: 1px dotted $darkBar;
+            }
+
+            &:hover,
+            &:active {
+                background: transparent;
+                text-shadow: none;
+                box-shadow: none;
+            }
+        }
+
+        .asset-search .filter-spoiler-title {
+            @include font-size(13);
+
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            text-shadow: none;
+        }
+
+        .asset-search .filter-spoiler-icon {
+            @include font-size(11);
+
+            flex: 0 0 auto;
+            margin-left: 8px;
+            color: $textColor;
+            text-shadow: none;
+            line-height: 1;
+        }
+
+        .asset-search .filter-spoiler-delete {
+            flex: 0 0 auto;
+            height: auto;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            color: lighten($textColor, 40%);
+            cursor: pointer;
+            line-height: 1;
+            text-shadow: none;
+            box-shadow: none;
+            opacity: 0;
+
+            @include font-size(14);
+
+            &:hover,
+            &:active {
+                color: $textColor;
+                background: transparent;
+                text-shadow: none;
+                box-shadow: none;
+            }
+
+            &:focus {
+                outline: 1px dotted $darkBar;
+                opacity: 1;
+            }
+        }
+
+        .asset-search .filter-spoiler-header:hover .filter-spoiler-delete,
+        .asset-search .filter-spoiler-header:focus-within .filter-spoiler-delete {
+            opacity: 1;
+        }
+
+        .asset-search .filter-spoiler-body {
+            padding: 10px;
+        }
+
+        .asset-search .filter-spoiler-body > label > .filter-label-text,
+        .asset-search .filter-spoiler-body > .criterion-container > .filter-label-text,
+        .asset-search .filter-spoiler-body > fieldset > legend {
+            @include visuallyHidden;
+        }
+
+        .asset-search .logic-radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 12px;
+            margin: 0 0 8px;
+        }
+
+        .asset-search .logic-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin: 0;
+            font-weight: normal;
+            white-space: nowrap;
+
+            @include font-size(12);
+
+            input[type='radio'] {
+                accent-color: $info;
+            }
+        }
+
+        .asset-search .filter-spoiler-body .select2-container {
+            width: 100% !important;
+        }
+
+        .asset-search .filter-spoiler-body .select2-choices {
+            min-height: 30px;
+            border-radius: 2px;
+        }
+
+        .asset-search .filter-spoiler-body input[type='text'] {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .asset-search-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .asset-search-actions .asset-search-clear,
+        .asset-search-actions .asset-search-submit {
+            margin: 0;
+        }
+
+        .asset-search-status {
+            @include font-size(12);
+
+            color: lighten($textColor, 25%);
+            min-height: 1.2em;
+            margin-top: 6px;
         }
 
         & .file-browser-wrapper {
             overflow: auto;
-            height: calc(100% - 50px);
+            flex: 1 1 auto;
+            min-height: 0;
         }
 
         ul {
@@ -175,7 +706,30 @@
         }
 
         .file-properties{
-            padding: 0 5px;
+            padding: 8px 10px;
+
+            .grid-row {
+                margin-bottom: 6px;
+            }
+
+            .prop-url .actions {
+                text-align: left;
+                margin: 8px 0 0;
+
+                a.download {
+                    text-decoration: none;
+                    color: $info;
+
+                    .icon-download {
+                        margin-right: 4px;
+                    }
+
+                    &:hover {
+                        text-decoration: underline;
+                        color: $info;
+                    }
+                }
+            }
         }
 
         .previewer {
@@ -183,15 +737,15 @@
             overflow: hidden;
         }
 
-        .actions {
+        .actions.select-actions {
             text-align: center;
-            margin-bottom: 10px;
+            margin: 12px 0 16px;
         }
     }
 
     .file-selector{
         position: relative;
-        border: solid 1px #fff;
+        border: solid 1px $uiGeneralContentBorder;
         border-top: none;
         border-bottom: none;
         display: flex;
@@ -200,7 +754,7 @@
         background-color: $uiGeneralContentBg;
         & > h1 {
             position: relative;
-            background-color: $uiClickableDefaultBg;
+            background-color: $uiHeaderBg;
 
             .title {
                 margin-right: 10px;
@@ -213,14 +767,32 @@
                 .listing {
                     display:none;
                 }
+
+                a.btn-info {
+                    color: $textColor;
+                    background-color: $uiGeneralContentBg;
+                    border: 1px solid $uiGeneralContentBorder;
+
+                    &:hover,
+                    &:focus,
+                    &:active {
+                        color: $textColor;
+                        background-color: $uiGeneralContentBg;
+                        border-color: $uiGeneralContentBorder;
+                        opacity: 1;
+                    }
+                }
             }
         }
 
         .empty {
-            color: #666;
+            display: none;
+            color: lighten($textColor, 25%);
             font-style: italic;
             @include font-size(18);
+
             text-align: center;
+            padding: 24px 10px;
         }
 
         .asset-search-loading,
@@ -263,6 +835,8 @@
                 font-weight: bold;
                 padding: 8px 10px;
                 border-bottom: 1px solid $uiGeneralContentBorder;
+                background-color: transparent;
+                color: $textColor;
                 white-space: nowrap;
                 user-select: none;
 
@@ -368,7 +942,7 @@
             .meta {
                 @include font-size(12);
 
-                color: #666;
+                color: lighten($textColor, 25%);
             }
 
             .row-actions {
@@ -411,6 +985,42 @@
             align-self: flex-end;
             width: 100%;
             padding: 5px 10px 0;
+
+            .pagination .pages > li > a,
+            .pagination .pages > li > button,
+            .btn-info {
+                color: $info;
+                background-color: transparent;
+                border-color: transparent;
+                text-shadow: none;
+                box-shadow: none;
+
+                &:hover,
+                &:focus {
+                    color: $info;
+                    text-decoration: underline;
+                }
+            }
+
+            .pagination .pages > .disabled > a,
+            .pagination .pages > .disabled > span,
+            .pagination .pages > .disabled > button,
+            .btn-info[disabled],
+            .btn-info.disabled {
+                color: lighten($textColor, 40%);
+                cursor: not-allowed;
+                text-decoration: none;
+            }
         }
     }
+}
+
+// select2 dropdown/mask are appended to body. Item creator sets
+// body/#mediaManager > .modal { z-index: 105002 } — stay above that.
+.criteria-dropdown-select2 {
+    z-index: 105100 !important;
+}
+
+#select2-drop-mask {
+    z-index: 105090 !important;
 }
