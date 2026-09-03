@@ -155,6 +155,46 @@ define([
         });
     });
 
+    QUnit.test('sanitizes XSS in node labels', function (assert) {
+        var ready = assert.async();
+        var $container = $('#qunit-fixture');
+        var xssNodes = {
+            total: 2,
+            offset: 0,
+            limit: 25,
+            nodes: [
+                {
+                    uri: 'http://example.test/item-safe',
+                    label: 'Safe <b>label</b>'
+                },
+                {
+                    uri: 'http://example.test/item-xss',
+                    label: 'Evil <script>window.__resourceListXss=1</script><img src=x onerror="window.__resourceListXss=1">'
+                }
+            ]
+        };
+
+        assert.expect(5);
+        window.__resourceListXss = 0;
+
+        resourceListFactory($container, {
+            classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
+            nodes: xssNodes
+        }).on('render', function () {
+            var $element = this.getElement();
+            var $safe = $('[data-uri="http://example.test/item-safe"]', $element);
+            var $xss = $('[data-uri="http://example.test/item-xss"]', $element);
+
+            assert.equal($xss.length, 1, 'XSS-labeled node is still rendered');
+            assert.equal($('script', $element).length, 0, 'Script tags are removed from labels');
+            assert.equal($('img[onerror]', $element).length, 0, 'Event-handler attributes are removed from labels');
+            assert.ok($safe.text().indexOf('Safe') !== -1, 'Benign label text is preserved');
+            assert.equal(window.__resourceListXss, 0, 'XSS payloads in labels do not execute');
+
+            ready();
+        });
+    });
+
     QUnit.test('query/update', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');

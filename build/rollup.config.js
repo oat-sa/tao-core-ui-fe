@@ -139,7 +139,7 @@ export default inputs.map(input => {
                         '@babel/env',
                         {
                             useBuiltIns: false,
-                            include: ['@babel/plugin-proposal-object-rest-spread']
+                            include: ['@babel/plugin-transform-object-rest-spread']
                         }
                     ]
                 ]
