@@ -158,6 +158,15 @@ define([
     QUnit.test('sanitizes XSS in node labels', function (assert) {
         var ready = assert.async();
         var $container = $('#qunit-fixture');
+        var sentinelId = 'resource-list-xss-sentinel';
+        var $sentinel = $('<div/>', { id: sentinelId }).appendTo($container);
+        var xssPayload =
+            'Evil <script>document.getElementById("' +
+            sentinelId +
+            '").setAttribute("data-xss","1")</script>' +
+            '<img src=x onerror="document.getElementById(\'' +
+            sentinelId +
+            '\').setAttribute(\'data-xss\',\'1\')">';
         var xssNodes = {
             total: 2,
             offset: 0,
@@ -169,13 +178,12 @@ define([
                 },
                 {
                     uri: 'http://example.test/item-xss',
-                    label: 'Evil <script>window.__resourceListXss=1</script><img src=x onerror="window.__resourceListXss=1">'
+                    label: xssPayload
                 }
             ]
         };
 
         assert.expect(5);
-        window.__resourceListXss = 0;
 
         resourceListFactory($container, {
             classUri: 'http://www.tao.lu/Ontologies/TAOItem.rdf#Item',
@@ -189,7 +197,7 @@ define([
             assert.equal($('script', $element).length, 0, 'Script tags are removed from labels');
             assert.equal($('img[onerror]', $element).length, 0, 'Event-handler attributes are removed from labels');
             assert.ok($safe.text().indexOf('Safe') !== -1, 'Benign label text is preserved');
-            assert.equal(window.__resourceListXss, 0, 'XSS payloads in labels do not execute');
+            assert.equal($sentinel.attr('data-xss'), undefined, 'XSS payloads in labels do not execute');
 
             ready();
         });

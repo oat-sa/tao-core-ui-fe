@@ -34,7 +34,13 @@ const production = process.env.NODE_ENV === 'production';
 
 /**
  * Support of handlebars 1.3.0
- * TODO remove once migrated to hbs >= 3.0.0
+ *
+ * Approved exception (RFE-2192 / RFE-2199): keep the direct `handlebars@1.3.0`
+ * dependency for build-time compilation that stays compatible with the TAO /
+ * `@oat-sa/tao-core-libs` runtime (compiler revision 4). The
+ * `rollup-plugin-handlebars-plus` override pins Handlebars 4.x for the plugin's
+ * nested compiler only and does not replace this runtime-compatible pin.
+ * TODO remove once migrated to hbs >= 3.0.0 across tao-core-ui-fe, tao-core-libs-fe, and TAO views.
  */
 const originalVisitor = Handlebars.Visitor;
 Handlebars.Visitor = function () {
