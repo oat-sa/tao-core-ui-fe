@@ -160,7 +160,7 @@ export default function assetSearch(options) {
         $scopeName.text(label).attr('title', label);
         if (folderHasSubfolders(content)) {
             $scopeSubfolders.removeClass('hidden').removeAttr('hidden');
-        } else if (content !== undefined) {
+        } else {
             $scopeSubfolders.addClass('hidden').attr('hidden', 'hidden');
         }
     }
@@ -655,6 +655,8 @@ export default function assetSearch(options) {
                 }
                 hideLoading();
                 page = 1;
+                total = 0;
+                $paginationContainer.empty();
                 const message = __('Unable to search assets. Please try again.');
                 showError(message);
                 $container.trigger(`searchresults.${ns}`, [

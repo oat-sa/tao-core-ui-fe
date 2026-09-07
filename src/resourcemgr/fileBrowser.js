@@ -466,9 +466,9 @@ export default function (options) {
             });
             done = removed.length > 0;
             if (done) {
-                tree.total = Number.isFinite(Number(tree.total))
-                    ? Math.max(0, Number(tree.total) - removed.length)
-                    : 0;
+                if (Number.isFinite(Number(tree.total))) {
+                    tree.total = Math.max(0, Number(tree.total) - removed.length);
+                }
             } else {
                 _.forEach(tree.children, function (child) {
                     done = removeFromPath(child, path);

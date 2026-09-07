@@ -11,17 +11,16 @@
     $rmActive: #286d9c;
     $rmDarkBar: #333333;
 
-    // Remap shared tokens for this modal only
-    $textColor: $rmDark;
-    $uiGeneralContentBg: $rmLight;
-    $uiGeneralContentBorder: $rmMidGray;
-    $uiHeaderBg: $rmHeaderBg;
-    $uiClickableDefaultBg: $rmLight;
-    $info: $rmActive;
-    $uiClickableHoverBg: $rmActive;
-    $uiClickableActiveBg: $rmActive;
-    $darkBar: $rmDarkBar;
-    $activeColor: mix($rmLight, $rmActive, 90%);
+    // Local palette aliases ($rm*) — do not shadow global theme token names
+    $rmText: $rmDark;
+    $rmSurface: $rmLight;
+    $rmBorder: $rmMidGray;
+    $rmChromeBg: $rmHeaderBg;
+    $rmClickableBg: $rmLight;
+    $rmInfo: $rmActive;
+    $rmClickableHover: $rmActive;
+    $rmClickableActive: $rmActive;
+    $rmActiveRow: mix($rmLight, $rmActive, 90%);
     $rmBrowserWidth: 280;
     $rmPreviewWidth: 300;
     $rmMaxContainerWidth: 1400;
@@ -37,17 +36,17 @@
     width: 90%;
     height: 100%;
     max-width: $rmMaxContainerWidth * 1px;
-    color: $textColor;
-    background-color: $uiGeneralContentBg;
-    border-color: $uiGeneralContentBorder;
+    color: $rmText;
+    background-color: $rmSurface;
+    border-color: $rmBorder;
 
     #mediaManager &.modal {
         max-height: 700px;
         top: 40px !important;
         bottom: 40px;
         padding: 0;
-        border: 1px solid $uiGeneralContentBorder;
-        background-color: $uiGeneralContentBg;
+        border: 1px solid $rmBorder;
+        background-color: $rmSurface;
         border-radius: 0;
     }
 
@@ -55,7 +54,7 @@
         @include font-size(15);
         margin: 20px 40px 10px;
         height: 40px;
-        color: $textColor;
+        color: $rmText;
     }
 
     // Align global btn-info with Figma active blue inside RM
@@ -139,8 +138,8 @@
         // margin - border - padding: side separators only (no top border)
         margin: 0 10px;
         border: 0;
-        border-left: 1px solid $uiGeneralContentBorder;
-        border-right: 1px solid $uiGeneralContentBorder;
+        border-left: 1px solid $rmBorder;
+        border-right: 1px solid $rmBorder;
         padding: 0 10px;
         box-sizing: border-box;
     }
@@ -149,7 +148,7 @@
         position: relative;
         vertical-align: top;
         height: 100% !important;
-        color: $textColor;
+        color: $rmText;
         border-radius: 0;
 
         h1 {
@@ -160,7 +159,7 @@
             align-items: center;
             box-sizing: border-box;
             min-height: $rmPanelChromeMinHeight;
-            color: $textColor;
+            color: $rmText;
             margin: 0;
             padding: $rmPanelChromePadY $rmPanelChromePadX;
             border-radius: $rmHeaderRadius $rmHeaderRadius 0 0;
@@ -168,8 +167,8 @@
         h2 {
             @include font-size(13);
             line-height: 1.3;
-            background-color: $uiHeaderBg;
-            color: $textColor;
+            background-color: $rmChromeBg;
+            color: $rmText;
             margin: 0;
             padding: 6px;
             position: relative;
@@ -188,13 +187,13 @@
     }
 
     .file-browser{
-        background-color: $uiClickableDefaultBg;
+        background-color: $rmClickableBg;
         display: flex;
         flex-direction: column;
         min-height: 0;
 
         & > h1.resources-title {
-            background-color: $uiHeaderBg;
+            background-color: $rmChromeBg;
             flex: 0 0 auto;
             border-radius: $rmHeaderRadius $rmHeaderRadius 0 0;
         }
@@ -208,11 +207,11 @@
             display: flex;
             flex-direction: column;
             min-height: 0;
-            color: $textColor;
+            color: $rmText;
             padding: 0;
             margin: 0 0 16px;
             border: 0;
-            background-color: $uiHeaderBg;
+            background-color: $rmChromeBg;
             overflow: hidden;
             position: relative;
             z-index: 2;
@@ -245,7 +244,7 @@
 
         .asset-search-header {
             flex: 0 0 auto;
-            background-color: $uiHeaderBg;
+            background-color: $rmChromeBg;
             padding: 0;
             border-radius: $rmHeaderRadius $rmHeaderRadius 0 0;
         }
@@ -262,7 +261,7 @@
             border: 0;
             border-radius: 0;
             background: transparent;
-            color: $textColor;
+            color: $rmText;
             cursor: pointer;
             text-align: left;
             text-shadow: none;
@@ -277,14 +276,14 @@
             &:hover,
             &:active {
                 background: transparent;
-                color: $textColor;
+                color: $rmText;
                 opacity: 1;
                 text-shadow: none;
                 box-shadow: none;
             }
 
             &:focus {
-                outline: 1px dotted $darkBar;
+                outline: 1px dotted $rmDarkBar;
             }
         }
 
@@ -295,7 +294,7 @@
             margin: 0;
             padding: 0;
             background: transparent;
-            color: $textColor;
+            color: $rmText;
             line-height: 1.6;
             flex: 0 0 auto;
             white-space: nowrap;
@@ -316,7 +315,7 @@
 
             display: inline-block;
             margin: 0;
-            color: lighten($textColor, 25%);
+            color: lighten($rmText, 25%);
             font-weight: normal;
             // Do not grow — keep count + chevron on the same line as Search.
             flex: 0 1 auto;
@@ -341,7 +340,7 @@
             margin: 0;
             min-width: 0;
             flex: 0 1 auto;
-            color: lighten($textColor, 25%);
+            color: lighten($rmText, 25%);
             line-height: 1.6;
             font-weight: normal;
 
@@ -362,7 +361,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            color: $textColor;
+            color: $rmText;
             font-weight: bold;
         }
 
@@ -384,7 +383,7 @@
             flex-direction: column;
             padding: 14px 12px 16px;
             overflow: hidden;
-            background-color: $uiHeaderBg;
+            background-color: $rmChromeBg;
         }
 
         .asset-search-field {
@@ -398,7 +397,7 @@
         .asset-search-field .icon-find {
             position: absolute;
             left: 10px;
-            color: lighten($textColor, 40%);
+            color: lighten($rmText, 40%);
             pointer-events: none;
 
             @include font-size(14);
@@ -408,13 +407,13 @@
             width: 100%;
             height: 32px;
             padding: 6px 10px 6px 30px;
-            border: 1px solid $uiGeneralContentBorder;
+            border: 1px solid $rmBorder;
             border-radius: $rmControlRadius;
-            background-color: $uiGeneralContentBg;
+            background-color: $rmSurface;
             box-sizing: border-box;
 
             &:focus {
-                border-color: $info;
+                border-color: $rmInfo;
                 outline: none;
             }
         }
@@ -454,7 +453,7 @@
             gap: 4px;
             margin: 0;
             padding: 0;
-            color: $info;
+            color: $rmInfo;
             text-decoration: none;
             font-weight: normal;
             line-height: 1;
@@ -491,7 +490,7 @@
             height: auto;
             padding: 0;
             margin: 0;
-            color: lighten($textColor, 40%);
+            color: lighten($rmText, 40%);
             cursor: pointer;
             font-weight: normal;
             line-height: 1;
@@ -504,7 +503,7 @@
                 content: '\00b7';
                 display: inline-block;
                 margin: 0 6px;
-                color: lighten($textColor, 55%);
+                color: lighten($rmText, 55%);
             }
 
             &.hidden {
@@ -513,7 +512,7 @@
 
             &:hover,
             &:active {
-                color: $textColor;
+                color: $rmText;
                 text-decoration: underline;
                 background: transparent;
                 text-shadow: none;
@@ -521,7 +520,7 @@
             }
 
             &:focus {
-                outline: 1px dotted $darkBar;
+                outline: 1px dotted $rmDarkBar;
             }
         }
 
@@ -553,9 +552,9 @@
         }
 
         .asset-search .filter-spoiler {
-            border: 1px solid $uiGeneralContentBorder;
+            border: 1px solid $rmBorder;
             border-radius: $rmControlRadius;
-            background: $uiGeneralContentBg;
+            background: $rmSurface;
             overflow: hidden;
         }
 
@@ -564,7 +563,7 @@
         }
 
         .asset-search .filter-spoiler.is-open .filter-spoiler-header {
-            border-bottom: 1px solid $uiGeneralContentBorder;
+            border-bottom: 1px solid $rmBorder;
         }
 
         .asset-search .filter-spoiler:not(.is-open) .filter-spoiler-body {
@@ -580,11 +579,11 @@
             align-items: center;
             gap: 8px;
             padding: 10px;
-            background-color: $uiGeneralContentBg;
+            background-color: $rmSurface;
 
             &:hover,
             &:focus-within {
-                background-color: $uiGeneralContentBg;
+                background-color: $rmSurface;
             }
         }
 
@@ -599,7 +598,7 @@
             border: 0;
             border-radius: 0;
             background: transparent;
-            color: $textColor;
+            color: $rmText;
             font-weight: bold;
             line-height: 1.3;
             text-align: left;
@@ -608,7 +607,7 @@
             cursor: pointer;
 
             &:focus {
-                outline: 1px dotted $darkBar;
+                outline: 1px dotted $rmDarkBar;
             }
 
             &:hover,
@@ -639,7 +638,7 @@
             border: 0;
             border-radius: 0;
             background: transparent;
-            color: lighten($textColor, 40%);
+            color: lighten($rmText, 40%);
             cursor: pointer;
             line-height: 1;
             text-shadow: none;
@@ -650,14 +649,14 @@
 
             &:hover,
             &:active {
-                color: $textColor;
+                color: $rmText;
                 background: transparent;
                 text-shadow: none;
                 box-shadow: none;
             }
 
             &:focus {
-                outline: 1px dotted $darkBar;
+                outline: 1px dotted $rmDarkBar;
                 opacity: 1;
             }
         }
@@ -696,7 +695,7 @@
             @include font-size(12);
 
             input[type='radio'] {
-                accent-color: $info;
+                accent-color: $rmInfo;
             }
         }
 
@@ -731,7 +730,7 @@
             border: 0;
             border-radius: 0;
             background: transparent;
-            color: $info;
+            color: $rmInfo;
             cursor: pointer;
             font-weight: normal;
             line-height: 1.4;
@@ -750,7 +749,7 @@
             &:hover,
             &:focus,
             &:active {
-                color: $info;
+                color: $rmInfo;
                 background: transparent;
                 text-decoration: underline;
                 text-shadow: none;
@@ -758,7 +757,7 @@
             }
 
             &:focus {
-                outline: 1px dotted $darkBar;
+                outline: 1px dotted $rmDarkBar;
             }
         }
 
@@ -791,8 +790,8 @@
             &:disabled,
             &[disabled] {
                 color: $rmLight;
-                background-color: lighten($textColor, 55%);
-                border-color: lighten($textColor, 55%);
+                background-color: lighten($rmText, 55%);
+                border-color: lighten($rmText, 55%);
                 cursor: not-allowed;
                 opacity: 1;
                 text-shadow: none;
@@ -802,8 +801,8 @@
                 &:focus,
                 &:active {
                     color: $rmLight;
-                    background-color: lighten($textColor, 55%);
-                    border-color: lighten($textColor, 55%);
+                    background-color: lighten($rmText, 55%);
+                    border-color: lighten($rmText, 55%);
                     opacity: 1;
                 }
             }
@@ -853,7 +852,7 @@
             }
             li {
                 a {
-                    color: $textColor;
+                    color: $rmText;
                     white-space: nowrap;
                     display: inline-flex;
                     align-items: center;
@@ -866,7 +865,7 @@
                     &:focus,
                     &:active {
                         text-decoration: none;
-                        color: $textColor;
+                        color: $rmText;
                     }
 
                     > .tree-toggle,
@@ -879,7 +878,7 @@
 
                     > .tree-toggle {
                         width: 1em;
-                        color: lighten($textColor, 25%);
+                        color: lighten($rmText, 25%);
 
                         &.is-leaf:before,
                         &:not(.icon-right):not(.icon-down):before {
@@ -901,7 +900,7 @@
                 }
 
                 &.active > a {
-                    background-color: $activeColor;
+                    background-color: $rmActiveRow;
 
                 }
             }
@@ -909,9 +908,9 @@
     }
 
     .file-preview{
-        background-color: $uiClickableDefaultBg;
+        background-color: $rmClickableBg;
         & > h1 {
-            background-color: $uiHeaderBg;
+            background-color: $rmChromeBg;
             border-radius: $rmHeaderRadius $rmHeaderRadius 0 0;
         }
 
@@ -928,7 +927,7 @@
 
                 a.download {
                     text-decoration: none;
-                    color: $info;
+                    color: $rmInfo;
 
                     .icon-download {
                         margin-right: 4px;
@@ -936,7 +935,7 @@
 
                     &:hover {
                         text-decoration: underline;
-                        color: $info;
+                        color: $rmInfo;
                     }
                 }
             }
@@ -958,10 +957,10 @@
         display: flex;
         flex-direction: column;
 
-        background-color: $uiGeneralContentBg;
+        background-color: $rmSurface;
         & > h1 {
             position: relative;
-            background-color: $uiHeaderBg;
+            background-color: $rmChromeBg;
             border-radius: $rmHeaderRadius $rmHeaderRadius 0 0;
             // Flex (shared h1) replaces .lft/.rgt floats so "Assets" shares baseline with Search/Preview.
             justify-content: space-between;
@@ -984,16 +983,16 @@
                 }
 
                 a.btn-info {
-                    color: $textColor;
-                    background-color: $uiGeneralContentBg;
-                    border: 1px solid $uiGeneralContentBorder;
+                    color: $rmText;
+                    background-color: $rmSurface;
+                    border: 1px solid $rmBorder;
 
                     &:hover,
                     &:focus,
                     &:active {
-                        color: $textColor;
-                        background-color: $uiGeneralContentBg;
-                        border-color: $uiGeneralContentBorder;
+                        color: $rmText;
+                        background-color: $rmSurface;
+                        border-color: $rmBorder;
                         opacity: 1;
                     }
                 }
@@ -1002,7 +1001,7 @@
 
         .empty {
             display: none;
-            color: lighten($textColor, 25%);
+            color: lighten($rmText, 25%);
             font-style: italic;
             @include font-size(18);
 
@@ -1050,7 +1049,7 @@
                 padding: 12px 12px 10px;
                 border-bottom: 1px solid mix($rmLight, $rmMidGray, 40%);
                 background-color: transparent;
-                color: $textColor;
+                color: $rmText;
                 white-space: nowrap;
                 user-select: none;
 
@@ -1069,7 +1068,7 @@
                             width: 11px;
                             height: 12px;
                             opacity: 0.55;
-                            background-color: $textColor;
+                            background-color: $rmText;
                             -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 14'%3E%3Cpath fill='black' d='M0 1h12v1.5H0zm0 3.5h9v1.5H0zm0 3.5h6v1.5H0z'/%3E%3Cpath fill='black' d='M9.5 8.5L12 12H7z'/%3E%3C/svg%3E")
                                 center / contain no-repeat;
                             mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 14'%3E%3Cpath fill='black' d='M0 1h12v1.5H0zm0 3.5h9v1.5H0zm0 3.5h6v1.5H0z'/%3E%3Cpath fill='black' d='M9.5 8.5L12 12H7z'/%3E%3C/svg%3E")
@@ -1080,7 +1079,7 @@
                     &:hover,
                     &:focus {
                         .sort-label:after {
-                            background-color: $textColor;
+                            background-color: $rmText;
                             opacity: 1;
                         }
                     }
@@ -1102,7 +1101,7 @@
 
                 &.active,
                 &:hover {
-                    background-color: $activeColor;
+                    background-color: $rmActiveRow;
                 }
 
                 td {
@@ -1198,7 +1197,7 @@
             .meta {
                 @include font-size(12);
 
-                color: lighten($textColor, 25%);
+                color: lighten($rmText, 25%);
             }
 
             .row-actions {
@@ -1219,7 +1218,7 @@
                     border: 0;
                     border-radius: 0;
                     background: transparent;
-                    color: lighten($textColor, 40%);
+                    color: lighten($rmText, 40%);
                     text-decoration: none;
                     text-shadow: none;
                     box-shadow: none;
@@ -1230,15 +1229,15 @@
 
                     &:hover,
                     &:active {
-                        color: $textColor;
+                        color: $rmText;
                         background: transparent;
                         text-shadow: none;
                         box-shadow: none;
                     }
 
                     &:focus {
-                        outline: 1px dotted $darkBar;
-                        color: $textColor;
+                        outline: 1px dotted $rmDarkBar;
+                        color: $rmText;
                     }
                 }
             }
@@ -1287,7 +1286,7 @@
                     @include font-size(13);
 
                     flex: 0 1 auto;
-                    color: $textColor;
+                    color: $rmText;
                     font-weight: bold;
                     line-height: 1.4;
                     white-space: nowrap;
@@ -1322,7 +1321,7 @@
             .pagination .pages > .disabled > a,
             .pagination .pages > .disabled > span,
             .pagination .pages > .disabled > button {
-                color: $info !important;
+                color: $rmInfo !important;
                 background: transparent !important;
                 background-color: transparent !important;
                 background-image: none !important;
@@ -1348,7 +1347,7 @@
                 &:hover,
                 &:focus,
                 &:active {
-                    color: $info !important;
+                    color: $rmInfo !important;
                     text-decoration: underline;
                     background: transparent !important;
                     background-color: transparent !important;
@@ -1374,7 +1373,7 @@
             .pagination .btn-info[disabled],
             .pagination .btn-info.disabled,
             .pagination button[disabled] {
-                color: lighten($textColor, 45%) !important;
+                color: lighten($rmText, 45%) !important;
                 cursor: not-allowed !important;
                 text-decoration: none !important;
                 background: transparent !important;
@@ -1389,7 +1388,7 @@
                 &:hover,
                 &:focus,
                 &:active {
-                    color: lighten($textColor, 45%) !important;
+                    color: lighten($rmText, 45%) !important;
                     text-decoration: none !important;
                     background: transparent !important;
                     background-color: transparent !important;
