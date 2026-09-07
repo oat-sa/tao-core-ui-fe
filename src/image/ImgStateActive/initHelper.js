@@ -74,7 +74,7 @@ export const initUpload = function (widget) {
             pathParam: 'path',
             path: options.mediaManager.path,
             root: options.mediaManager.root,
-            currentAsset: $src.val() || undefined,
+            currentAsset: $src.val() || null,
             select: function (e, files) {
                 let file, alt;
                 let confirmBox, cancel, save;

@@ -126,9 +126,9 @@ export function buildMetadataFromCriteriaState(criteriaState) {
         }
         if (criterion.type === 'list' && Array.isArray(criterion.value)) {
             const first = criterion.value.find(function (entry) {
-                return entry !== '' && entry != null;
+                return entry !== '' && entry !== null && typeof entry !== 'undefined';
             });
-            if (first != null && first !== '') {
+            if (typeof first !== 'undefined' && first !== null && first !== '') {
                 metadata[criterion.propertyUri] = String(first);
             }
         }

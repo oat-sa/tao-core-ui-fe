@@ -627,8 +627,8 @@ export default function (options) {
         setUploadMode(isUploadMode);
     }
 
-    function updateFiles(files, options) {
-        const displayOptions = options || {};
+    function updateFiles(files, updateOptions) {
+        const displayOptions = updateOptions || {};
         const emptyLabel = displayOptions.emptyMessage || __('No files');
         lastFiles = Array.isArray(files) ? files.slice() : [];
         const sorted = sortAssetItems(lastFiles, sort);

@@ -151,7 +151,7 @@ var resourceMgr = {
             }
         });
 
-        stored.initialPath = undefined;
+        stored.initialPath = null;
         stored.initialSelection = null;
         stored.currentAssetItem = null;
         stored.contextToken = (stored.contextToken || 0) + 1;
@@ -196,7 +196,7 @@ var resourceMgr = {
     _resolveCurrentAssetContext: function(options, expectedToken) {
         const deferred = $.Deferred();
         const isStale = function() {
-            return expectedToken != null && options.contextToken !== expectedToken;
+            return typeof expectedToken !== 'undefined' && expectedToken !== null && options.contextToken !== expectedToken;
         };
         if (!options.currentAsset || (!options.browseUrl && !options.searchUrl)) {
             deferred.resolve(options);

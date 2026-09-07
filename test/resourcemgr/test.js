@@ -825,7 +825,9 @@ define([
             const started = Date.now();
             (function poll() {
                 const $addCriteria = $modal.find('.add-criteria-container');
-                if ($addCriteria.length && !$addCriteria.hasClass('disabled')) {
+                const hasPlusIcon = $addCriteria.find('a .icon-plus').length === 1;
+                // Wait until ClassMetadata finishes (icon-loop → icon-plus), not only until the control is enabled.
+                if ($addCriteria.length && !$addCriteria.hasClass('disabled') && hasPlusIcon) {
                     window.clearTimeout(safety);
                     assert.ok(
                         /Add filter/i.test($addCriteria.find('a').text()),

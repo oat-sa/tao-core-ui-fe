@@ -217,7 +217,7 @@ export default function assetSearch(options) {
                 summaryText ||
                 (appliedFilterCount === 1
                     ? __('1 filter applied')
-                    : __('%s filters applied', String(appliedFilterCount)));
+                    : __('%s filters applied').replace('%s', String(appliedFilterCount)));
 
             $scope.addClass('hidden').prop('hidden', true);
             $appliedCount.text(countText).removeClass('hidden').prop('hidden', false);

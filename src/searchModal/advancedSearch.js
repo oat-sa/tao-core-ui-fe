@@ -82,7 +82,6 @@ export default function advancedSearchFactory(config) {
     };
 
     let isAdvancedSearchStatusEnabled;
-    let isCriteriaListUpdated = false;
 
     // Creates new component
     const instance = component({
@@ -113,7 +112,6 @@ export default function advancedSearchFactory(config) {
                     const classTree = response.classDefinition ? response.classDefinition : response;
                     const criteria = formatCriteria(classTree);
                     updateCriteria(criteria);
-                    isCriteriaListUpdated = true;
                     $criteriaIcon.removeClass('icon-loop').addClass(idleIconClass);
                 })
                 .catch(e => {
@@ -287,7 +285,6 @@ export default function advancedSearchFactory(config) {
                     if (!hasOptions) {
                         return;
                     }
-                    isCriteriaListUpdated = true;
                     $criteriaSelect.select2('open');
                     // if dropdown is opened above addCriteria input, top property is slightly decreased to avoid overlapping with addCriteria icon
                     const $dropdown = $('.criteria-dropdown-select2');
@@ -406,7 +403,10 @@ export default function advancedSearchFactory(config) {
      * @returns {string}
      */
     function getAppliedFiltersSummaryText(appliedCount) {
-        return appliedCount === 1 ? __('1 filter applied') : __('%s filters applied', String(appliedCount));
+        if (appliedCount === 1) {
+            return __('1 filter applied');
+        }
+        return __('%s filters applied').replace('%s', String(appliedCount));
     }
 
     /**
