@@ -103,13 +103,21 @@ export default function (options) {
         indexTree(content);
 
         //create the tree node for the ROOT folder by default once the initial content loaded
-        $folderContainer.append(rootFolderTpl(content));
+        $folderContainer.append(
+            rootFolderTpl(
+                Object.assign({}, content, {
+                    showToggle: hasNestedFolderChildren(content) !== false
+                })
+            )
+        );
 
         const $rootNode = $('.root-folder', $folderContainer);
         //create an inner list and append found elements
         const $innerList = $('.root ul', $folderContainer);
-        if (content.children) {
+        if (hasNestedFolderChildren(content)) {
             $rootNode.addClass('opened');
+        } else if (hasNestedFolderChildren(content) === false) {
+            setFolderToggleState($rootNode, false);
         }
         updateFolders(content, $innerList);
 
@@ -145,10 +153,12 @@ export default function (options) {
             if (content) {
                 //either create the inner list of the content is new or just show it
                 let $innerList = $selected.siblings('ul');
-                if (!$innerList.length && content.children && _.find(content.children, 'path') && !content.empty) {
+                const nested = hasNestedFolderChildren(content);
+                if (!$innerList.length && nested) {
                     $innerList = $('<ul></ul>').insertAfter($selected);
                     updateFolders(content, $innerList);
                     $selected.addClass('opened');
+                    setFolderToggleState($selected, true);
                 } else if ($innerList.length) {
                     if ($innerList.css('display') === 'none') {
                         $innerList.show();
@@ -157,6 +167,9 @@ export default function (options) {
                         $innerList.hide();
                         $selected.removeClass('opened');
                     }
+                } else if (nested === false) {
+                    // Leaf folder: keep alignment spacer, hide expand chevron.
+                    setFolderToggleState($selected, false);
                 }
 
                 //toggle active element
@@ -528,6 +541,9 @@ export default function (options) {
                 dataType: 'json',
                 timeout: ajaxTimeoutMs,
                 data: _.merge(parameters, options.params, {
+                    // depth=2 so each rendered child folder includes its own dir children,
+                    // allowing leaf folders to hide the expand chevron without an extra click.
+                    depth: 2,
                     childrenOffset: (selectedClass.page - 1) * selectedClass.childrenLimit,
                     sortBy: sort.field,
                     sortDir: sort.direction
@@ -547,6 +563,37 @@ export default function (options) {
     }
 
     /**
+     * Whether a folder node has nested directory children.
+     * @param {Object} node
+     * @returns {boolean|null} true/false when known; null when children were not loaded yet
+     */
+    function hasNestedFolderChildren(node) {
+        if (!node || node.empty === true) {
+            return false;
+        }
+        if (!Array.isArray(node.children)) {
+            return null;
+        }
+        return Boolean(_.find(node.children, 'path'));
+    }
+
+    /**
+     * Show or hide the expand chevron on a folder anchor (keep spacer width).
+     * @param {jQuery} $anchor
+     * @param {boolean} hasNested
+     */
+    function setFolderToggleState($anchor, hasNested) {
+        const $toggle = $anchor.children('.tree-toggle');
+        if (hasNested) {
+            $toggle.addClass('icon-right').removeClass('is-leaf');
+            $anchor.removeClass('is-leaf');
+        } else {
+            $toggle.removeClass('icon-right').addClass('is-leaf');
+            $anchor.removeClass('opened').addClass('is-leaf');
+        }
+    }
+
+    /**
      * Update the HTML Tree
      * @param {Object} data - the tree data
      * @param {jQueryElement} $parent - the parent node to append the data
@@ -557,6 +604,8 @@ export default function (options) {
             if (typeof data.relPath === 'undefined') {
                 data.relPath = data.path;
             }
+            // Unknown nested state (lazy depth) keeps the chevron until the folder is opened.
+            data.showToggle = hasNestedFolderChildren(data) !== false;
             $parent.append(folderTpl(data));
         }
         if (data && data.children && _.isArray(data.children) && !data.empty) {

@@ -110,7 +110,6 @@ var resourceMgr = {
                     }
                     options = resolvedOptions;
                     $elt.data(dataNs, options);
-                    // coderabbit: ignored — create/open must follow _startBrowsers so the modal is not empty; ajaxTimeoutMs already bounds context resolution
                     that._startBrowsers($elt, options);
 
                     /**

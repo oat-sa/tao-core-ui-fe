@@ -1,3 +1,20 @@
+/**
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; under version 2
+ * of the License (non-upgradable).
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 31 Milk St # 960789 Boston, MA 02196 USA.
+ *
+ * Copyright (c) 2018-2026 (original work) Open Assessment Technologies SA;
+ */
 import $ from 'jquery';
 import _ from 'lodash';
 import bytes from 'util/bytes';
@@ -5,6 +22,7 @@ import context from 'context';
 import 'ui/previewer';
 
 const ns = 'resourcemgr';
+const EMPTY_META = '\u2014';
 
 export default function(options) {
     const $container = options.$target;
@@ -43,11 +61,35 @@ export default function(options) {
         $container.trigger(`select.${ns}`, [[data]]);
     });
 
+    /**
+     * @param {*} value
+     * @returns {string}
+     */
+    function metaOrDash(value) {
+        if (value === null || typeof value === 'undefined' || value === '') {
+            return EMPTY_META;
+        }
+        return String(value);
+    }
+
     function startPreview(file, preview, download, select) {
         if (preview) {
             $previewer.previewer(file);
-            $propType.text(`${file.type} (${file.mime})`);
-            $propSize.text(bytes.hrSize(file.size));
+            if (file.type || file.mime) {
+                $propType.text(
+                    file.type && file.mime ? `${file.type} (${file.mime})` : metaOrDash(file.type || file.mime)
+                );
+            } else {
+                $propType.text(EMPTY_META);
+            }
+            $propSize.text(
+                file.size === null || typeof file.size === 'undefined' || file.size === ''
+                    ? EMPTY_META
+                    : bytes.hrSize(file.size)
+            );
+        } else {
+            $propType.text(EMPTY_META);
+            $propSize.text(EMPTY_META);
         }
         if(download) {
             $link.attr('href', file.download).attr('download', file.file);
@@ -65,8 +107,8 @@ export default function(options) {
 
     function stopPreview() {
         $previewer.previewer('update', { url: false });
-        $propType.empty();
-        $propSize.empty();
+        $propType.text(EMPTY_META);
+        $propSize.text(EMPTY_META);
         $('a', $propUrl).addClass('hidden');
         $selectButton.attr('disabled', 'disabled');
     }

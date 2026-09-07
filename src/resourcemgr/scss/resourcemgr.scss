@@ -6,6 +6,8 @@
     $rmDark: #222222;
     $rmLight: #ffffff;
     $rmMidGray: #dddfe2;
+    // Figma heading fill #F6F7F7; nearest global token $uiReviewPanelBg (#f2f2f2)
+    $rmHeaderBg: #f6f7f7;
     $rmActive: #286d9c;
     $rmDarkBar: #333333;
 
@@ -13,7 +15,7 @@
     $textColor: $rmDark;
     $uiGeneralContentBg: $rmLight;
     $uiGeneralContentBorder: $rmMidGray;
-    $uiHeaderBg: $rmMidGray;
+    $uiHeaderBg: $rmHeaderBg;
     $uiClickableDefaultBg: $rmLight;
     $info: $rmActive;
     $uiClickableHoverBg: $rmActive;
@@ -24,6 +26,13 @@
     $rmPreviewWidth: 300;
     $rmMaxContainerWidth: 1400;
     $rmSideMargin: 40;
+
+    $rmHeaderRadius: 4px;
+    // Top chrome row (Search | Assets | Preview): pad + small btn (25px) → shared bar height.
+    $rmPanelChromePadY: 8px;
+    $rmPanelChromePadX: 10px;
+    $rmPanelChromeMinHeight: 41px;
+    $rmControlRadius: 4px;
 
     width: 90%;
     height: 100%;
@@ -97,6 +106,7 @@
     .file-wrapper {
         overflow-y: auto;
         margin: 0 #{$rmSideMargin * 1px};
+        // Keep in sync with .asset-search max-height chrome compensation below.
         height: calc(100% - 40px - 40px - 40px); // full height - h2.padding - h2.height - modal.bottom-padding
         display: flex;
         flex-direction: column;
@@ -104,11 +114,12 @@
     }
 
     .file-panels {
-        @include flex-container();
+        @include flex-container;
 
         flex: 1 1 auto;
         min-height: 0;
         height: 100%;
+        gap: 0;
     }
 
     .file-browser {
@@ -124,7 +135,14 @@
 
     .file-selector {
         @include simple-flex-box(auto);
-        max-width: calc(100% - #{($rmBrowserWidth + $rmPreviewWidth) *1px});
+        max-width: calc(100% - #{($rmBrowserWidth + $rmPreviewWidth) *1px} - 20px);
+        // margin - border - padding: side separators only (no top border)
+        margin: 0 10px;
+        border: 0;
+        border-left: 1px solid $uiGeneralContentBorder;
+        border-right: 1px solid $uiGeneralContentBorder;
+        padding: 0 10px;
+        box-sizing: border-box;
     }
 
    .file-browser, .file-selector, .file-preview {
@@ -138,10 +156,14 @@
             @include font-size(16);
             line-height: 1.6;
 
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+            min-height: $rmPanelChromeMinHeight;
             color: $textColor;
             margin: 0;
-            padding: 8px 10px;
-            border-radius: 0;
+            padding: $rmPanelChromePadY $rmPanelChromePadX;
+            border-radius: $rmHeaderRadius $rmHeaderRadius 0 0;
         }
         h2 {
             @include font-size(13);
@@ -152,7 +174,7 @@
             padding: 6px;
             position: relative;
             clear: both;
-            border-radius: 0;
+            border-radius: $rmHeaderRadius $rmHeaderRadius 0 0;
 
             &.toggler{
                 cursor: pointer;
@@ -174,21 +196,27 @@
         & > h1.resources-title {
             background-color: $uiHeaderBg;
             flex: 0 0 auto;
+            border-radius: $rmHeaderRadius $rmHeaderRadius 0 0;
         }
 
         .asset-search {
-            flex: 0 1 auto;
-            max-height: 55%;
+            // Grow with filters; do not shrink under tree flex pressure until max-height.
+            flex: 0 0 auto;
+            // Cap at 70% of the whole modal height (not the left column alone).
+            // file-browser height ≈ modal − 120px chrome → 0.7×modal = 70% + 84px of this parent.
+            max-height: calc(70% + 84px);
             display: flex;
             flex-direction: column;
             min-height: 0;
             color: $textColor;
             padding: 0;
-            border-bottom: 1px solid $uiGeneralContentBorder;
-            background-color: $uiGeneralContentBg;
+            margin: 0 0 16px;
+            border: 0;
+            background-color: $uiHeaderBg;
             overflow: hidden;
             position: relative;
             z-index: 2;
+            border-radius: $rmHeaderRadius;
 
             &.hidden,
             &[hidden] {
@@ -198,9 +226,19 @@
             &.is-collapsed {
                 max-height: none;
                 overflow: visible;
+                margin-bottom: 16px;
 
                 .asset-search-body {
                     display: none;
+                }
+
+                .asset-search-header {
+                    border-radius: $rmHeaderRadius;
+                    outline: none;
+                }
+
+                .asset-search-toggle:focus {
+                    outline: none;
                 }
             }
         }
@@ -208,16 +246,19 @@
         .asset-search-header {
             flex: 0 0 auto;
             background-color: $uiHeaderBg;
-            padding: 0 0 8px;
+            padding: 0;
+            border-radius: $rmHeaderRadius $rmHeaderRadius 0 0;
         }
 
         .asset-search-toggle {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
+            // Search is the lead; scope/count/chevron share its baseline (bottom of glyphs).
+            align-items: baseline;
+            flex-wrap: nowrap;
+            gap: 8px;
             width: 100%;
             margin: 0;
-            padding: 8px 10px;
+            padding: $rmPanelChromePadY $rmPanelChromePadX;
             border: 0;
             border-radius: 0;
             background: transparent;
@@ -226,10 +267,18 @@
             text-align: left;
             text-shadow: none;
             box-shadow: none;
+            min-width: 0;
+            min-height: $rmPanelChromeMinHeight;
+            box-sizing: border-box;
+            font: inherit;
+            font-weight: normal;
+            line-height: 1.6;
 
             &:hover,
             &:active {
                 background: transparent;
+                color: $textColor;
+                opacity: 1;
                 text-shadow: none;
                 box-shadow: none;
             }
@@ -242,20 +291,23 @@
         .asset-search-title {
             @include font-size(16);
 
-            display: inline;
+            display: inline-block;
             margin: 0;
             padding: 0;
             background: transparent;
             color: $textColor;
             line-height: 1.6;
-            flex: 1 1 auto;
+            flex: 0 0 auto;
+            white-space: nowrap;
+            font-weight: normal;
         }
 
         .asset-search-chevron {
             @include font-size(12);
 
             flex: 0 0 auto;
-            margin-left: 8px;
+            align-self: baseline;
+            margin-left: auto;
             line-height: 1;
         }
 
@@ -263,9 +315,16 @@
             @include font-size(12);
 
             display: inline-block;
-            margin: 0 10px 6px;
+            margin: 0;
             color: lighten($textColor, 25%);
             font-weight: normal;
+            // Do not grow — keep count + chevron on the same line as Search.
+            flex: 0 1 auto;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.6;
 
             &.hidden,
             &[hidden] {
@@ -276,13 +335,20 @@
         .asset-search-scope {
             @include font-size(12);
 
-            display: flex;
+            display: inline-flex;
             align-items: baseline;
             gap: 0.25em;
-            margin: 0 10px;
+            margin: 0;
             min-width: 0;
+            flex: 0 1 auto;
             color: lighten($textColor, 25%);
-            line-height: 1.4;
+            line-height: 1.6;
+            font-weight: normal;
+
+            &.hidden,
+            &[hidden] {
+                display: none;
+            }
         }
 
         .asset-search-scope-prefix {
@@ -311,17 +377,21 @@
         }
 
         .asset-search-body {
+            // Fill capped .asset-search so filters can scroll after max-height is hit.
             flex: 1 1 auto;
             min-height: 0;
-            padding: 12px;
-            overflow-x: hidden;
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            padding: 14px 12px 16px;
+            overflow: hidden;
+            background-color: $uiHeaderBg;
         }
 
         .asset-search-field {
             position: relative;
             display: flex;
             align-items: center;
+            flex: 0 0 auto;
             padding: 0;
         }
 
@@ -339,7 +409,7 @@
             height: 32px;
             padding: 6px 10px 6px 30px;
             border: 1px solid $uiGeneralContentBorder;
-            border-radius: 2px;
+            border-radius: $rmControlRadius;
             background-color: $uiGeneralContentBg;
             box-sizing: border-box;
 
@@ -354,8 +424,12 @@
         }
 
         .asset-search-filters {
+            // Grow with filter chips; scroll only after .asset-search hits its modal-relative max-height.
+            flex: 1 1 auto;
+            min-height: 48px;
             margin-top: 8px;
-            overflow: visible;
+            overflow-x: hidden;
+            overflow-y: auto;
             position: relative;
             z-index: 3;
         }
@@ -480,7 +554,7 @@
 
         .asset-search .filter-spoiler {
             border: 1px solid $uiGeneralContentBorder;
-            border-radius: 2px;
+            border-radius: $rmControlRadius;
             background: $uiGeneralContentBg;
             overflow: hidden;
         }
@@ -505,14 +579,19 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 10px;
+            padding: 10px;
             background-color: $uiGeneralContentBg;
+
+            &:hover,
+            &:focus-within {
+                background-color: $uiGeneralContentBg;
+            }
         }
 
         .asset-search .filter-spoiler-toggle {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start;
             flex: 1 1 auto;
             min-width: 0;
             height: auto;
@@ -550,13 +629,7 @@
         }
 
         .asset-search .filter-spoiler-icon {
-            @include font-size(11);
-
-            flex: 0 0 auto;
-            margin-left: 8px;
-            color: $textColor;
-            text-shadow: none;
-            line-height: 1;
+            display: none;
         }
 
         .asset-search .filter-spoiler-delete {
@@ -589,6 +662,7 @@
             }
         }
 
+        .asset-search .filter-spoiler.is-open .filter-spoiler-delete,
         .asset-search .filter-spoiler-header:hover .filter-spoiler-delete,
         .asset-search .filter-spoiler-header:focus-within .filter-spoiler-delete {
             opacity: 1;
@@ -632,40 +706,143 @@
 
         .asset-search .filter-spoiler-body .select2-choices {
             min-height: 30px;
-            border-radius: 2px;
+            border-radius: $rmControlRadius;
         }
 
         .asset-search .filter-spoiler-body input[type='text'] {
             width: 100%;
             box-sizing: border-box;
+            border-radius: $rmControlRadius;
         }
 
         .asset-search-actions {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
-            flex-wrap: wrap;
+            flex: 0 0 auto;
+            flex-wrap: nowrap;
             gap: 8px;
-            margin-top: 12px;
+            margin-top: 16px;
         }
 
-        .asset-search-actions .asset-search-clear,
-        .asset-search-actions .asset-search-submit {
+        .asset-search-actions .asset-search-clear {
             margin: 0;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            color: $info;
+            cursor: pointer;
+            font-weight: normal;
+            line-height: 1.4;
+            text-decoration: none;
+            text-shadow: none;
+            box-shadow: none;
+            flex: 0 0 auto;
+
+            @include font-size(13);
+
+            &.hidden,
+            &[hidden] {
+                display: none;
+            }
+
+            &:hover,
+            &:focus,
+            &:active {
+                color: $info;
+                background: transparent;
+                text-decoration: underline;
+                text-shadow: none;
+                box-shadow: none;
+            }
+
+            &:focus {
+                outline: 1px dotted $darkBar;
+            }
         }
 
-        .asset-search-status {
-            @include font-size(12);
+        .asset-search-actions .asset-search-submit {
+            margin: 0 0 0 auto;
+            min-width: 88px;
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
 
-            color: lighten($textColor, 25%);
-            min-height: 1.2em;
-            margin-top: 6px;
+            .asset-search-submit-spinner {
+                display: none;
+                line-height: 1;
+
+                @include font-size(14);
+
+                &.hidden,
+                &[hidden] {
+                    display: none;
+                }
+            }
+
+            &.is-searching .asset-search-submit-spinner:not(.hidden):not([hidden]) {
+                display: inline-block;
+                animation: rm-search-button-spin 1.4s linear infinite;
+            }
+
+            &:disabled,
+            &[disabled] {
+                color: $rmLight;
+                background-color: lighten($textColor, 55%);
+                border-color: lighten($textColor, 55%);
+                cursor: not-allowed;
+                opacity: 1;
+                text-shadow: none;
+                box-shadow: none;
+
+                &:hover,
+                &:focus,
+                &:active {
+                    color: $rmLight;
+                    background-color: lighten($textColor, 55%);
+                    border-color: lighten($textColor, 55%);
+                    opacity: 1;
+                }
+            }
+
+            &.is-searching,
+            &.is-searching:disabled,
+            &.is-searching[disabled] {
+                color: $rmLight;
+                background-color: $rmActive;
+                border-color: $rmActive;
+                cursor: wait;
+                opacity: 1;
+
+                &:hover,
+                &:focus,
+                &:active {
+                    color: $rmLight;
+                    background-color: $rmActive;
+                    border-color: $rmActive;
+                    opacity: 1;
+                }
+            }
+        }
+
+        @keyframes rm-search-button-spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         & .file-browser-wrapper {
             overflow: auto;
             flex: 1 1 auto;
             min-height: 0;
+            padding: 8px 4px 12px;
         }
 
         ul {
@@ -678,17 +855,49 @@
                 a {
                     color: $textColor;
                     white-space: nowrap;
-                    &:before {
-                        @include tao-icon-setup;
-                        @include icon-folder;
-                        margin: 0 3px;
-                    }
-                }
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 4px;
+                    padding: 3px 4px;
+                    line-height: 1.5;
+                    text-decoration: none;
 
-                a.opened:before {
-                    font-style: italic;
-                    @include tao-icon-setup;
-                    @include icon-folder-open;
+                    &:hover,
+                    &:focus,
+                    &:active {
+                        text-decoration: none;
+                        color: $textColor;
+                    }
+
+                    > .tree-toggle,
+                    > .tree-folder {
+                        flex: 0 0 auto;
+                        line-height: 1;
+
+                        @include font-size(12);
+                    }
+
+                    > .tree-toggle {
+                        width: 1em;
+                        color: lighten($textColor, 25%);
+
+                        &.is-leaf:before,
+                        &:not(.icon-right):not(.icon-down):before {
+                            content: none;
+                        }
+                    }
+
+                    > .tree-folder {
+                        @include font-size(14);
+                    }
+
+                    &.opened > .tree-toggle:before {
+                        @include icon-down;
+                    }
+
+                    &.opened > .tree-folder:before {
+                        @include icon-folder-open;
+                    }
                 }
 
                 &.active > a {
@@ -703,13 +912,14 @@
         background-color: $uiClickableDefaultBg;
         & > h1 {
             background-color: $uiHeaderBg;
+            border-radius: $rmHeaderRadius $rmHeaderRadius 0 0;
         }
 
         .file-properties{
-            padding: 8px 10px;
+            padding: 12px 14px;
 
             .grid-row {
-                margin-bottom: 6px;
+                margin-bottom: 10px;
             }
 
             .prop-url .actions {
@@ -745,9 +955,6 @@
 
     .file-selector{
         position: relative;
-        border: solid 1px $uiGeneralContentBorder;
-        border-top: none;
-        border-bottom: none;
         display: flex;
         flex-direction: column;
 
@@ -755,12 +962,20 @@
         & > h1 {
             position: relative;
             background-color: $uiHeaderBg;
+            border-radius: $rmHeaderRadius $rmHeaderRadius 0 0;
+            // Flex (shared h1) replaces .lft/.rgt floats so "Assets" shares baseline with Search/Preview.
+            justify-content: space-between;
+            gap: 10px;
 
             .title {
-                margin-right: 10px;
+                float: none;
+                margin-right: 0;
             }
 
             .upload-switcher {
+                float: none;
+                flex: 0 0 auto;
+
                 a {
                     display: inline-block;
                 }
@@ -795,7 +1010,6 @@
             padding: 24px 10px;
         }
 
-        .asset-search-loading,
         .asset-search-error {
             padding: 10px 5px;
             text-align: center;
@@ -833,8 +1047,8 @@
             thead th {
                 text-align: left;
                 font-weight: bold;
-                padding: 8px 10px;
-                border-bottom: 1px solid $uiGeneralContentBorder;
+                padding: 12px 12px 10px;
+                border-bottom: 1px solid mix($rmLight, $rmMidGray, 40%);
                 background-color: transparent;
                 color: $textColor;
                 white-space: nowrap;
@@ -842,40 +1056,44 @@
 
                 &.sortable {
                     cursor: pointer;
-                    position: relative;
-                    padding-right: 24px;
 
-                    &:after {
-                        @include tao-icon-setup;
-                        @include icon-down;
+                    .sort-label {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
 
-                        position: absolute;
-                        right: 6px;
-                        top: 50%;
-                        margin-top: -7px;
-                        color: $uiClickableActiveBg;
-                        opacity: 0.35;
+                        // Sort glyph sits beside the label text (not at the column edge).
+                        &:after {
+                            content: '';
+                            flex: 0 0 auto;
+                            width: 11px;
+                            height: 12px;
+                            opacity: 0.55;
+                            background-color: $textColor;
+                            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 14'%3E%3Cpath fill='black' d='M0 1h12v1.5H0zm0 3.5h9v1.5H0zm0 3.5h6v1.5H0z'/%3E%3Cpath fill='black' d='M9.5 8.5L12 12H7z'/%3E%3C/svg%3E")
+                                center / contain no-repeat;
+                            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 14'%3E%3Cpath fill='black' d='M0 1h12v1.5H0zm0 3.5h9v1.5H0zm0 3.5h6v1.5H0z'/%3E%3Cpath fill='black' d='M9.5 8.5L12 12H7z'/%3E%3C/svg%3E")
+                                center / contain no-repeat;
+                        }
                     }
 
                     &:hover,
                     &:focus {
-                        &:after {
-                            color: $uiClickableHoverBg;
+                        .sort-label:after {
+                            background-color: $textColor;
                             opacity: 1;
                         }
                     }
                 }
 
-                &.sorted.sorted_asc:after {
-                    @include icon-down;
-
+                &.sorted.sorted_asc .sort-label:after {
                     opacity: 1;
+                    transform: scaleY(-1);
                 }
 
-                &.sorted.sorted_desc:after {
-                    @include icon-up;
-
+                &.sorted.sorted_desc .sort-label:after {
                     opacity: 1;
+                    transform: none;
                 }
             }
 
@@ -888,23 +1106,45 @@
                 }
 
                 td {
-                    padding: 8px 10px;
-                    border-bottom: 1px solid $uiGeneralContentBorder;
+                    padding: 10px 12px;
+                    border-bottom: 0;
                     vertical-align: middle;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     white-space: nowrap;
+                    max-width: 0;
+
+                    .truncate,
+                    .desc,
+                    .meta {
+                        display: block;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        max-width: 100%;
+                    }
                 }
             }
 
             .files-label {
-                width: 36%;
+                width: 44%;
+
+                // Flex lives on an inner wrapper — display:flex on td + max-width:0 collapses the column.
+                .files-label-inner {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    min-width: 0;
+                    max-width: 100%;
+                }
 
                 .file-icon {
-                    display: inline-block;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
                     width: 18px;
-                    margin-right: 6px;
-                    vertical-align: middle;
+                    flex-shrink: 0;
+                    line-height: 1;
 
                     &:before {
                         @include tao-icon-setup;
@@ -914,9 +1154,12 @@
                 }
 
                 .desc {
-                    display: inline-block;
-                    max-width: calc(100% - 28px);
-                    vertical-align: middle;
+                    display: block;
+                    flex: 1 1 auto;
+                    min-width: 0;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
                 }
             }
 
@@ -931,12 +1174,25 @@
             }
 
             .files-location {
-                width: 32%;
+                width: 30%;
             }
 
             .files-updated {
-                width: 32%;
-                position: relative;
+                // Date + delete slot; keep enough for "Last modified on" header, less empty gap.
+                width: 26%;
+            }
+
+            .files-updated-inner {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                min-width: 0;
+                max-width: 100%;
+
+                .meta.updated {
+                    flex: 1 1 auto;
+                    min-width: 0;
+                }
             }
 
             .meta {
@@ -946,26 +1202,43 @@
             }
 
             .row-actions {
-                display: flex;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                flex: 0 0 18px;
+                width: 18px;
                 opacity: 0;
                 pointer-events: none;
-                position: absolute;
-                right: 0;
-                top: 0;
-                height: 100%;
-                padding: 0 8px;
-                align-items: center;
-                background-color: inherit;
 
-                .tlb {
-                    display: inline-block;
-                    background: none;
+                // Plain bin icon (same idea as filter-spoiler-delete) — no tlb chrome/border.
+                a.delete {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 0;
+                    border: 0;
+                    border-radius: 0;
+                    background: transparent;
+                    color: lighten($textColor, 40%);
+                    text-decoration: none;
+                    text-shadow: none;
+                    box-shadow: none;
+                    line-height: 1;
+                    cursor: pointer;
+
                     @include font-size(14);
 
-                    .tlb-top {
-                        background: none !important;
-                        border-width: 0 !important;
-                        @include box-shadow(0, 0, 0);
+                    &:hover,
+                    &:active {
+                        color: $textColor;
+                        background: transparent;
+                        text-shadow: none;
+                        box-shadow: none;
+                    }
+
+                    &:focus {
+                        outline: 1px dotted $darkBar;
+                        color: $textColor;
                     }
                 }
             }
@@ -974,7 +1247,6 @@
             tbody tr:focus-within .row-actions {
                 opacity: 1;
                 pointer-events: auto;
-                background-color: $activeColor;
             }
         }
         .file-upload-container {
@@ -982,34 +1254,147 @@
             padding: 0 5px;
         }
         .pagination-bottom {
-            align-self: flex-end;
+            align-self: stretch;
             width: 100%;
-            padding: 5px 10px 0;
+            padding: 10px 2px 8px;
+            box-sizing: border-box;
 
+            .pagination {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 16px;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                float: none;
+                clear: none;
+
+                &::before,
+                &::after {
+                    display: none;
+                }
+
+                > .col-6 {
+                    float: none;
+                    width: auto;
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+
+                > .col-6:first-child {
+                    @include font-size(13);
+
+                    flex: 0 1 auto;
+                    color: $textColor;
+                    font-weight: bold;
+                    line-height: 1.4;
+                    white-space: nowrap;
+
+                    strong,
+                    .page,
+                    .total {
+                        font-weight: bold;
+                    }
+                }
+
+                > .col-6.txt-rgt {
+                    display: flex;
+                    align-items: center;
+                    justify-content: flex-end;
+                    flex: 0 0 auto;
+                    gap: 16px;
+                    text-align: right;
+                }
+            }
+
+            // Text-link chrome for Previous/Next. !important beats global
+            // `.disabled, button[disabled] { background-color: … !important }` in _buttons.scss.
             .pagination .pages > li > a,
             .pagination .pages > li > button,
-            .btn-info {
-                color: $info;
-                background-color: transparent;
-                border-color: transparent;
-                text-shadow: none;
-                box-shadow: none;
+            .pagination button.btn-info,
+            .pagination .btn-info,
+            .pagination button.btn-info[disabled],
+            .pagination .btn-info[disabled],
+            .pagination .btn-info.disabled,
+            .pagination button[disabled],
+            .pagination .pages > .disabled > a,
+            .pagination .pages > .disabled > span,
+            .pagination .pages > .disabled > button {
+                color: $info !important;
+                background: transparent !important;
+                background-color: transparent !important;
+                background-image: none !important;
+                border: 0 !important;
+                border-color: transparent !important;
+                border-width: 0 !important;
+                padding: 0 !important;
+                margin: 0;
+                min-height: 0;
+                line-height: 1.4;
+                text-shadow: none !important;
+                box-shadow: none !important;
+                font-weight: normal;
+                opacity: 1 !important;
+
+                @include font-size(13);
+
+                .icon-backward,
+                .icon-forward {
+                    display: none;
+                }
 
                 &:hover,
-                &:focus {
-                    color: $info;
+                &:focus,
+                &:active {
+                    color: $info !important;
                     text-decoration: underline;
+                    background: transparent !important;
+                    background-color: transparent !important;
+                    background-image: none !important;
+                    border-color: transparent !important;
+                    opacity: 1 !important;
                 }
+            }
+
+            // Simple provider: "< Previous" / "Next >" text links
+            .pagination .txt-rgt > button:first-child::before {
+                content: '< ';
+            }
+
+            .pagination .txt-rgt > button:last-child::after {
+                content: ' >';
             }
 
             .pagination .pages > .disabled > a,
             .pagination .pages > .disabled > span,
             .pagination .pages > .disabled > button,
-            .btn-info[disabled],
-            .btn-info.disabled {
-                color: lighten($textColor, 40%);
-                cursor: not-allowed;
-                text-decoration: none;
+            .pagination button.btn-info[disabled],
+            .pagination .btn-info[disabled],
+            .pagination .btn-info.disabled,
+            .pagination button[disabled] {
+                color: lighten($textColor, 45%) !important;
+                cursor: not-allowed !important;
+                text-decoration: none !important;
+                background: transparent !important;
+                background-color: transparent !important;
+                background-image: none !important;
+                border: 0 !important;
+                border-color: transparent !important;
+                opacity: 1 !important;
+                text-shadow: none !important;
+                box-shadow: none !important;
+
+                &:hover,
+                &:focus,
+                &:active {
+                    color: lighten($textColor, 45%) !important;
+                    text-decoration: none !important;
+                    background: transparent !important;
+                    background-color: transparent !important;
+                    opacity: 1 !important;
+                }
             }
         }
     }

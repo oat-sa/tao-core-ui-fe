@@ -86,13 +86,14 @@ export default function assetSearch(options) {
     const $searchToggle = $('.asset-search-toggle', $searchRoot);
     const $scopeName = $('.asset-search-scope-name', $searchRoot);
     const $scopeSubfolders = $('.asset-search-scope-subfolders', $searchRoot);
+    const $scope = $('.asset-search-scope', $searchRoot);
     const $appliedCount = $('.asset-search-applied-count', $searchRoot);
     const $input = $('.asset-search-input', $searchRoot);
-    const $status = $('.asset-search-status', $searchRoot);
     const $filtersMount = $('.asset-search-filters', $searchRoot);
     const $clearButton = $('.asset-search-clear', $searchRoot);
     const $searchButton = $('.asset-search-submit', $searchRoot);
-    const $loading = $('.asset-search-loading', $fileSelector);
+    const $searchButtonSpinner = $('.asset-search-submit-spinner', $searchButton);
+    const $searchButtonLabel = $('.asset-search-submit-label', $searchButton);
     const $error = $('.asset-search-error', $fileSelector);
     const $errorMessage = $('.asset-search-error-message', $error);
     const $retry = $('.asset-search-retry', $error);
@@ -117,6 +118,7 @@ export default function assetSearch(options) {
     let searchCollapsed = false;
     let appliedFilterCount = 0;
     let requestSeq = 0;
+    let searchInFlight = false;
     let advancedSearch = null;
     let shortcuts = null;
 
@@ -174,18 +176,56 @@ export default function assetSearch(options) {
     }
 
     /**
+     * Whether the author has typed a query or added filters (Clear all / Search enable).
+     * @returns {boolean}
+     */
+    function hasPendingSearchParams() {
+        return Boolean(String($input.val() || '').trim()) || countRenderedFilters() > 0;
+    }
+
+    /**
+     * Clear all is hidden until params change; Search is disabled (grey) until then.
+     */
+    function updateSearchActionState() {
+        const pending = hasPendingSearchParams();
+        if (pending) {
+            $clearButton.removeClass('hidden').removeAttr('hidden');
+        } else {
+            $clearButton.addClass('hidden').attr('hidden', 'hidden');
+        }
+        if (searchInFlight) {
+            $searchButton.prop('disabled', true);
+            return;
+        }
+        if (pending) {
+            $searchButton.prop('disabled', false);
+        } else {
+            $searchButton.prop('disabled', true);
+        }
+    }
+
+    /**
      * Collapsed-header applied-filter count (U11). Text query is never counted.
+     * When collapsed with filters, replace "Searching in" with applied-filters-summary text.
      */
     function updateCollapsedAppliedCount() {
         appliedFilterCount = countRenderedFilters();
         if (searchCollapsed && appliedFilterCount > 0) {
-            $appliedCount
-                .text(`${appliedFilterCount} ${__('applied')}`)
-                .removeClass('hidden')
-                .prop('hidden', false);
+            const $summary = $('.applied-filters-summary', $filtersMount);
+            const summaryText = String(($summary.length && $summary.text()) || '').trim();
+            const countText =
+                summaryText ||
+                (appliedFilterCount === 1
+                    ? __('1 filter applied')
+                    : __('%s filters applied', String(appliedFilterCount)));
+
+            $scope.addClass('hidden').prop('hidden', true);
+            $appliedCount.text(countText).removeClass('hidden').prop('hidden', false);
         } else {
+            $scope.removeClass('hidden').prop('hidden', false);
             $appliedCount.addClass('hidden').prop('hidden', true).text('');
         }
+        updateSearchActionState();
     }
 
     /**
@@ -255,6 +295,9 @@ export default function assetSearch(options) {
     focusSearchInput();
     setSearchCollapsed(false);
     updateScopeDisplay(scopeLabel || scopePath);
+    updateSearchActionState();
+
+    $input.on(`input.${EVENT_NS}`, updateSearchActionState);
 
     $searchToggle.on(`click.${EVENT_NS}`, function (e) {
         e.preventDefault();
@@ -506,7 +549,6 @@ export default function assetSearch(options) {
         $uploadSwitcher.removeClass('hidden');
         hideLoading();
         hideError();
-        setStatus('');
         $paginationContainer.empty();
         $container.trigger(`searchmode.${ns}`, [false]);
 
@@ -527,7 +569,6 @@ export default function assetSearch(options) {
         const seq = ++requestSeq;
         showLoading();
         hideError();
-        setStatus(__('Searching…'));
 
         const data = buildSearchRequestParams({
             path: scopePath,
@@ -579,6 +620,17 @@ export default function assetSearch(options) {
                 page = normalized.page;
                 pageSize = normalized.pageSize;
 
+                let emptyMessage = '';
+                if (normalized.total === 0) {
+                    if (normalized.metadataUnsupported) {
+                        emptyMessage = __('Metadata filters require indexed search.');
+                    } else if (isBrowseShapedSearchPayload(response) && options.browseSearchFallback === false) {
+                        emptyMessage = __('Search is unavailable for this endpoint.');
+                    } else {
+                        emptyMessage = __('No assets match your search.');
+                    }
+                }
+
                 // Render search rows as-is (no client MIME/auth filtering).
                 $container.trigger(`searchresults.${ns}`, [
                     {
@@ -590,21 +642,11 @@ export default function assetSearch(options) {
                         page: normalized.page,
                         pageSize: normalized.pageSize,
                         sort: Object.assign({}, sort),
-                        initialSelection: options.initialSelection
+                        initialSelection: options.initialSelection,
+                        emptyMessage
                     }
                 ]);
 
-                if (normalized.metadataUnsupported) {
-                    setStatus(__('Metadata filters require indexed search.'));
-                } else if (normalized.total === 0) {
-                    setStatus(
-                        isBrowseShapedSearchPayload(response) && options.browseSearchFallback === false
-                            ? __('Search is unavailable for this endpoint.')
-                            : __('No assets match your search.')
-                    );
-                } else {
-                    setStatus(__('Found %s asset(s)', String(normalized.total)));
-                }
                 renderPagination();
             })
             .fail(function () {
@@ -615,7 +657,6 @@ export default function assetSearch(options) {
                 page = 1;
                 const message = __('Unable to search assets. Please try again.');
                 showError(message);
-                setStatus(message);
                 $container.trigger(`searchresults.${ns}`, [
                     {
                         query,
@@ -659,19 +700,26 @@ export default function assetSearch(options) {
     }
 
     /**
-     * Show the search loading indicator.
+     * Show in-button search progress (spinner + Searching label).
      */
     function showLoading() {
-        $loading.removeClass('hidden').removeAttr('hidden');
+        searchInFlight = true;
+        $searchButton.prop('disabled', true).addClass('is-searching').attr('aria-busy', 'true');
+        $searchButtonSpinner.removeClass('hidden').removeAttr('hidden');
+        $searchButtonLabel.text(__('Searching'));
         $resultsRegion.attr('aria-busy', 'true');
     }
 
     /**
-     * Hide the search loading indicator.
+     * Restore Search button after request completes.
      */
     function hideLoading() {
-        $loading.addClass('hidden').attr('hidden', 'hidden');
+        searchInFlight = false;
+        $searchButton.removeClass('is-searching').attr('aria-busy', 'false');
+        $searchButtonSpinner.addClass('hidden').attr('hidden', 'hidden');
+        $searchButtonLabel.text(__('Search'));
         $resultsRegion.attr('aria-busy', 'false');
+        updateSearchActionState();
     }
 
     /**
@@ -689,13 +737,5 @@ export default function assetSearch(options) {
     function hideError() {
         $error.addClass('hidden').attr('hidden', 'hidden');
         $errorMessage.text('');
-    }
-
-    /**
-     * Update the live search status text.
-     * @param {string} message
-     */
-    function setStatus(message) {
-        $status.text(message || '');
     }
 }

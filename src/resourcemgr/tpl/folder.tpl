@@ -6,7 +6,10 @@
 			data-children-limit="{{childrenLimit}}"
 			data-level="{{level}}"
 			style="--tree-level: {{level}};"
-			href="#">
+			href="#"
+			{{#unless showToggle}}class="is-leaf"{{/unless}}>
+			<span class="tree-toggle{{#if showToggle}} icon-right{{/if}}" aria-hidden="true"></span>
+			<span class="tree-folder icon-folder" aria-hidden="true"></span>
 			{{label}}
 		</a>
 	</li>

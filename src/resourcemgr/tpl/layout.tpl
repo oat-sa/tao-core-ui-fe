@@ -15,15 +15,15 @@
                             aria-expanded="true"
                             aria-controls="{{assetSearchBodyId}}"
                         >
-                            <h1 class="asset-search-title">{{__ 'Search'}}</h1>
+                            <span class="asset-search-title">{{__ 'Search'}}</span>
+                            <span class="asset-search-applied-count hidden" hidden></span>
+                            <span class="asset-search-scope" aria-live="polite">
+                                <span class="asset-search-scope-prefix">{{__ 'Searching in:'}}</span>
+                                <span class="asset-search-scope-name"></span>
+                                <span class="asset-search-scope-subfolders hidden" hidden>{{__ 'and its subfolders'}}</span>
+                            </span>
                             <span class="asset-search-chevron icon-up" aria-hidden="true"></span>
                         </button>
-                        <span class="asset-search-applied-count hidden" hidden></span>
-                        <p class="asset-search-scope" aria-live="polite">
-                            <span class="asset-search-scope-prefix">{{__ 'Searching in:'}}</span>
-                            <span class="asset-search-scope-name"></span>
-                            <span class="asset-search-scope-subfolders hidden" hidden>{{__ 'and its subfolders'}}</span>
-                        </p>
                     </div>
                     <div class="asset-search-body" id="{{assetSearchBodyId}}">
                         <div class="asset-search-field">
@@ -39,10 +39,12 @@
                         </div>
                         <div class="asset-search-filters"></div>
                         <div class="asset-search-actions">
-                            <button type="button" class="btn-clear btn-info btn-secondary btn-transparent small asset-search-clear">{{__ 'Clear all'}}</button>
-                            <button type="button" class="btn-search btn-info small asset-search-submit">{{__ 'Search'}}</button>
+                            <button type="button" class="asset-search-clear hidden" hidden>{{__ 'Clear all'}}</button>
+                            <button type="button" class="btn-info small asset-search-submit" disabled>
+                                <span class="asset-search-submit-spinner icon-loop" aria-hidden="true" hidden></span>
+                                <span class="asset-search-submit-label">{{__ 'Search'}}</span>
+                            </button>
                         </div>
-                        <div class="asset-search-status" role="status" aria-live="polite"></div>
                     </div>
                 </div>
 
@@ -60,10 +62,6 @@
                         <a href="#" class="btn-info small listing"><span class="icon-undo"></span>{{__ 'Back to listing'}}</a>
                     </div>
                 </h1>
-
-                <div class="asset-search-loading hidden" hidden>
-                    {{__ 'Loading…'}}
-                </div>
 
                 <div class="asset-search-error hidden" hidden role="alert">
                     <p class="asset-search-error-message"></p>
@@ -113,14 +111,14 @@
                         <div class="col-2">
                             {{__ 'Type'}}
                         </div>
-                        <div class="col-10 prop-type"></div>
+                        <div class="col-10 prop-type">—</div>
                     </div>
 
                     <div class="grid-row">
                         <div class="col-2">
                             {{__ 'Size'}}
                         </div>
-                        <div class="col-10 prop-size"></div>
+                        <div class="col-10 prop-size">—</div>
                     </div>
 
                     <div class="grid-row prop-url">

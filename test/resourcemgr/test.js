@@ -685,8 +685,8 @@ define([
                 if (step === 1) {
                     assert.equal(result.total, 0, 'empty success payload');
                     assert.ok(
-                        String($modal.find('.asset-search-status').text()).length > 0,
-                        'empty status is announced'
+                        /No assets match your search/i.test(String($modal.find('.empty').text())),
+                        'empty message is shown in the table area'
                     );
                     assert.equal(
                         $modal.find('.files-wrapper').css('display'),
@@ -747,7 +747,8 @@ define([
             const $modal = $('#outside-container .resourcemgr');
 
             $modal.one('searchresults.resourcemgr', function () {
-                $modal.find('.files-list tr[data-file="asset://cat"] a.select').trigger('click');
+                $modal.find('.files-list tr[data-file="asset://cat"]').trigger('click');
+                $modal.find('.select-action').trigger('click');
             });
 
             runSearchFromUi($modal, 'cat');
@@ -756,9 +757,9 @@ define([
         createManager();
     });
 
-    QUnit.test('download action does not change row selection', function (assert) {
+    QUnit.test('preview download does not change row selection', function (assert) {
         const ready = assert.async();
-        assert.expect(3);
+        assert.expect(4);
 
         mockSearch(function () {
             return fixtures.searchResults;
@@ -772,11 +773,13 @@ define([
                 const $catRow = $modal.find('.files-list tr[data-file="asset://cat"]');
                 const $catalogRow = $modal.find('.files-list tr[data-file="asset://catalog"]');
 
-                $catRow.find('.desc').trigger('click');
-                assert.ok($catRow.hasClass('active'), 'cat row is selected before download click');
+                assert.equal($catalogRow.find('.row-actions a.select, .row-actions a.download').length, 0, 'row actions omit select/download');
 
-                const $download = $catalogRow.find('a.download');
-                assert.ok($download.length, 'catalog row exposes a download action');
+                $catRow.find('.desc').trigger('click');
+                assert.ok($catRow.hasClass('active'), 'cat row is selected before preview download click');
+
+                const $download = $modal.find('.file-preview a.download');
+                assert.ok($download.length, 'preview exposes a download action');
                 $download.trigger('focus');
                 $download.on('click.test', function (e) {
                     e.preventDefault();
@@ -786,7 +789,7 @@ define([
 
                 const $selectedCat = $modal.find('.files-list tr[data-file="asset://cat"]');
                 const $selectedCatalog = $modal.find('.files-list tr[data-file="asset://catalog"]');
-                assert.ok($selectedCat.hasClass('active') && !$selectedCatalog.hasClass('active'), 'download click keeps prior selection');
+                assert.ok($selectedCat.hasClass('active') && !$selectedCatalog.hasClass('active'), 'preview download click keeps prior selection');
                 ready();
             });
 
@@ -798,7 +801,7 @@ define([
 
     QUnit.test('search UI mounts Advanced Search filters and Search/Clear controls', function (assert) {
         const ready = assert.async();
-        assert.expect(7);
+        assert.expect(9);
         const safety = window.setTimeout(function () {
             assert.ok(false, 'timed out waiting for search UI');
             ready();
@@ -809,7 +812,13 @@ define([
             const $modal = $('#outside-container .resourcemgr');
             assert.equal($modal.find('.file-browser .asset-search:not([hidden])').length, 1, 'search lives in left pane');
             assert.equal($modal.find('.asset-search-submit').length, 1, 'Search button is present');
+            assert.ok($modal.find('.asset-search-submit').prop('disabled'), 'Search is disabled until params change');
             assert.equal($modal.find('.asset-search-clear').length, 1, 'Clear all button is present');
+            assert.ok(
+                $modal.find('.asset-search-clear').is('[hidden]') ||
+                    $modal.find('.asset-search-clear').hasClass('hidden'),
+                'Clear all is hidden by default'
+            );
             assert.equal($modal.find('.resources-title').text().trim(), 'Resources', 'Resources heading is shown');
             assert.equal($modal.find('.asset-search-filters').length, 1, 'filters mount point exists');
 
@@ -845,7 +854,7 @@ define([
 
     QUnit.test('Search button sends query and Clear all returns to browse', function (assert) {
         const ready = assert.async();
-        assert.expect(5);
+        assert.expect(7);
         let searchCalls = 0;
         const safety = window.setTimeout(function () {
             assert.ok(false, 'timed out waiting for Search/Clear flow');
@@ -879,6 +888,12 @@ define([
             // Typing alone must not search (no debounce trigger)
             $input.val('planet').trigger('input');
             assert.equal(searchCalls, 0, 'input does not trigger search without Search click');
+            assert.ok(!$modal.find('.asset-search-submit').prop('disabled'), 'Search enables after params change');
+            assert.ok(
+                !$modal.find('.asset-search-clear').is('[hidden]') &&
+                    !$modal.find('.asset-search-clear').hasClass('hidden'),
+                'Clear all appears after params change'
+            );
             $modal.find('.asset-search-submit').trigger('click');
         });
 
@@ -1506,8 +1521,8 @@ define([
 
                 window.setTimeout(function () {
                     assert.ok(
-                        /unavailable|No assets match/i.test($modal.find('.asset-search-status').text()),
-                        'status explains empty endpoint mismatch'
+                        /unavailable|No assets match/i.test($modal.find('.empty').text()),
+                        'empty endpoint message is shown in the table area'
                     );
                     ready();
                 }, 0);
@@ -1831,9 +1846,11 @@ define([
                         assert.ok(
                             !$modal.find('.asset-search-applied-count').is('[hidden]') &&
                                 !$modal.find('.asset-search-applied-count').hasClass('hidden') &&
+                                ($modal.find('.asset-search-scope').is('[hidden]') ||
+                                    $modal.find('.asset-search-scope').hasClass('hidden')) &&
                                 /2/.test(countText) &&
-                                /applied/i.test(countText),
-                            'collapsed header shows metadata filter count, got: ' + countText
+                                /filter(s)? applied/i.test(countText),
+                            'collapsed header shows applied-filters-summary count, got: ' + countText
                         );
                         ready();
                     }, 50);

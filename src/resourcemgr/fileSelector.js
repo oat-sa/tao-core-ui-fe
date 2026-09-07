@@ -208,7 +208,9 @@ export default function (options) {
             });
 
         $pathTitle.text(__('Search results'));
-        updateFiles(files);
+        updateFiles(files, {
+            emptyMessage: result && result.emptyMessage
+        });
 
         if (!(result && result.error)) {
             applyInitialSelection(result && result.initialSelection);
@@ -293,6 +295,9 @@ export default function (options) {
         if (!file.location) {
             file.location = folderPath || fullPath || '';
         }
+        if (!file.updatedAt && file.updated_at) {
+            file.updatedAt = file.updated_at;
+        }
         file.locationDisplay = formatLocationDisplay(file.location);
         file.updatedAtDisplay = formatUpdatedAtUtc(file.updatedAt);
         return file;
@@ -317,6 +322,8 @@ export default function (options) {
 
     /**
      * Apply a column click to sort state and notify listeners.
+     * Skip optimistic re-sort of lastFiles (current page only) — that flashed the
+     * wrong order before browse/search refetch; updateFiles still sorts the response.
      * @param {String} field
      */
     function changeSort(field) {
@@ -335,9 +342,6 @@ export default function (options) {
             };
         }
         applySortHeader();
-        if (lastFiles.length) {
-            updateFiles(lastFiles);
-        }
         $container.trigger(`sortchange.${ns}`, [Object.assign({}, sort)]);
     }
 
@@ -623,7 +627,9 @@ export default function (options) {
         setUploadMode(isUploadMode);
     }
 
-    function updateFiles(files) {
+    function updateFiles(files, options) {
+        const displayOptions = options || {};
+        const emptyLabel = displayOptions.emptyMessage || __('No files');
         lastFiles = Array.isArray(files) ? files.slice() : [];
         const sorted = sortAssetItems(lastFiles, sort);
         $fileContainer.empty();
@@ -635,15 +641,10 @@ export default function (options) {
                     files: sorted
                 })
             );
-            $fileContainer.find('a.download').each(function () {
-                this.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                });
-            });
         } else if ($fileSelector.find('.asset-search-error:not([hidden])').length === 0) {
             $filesWrapper.hide();
             // Stylesheet defaults `.empty` to display:none; force visible for empty states.
-            $placeholder.css('display', 'block');
+            $placeholder.text(emptyLabel).css('display', 'block');
         } else {
             $filesWrapper.hide();
             $placeholder.hide();

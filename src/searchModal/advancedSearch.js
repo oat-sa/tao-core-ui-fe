@@ -399,10 +399,6 @@ export default function advancedSearchFactory(config) {
         }
         $spoiler.toggleClass('is-open', open);
         $filter.find('.filter-spoiler-toggle').attr('aria-expanded', open);
-        $spoiler
-            .find('.filter-spoiler-icon')
-            .toggleClass('icon-up', open)
-            .toggleClass('icon-down', !open);
     }
 
     /**
@@ -647,12 +643,11 @@ export default function advancedSearchFactory(config) {
                 .attr('aria-label', __('Remove criteria'));
         }
         const $title = $('<span>', { class: 'filter-spoiler-title', text: criterion.label });
-        const $icon = $('<span>', { class: 'icon-up filter-spoiler-icon', 'aria-hidden': 'true' });
         const $toggle = $('<button>', {
             type: 'button',
             class: 'filter-spoiler-toggle',
             'aria-expanded': 'true'
-        }).append($title, $icon);
+        }).append($title);
 
         const $header = $('<div>', { class: 'filter-spoiler-header' }).append($toggle, $deleteBtn);
 
@@ -734,7 +729,7 @@ export default function advancedSearchFactory(config) {
             return true;
         });
 
-        return criteria;
+        return _.uniqBy(criteria, 'propertyUri');
     }
 
     /**
