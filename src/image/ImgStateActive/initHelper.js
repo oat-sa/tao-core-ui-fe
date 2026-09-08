@@ -38,10 +38,29 @@ export const initAdvanced = function (widget) {
 export const initUpload = function (widget) {
     const $form = widget.$form;
     const options = widget.options;
-    const { img } = getImage(widget);
+    const { img, $img } = getImage(widget);
     const $uploadTrigger = $form.find('[data-role="upload-trigger"]');
     const $src = $form.find('input[name=src]');
     const $alt = $form.find('input[name=alt]');
+
+    const commitSrc = function (srcValue) {
+        $src.val(srcValue);
+        // Keep QTI model + preview in sync immediately: the form src callback is
+        // throttled (1s), so a late trailing call must not leave a rejected pick.
+        if (img) {
+            img.attr('src', srcValue);
+        }
+        if ($img && $img.length) {
+            $img.attr('src', srcValue ? widget.getAssetManager().resolve(srcValue) : '');
+            $img.trigger('contentChange.qti-widget').change();
+        }
+        _.defer(function () {
+            if (img) {
+                img.attr('off-media-editor', 1);
+            }
+            $src.trigger('change');
+        });
+    };
 
     const _openResourceMgr = function () {
         $uploadTrigger.resourcemgr({
@@ -86,28 +105,22 @@ export const initUpload = function (widget) {
                 alt = files[0].alt;
                 const previousSrc = $src.val();
 
-                const applyImage = function (nextAlt) {
-                    $src.val(file);
-                    if (typeof nextAlt === 'string') {
-                        img.attr('alt', nextAlt);
-                        $alt.val(nextAlt).trigger('change');
-                    }
-                    _.defer(function () {
-                        img.attr('off-media-editor', 1);
-                        $src.trigger('change');
-                    });
-                };
+                // Apply the new file immediately; alt confirm only decides alt text.
+                commitSrc(file);
 
                 if ($.trim($alt.val()) === '') {
                     if (alt === '') {
                         alt = extractLabel(file);
                     }
-                    applyImage(alt);
+                    if (img) {
+                        img.attr('alt', alt);
+                    }
+                    $alt.val(alt).trigger('change');
                     return;
                 }
 
-                // Existing alt: confirm alt replace. Apply image only after Yes;
-                // closing without Yes (No / overlay / Esc) aborts the selection.
+                // Existing alt: confirm replace. No / overlay / Esc keeps old alt and
+                // must restore the previous image (src callback is throttled).
                 confirmBox = $('.change-alt-modal-feedback', $form);
                 cancel = confirmBox.find('.cancel');
                 save = confirmBox.find('.save');
@@ -123,7 +136,7 @@ export const initUpload = function (widget) {
 
                 confirmBox.off('closed.modal').on('closed.modal', function () {
                     if (!confirmed) {
-                        $src.val(previousSrc);
+                        commitSrc(previousSrc);
                     }
                 });
 
@@ -131,7 +144,10 @@ export const initUpload = function (widget) {
 
                 save.off('click').on('click', function () {
                     confirmed = true;
-                    applyImage(alt);
+                    if (img) {
+                        img.attr('alt', alt);
+                    }
+                    $alt.val(alt).trigger('change');
                     confirmBox.modal('close');
                 });
 
