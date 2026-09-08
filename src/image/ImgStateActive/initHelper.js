@@ -78,41 +78,66 @@ export const initUpload = function (widget) {
             select: function (e, files) {
                 let file, alt;
                 let confirmBox, cancel, save;
-                if (files && files.length) {
-                    file = files[0].file;
-                    alt = files[0].alt;
+                if (!(files && files.length)) {
+                    return;
+                }
+
+                file = files[0].file;
+                alt = files[0].alt;
+                const previousSrc = $src.val();
+
+                const applyImage = function (nextAlt) {
                     $src.val(file);
-                    if ($.trim($alt.val()) === '') {
-                        if (alt === '') {
-                            alt = extractLabel(file);
-                        }
-                        img.attr('alt', alt);
-                        $alt.val(alt).trigger('change');
-                    } else {
-                        confirmBox = $('.change-alt-modal-feedback', $form);
-                        cancel = confirmBox.find('.cancel');
-                        save = confirmBox.find('.save');
-
-                        $('.alt-text', confirmBox).html(`"${$alt.val()}"<br>${__('with')}<br>"${alt}" ?`);
-
-                        confirmBox.modal({ width: 500 });
-
-                        save.off('click').on('click', function () {
-                            img.attr('alt', alt);
-                            $alt.val(alt).trigger('change');
-                            confirmBox.modal('close');
-                        });
-
-                        cancel.off('click').on('click', function () {
-                            confirmBox.modal('close');
-                        });
+                    if (typeof nextAlt === 'string') {
+                        img.attr('alt', nextAlt);
+                        $alt.val(nextAlt).trigger('change');
                     }
-
                     _.defer(function () {
                         img.attr('off-media-editor', 1);
                         $src.trigger('change');
                     });
+                };
+
+                if ($.trim($alt.val()) === '') {
+                    if (alt === '') {
+                        alt = extractLabel(file);
+                    }
+                    applyImage(alt);
+                    return;
                 }
+
+                // Existing alt: confirm alt replace. Apply image only after Yes;
+                // closing without Yes (No / overlay / Esc) aborts the selection.
+                confirmBox = $('.change-alt-modal-feedback', $form);
+                cancel = confirmBox.find('.cancel');
+                save = confirmBox.find('.save');
+                let confirmed = false;
+
+                const $altText = $('.alt-text', confirmBox).empty();
+                $altText
+                    .append(document.createTextNode(`"${$alt.val()}"`))
+                    .append($('<br>'))
+                    .append(document.createTextNode(__('with')))
+                    .append($('<br>'))
+                    .append(document.createTextNode(`"${alt}" ?`));
+
+                confirmBox.off('closed.modal').on('closed.modal', function () {
+                    if (!confirmed) {
+                        $src.val(previousSrc);
+                    }
+                });
+
+                confirmBox.modal({ width: 500 });
+
+                save.off('click').on('click', function () {
+                    confirmed = true;
+                    applyImage(alt);
+                    confirmBox.modal('close');
+                });
+
+                cancel.off('click').on('click', function () {
+                    confirmBox.modal('close');
+                });
             },
             open: function () {
                 // hide tooltip if displayed
