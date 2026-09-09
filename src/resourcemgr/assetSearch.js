@@ -148,16 +148,43 @@ export default function assetSearch(options) {
     }
 
     /**
+     * Whether a value is a human folder name (not a browse path / media URI).
+     * Mediamanager initialPath is often `taomedia://…`; never show that in U8.
+     * @param {*} value
+     * @returns {boolean}
+     */
+    function isFolderDisplayLabel(value) {
+        if (value === null || typeof value === 'undefined') {
+            return false;
+        }
+        const text = String(value).trim();
+        if (!text) {
+            return false;
+        }
+        // URI / scheme browse keys (taomedia://…, http(s)://…, asset://…)
+        if (/^[a-z][a-z0-9+.-]*:/i.test(text)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Render U8/U9 scope line from folder label + optional browse payload.
+     * Keeps the previous display name until a real label arrives (avoids URI flash).
      * @param {string} [folderLabel]
      * @param {Object} [content]
      */
     function updateScopeDisplay(folderLabel, content) {
-        if (folderLabel) {
-            scopeLabel = folderLabel;
+        if (isFolderDisplayLabel(folderLabel)) {
+            scopeLabel = String(folderLabel).trim();
         }
-        const label = scopeLabel || scopePath || '/';
-        $scopeName.text(label).attr('title', label);
+        const label = isFolderDisplayLabel(scopeLabel) ? scopeLabel : '';
+        $scopeName.text(label);
+        if (label) {
+            $scopeName.attr('title', label);
+        } else {
+            $scopeName.removeAttr('title');
+        }
         if (folderHasSubfolders(content)) {
             $scopeSubfolders.removeClass('hidden').removeAttr('hidden');
         } else {
@@ -294,7 +321,9 @@ export default function assetSearch(options) {
     $container.on(`opened.modal.${EVENT_NS}`, focusSearchInput);
     focusSearchInput();
     setSearchCollapsed(false);
-    updateScopeDisplay(scopeLabel || scopePath);
+    // Do not seed the scope name from scopePath: mediamanager paths are URIs
+    // (taomedia://…) and flash into the header before folderselect brings a label.
+    updateScopeDisplay(scopeLabel);
     updateSearchActionState();
 
     $input.on(`input.${EVENT_NS}`, updateSearchActionState);

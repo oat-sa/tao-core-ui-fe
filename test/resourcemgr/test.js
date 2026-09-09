@@ -1794,6 +1794,98 @@ define([
         createManager();
     });
 
+    QUnit.test('U8 scope name never flashes mediamanager URI from initialPath', function (assert) {
+        const ready = assert.async();
+        assert.expect(3);
+        const mediaPath = 'taomedia://mediamanager/i123EncodedParentClass';
+        const safety = window.setTimeout(function () {
+            assert.ok(false, 'timed out waiting for folder label');
+            ready();
+        }, 8000);
+
+        $.mockjax.clear();
+        mockAdvancedSearchApis();
+        $.mockjax({
+            url: browseUrl,
+            dataType: 'json',
+            response: function (settings) {
+                const path = settings.data && settings.data.path;
+                if (path === mediaPath) {
+                    this.responseText = {
+                        data: {
+                            path: mediaPath,
+                            label: 'Assets folder',
+                            childrenLimit: 10,
+                            total: 0,
+                            permissions: ['READ', 'WRITE', 'UPLOAD'],
+                            children: []
+                        }
+                    };
+                    return;
+                }
+                this.responseText = {
+                    data: {
+                        path: '/',
+                        label: 'Media',
+                        childrenLimit: 10,
+                        total: 1,
+                        permissions: ['READ', 'WRITE', 'UPLOAD'],
+                        children: [
+                            {
+                                path: mediaPath,
+                                label: 'Assets folder',
+                                childrenLimit: 10,
+                                total: 0,
+                                permissions: ['READ', 'WRITE', 'UPLOAD'],
+                                children: []
+                            }
+                        ]
+                    }
+                };
+            }
+        });
+        mockSearch(function () {
+            return fixtures.searchResults;
+        });
+
+        const $launcher = $('#launcher');
+        $launcher.on('create.resourcemgr', function () {
+            const $modal = $('#outside-container .resourcemgr');
+            const immediate = String($modal.find('.asset-search-scope-name').text() || '').trim();
+            assert.ok(
+                immediate.indexOf('taomedia:') === -1,
+                'scope name is not seeded with the taomedia browse path'
+            );
+
+            const started = Date.now();
+            (function waitLabel() {
+                const label = String($modal.find('.asset-search-scope-name').text() || '').trim();
+                if (label === 'Assets folder') {
+                    window.clearTimeout(safety);
+                    assert.equal(label, 'Assets folder', 'scope shows folder label after browse');
+                    assert.ok(
+                        String($modal.find('.asset-search-scope-name').attr('title') || '').indexOf('taomedia:') ===
+                            -1,
+                        'tooltip is not a media URI'
+                    );
+                    ready();
+                    return;
+                }
+                if (Date.now() - started > 5000) {
+                    window.clearTimeout(safety);
+                    assert.ok(false, 'folder label never replaced empty scope name');
+                    ready();
+                    return;
+                }
+                window.setTimeout(waitLabel, 20);
+            })();
+        });
+
+        createManager({
+            initialPath: mediaPath
+        });
+    });
+
     QUnit.test('U10/U11 collapse toggle and applied filter count exclude text query', function (assert) {
         const ready = assert.async();
         assert.expect(8);

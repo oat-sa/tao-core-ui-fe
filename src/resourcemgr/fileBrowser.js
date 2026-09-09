@@ -334,10 +334,10 @@ export default function (options) {
             const expectedTotal = Number(content.total);
             const pageSize = Number(content.childrenLimit) || selectedClass.childrenLimit || 10;
             const page = selectedClass.page || 1;
+            // Missing/NaN total → unknown size; refetch so invalidated cache is not treated as complete.
             if (
-                Number.isFinite(expectedTotal) &&
-                files.length < expectedTotal &&
-                files.length < page * pageSize
+                !Number.isFinite(expectedTotal) ||
+                (files.length < expectedTotal && files.length < page * pageSize)
             ) {
                 loadContent(path).then(function (data) {
                     const loadedFiles = _.filter(data.children, function (item) {
@@ -640,6 +640,8 @@ export default function (options) {
      */
     function renderPagination() {
         if (searchMode) {
+            // Drop browse pagination controls/handlers when search owns the table.
+            $paginationContainer.empty();
             return;
         }
         const total = Number(selectedClass.total);

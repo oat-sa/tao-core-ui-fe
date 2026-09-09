@@ -339,7 +339,9 @@
             gap: 0.25em;
             margin: 0;
             min-width: 0;
+            max-width: 100%;
             flex: 0 1 auto;
+            overflow: hidden;
             color: lighten($rmText, 25%);
             line-height: 1.6;
             font-weight: normal;
@@ -358,6 +360,7 @@
         .asset-search-scope-name {
             flex: 0 1 auto;
             min-width: 0;
+            max-width: 100%;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -1248,6 +1251,11 @@
                 pointer-events: auto;
             }
         }
+        // Uploader wraps .file-upload-container in form.uploaderContainer (sibling of Assets h1).
+        > .uploaderContainer {
+            margin-top: 12px;
+        }
+
         .file-upload-container {
             display: none;
             padding: 0 5px;
