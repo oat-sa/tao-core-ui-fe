@@ -448,6 +448,14 @@
             padding: 0;
             margin: 8px 0 0;
             min-height: 24px;
+
+            // Must beat this block's `display: flex` (higher specificity than
+            // `.advanced-search-container .add-criteria-container.disabled`).
+            // Otherwise the global `.disabled, button[disabled]` chrome paints a
+            // gray non-working Add filter instead of hiding it.
+            &.disabled {
+                display: none;
+            }
         }
 
         .asset-search .add-criteria-container a.toggle-modal-button {
