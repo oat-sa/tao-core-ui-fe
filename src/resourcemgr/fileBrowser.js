@@ -86,10 +86,12 @@ export default function (options) {
 
     // Reopen with resolved parent (AC3 edit/change): leave search, open folder again.
     $container.on(`applycontext.${NS}`, function (e, ctx) {
+        if (!isActiveBrowser()) {
+            return;
+        }
         const path = (ctx && ctx.path) || rootPath;
         if (searchMode) {
-            searchMode = false;
-            $container.trigger(`searchmode.${NS}`, [false]);
+            $container.trigger(`requestexitsearch.${NS}`);
         }
         selectedClass.page = 1;
         openInitialPath(path);
@@ -126,6 +128,7 @@ export default function (options) {
                 openInitialPath(initialPath);
             } else {
                 selectFolder(content, content.path);
+                syncTreeActiveFolder(content.path || rootPath);
             }
 
             if (root !== 'local') {
@@ -142,7 +145,6 @@ export default function (options) {
             return;
         }
         const $selected = $(this);
-        const $folders = $('.folders li', $fileBrowser);
         const fullPath = $selected.data('path');
         const subTree = getByPath(fileTree, fullPath);
 
@@ -172,9 +174,7 @@ export default function (options) {
                     setFolderToggleState($selected, false);
                 }
 
-                //toggle active element
-                $folders.removeClass('active');
-                $selected.parent('li').addClass('active');
+                syncTreeActiveFolder(fullPath, $selected);
 
                 //internal event to set the file-selector content
                 selectFolder(content, fullPath);
@@ -226,7 +226,9 @@ export default function (options) {
             indexTree(fileTree);
             if (!content) {
                 const rootContent = getByPath(fileTree, rootPath) || fileTree;
-                selectFolder(rootContent, rootContent.path || rootPath);
+                const fallbackPath = rootContent.path || rootPath;
+                selectFolder(rootContent, fallbackPath);
+                syncTreeActiveFolder(fallbackPath);
                 return;
             }
 
@@ -244,12 +246,29 @@ export default function (options) {
                         $list.show();
                     }
                 });
-                $('.folders li', $fileBrowser).removeClass('active');
-                $targetLink.parent('li').addClass('active');
+                syncTreeActiveFolder(path, $targetLink);
             }
 
             selectFolder(content, path);
         });
+    }
+
+    /**
+     * Mark the folder row that matches path as active (open folder icon for leaves).
+     * @param {String} path
+     * @param {jQuery} [$link]
+     */
+    function syncTreeActiveFolder(path, $link) {
+        $('.folders li', $fileBrowser).removeClass('active');
+        const $target =
+            $link && $link.length
+                ? $link
+                : $folderContainer.find('a').filter(function () {
+                    return $(this).data('path') === path;
+                });
+        if ($target.length) {
+            $target.parent('li').addClass('active');
+        }
     }
 
     /**
@@ -307,6 +326,13 @@ export default function (options) {
      * @param {String} path - the folder path (relative to the root)
      * @param {Function} cb - called back with the content in 1st parameter
      */
+    function markFolderEmptyAtPath(tree, path) {
+        const node = tree && tree.path === path ? tree : getByPath(tree, path);
+        if (node) {
+            node.empty = true;
+        }
+    }
+
     function getFolderContent(tree, path, cb) {
         let content = getByPath(tree, path);
         if (!content || (!content.children && !content.empty)) {
@@ -314,13 +340,14 @@ export default function (options) {
                 if (!tree.path) {
                     tree = _.merge(tree, data);
                 } else if (data.children) {
+                    setToPath(tree, path, data);
                     if (!_.find(data.children, 'path')) {
                         // no subfolders inside folder
-                        tree.empty = true;
+                        markFolderEmptyAtPath(tree, path);
                     }
-                    setToPath(tree, path, data);
                 } else {
-                    tree.empty = true;
+                    setToPath(tree, path, data);
+                    markFolderEmptyAtPath(tree, path);
                 }
                 cb(data);
             }).catch(function () {
@@ -607,6 +634,7 @@ export default function (options) {
             // Unknown nested state (lazy depth) keeps the chevron until the folder is opened.
             data.showToggle = hasNestedFolderChildren(data) !== false;
             $parent.append(folderTpl(data));
+            return;
         }
         if (data && data.children && _.isArray(data.children) && !data.empty) {
             _.forEach(data.children, function (child) {

@@ -462,7 +462,7 @@ define([
             runSearchFromUi($modal, 'beep.mp3');
         });
 
-        createManager();
+        createManager({ browseSearchFallback: true });
     });
 
     QUnit.test('currentAsset resolve opens parent folder and preselects when selectable', function (assert) {

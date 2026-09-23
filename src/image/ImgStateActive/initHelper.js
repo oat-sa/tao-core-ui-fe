@@ -103,7 +103,6 @@ export const initUpload = function (widget) {
 
                 file = files[0].file;
                 alt = files[0].alt;
-                const previousSrc = $src.val();
 
                 // Apply the new file immediately; alt confirm only decides alt text.
                 commitSrc(file);
@@ -119,12 +118,11 @@ export const initUpload = function (widget) {
                     return;
                 }
 
-                // Existing alt: confirm replace. No / overlay / Esc keeps old alt and
-                // must restore the previous image (src callback is throttled).
+                // Existing alt: confirm replace. Cancel / overlay / Esc keeps the new image;
+                // only alt text stays unchanged unless the user confirms.
                 confirmBox = $('.change-alt-modal-feedback', $form);
                 cancel = confirmBox.find('.cancel');
                 save = confirmBox.find('.save');
-                let confirmed = false;
 
                 const $altText = $('.alt-text', confirmBox).empty();
                 $altText
@@ -134,16 +132,9 @@ export const initUpload = function (widget) {
                     .append($('<br>'))
                     .append(document.createTextNode(`"${alt}" ?`));
 
-                confirmBox.off('closed.modal').on('closed.modal', function () {
-                    if (!confirmed) {
-                        commitSrc(previousSrc);
-                    }
-                });
-
                 confirmBox.modal({ width: 500 });
 
                 save.off('click').on('click', function () {
-                    confirmed = true;
                     if (img) {
                         img.attr('alt', alt);
                     }

@@ -47,7 +47,7 @@ var resourceMgr = {
      * @param {String} [options.browseUrl] - folder browse endpoint (legacy alias: options.url)
      * @param {String} [options.url] - legacy alias for browseUrl
      * @param {String} [options.searchUrl] - scoped asset-search endpoint; omit for browse-only
-     * @param {Boolean} [options.browseSearchFallback=true] - client filter when searchUrl returns browse-shaped `{ children }`
+     * @param {Boolean} [options.browseSearchFallback=false] - client filter when searchUrl returns browse-shaped `{ children }`
      * @param {String} [options.initialPath] - folder to open on start (within the media source tree)
      * @param {String} [options.initialSelection] - asset URI to preselect when present in results
      * @param {String} [options.currentAsset] - asset URI/path to resolve to parent folder + selection
@@ -79,7 +79,10 @@ var resourceMgr = {
                 //auto bind events configured in options
                 _.functions(options).forEach(function(eventName) {
                     $elt.on(eventName + '.' + ns, function() {
-                        options[eventName].apply($elt, arguments);
+                        const live = $elt.data(dataNs);
+                        if (live && typeof live[eventName] === 'function') {
+                            live[eventName].apply($elt, arguments);
+                        }
                     });
                 });
 
@@ -105,22 +108,32 @@ var resourceMgr = {
 
                 that._resolveCurrentAssetContext(options, initToken).always(function(resolvedOptions) {
                     const current = $elt.data(dataNs);
-                    if (!current || current.contextToken !== initToken) {
+                    if (!current) {
                         return;
                     }
-                    options = resolvedOptions;
-                    $elt.data(dataNs, options);
-                    that._startBrowsers($elt, options);
-
-                    /**
-                     * The plugin have been created.
-                     * @event ResourceMgr#create.resourcemgr
-                     */
-                    $elt.trigger('create.' + ns, [options.$target[0]]);
-
-                    if (options.open) {
-                        that._open($elt);
+                    const ownsOpen = current.contextToken === initToken;
+                    const nextOptions = ownsOpen ? resolvedOptions : current;
+                    if (!ownsOpen) {
+                        Object.assign(current, resolvedOptions);
                     }
+                    $elt.data(dataNs, nextOptions);
+
+                    that._ensureBrowsersStarted($elt, nextOptions).always(function() {
+                        const latest = $elt.data(dataNs) || nextOptions;
+                        if (!latest._createEventEmitted) {
+                            latest._createEventEmitted = true;
+                            $elt.data(dataNs, latest);
+                            /**
+                             * The plugin have been created.
+                             * @event ResourceMgr#create.resourcemgr
+                             */
+                            $elt.trigger('create.' + ns, [latest.$target[0]]);
+                        }
+
+                        if (ownsOpen && latest.open) {
+                            that._open($elt);
+                        }
+                    });
                 });
             } else {
                 // Reopen: consumer may pass a new currentAsset (edit/change after create).
@@ -141,7 +154,12 @@ var resourceMgr = {
             return;
         }
 
-        stored.currentAsset = incoming.currentAsset;
+        if (Object.prototype.hasOwnProperty.call(incoming, 'currentAsset')) {
+            stored.currentAsset = incoming.currentAsset;
+            stored.initialPath = null;
+            stored.initialSelection = null;
+            stored.currentAssetItem = null;
+        }
         if (incoming.params && typeof incoming.params === 'object') {
             stored.params = Object.assign({}, stored.params || {}, incoming.params);
         }
@@ -151,9 +169,6 @@ var resourceMgr = {
             }
         });
 
-        stored.initialPath = null;
-        stored.initialSelection = null;
-        stored.currentAssetItem = null;
         stored.contextToken = (stored.contextToken || 0) + 1;
         const token = stored.contextToken;
         $elt.data(dataNs, stored);
@@ -164,8 +179,10 @@ var resourceMgr = {
                 return;
             }
             $elt.data(dataNs, resolved);
-            that._applyResolvedContext($elt, resolved);
-            that._open($elt);
+            that._ensureBrowsersStarted($elt, resolved).always(function() {
+                that._applyResolvedContext($elt, resolved);
+                that._open($elt);
+            });
         });
     },
 
@@ -252,6 +269,52 @@ var resourceMgr = {
             });
 
         return deferred.promise();
+    },
+
+    /**
+     * Start browsers once and resolve when the tree wrapper is mounted.
+     * @param {jQuery} $elt
+     * @param {Object} options
+     * @returns {Promise}
+     */
+    _ensureBrowsersStarted: function($elt, options) {
+        const stored = $elt.data(dataNs) || options;
+        if (stored._browsersStartPromise) {
+            return stored._browsersStartPromise;
+        }
+
+        const deferred = $.Deferred();
+        stored._browsersStartPromise = deferred.promise();
+        $elt.data(dataNs, stored);
+
+        const $wrapper = $('.file-browser .file-browser-wrapper', options.$target);
+        const isMounted = function() {
+            return $wrapper.children().length > 0;
+        };
+
+        if (isMounted()) {
+            deferred.resolve();
+            return stored._browsersStartPromise;
+        }
+
+        this._startBrowsers($elt, options);
+
+        let attempts = 200;
+        const poll = function() {
+            if (isMounted()) {
+                deferred.resolve();
+                return;
+            }
+            attempts -= 1;
+            if (attempts <= 0) {
+                deferred.reject();
+                return;
+            }
+            window.setTimeout(poll, 50);
+        };
+        poll();
+
+        return stored._browsersStartPromise;
     },
 
     /**

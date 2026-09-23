@@ -215,7 +215,7 @@ export default function assetSearch(options) {
      */
     function updateSearchActionState() {
         const pending = hasPendingSearchParams();
-        if (pending) {
+        if (pending || searchMode) {
             $clearButton.removeClass('hidden').removeAttr('hidden');
         } else {
             $clearButton.addClass('hidden').attr('hidden', 'hidden');
@@ -334,19 +334,28 @@ export default function assetSearch(options) {
     });
 
     $container.on(`folderselect.${ns}.${EVENT_NS}`, function (e, label, files, folderPath, content) {
-        if (!searchMode) {
-            scopePath = folderPath || label || scopePath;
-            page = 1;
+        const previousPath = scopePath;
+        if (folderPath) {
+            scopePath = folderPath;
+        } else if (!searchMode && label) {
+            scopePath = label;
         }
+        page = 1;
         updateScopeDisplay(label || (content && content.label), content);
+        if (searchMode && hasActiveSearch() && scopePath !== previousPath) {
+            runSearch();
+        }
     });
 
     $container.on(`folderpath.${ns}.${EVENT_NS}`, function (e, folderPath, folderLabel) {
-        if (!searchMode) {
-            scopePath = folderPath || scopePath;
-        }
+        const previousPath = scopePath;
+        scopePath = folderPath || scopePath;
+        page = 1;
         if (folderLabel) {
             updateScopeDisplay(folderLabel);
+        }
+        if (searchMode && hasActiveSearch() && scopePath !== previousPath) {
+            runSearch();
         }
     });
 
@@ -462,6 +471,10 @@ export default function assetSearch(options) {
      */
     function teardown() {
         requestSeq += 1;
+        searchMode = false;
+        $fileSelector.removeClass('search-mode');
+        $uploadSwitcher.removeClass('hidden');
+        hideLoading();
         $container.off(`.${EVENT_NS}`);
         $input.off(`.${EVENT_NS}`);
         $retry.off(`.${EVENT_NS}`);
@@ -557,6 +570,12 @@ export default function assetSearch(options) {
         runSearch();
     });
 
+    $container.on(`requestexitsearch.${ns}.${EVENT_NS}`, function () {
+        if (searchMode) {
+            exitSearchMode();
+        }
+    });
+
     /**
      * Enter search mode UI.
      */
@@ -565,6 +584,7 @@ export default function assetSearch(options) {
         $fileSelector.addClass('search-mode');
         $uploadSwitcher.addClass('hidden');
         $container.trigger(`searchmode.${ns}`, [true]);
+        updateSearchActionState();
     }
 
     /**
@@ -627,14 +647,7 @@ export default function assetSearch(options) {
                 // browseSearchFallback is enabled (PoC / dev). Real search APIs return `items`.
                 // Metadata filters require indexed search and cannot use this fallback.
                 if (isBrowseShapedSearchPayload(response)) {
-                    if (options.browseSearchFallback === false) {
-                        normalized = {
-                            items: [],
-                            total: 0,
-                            page: 1,
-                            pageSize
-                        };
-                    } else {
+                    if (options.browseSearchFallback === true) {
                         normalized = applyLocalSearchFallback(normalized, {
                             query,
                             metadata,
@@ -643,6 +656,13 @@ export default function assetSearch(options) {
                             pageSize,
                             filters: options.params && options.params.filters
                         });
+                    } else {
+                        normalized = {
+                            items: [],
+                            total: 0,
+                            page: 1,
+                            pageSize
+                        };
                     }
                 }
                 total = normalized.total;
@@ -653,7 +673,7 @@ export default function assetSearch(options) {
                 if (normalized.total === 0) {
                     if (normalized.metadataUnsupported) {
                         emptyMessage = __('Metadata filters require indexed search.');
-                    } else if (isBrowseShapedSearchPayload(response) && options.browseSearchFallback === false) {
+                    } else if (isBrowseShapedSearchPayload(response) && options.browseSearchFallback !== true) {
                         emptyMessage = __('Search is unavailable for this endpoint.');
                     } else {
                         emptyMessage = __('No assets match your search.');

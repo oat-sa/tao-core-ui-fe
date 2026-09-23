@@ -1,7 +1,7 @@
 {{#if permissions.read }}
 	<li class="root">
 		<a
-			class="root-folder active{{#unless showToggle}} is-leaf{{/unless}}"
+			class="root-folder{{#unless showToggle}} is-leaf{{/unless}}"
 			href="#"
 			data-path="{{path}}"
 			data-display="{{relPath}}"

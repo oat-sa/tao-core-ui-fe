@@ -21,8 +21,9 @@
     $rmClickableHover: $rmActive;
     $rmClickableActive: $rmActive;
     $rmActiveRow: mix($rmLight, $rmActive, 90%);
-    $rmBrowserWidth: 280;
-    $rmPreviewWidth: 300;
+    $rmSidePanelWidth: 300;
+    $rmBrowserWidth: $rmSidePanelWidth;
+    $rmPreviewWidth: $rmSidePanelWidth;
     $rmMaxContainerWidth: 1400;
     $rmSideMargin: 40;
 
@@ -123,6 +124,9 @@
 
     .file-browser {
         @include simple-flex-box($rmBrowserWidth * 1px);
+        width: $rmBrowserWidth * 1px;
+        max-width: $rmBrowserWidth * 1px;
+        min-width: 0;
 
         // Keep select2 criteria dropdown usable (appended near control / body)
         overflow: visible;
@@ -130,6 +134,9 @@
 
     .file-preview {
         @include simple-flex-box($rmPreviewWidth * 1px);
+        width: $rmPreviewWidth * 1px;
+        max-width: $rmPreviewWidth * 1px;
+        min-width: 0;
     }
 
     .file-selector {
@@ -201,6 +208,8 @@
         .asset-search {
             // Grow with filters; do not shrink under tree flex pressure until max-height.
             flex: 0 0 auto;
+            min-width: 0;
+            max-width: 100%;
             // Cap at 70% of the whole modal height (not the left column alone).
             // file-browser height ≈ modal − 120px chrome → 0.7×modal = 70% + 84px of this parent.
             max-height: calc(70% + 84px);
@@ -236,17 +245,24 @@
                     outline: none;
                 }
 
-                .asset-search-toggle:focus {
+                .asset-search-toggle:focus:not(:focus-visible) {
                     outline: none;
+                }
+
+                .asset-search-toggle:focus-visible {
+                    outline: 1px dotted $rmDarkBar;
                 }
             }
         }
 
         .asset-search-header {
             flex: 0 0 auto;
+            min-width: 0;
+            max-width: 100%;
             background-color: $rmChromeBg;
             padding: 0;
             border-radius: $rmHeaderRadius $rmHeaderRadius 0 0;
+            overflow: hidden;
         }
 
         .asset-search-toggle {
@@ -340,6 +356,7 @@
             margin: 0;
             min-width: 0;
             max-width: 100%;
+            // Content width when the line fits; shrink (ellipsis on name) when it does not.
             flex: 0 1 auto;
             overflow: hidden;
             color: lighten($rmText, 25%);
@@ -360,7 +377,6 @@
         .asset-search-scope-name {
             flex: 0 1 auto;
             min-width: 0;
-            max-width: 100%;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -591,10 +607,15 @@
             gap: 8px;
             padding: 10px;
             background-color: $rmSurface;
+            outline: none;
+            box-shadow: none;
 
             &:hover,
+            &:focus,
             &:focus-within {
                 background-color: $rmSurface;
+                outline: none;
+                box-shadow: none;
             }
         }
 
@@ -618,6 +639,10 @@
             cursor: pointer;
 
             &:focus {
+                outline: none;
+            }
+
+            &:focus-visible {
                 outline: 1px dotted $rmDarkBar;
             }
 
@@ -667,6 +692,11 @@
             }
 
             &:focus {
+                outline: none;
+                opacity: 1;
+            }
+
+            &:focus-visible {
                 outline: 1px dotted $rmDarkBar;
                 opacity: 1;
             }
@@ -680,6 +710,17 @@
 
         .asset-search .filter-spoiler-body {
             padding: 10px;
+            box-sizing: border-box;
+
+            > label,
+            > .criterion-container,
+            > fieldset {
+                display: block;
+                width: 100%;
+                min-width: 0;
+                box-sizing: border-box;
+                margin: 0;
+            }
         }
 
         .asset-search .filter-spoiler-body > label > .filter-label-text,
@@ -719,8 +760,11 @@
             border-radius: $rmControlRadius;
         }
 
-        .asset-search .filter-spoiler-body input[type='text'] {
+        .asset-search .filter-spoiler-body input[type='text'],
+        .asset-search .filter-spoiler-body textarea {
+            display: block;
             width: 100%;
+            max-width: 100%;
             box-sizing: border-box;
             border-radius: $rmControlRadius;
         }
@@ -865,18 +909,26 @@
                 a {
                     color: $rmText;
                     white-space: nowrap;
-                    display: inline-flex;
+                    display: flex;
                     align-items: center;
                     gap: 4px;
+                    box-sizing: border-box;
+                    width: 100%;
                     padding: 3px 4px;
                     line-height: 1.5;
                     text-decoration: none;
+                    border: 0;
+                    outline: none;
+                    box-shadow: none;
 
                     &:hover,
                     &:focus,
+                    &:focus-visible,
                     &:active {
                         text-decoration: none;
                         color: $rmText;
+                        outline: none;
+                        box-shadow: none;
                     }
 
                     > .tree-toggle,
@@ -910,9 +962,15 @@
                     }
                 }
 
+                &.active > a > .tree-folder:before {
+                    @include icon-folder-open;
+                }
+
                 &.active > a {
                     background-color: $rmActiveRow;
-
+                    border: 0;
+                    outline: none;
+                    box-shadow: none;
                 }
             }
         }
