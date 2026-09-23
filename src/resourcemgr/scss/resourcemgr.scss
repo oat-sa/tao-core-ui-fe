@@ -41,6 +41,7 @@
     background-color: $rmSurface;
     border-color: $rmBorder;
 
+    // jQuery UI modal sets inline `top` — !important keeps RM vertically centered in viewport
     #mediaManager &.modal {
         max-height: 700px;
         top: 40px !important;
@@ -151,10 +152,13 @@
         box-sizing: border-box;
     }
 
-   .file-browser, .file-selector, .file-preview {
+    .file-panels .file-browser,
+    .file-panels .file-selector,
+    .file-panels .file-preview {
         position: relative;
         vertical-align: top;
-        height: 100% !important;
+        height: 100%;
+        min-height: 0;
         color: $rmText;
         border-radius: 0;
 
@@ -751,6 +755,7 @@
             }
         }
 
+        // select2 sets inline width on init — only !important overrides it
         .asset-search .filter-spoiler-body .select2-container {
             width: 100% !important;
         }
@@ -1382,34 +1387,24 @@
                 }
             }
 
-            // Text-link chrome for Previous/Next. !important beats global
-            // `.disabled, button[disabled] { background-color: … !important }` in _buttons.scss.
+            // Text-link chrome for Previous/Next (scoped under .file-selector .pagination-bottom)
+            .pagination .txt-rgt > button.btn-info,
             .pagination .pages > li > a,
-            .pagination .pages > li > button,
-            .pagination button.btn-info,
-            .pagination .btn-info,
-            .pagination button.btn-info[disabled],
-            .pagination .btn-info[disabled],
-            .pagination .btn-info.disabled,
-            .pagination button[disabled],
-            .pagination .pages > .disabled > a,
-            .pagination .pages > .disabled > span,
-            .pagination .pages > .disabled > button {
-                color: $rmInfo !important;
-                background: transparent !important;
-                background-color: transparent !important;
-                background-image: none !important;
-                border: 0 !important;
-                border-color: transparent !important;
-                border-width: 0 !important;
-                padding: 0 !important;
+            .pagination .pages > li > button {
                 margin: 0;
                 min-height: 0;
-                line-height: 1.4;
-                text-shadow: none !important;
-                box-shadow: none !important;
+                padding: 0;
+                border: 0;
+                border-color: transparent;
+                background: transparent;
+                background-color: transparent;
+                background-image: none;
+                color: $rmInfo;
                 font-weight: normal;
-                opacity: 1 !important;
+                line-height: 1.4;
+                text-shadow: none;
+                box-shadow: none;
+                opacity: 1;
 
                 @include font-size(13);
 
@@ -1421,13 +1416,13 @@
                 &:hover,
                 &:focus,
                 &:active {
-                    color: $rmInfo !important;
+                    color: $rmInfo;
                     text-decoration: underline;
-                    background: transparent !important;
-                    background-color: transparent !important;
-                    background-image: none !important;
-                    border-color: transparent !important;
-                    opacity: 1 !important;
+                    background: transparent;
+                    background-color: transparent;
+                    background-image: none;
+                    border-color: transparent;
+                    opacity: 1;
                 }
             }
 
@@ -1440,41 +1435,42 @@
                 content: ' >';
             }
 
+            .pagination .txt-rgt > button.btn-info[disabled],
             .pagination .pages > .disabled > a,
             .pagination .pages > .disabled > span,
-            .pagination .pages > .disabled > button,
-            .pagination button.btn-info[disabled],
-            .pagination .btn-info[disabled],
-            .pagination .btn-info.disabled,
-            .pagination button[disabled] {
-                color: lighten($rmText, 45%) !important;
-                cursor: not-allowed !important;
-                text-decoration: none !important;
-                background: transparent !important;
-                background-color: transparent !important;
-                background-image: none !important;
-                border: 0 !important;
-                border-color: transparent !important;
-                opacity: 1 !important;
-                text-shadow: none !important;
-                box-shadow: none !important;
+            .pagination .pages > .disabled > button {
+                color: lighten($rmText, 45%);
+                cursor: not-allowed;
+                text-decoration: none;
+                pointer-events: none;
 
                 &:hover,
                 &:focus,
                 &:active {
-                    color: lighten($rmText, 45%) !important;
-                    text-decoration: none !important;
-                    background: transparent !important;
+                    color: lighten($rmText, 45%);
+                    text-decoration: none;
+                    background: transparent;
+                    background-color: transparent;
+                }
+
+                // _buttons.scss `.disabled, button[disabled]` uses !important — override only there
+                &,
+                &:hover,
+                &:focus,
+                &:active {
                     background-color: transparent !important;
+                    border: none !important;
+                    color: lighten($rmText, 45%) !important;
+                    cursor: not-allowed !important;
                     opacity: 1 !important;
+                    text-shadow: none !important;
                 }
             }
         }
     }
 }
 
-// select2 dropdown/mask are appended to body. Item creator sets
-// body/#mediaManager > .modal { z-index: 105002 } — stay above that.
+// select2 dropdown/mask are appended to body; item creator modal uses z-index 105002
 .criteria-dropdown-select2 {
     z-index: 105100 !important;
 }
