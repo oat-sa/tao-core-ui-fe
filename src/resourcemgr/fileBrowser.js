@@ -327,7 +327,7 @@ export default function (options) {
      * @param {Function} cb - called back with the content in 1st parameter
      */
     function markFolderEmptyAtPath(tree, path) {
-        const node = tree && tree.path === path ? tree : getByPath(tree, path);
+        const node = getByExactPath(tree, path);
         if (node) {
             node.empty = true;
         }
@@ -370,6 +370,12 @@ export default function (options) {
                     const loadedFiles = _.filter(data.children, function (item) {
                         return !!item.uri;
                     });
+                    const node = getByExactPath(tree, path);
+                    if (node && !Number.isFinite(expectedTotal)) {
+                        node.children = _.filter(node.children, function (item) {
+                            return !item.uri;
+                        });
+                    }
                     setToPath(tree, path, {
                         children: loadedFiles,
                         total: data.total,

@@ -159,6 +159,50 @@ define([
         $modal.find('.asset-search-submit').trigger('click');
     }
 
+    /**
+     * Poll until the file table has rows or timeout.
+     * @param {jQuery} $modal - Resource Manager modal root
+     * @param {function(): void} callback
+     * @returns {void}
+     */
+    function whenTableRows($modal, callback) {
+        const started = Date.now();
+        (function poll() {
+            if ($modal.find('.files-list tr').length) {
+                callback();
+                return;
+            }
+            if (Date.now() - started > 2000) {
+                callback();
+                return;
+            }
+            window.setTimeout(poll, 20);
+        })();
+    }
+
+    /**
+     * Browse mock that resolves currentAsset context payloads.
+     * @param {function(Object): Object} resolveFactory - Builds resolve response from mockjax settings
+     * @returns {void}
+     */
+    function mockBrowseWithCurrentAssetResolve(resolveFactory) {
+        $.mockjax({
+            url: browseUrl,
+            dataType: 'json',
+            response: function (settings) {
+                if (settings.data && settings.data.currentAsset) {
+                    const payload = resolveFactory.call(this, settings);
+                    if (typeof payload !== 'undefined') {
+                        this.responseText = payload;
+                    }
+                    return;
+                }
+                const path = settings.data && settings.data.path;
+                this.responseText = path === '/images' ? fixtures.browseImages : fixtures.browseRoot;
+            }
+        });
+    }
+
     QUnit.module('assetSearchContract');
 
     QUnit.test('builds request params and normalizes responses', function (assert) {
@@ -397,6 +441,255 @@ define([
         });
 
         createManager({ browseSearchFallback: true });
+    });
+
+    QUnit.test('currentAsset resolve opens parent folder and preselects when selectable', function (assert) {
+        const ready = assert.async();
+        assert.expect(2);
+
+        $.mockjax.clear();
+        mockAdvancedSearchApis();
+        mockBrowseWithCurrentAssetResolve(function () {
+            return {
+                data: {
+                    parentPath: '/images',
+                    currentAsset: {
+                        uri: 'asset://cat',
+                        label: 'cat.png',
+                        name: 'cat.png',
+                        mime: 'image/png',
+                        location: '/images'
+                    }
+                }
+            };
+        });
+        mockSearch(function () {
+            return fixtures.searchResults;
+        });
+
+        const $launcher = $('#launcher');
+        $launcher.on('create.resourcemgr', function () {
+            const $modal = $('#outside-container .resourcemgr');
+            whenTableRows($modal, function () {
+                assert.equal(
+                    $modal.find('.files-list tr[data-file="asset://cat"]').length,
+                    1,
+                    'current asset row is present'
+                );
+                assert.ok(
+                    $modal.find('.files-list tr[data-file="asset://cat"]').hasClass('active'),
+                    'current asset is preselected'
+                );
+                ready();
+            });
+        });
+
+        createManager({
+            currentAsset: 'asset://cat'
+        });
+    });
+
+    QUnit.test('currentAsset resolve opens parent without selection when unavailable', function (assert) {
+        const ready = assert.async();
+        assert.expect(2);
+
+        $.mockjax.clear();
+        mockAdvancedSearchApis();
+        mockBrowseWithCurrentAssetResolve(function () {
+            return {
+                data: { parentPath: '/images', currentAsset: null }
+            };
+        });
+        mockSearch(function () {
+            return fixtures.searchResults;
+        });
+
+        const $launcher = $('#launcher');
+        $launcher.on('create.resourcemgr', function () {
+            const $modal = $('#outside-container .resourcemgr');
+            whenTableRows($modal, function () {
+                assert.equal(
+                    $modal.find('.files-list tr.active[data-file]').length,
+                    0,
+                    'no row is preselected when currentAsset cannot be resolved'
+                );
+                assert.equal(
+                    $modal.find('.files-list tr[data-file="asset://cat"]').length,
+                    1,
+                    'parent folder contents still render'
+                );
+                ready();
+            });
+        });
+
+        createManager({
+            currentAsset: 'asset://missing'
+        });
+    });
+
+    QUnit.test('reopen with currentAsset preselects after create without context', function (assert) {
+        const ready = assert.async();
+        assert.expect(2);
+
+        $.mockjax.clear();
+        mockAdvancedSearchApis();
+        mockBrowseWithCurrentAssetResolve(function () {
+            return {
+                data: {
+                    parentPath: '/images',
+                    currentAsset: {
+                        uri: 'asset://cat',
+                        label: 'cat.png',
+                        name: 'cat.png',
+                        mime: 'image/png',
+                        location: '/images'
+                    }
+                }
+            };
+        });
+        mockSearch(function () {
+            return fixtures.searchResults;
+        });
+
+        const $launcher = $('#launcher');
+        $launcher.on('create.resourcemgr', function () {
+            $launcher.resourcemgr({
+                currentAsset: 'asset://cat',
+                browseUrl: browseUrl,
+                searchUrl: searchUrl,
+                downloadUrl: downloadUrl,
+                pathParam: 'path'
+            });
+
+            const $modal = $('#outside-container .resourcemgr');
+            const started = Date.now();
+            (function poll() {
+                const $cat = $modal.find('.files-list tr[data-file="asset://cat"]');
+                if ($cat.length && $cat.hasClass('active')) {
+                    assert.equal($cat.length, 1, 'parent folder shows current asset after reopen');
+                    assert.ok($cat.hasClass('active'), 'current asset is preselected on reopen');
+                    ready();
+                    return;
+                }
+                if (Date.now() - started > 2500) {
+                    assert.equal($cat.length, 1, 'parent folder shows current asset after reopen');
+                    assert.ok($cat.hasClass('active'), 'current asset is preselected on reopen');
+                    ready();
+                    return;
+                }
+                window.setTimeout(poll, 20);
+            })();
+        });
+
+        createManager();
+    });
+
+    QUnit.test('currentAsset resolve AJAX fail shows warning and skips preselect', function (assert) {
+        const ready = assert.async();
+        assert.expect(3);
+        const safety = window.setTimeout(function () {
+            assert.ok(false, 'timed out waiting for resolve failure handling');
+            ready();
+        }, 4000);
+
+        $.mockjax.clear();
+        mockAdvancedSearchApis();
+        mockBrowseWithCurrentAssetResolve(function () {
+            this.status = 500;
+            this.responseText = { success: false };
+        });
+        mockSearch(function () {
+            return fixtures.searchResults;
+        });
+
+        const $launcher = $('#launcher');
+        $launcher.on('create.resourcemgr', function () {
+            const stored = $launcher.data('ui.resourcemgr');
+            assert.notOk(stored.initialSelection, 'resolve failure clears initialSelection');
+
+            window.setTimeout(function () {
+                window.clearTimeout(safety);
+                assert.equal(
+                    $('#outside-container .resourcemgr .files-list tr.active[data-file]').length,
+                    0,
+                    'no row is preselected after resolve failure'
+                );
+                assert.ok(
+                    $('#outside-container .resourcemgr .feedback').length > 0,
+                    'resolve failure surfaces warning feedback'
+                );
+                ready();
+            }, 50);
+        });
+
+        createManager({
+            currentAsset: 'asset://missing'
+        });
+    });
+
+    QUnit.test('superseded currentAsset resolve keeps the latest selection', function (assert) {
+        const ready = assert.async();
+        assert.expect(1);
+        let resolveSeq = 0;
+
+        $.mockjax.clear();
+        mockAdvancedSearchApis();
+        mockBrowseWithCurrentAssetResolve(function (settings) {
+            resolveSeq += 1;
+            const seq = resolveSeq;
+            if (seq === 1) {
+                this.responseTime = 250;
+            }
+            const uri = seq === 1 ? 'asset://dog' : 'asset://cat';
+            return {
+                data: {
+                    parentPath: '/images',
+                    currentAsset: {
+                        uri: uri,
+                        label: uri.replace('asset://', ''),
+                        name: uri.replace('asset://', ''),
+                        mime: 'image/png',
+                        location: '/images'
+                    }
+                }
+            };
+        });
+        mockSearch(function () {
+            return fixtures.searchResults;
+        });
+
+        const $launcher = $('#launcher');
+        $launcher.on('create.resourcemgr', function () {
+            $launcher.resourcemgr({
+                currentAsset: 'asset://cat',
+                browseUrl: browseUrl,
+                searchUrl: searchUrl,
+                downloadUrl: downloadUrl,
+                pathParam: 'path'
+            });
+
+            const $modal = $('#outside-container .resourcemgr');
+            const started = Date.now();
+            (function poll() {
+                const $dog = $modal.find('.files-list tr[data-file="asset://dog"].active');
+                const $cat = $modal.find('.files-list tr[data-file="asset://cat"].active');
+                if ($cat.length) {
+                    assert.equal($dog.length, 0, 'stale resolve does not preselect superseded asset');
+                    ready();
+                    return;
+                }
+                if (Date.now() - started > 4000) {
+                    assert.ok($cat.hasClass('active'), 'latest currentAsset is preselected after stale resolve');
+                    ready();
+                    return;
+                }
+                window.setTimeout(poll, 20);
+            })();
+        });
+
+        createManager({
+            currentAsset: 'asset://dog'
+        });
     });
 
     QUnit.test('empty and error search states are recoverable', function (assert) {
