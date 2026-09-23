@@ -2,73 +2,189 @@
 
 /* tooltip */
 .resourcemgr {
+    // Figma Resource Manager palette (Insert Media modal)
+    $rmDark: #222222;
+    $rmLight: #ffffff;
+    $rmMidGray: #dddfe2;
+    // Figma heading fill #F6F7F7; nearest global token $uiReviewPanelBg (#f2f2f2)
+    $rmHeaderBg: #f6f7f7;
+    $rmActive: #286d9c;
+    $rmDarkBar: #333333;
 
-    $activeColor:  whiten($uiClickableHoverBg, 0.9);
-    $rmBrowserWidth: 260;
-    $rmPreviewWidth: 300;
+    // Local palette aliases ($rm*) — do not shadow global theme token names
+    $rmText: $rmDark;
+    $rmSurface: $rmLight;
+    $rmBorder: $rmMidGray;
+    $rmChromeBg: $rmHeaderBg;
+    $rmClickableBg: $rmLight;
+    $rmInfo: $rmActive;
+    $rmClickableHover: $rmActive;
+    $rmClickableActive: $rmActive;
+    $rmActiveRow: mix($rmLight, $rmActive, 90%);
+    $rmSidePanelWidth: 300;
+    $rmBrowserWidth: $rmSidePanelWidth;
+    $rmPreviewWidth: $rmSidePanelWidth;
     $rmMaxContainerWidth: 1400;
     $rmSideMargin: 40;
+
+    $rmHeaderRadius: 4px;
+    // Top chrome row (Search | Assets | Preview): pad + small btn (25px) → shared bar height.
+    $rmPanelChromePadY: 8px;
+    $rmPanelChromePadX: 10px;
+    $rmPanelChromeMinHeight: 41px;
+    $rmControlRadius: 4px;
 
     width: 90%;
     height: 100%;
     max-width: $rmMaxContainerWidth * 1px;
+    color: $rmText;
+    background-color: $rmSurface;
+    border-color: $rmBorder;
 
+    // jQuery UI modal sets inline `top` — !important keeps RM vertically centered in viewport
     #mediaManager &.modal {
         max-height: 700px;
         top: 40px !important;
         bottom: 40px;
         padding: 0;
+        border: 1px solid $rmBorder;
+        background-color: $rmSurface;
+        border-radius: 0;
     }
 
     & > h2 {
         @include font-size(15);
         margin: 20px 40px 10px;
         height: 40px;
+        color: $rmText;
+    }
+
+    // Align global btn-info with Figma active blue inside RM
+    .btn-info {
+        color: $rmLight;
+        background-color: $rmActive;
+        border: 1px solid $rmActive;
+        text-shadow: none;
+        box-shadow: none;
+
+        &:hover,
+        &:focus,
+        &:active {
+            color: $rmLight;
+            background-color: $rmActive;
+            border-color: $rmActive;
+            text-shadow: none;
+            box-shadow: none;
+            opacity: 0.9;
+        }
+
+        &.btn-secondary,
+        &.btn-transparent {
+            color: $rmActive;
+            background-color: $rmLight;
+            border: 1px solid $rmActive;
+            text-shadow: none;
+            box-shadow: none;
+
+            &:hover,
+            &:focus,
+            &:active {
+                color: $rmActive;
+                background-color: $rmLight;
+                border-color: $rmActive;
+                text-shadow: none;
+                box-shadow: none;
+                opacity: 0.9;
+            }
+        }
+    }
+
+    .btn-success {
+        text-shadow: none;
+        box-shadow: none;
     }
 
     .file-wrapper {
         overflow-y: auto;
         margin: 0 #{$rmSideMargin * 1px};
+        // Keep in sync with .asset-search max-height chrome compensation below.
         height: calc(100% - 40px - 40px - 40px); // full height - h2.padding - h2.height - modal.bottom-padding
-        @include flex-container();
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    .file-panels {
+        @include flex-container;
+
+        flex: 1 1 auto;
+        min-height: 0;
+        height: 100%;
+        gap: 0;
     }
 
     .file-browser {
         @include simple-flex-box($rmBrowserWidth * 1px);
+        width: $rmBrowserWidth * 1px;
+        max-width: $rmBrowserWidth * 1px;
+        min-width: 0;
+
+        // Keep select2 criteria dropdown usable (appended near control / body)
+        overflow: visible;
     }
 
     .file-preview {
         @include simple-flex-box($rmPreviewWidth * 1px);
+        width: $rmPreviewWidth * 1px;
+        max-width: $rmPreviewWidth * 1px;
+        min-width: 0;
     }
 
     .file-selector {
         @include simple-flex-box(auto);
-        max-width: calc(100% - #{($rmBrowserWidth + $rmPreviewWidth) *1px});
+        max-width: calc(100% - #{($rmBrowserWidth + $rmPreviewWidth) *1px} - 20px);
+        // margin - border - padding: side separators only (no top border)
+        margin: 0 10px;
+        border: 0;
+        border-left: 1px solid $rmBorder;
+        border-right: 1px solid $rmBorder;
+        padding: 0 10px;
+        box-sizing: border-box;
     }
 
-   .file-browser, .file-selector, .file-preview {
+    .file-panels .file-browser,
+    .file-panels .file-selector,
+    .file-panels .file-preview {
         position: relative;
         vertical-align: top;
-        height: 100% !important;
-        color: $textColor;
+        height: 100%;
+        min-height: 0;
+        color: $rmText;
+        border-radius: 0;
 
         h1 {
             @include font-size(16);
             line-height: 1.6;
 
-            color: $textColor;
-            margin-top: 1px;
-            padding: 5px;
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+            min-height: $rmPanelChromeMinHeight;
+            color: $rmText;
+            margin: 0;
+            padding: $rmPanelChromePadY $rmPanelChromePadX;
+            border-radius: $rmHeaderRadius $rmHeaderRadius 0 0;
         }
         h2 {
             @include font-size(13);
             line-height: 1.3;
-            background-color: $uiHeaderBg;
-            color: $textColor;
-            margin-top: 1px;
+            background-color: $rmChromeBg;
+            color: $rmText;
+            margin: 0;
             padding: 6px;
             position: relative;
             clear: both;
+            border-radius: $rmHeaderRadius $rmHeaderRadius 0 0;
 
             &.toggler{
                 cursor: pointer;
@@ -82,14 +198,710 @@
     }
 
     .file-browser{
-        background-color: $uiClickableDefaultBg;
-        & > h1 {
-            background-color: $uiHeaderBg;
+        background-color: $rmClickableBg;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+
+        & > h1.resources-title {
+            background-color: $rmChromeBg;
+            flex: 0 0 auto;
+            border-radius: $rmHeaderRadius $rmHeaderRadius 0 0;
+        }
+
+        .asset-search {
+            // Grow with filters; do not shrink under tree flex pressure until max-height.
+            flex: 0 0 auto;
+            min-width: 0;
+            max-width: 100%;
+            // Cap at 70% of the whole modal height (not the left column alone).
+            // file-browser height ≈ modal − 120px chrome → 0.7×modal = 70% + 84px of this parent.
+            max-height: calc(70% + 84px);
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            color: $rmText;
+            padding: 0;
+            margin: 0 0 16px;
+            border: 0;
+            background-color: $rmChromeBg;
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
+            border-radius: $rmHeaderRadius;
+
+            &.hidden,
+            &[hidden] {
+                display: none;
+            }
+
+            &.is-collapsed {
+                max-height: none;
+                overflow: visible;
+                margin-bottom: 16px;
+
+                .asset-search-body {
+                    display: none;
+                }
+
+                .asset-search-header {
+                    border-radius: $rmHeaderRadius;
+                    outline: none;
+                }
+
+                .asset-search-toggle:focus:not(:focus-visible) {
+                    outline: none;
+                }
+
+                .asset-search-toggle:focus-visible {
+                    outline: 1px dotted $rmDarkBar;
+                }
+            }
+        }
+
+        .asset-search-header {
+            flex: 0 0 auto;
+            min-width: 0;
+            max-width: 100%;
+            background-color: $rmChromeBg;
+            padding: 0;
+            border-radius: $rmHeaderRadius $rmHeaderRadius 0 0;
+            overflow: hidden;
+        }
+
+        .asset-search-toggle {
+            display: flex;
+            // Search is the lead; scope/count/chevron share its baseline (bottom of glyphs).
+            align-items: baseline;
+            flex-wrap: nowrap;
+            gap: 8px;
+            width: 100%;
+            margin: 0;
+            padding: $rmPanelChromePadY $rmPanelChromePadX;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            color: $rmText;
+            cursor: pointer;
+            text-align: left;
+            text-shadow: none;
+            box-shadow: none;
+            min-width: 0;
+            min-height: $rmPanelChromeMinHeight;
+            box-sizing: border-box;
+            font: inherit;
+            font-weight: normal;
+            line-height: 1.6;
+
+            &:hover,
+            &:active {
+                background: transparent;
+                color: $rmText;
+                opacity: 1;
+                text-shadow: none;
+                box-shadow: none;
+            }
+
+            &:focus {
+                outline: 1px dotted $rmDarkBar;
+            }
+        }
+
+        .asset-search-title {
+            @include font-size(16);
+
+            display: inline-block;
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            color: $rmText;
+            line-height: 1.6;
+            flex: 0 0 auto;
+            white-space: nowrap;
+            font-weight: normal;
+        }
+
+        .asset-search-chevron {
+            @include font-size(12);
+
+            flex: 0 0 auto;
+            align-self: baseline;
+            margin-left: auto;
+            line-height: 1;
+        }
+
+        .asset-search-applied-count {
+            @include font-size(12);
+
+            display: inline-block;
+            margin: 0;
+            color: lighten($rmText, 25%);
+            font-weight: normal;
+            // Do not grow — keep count + chevron on the same line as Search.
+            flex: 0 1 auto;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.6;
+
+            &.hidden,
+            &[hidden] {
+                display: none;
+            }
+        }
+
+        .asset-search-scope {
+            @include font-size(12);
+
+            display: inline-flex;
+            align-items: baseline;
+            gap: 0.25em;
+            margin: 0;
+            min-width: 0;
+            max-width: 100%;
+            // Content width when the line fits; shrink (ellipsis on name) when it does not.
+            flex: 0 1 auto;
+            overflow: hidden;
+            color: lighten($rmText, 25%);
+            line-height: 1.6;
+            font-weight: normal;
+
+            &.hidden,
+            &[hidden] {
+                display: none;
+            }
+        }
+
+        .asset-search-scope-prefix {
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
+
+        .asset-search-scope-name {
+            flex: 0 1 auto;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: $rmText;
+            font-weight: bold;
+        }
+
+        .asset-search-scope-subfolders {
+            flex: 0 0 auto;
+            white-space: nowrap;
+
+            &.hidden,
+            &[hidden] {
+                display: none;
+            }
+        }
+
+        .asset-search-body {
+            // Fill capped .asset-search so filters can scroll after max-height is hit.
+            flex: 1 1 auto;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 14px 12px 16px;
+            overflow: hidden;
+            background-color: $rmChromeBg;
+        }
+
+        .asset-search-field {
+            position: relative;
+            display: flex;
+            align-items: center;
+            flex: 0 0 auto;
+            padding: 0;
+        }
+
+        .asset-search-field .icon-find {
+            position: absolute;
+            left: 10px;
+            color: lighten($rmText, 40%);
+            pointer-events: none;
+
+            @include font-size(14);
+        }
+
+        .asset-search-input {
+            width: 100%;
+            height: 32px;
+            padding: 6px 10px 6px 30px;
+            border: 1px solid $rmBorder;
+            border-radius: $rmControlRadius;
+            background-color: $rmSurface;
+            box-sizing: border-box;
+
+            &:focus {
+                border-color: $rmInfo;
+                outline: none;
+            }
+        }
+
+        .asset-search-label {
+            @include visuallyHidden;
+        }
+
+        .asset-search-filters {
+            // Grow with filter chips; scroll only after .asset-search hits its modal-relative max-height.
+            flex: 1 1 auto;
+            min-height: 48px;
+            margin-top: 8px;
+            overflow-x: hidden;
+            overflow-y: auto;
+            position: relative;
+            z-index: 3;
+        }
+
+        .asset-search .advanced-search-container {
+            padding: 0;
+        }
+
+        .asset-search .add-criteria-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            position: relative;
+            padding: 0;
+            margin: 8px 0 0;
+            min-height: 24px;
+
+            // Must beat this block's `display: flex` (higher specificity than
+            // `.advanced-search-container .add-criteria-container.disabled`).
+            // Otherwise the global `.disabled, button[disabled]` chrome paints a
+            // gray non-working Add filter instead of hiding it.
+            &.disabled {
+                display: none;
+            }
+        }
+
+        .asset-search .add-criteria-container a.toggle-modal-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin: 0;
+            padding: 0;
+            color: $rmInfo;
+            text-decoration: none;
+            font-weight: normal;
+            line-height: 1;
+            vertical-align: middle;
+
+            @include font-size(13);
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+
+        .asset-search .add-criteria-container .icon-plus,
+        .asset-search .add-criteria-container .icon-add {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            flex: 0 0 auto;
+            margin: 0;
+
+            @include font-size(12);
+
+            &:before {
+                line-height: 1;
+                vertical-align: middle;
+            }
+        }
+
+        .asset-search .applied-filters-summary {
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            height: auto;
+            padding: 0;
+            margin: 0;
+            color: lighten($rmText, 40%);
+            cursor: pointer;
+            font-weight: normal;
+            line-height: 1;
+            text-shadow: none;
+            box-shadow: none;
+
+            @include font-size(12);
+
+            &:not(.hidden)::before {
+                content: '\00b7';
+                display: inline-block;
+                margin: 0 6px;
+                color: lighten($rmText, 55%);
+            }
+
+            &.hidden {
+                display: none;
+            }
+
+            &:hover,
+            &:active {
+                color: $rmText;
+                text-decoration: underline;
+                background: transparent;
+                text-shadow: none;
+                box-shadow: none;
+            }
+
+            &:focus {
+                outline: 1px dotted $rmDarkBar;
+            }
+        }
+
+        .asset-search .criteria-select2 {
+            visibility: hidden;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: calc(100% - 8px);
+        }
+
+        .asset-search .advanced-criteria-container {
+            padding-right: 0;
+            max-height: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .asset-search .filter-container {
+            margin-bottom: 0;
+            position: relative;
+        }
+
+        .asset-search .filter-spoiler-wrapper {
+            padding: 0;
+            border: 0;
+            background: transparent;
+        }
+
+        .asset-search .filter-spoiler {
+            border: 1px solid $rmBorder;
+            border-radius: $rmControlRadius;
+            background: $rmSurface;
+            overflow: hidden;
+        }
+
+        .asset-search .filter-spoiler.is-open .filter-spoiler-body {
+            display: block;
+        }
+
+        .asset-search .filter-spoiler.is-open .filter-spoiler-header {
+            border-bottom: 1px solid $rmBorder;
+        }
+
+        .asset-search .filter-spoiler:not(.is-open) .filter-spoiler-body {
+            display: none;
+        }
+
+        .asset-search .filter-spoiler:not(.is-open) .filter-spoiler-header {
+            border-bottom: 0;
+        }
+
+        .asset-search .filter-spoiler-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            background-color: $rmSurface;
+            outline: none;
+            box-shadow: none;
+
+            &:hover,
+            &:focus,
+            &:focus-within {
+                background-color: $rmSurface;
+                outline: none;
+                box-shadow: none;
+            }
+        }
+
+        .asset-search .filter-spoiler-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            flex: 1 1 auto;
+            min-width: 0;
+            height: auto;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            color: $rmText;
+            font-weight: bold;
+            line-height: 1.3;
+            text-align: left;
+            text-shadow: none;
+            box-shadow: none;
+            cursor: pointer;
+
+            &:focus {
+                outline: none;
+            }
+
+            &:focus-visible {
+                outline: 1px dotted $rmDarkBar;
+            }
+
+            &:hover,
+            &:active {
+                background: transparent;
+                text-shadow: none;
+                box-shadow: none;
+            }
+        }
+
+        .asset-search .filter-spoiler-title {
+            @include font-size(13);
+
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            text-shadow: none;
+        }
+
+        .asset-search .filter-spoiler-icon {
+            display: none;
+        }
+
+        .asset-search .filter-spoiler-delete {
+            flex: 0 0 auto;
+            height: auto;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            color: lighten($rmText, 40%);
+            cursor: pointer;
+            line-height: 1;
+            text-shadow: none;
+            box-shadow: none;
+            opacity: 0;
+
+            @include font-size(14);
+
+            &:hover,
+            &:active {
+                color: $rmText;
+                background: transparent;
+                text-shadow: none;
+                box-shadow: none;
+            }
+
+            &:focus {
+                outline: none;
+                opacity: 1;
+            }
+
+            &:focus-visible {
+                outline: 1px dotted $rmDarkBar;
+                opacity: 1;
+            }
+        }
+
+        .asset-search .filter-spoiler.is-open .filter-spoiler-delete,
+        .asset-search .filter-spoiler-header:hover .filter-spoiler-delete,
+        .asset-search .filter-spoiler-header:focus-within .filter-spoiler-delete {
+            opacity: 1;
+        }
+
+        .asset-search .filter-spoiler-body {
+            padding: 10px;
+            box-sizing: border-box;
+
+            > label,
+            > .criterion-container,
+            > fieldset {
+                display: block;
+                width: 100%;
+                min-width: 0;
+                box-sizing: border-box;
+                margin: 0;
+            }
+        }
+
+        .asset-search .filter-spoiler-body > label > .filter-label-text,
+        .asset-search .filter-spoiler-body > .criterion-container > .filter-label-text,
+        .asset-search .filter-spoiler-body > fieldset > legend {
+            @include visuallyHidden;
+        }
+
+        .asset-search .logic-radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 12px;
+            margin: 0 0 8px;
+        }
+
+        .asset-search .logic-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin: 0;
+            font-weight: normal;
+            white-space: nowrap;
+
+            @include font-size(12);
+
+            input[type='radio'] {
+                accent-color: $rmInfo;
+            }
+        }
+
+        // select2 sets inline width on init — only !important overrides it
+        .asset-search .filter-spoiler-body .select2-container {
+            width: 100% !important;
+        }
+
+        .asset-search .filter-spoiler-body .select2-choices {
+            min-height: 30px;
+            border-radius: $rmControlRadius;
+        }
+
+        .asset-search .filter-spoiler-body input[type='text'],
+        .asset-search .filter-spoiler-body textarea {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            border-radius: $rmControlRadius;
+        }
+
+        .asset-search-actions {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            flex: 0 0 auto;
+            flex-wrap: nowrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .asset-search-actions .asset-search-clear {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            color: $rmInfo;
+            cursor: pointer;
+            font-weight: normal;
+            line-height: 1.4;
+            text-decoration: none;
+            text-shadow: none;
+            box-shadow: none;
+            flex: 0 0 auto;
+
+            @include font-size(13);
+
+            &.hidden,
+            &[hidden] {
+                display: none;
+            }
+
+            &:hover,
+            &:focus,
+            &:active {
+                color: $rmInfo;
+                background: transparent;
+                text-decoration: underline;
+                text-shadow: none;
+                box-shadow: none;
+            }
+
+            &:focus {
+                outline: 1px dotted $rmDarkBar;
+            }
+        }
+
+        .asset-search-actions .asset-search-submit {
+            margin: 0 0 0 auto;
+            min-width: 88px;
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+
+            .asset-search-submit-spinner {
+                display: none;
+                line-height: 1;
+
+                @include font-size(14);
+
+                &.hidden,
+                &[hidden] {
+                    display: none;
+                }
+            }
+
+            &.is-searching .asset-search-submit-spinner:not(.hidden):not([hidden]) {
+                display: inline-block;
+                animation: rm-search-button-spin 1.4s linear infinite;
+            }
+
+            &:disabled,
+            &[disabled] {
+                color: $rmLight;
+                background-color: lighten($rmText, 55%);
+                border-color: lighten($rmText, 55%);
+                cursor: not-allowed;
+                opacity: 1;
+                text-shadow: none;
+                box-shadow: none;
+
+                &:hover,
+                &:focus,
+                &:active {
+                    color: $rmLight;
+                    background-color: lighten($rmText, 55%);
+                    border-color: lighten($rmText, 55%);
+                    opacity: 1;
+                }
+            }
+
+            &.is-searching,
+            &.is-searching:disabled,
+            &.is-searching[disabled] {
+                color: $rmLight;
+                background-color: $rmActive;
+                border-color: $rmActive;
+                cursor: wait;
+                opacity: 1;
+
+                &:hover,
+                &:focus,
+                &:active {
+                    color: $rmLight;
+                    background-color: $rmActive;
+                    border-color: $rmActive;
+                    opacity: 1;
+                }
+            }
+        }
+
+        @keyframes rm-search-button-spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         & .file-browser-wrapper {
             overflow: auto;
-            height: calc(100% - 50px);
+            flex: 1 1 auto;
+            min-height: 0;
+            padding: 8px 4px 12px;
         }
 
         ul {
@@ -100,37 +912,107 @@
             }
             li {
                 a {
-                    color: $textColor;
+                    color: $rmText;
                     white-space: nowrap;
-                    &:before {
-                        @include tao-icon-setup;
-                        @include icon-folder;
-                        margin: 0 3px;
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                    box-sizing: border-box;
+                    width: 100%;
+                    padding: 3px 4px;
+                    line-height: 1.5;
+                    text-decoration: none;
+                    border: 0;
+                    outline: none;
+                    box-shadow: none;
+
+                    &:hover,
+                    &:focus,
+                    &:focus-visible,
+                    &:active {
+                        text-decoration: none;
+                        color: $rmText;
+                        outline: none;
+                        box-shadow: none;
+                    }
+
+                    > .tree-toggle,
+                    > .tree-folder {
+                        flex: 0 0 auto;
+                        line-height: 1;
+
+                        @include font-size(12);
+                    }
+
+                    > .tree-toggle {
+                        width: 1em;
+                        color: lighten($rmText, 25%);
+
+                        &.is-leaf:before,
+                        &:not(.icon-right):not(.icon-down):before {
+                            content: none;
+                        }
+                    }
+
+                    > .tree-folder {
+                        @include font-size(14);
+                    }
+
+                    &.opened > .tree-toggle:before {
+                        @include icon-down;
+                    }
+
+                    &.opened > .tree-folder:before {
+                        @include icon-folder-open;
                     }
                 }
 
-                a.opened:before {
-                    font-style: italic;
-                    @include tao-icon-setup;
+                &.active > a > .tree-folder:before {
                     @include icon-folder-open;
                 }
 
                 &.active > a {
-                    background-color: $activeColor;
-
+                    background-color: $rmActiveRow;
+                    border: 0;
+                    outline: none;
+                    box-shadow: none;
                 }
             }
         }
     }
 
     .file-preview{
-        background-color: $uiClickableDefaultBg;
+        background-color: $rmClickableBg;
         & > h1 {
-            background-color: $uiHeaderBg;
+            background-color: $rmChromeBg;
+            border-radius: $rmHeaderRadius $rmHeaderRadius 0 0;
         }
 
         .file-properties{
-            padding: 0 5px;
+            padding: 12px 14px;
+
+            .grid-row {
+                margin-bottom: 10px;
+            }
+
+            .prop-url .actions {
+                text-align: left;
+                margin: 8px 0 0;
+
+                a.download {
+                    text-decoration: none;
+                    color: $rmInfo;
+
+                    .icon-download {
+                        margin-right: 4px;
+                    }
+
+                    &:hover {
+                        text-decoration: underline;
+                        color: $rmInfo;
+                    }
+                }
+            }
         }
 
         .previewer {
@@ -138,117 +1020,461 @@
             overflow: hidden;
         }
 
-        .actions {
+        .actions.select-actions {
             text-align: center;
-            margin-bottom: 10px;
+            margin: 12px 0 16px;
         }
     }
 
     .file-selector{
         position: relative;
-        border: solid 1px #fff;
-        border-top: none;
-        border-bottom: none;
         display: flex;
         flex-direction: column;
 
-        background-color: $uiGeneralContentBg;
+        background-color: $rmSurface;
         & > h1 {
             position: relative;
-            background-color: $uiClickableDefaultBg;
+            background-color: $rmChromeBg;
+            border-radius: $rmHeaderRadius $rmHeaderRadius 0 0;
+            // Flex (shared h1) replaces .lft/.rgt floats so "Assets" shares baseline with Search/Preview.
+            justify-content: space-between;
+            gap: 10px;
 
             .title {
-                margin-right: 10px;
+                float: none;
+                margin-right: 0;
             }
 
             .upload-switcher {
+                float: none;
+                flex: 0 0 auto;
+
                 a {
                     display: inline-block;
                 }
                 .listing {
                     display:none;
                 }
-            }
-        }
 
-        .empty {
-            color: #666;
-            font-style: italic;
-            @include font-size(18);
-            text-align: center;
-        }
+                a.btn-info {
+                    color: $rmText;
+                    background-color: $rmSurface;
+                    border: 1px solid $rmBorder;
 
-        ul.files {
-            position: relative;
-            margin-bottom: 0;
-            padding: 0;
-            list-style-type: none;
-            flex-grow: 1;
-            overflow-y: auto;
-            li {
-                height: 35px;
-                line-height: 35px;
-                margin-bottom: 0;
-                padding: 0 0 0 5px;
-                position: relative;
-
-                &:before {
-                    @include tao-icon-setup;
-                    @include icon-document;
-                    @include font-size(16);
-                    vertical-align: top;
-                    line-height: 2.2;
-                    position: absolute;
-                    left: 8px;
-                }
-                &[data-type='image']:before{
-                    @include icon-image;
-                }
-                &[data-type='audio']:before{
-                    @include icon-media;
-                }
-                &[data-type='video']:before{
-                    @include icon-video;
-                }
-
-                &.active, &:hover {
-                    background-color: $activeColor;
-                    cursor: pointer;
-                }
-
-                .desc {
-                    display: inline-block;
-                    max-width: calc(100% - 130px);// 130 = icon left + toolbar right + some air
-                    margin-left: 25px;
-                }
-
-                .actions {
-                    top: 0;
-                    right: 0;
-                    position: absolute;
-                    height: 35px;
-                    width: 100px;
-                    .tlb {
-                        display: inline-block;
-                        background: none;
-                        @include font-size(14);
-                        .tlb-top {
-                            background: none !important;
-                            border-width: 0 !important;
-                            @include box-shadow(0, 0, 0);
-                        }
+                    &:hover,
+                    &:focus,
+                    &:active {
+                        color: $rmText;
+                        background-color: $rmSurface;
+                        border-color: $rmBorder;
+                        opacity: 1;
                     }
                 }
             }
         }
+
+        .empty {
+            display: none;
+            color: lighten($rmText, 25%);
+            font-style: italic;
+            @include font-size(18);
+
+            text-align: center;
+            padding: 24px 10px;
+        }
+
+        .asset-search-error {
+            padding: 10px 5px;
+            text-align: center;
+            @include font-size(14);
+
+            &.hidden,
+            &[hidden] {
+                display: none;
+            }
+        }
+
+        .asset-search-error {
+            color: $error;
+        }
+
+        &.search-mode {
+            .upload-switcher {
+                display: none;
+            }
+        }
+
+        .files-wrapper {
+            position: relative;
+            flex-grow: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        table.files {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+            table-layout: fixed;
+
+            thead th {
+                text-align: left;
+                font-weight: bold;
+                padding: 12px 12px 10px;
+                border-bottom: 1px solid mix($rmLight, $rmMidGray, 40%);
+                background-color: transparent;
+                color: $rmText;
+                white-space: nowrap;
+                user-select: none;
+
+                &.sortable {
+                    cursor: pointer;
+
+                    .sort-label {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+
+                        // Sort glyph sits beside the label text (not at the column edge).
+                        &:after {
+                            content: '';
+                            flex: 0 0 auto;
+                            width: 11px;
+                            height: 12px;
+                            opacity: 0.55;
+                            background-color: $rmText;
+                            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 14'%3E%3Cpath fill='black' d='M0 1h12v1.5H0zm0 3.5h9v1.5H0zm0 3.5h6v1.5H0z'/%3E%3Cpath fill='black' d='M9.5 8.5L12 12H7z'/%3E%3C/svg%3E")
+                                center / contain no-repeat;
+                            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 14'%3E%3Cpath fill='black' d='M0 1h12v1.5H0zm0 3.5h9v1.5H0zm0 3.5h6v1.5H0z'/%3E%3Cpath fill='black' d='M9.5 8.5L12 12H7z'/%3E%3C/svg%3E")
+                                center / contain no-repeat;
+                        }
+                    }
+
+                    &:hover,
+                    &:focus {
+                        .sort-label:after {
+                            background-color: $rmText;
+                            opacity: 1;
+                        }
+                    }
+                }
+
+                &.sorted.sorted_asc .sort-label:after {
+                    opacity: 1;
+                    transform: scaleY(-1);
+                }
+
+                &.sorted.sorted_desc .sort-label:after {
+                    opacity: 1;
+                    transform: none;
+                }
+            }
+
+            tbody tr {
+                cursor: pointer;
+
+                &.active,
+                &:hover {
+                    background-color: $rmActiveRow;
+                }
+
+                td {
+                    padding: 10px 12px;
+                    border-bottom: 0;
+                    vertical-align: middle;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    max-width: 0;
+
+                    .truncate,
+                    .desc,
+                    .meta {
+                        display: block;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        max-width: 100%;
+                    }
+                }
+            }
+
+            .files-label {
+                width: 44%;
+
+                // Flex lives on an inner wrapper — display:flex on td + max-width:0 collapses the column.
+                .files-label-inner {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    min-width: 0;
+                    max-width: 100%;
+                }
+
+                .file-icon {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 18px;
+                    flex-shrink: 0;
+                    line-height: 1;
+
+                    &:before {
+                        @include tao-icon-setup;
+                        @include icon-document;
+                        @include font-size(16);
+                    }
+                }
+
+                .desc {
+                    display: block;
+                    flex: 1 1 auto;
+                    min-width: 0;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+            }
+
+            tr[data-type='image'] .file-icon:before {
+                @include icon-image;
+            }
+            tr[data-type='audio'] .file-icon:before {
+                @include icon-media;
+            }
+            tr[data-type='video'] .file-icon:before {
+                @include icon-video;
+            }
+
+            .files-location {
+                width: 30%;
+            }
+
+            .files-updated {
+                // Date + delete slot; keep enough for "Last modified on" header, less empty gap.
+                width: 26%;
+            }
+
+            .files-updated-inner {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                min-width: 0;
+                max-width: 100%;
+
+                .meta.updated {
+                    flex: 1 1 auto;
+                    min-width: 0;
+                }
+            }
+
+            .meta {
+                @include font-size(12);
+
+                color: lighten($rmText, 25%);
+            }
+
+            .row-actions {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                flex: 0 0 18px;
+                width: 18px;
+                opacity: 0;
+                pointer-events: none;
+
+                // Plain bin icon (same idea as filter-spoiler-delete) — no tlb chrome/border.
+                a.delete {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 0;
+                    border: 0;
+                    border-radius: 0;
+                    background: transparent;
+                    color: lighten($rmText, 40%);
+                    text-decoration: none;
+                    text-shadow: none;
+                    box-shadow: none;
+                    line-height: 1;
+                    cursor: pointer;
+
+                    @include font-size(14);
+
+                    &:hover,
+                    &:active {
+                        color: $rmText;
+                        background: transparent;
+                        text-shadow: none;
+                        box-shadow: none;
+                    }
+
+                    &:focus {
+                        outline: 1px dotted $rmDarkBar;
+                        color: $rmText;
+                    }
+                }
+            }
+
+            tbody tr:hover .row-actions,
+            tbody tr:focus-within .row-actions {
+                opacity: 1;
+                pointer-events: auto;
+            }
+        }
+        // Uploader wraps .file-upload-container in form.uploaderContainer (sibling of Assets h1).
+        > .uploaderContainer {
+            margin-top: 12px;
+        }
+
         .file-upload-container {
             display: none;
             padding: 0 5px;
         }
-        .pagination-bottom {  
-            align-self: flex-end;
+        .pagination-bottom {
+            align-self: stretch;
             width: 100%;
-            padding: 5px 10px 0;
+            padding: 10px 2px 8px;
+            box-sizing: border-box;
+
+            .pagination {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 16px;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                float: none;
+                clear: none;
+
+                &::before,
+                &::after {
+                    display: none;
+                }
+
+                > .col-6 {
+                    float: none;
+                    width: auto;
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+
+                > .col-6:first-child {
+                    @include font-size(13);
+
+                    flex: 0 1 auto;
+                    color: $rmText;
+                    font-weight: bold;
+                    line-height: 1.4;
+                    white-space: nowrap;
+
+                    strong,
+                    .page,
+                    .total {
+                        font-weight: bold;
+                    }
+                }
+
+                > .col-6.txt-rgt {
+                    display: flex;
+                    align-items: center;
+                    justify-content: flex-end;
+                    flex: 0 0 auto;
+                    gap: 16px;
+                    text-align: right;
+                }
+            }
+
+            // Text-link chrome for Previous/Next (scoped under .file-selector .pagination-bottom)
+            .pagination .txt-rgt > button.btn-info,
+            .pagination .pages > li > a,
+            .pagination .pages > li > button {
+                margin: 0;
+                min-height: 0;
+                padding: 0;
+                border: 0;
+                border-color: transparent;
+                background: transparent;
+                background-color: transparent;
+                background-image: none;
+                color: $rmInfo;
+                font-weight: normal;
+                line-height: 1.4;
+                text-shadow: none;
+                box-shadow: none;
+                opacity: 1;
+
+                @include font-size(13);
+
+                .icon-backward,
+                .icon-forward {
+                    display: none;
+                }
+
+                &:hover,
+                &:focus,
+                &:active {
+                    color: $rmInfo;
+                    text-decoration: underline;
+                    background: transparent;
+                    background-color: transparent;
+                    background-image: none;
+                    border-color: transparent;
+                    opacity: 1;
+                }
+            }
+
+            // Simple provider: "< Previous" / "Next >" text links
+            .pagination .txt-rgt > button:first-child::before {
+                content: '< ';
+            }
+
+            .pagination .txt-rgt > button:last-child::after {
+                content: ' >';
+            }
+
+            .pagination .txt-rgt > button.btn-info[disabled],
+            .pagination .pages > .disabled > a,
+            .pagination .pages > .disabled > span,
+            .pagination .pages > .disabled > button {
+                color: lighten($rmText, 45%);
+                cursor: not-allowed;
+                text-decoration: none;
+                pointer-events: none;
+
+                &:hover,
+                &:focus,
+                &:active {
+                    color: lighten($rmText, 45%);
+                    text-decoration: none;
+                    background: transparent;
+                    background-color: transparent;
+                }
+
+                // _buttons.scss `.disabled, button[disabled]` uses !important — override only there
+                &,
+                &:hover,
+                &:focus,
+                &:active {
+                    background-color: transparent !important;
+                    border: none !important;
+                    color: lighten($rmText, 45%) !important;
+                    cursor: not-allowed !important;
+                    opacity: 1 !important;
+                    text-shadow: none !important;
+                }
+            }
         }
     }
+}
+
+// select2 dropdown/mask are appended to body; item creator modal uses z-index 105002
+.criteria-dropdown-select2 {
+    z-index: 105100 !important;
+}
+
+#select2-drop-mask {
+    z-index: 105090 !important;
 }
