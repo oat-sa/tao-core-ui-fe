@@ -22,7 +22,7 @@ import context from 'context';
 import 'ui/previewer';
 
 const ns = 'resourcemgr';
-const EMPTY_META = '\u2014';
+const EMPTY_META = '-';
 
 export default function(options) {
     const $container = options.$target;

@@ -86,10 +86,15 @@ export default function (options) {
 
     // Reopen with resolved parent (AC3 edit/change): leave search, open folder again.
     $container.on(`applycontext.${NS}`, function (e, ctx) {
-        if (!isActiveBrowser()) {
+        const path = (ctx && ctx.path) || rootPath;
+        if (
+            path &&
+            String(path).indexOf('taomedia://') === 0 &&
+            root === 'local'
+        ) {
             return;
         }
-        const path = (ctx && ctx.path) || rootPath;
+        $container.data('activeFileBrowserRoot', root);
         if (searchMode) {
             $container.trigger(`requestexitsearch.${NS}`);
         }
@@ -221,6 +226,52 @@ export default function (options) {
      * Open and select an initial folder path after the root tree is available.
      * @param {String} path
      */
+    function findFolderLink(path) {
+        return $folderContainer.find('a').filter(function () {
+            return $(this).data('path') === path;
+        });
+    }
+
+    /**
+     * Render directory children under an expanded folder anchor (replace / reopen).
+     * @param {String} parentPath
+     * @param {Object} parentContent
+     */
+    function mountFolderBranch(parentPath, parentContent) {
+        const $parentLink = findFolderLink(parentPath);
+        if (!$parentLink.length || !parentContent) {
+            return;
+        }
+        let $innerList = $parentLink.siblings('ul');
+        if (!$innerList.length) {
+            $innerList = $('<ul></ul>').insertAfter($parentLink);
+        }
+        updateFolders(parentContent, $innerList);
+        $parentLink.addClass('opened');
+        if ($innerList.css('display') === 'none') {
+            $innerList.show();
+        }
+        setFolderToggleState($parentLink, hasNestedFolderChildren(parentContent) !== false);
+    }
+
+    function markFolderActive(path) {
+        const $targetLink = findFolderLink(path);
+        if ($targetLink.length) {
+            $targetLink.parents('li').each(function () {
+                const $li = $(this);
+                const $anchor = $li.children('a');
+                const $list = $li.children('ul');
+                $anchor.addClass('opened');
+                if ($list.length) {
+                    $list.show();
+                }
+            });
+            syncTreeActiveFolder(path, $targetLink);
+        } else if (path === rootPath) {
+            syncTreeActiveFolder(rootPath);
+        }
+    }
+
     function openInitialPath(path) {
         getFolderContent(fileTree, path, function (content) {
             indexTree(fileTree);
@@ -232,24 +283,26 @@ export default function (options) {
                 return;
             }
 
-            // Expand ancestors when possible and mark the target active.
-            const $targetLink = $folderContainer.find('a').filter(function () {
-                return $(this).data('path') === path;
-            });
-            if ($targetLink.length) {
-                $targetLink.parents('li').each(function () {
-                    const $li = $(this);
-                    const $anchor = $li.children('a');
-                    const $list = $li.children('ul');
-                    $anchor.addClass('opened');
-                    if ($list.length) {
-                        $list.show();
-                    }
-                });
-                syncTreeActiveFolder(path, $targetLink);
+            function finishOpen() {
+                markFolderActive(path);
+                selectFolder(content, path);
             }
 
-            selectFolder(content, path);
+            if (findFolderLink(path).length) {
+                finishOpen();
+                return;
+            }
+
+            const parentFolderPath = content.parentFolderPath;
+            if (parentFolderPath && parentFolderPath !== path) {
+                getFolderContent(fileTree, parentFolderPath, function (parentContent) {
+                    mountFolderBranch(parentFolderPath, parentContent);
+                    finishOpen();
+                });
+                return;
+            }
+
+            finishOpen();
         });
     }
 
