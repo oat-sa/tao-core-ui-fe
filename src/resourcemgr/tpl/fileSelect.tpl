@@ -1,39 +1,36 @@
 {{#each files}}
-    <li data-type="{{type}}"
+    <tr data-type="{{type}}"
         data-file="{{uri}}"
         data-display="{{display}}"
         data-mime="{{mime}}"
         data-size="{{size}}"
         data-url="{{viewUrl}}"
+        {{#if location}} data-location="{{location}}" {{/if}}
+        {{#if updatedAt}} data-updated="{{updatedAt}}" {{/if}}
         {{#if permissions.download}} data-download="true" {{/if}}
         {{#if permissions.preview}} data-preview="true" {{/if}}
         {{#if permissions.read}} data-select="true" {{/if}}
         data-alt="{{alt}}">
-        <span class="desc truncate">{{name}}</span>
-        <div class="actions">
-            <div class="tlb">
-                <div class="tlb-top">
-                    <span class="tlb-box">
-                        <span class="tlb-bar">
-                            <span class="tlb-start"></span>
-                            {{#if permissions.read }}
-                                <span class="tlb-group">
-                                    {{#if permissions.read}}
-                                        <a href="#" class="tlb-button-off select" title="{{__ 'Select this file'}}"><span class="icon-move-item"></span></a>
-                                    {{/if}}
-                                    {{#if permissions.download}}
-                                        <a href="{{downloadUrl}}" download="{{name}}" target="_blank" class="tlb-button-off download" title="{{__ 'Download this file'}}"><span class="icon-download"></span></a>
-                                    {{/if}}
-                                    {{#if permissions.delete }}
-                                        <a href="#" class="tlb-button-off delete" title="{{__ 'Remove this file'}}"><span class="icon-bin"></span></a>
-                                    {{/if}}
-                                </span>
-                            {{/if}}
-                            <span class="tlb-end"></span>
-                        </span>
-                    </span>
-                </div>
-            </div>
-        </div>
-    </li>
+        <td class="files-label">
+            <span class="files-label-inner">
+                <span class="file-icon" aria-hidden="true"></span>
+                <span class="desc truncate">{{name}}</span>
+            </span>
+        </td>
+        <td class="files-location">
+            <span class="meta location truncate" title="{{locationDisplay}}">{{locationDisplay}}</span>
+        </td>
+        <td class="files-updated">
+            <span class="files-updated-inner">
+                <span class="meta updated truncate" title="{{updatedAtDisplay}}">{{updatedAtDisplay}}</span>
+                <span class="row-actions">
+                    {{#if permissions.delete}}
+                        <a href="#" class="delete" title="{{__ 'Remove this file'}}" aria-label="{{__ 'Remove this file'}}">
+                            <span class="icon-bin" aria-hidden="true"></span>
+                        </a>
+                    {{/if}}
+                </span>
+            </span>
+        </td>
+    </tr>
 {{/each}}
