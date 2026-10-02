@@ -148,6 +148,7 @@ export default function (options) {
     }
     let searchMode = false;
     let initialSelectionApplied = false;
+    let pendingContextSelection = null;
     let sort = Object.assign({}, DEFAULT_SORT);
     let lastFiles = [];
 
@@ -192,6 +193,15 @@ export default function (options) {
             });
 
             updateFiles(files);
+            if (pendingContextSelection) {
+                const pending = pendingContextSelection;
+                initialSelectionApplied = false;
+                applyInitialSelection(pending, false);
+                if (initialSelectionApplied) {
+                    pendingContextSelection = null;
+                }
+                return;
+            }
             applyInitialSelection();
         }
     });
@@ -217,15 +227,13 @@ export default function (options) {
         }
     });
 
-    // Reopen resolve (AC3): allow preselect again after folder reload via folderselect.
+    // Reopen resolve (AC3): defer preselect until folderselect loads the resolved parent folder.
     $container.on(`applycontext.${ns}`, function (e, ctx) {
         initialSelectionApplied = false;
         options.initialSelection = ctx && ctx.selection ? ctx.selection : null;
         options.currentAssetItem = ctx && ctx.currentAssetItem ? ctx.currentAssetItem : null;
+        pendingContextSelection = options.initialSelection || null;
         $fileContainer.find('tr.active').removeClass('active');
-        if (options.initialSelection) {
-            applyInitialSelection(options.initialSelection);
-        }
     });
 
     function injectTranscriptionMetadata(transcriptionUrl, metadataUri, resourceUri) {
@@ -350,16 +358,23 @@ export default function (options) {
      * Preselect initialSelection once when the matching row is present.
      * When resolve returned a currentAssetItem missing from the page, inject it.
      * @param {String} [selection]
+     * @param {Boolean} [allowInject=true] - inject currentAssetItem when missing (skip during pending reopen)
      */
-    function applyInitialSelection(selection) {
+    function applyInitialSelection(selection, allowInject) {
         const target = selection || options.initialSelection;
         if (!target || initialSelectionApplied) {
             return;
         }
+        const mayInject = allowInject !== false;
         let $item = $fileContainer.find('tr').filter(function () {
             return $(this).attr('data-file') === String(target);
         });
-        if (!$item.length && options.currentAssetItem && String(options.currentAssetItem.uri) === String(target)) {
+        if (
+            !$item.length
+            && mayInject
+            && options.currentAssetItem
+            && String(options.currentAssetItem.uri) === String(target)
+        ) {
             const injected = prepareFileForDisplay(
                 ensurePermissions(Object.assign({}, options.currentAssetItem)),
                 options.currentAssetItem.location || '',

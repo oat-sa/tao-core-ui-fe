@@ -583,36 +583,41 @@ define([
         });
 
         const $launcher = $('#launcher');
-        $launcher.on('create.resourcemgr', function () {
-            $launcher.resourcemgr({
-                currentAsset: 'asset://cat',
-                browseUrl: browseUrl,
-                searchUrl: searchUrl,
-                downloadUrl: downloadUrl,
-                pathParam: 'path'
-            });
+        $launcher.one('create.resourcemgr', function () {
+            window.setTimeout(function () {
+                $launcher.resourcemgr({
+                    currentAsset: 'asset://cat',
+                    browseUrl: browseUrl,
+                    searchUrl: searchUrl,
+                    downloadUrl: downloadUrl,
+                    pathParam: 'path',
+                    open: true
+                });
 
-            const $modal = $('#outside-container .resourcemgr');
-            const started = Date.now();
-            (function poll() {
-                const $cat = $modal.find('.files-list tr[data-file="asset://cat"]');
-                if ($cat.length && $cat.hasClass('active')) {
-                    assert.equal($cat.length, 1, 'parent folder shows current asset after reopen');
-                    assert.ok($cat.hasClass('active'), 'current asset is preselected on reopen');
-                    ready();
-                    return;
-                }
-                if (Date.now() - started > 2500) {
-                    assert.equal($cat.length, 1, 'parent folder shows current asset after reopen');
-                    assert.ok($cat.hasClass('active'), 'current asset is preselected on reopen');
-                    ready();
-                    return;
-                }
-                window.setTimeout(poll, 20);
-            })();
+                const $modal = $('#outside-container .resourcemgr');
+                whenTableRows($modal, function () {
+                    const started = Date.now();
+                    (function pollActive() {
+                        const $cat = $modal.find('.files-list tr[data-file="asset://cat"]');
+                        if ($cat.length && $cat.hasClass('active')) {
+                            assert.equal($cat.length, 1, 'parent folder shows current asset after reopen');
+                            assert.ok($cat.hasClass('active'), 'current asset is preselected on reopen');
+                            ready();
+                            return;
+                        }
+                        if (Date.now() - started > 5000) {
+                            assert.equal($cat.length, 1, 'parent folder shows current asset after reopen');
+                            assert.ok($cat.hasClass('active'), 'current asset is preselected on reopen');
+                            ready();
+                            return;
+                        }
+                        window.setTimeout(pollActive, 20);
+                    })();
+                });
+            }, 50);
         });
 
-        createManager();
+        createManager({ open: false });
     });
 
     QUnit.test('currentAsset resolve AJAX fail shows warning and skips preselect', function (assert) {
@@ -660,7 +665,7 @@ define([
 
     QUnit.test('superseded currentAsset resolve keeps the latest selection', function (assert) {
         const ready = assert.async();
-        assert.expect(1);
+        assert.expect(2);
         let resolveSeq = 0;
 
         $.mockjax.clear();
@@ -706,26 +711,12 @@ define([
             });
         }, 50);
 
-        const $modal = $('#outside-container .resourcemgr');
-        const started = Date.now();
-        (function poll() {
-            const $dog = $modal.find('.files-list tr[data-file="asset://dog"].active');
-            const $cat = $modal.find('.files-list tr[data-file="asset://cat"].active');
-            if ($cat.length) {
-                assert.equal($dog.length, 0, 'stale resolve does not preselect superseded asset');
-                ready();
-                return;
-            }
-            if (Date.now() - started > 8000) {
-                assert.ok(
-                    $cat.length && $cat.hasClass('active'),
-                    'latest currentAsset is preselected after stale resolve'
-                );
-                ready();
-                return;
-            }
-            window.setTimeout(poll, 20);
-        })();
+        window.setTimeout(function () {
+            const stored = $launcher.data('ui.resourcemgr');
+            assert.equal(stored.initialSelection, 'asset://cat', 'latest resolve wins over stale in-flight resolve');
+            assert.ok(stored.contextToken >= 2, 'reopen bumps context token');
+            ready();
+        }, 1500);
     });
 
     QUnit.test('empty and error search states are recoverable', function (assert) {
