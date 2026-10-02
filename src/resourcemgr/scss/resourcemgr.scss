@@ -672,8 +672,9 @@
         }
 
         .asset-search .filter-spoiler-delete {
-            flex: 0 0 auto;
-            height: auto;
+            flex: 0 0 16px;
+            width: 16px;
+            height: 16px;
             padding: 0;
             border: 0;
             border-radius: 0;
@@ -683,7 +684,7 @@
             line-height: 1;
             text-shadow: none;
             box-shadow: none;
-            opacity: 0;
+            visibility: hidden;
 
             @include font-size(14);
 
@@ -697,19 +698,17 @@
 
             &:focus {
                 outline: none;
-                opacity: 1;
             }
 
             &:focus-visible {
                 outline: 1px dotted $rmDarkBar;
-                opacity: 1;
+                visibility: visible;
             }
         }
 
         .asset-search .filter-spoiler.is-open .filter-spoiler-delete,
-        .asset-search .filter-spoiler-header:hover .filter-spoiler-delete,
-        .asset-search .filter-spoiler-header:focus-within .filter-spoiler-delete {
-            opacity: 1;
+        .asset-search .filter-spoiler-header:hover .filter-spoiler-delete {
+            visibility: visible;
         }
 
         .asset-search .filter-spoiler-body {
@@ -733,26 +732,15 @@
             @include visuallyHidden;
         }
 
-        .asset-search .logic-radio-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px 12px;
-            margin: 0 0 8px;
+        .asset-search .filter-spoiler-body .criteria-alias,
+        .asset-search .filter-spoiler-body .class-path {
+            display: none;
         }
 
-        .asset-search .logic-label {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            margin: 0;
-            font-weight: normal;
-            white-space: nowrap;
-
-            @include font-size(12);
-
-            input[type='radio'] {
-                accent-color: $rmInfo;
-            }
+        // RM metadata search is AND-only; logic radios are backoffice-only noise here.
+        // advancedSearch.css loads after resourcemgr.css and sets display:flex on this block.
+        .asset-search .logic-radio-group {
+            display: none !important;
         }
 
         // select2 sets inline width on init — only !important overrides it
@@ -763,6 +751,49 @@
         .asset-search .filter-spoiler-body .select2-choices {
             min-height: 30px;
             border-radius: $rmControlRadius;
+        }
+
+        // Replace select2 PNG sprite close (hover background-position flicker / stray pixels).
+        .asset-search .filter-spoiler-body .select2-container-multi .select2-choices .select2-search-choice {
+            overflow: hidden;
+            padding: 4px 24px 4px 8px;
+            line-height: 1.3;
+
+            &.select2-search-choice-focus {
+                background-color: blacken($uiClickableDefaultBg, 0.1);
+            }
+
+            .select2-search-choice-close {
+                background-image: none !important;
+                left: auto;
+                right: 4px;
+                top: 50%;
+                width: 14px;
+                height: 14px;
+                margin-top: -7px;
+                font-size: 0;
+                line-height: 1;
+                color: lighten($rmText, 40%);
+                text-indent: 0;
+
+                &:hover,
+                &:focus,
+                &:active {
+                    background-image: none !important;
+                    background-position: 0 0;
+                    color: $rmText;
+                }
+
+                &:before {
+                    @include tao-icon-setup;
+                    @include icon-close;
+                    @include font-size(12);
+
+                    display: block;
+                    line-height: 14px;
+                    text-align: center;
+                }
+            }
         }
 
         .asset-search .filter-spoiler-body input[type='text'],

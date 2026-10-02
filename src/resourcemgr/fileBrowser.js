@@ -145,13 +145,9 @@ export default function (options) {
     // by clicking on the tree (using a live binding  because content is not complete yet)
     $divContainer.off('click', '.folders a').on('click', '.folders a', function (e) {
         e.preventDefault();
-        // AC2: ignore tree clicks in search mode so `.active` / scopePath stay in sync.
-        if (searchMode) {
-            return;
-        }
         const $selected = $(this);
         const fullPath = $selected.data('path');
-        const subTree = getByPath(fileTree, fullPath);
+        const subTree = getByExactPath(fileTree, fullPath);
 
         //get the folder content
         getFolderContent(subTree, fullPath, function (content) {
@@ -338,10 +334,20 @@ export default function (options) {
      * @param {String} path
      */
     function selectFolder(content, path) {
-        if (searchMode || !content) {
+        if (!content) {
             return;
         }
         $container.data('activeFileBrowserRoot', root);
+        if (searchMode) {
+            $container.trigger(`folderpath.${NS}`, [path, content.label]);
+            $container.trigger(`folderselect.${NS}`, [
+                content.label,
+                getPage(content.children || []),
+                path,
+                content
+            ]);
+            return;
+        }
         updateSelectedClass(path, content.total, content.childrenLimit);
         $container.trigger(`folderpath.${NS}`, [path, content.label]);
         $container.trigger(`folderselect.${NS}`, [

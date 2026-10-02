@@ -282,37 +282,8 @@ var resourceMgr = {
             return stored._browsersStartPromise;
         }
 
-        const deferred = $.Deferred();
-        stored._browsersStartPromise = deferred.promise();
+        stored._browsersStartPromise = this._startBrowsers($elt, stored);
         $elt.data(dataNs, stored);
-
-        const $wrapper = $('.file-browser .file-browser-wrapper', options.$target);
-        const isMounted = function() {
-            return $wrapper.children().length > 0;
-        };
-
-        if (isMounted()) {
-            deferred.resolve();
-            return stored._browsersStartPromise;
-        }
-
-        this._startBrowsers($elt, options);
-
-        let attempts = 200;
-        const poll = function() {
-            if (isMounted()) {
-                deferred.resolve();
-                return;
-            }
-            attempts -= 1;
-            if (attempts <= 0) {
-                deferred.reject();
-                return;
-            }
-            window.setTimeout(poll, 50);
-        };
-        poll();
-
         return stored._browsersStartPromise;
     },
 
@@ -323,38 +294,76 @@ var resourceMgr = {
      */
     _startBrowsers: function($elt, options) {
         const $fileBrowser = $('.file-browser .file-browser-wrapper', options.$target);
+
+        const waitForTreeWrapper = function() {
+            const deferred = $.Deferred();
+            const isMounted = function() {
+                return $fileBrowser.children().length > 0;
+            };
+
+            if (isMounted()) {
+                deferred.resolve();
+                return deferred.promise();
+            }
+
+            let attempts = 200;
+            const poll = function() {
+                if (isMounted()) {
+                    deferred.resolve();
+                    return;
+                }
+                attempts -= 1;
+                if (attempts <= 0) {
+                    deferred.reject();
+                    return;
+                }
+                window.setTimeout(poll, 50);
+            };
+            poll();
+            return deferred.promise();
+        };
+
+        const finishMount = function() {
+            $fileBrowser.find('li.root:last').addClass('active');
+            fileSelector(options);
+            filePreview(options);
+            assetSearch(options);
+        };
+
+        const mountFromSources = function(mediaSources) {
+            const sources = mediaSources || defaults.mediaSources;
+            for (let i = 0; i < sources.length; i++) {
+                options.root = sources[i].root;
+                options.path = sources[i].path;
+                $fileBrowser.append('<div class="' + options.root + '"><ul class="folders"></ul></div>');
+                fileBrowser(options);
+            }
+        };
+
+        const afterComponentsMounted = function() {
+            finishMount();
+            return waitForTreeWrapper();
+        };
+
         if (options.mediaSourcesUrl) {
-            $.getJSON(options.mediaSourcesUrl)
-                .done(function(data) {
-                    const mediaSources = data || defaults.mediaSources;
-                    for (let i = 0; i < mediaSources.length; i++) {
-                        options.root = mediaSources[i].root;
-                        options.path = mediaSources[i].path;
-                        $fileBrowser.append(
-                            '<div class="' + options.root + '"><ul class="folders"></ul></div>'
-                        );
-                        fileBrowser(options);
-                    }
-                })
-                .fail(function() {
-                    for (let i = 0; i < defaults.mediaSources.length; i++) {
-                        options.root = defaults.mediaSources[i].root;
-                        options.path = defaults.mediaSources[i].path;
-                        $fileBrowser.append(
-                            '<div class="' + options.root + '"><ul class="folders"></ul></div>'
-                        );
-                        fileBrowser(options);
-                    }
-                });
-        } else if (options.path && options.root) {
+            return $.getJSON(options.mediaSourcesUrl).then(
+                function(data) {
+                    mountFromSources(data || defaults.mediaSources);
+                    return afterComponentsMounted();
+                },
+                function() {
+                    mountFromSources(defaults.mediaSources);
+                    return afterComponentsMounted();
+                }
+            );
+        }
+
+        if (options.path && options.root) {
             $fileBrowser.append('<div class="' + options.root + '"><ul class="folders"></ul></div>');
             fileBrowser(options);
         }
 
-        $fileBrowser.find('li.root:last').addClass('active');
-        fileSelector(options);
-        filePreview(options);
-        assetSearch(options);
+        return afterComponentsMounted();
     },
 
     _createTarget: function($elt) {

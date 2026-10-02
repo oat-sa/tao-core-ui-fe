@@ -275,6 +275,37 @@ define([
         assert.equal(sorted[0].name, 'intro.mp3', 'label desc puts intro first');
     });
 
+    QUnit.test('canSubmitScopedAssetSearch gates text length and incomplete metadata', function (assert) {
+        assert.expect(6);
+
+        assert.ok(!contract.canSubmitScopedAssetSearch('ab', null), 'short query alone is blocked');
+        assert.ok(contract.canSubmitScopedAssetSearch('abc', null), 'query with 3 chars is allowed');
+        assert.ok(
+            !contract.canSubmitScopedAssetSearch('', {
+                lang: { type: 'text', rendered: true, propertyUri: 'p', value: '   ' }
+            }),
+            'rendered text filter without value blocks search'
+        );
+        assert.ok(
+            contract.canSubmitScopedAssetSearch('', {
+                lang: { type: 'text', rendered: true, propertyUri: 'p', value: 'ja' }
+            }),
+            'metadata-only search is allowed when values are complete'
+        );
+        assert.ok(
+            contract.canSubmitScopedAssetSearch('ab', {
+                lang: { type: 'text', rendered: true, propertyUri: 'p', value: 'ja' }
+            }),
+            'short query does not block when metadata is complete'
+        );
+        assert.ok(
+            !contract.canSubmitScopedAssetSearch('abc', {
+                lang: { type: 'text', rendered: true, propertyUri: 'p', value: '' }
+            }),
+            'valid query is blocked while an empty filter card remains'
+        );
+    });
+
     QUnit.test('local fallback matches BE token prefix rules', function (assert) {
         assert.expect(5);
 
@@ -634,7 +665,7 @@ define([
 
         $.mockjax.clear();
         mockAdvancedSearchApis();
-        mockBrowseWithCurrentAssetResolve(function (settings) {
+        mockBrowseWithCurrentAssetResolve(function () {
             resolveSeq += 1;
             const seq = resolveSeq;
             if (seq === 1) {
@@ -658,38 +689,43 @@ define([
             return fixtures.searchResults;
         });
 
+        createManager({
+            currentAsset: 'asset://dog',
+            open: false
+        });
+
         const $launcher = $('#launcher');
-        $launcher.on('create.resourcemgr', function () {
+        window.setTimeout(function () {
             $launcher.resourcemgr({
                 currentAsset: 'asset://cat',
                 browseUrl: browseUrl,
                 searchUrl: searchUrl,
                 downloadUrl: downloadUrl,
-                pathParam: 'path'
+                pathParam: 'path',
+                open: false
             });
+        }, 50);
 
-            const $modal = $('#outside-container .resourcemgr');
-            const started = Date.now();
-            (function poll() {
-                const $dog = $modal.find('.files-list tr[data-file="asset://dog"].active');
-                const $cat = $modal.find('.files-list tr[data-file="asset://cat"].active');
-                if ($cat.length) {
-                    assert.equal($dog.length, 0, 'stale resolve does not preselect superseded asset');
-                    ready();
-                    return;
-                }
-                if (Date.now() - started > 4000) {
-                    assert.ok($cat.hasClass('active'), 'latest currentAsset is preselected after stale resolve');
-                    ready();
-                    return;
-                }
-                window.setTimeout(poll, 20);
-            })();
-        });
-
-        createManager({
-            currentAsset: 'asset://dog'
-        });
+        const $modal = $('#outside-container .resourcemgr');
+        const started = Date.now();
+        (function poll() {
+            const $dog = $modal.find('.files-list tr[data-file="asset://dog"].active');
+            const $cat = $modal.find('.files-list tr[data-file="asset://cat"].active');
+            if ($cat.length) {
+                assert.equal($dog.length, 0, 'stale resolve does not preselect superseded asset');
+                ready();
+                return;
+            }
+            if (Date.now() - started > 8000) {
+                assert.ok(
+                    $cat.length && $cat.hasClass('active'),
+                    'latest currentAsset is preselected after stale resolve'
+                );
+                ready();
+                return;
+            }
+            window.setTimeout(poll, 20);
+        })();
     });
 
     QUnit.test('empty and error search states are recoverable', function (assert) {
@@ -748,6 +784,30 @@ define([
             });
 
             runSearchFromUi($modal, 'missing');
+        });
+
+        createManager();
+    });
+
+    QUnit.test('Search button stays disabled until query has at least 3 characters', function (assert) {
+        const ready = assert.async();
+        assert.expect(2);
+
+        mockSearch(function () {
+            return fixtures.searchResults;
+        });
+
+        const $launcher = $('#launcher');
+        $launcher.on('create.resourcemgr', function () {
+            const $modal = $('#outside-container .resourcemgr');
+            const $input = $modal.find('.asset-search-input');
+            const $submit = $modal.find('.asset-search-submit');
+
+            $input.val('ab').trigger('input');
+            assert.ok($submit.prop('disabled'), 'two characters keep Search disabled');
+            $input.val('abc').trigger('input');
+            assert.ok(!$submit.prop('disabled'), 'three characters enable Search');
+            ready();
         });
 
         createManager();

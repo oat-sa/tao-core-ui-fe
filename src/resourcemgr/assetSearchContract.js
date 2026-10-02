@@ -49,6 +49,71 @@ export const DEFAULT_SORT = {
 export const DEFAULT_PAGE_SIZE = 10;
 
 /**
+ * Minimum universal query length before Search is enabled (matches indexed prefix rules).
+ * @type {number}
+ */
+export const MIN_TEXT_QUERY_LENGTH = 3;
+
+/**
+ * Whether a rendered metadata criterion has a usable value.
+ * @param {Object} criterion
+ * @returns {boolean}
+ */
+export function isMetadataCriterionComplete(criterion) {
+    if (!criterion || !criterion.rendered) {
+        return true;
+    }
+    if (criterion.type === 'text') {
+        return String(criterion.value || '').trim() !== '';
+    }
+    if (criterion.type === 'list') {
+        if (!Array.isArray(criterion.value)) {
+            return false;
+        }
+        return criterion.value.some(function (entry) {
+            return entry !== '' && entry !== null && typeof entry !== 'undefined';
+        });
+    }
+    return true;
+}
+
+/**
+ * True when any rendered metadata card is missing a value.
+ * @param {Object} [criteriaState]
+ * @returns {boolean}
+ */
+export function hasIncompleteRenderedMetadata(criteriaState) {
+    if (!criteriaState || typeof criteriaState !== 'object') {
+        return false;
+    }
+    return Object.keys(criteriaState).some(function (key) {
+        const criterion = criteriaState[key];
+        return criterion && criterion.rendered && !isMetadataCriterionComplete(criterion);
+    });
+}
+
+/**
+ * Whether Search should be enabled for the current pending input.
+ * Unlock when universal query (≥ min length) **or** complete metadata is present (OR).
+ * Any rendered filter card without a value blocks until fixed or removed.
+ *
+ * @param {string} textQuery - universal search field (trimmed by caller)
+ * @param {Object} [criteriaState] - advancedSearch.getState()
+ * @returns {boolean}
+ */
+export function canSubmitScopedAssetSearch(textQuery, criteriaState) {
+    const text = String(textQuery || '').trim();
+    if (hasIncompleteRenderedMetadata(criteriaState)) {
+        return false;
+    }
+    const metadata = buildMetadataFromCriteriaState(criteriaState);
+    const hasValidMetadata = Object.keys(metadata).length > 0;
+    const hasValidQuery = text.length >= MIN_TEXT_QUERY_LENGTH;
+
+    return hasValidQuery || hasValidMetadata;
+}
+
+/**
  * Build query params for a scoped asset-search request.
  *
  * Request minimum:

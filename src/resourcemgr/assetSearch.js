@@ -38,6 +38,7 @@ import {
     applyLocalSearchFallback,
     buildMetadataFromCriteriaState,
     buildSearchRequestParams,
+    canSubmitScopedAssetSearch,
     isBrowseShapedSearchPayload,
     normalizeSearchResponse
 } from 'ui/resourcemgr/assetSearchContract';
@@ -47,6 +48,7 @@ const ns = 'resourcemgr';
 const EVENT_NS = 'resourcemgrAssetSearch';
 const DEFAULT_AJAX_TIMEOUT_MS = 10000;
 const DEFAULT_ROOT_CLASS_URI = 'http://www.tao.lu/Ontologies/TAOMedia.rdf#Media';
+const SEARCH_MODE_MODAL_TITLE = __('Please select a file from the resource manager.');
 
 /**
  * Encode a URI the TAO way (same as views/js/uri.encode / tao_helpers_Uri::encode).
@@ -100,6 +102,8 @@ export default function assetSearch(options) {
     const $resultsRegion = $('.files-wrapper', $fileSelector);
     const $paginationContainer = $('.pagination-bottom', $container);
     const $uploadSwitcher = $('.upload-switcher', $fileSelector);
+    const $modalTitle = $container.closest('.resourcemgr').find('> h2').first();
+    const browseModalTitle = options.title || ($modalTitle.length ? $modalTitle.text() : '');
 
     const rootClassUri = options.rootClassUri || DEFAULT_ROOT_CLASS_URI;
     const classMappingUrl = options.classMappingUrl;
@@ -211,6 +215,24 @@ export default function assetSearch(options) {
     }
 
     /**
+     * @returns {Object|null}
+     */
+    function getCriteriaState() {
+        if (!advancedSearch || typeof advancedSearch.getState !== 'function') {
+            return null;
+        }
+        return advancedSearch.getState();
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    function canSubmitSearch() {
+        syncCriteriaFromDom();
+        return canSubmitScopedAssetSearch(buildTextQuery(), getCriteriaState());
+    }
+
+    /**
      * Clear all is hidden until params change; Search is disabled (grey) until then.
      */
     function updateSearchActionState() {
@@ -224,7 +246,7 @@ export default function assetSearch(options) {
             $searchButton.prop('disabled', true);
             return;
         }
-        if (pending) {
+        if (canSubmitSearch()) {
             $searchButton.prop('disabled', false);
         } else {
             $searchButton.prop('disabled', true);
@@ -327,6 +349,13 @@ export default function assetSearch(options) {
     updateSearchActionState();
 
     $input.on(`input.${EVENT_NS}`, updateSearchActionState);
+
+    // advancedSearch fires criteriachange on add/remove only — re-evaluate Search when values change.
+    $filtersMount.on(
+        `input.${EVENT_NS} change.${EVENT_NS}`,
+        '.advanced-criteria-container input',
+        updateSearchActionState
+    );
 
     $searchToggle.on(`click.${EVENT_NS}`, function (e) {
         e.preventDefault();
@@ -454,6 +483,7 @@ export default function assetSearch(options) {
             })
             .on('criteriachange', function () {
                 updateCollapsedAppliedCount();
+                updateSearchActionState();
             })
             .on('error', function () {
                 setAddFilterReady(false);
@@ -476,6 +506,7 @@ export default function assetSearch(options) {
         $uploadSwitcher.removeClass('hidden');
         hideLoading();
         $container.off(`.${EVENT_NS}`);
+        $filtersMount.off(`.${EVENT_NS}`);
         $input.off(`.${EVENT_NS}`);
         $retry.off(`.${EVENT_NS}`);
         $clearButton.off(`.${EVENT_NS}`);
@@ -501,6 +532,10 @@ export default function assetSearch(options) {
      * Primary triggers: Search button and Enter (same as ui/searchModal).
      */
     function submitSearch() {
+        if (!canSubmitSearch()) {
+            updateSearchActionState();
+            return;
+        }
         query = buildTextQuery();
         metadata = buildMetadata();
         page = 1;
@@ -567,7 +602,7 @@ export default function assetSearch(options) {
             return;
         }
         page = 1;
-        runSearch();
+        runSearch({ quiet: true });
     });
 
     $container.on(`requestexitsearch.${ns}.${EVENT_NS}`, function () {
@@ -583,6 +618,9 @@ export default function assetSearch(options) {
         searchMode = true;
         $fileSelector.addClass('search-mode');
         $uploadSwitcher.addClass('hidden');
+        if ($modalTitle.length && browseModalTitle) {
+            $modalTitle.text(SEARCH_MODE_MODAL_TITLE);
+        }
         $container.trigger(`searchmode.${ns}`, [true]);
         updateSearchActionState();
     }
@@ -596,6 +634,9 @@ export default function assetSearch(options) {
         requestSeq += 1;
         $fileSelector.removeClass('search-mode');
         $uploadSwitcher.removeClass('hidden');
+        if ($modalTitle.length && browseModalTitle) {
+            $modalTitle.text(browseModalTitle);
+        }
         hideLoading();
         hideError();
         $paginationContainer.empty();
@@ -608,15 +649,21 @@ export default function assetSearch(options) {
 
     /**
      * Execute the scoped search request.
+     * @param {{quiet?: boolean}} [runOptions]
      */
-    function runSearch() {
+    function runSearch(runOptions) {
         if (!hasActiveSearch()) {
             exitSearchMode();
             return;
         }
 
+        const quiet = Boolean(runOptions && runOptions.quiet);
         const seq = ++requestSeq;
-        showLoading();
+        if (quiet) {
+            $resultsRegion.attr('aria-busy', 'true');
+        } else {
+            showLoading();
+        }
         hideError();
 
         const data = buildSearchRequestParams({
@@ -641,7 +688,11 @@ export default function assetSearch(options) {
                 if (seq !== requestSeq) {
                     return;
                 }
-                hideLoading();
+                if (quiet) {
+                    $resultsRegion.attr('aria-busy', 'false');
+                } else {
+                    hideLoading();
+                }
                 let normalized = normalizeSearchResponse(response);
                 // Browse-shaped payloads (`children`, no `items`) are filtered locally when
                 // browseSearchFallback is enabled (PoC / dev). Real search APIs return `items`.
@@ -702,7 +753,11 @@ export default function assetSearch(options) {
                 if (seq !== requestSeq) {
                     return;
                 }
-                hideLoading();
+                if (quiet) {
+                    $resultsRegion.attr('aria-busy', 'false');
+                } else {
+                    hideLoading();
+                }
                 page = 1;
                 total = 0;
                 $paginationContainer.empty();
@@ -741,11 +796,11 @@ export default function assetSearch(options) {
         })
             .on('prev', function () {
                 page -= 1;
-                runSearch();
+                runSearch({ quiet: true });
             })
             .on('next', function () {
                 page += 1;
-                runSearch();
+                runSearch({ quiet: true });
             })
             .render($paginationContainer);
     }

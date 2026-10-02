@@ -101,8 +101,8 @@ function formatUpdatedAtUtc(value) {
         return '';
     }
     const date = new Date(value);
-    if (Number.isNaN(date.getTime())) {
-        return String(value);
+    if (Number.isNaN(date.getTime()) || date.getTime() <= 0) {
+        return '—';
     }
     const pad = function (n) {
         return String(n).padStart(2, '0');
