@@ -222,8 +222,9 @@ export default function (options) {
         initialSelectionApplied = false;
         options.initialSelection = ctx && ctx.selection ? ctx.selection : null;
         options.currentAssetItem = ctx && ctx.currentAssetItem ? ctx.currentAssetItem : null;
-        if (!options.initialSelection) {
-            $fileContainer.find('tr.active').removeClass('active');
+        $fileContainer.find('tr.active').removeClass('active');
+        if (options.initialSelection) {
+            applyInitialSelection(options.initialSelection);
         }
     });
 

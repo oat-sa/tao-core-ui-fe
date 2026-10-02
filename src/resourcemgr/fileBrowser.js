@@ -87,11 +87,11 @@ export default function (options) {
     // Reopen with resolved parent (AC3 edit/change): leave search, open folder again.
     $container.on(`applycontext.${NS}`, function (e, ctx) {
         const path = (ctx && ctx.path) || rootPath;
-        if (
-            path &&
-            String(path).indexOf('taomedia://') === 0 &&
-            root === 'local'
-        ) {
+        const pathIsTaomedia = path && String(path).indexOf('taomedia://') === 0;
+        if (pathIsTaomedia && root === 'local') {
+            return;
+        }
+        if (!pathIsTaomedia && root !== 'local') {
             return;
         }
         $container.data('activeFileBrowserRoot', root);

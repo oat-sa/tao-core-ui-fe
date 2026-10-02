@@ -112,14 +112,13 @@ var resourceMgr = {
                         return;
                     }
                     const ownsOpen = current.contextToken === initToken;
-                    const nextOptions = ownsOpen ? resolvedOptions : current;
                     if (!ownsOpen) {
-                        Object.assign(current, resolvedOptions);
+                        return;
                     }
-                    $elt.data(dataNs, nextOptions);
+                    $elt.data(dataNs, resolvedOptions);
 
-                    that._ensureBrowsersStarted($elt, nextOptions).always(function() {
-                        const latest = $elt.data(dataNs) || nextOptions;
+                    that._ensureBrowsersStarted($elt, resolvedOptions).always(function() {
+                        const latest = $elt.data(dataNs) || resolvedOptions;
                         if (!latest._createEventEmitted) {
                             latest._createEventEmitted = true;
                             $elt.data(dataNs, latest);
