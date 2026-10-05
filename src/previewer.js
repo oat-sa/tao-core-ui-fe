@@ -227,7 +227,7 @@ const previewer = {
                     // stop video, free the socket and remove player interface on video deletion
                     // stop video and free the socket on all other cases when video is selected or temporary hidden or modal window is closed
                     $controls = $(
-                        '.actions a:nth-child(1), .actions a:nth-child(3), .icon-close, .upload-switcher, .select-action, .files li>span',
+                        '.actions a:nth-child(1), .actions a:nth-child(3), .icon-close, .upload-switcher, .select-action, .files-list tr, .files .desc',
                         '#mediaManager'
                     );
                     $controls.off('mousedown.mediaelement').on('mousedown.mediaelement', function(event) {
