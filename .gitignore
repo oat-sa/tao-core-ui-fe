@@ -71,3 +71,6 @@ typings/
 eslint_report.json
 /dist
 css
+
+# AI agents helper files
+.ai

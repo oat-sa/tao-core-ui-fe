@@ -11,9 +11,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * Foundation, Inc., 31 Milk St # 960789 Boston, MA 02196 USA.
  *
- * Copyright (c) 2021 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2021-2026 (original work) Open Assessment Technologies SA ;
  *
  */
 import $ from 'jquery';
@@ -38,10 +38,29 @@ export const initAdvanced = function (widget) {
 export const initUpload = function (widget) {
     const $form = widget.$form;
     const options = widget.options;
-    const { img } = getImage(widget);
+    const { img, $img } = getImage(widget);
     const $uploadTrigger = $form.find('[data-role="upload-trigger"]');
     const $src = $form.find('input[name=src]');
     const $alt = $form.find('input[name=alt]');
+
+    const commitSrc = function (srcValue) {
+        $src.val(srcValue);
+        // Keep QTI model + preview in sync immediately: the form src callback is
+        // throttled (1s), so a late trailing call must not leave a rejected pick.
+        if (img) {
+            img.attr('src', srcValue);
+        }
+        if ($img && $img.length) {
+            $img.attr('src', srcValue ? widget.getAssetManager().resolve(srcValue) : '');
+            $img.trigger('contentChange.qti-widget').change();
+        }
+        _.defer(function () {
+            if (img) {
+                img.attr('off-media-editor', 1);
+            }
+            $src.trigger('change');
+        });
+    };
 
     const _openResourceMgr = function () {
         $uploadTrigger.resourcemgr({
@@ -51,10 +70,15 @@ export const initUpload = function (widget) {
             appendContainer: options.mediaManager.appendContainer,
             mediaSourcesUrl: options.mediaManager.mediaSourcesUrl,
             browseUrl: options.mediaManager.browseUrl,
+            searchUrl: options.mediaManager.searchUrl,
             uploadUrl: options.mediaManager.uploadUrl,
             deleteUrl: options.mediaManager.deleteUrl,
             downloadUrl: options.mediaManager.downloadUrl,
             fileExistsUrl: options.mediaManager.fileExistsUrl,
+            rootClassUri: options.mediaManager.rootClassUri,
+            classMappingUrl: options.mediaManager.classMappingUrl,
+            statusUrl: options.mediaManager.statusUrl,
+            maxListSize: options.mediaManager.maxListSize,
             params: {
                 uri: options.uri,
                 lang: options.lang,
@@ -69,44 +93,58 @@ export const initUpload = function (widget) {
             pathParam: 'path',
             path: options.mediaManager.path,
             root: options.mediaManager.root,
+            currentAsset: $src.val() || null,
             select: function (e, files) {
                 let file, alt;
                 let confirmBox, cancel, save;
-                if (files && files.length) {
-                    file = files[0].file;
-                    alt = files[0].alt;
-                    $src.val(file);
-                    if ($.trim($alt.val()) === '') {
-                        if (alt === '') {
-                            alt = extractLabel(file);
-                        }
-                        img.attr('alt', alt);
-                        $alt.val(alt).trigger('change');
-                    } else {
-                        confirmBox = $('.change-alt-modal-feedback', $form);
-                        cancel = confirmBox.find('.cancel');
-                        save = confirmBox.find('.save');
-
-                        $('.alt-text', confirmBox).html(`"${$alt.val()}"<br>${__('with')}<br>"${alt}" ?`);
-
-                        confirmBox.modal({ width: 500 });
-
-                        save.off('click').on('click', function () {
-                            img.attr('alt', alt);
-                            $alt.val(alt).trigger('change');
-                            confirmBox.modal('close');
-                        });
-
-                        cancel.off('click').on('click', function () {
-                            confirmBox.modal('close');
-                        });
-                    }
-
-                    _.defer(function () {
-                        img.attr('off-media-editor', 1);
-                        $src.trigger('change');
-                    });
+                if (!(files && files.length)) {
+                    return;
                 }
+
+                file = files[0].file;
+                alt = files[0].alt;
+
+                // Apply the new file immediately; alt confirm only decides alt text.
+                commitSrc(file);
+
+                if ($.trim($alt.val()) === '') {
+                    if (alt === '') {
+                        alt = extractLabel(file);
+                    }
+                    if (img) {
+                        img.attr('alt', alt);
+                    }
+                    $alt.val(alt).trigger('change');
+                    return;
+                }
+
+                // Existing alt: confirm replace. Cancel / overlay / Esc keeps the new image;
+                // only alt text stays unchanged unless the user confirms.
+                confirmBox = $('.change-alt-modal-feedback', $form);
+                cancel = confirmBox.find('.cancel');
+                save = confirmBox.find('.save');
+
+                const $altText = $('.alt-text', confirmBox).empty();
+                $altText
+                    .append(document.createTextNode(`"${$alt.val()}"`))
+                    .append($('<br>'))
+                    .append(document.createTextNode(__('with')))
+                    .append($('<br>'))
+                    .append(document.createTextNode(`"${alt}" ?`));
+
+                confirmBox.modal({ width: 500 });
+
+                save.off('click').on('click', function () {
+                    if (img) {
+                        img.attr('alt', alt);
+                    }
+                    $alt.val(alt).trigger('change');
+                    confirmBox.modal('close');
+                });
+
+                cancel.off('click').on('click', function () {
+                    confirmBox.modal('close');
+                });
             },
             open: function () {
                 // hide tooltip if displayed

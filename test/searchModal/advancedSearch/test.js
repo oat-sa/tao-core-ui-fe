@@ -362,7 +362,7 @@ define([
                     ['value1', 'value2'],
                     'list criteria correctly updated'
                 );
-                
+
                 const query = instance.getAdvancedCriteriaQuery();
                 assert.equal(
                     query,
