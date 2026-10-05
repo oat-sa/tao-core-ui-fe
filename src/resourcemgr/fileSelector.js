@@ -610,6 +610,7 @@ export default function (options) {
         function setUploadMode(enableUploadMode) {
             if (!enableUploadMode) {
                 isUploadMode = false;
+                $fileSelector.removeClass('upload-mode');
                 $uploader.hide();
                 $filesWrapper.show();
                 $fileContainer.show();
@@ -619,6 +620,7 @@ export default function (options) {
                 $browserTitle.text(__('Resources'));
             } else {
                 isUploadMode = true;
+                $fileSelector.addClass('upload-mode');
                 $filesWrapper.hide();
                 $fileContainer.hide();
                 $placeholder.hide();

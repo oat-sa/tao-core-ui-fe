@@ -184,38 +184,46 @@ export default function (options) {
     });
 
     $container.on(`filenew.${NS}`, function (e, file, path) {
-        const subTree = getByPath(fileTree, path);
-        if (subTree) {
-            if (!subTree.children) {
-                subTree.children = [];
-            }
-            if (root !== 'local' || !_.find(subTree.children, { name: file.name })) {
-                updatePermissions(file);
-                const childrenFilesOnly = _.filter(subTree.children, function (child) {
-                    // Only file object has link property
-                    return Object.prototype.hasOwnProperty.call(child, 'link');
-                });
-
-                if (childrenFilesOnly.length === subTree.total) {
-                    // all children loaded new file can be pushed to the end of tree
-                    // if not all, new file will be loaded with next page
-                    subTree.children.push(file);
-                }
-                subTree.total = Number.isFinite(Number(subTree.total)) ? Number(subTree.total) + 1 : 1;
-                if (selectedClass.path === path) {
-                    selectedClass.total = subTree.total;
-                }
-                $container.trigger(`folderselect.${NS}`, [subTree.label, getPage(subTree.children), path, subTree]);
-                renderPagination();
-            }
+        const targetPath = path || selectedClass.path;
+        if (!targetPath || searchMode) {
+            return;
         }
+
+        const activeRoot = $container.data('activeFileBrowserRoot');
+        if (activeRoot && activeRoot !== root) {
+            return;
+        }
+
+        const subTree = getByExactPath(fileTree, targetPath) || getByPath(fileTree, targetPath);
+        if (subTree && root === 'local' && file && file.name && _.find(subTree.children, { name: file.name })) {
+            return;
+        }
+
+        if (targetPath !== selectedClass.path) {
+            selectedClass.path = targetPath;
+            selectedClass.page = 1;
+        }
+
+        invalidateFolderFiles(targetPath);
+        reloadSortedFolder();
     });
 
     $container.on(`filedelete.${NS}`, function (e, path) {
-        if (removeFromPath(fileTree, path)) {
-            selectedClass.total--;
-            loadPage();
+        if (searchMode) {
+            return;
         }
+
+        const activeRoot = $container.data('activeFileBrowserRoot');
+        if (activeRoot && activeRoot !== root) {
+            return;
+        }
+
+        if (path) {
+            removeFromPath(fileTree, path);
+        }
+
+        invalidateFolderFiles(selectedClass.path);
+        reloadSortedFolder();
     });
 
     /**

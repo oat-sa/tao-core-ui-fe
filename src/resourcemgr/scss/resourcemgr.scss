@@ -1135,6 +1135,12 @@
             }
         }
 
+        &.upload-mode {
+            .pagination-bottom {
+                display: none;
+            }
+        }
+
         .files-wrapper {
             position: relative;
             flex-grow: 1;

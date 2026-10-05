@@ -883,6 +883,194 @@ define([
         createManager({ browseSearchFallback: false });
     });
 
+    QUnit.module('Resource Manager upload', {
+        beforeEach: function () {
+            clearDom();
+            advancedSearchEnabled = true;
+            mockAdvancedSearchApis();
+        },
+        afterEach: clearDom
+    });
+
+    QUnit.test('filenew refetches folder listing so uploaded assets appear', function (assert) {
+        const ready = assert.async();
+        assert.expect(3);
+        let imagesBrowseLoads = 0;
+
+        $.mockjax({
+            url: browseUrl,
+            dataType: 'json',
+            response: function (settings) {
+                const path = settings.data && settings.data.path;
+                if (path === '/images') {
+                    imagesBrowseLoads += 1;
+                    if (imagesBrowseLoads >= 2) {
+                        this.responseText = {
+                            data: {
+                                path: '/images',
+                                label: 'Images',
+                                childrenLimit: 10,
+                                total: 2,
+                                permissions: ['READ', 'WRITE', 'UPLOAD'],
+                                children: fixtures.browseImages.data.children.concat([
+                                    {
+                                        uri: 'asset://new-upload',
+                                        name: 'new-upload.png',
+                                        mime: 'image/png',
+                                        size: 100,
+                                        location: '/images',
+                                        updatedAt: '2026-09-01T10:00:00Z',
+                                        permissions: ['READ', 'DOWNLOAD']
+                                    }
+                                ])
+                            }
+                        };
+                    } else {
+                        this.responseText = fixtures.browseImages;
+                    }
+                    return;
+                }
+                this.responseText = fixtures.browseRoot;
+            }
+        });
+
+        const $launcher = $('#launcher');
+        $launcher.on('create.resourcemgr', function () {
+            const $modal = $('#outside-container .resourcemgr');
+            const $target = $launcher.data('ui.resourcemgr').$target;
+
+            whenTableRows($modal, function () {
+                assert.equal($modal.find('.files-list tr').length, 1, 'initial folder page has one asset');
+
+                const loadsBeforeUpload = imagesBrowseLoads;
+                $target.trigger('filenew.resourcemgr', [
+                    {
+                        uri: 'asset://new-upload',
+                        name: 'new-upload.png',
+                        mime: 'image/png'
+                    },
+                    '/images'
+                ]);
+
+                const started = Date.now();
+                (function poll() {
+                    const rowCount = $modal.find('.files-list tr').length;
+                    if (rowCount >= 2 && imagesBrowseLoads > loadsBeforeUpload) {
+                        assert.ok(imagesBrowseLoads > loadsBeforeUpload, 'browse is called again after upload');
+                        assert.equal(rowCount, 2, 'refetched listing includes the uploaded asset');
+                        ready();
+                        return;
+                    }
+                    if (Date.now() - started > 3000) {
+                        assert.ok(
+                            imagesBrowseLoads > loadsBeforeUpload,
+                            'browse is called again after upload'
+                        );
+                        assert.equal(rowCount, 2, 'refetched listing includes the uploaded asset');
+                        ready();
+                        return;
+                    }
+                    window.setTimeout(poll, 30);
+                })();
+            });
+        });
+
+        createManager({
+            open: true,
+            initialPath: '/images'
+        });
+    });
+
+    QUnit.test('filedelete refetches folder listing without duplicate rows', function (assert) {
+        const ready = assert.async();
+        assert.expect(3);
+        let imagesBrowseLoads = 0;
+        const twoFilesPayload = {
+            data: {
+                path: '/images',
+                label: 'Images',
+                childrenLimit: 10,
+                total: 2,
+                permissions: ['READ', 'WRITE', 'UPLOAD', 'DELETE'],
+                children: [
+                    fixtures.browseImages.data.children[0],
+                    {
+                        uri: 'asset://dog',
+                        name: 'dog.png',
+                        mime: 'image/png',
+                        size: 512,
+                        location: '/images',
+                        updatedAt: '2026-08-02T10:00:00Z',
+                        permissions: ['READ', 'DOWNLOAD', 'DELETE']
+                    }
+                ]
+            }
+        };
+
+        $.mockjax({
+            url: browseUrl,
+            dataType: 'json',
+            response: function (settings) {
+                const path = settings.data && settings.data.path;
+                if (path === '/images') {
+                    imagesBrowseLoads += 1;
+                    if (imagesBrowseLoads >= 2) {
+                        this.responseText = fixtures.browseImages;
+                    } else {
+                        this.responseText = twoFilesPayload;
+                    }
+                    return;
+                }
+                this.responseText = fixtures.browseRoot;
+            }
+        });
+
+        const $launcher = $('#launcher');
+        $launcher.on('create.resourcemgr', function () {
+            const $modal = $('#outside-container .resourcemgr');
+            const $target = $launcher.data('ui.resourcemgr').$target;
+
+            whenTableRows($modal, function () {
+                assert.equal($modal.find('.files-list tr').length, 2, 'initial folder page has two assets');
+
+                const loadsBeforeDelete = imagesBrowseLoads;
+                $target.trigger('filedelete.resourcemgr', ['asset://dog']);
+
+                const started = Date.now();
+                (function poll() {
+                    const $rows = $modal.find('.files-list tr');
+                    const uris = $rows
+                        .map(function () {
+                            return $(this).data('file');
+                        })
+                        .get();
+                    const uniqueUriCount = uris.filter(function (uri, index) {
+                        return uris.indexOf(uri) === index;
+                    }).length;
+
+                    if ($rows.length === 1 && imagesBrowseLoads > loadsBeforeDelete) {
+                        assert.ok(imagesBrowseLoads > loadsBeforeDelete, 'browse is called again after delete');
+                        assert.equal(uniqueUriCount, 1, 'remaining row is not duplicated');
+                        ready();
+                        return;
+                    }
+                    if (Date.now() - started > 3000) {
+                        assert.ok(imagesBrowseLoads > loadsBeforeDelete, 'browse is called again after delete');
+                        assert.equal(uniqueUriCount, $rows.length, 'remaining rows are not duplicated');
+                        ready();
+                        return;
+                    }
+                    window.setTimeout(poll, 30);
+                })();
+            });
+        });
+
+        createManager({
+            open: true,
+            initialPath: '/images'
+        });
+    });
+
     QUnit.module('Destroy', {
         beforeEach: clearDom,
         afterEach: clearDom
