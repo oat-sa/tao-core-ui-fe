@@ -167,14 +167,18 @@ export default function (options) {
         $fileSelector.toggleClass('search-mode', searchMode);
     });
 
-    $container.on(`filesloading.${ns}`, function (e, loading) {
-        if (searchMode) {
-            return;
-        }
+    function applyFilesListLoading(loading) {
         $filesWrapper.toggleClass('is-files-loading', !!loading);
         $filesWrapper.attr('aria-busy', loading ? 'true' : 'false');
         $filesListLoading.toggleClass('hidden', !loading).attr('aria-hidden', loading ? 'false' : 'true');
         $filesListLoadingStatus.attr('aria-busy', loading ? 'true' : 'false');
+    }
+
+    $container.on(`filesloading.${ns}`, function (e, loading) {
+        if (searchMode) {
+            return;
+        }
+        applyFilesListLoading(loading);
     });
 
     //update current folder
@@ -184,6 +188,8 @@ export default function (options) {
         if (searchMode) {
             return;
         }
+
+        applyFilesListLoading(false);
 
         //update title
         if ($container[0].querySelector('.upload')) {

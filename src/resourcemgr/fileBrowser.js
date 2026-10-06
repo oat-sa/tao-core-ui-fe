@@ -28,7 +28,6 @@ const NS = 'resourcemgr';
 const LOGGER = loggerFactory(`ui/${NS}`);
 const DEFAULT_AJAX_TIMEOUT_MS = 30000;
 const TREE_LOADING_REF_KEY = `${NS}TreeLoadingRefCount`;
-const FILES_LOADING_REF_KEY = `${NS}FilesLoadingRefCount`;
 
 export default function (options) {
     if (!options.browseUrl && options.url) {
@@ -78,26 +77,19 @@ export default function (options) {
     }
 
     /**
-     * Ref-count in-flight loads that refresh the asset table and toggle its loading overlay.
-     * @param {Boolean} increment - true when a load starts, false when it finishes
+     * Show or hide the asset table loading overlay (browse mode only).
+     * @param {Boolean} loading
      */
-    function setFilesLoading(increment) {
+    function setFilesLoading(loading) {
         if (searchMode) {
             return;
         }
-        let filesLoadingRefCount = Number($container.data(FILES_LOADING_REF_KEY)) || 0;
-        filesLoadingRefCount += increment ? 1 : -1;
-        if (filesLoadingRefCount < 0) {
-            filesLoadingRefCount = 0;
-        }
-        $container.data(FILES_LOADING_REF_KEY, filesLoadingRefCount);
-        $container.trigger(`filesloading.${NS}`, [filesLoadingRefCount > 0]);
+        $container.trigger(`filesloading.${NS}`, [!!loading]);
     }
 
     $container.on(`searchmode.${NS}`, function (e, enabled) {
         searchMode = !!enabled;
         if (searchMode) {
-            $container.data(FILES_LOADING_REF_KEY, 0);
             $container.trigger(`filesloading.${NS}`, [false]);
         }
     });
@@ -151,12 +143,15 @@ export default function (options) {
     });
 
     //load the content of the ROOT
-    if (!searchMode) {
+    const showInitialListLoading = !searchMode && root === 'local';
+    if (showInitialListLoading) {
         setFilesLoading(true);
     }
     getFolderContent(fileTree, rootPath, function (content) {
         if (!content) {
-            setFilesLoading(false);
+            if (showInitialListLoading) {
+                setFilesLoading(false);
+            }
             return;
         }
         indexTree(content);
@@ -191,6 +186,8 @@ export default function (options) {
             if (root !== 'local') {
                 options.hasAlreadySelected = true;
             }
+        } else if (showInitialListLoading) {
+            setFilesLoading(false);
         }
     });
 
