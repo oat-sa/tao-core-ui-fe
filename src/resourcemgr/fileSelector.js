@@ -137,6 +137,8 @@ export default function (options) {
     let $container = options.$target;
     let $fileSelector = $('.file-selector', $container);
     let $filesWrapper = $('.files-wrapper', $fileSelector);
+    let $filesListLoading = $('.files-list-loading', $filesWrapper);
+    let $filesListLoadingStatus = $('.files-list-loading-status', $filesListLoading);
     let $fileContainer = $('.files-list', $fileSelector);
     let $placeholder = $('.empty', $fileSelector);
     let $uploader = $('.file-upload-container', $fileSelector);
@@ -163,6 +165,16 @@ export default function (options) {
     $container.on(`searchmode.${ns}`, function (e, enabled) {
         searchMode = !!enabled;
         $fileSelector.toggleClass('search-mode', searchMode);
+    });
+
+    $container.on(`filesloading.${ns}`, function (e, loading) {
+        if (searchMode) {
+            return;
+        }
+        $filesWrapper.toggleClass('is-files-loading', !!loading);
+        $filesWrapper.attr('aria-busy', loading ? 'true' : 'false');
+        $filesListLoading.toggleClass('hidden', !loading).attr('aria-hidden', loading ? 'false' : 'true');
+        $filesListLoadingStatus.attr('aria-busy', loading ? 'true' : 'false');
     });
 
     //update current folder

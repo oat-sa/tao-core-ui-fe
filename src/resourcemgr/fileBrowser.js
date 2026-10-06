@@ -28,6 +28,7 @@ const NS = 'resourcemgr';
 const LOGGER = loggerFactory(`ui/${NS}`);
 const DEFAULT_AJAX_TIMEOUT_MS = 30000;
 const TREE_LOADING_REF_KEY = `${NS}TreeLoadingRefCount`;
+const FILES_LOADING_REF_KEY = `${NS}FilesLoadingRefCount`;
 
 export default function (options) {
     if (!options.browseUrl && options.url) {
@@ -76,8 +77,29 @@ export default function (options) {
         $treeLoadingStatus.attr('aria-busy', loading ? 'true' : 'false');
     }
 
+    /**
+     * Ref-count in-flight loads that refresh the asset table and toggle its loading overlay.
+     * @param {Boolean} increment - true when a load starts, false when it finishes
+     */
+    function setFilesLoading(increment) {
+        if (searchMode) {
+            return;
+        }
+        let filesLoadingRefCount = Number($container.data(FILES_LOADING_REF_KEY)) || 0;
+        filesLoadingRefCount += increment ? 1 : -1;
+        if (filesLoadingRefCount < 0) {
+            filesLoadingRefCount = 0;
+        }
+        $container.data(FILES_LOADING_REF_KEY, filesLoadingRefCount);
+        $container.trigger(`filesloading.${NS}`, [filesLoadingRefCount > 0]);
+    }
+
     $container.on(`searchmode.${NS}`, function (e, enabled) {
         searchMode = !!enabled;
+        if (searchMode) {
+            $container.data(FILES_LOADING_REF_KEY, 0);
+            $container.trigger(`filesloading.${NS}`, [false]);
+        }
     });
 
     $container.on(`sortchange.${NS}`, function (e, nextSort) {
@@ -98,9 +120,14 @@ export default function (options) {
             return;
         }
         const subTree = getByExactPath(fileTree, targetPath) || getByPath(fileTree, targetPath) || fileTree;
+        if (!searchMode) {
+            setFilesLoading(true);
+        }
         getFolderContent(subTree, targetPath, function (content) {
             if (content) {
                 selectFolder(content, targetPath);
+            } else {
+                setFilesLoading(false);
             }
         });
     });
@@ -124,8 +151,12 @@ export default function (options) {
     });
 
     //load the content of the ROOT
+    if (!searchMode) {
+        setFilesLoading(true);
+    }
     getFolderContent(fileTree, rootPath, function (content) {
         if (!content) {
+            setFilesLoading(false);
             return;
         }
         indexTree(content);
@@ -169,6 +200,11 @@ export default function (options) {
         const $selected = $(this);
         const fullPath = $selected.data('path');
         const subTree = getByExactPath(fileTree, fullPath);
+        const openingFolder = !searchMode && fullPath !== selectedClass.path;
+
+        if (openingFolder) {
+            setFilesLoading(true);
+        }
 
         //get the folder content
         getFolderContent(subTree, fullPath, function (content) {
@@ -200,6 +236,8 @@ export default function (options) {
 
                 //internal event to set the file-selector content
                 selectFolder(content, fullPath);
+            } else if (openingFolder) {
+                setFilesLoading(false);
             }
         });
     });
@@ -386,6 +424,9 @@ export default function (options) {
             content
         ]);
         renderPagination();
+        if (!searchMode) {
+            setFilesLoading(false);
+        }
     }
 
     /**
@@ -811,9 +852,13 @@ export default function (options) {
      */
     function reloadSortedFolder() {
         const path = selectedClass.path;
+        if (!searchMode && isActiveBrowser()) {
+            setFilesLoading(true);
+        }
         loadContent(path)
             .then(function (data) {
                 if (!data) {
+                    setFilesLoading(false);
                     return;
                 }
                 replaceFolderContent(path, data);
@@ -822,6 +867,7 @@ export default function (options) {
             })
             .catch(function (error) {
                 LOGGER.error(error);
+                setFilesLoading(false);
             });
     }
 
@@ -831,6 +877,10 @@ export default function (options) {
     function loadPage() {
         const subTree = getByPath(fileTree, selectedClass.path) || fileTree;
 
+        if (!searchMode && isActiveBrowser()) {
+            setFilesLoading(true);
+        }
+
         //get the folder content
         getFolderContent(subTree, selectedClass.path, function (content) {
             indexTree(fileTree);
@@ -838,6 +888,9 @@ export default function (options) {
             if (content) {
                 //internal event to set the file-selector content
                 $container.trigger(`folderselect.${NS}`, [content.label, getPage(content.children), content.path, content]);
+            }
+            if (!searchMode) {
+                setFilesLoading(false);
             }
         });
     }

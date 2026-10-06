@@ -78,6 +78,10 @@
                 </div>
 
                 <div class="files-wrapper" aria-busy="false">
+                    <div class="files-list-loading hidden" aria-hidden="true">
+                        <span class="icon-loop" aria-hidden="true"></span>
+                        <span class="files-list-loading-status" aria-live="polite" aria-atomic="true" aria-busy="false">{{__ 'Loading'}}</span>
+                    </div>
                     <table class="files">
                         <thead>
                             <tr>

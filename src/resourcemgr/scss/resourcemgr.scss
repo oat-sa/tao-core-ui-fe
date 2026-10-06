@@ -1182,6 +1182,40 @@
             flex-grow: 1;
             overflow-y: auto;
             min-height: 0;
+
+            &.is-files-loading {
+                pointer-events: none;
+            }
+
+            .files-list-loading {
+                position: absolute;
+                inset: 0;
+                z-index: 2;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: rgba($rmSurface, 0.82);
+
+                &.hidden {
+                    display: none;
+                }
+
+                .icon-loop {
+                    color: $rmActive;
+
+                    @include font-size(22);
+
+                    &::before {
+                        display: inline-block;
+                        transform-origin: 50% 50%;
+                        animation: rm-search-button-spin 1.4s linear infinite;
+                    }
+                }
+
+                .files-list-loading-status {
+                    @include visuallyHidden;
+                }
+            }
         }
 
         table.files {
