@@ -26,7 +26,7 @@ import { DEFAULT_SORT, sortAssetItems } from 'ui/resourcemgr/assetSearchContract
 
 const NS = 'resourcemgr';
 const LOGGER = loggerFactory(`ui/${NS}`);
-const DEFAULT_AJAX_TIMEOUT_MS = 10000;
+const DEFAULT_AJAX_TIMEOUT_MS = 30000;
 const TREE_LOADING_REF_KEY = `${NS}TreeLoadingRefCount`;
 
 export default function (options) {

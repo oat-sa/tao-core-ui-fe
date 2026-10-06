@@ -46,7 +46,7 @@ import 'ui/searchModal/css/advancedSearch.css';
 
 const ns = 'resourcemgr';
 const EVENT_NS = 'resourcemgrAssetSearch';
-const DEFAULT_AJAX_TIMEOUT_MS = 10000;
+const DEFAULT_AJAX_TIMEOUT_MS = 30000;
 const DEFAULT_ROOT_CLASS_URI = 'http://www.tao.lu/Ontologies/TAOMedia.rdf#Media';
 const SEARCH_MODE_MODAL_TITLE = __('Please select a file from the resource manager.');
 

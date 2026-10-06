@@ -25,7 +25,8 @@ var defaults = {
     rootClassUri: 'http://www.tao.lu/Ontologies/TAOMedia.rdf#Media',
     classMappingUrl: urlUtil.route('getWithMapping', 'ClassMetadata', 'tao'),
     statusUrl: urlUtil.route('status', 'AdvancedSearch', 'tao'),
-    maxListSize: 5
+    maxListSize: 5,
+    ajaxTimeoutMs: 30000
 };
 
 /**
@@ -230,7 +231,7 @@ var resourceMgr = {
             url: endpoint,
             method: 'GET',
             dataType: 'json',
-            timeout: Number(options.ajaxTimeoutMs) > 0 ? Number(options.ajaxTimeoutMs) : 10000,
+            timeout: Number(options.ajaxTimeoutMs) > 0 ? Number(options.ajaxTimeoutMs) : defaults.ajaxTimeoutMs,
             data: params
         })
             .done(function(response) {
