@@ -41,7 +41,7 @@
                         <div class="asset-search-actions">
                             <button type="button" class="asset-search-clear hidden" hidden>{{__ 'Clear all'}}</button>
                             <button type="button" class="btn-info small asset-search-submit" disabled>
-                                <span class="asset-search-submit-spinner icon-loop" aria-hidden="true" hidden></span>
+                                <span class="asset-search-submit-spinner icon-loop hidden" aria-hidden="true"></span>
                                 <span class="asset-search-submit-label">{{__ 'Search'}}</span>
                             </button>
                         </div>
@@ -49,7 +49,12 @@
                 </div>
 
                 <h1 class="resources-title">{{__ 'Resources'}}</h1>
-                <div class="file-browser-wrapper"></div>
+                <div class="file-browser-wrapper" aria-busy="false">
+                    <div class="file-browser-tree-loading hidden" aria-hidden="true">
+                        <span class="icon-loop" aria-hidden="true"></span>
+                        <span class="file-browser-tree-loading-status" aria-live="polite" aria-atomic="true" aria-busy="false">{{__ 'Loading'}}</span>
+                    </div>
+                </div>
             </section>
 
             <!-- center: asset listing -->

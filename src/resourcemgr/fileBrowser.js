@@ -27,6 +27,7 @@ import { DEFAULT_SORT, sortAssetItems } from 'ui/resourcemgr/assetSearchContract
 const NS = 'resourcemgr';
 const LOGGER = loggerFactory(`ui/${NS}`);
 const DEFAULT_AJAX_TIMEOUT_MS = 10000;
+const TREE_LOADING_REF_KEY = `${NS}TreeLoadingRefCount`;
 
 export default function (options) {
     if (!options.browseUrl && options.url) {
@@ -54,6 +55,26 @@ export default function (options) {
     const ajaxTimeoutMs = Number.isFinite(Number(options.ajaxTimeoutMs)) && Number(options.ajaxTimeoutMs) > 0
         ? Number(options.ajaxTimeoutMs)
         : DEFAULT_AJAX_TIMEOUT_MS;
+    const $treeLoadingOverlay = $('.file-browser-tree-loading', $fileBrowser);
+    const $treeLoadingStatus = $('.file-browser-tree-loading-status', $treeLoadingOverlay);
+
+    /**
+     * Ref-count in-flight browse requests and toggle the tree loading overlay.
+     * @param {Boolean} increment - true when a load starts, false when it finishes
+     */
+    function setTreeLoading(increment) {
+        let treeLoadingRefCount = Number($fileBrowser.data(TREE_LOADING_REF_KEY)) || 0;
+        treeLoadingRefCount += increment ? 1 : -1;
+        if (treeLoadingRefCount < 0) {
+            treeLoadingRefCount = 0;
+        }
+        $fileBrowser.data(TREE_LOADING_REF_KEY, treeLoadingRefCount);
+        const loading = treeLoadingRefCount > 0;
+        $fileBrowser.toggleClass('is-tree-loading', loading);
+        $fileBrowser.attr('aria-busy', loading ? 'true' : 'false');
+        $treeLoadingOverlay.toggleClass('hidden', !loading).attr('aria-hidden', loading ? 'false' : 'true');
+        $treeLoadingStatus.attr('aria-busy', loading ? 'true' : 'false');
+    }
 
     $container.on(`searchmode.${NS}`, function (e, enabled) {
         searchMode = !!enabled;
@@ -634,6 +655,7 @@ export default function (options) {
     function loadContent(path) {
         const parameters = {};
         parameters[options.pathParam || 'path'] = path;
+        setTreeLoading(true);
         return Promise.resolve(
             $.ajax({
                 url: options.browseUrl,
@@ -649,17 +671,28 @@ export default function (options) {
                     sortDir: sort.direction
                 })
             })
-        ).then(function (response) {
-            if (response && response.success === false) {
-                return Promise.reject(response);
-            }
-            let data = response && response.data ? response.data : response;
-            data = updatePermissions(data);
-            if (data.children && data.children.length > 0) {
-                data.children.map(responseChildren => updatePermissions(responseChildren));
-            }
-            return data;
-        });
+        )
+            .then(function (response) {
+                if (response && response.success === false) {
+                    return Promise.reject(response);
+                }
+                let data = response && response.data ? response.data : response;
+                data = updatePermissions(data);
+                if (data.children && data.children.length > 0) {
+                    data.children.map(responseChildren => updatePermissions(responseChildren));
+                }
+                return data;
+            })
+            .then(
+                function (data) {
+                    setTreeLoading(false);
+                    return data;
+                },
+                function (error) {
+                    setTreeLoading(false);
+                    return Promise.reject(error);
+                }
+            );
     }
 
     /**

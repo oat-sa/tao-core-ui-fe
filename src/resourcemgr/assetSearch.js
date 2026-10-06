@@ -811,7 +811,7 @@ export default function assetSearch(options) {
     function showLoading() {
         searchInFlight = true;
         $searchButton.prop('disabled', true).addClass('is-searching').attr('aria-busy', 'true');
-        $searchButtonSpinner.removeClass('hidden').removeAttr('hidden');
+        $searchButtonSpinner.removeClass('hidden');
         $searchButtonLabel.text(__('Searching'));
         $resultsRegion.attr('aria-busy', 'true');
     }
@@ -822,7 +822,7 @@ export default function assetSearch(options) {
     function hideLoading() {
         searchInFlight = false;
         $searchButton.removeClass('is-searching').attr('aria-busy', 'false');
-        $searchButtonSpinner.addClass('hidden').attr('hidden', 'hidden');
+        $searchButtonSpinner.addClass('hidden');
         $searchButtonLabel.text(__('Search'));
         $resultsRegion.attr('aria-busy', 'false');
         updateSearchActionState();
