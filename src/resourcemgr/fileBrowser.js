@@ -484,6 +484,30 @@ export default function (options) {
     }
 
     /**
+     * Snapshot list request identity (folder + page/sort) when a browse starts.
+     * @returns {{path: String, cacheKey: String}}
+     */
+    function captureListRequestContext() {
+        return {
+            path: selectedClass.path,
+            cacheKey: listCacheKey()
+        };
+    }
+
+    /**
+     * Whether navigation changed before an in-flight list response should apply.
+     * @param {{path: String, cacheKey: String}} captured
+     * @returns {Boolean}
+     */
+    function isListRequestStale(captured) {
+        return (
+            !captured ||
+            captured.path !== selectedClass.path ||
+            captured.cacheKey !== listCacheKey()
+        );
+    }
+
+    /**
      * @param {Object} response
      * @returns {Object}
      */
@@ -886,13 +910,13 @@ export default function (options) {
      * @param {String} path
      * @param {Object} data
      */
-    function replaceFolderContent(path, data) {
+    function replaceFolderContent(path, data, cacheKey) {
         const content = getByExactPath(fileTree, path);
         if (!content || !data) {
             return;
         }
         if (splitBrowse && Object.prototype.hasOwnProperty.call(data, 'items')) {
-            applyListPayload(fileTree, path, data, listCacheKey());
+            applyListPayload(fileTree, path, data, cacheKey || listCacheKey());
             return;
         }
         if (Object.prototype.hasOwnProperty.call(data, 'children')) {
@@ -1079,7 +1103,8 @@ export default function (options) {
      * Re-fetch the current folder with the active sort and publish files.
      */
     function reloadSortedFolder(pendingUploads) {
-        const path = selectedClass.path;
+        const listRequest = captureListRequestContext();
+        const path = listRequest.path;
         if (!searchMode && isActiveBrowser()) {
             setFilesLoading(true);
         }
@@ -1099,7 +1124,11 @@ export default function (options) {
                     setFilesLoading(false);
                     return;
                 }
-                replaceFolderContent(path, data);
+                if (isListRequestStale(listRequest)) {
+                    setFilesLoading(false);
+                    return;
+                }
+                replaceFolderContent(path, data, listRequest.cacheKey);
                 mergePendingUploads(path, pendingUploads);
                 const content = getByExactPath(fileTree, path) || data;
                 selectFolder(content, content.path || path);
@@ -1114,12 +1143,14 @@ export default function (options) {
      * Load page
      */
     function loadPage() {
+        const listRequest = captureListRequestContext();
+
         if (!searchMode && isActiveBrowser()) {
             setFilesLoading(true);
         }
 
         if (splitBrowse) {
-            const path = selectedClass.path;
+            const path = listRequest.path;
             browseRequest(path, {
                 part: 'list',
                 page: selectedClass.page,
@@ -1128,7 +1159,11 @@ export default function (options) {
                 sortDir: sort.direction
             })
                 .then(function (data) {
-                    applyListPayload(fileTree, path, data, listCacheKey());
+                    if (isListRequestStale(listRequest)) {
+                        setFilesLoading(false);
+                        return;
+                    }
+                    applyListPayload(fileTree, path, data, listRequest.cacheKey);
                     const content = getByExactPath(fileTree, path);
                     if (content) {
                         $container.trigger(`folderselect.${NS}`, [
@@ -1152,6 +1187,12 @@ export default function (options) {
 
         //get the folder content
         getFolderContent(subTree, selectedClass.path, function (content) {
+            if (isListRequestStale(listRequest)) {
+                if (!searchMode) {
+                    setFilesLoading(false);
+                }
+                return;
+            }
             indexTree(fileTree);
 
             if (content) {
