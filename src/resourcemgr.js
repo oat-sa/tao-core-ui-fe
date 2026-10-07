@@ -336,7 +336,9 @@ var resourceMgr = {
             for (let i = 0; i < sources.length; i++) {
                 options.root = sources[i].root;
                 options.path = sources[i].path;
-                $fileBrowser.append('<div class="' + options.root + '"><ul class="folders"></ul></div>');
+                $fileBrowser.children('.file-browser-scroll').append(
+                    '<div class="' + options.root + '"><ul class="folders"></ul></div>'
+                );
                 fileBrowser(options);
             }
         };
@@ -360,7 +362,9 @@ var resourceMgr = {
         }
 
         if (options.path && options.root) {
-            $fileBrowser.append('<div class="' + options.root + '"><ul class="folders"></ul></div>');
+            $fileBrowser.children('.file-browser-scroll').append(
+                '<div class="' + options.root + '"><ul class="folders"></ul></div>'
+            );
             fileBrowser(options);
         }
 

@@ -54,6 +54,7 @@
                         <span class="icon-loop" aria-hidden="true"></span>
                         <span class="file-browser-tree-loading-status" aria-live="polite" aria-atomic="true" aria-busy="false">{{__ 'Loading'}}</span>
                     </div>
+                    <div class="file-browser-scroll"></div>
                 </div>
             </section>
 
@@ -82,22 +83,24 @@
                         <span class="icon-loop" aria-hidden="true"></span>
                         <span class="files-list-loading-status" aria-live="polite" aria-atomic="true" aria-busy="false">{{__ 'Loading'}}</span>
                     </div>
-                    <table class="files">
-                        <thead>
-                            <tr>
-                                <th class="files-label sortable sorted sorted_asc" data-sort-by="label" aria-sort="ascending" tabindex="0">
-                                    <span class="sort-label">{{__ 'Label'}}</span>
-                                </th>
-                                <th class="files-location sortable" data-sort-by="location" aria-sort="none" tabindex="0">
-                                    <span class="sort-label">{{__ 'Location'}}</span>
-                                </th>
-                                <th class="files-updated sortable" data-sort-by="updatedAt" aria-sort="none" tabindex="0">
-                                    <span class="sort-label">{{__ 'Last modified on'}}</span>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="files-list"></tbody>
-                    </table>
+                    <div class="files-scroll">
+                        <table class="files">
+                            <thead>
+                                <tr>
+                                    <th class="files-label sortable sorted sorted_asc" data-sort-by="label" aria-sort="ascending" tabindex="0">
+                                        <span class="sort-label">{{__ 'Label'}}</span>
+                                    </th>
+                                    <th class="files-location sortable" data-sort-by="location" aria-sort="none" tabindex="0">
+                                        <span class="sort-label">{{__ 'Location'}}</span>
+                                    </th>
+                                    <th class="files-updated sortable" data-sort-by="updatedAt" aria-sort="none" tabindex="0">
+                                        <span class="sort-label">{{__ 'Last modified on'}}</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="files-list"></tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div class="file-upload-container"></div>

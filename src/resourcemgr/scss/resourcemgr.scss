@@ -935,10 +935,26 @@
 
         & .file-browser-wrapper {
             position: relative;
-            overflow: auto;
+            display: flex;
+            flex-direction: column;
             flex: 1 1 auto;
             min-height: 0;
-            padding: 8px 4px 12px;
+            overflow: hidden;
+
+            &.is-tree-loading {
+                pointer-events: none;
+
+                .file-browser-scroll {
+                    overflow: hidden;
+                }
+            }
+
+            .file-browser-scroll {
+                flex: 1 1 auto;
+                min-height: 0;
+                overflow: auto;
+                padding: 8px 4px 12px;
+            }
 
             .file-browser-tree-loading {
                 position: absolute;
@@ -1179,12 +1195,24 @@
 
         .files-wrapper {
             position: relative;
+            display: flex;
+            flex-direction: column;
             flex-grow: 1;
-            overflow-y: auto;
             min-height: 0;
+            overflow: hidden;
 
             &.is-files-loading {
                 pointer-events: none;
+
+                .files-scroll {
+                    overflow-y: hidden;
+                }
+            }
+
+            .files-scroll {
+                flex: 1 1 auto;
+                min-height: 0;
+                overflow-y: auto;
             }
 
             .files-list-loading {
