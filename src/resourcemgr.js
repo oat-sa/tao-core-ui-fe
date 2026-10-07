@@ -25,7 +25,8 @@ var defaults = {
     rootClassUri: 'http://www.tao.lu/Ontologies/TAOMedia.rdf#Media',
     classMappingUrl: urlUtil.route('getWithMapping', 'ClassMetadata', 'tao'),
     statusUrl: urlUtil.route('status', 'AdvancedSearch', 'tao'),
-    maxListSize: 5
+    maxListSize: 5,
+    ajaxTimeoutMs: 30000
 };
 
 /**
@@ -230,7 +231,7 @@ var resourceMgr = {
             url: endpoint,
             method: 'GET',
             dataType: 'json',
-            timeout: Number(options.ajaxTimeoutMs) > 0 ? Number(options.ajaxTimeoutMs) : 10000,
+            timeout: Number(options.ajaxTimeoutMs) > 0 ? Number(options.ajaxTimeoutMs) : defaults.ajaxTimeoutMs,
             data: params
         })
             .done(function(response) {
@@ -335,7 +336,9 @@ var resourceMgr = {
             for (let i = 0; i < sources.length; i++) {
                 options.root = sources[i].root;
                 options.path = sources[i].path;
-                $fileBrowser.append('<div class="' + options.root + '"><ul class="folders"></ul></div>');
+                $fileBrowser.children('.file-browser-scroll').append(
+                    '<div class="' + options.root + '"><ul class="folders"></ul></div>'
+                );
                 fileBrowser(options);
             }
         };
@@ -359,7 +362,9 @@ var resourceMgr = {
         }
 
         if (options.path && options.root) {
-            $fileBrowser.append('<div class="' + options.root + '"><ul class="folders"></ul></div>');
+            $fileBrowser.children('.file-browser-scroll').append(
+                '<div class="' + options.root + '"><ul class="folders"></ul></div>'
+            );
             fileBrowser(options);
         }
 

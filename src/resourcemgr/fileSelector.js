@@ -137,6 +137,8 @@ export default function (options) {
     let $container = options.$target;
     let $fileSelector = $('.file-selector', $container);
     let $filesWrapper = $('.files-wrapper', $fileSelector);
+    let $filesListLoading = $('.files-list-loading', $filesWrapper);
+    let $filesListLoadingStatus = $('.files-list-loading-status', $filesListLoading);
     let $fileContainer = $('.files-list', $fileSelector);
     let $placeholder = $('.empty', $fileSelector);
     let $uploader = $('.file-upload-container', $fileSelector);
@@ -165,6 +167,20 @@ export default function (options) {
         $fileSelector.toggleClass('search-mode', searchMode);
     });
 
+    function applyFilesListLoading(loading) {
+        $filesWrapper.toggleClass('is-files-loading', !!loading);
+        $filesWrapper.attr('aria-busy', loading ? 'true' : 'false');
+        $filesListLoading.toggleClass('hidden', !loading).attr('aria-hidden', loading ? 'false' : 'true');
+        $filesListLoadingStatus.attr('aria-busy', loading ? 'true' : 'false');
+    }
+
+    $container.on(`filesloading.${ns}`, function (e, loading) {
+        if (searchMode) {
+            return;
+        }
+        applyFilesListLoading(loading);
+    });
+
     //update current folder
     $container.on(`folderselect.${ns}`, function (e, fullPath, data, activePath, content) {
         let files;
@@ -172,6 +188,8 @@ export default function (options) {
         if (searchMode) {
             return;
         }
+
+        applyFilesListLoading(false);
 
         //update title
         if ($container[0].querySelector('.upload')) {

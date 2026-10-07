@@ -26,7 +26,18 @@ import { DEFAULT_SORT, sortAssetItems } from 'ui/resourcemgr/assetSearchContract
 
 const NS = 'resourcemgr';
 const LOGGER = loggerFactory(`ui/${NS}`);
-const DEFAULT_AJAX_TIMEOUT_MS = 10000;
+const DEFAULT_AJAX_TIMEOUT_MS = 30000;
+const TREE_LOADING_REF_KEY = `${NS}TreeLoadingRefCount`;
+
+/**
+ * @param {Object} data
+ * @returns {Array}
+ */
+function folderChildrenOnly(data) {
+    return _.filter(data && data.children, function (child) {
+        return child && child.path && !child.uri;
+    });
+}
 
 export default function (options) {
     if (!options.browseUrl && options.url) {
@@ -45,18 +56,53 @@ export default function (options) {
     // for pagination
     let selectedClass = {
         path: rootPath,
-        childrenLimit: 10,
+        childrenLimit: 11,
         total: 0,
         page: 1
     };
     let searchMode = false;
     let sort = Object.assign({}, DEFAULT_SORT);
+    const splitBrowse = options.splitBrowse !== false;
     const ajaxTimeoutMs = Number.isFinite(Number(options.ajaxTimeoutMs)) && Number(options.ajaxTimeoutMs) > 0
         ? Number(options.ajaxTimeoutMs)
         : DEFAULT_AJAX_TIMEOUT_MS;
+    const $treeLoadingOverlay = $('.file-browser-tree-loading', $fileBrowser);
+    const $treeLoadingStatus = $('.file-browser-tree-loading-status', $treeLoadingOverlay);
+
+    /**
+     * Ref-count in-flight browse requests and toggle the tree loading overlay.
+     * @param {Boolean} increment - true when a load starts, false when it finishes
+     */
+    function setTreeLoading(increment) {
+        let treeLoadingRefCount = Number($fileBrowser.data(TREE_LOADING_REF_KEY)) || 0;
+        treeLoadingRefCount += increment ? 1 : -1;
+        if (treeLoadingRefCount < 0) {
+            treeLoadingRefCount = 0;
+        }
+        $fileBrowser.data(TREE_LOADING_REF_KEY, treeLoadingRefCount);
+        const loading = treeLoadingRefCount > 0;
+        $fileBrowser.toggleClass('is-tree-loading', loading);
+        $fileBrowser.attr('aria-busy', loading ? 'true' : 'false');
+        $treeLoadingOverlay.toggleClass('hidden', !loading).attr('aria-hidden', loading ? 'false' : 'true');
+        $treeLoadingStatus.attr('aria-busy', loading ? 'true' : 'false');
+    }
+
+    /**
+     * Show or hide the asset table loading overlay (browse mode only).
+     * @param {Boolean} loading
+     */
+    function setFilesLoading(loading) {
+        if (searchMode) {
+            return;
+        }
+        $container.trigger(`filesloading.${NS}`, [!!loading]);
+    }
 
     $container.on(`searchmode.${NS}`, function (e, enabled) {
         searchMode = !!enabled;
+        if (searchMode) {
+            $container.trigger(`filesloading.${NS}`, [false]);
+        }
     });
 
     $container.on(`sortchange.${NS}`, function (e, nextSort) {
@@ -77,9 +123,14 @@ export default function (options) {
             return;
         }
         const subTree = getByExactPath(fileTree, targetPath) || getByPath(fileTree, targetPath) || fileTree;
+        if (!searchMode) {
+            setFilesLoading(true);
+        }
         getFolderContent(subTree, targetPath, function (content) {
             if (content) {
                 selectFolder(content, targetPath);
+            } else {
+                setFilesLoading(false);
             }
         });
     });
@@ -103,8 +154,15 @@ export default function (options) {
     });
 
     //load the content of the ROOT
+    const showInitialListLoading = !searchMode && root === 'local';
+    if (showInitialListLoading) {
+        setFilesLoading(true);
+    }
     getFolderContent(fileTree, rootPath, function (content) {
         if (!content) {
+            if (showInitialListLoading) {
+                setFilesLoading(false);
+            }
             return;
         }
         indexTree(content);
@@ -139,6 +197,8 @@ export default function (options) {
             if (root !== 'local') {
                 options.hasAlreadySelected = true;
             }
+        } else if (showInitialListLoading) {
+            setFilesLoading(false);
         }
     });
 
@@ -148,6 +208,15 @@ export default function (options) {
         const $selected = $(this);
         const fullPath = $selected.data('path');
         const subTree = getByExactPath(fileTree, fullPath);
+        const openingFolder = !searchMode && fullPath !== selectedClass.path;
+
+        if (openingFolder) {
+            selectedClass.page = 1;
+        }
+        if (!searchMode) {
+            setFilesLoading(true);
+        }
+        invalidateFolderFiles(fullPath);
 
         //get the folder content
         getFolderContent(subTree, fullPath, function (content) {
@@ -179,6 +248,8 @@ export default function (options) {
 
                 //internal event to set the file-selector content
                 selectFolder(content, fullPath);
+            } else if (!searchMode) {
+                setFilesLoading(false);
             }
         });
     });
@@ -201,11 +272,13 @@ export default function (options) {
 
         if (targetPath !== selectedClass.path) {
             selectedClass.path = targetPath;
-            selectedClass.page = 1;
         }
+        selectedClass.page = 1;
 
         invalidateFolderFiles(targetPath);
-        reloadSortedFolder();
+        const pendingUpload =
+            file && !file.error && (file.uri || file.name) ? file : null;
+        reloadSortedFolder(pendingUpload ? [pendingUpload] : []);
     });
 
     $container.on(`filedelete.${NS}`, function (e, path) {
@@ -348,23 +421,26 @@ export default function (options) {
         $container.data('activeFileBrowserRoot', root);
         if (searchMode) {
             $container.trigger(`folderpath.${NS}`, [path, content.label]);
-            $container.trigger(`folderselect.${NS}`, [
-                content.label,
-                getPage(content.children || []),
-                path,
-                content
-            ]);
-            return;
-        }
+        $container.trigger(`folderselect.${NS}`, [
+            content.label,
+            getFilesForDisplay(content),
+            path,
+            content
+        ]);
+        return;
+    }
         updateSelectedClass(path, content.total, content.childrenLimit);
         $container.trigger(`folderpath.${NS}`, [path, content.label]);
         $container.trigger(`folderselect.${NS}`, [
             content.label,
-            getPage(content.children || []),
+            getFilesForDisplay(content),
             path,
             content
         ]);
         renderPagination();
+        if (!searchMode) {
+            setFilesLoading(false);
+        }
     }
 
     /**
@@ -387,6 +463,180 @@ export default function (options) {
         }
         return files;
     }
+
+    /**
+     * Files for the table (split list payload or legacy children slice).
+     * @param {Object} content
+     * @returns {Array}
+     */
+    function getFilesForDisplay(content) {
+        if (!content) {
+            return [];
+        }
+        if (splitBrowse) {
+            return content.listItems || [];
+        }
+        return getPage(content.children || []);
+    }
+
+    function listCacheKey() {
+        return `${sort.field}:${sort.direction}:${selectedClass.page}`;
+    }
+
+    /**
+     * Snapshot list request identity (folder + page/sort) when a browse starts.
+     * @returns {{path: String, cacheKey: String}}
+     */
+    function captureListRequestContext() {
+        return {
+            path: selectedClass.path,
+            cacheKey: listCacheKey()
+        };
+    }
+
+    /**
+     * Whether navigation changed before an in-flight list response should apply.
+     * @param {{path: String, cacheKey: String}} captured
+     * @returns {Boolean}
+     */
+    function isListRequestStale(captured) {
+        return (
+            !captured ||
+            captured.path !== selectedClass.path ||
+            captured.cacheKey !== listCacheKey()
+        );
+    }
+
+    /**
+     * @param {Object} response
+     * @returns {Object}
+     */
+    function unwrapBrowseResponse(response) {
+        if (response && response.success === false) {
+            return Promise.reject(response);
+        }
+        let data = response && response.data ? response.data : response;
+        data = updatePermissions(data);
+        if (data.children && data.children.length > 0) {
+            data.children = data.children.map(function (child) {
+                return updatePermissions(child);
+            });
+        }
+        if (data.items && data.items.length > 0) {
+            data.items = data.items.map(function (item) {
+                return updatePermissions(item);
+            });
+        }
+        return data;
+    }
+
+    /**
+     * @param {String} path
+     * @param {Object} extraData
+     * @returns {Promise}
+     */
+    function browseRequest(path, extraData) {
+        const parameters = {};
+        parameters[options.pathParam || 'path'] = path;
+        return Promise.resolve(
+            $.ajax({
+                url: options.browseUrl,
+                method: 'GET',
+                dataType: 'json',
+                timeout: ajaxTimeoutMs,
+                data: _.merge(parameters, options.params, extraData)
+            })
+        ).then(unwrapBrowseResponse);
+    }
+
+    /**
+     * @param {Object} tree
+     * @param {String} path
+     * @param {Object} data
+     */
+    function applyTreePayload(tree, path, data) {
+        const folderData = Object.assign({}, data, { children: folderChildrenOnly(data) });
+        if (!tree.path) {
+            _.merge(tree, folderData);
+        } else if (folderData.children) {
+            setToPath(tree, path, folderData);
+            if (!_.find(folderData.children, 'path')) {
+                markFolderEmptyAtPath(tree, path);
+            }
+        } else {
+            setToPath(tree, path, folderData);
+            markFolderEmptyAtPath(tree, path);
+        }
+    }
+
+    /**
+     * @param {Object} tree
+     * @param {String} path
+     * @param {Object} listData
+     * @param {String} cacheKey
+     */
+    function applyListPayload(tree, path, listData, cacheKey) {
+        const node = getByExactPath(tree, path) || getByPath(tree, path);
+        if (!node || !listData) {
+            return;
+        }
+        node.listItems = listData.items || [];
+        node.total = listData.total;
+        node.childrenLimit = listData.pageSize || listData.childrenLimit || selectedClass.childrenLimit;
+        node.listPage = listData.page;
+        node.totalIsApproximate = listData.totalIsApproximate;
+        node.listCacheKey = cacheKey;
+    }
+
+    /**
+     * Ensure upload responses appear in the table before Elasticsearch catches up.
+     * @param {String} path
+     * @param {Array<Object>} uploads
+     */
+    function mergePendingUploads(path, uploads) {
+        if (!uploads || !uploads.length) {
+            return;
+        }
+        const node = getByExactPath(fileTree, path) || getByPath(fileTree, path);
+        if (!node) {
+            return;
+        }
+        if (!Array.isArray(node.listItems)) {
+            node.listItems = [];
+        }
+        let added = 0;
+        uploads.forEach(function (uploaded) {
+            if (!uploaded || uploaded.error) {
+                return;
+            }
+            const normalized = updatePermissions(uploaded);
+            if (!normalized.uri && !normalized.name) {
+                return;
+            }
+            const exists = _.some(node.listItems, function (item) {
+                return (
+                    (normalized.uri && item.uri === normalized.uri) ||
+                    (normalized.name && item.name === normalized.name)
+                );
+            });
+            if (exists) {
+                return;
+            }
+            node.listItems.push(normalized);
+            added++;
+        });
+        if (!added) {
+            return;
+        }
+        if (splitBrowse) {
+            node.listItems = sortAssetItems(node.listItems, sort);
+        }
+        const total = Number(node.total);
+        if (Number.isFinite(total) && total >= 0) {
+            node.total = total + added;
+        }
+    }
+
     /**
      * Get the content of a folder, either in the model or load it
      * @param {Object} tree - the tree model
@@ -401,6 +651,57 @@ export default function (options) {
     }
 
     function getFolderContent(tree, path, cb) {
+        if (splitBrowse) {
+            const existing = getByExactPath(tree, path) || getByPath(tree, path);
+            const needTree = !existing || (!existing.children && !existing.empty);
+            const cacheKey = listCacheKey();
+            const needList = !existing || existing.listCacheKey !== cacheKey;
+
+            const treePromise = needTree
+                ? (setTreeLoading(true),
+                browseRequest(path, {
+                    part: 'tree',
+                    depth: 1,
+                    sortBy: sort.field,
+                    sortDir: sort.direction
+                }).then(
+                    function (data) {
+                        setTreeLoading(false);
+                        return data;
+                    },
+                    function (error) {
+                        setTreeLoading(false);
+                        return Promise.reject(error);
+                    }
+                ))
+                : Promise.resolve(null);
+
+            const listPromise = needList
+                ? browseRequest(path, {
+                    part: 'list',
+                    page: selectedClass.page,
+                    pageSize: selectedClass.childrenLimit || 11,
+                    sortBy: sort.field,
+                    sortDir: sort.direction
+                })
+                : Promise.resolve(null);
+
+            Promise.all([treePromise, listPromise])
+                .then(function ([treeData, listData]) {
+                    if (treeData) {
+                        applyTreePayload(tree, path, treeData);
+                    }
+                    if (listData) {
+                        applyListPayload(tree, path, listData, cacheKey);
+                    }
+                    cb(getByExactPath(tree, path) || getByPath(tree, path));
+                })
+                .catch(function () {
+                    cb(null);
+                });
+            return;
+        }
+
         let content = getByPath(tree, path);
         if (!content || (!content.children && !content.empty)) {
             loadContent(path).then(function (data) {
@@ -426,7 +727,7 @@ export default function (options) {
             });
             // Use folder total (not selectedClass): openInitialPath runs before selectFolder.
             const expectedTotal = Number(content.total);
-            const pageSize = Number(content.childrenLimit) || selectedClass.childrenLimit || 10;
+            const pageSize = Number(content.childrenLimit) || selectedClass.childrenLimit || 11;
             const page = selectedClass.page || 1;
             // Missing/NaN total → unknown size; refetch so invalidated cache is not treated as complete.
             if (
@@ -588,7 +889,16 @@ export default function (options) {
      */
     function invalidateFolderFiles(path) {
         const content = getByExactPath(fileTree, path);
-        if (content && Array.isArray(content.children)) {
+        if (!content) {
+            return;
+        }
+        if (splitBrowse) {
+            delete content.listItems;
+            delete content.listCacheKey;
+            delete content.listPage;
+            return;
+        }
+        if (Array.isArray(content.children)) {
             content.children = content.children.filter(function (child) {
                 return child.path && !child.uri;
             });
@@ -600,9 +910,13 @@ export default function (options) {
      * @param {String} path
      * @param {Object} data
      */
-    function replaceFolderContent(path, data) {
+    function replaceFolderContent(path, data, cacheKey) {
         const content = getByExactPath(fileTree, path);
         if (!content || !data) {
+            return;
+        }
+        if (splitBrowse && Object.prototype.hasOwnProperty.call(data, 'items')) {
+            applyListPayload(fileTree, path, data, cacheKey || listCacheKey());
             return;
         }
         if (Object.prototype.hasOwnProperty.call(data, 'children')) {
@@ -634,6 +948,7 @@ export default function (options) {
     function loadContent(path) {
         const parameters = {};
         parameters[options.pathParam || 'path'] = path;
+        setTreeLoading(true);
         return Promise.resolve(
             $.ajax({
                 url: options.browseUrl,
@@ -649,17 +964,28 @@ export default function (options) {
                     sortDir: sort.direction
                 })
             })
-        ).then(function (response) {
-            if (response && response.success === false) {
-                return Promise.reject(response);
-            }
-            let data = response && response.data ? response.data : response;
-            data = updatePermissions(data);
-            if (data.children && data.children.length > 0) {
-                data.children.map(responseChildren => updatePermissions(responseChildren));
-            }
-            return data;
-        });
+        )
+            .then(function (response) {
+                if (response && response.success === false) {
+                    return Promise.reject(response);
+                }
+                let data = response && response.data ? response.data : response;
+                data = updatePermissions(data);
+                if (data.children && data.children.length > 0) {
+                    data.children.map(responseChildren => updatePermissions(responseChildren));
+                }
+                return data;
+            })
+            .then(
+                function (data) {
+                    setTreeLoading(false);
+                    return data;
+                },
+                function (error) {
+                    setTreeLoading(false);
+                    return Promise.reject(error);
+                }
+            );
     }
 
     /**
@@ -732,7 +1058,7 @@ export default function (options) {
             childrenLimit:
                 Number.isFinite(normalizedChildrenLimit) && normalizedChildrenLimit > 0
                     ? normalizedChildrenLimit
-                    : selectedClass.childrenLimit || 10,
+                    : selectedClass.childrenLimit || 11,
             page: 1
         };
     }
@@ -776,19 +1102,40 @@ export default function (options) {
     /**
      * Re-fetch the current folder with the active sort and publish files.
      */
-    function reloadSortedFolder() {
-        const path = selectedClass.path;
-        loadContent(path)
+    function reloadSortedFolder(pendingUploads) {
+        const listRequest = captureListRequestContext();
+        const path = listRequest.path;
+        if (!searchMode && isActiveBrowser()) {
+            setFilesLoading(true);
+        }
+        const loadPromise = splitBrowse
+            ? browseRequest(path, {
+                part: 'list',
+                page: selectedClass.page,
+                pageSize: selectedClass.childrenLimit || 11,
+                sortBy: sort.field,
+                sortDir: sort.direction
+            })
+            : loadContent(path);
+
+        loadPromise
             .then(function (data) {
                 if (!data) {
+                    setFilesLoading(false);
                     return;
                 }
-                replaceFolderContent(path, data);
+                if (isListRequestStale(listRequest)) {
+                    setFilesLoading(false);
+                    return;
+                }
+                replaceFolderContent(path, data, listRequest.cacheKey);
+                mergePendingUploads(path, pendingUploads);
                 const content = getByExactPath(fileTree, path) || data;
                 selectFolder(content, content.path || path);
             })
             .catch(function (error) {
                 LOGGER.error(error);
+                setFilesLoading(false);
             });
     }
 
@@ -796,15 +1143,69 @@ export default function (options) {
      * Load page
      */
     function loadPage() {
+        const listRequest = captureListRequestContext();
+
+        if (!searchMode && isActiveBrowser()) {
+            setFilesLoading(true);
+        }
+
+        if (splitBrowse) {
+            const path = listRequest.path;
+            browseRequest(path, {
+                part: 'list',
+                page: selectedClass.page,
+                pageSize: selectedClass.childrenLimit || 11,
+                sortBy: sort.field,
+                sortDir: sort.direction
+            })
+                .then(function (data) {
+                    if (isListRequestStale(listRequest)) {
+                        setFilesLoading(false);
+                        return;
+                    }
+                    applyListPayload(fileTree, path, data, listRequest.cacheKey);
+                    const content = getByExactPath(fileTree, path);
+                    if (content) {
+                        $container.trigger(`folderselect.${NS}`, [
+                            content.label,
+                            getFilesForDisplay(content),
+                            content.path,
+                            content
+                        ]);
+                        renderPagination();
+                    }
+                    setFilesLoading(false);
+                })
+                .catch(function (error) {
+                    LOGGER.error(error);
+                    setFilesLoading(false);
+                });
+            return;
+        }
+
         const subTree = getByPath(fileTree, selectedClass.path) || fileTree;
 
         //get the folder content
         getFolderContent(subTree, selectedClass.path, function (content) {
+            if (isListRequestStale(listRequest)) {
+                if (!searchMode) {
+                    setFilesLoading(false);
+                }
+                return;
+            }
             indexTree(fileTree);
 
             if (content) {
                 //internal event to set the file-selector content
-                $container.trigger(`folderselect.${NS}`, [content.label, getPage(content.children), content.path, content]);
+                $container.trigger(`folderselect.${NS}`, [
+                    content.label,
+                    getFilesForDisplay(content),
+                    content.path,
+                    content
+                ]);
+            }
+            if (!searchMode) {
+                setFilesLoading(false);
             }
         });
     }

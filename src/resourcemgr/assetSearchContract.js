@@ -46,7 +46,7 @@ export const DEFAULT_SORT = {
  * Default page size for search results.
  * @type {number}
  */
-export const DEFAULT_PAGE_SIZE = 10;
+export const DEFAULT_PAGE_SIZE = 11;
 
 /**
  * Minimum universal query length before Search is enabled (matches indexed prefix rules).

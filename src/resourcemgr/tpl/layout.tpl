@@ -41,7 +41,7 @@
                         <div class="asset-search-actions">
                             <button type="button" class="asset-search-clear hidden" hidden>{{__ 'Clear all'}}</button>
                             <button type="button" class="btn-info small asset-search-submit" disabled>
-                                <span class="asset-search-submit-spinner icon-loop" aria-hidden="true" hidden></span>
+                                <span class="asset-search-submit-spinner icon-loop hidden" aria-hidden="true"></span>
                                 <span class="asset-search-submit-label">{{__ 'Search'}}</span>
                             </button>
                         </div>
@@ -49,7 +49,13 @@
                 </div>
 
                 <h1 class="resources-title">{{__ 'Resources'}}</h1>
-                <div class="file-browser-wrapper"></div>
+                <div class="file-browser-wrapper" aria-busy="false">
+                    <div class="file-browser-tree-loading hidden" aria-hidden="true">
+                        <span class="icon-loop" aria-hidden="true"></span>
+                        <span class="file-browser-tree-loading-status" aria-live="polite" aria-atomic="true" aria-busy="false">{{__ 'Loading'}}</span>
+                    </div>
+                    <div class="file-browser-scroll"></div>
+                </div>
             </section>
 
             <!-- center: asset listing -->
@@ -73,22 +79,28 @@
                 </div>
 
                 <div class="files-wrapper" aria-busy="false">
-                    <table class="files">
-                        <thead>
-                            <tr>
-                                <th class="files-label sortable sorted sorted_asc" data-sort-by="label" aria-sort="ascending" tabindex="0">
-                                    <span class="sort-label">{{__ 'Label'}}</span>
-                                </th>
-                                <th class="files-location sortable" data-sort-by="location" aria-sort="none" tabindex="0">
-                                    <span class="sort-label">{{__ 'Location'}}</span>
-                                </th>
-                                <th class="files-updated sortable" data-sort-by="updatedAt" aria-sort="none" tabindex="0">
-                                    <span class="sort-label">{{__ 'Last modified on'}}</span>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="files-list"></tbody>
-                    </table>
+                    <div class="files-list-loading hidden" aria-hidden="true">
+                        <span class="icon-loop" aria-hidden="true"></span>
+                        <span class="files-list-loading-status" aria-live="polite" aria-atomic="true" aria-busy="false">{{__ 'Loading'}}</span>
+                    </div>
+                    <div class="files-scroll">
+                        <table class="files">
+                            <thead>
+                                <tr>
+                                    <th class="files-label sortable sorted sorted_asc" data-sort-by="label" aria-sort="ascending" tabindex="0">
+                                        <span class="sort-label">{{__ 'Label'}}</span>
+                                    </th>
+                                    <th class="files-location sortable" data-sort-by="location" aria-sort="none" tabindex="0">
+                                        <span class="sort-label">{{__ 'Location'}}</span>
+                                    </th>
+                                    <th class="files-updated sortable" data-sort-by="updatedAt" aria-sort="none" tabindex="0">
+                                        <span class="sort-label">{{__ 'Last modified on'}}</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="files-list"></tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div class="file-upload-container"></div>
