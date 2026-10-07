@@ -82,7 +82,9 @@ export default function(options) {
             return file.downloadUrl;
         }
         if (typeof file.url === 'string' && file.url) {
-            return file.url.includes('svgzsupport') ? file.url : `${file.url}&svgzsupport=true`;
+            const query = file.url.split('#')[0].split('?')[1] || '';
+            const hasSvgzSupport = query.split('&').some(param => param.split('=')[0] === 'svgzsupport');
+            return hasSvgzSupport ? file.url : `${file.url}&svgzsupport=true`;
         }
         if (typeof file.download === 'string' && file.download) {
             return file.download;
