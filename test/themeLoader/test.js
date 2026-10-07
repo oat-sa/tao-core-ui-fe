@@ -23,6 +23,8 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function (_, $, themeLoader) {
     const pink = 'rgb(255, 192, 203)';
     const blue = 'rgb(0, 0, 255)';
     const green = 'rgb(0, 128, 0)';
+    // themeLoader.triggerThemeChange delays themeapplied by 200ms; allow styles to compute on CI.
+    const themeApplyDelayMs = 250;
 
     let eventTriggered = '';
     let themeApplied = '';
@@ -221,9 +223,9 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function (_, $, themeLoader) {
                         'The themeapplied event has been triggered along with the correct parameters'
                     );
                     ready();
-                }, 250);
-            }, 50);
-        }, 50);
+                }, themeApplyDelayMs);
+            }, themeApplyDelayMs);
+        }, themeApplyDelayMs);
     });
 
     QUnit.test('change back to default', assert => {
@@ -269,10 +271,10 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function (_, $, themeLoader) {
                             'The themeapplied event has been triggered along with the correct parameters'
                         );
                         ready();
-                    }, 250);
-                }, 100);
-            }, 100);
-        }, 100);
+                    }, themeApplyDelayMs);
+                }, themeApplyDelayMs);
+            }, themeApplyDelayMs);
+        }, themeApplyDelayMs);
     });
 
     QUnit.test('reload and change', assert => {
@@ -328,10 +330,10 @@ define(['lodash', 'jquery', 'ui/themeLoader'], function (_, $, themeLoader) {
                                 'The themeapplied event has been triggered along with the correct parameters'
                             );
                             ready();
-                        }, 250);
-                    }, 50);
-                }, 50);
-            }, 50);
-        }, 50);
+                        }, themeApplyDelayMs);
+                    }, themeApplyDelayMs);
+                }, themeApplyDelayMs);
+            }, themeApplyDelayMs);
+        }, themeApplyDelayMs);
     });
 });

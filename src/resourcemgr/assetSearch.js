@@ -46,7 +46,7 @@ import 'ui/searchModal/css/advancedSearch.css';
 
 const ns = 'resourcemgr';
 const EVENT_NS = 'resourcemgrAssetSearch';
-const DEFAULT_AJAX_TIMEOUT_MS = 10000;
+const DEFAULT_AJAX_TIMEOUT_MS = 30000;
 const DEFAULT_ROOT_CLASS_URI = 'http://www.tao.lu/Ontologies/TAOMedia.rdf#Media';
 const SEARCH_MODE_MODAL_TITLE = __('Please select a file from the resource manager.');
 
@@ -811,7 +811,7 @@ export default function assetSearch(options) {
     function showLoading() {
         searchInFlight = true;
         $searchButton.prop('disabled', true).addClass('is-searching').attr('aria-busy', 'true');
-        $searchButtonSpinner.removeClass('hidden').removeAttr('hidden');
+        $searchButtonSpinner.removeClass('hidden');
         $searchButtonLabel.text(__('Searching'));
         $resultsRegion.attr('aria-busy', 'true');
     }
@@ -822,7 +822,7 @@ export default function assetSearch(options) {
     function hideLoading() {
         searchInFlight = false;
         $searchButton.removeClass('is-searching').attr('aria-busy', 'false');
-        $searchButtonSpinner.addClass('hidden').attr('hidden', 'hidden');
+        $searchButtonSpinner.addClass('hidden');
         $searchButtonLabel.text(__('Search'));
         $resultsRegion.attr('aria-busy', 'false');
         updateSearchActionState();

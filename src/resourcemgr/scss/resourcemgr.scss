@@ -873,9 +873,14 @@
                 }
             }
 
-            &.is-searching .asset-search-submit-spinner:not(.hidden):not([hidden]) {
+            &.is-searching .asset-search-submit-spinner:not(.hidden) {
                 display: inline-block;
-                animation: rm-search-button-spin 1.4s linear infinite;
+
+                &.icon-loop::before {
+                    display: inline-block;
+                    transform-origin: 50% 50%;
+                    animation: rm-search-button-spin 1.4s linear infinite;
+                }
             }
 
             &:disabled,
@@ -929,10 +934,57 @@
         }
 
         & .file-browser-wrapper {
-            overflow: auto;
+            position: relative;
+            display: flex;
+            flex-direction: column;
             flex: 1 1 auto;
             min-height: 0;
-            padding: 8px 4px 12px;
+            overflow: hidden;
+
+            &.is-tree-loading {
+                pointer-events: none;
+
+                .file-browser-scroll {
+                    overflow: hidden;
+                }
+            }
+
+            .file-browser-scroll {
+                flex: 1 1 auto;
+                min-height: 0;
+                overflow: auto;
+                padding: 8px 4px 12px;
+            }
+
+            .file-browser-tree-loading {
+                position: absolute;
+                inset: 0;
+                z-index: 3;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: rgba($rmClickableBg, 0.75);
+
+                &.hidden {
+                    display: none;
+                }
+
+                .icon-loop {
+                    color: $rmActive;
+
+                    @include font-size(22);
+
+                    &::before {
+                        display: inline-block;
+                        transform-origin: 50% 50%;
+                        animation: rm-search-button-spin 1.4s linear infinite;
+                    }
+                }
+
+                .file-browser-tree-loading-status {
+                    @include visuallyHidden;
+                }
+            }
         }
 
         ul {
@@ -1143,9 +1195,55 @@
 
         .files-wrapper {
             position: relative;
+            display: flex;
+            flex-direction: column;
             flex-grow: 1;
-            overflow-y: auto;
             min-height: 0;
+            overflow: hidden;
+
+            &.is-files-loading {
+                pointer-events: none;
+
+                .files-scroll {
+                    overflow-y: hidden;
+                }
+            }
+
+            .files-scroll {
+                flex: 1 1 auto;
+                min-height: 0;
+                overflow-y: auto;
+            }
+
+            .files-list-loading {
+                position: absolute;
+                inset: 0;
+                z-index: 2;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: rgba($rmSurface, 0.82);
+
+                &.hidden {
+                    display: none;
+                }
+
+                .icon-loop {
+                    color: $rmActive;
+
+                    @include font-size(22);
+
+                    &::before {
+                        display: inline-block;
+                        transform-origin: 50% 50%;
+                        animation: rm-search-button-spin 1.4s linear infinite;
+                    }
+                }
+
+                .files-list-loading-status {
+                    @include visuallyHidden;
+                }
+            }
         }
 
         table.files {
