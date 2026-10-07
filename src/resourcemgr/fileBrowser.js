@@ -29,6 +29,16 @@ const LOGGER = loggerFactory(`ui/${NS}`);
 const DEFAULT_AJAX_TIMEOUT_MS = 30000;
 const TREE_LOADING_REF_KEY = `${NS}TreeLoadingRefCount`;
 
+/**
+ * @param {Object} data
+ * @returns {Array}
+ */
+function folderChildrenOnly(data) {
+    return _.filter(data && data.children, function (child) {
+        return child && child.path && !child.uri;
+    });
+}
+
 export default function (options) {
     if (!options.browseUrl && options.url) {
         options.browseUrl = options.url;
@@ -46,12 +56,13 @@ export default function (options) {
     // for pagination
     let selectedClass = {
         path: rootPath,
-        childrenLimit: 10,
+        childrenLimit: 11,
         total: 0,
         page: 1
     };
     let searchMode = false;
     let sort = Object.assign({}, DEFAULT_SORT);
+    const splitBrowse = options.splitBrowse !== false;
     const ajaxTimeoutMs = Number.isFinite(Number(options.ajaxTimeoutMs)) && Number(options.ajaxTimeoutMs) > 0
         ? Number(options.ajaxTimeoutMs)
         : DEFAULT_AJAX_TIMEOUT_MS;
@@ -200,8 +211,12 @@ export default function (options) {
         const openingFolder = !searchMode && fullPath !== selectedClass.path;
 
         if (openingFolder) {
+            selectedClass.page = 1;
+        }
+        if (!searchMode) {
             setFilesLoading(true);
         }
+        invalidateFolderFiles(fullPath);
 
         //get the folder content
         getFolderContent(subTree, fullPath, function (content) {
@@ -233,7 +248,7 @@ export default function (options) {
 
                 //internal event to set the file-selector content
                 selectFolder(content, fullPath);
-            } else if (openingFolder) {
+            } else if (!searchMode) {
                 setFilesLoading(false);
             }
         });
@@ -257,11 +272,13 @@ export default function (options) {
 
         if (targetPath !== selectedClass.path) {
             selectedClass.path = targetPath;
-            selectedClass.page = 1;
         }
+        selectedClass.page = 1;
 
         invalidateFolderFiles(targetPath);
-        reloadSortedFolder();
+        const pendingUpload =
+            file && !file.error && (file.uri || file.name) ? file : null;
+        reloadSortedFolder(pendingUpload ? [pendingUpload] : []);
     });
 
     $container.on(`filedelete.${NS}`, function (e, path) {
@@ -404,19 +421,19 @@ export default function (options) {
         $container.data('activeFileBrowserRoot', root);
         if (searchMode) {
             $container.trigger(`folderpath.${NS}`, [path, content.label]);
-            $container.trigger(`folderselect.${NS}`, [
-                content.label,
-                getPage(content.children || []),
-                path,
-                content
-            ]);
-            return;
-        }
+        $container.trigger(`folderselect.${NS}`, [
+            content.label,
+            getFilesForDisplay(content),
+            path,
+            content
+        ]);
+        return;
+    }
         updateSelectedClass(path, content.total, content.childrenLimit);
         $container.trigger(`folderpath.${NS}`, [path, content.label]);
         $container.trigger(`folderselect.${NS}`, [
             content.label,
-            getPage(content.children || []),
+            getFilesForDisplay(content),
             path,
             content
         ]);
@@ -446,6 +463,156 @@ export default function (options) {
         }
         return files;
     }
+
+    /**
+     * Files for the table (split list payload or legacy children slice).
+     * @param {Object} content
+     * @returns {Array}
+     */
+    function getFilesForDisplay(content) {
+        if (!content) {
+            return [];
+        }
+        if (splitBrowse) {
+            return content.listItems || [];
+        }
+        return getPage(content.children || []);
+    }
+
+    function listCacheKey() {
+        return `${sort.field}:${sort.direction}:${selectedClass.page}`;
+    }
+
+    /**
+     * @param {Object} response
+     * @returns {Object}
+     */
+    function unwrapBrowseResponse(response) {
+        if (response && response.success === false) {
+            return Promise.reject(response);
+        }
+        let data = response && response.data ? response.data : response;
+        data = updatePermissions(data);
+        if (data.children && data.children.length > 0) {
+            data.children = data.children.map(function (child) {
+                return updatePermissions(child);
+            });
+        }
+        if (data.items && data.items.length > 0) {
+            data.items = data.items.map(function (item) {
+                return updatePermissions(item);
+            });
+        }
+        return data;
+    }
+
+    /**
+     * @param {String} path
+     * @param {Object} extraData
+     * @returns {Promise}
+     */
+    function browseRequest(path, extraData) {
+        const parameters = {};
+        parameters[options.pathParam || 'path'] = path;
+        return Promise.resolve(
+            $.ajax({
+                url: options.browseUrl,
+                method: 'GET',
+                dataType: 'json',
+                timeout: ajaxTimeoutMs,
+                data: _.merge(parameters, options.params, extraData)
+            })
+        ).then(unwrapBrowseResponse);
+    }
+
+    /**
+     * @param {Object} tree
+     * @param {String} path
+     * @param {Object} data
+     */
+    function applyTreePayload(tree, path, data) {
+        const folderData = Object.assign({}, data, { children: folderChildrenOnly(data) });
+        if (!tree.path) {
+            _.merge(tree, folderData);
+        } else if (folderData.children) {
+            setToPath(tree, path, folderData);
+            if (!_.find(folderData.children, 'path')) {
+                markFolderEmptyAtPath(tree, path);
+            }
+        } else {
+            setToPath(tree, path, folderData);
+            markFolderEmptyAtPath(tree, path);
+        }
+    }
+
+    /**
+     * @param {Object} tree
+     * @param {String} path
+     * @param {Object} listData
+     * @param {String} cacheKey
+     */
+    function applyListPayload(tree, path, listData, cacheKey) {
+        const node = getByExactPath(tree, path) || getByPath(tree, path);
+        if (!node || !listData) {
+            return;
+        }
+        node.listItems = listData.items || [];
+        node.total = listData.total;
+        node.childrenLimit = listData.pageSize || listData.childrenLimit || selectedClass.childrenLimit;
+        node.listPage = listData.page;
+        node.totalIsApproximate = listData.totalIsApproximate;
+        node.listCacheKey = cacheKey;
+    }
+
+    /**
+     * Ensure upload responses appear in the table before Elasticsearch catches up.
+     * @param {String} path
+     * @param {Array<Object>} uploads
+     */
+    function mergePendingUploads(path, uploads) {
+        if (!uploads || !uploads.length) {
+            return;
+        }
+        const node = getByExactPath(fileTree, path) || getByPath(fileTree, path);
+        if (!node) {
+            return;
+        }
+        if (!Array.isArray(node.listItems)) {
+            node.listItems = [];
+        }
+        let added = 0;
+        uploads.forEach(function (uploaded) {
+            if (!uploaded || uploaded.error) {
+                return;
+            }
+            const normalized = updatePermissions(uploaded);
+            if (!normalized.uri && !normalized.name) {
+                return;
+            }
+            const exists = _.some(node.listItems, function (item) {
+                return (
+                    (normalized.uri && item.uri === normalized.uri) ||
+                    (normalized.name && item.name === normalized.name)
+                );
+            });
+            if (exists) {
+                return;
+            }
+            node.listItems.push(normalized);
+            added++;
+        });
+        if (!added) {
+            return;
+        }
+        if (splitBrowse) {
+            node.listItems = sortAssetItems(node.listItems, sort);
+        }
+        const total = Number(node.total);
+        if (Number.isFinite(total) && total >= 0) {
+            node.total = total + added;
+        }
+    }
+
     /**
      * Get the content of a folder, either in the model or load it
      * @param {Object} tree - the tree model
@@ -460,6 +627,57 @@ export default function (options) {
     }
 
     function getFolderContent(tree, path, cb) {
+        if (splitBrowse) {
+            const existing = getByExactPath(tree, path) || getByPath(tree, path);
+            const needTree = !existing || (!existing.children && !existing.empty);
+            const cacheKey = listCacheKey();
+            const needList = !existing || existing.listCacheKey !== cacheKey;
+
+            const treePromise = needTree
+                ? (setTreeLoading(true),
+                browseRequest(path, {
+                    part: 'tree',
+                    depth: 1,
+                    sortBy: sort.field,
+                    sortDir: sort.direction
+                }).then(
+                    function (data) {
+                        setTreeLoading(false);
+                        return data;
+                    },
+                    function (error) {
+                        setTreeLoading(false);
+                        return Promise.reject(error);
+                    }
+                ))
+                : Promise.resolve(null);
+
+            const listPromise = needList
+                ? browseRequest(path, {
+                    part: 'list',
+                    page: selectedClass.page,
+                    pageSize: selectedClass.childrenLimit || 11,
+                    sortBy: sort.field,
+                    sortDir: sort.direction
+                })
+                : Promise.resolve(null);
+
+            Promise.all([treePromise, listPromise])
+                .then(function ([treeData, listData]) {
+                    if (treeData) {
+                        applyTreePayload(tree, path, treeData);
+                    }
+                    if (listData) {
+                        applyListPayload(tree, path, listData, cacheKey);
+                    }
+                    cb(getByExactPath(tree, path) || getByPath(tree, path));
+                })
+                .catch(function () {
+                    cb(null);
+                });
+            return;
+        }
+
         let content = getByPath(tree, path);
         if (!content || (!content.children && !content.empty)) {
             loadContent(path).then(function (data) {
@@ -485,7 +703,7 @@ export default function (options) {
             });
             // Use folder total (not selectedClass): openInitialPath runs before selectFolder.
             const expectedTotal = Number(content.total);
-            const pageSize = Number(content.childrenLimit) || selectedClass.childrenLimit || 10;
+            const pageSize = Number(content.childrenLimit) || selectedClass.childrenLimit || 11;
             const page = selectedClass.page || 1;
             // Missing/NaN total → unknown size; refetch so invalidated cache is not treated as complete.
             if (
@@ -647,7 +865,16 @@ export default function (options) {
      */
     function invalidateFolderFiles(path) {
         const content = getByExactPath(fileTree, path);
-        if (content && Array.isArray(content.children)) {
+        if (!content) {
+            return;
+        }
+        if (splitBrowse) {
+            delete content.listItems;
+            delete content.listCacheKey;
+            delete content.listPage;
+            return;
+        }
+        if (Array.isArray(content.children)) {
             content.children = content.children.filter(function (child) {
                 return child.path && !child.uri;
             });
@@ -662,6 +889,10 @@ export default function (options) {
     function replaceFolderContent(path, data) {
         const content = getByExactPath(fileTree, path);
         if (!content || !data) {
+            return;
+        }
+        if (splitBrowse && Object.prototype.hasOwnProperty.call(data, 'items')) {
+            applyListPayload(fileTree, path, data, listCacheKey());
             return;
         }
         if (Object.prototype.hasOwnProperty.call(data, 'children')) {
@@ -803,7 +1034,7 @@ export default function (options) {
             childrenLimit:
                 Number.isFinite(normalizedChildrenLimit) && normalizedChildrenLimit > 0
                     ? normalizedChildrenLimit
-                    : selectedClass.childrenLimit || 10,
+                    : selectedClass.childrenLimit || 11,
             page: 1
         };
     }
@@ -847,18 +1078,29 @@ export default function (options) {
     /**
      * Re-fetch the current folder with the active sort and publish files.
      */
-    function reloadSortedFolder() {
+    function reloadSortedFolder(pendingUploads) {
         const path = selectedClass.path;
         if (!searchMode && isActiveBrowser()) {
             setFilesLoading(true);
         }
-        loadContent(path)
+        const loadPromise = splitBrowse
+            ? browseRequest(path, {
+                part: 'list',
+                page: selectedClass.page,
+                pageSize: selectedClass.childrenLimit || 11,
+                sortBy: sort.field,
+                sortDir: sort.direction
+            })
+            : loadContent(path);
+
+        loadPromise
             .then(function (data) {
                 if (!data) {
                     setFilesLoading(false);
                     return;
                 }
                 replaceFolderContent(path, data);
+                mergePendingUploads(path, pendingUploads);
                 const content = getByExactPath(fileTree, path) || data;
                 selectFolder(content, content.path || path);
             })
@@ -872,11 +1114,41 @@ export default function (options) {
      * Load page
      */
     function loadPage() {
-        const subTree = getByPath(fileTree, selectedClass.path) || fileTree;
-
         if (!searchMode && isActiveBrowser()) {
             setFilesLoading(true);
         }
+
+        if (splitBrowse) {
+            const path = selectedClass.path;
+            browseRequest(path, {
+                part: 'list',
+                page: selectedClass.page,
+                pageSize: selectedClass.childrenLimit || 11,
+                sortBy: sort.field,
+                sortDir: sort.direction
+            })
+                .then(function (data) {
+                    applyListPayload(fileTree, path, data, listCacheKey());
+                    const content = getByExactPath(fileTree, path);
+                    if (content) {
+                        $container.trigger(`folderselect.${NS}`, [
+                            content.label,
+                            getFilesForDisplay(content),
+                            content.path,
+                            content
+                        ]);
+                        renderPagination();
+                    }
+                    setFilesLoading(false);
+                })
+                .catch(function (error) {
+                    LOGGER.error(error);
+                    setFilesLoading(false);
+                });
+            return;
+        }
+
+        const subTree = getByPath(fileTree, selectedClass.path) || fileTree;
 
         //get the folder content
         getFolderContent(subTree, selectedClass.path, function (content) {
@@ -884,7 +1156,12 @@ export default function (options) {
 
             if (content) {
                 //internal event to set the file-selector content
-                $container.trigger(`folderselect.${NS}`, [content.label, getPage(content.children), content.path, content]);
+                $container.trigger(`folderselect.${NS}`, [
+                    content.label,
+                    getFilesForDisplay(content),
+                    content.path,
+                    content
+                ]);
             }
             if (!searchMode) {
                 setFilesLoading(false);

@@ -72,6 +72,37 @@ export default function(options) {
         return String(value);
     }
 
+    /**
+     * Row markup uses data-download for permission flag (boolean), not the URL.
+     * @param {*} file
+     * @returns {string}
+     */
+    function downloadHref(file) {
+        if (typeof file.downloadUrl === 'string' && file.downloadUrl) {
+            return file.downloadUrl;
+        }
+        if (typeof file.url === 'string' && file.url) {
+            return file.url.includes('svgzsupport') ? file.url : `${file.url}&svgzsupport=true`;
+        }
+        if (typeof file.download === 'string' && file.download) {
+            return file.download;
+        }
+        return '';
+    }
+
+    /**
+     * @param {*} file
+     * @returns {string}
+     */
+    function downloadFilename(file) {
+        if (typeof file.display === 'string' && file.display) {
+            return file.display;
+        }
+        const path = file.file || '';
+        const idx = path.lastIndexOf('/');
+        return idx >= 0 ? path.slice(idx + 1) : path;
+    }
+
     function startPreview(file, preview, download, select) {
         if (preview) {
             $previewer.previewer(file);
@@ -91,10 +122,16 @@ export default function(options) {
             $propType.text(EMPTY_META);
             $propSize.text(EMPTY_META);
         }
-        if(download) {
-            $link.attr('href', file.download).attr('download', file.file);
-            if ($link.hasClass('hidden')) {
-                $link.removeClass('hidden');
+        if (download) {
+            const href = downloadHref(file);
+            if (href) {
+                $link.attr('href', href).attr('download', downloadFilename(file));
+                if ($link.hasClass('hidden')) {
+                    $link.removeClass('hidden');
+                }
+            } else {
+                $link.attr('href', '#').removeAttr('download');
+                $link.addClass('hidden');
             }
         } else {
             $link.attr('href', '#').attr('download', '#');

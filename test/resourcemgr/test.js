@@ -86,6 +86,75 @@ define([
     }
 
     /**
+     * @param {Object} fixture
+     * @returns {Object}
+     */
+    function unwrapBrowseFixture(fixture) {
+        return fixture && fixture.data ? fixture.data : fixture;
+    }
+
+    /**
+     * Combined browse fixture for a folder path (legacy shape: folders + files in children).
+     * @param {string} path
+     * @returns {Object}
+     */
+    function combinedBrowseForPath(path) {
+        return path === '/images' ? fixtures.browseImages : fixtures.browseRoot;
+    }
+
+    /**
+     * Mockjax handler: split browse (`part=tree|list`) or legacy combined payload.
+     * @param {Object} settings
+     * @param {Object} [combinedWrapper]
+     * @returns {void}
+     */
+    function respondSplitBrowse(settings, combinedWrapper) {
+        const wrapper = combinedWrapper || combinedBrowseForPath(settings.data && settings.data.path);
+        const data = unwrapBrowseFixture(wrapper);
+        const part = settings.data && settings.data.part;
+
+        if (part === 'tree') {
+            this.responseText = {
+                data: {
+                    path: data.path,
+                    label: data.label,
+                    permissions: data.permissions,
+                    childrenLimit: data.childrenLimit,
+                    total: data.total,
+                    children: (data.children || []).filter(function (child) {
+                        return child && child.path && !child.uri;
+                    })
+                }
+            };
+            return;
+        }
+
+        if (part === 'list') {
+            const items = (data.children || []).filter(function (child) {
+                return child && child.uri;
+            });
+            const pageSize =
+                Number(settings.data && settings.data.pageSize) ||
+                data.childrenLimit ||
+                contract.DEFAULT_PAGE_SIZE;
+            const page = Number(settings.data && settings.data.page) || 1;
+            this.responseText = {
+                data: {
+                    path: data.path,
+                    label: data.label,
+                    items: items,
+                    total: typeof data.total === 'number' ? data.total : items.length,
+                    page: page,
+                    pageSize: pageSize
+                }
+            };
+            return;
+        }
+
+        this.responseText = wrapper;
+    }
+
+    /**
      * Register a browse mock that returns root or /images fixtures by path.
      * @returns {void}
      */
@@ -94,8 +163,7 @@ define([
             url: browseUrl,
             dataType: 'json',
             response: function (settings) {
-                const path = settings.data && settings.data.path;
-                this.responseText = path === '/images' ? fixtures.browseImages : fixtures.browseRoot;
+                respondSplitBrowse.call(this, settings);
             }
         });
     }
@@ -197,8 +265,7 @@ define([
                     }
                     return;
                 }
-                const path = settings.data && settings.data.path;
-                this.responseText = path === '/images' ? fixtures.browseImages : fixtures.browseRoot;
+                respondSplitBrowse.call(this, settings);
             }
         });
     }
@@ -206,7 +273,9 @@ define([
     QUnit.module('assetSearchContract');
 
     QUnit.test('builds request params and normalizes responses', function (assert) {
-        assert.expect(12);
+        assert.expect(14);
+
+        assert.equal(contract.DEFAULT_PAGE_SIZE, 11, 'default page size matches browse list');
 
         const params = contract.buildSearchRequestParams({
             path: '/images',
@@ -223,6 +292,14 @@ define([
         assert.equal(params.sortBy, 'label', 'default sort field is label');
         assert.equal(params.page, 2, 'page is set');
         assert.equal(typeof params.metadata, 'undefined', 'metadata omitted when empty');
+
+        const defaultPageSize = contract.buildSearchRequestParams({
+            path: '/',
+            query: '',
+            sort: contract.DEFAULT_SORT,
+            page: 1
+        });
+        assert.equal(defaultPageSize.pageSize, 11, 'buildSearchRequestParams applies DEFAULT_PAGE_SIZE');
 
         const withMetadata = contract.buildSearchRequestParams({
             path: '/images',
@@ -370,6 +447,71 @@ define([
         afterEach: function () {
             clearDom();
         }
+    });
+
+    QUnit.test('split browse requests tree and list parts', function (assert) {
+        const ready = assert.async();
+        assert.expect(3);
+        const parts = [];
+
+        $.mockjax.clear();
+        mockAdvancedSearchApis();
+        $.mockjax({
+            url: browseUrl,
+            dataType: 'json',
+            response: function (settings) {
+                if (settings.data && settings.data.part) {
+                    parts.push(settings.data.part);
+                }
+                respondSplitBrowse.call(this, settings);
+            }
+        });
+
+        const $launcher = $('#launcher');
+        $launcher.on('create.resourcemgr', function () {
+            window.setTimeout(function () {
+                assert.ok(parts.indexOf('tree') >= 0, 'initial load requests tree part');
+                assert.ok(parts.indexOf('list') >= 0, 'initial load requests list part');
+                assert.ok(parts.length >= 2, 'split browse uses separate requests');
+                ready();
+            }, 200);
+        });
+
+        createManager({ open: true, initialPath: '/images' });
+    });
+
+    QUnit.test('preview download link uses file url not download permission flag', function (assert) {
+        const ready = assert.async();
+        assert.expect(4);
+
+        mockSearch(function () {
+            return fixtures.searchResults;
+        });
+
+        const $launcher = $('#launcher');
+        $launcher.on('create.resourcemgr', function () {
+            const $modal = $('#outside-container .resourcemgr');
+
+            whenTableRows($modal, function () {
+                const $row = $modal.find('.files-list tr[data-file="asset://cat"]');
+                $row.trigger('click');
+
+                const $link = $modal.find('.file-preview .prop-url a.download');
+                const href = $link.attr('href') || '';
+
+                assert.notEqual(href, 'true', 'href is not boolean permission flag');
+                assert.ok(href.indexOf(downloadUrl) === 0, 'href points at download endpoint');
+                assert.ok(href.indexOf('svgzsupport=true') >= 0, 'download url includes svgzsupport');
+                assert.ok(href.indexOf(encodeURIComponent('asset://cat')) >= 0, 'href includes asset path');
+                ready();
+            });
+        });
+
+        createManager({
+            open: true,
+            initialPath: '/images',
+            initialSelection: 'asset://cat'
+        });
     });
 
     QUnit.test('browse-only mode hides search controls without searchUrl', function (assert) {
@@ -904,33 +1046,33 @@ define([
                 const path = settings.data && settings.data.path;
                 if (path === '/images') {
                     imagesBrowseLoads += 1;
-                    if (imagesBrowseLoads >= 2) {
-                        this.responseText = {
-                            data: {
-                                path: '/images',
-                                label: 'Images',
-                                childrenLimit: 10,
-                                total: 2,
-                                permissions: ['READ', 'WRITE', 'UPLOAD'],
-                                children: fixtures.browseImages.data.children.concat([
-                                    {
-                                        uri: 'asset://new-upload',
-                                        name: 'new-upload.png',
-                                        mime: 'image/png',
-                                        size: 100,
-                                        location: '/images',
-                                        updatedAt: '2026-09-01T10:00:00Z',
-                                        permissions: ['READ', 'DOWNLOAD']
-                                    }
-                                ])
+                    const combined =
+                        imagesBrowseLoads >= 2
+                            ? {
+                                data: {
+                                    path: '/images',
+                                    label: 'Images',
+                                    childrenLimit: 10,
+                                    total: 2,
+                                    permissions: ['READ', 'WRITE', 'UPLOAD'],
+                                    children: fixtures.browseImages.data.children.concat([
+                                        {
+                                            uri: 'asset://new-upload',
+                                            name: 'new-upload.png',
+                                            mime: 'image/png',
+                                            size: 100,
+                                            location: '/images',
+                                            updatedAt: '2026-09-01T10:00:00Z',
+                                            permissions: ['READ', 'DOWNLOAD']
+                                        }
+                                    ])
+                                }
                             }
-                        };
-                    } else {
-                        this.responseText = fixtures.browseImages;
-                    }
+                            : fixtures.browseImages;
+                    respondSplitBrowse.call(this, settings, combined);
                     return;
                 }
-                this.responseText = fixtures.browseRoot;
+                respondSplitBrowse.call(this, settings);
             }
         });
 
@@ -1014,14 +1156,11 @@ define([
                 const path = settings.data && settings.data.path;
                 if (path === '/images') {
                     imagesBrowseLoads += 1;
-                    if (imagesBrowseLoads >= 2) {
-                        this.responseText = fixtures.browseImages;
-                    } else {
-                        this.responseText = twoFilesPayload;
-                    }
+                    const combined = imagesBrowseLoads >= 2 ? fixtures.browseImages : twoFilesPayload;
+                    respondSplitBrowse.call(this, settings, combined);
                     return;
                 }
-                this.responseText = fixtures.browseRoot;
+                respondSplitBrowse.call(this, settings);
             }
         });
 
