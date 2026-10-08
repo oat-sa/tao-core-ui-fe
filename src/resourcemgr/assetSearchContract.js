@@ -55,6 +55,14 @@ export const DEFAULT_PAGE_SIZE = 11;
 export const MIN_TEXT_QUERY_LENGTH = 3;
 
 /**
+ * @param {*} entry
+ * @returns {boolean}
+ */
+function isNonemptyCriterionValue(entry) {
+    return entry !== '' && entry !== null && typeof entry !== 'undefined';
+}
+
+/**
  * Whether a rendered metadata criterion has a usable value.
  * @param {Object} criterion
  * @returns {boolean}
@@ -70,9 +78,7 @@ export function isMetadataCriterionComplete(criterion) {
         if (!Array.isArray(criterion.value)) {
             return false;
         }
-        return criterion.value.some(function (entry) {
-            return entry !== '' && entry !== null && typeof entry !== 'undefined';
-        });
+        return criterion.value.some(isNonemptyCriterionValue);
     }
     return true;
 }
@@ -190,10 +196,8 @@ export function buildMetadataFromCriteriaState(criteriaState) {
             return;
         }
         if (criterion.type === 'list' && Array.isArray(criterion.value)) {
-            const first = criterion.value.find(function (entry) {
-                return entry !== '' && entry !== null && typeof entry !== 'undefined';
-            });
-            if (typeof first !== 'undefined' && first !== null && first !== '') {
+            const first = criterion.value.find(isNonemptyCriterionValue);
+            if (isNonemptyCriterionValue(first)) {
                 metadata[criterion.propertyUri] = String(first);
             }
         }
@@ -218,6 +222,31 @@ function normalizeMetadataMap(metadata) {
         }
     });
     return normalized;
+}
+
+/**
+ * @param {number} [requestedPageSize]
+ * @param {number} [normalizedPageSize]
+ * @returns {number}
+ */
+function resolveSearchPageSize(requestedPageSize, normalizedPageSize) {
+    const requested = Number(requestedPageSize);
+    if (requested > 0) {
+        return requested;
+    }
+    const fallback = Number(normalizedPageSize);
+    if (fallback > 0) {
+        return fallback;
+    }
+    return DEFAULT_PAGE_SIZE;
+}
+
+/**
+ * @param {{field: string, direction: string}} [sort]
+ * @returns {{field: string, direction: string}}
+ */
+function mergeSortWithDefaults(sort) {
+    return Object.assign({}, DEFAULT_SORT, sort || {});
 }
 
 /**
@@ -281,11 +310,8 @@ export function isBrowseShapedSearchPayload(payload) {
  */
 export function applyLocalSearchFallback(normalized, options) {
     const metadata = normalizeMetadataMap(options && options.metadata);
+    const pageSize = resolveSearchPageSize(options && options.pageSize, normalized.pageSize);
     if (Object.keys(metadata).length) {
-        const pageSize =
-            Number(options && options.pageSize) > 0
-                ? Number(options.pageSize)
-                : normalized.pageSize || DEFAULT_PAGE_SIZE;
         return {
             items: [],
             total: 0,
@@ -298,11 +324,7 @@ export function applyLocalSearchFallback(normalized, options) {
     const query = String((options && options.query) || '')
         .trim()
         .toLowerCase();
-    const sort = (options && options.sort) || DEFAULT_SORT;
-    const pageSize =
-        Number(options && options.pageSize) > 0
-            ? Number(options.pageSize)
-            : normalized.pageSize || DEFAULT_PAGE_SIZE;
+    const sort = mergeSortWithDefaults(options && options.sort);
     const page = Number(options && options.page) > 0 ? Number(options.page) : 1;
 
     let items = (normalized.items || []).filter(isSearchableAsset);
@@ -440,7 +462,7 @@ function matchesQueryTokens(haystackText, queryTokens) {
  * @returns {Array}
  */
 export function sortAssetItems(items, sort) {
-    const resolved = Object.assign({}, DEFAULT_SORT, sort || {});
+    const resolved = mergeSortWithDefaults(sort);
     return (items || []).slice().sort(function (a, b) {
         const primary = compareSortValues(
             getSortValue(a, resolved.field),
