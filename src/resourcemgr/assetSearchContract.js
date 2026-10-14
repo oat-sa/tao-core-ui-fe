@@ -279,8 +279,35 @@ export function normalizeSearchResponse(payload) {
         items,
         total,
         page: Number.isFinite(page) && page > 0 ? page : 1,
-        pageSize: Number.isFinite(pageSize) && pageSize > 0 ? pageSize : DEFAULT_PAGE_SIZE
+        pageSize: Number.isFinite(pageSize) && pageSize > 0 ? pageSize : DEFAULT_PAGE_SIZE,
+        includesSubfolders: body.includesSubfolders !== false
     };
+}
+
+/**
+ * Prefer a server-provided 503 message when the search service is unavailable.
+ *
+ * @param {*} jqXHR
+ * @param {string} fallbackMessage
+ * @returns {string}
+ */
+export function resolveServiceUnavailableSearchMessage(jqXHR, fallbackMessage) {
+    if (!jqXHR || jqXHR.status !== 503) {
+        return fallbackMessage;
+    }
+    let body = jqXHR.responseJSON;
+    if (!body && jqXHR.responseText) {
+        try {
+            body =
+                typeof jqXHR.responseText === 'string' ? JSON.parse(jqXHR.responseText) : jqXHR.responseText;
+        } catch (err) {
+            body = null;
+        }
+    }
+    if (body && body.message) {
+        return body.message;
+    }
+    return fallbackMessage;
 }
 
 /**
