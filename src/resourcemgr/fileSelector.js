@@ -181,6 +181,10 @@ export default function (options) {
         applyFilesListLoading(loading);
     });
 
+    $container.on(`searchtableloading.${ns}`, function (e, loading) {
+        applyFilesListLoading(loading);
+    });
+
     //update current folder
     $container.on(`folderselect.${ns}`, function (e, fullPath, data, activePath, content) {
         let files;

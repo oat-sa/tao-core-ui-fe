@@ -154,7 +154,7 @@ export default function (options) {
     });
 
     //load the content of the ROOT
-    const showInitialListLoading = !searchMode && root === 'local';
+    const showInitialListLoading = !searchMode;
     if (showInitialListLoading) {
         setFilesLoading(true);
     }

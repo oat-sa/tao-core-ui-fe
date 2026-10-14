@@ -40,7 +40,8 @@ import {
     buildSearchRequestParams,
     canSubmitScopedAssetSearch,
     isBrowseShapedSearchPayload,
-    normalizeSearchResponse
+    normalizeSearchResponse,
+    resolveServiceUnavailableSearchMessage
 } from 'ui/resourcemgr/assetSearchContract';
 import 'ui/searchModal/css/advancedSearch.css';
 
@@ -177,8 +178,9 @@ export default function assetSearch(options) {
      * Keeps the previous display name until a real label arrives (avoids URI flash).
      * @param {string} [folderLabel]
      * @param {Object} [content]
+     * @param {boolean} [includesSubfolders]
      */
-    function updateScopeDisplay(folderLabel, content) {
+    function updateScopeDisplay(folderLabel, content, includesSubfolders) {
         if (isFolderDisplayLabel(folderLabel)) {
             scopeLabel = String(folderLabel).trim();
         }
@@ -189,7 +191,9 @@ export default function assetSearch(options) {
         } else {
             $scopeName.removeAttr('title');
         }
-        if (folderHasSubfolders(content)) {
+        const showSubfolders =
+            includesSubfolders !== false && folderHasSubfolders(content);
+        if (showSubfolders) {
             $scopeSubfolders.removeClass('hidden').removeAttr('hidden');
         } else {
             $scopeSubfolders.addClass('hidden').attr('hidden', 'hidden');
@@ -637,6 +641,7 @@ export default function assetSearch(options) {
         if ($modalTitle.length && browseModalTitle) {
             $modalTitle.text(browseModalTitle);
         }
+        setResultsTableLoading(false);
         hideLoading();
         hideError();
         $paginationContainer.empty();
@@ -648,9 +653,13 @@ export default function assetSearch(options) {
     }
 
     /**
-     * Execute the scoped search request.
-     * @param {{quiet?: boolean}} [runOptions]
+     * Toggle the file-table loading overlay during search (including pagination).
+     * @param {Boolean} loading
      */
+    function setResultsTableLoading(loading) {
+        $container.trigger(`searchtableloading.${ns}`, [!!loading]);
+    }
+
     function runSearch(runOptions) {
         if (!hasActiveSearch()) {
             exitSearchMode();
@@ -659,9 +668,8 @@ export default function assetSearch(options) {
 
         const quiet = Boolean(runOptions && runOptions.quiet);
         const seq = ++requestSeq;
-        if (quiet) {
-            $resultsRegion.attr('aria-busy', 'true');
-        } else {
+        setResultsTableLoading(true);
+        if (!quiet) {
             showLoading();
         }
         hideError();
@@ -688,9 +696,8 @@ export default function assetSearch(options) {
                 if (seq !== requestSeq) {
                     return;
                 }
-                if (quiet) {
-                    $resultsRegion.attr('aria-busy', 'false');
-                } else {
+                setResultsTableLoading(false);
+                if (!quiet) {
                     hideLoading();
                 }
                 let normalized = normalizeSearchResponse(response);
@@ -719,6 +726,7 @@ export default function assetSearch(options) {
                 total = normalized.total;
                 page = normalized.page;
                 pageSize = normalized.pageSize;
+                updateScopeDisplay(scopeLabel, undefined, normalized.includesSubfolders);
 
                 let emptyMessage = '';
                 if (normalized.total === 0) {
@@ -749,19 +757,21 @@ export default function assetSearch(options) {
 
                 renderPagination();
             })
-            .fail(function () {
+            .fail(function (jqXHR) {
                 if (seq !== requestSeq) {
                     return;
                 }
-                if (quiet) {
-                    $resultsRegion.attr('aria-busy', 'false');
-                } else {
+                setResultsTableLoading(false);
+                if (!quiet) {
                     hideLoading();
                 }
                 page = 1;
                 total = 0;
                 $paginationContainer.empty();
-                const message = __('Unable to search assets. Please try again.');
+                const message = resolveServiceUnavailableSearchMessage(
+                    jqXHR,
+                    __('Unable to search assets. Please try again.')
+                );
                 showError(message);
                 $container.trigger(`searchresults.${ns}`, [
                     {
@@ -813,7 +823,6 @@ export default function assetSearch(options) {
         $searchButton.prop('disabled', true).addClass('is-searching').attr('aria-busy', 'true');
         $searchButtonSpinner.removeClass('hidden');
         $searchButtonLabel.text(__('Searching'));
-        $resultsRegion.attr('aria-busy', 'true');
     }
 
     /**
@@ -824,7 +833,6 @@ export default function assetSearch(options) {
         $searchButton.removeClass('is-searching').attr('aria-busy', 'false');
         $searchButtonSpinner.addClass('hidden');
         $searchButtonLabel.text(__('Search'));
-        $resultsRegion.attr('aria-busy', 'false');
         updateSearchActionState();
     }
 
