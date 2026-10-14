@@ -657,6 +657,10 @@ export default function (options) {
             const cacheKey = listCacheKey();
             const needList = !existing || existing.listCacheKey !== cacheKey;
 
+            if (needList && !searchMode) {
+                setFilesLoading(true);
+            }
+
             const treePromise = needTree
                 ? (setTreeLoading(true),
                 browseRequest(path, {
@@ -697,6 +701,9 @@ export default function (options) {
                     cb(getByExactPath(tree, path) || getByPath(tree, path));
                 })
                 .catch(function () {
+                    if (!searchMode) {
+                        setFilesLoading(false);
+                    }
                     cb(null);
                 });
             return;
