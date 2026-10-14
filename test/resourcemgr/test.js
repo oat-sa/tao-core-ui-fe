@@ -273,7 +273,7 @@ define([
     QUnit.module('assetSearchContract');
 
     QUnit.test('builds request params and normalizes responses', function (assert) {
-        assert.expect(14);
+        assert.expect(18);
 
         assert.equal(contract.DEFAULT_PAGE_SIZE, 11, 'default page size matches browse list');
 
@@ -339,6 +339,25 @@ define([
         const normalized = contract.normalizeSearchResponse(fixtures.searchResults);
         assert.equal(normalized.items.length, 2, 'items are normalized');
         assert.equal(normalized.total, 2, 'total is preserved');
+        assert.strictEqual(normalized.includesSubfolders, true, 'includesSubfolders defaults to true');
+        assert.strictEqual(
+            contract.normalizeSearchResponse({ items: [], total: 0, includesSubfolders: false }).includesSubfolders,
+            false,
+            'includesSubfolders false is preserved'
+        );
+        assert.equal(
+            contract.resolveServiceUnavailableSearchMessage(
+                { status: 503, responseText: '{"message":"Search temporarily unavailable"}' },
+                'fallback'
+            ),
+            'Search temporarily unavailable',
+            '503 JSON body message is preferred'
+        );
+        assert.equal(
+            contract.resolveServiceUnavailableSearchMessage({ status: 500 }, 'fallback'),
+            'fallback',
+            'non-503 responses keep the fallback message'
+        );
         assert.equal(
             contract.normalizeSearchResponse({ items: [{ uri: 'a' }], total: null }).total,
             1,
@@ -540,7 +559,7 @@ define([
 
     QUnit.test('search context renders service results without client filtering', function (assert) {
         const ready = assert.async();
-        assert.expect(7);
+        assert.expect(8);
         let finished = false;
 
         mockSearch(function () {
@@ -572,6 +591,82 @@ define([
                     $modal.find('.files-list tr[data-file="asset://cat"] .meta.location').text(),
                     '/images',
                     'location shows catalog path'
+                );
+                assert.ok(
+                    !$modal.find('.files-wrapper').hasClass('is-files-loading'),
+                    'files list loading overlay is cleared after search'
+                );
+                ready();
+            });
+
+            runSearchFromUi($modal, 'cat');
+        });
+
+        createManager({
+            initialPath: '/images',
+            initialSelection: 'asset://cat'
+        });
+    });
+
+    QUnit.test('non-local root shows initial files list loading while browsing', function (assert) {
+        const ready = assert.async();
+        assert.expect(3);
+        const loadingEvents = [];
+
+        $('#outside-container').on('filesloading.resourcemgr', function (e, loading) {
+            loadingEvents.push(!!loading);
+        });
+
+        const $launcher = $('#launcher');
+        $launcher.on('create.resourcemgr', function () {
+            const $modal = $('#outside-container .resourcemgr');
+
+            whenTableRows($modal, function () {
+                assert.ok(loadingEvents.indexOf(true) >= 0, 'initial browse requests files list loading');
+                assert.ok(loadingEvents.indexOf(false) >= 0, 'initial browse clears files list loading');
+                assert.ok(
+                    !$modal.find('.files-wrapper').hasClass('is-files-loading'),
+                    'files list loading class is removed after browse'
+                );
+                $('#outside-container').off('filesloading.resourcemgr');
+                ready();
+            });
+        });
+
+        createManager({
+            open: true,
+            root: 'taomedia',
+            path: 'taomedia://mediamanager/Media'
+        });
+    });
+
+    QUnit.test('search hides subfolders scope hint when includesSubfolders is false', function (assert) {
+        const ready = assert.async();
+        assert.expect(2);
+        let finished = false;
+
+        mockSearch(function () {
+            return {
+                data: Object.assign({}, fixtures.searchResults.data, { includesSubfolders: false })
+            };
+        });
+
+        const $launcher = $('#launcher');
+        $launcher.on('create.resourcemgr', function () {
+            const $modal = $('#outside-container .resourcemgr');
+
+            $modal.on('searchresults.resourcemgr', function () {
+                if (finished) {
+                    return;
+                }
+                finished = true;
+                assert.ok(
+                    $modal.find('.asset-search-scope-subfolders').hasClass('hidden'),
+                    'subfolders hint stays hidden when search excludes subfolders'
+                );
+                assert.ok(
+                    !$modal.find('.files-wrapper').hasClass('is-files-loading'),
+                    'files list loading overlay is cleared after scoped search'
                 );
                 ready();
             });

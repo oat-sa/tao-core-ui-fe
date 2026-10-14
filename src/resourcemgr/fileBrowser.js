@@ -154,7 +154,7 @@ export default function (options) {
     });
 
     //load the content of the ROOT
-    const showInitialListLoading = !searchMode && root === 'local';
+    const showInitialListLoading = !searchMode;
     if (showInitialListLoading) {
         setFilesLoading(true);
     }
@@ -421,14 +421,14 @@ export default function (options) {
         $container.data('activeFileBrowserRoot', root);
         if (searchMode) {
             $container.trigger(`folderpath.${NS}`, [path, content.label]);
-        $container.trigger(`folderselect.${NS}`, [
-            content.label,
-            getFilesForDisplay(content),
-            path,
-            content
-        ]);
-        return;
-    }
+            $container.trigger(`folderselect.${NS}`, [
+                content.label,
+                getFilesForDisplay(content),
+                path,
+                content
+            ]);
+            return;
+        }
         updateSelectedClass(path, content.total, content.childrenLimit);
         $container.trigger(`folderpath.${NS}`, [path, content.label]);
         $container.trigger(`folderselect.${NS}`, [
