@@ -100,7 +100,6 @@ export default function assetSearch(options) {
     const $error = $('.asset-search-error', $fileSelector);
     const $errorMessage = $('.asset-search-error-message', $error);
     const $retry = $('.asset-search-retry', $error);
-    const $resultsRegion = $('.files-wrapper', $fileSelector);
     const $paginationContainer = $('.pagination-bottom', $container);
     const $uploadSwitcher = $('.upload-switcher', $fileSelector);
     const $modalTitle = $container.closest('.resourcemgr').find('> h2').first();
@@ -727,7 +726,7 @@ export default function assetSearch(options) {
                 total = normalized.total;
                 page = normalized.page;
                 pageSize = normalized.pageSize;
-                updateScopeDisplay(scopeLabel, undefined, normalized.includesSubfolders);
+                updateScopeDisplay(scopeLabel, null, normalized.includesSubfolders);
 
                 let emptyMessage = '';
                 if (normalized.total === 0) {
