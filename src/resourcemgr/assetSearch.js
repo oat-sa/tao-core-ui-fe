@@ -504,6 +504,7 @@ export default function assetSearch(options) {
      * Detach asset-search handlers and destroy Advanced Search.
      */
     function teardown() {
+        setResultsTableLoading(false);
         requestSeq += 1;
         searchMode = false;
         $fileSelector.removeClass('search-mode');
