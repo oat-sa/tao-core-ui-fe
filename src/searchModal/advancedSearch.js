@@ -128,6 +128,23 @@ export default function advancedSearchFactory(config) {
             return criteriaState;
         },
         /**
+         * Sync text criterion values from the DOM into state without dispatching events.
+         */
+        syncTextCriteriaFromDom() {
+            if (!$advancedCriteriaContainer || !$advancedCriteriaContainer.length) {
+                return;
+            }
+            $advancedCriteriaContainer
+                .find('.filter-container[data-type="text"] input')
+                .each(function () {
+                    const criterion = findCriterionByContainer($(this).closest('.filter-container'));
+                    if (!criterion || criterion.type !== criteriaTypes.text) {
+                        return;
+                    }
+                    criterion.value = $(this).val() || null;
+                });
+        },
+        /**
          * Removes every rendered criterion, updates criteria state accordingly
          * and removes classes applied to scrollable list of criteria
          */
@@ -215,6 +232,13 @@ export default function advancedSearchFactory(config) {
         }
 
         $advancedCriteriaContainer.on('scroll', _.throttle(animateScroll, 100));
+        $advancedCriteriaContainer.on('input.advancedSearch change.advancedSearch', 'input', function () {
+            const criterion = findCriterionByContainer($(this).closest('.filter-container'));
+            if (!criterion || criterion.type !== criteriaTypes.text) {
+                return;
+            }
+            criterion.value = $(this).val() || null;
+        });
     }
 
     /**
@@ -569,6 +593,20 @@ export default function advancedSearchFactory(config) {
     }
 
     /**
+     * Resolves the criterion state entry rendered in the given container.
+     * @param {jQuery} $criterionContainer
+     * @returns {Object|null}
+     */
+    function findCriterionByContainer($criterionContainer) {
+        return (
+            _.find(
+                criteriaState || {},
+                criterion => criterion && $criterionContainer.hasClass(`${criterion.id}-filter`)
+            ) || null
+        );
+    }
+
+    /**
      * Sets initial value for rendered criterion and sets binding between view and state
      * @param {object} criterion - criterion to be managed
      * @param {object} $criterionContainer - rendered criterion
@@ -578,9 +616,6 @@ export default function advancedSearchFactory(config) {
             // Bind synchronously so typing / Search right after Add filter is not lost
             // (getInitialCriterionLabel resolves on a microtask).
             $('input', $criterionContainer).val(criterion.value);
-            $('input', $criterionContainer).on('input change', function () {
-                criterion.value = $(this).val() || null;
-            });
             return;
         }
 

@@ -1041,6 +1041,69 @@ define([
         createManager();
     });
 
+    QUnit.test('typing a value into a text metadata filter enables Search', function (assert) {
+        const ready = assert.async();
+        const safety = window.setTimeout(function () {
+            assert.ok(false, 'timed out waiting for metadata filter');
+            ready();
+        }, 5000);
+        const $launcher = $('#launcher');
+
+        $launcher.on('create.resourcemgr', function () {
+            const $modal = $('#outside-container .resourcemgr');
+            const started = Date.now();
+            let error = null;
+
+            (function waitForCriteria() {
+                const $option = $modal.find(
+                    '.add-criteria-container select option[value="inBothTextParentUri"]'
+                );
+                if (!$option.length) {
+                    if (Date.now() - started < 3000) {
+                        window.setTimeout(waitForCriteria, 20);
+                    } else {
+                        assert.ok(false, 'timed out waiting for criteria options');
+                        window.clearTimeout(safety);
+                        ready();
+                    }
+                    return;
+                }
+
+                try {
+                    $modal
+                        .find('.add-criteria-container select')
+                        .select2('val', 'inBothTextParentUri')
+                        .trigger('change');
+                } catch (e) {
+                    error = e;
+                }
+                assert.notOk(error, `adding a text filter does not throw${error ? `: ${error.message}` : ''}`);
+
+                const $criterion = $modal.find(
+                    '.advanced-criteria-container .filter-container[data-type="text"]'
+                );
+                assert.equal($criterion.length, 1, 'text metadata filter is rendered');
+
+                error = null;
+                try {
+                    $criterion.find('input').val('sample').trigger('input');
+                } catch (e) {
+                    error = e;
+                }
+                assert.notOk(error, `typing a filter value does not throw${error ? `: ${error.message}` : ''}`);
+                assert.ok(
+                    !$modal.find('.asset-search-submit').prop('disabled'),
+                    'typing a filter value enables Search'
+                );
+
+                window.clearTimeout(safety);
+                ready();
+            })();
+        });
+
+        createManager();
+    });
+
     QUnit.test('Search button sends query and Clear all returns to browse', function (assert) {
         const ready = assert.async();
         assert.expect(7);
