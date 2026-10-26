@@ -562,57 +562,62 @@ export default function searchModalFactory(config) {
 
         const { sortby, sortorder, page } = data.storedSearchOptions || data.pageConfig;
 
+        const actions = [
+            {
+                id: 'go-to-item',
+                label: __('View'),
+                action: function openResource(uri, updatedData) {
+                    instance.trigger('refresh', uri, updatedData);
+                    instance.destroy();
+                }
+            },
+            {
+                id: 'go-to-test',
+                cls: 'search-modal-action-style',
+                label: __('Test'),
+                hidden: function hideWithoutTestUri() {
+                    return typeof this.test_uri !== 'string' || this.test_uri.trim() === '';
+                },
+                action: function openTest(uri, delivery) {
+                    const testUri = delivery && delivery.test_uri;
+                    if (typeof testUri !== 'string' || testUri.trim() === '') {
+                        return;
+                    }
+
+                    const pathParams = {
+                        ext: 'taoTests',
+                        section: 'manage_tests',
+                        structure: 'tests',
+                        uri: testUri
+                    };
+                    const openedWindow = window.open(
+                        urlUtil.build(window.location.pathname, pathParams),
+                        '_blank',
+                        'noopener,noreferrer'
+                    );
+
+                    if (openedWindow) {
+                        openedWindow.opener = null;
+                    }
+                }
+            }
+        ];
+
         //create datatable
         $tableContainer.datatable(
             {
                 url: data.url,
-                model: data.model,
+                model: [
+                    ...data.model,
+                    {
+                        id: 'actions',
+                        type: 'actions',
+                        actions
+                    }
+                ],
                 sortby,
                 sortorder,
                 page,
-                labels: {
-                    actions: ''
-                },
-                actions: [
-                    {
-                        id: 'go-to-item',
-                        label: __('View'),
-                        action: function openResource(uri, updatedData) {
-                            instance.trigger('refresh', uri, updatedData);
-                            instance.destroy();
-                        }
-                    },
-                    {
-                        id: 'go-to-test',
-                        cls: 'go-to-item',
-                        label: __('Test'),
-                        hidden: function hideWithoutTestUri() {
-                            return typeof this.test_uri !== 'string' || this.test_uri.trim() === '';
-                        },
-                        action: function openTest(uri, delivery) {
-                            const testUri = delivery && delivery.test_uri;
-                            if (typeof testUri !== 'string' || testUri.trim() === '') {
-                                return;
-                            }
-
-                            const pathParams = {
-                                ext: 'taoTests',
-                                section: 'manage_tests',
-                                structure: 'tests',
-                                uri: testUri
-                            };
-                            const openedWindow = window.open(
-                                urlUtil.build(urlUtil.parse(window.location).path, pathParams),
-                                '_blank',
-                                'noopener,noreferrer'
-                            );
-
-                            if (openedWindow) {
-                                openedWindow.opener = null;
-                            }
-                        }
-                    }
-                ],
                 params: {
                     params: data.params,
                     filters: data.filters,

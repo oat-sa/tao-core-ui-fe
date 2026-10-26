@@ -365,7 +365,8 @@ $classTreeVariables: (
     }
 
     // Overwrite some not customizable styles of datatable and pagination components
-    .go-to-item {
+    .go-to-item,
+    .search-modal-action-style {
         background-color: transparent !important;
         border: 1px solid black;
         color: black !important;
