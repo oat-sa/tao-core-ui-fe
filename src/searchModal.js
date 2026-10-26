@@ -581,6 +581,36 @@ export default function searchModalFactory(config) {
                             instance.trigger('refresh', uri, updatedData);
                             instance.destroy();
                         }
+                    },
+                    {
+                        id: 'go-to-test',
+                        cls: 'go-to-item',
+                        label: __('Test'),
+                        hidden: function hideWithoutTestUri() {
+                            return typeof this.test_uri !== 'string' || this.test_uri.trim() === '';
+                        },
+                        action: function openTest(uri, delivery) {
+                            const testUri = delivery && delivery.test_uri;
+                            if (typeof testUri !== 'string' || testUri.trim() === '') {
+                                return;
+                            }
+
+                            const pathParams = {
+                                ext: 'taoTests',
+                                section: 'manage_tests',
+                                structure: 'tests',
+                                uri: testUri
+                            };
+                            const openedWindow = window.open(
+                                urlUtil.build(urlUtil.parse(window.location).path, pathParams),
+                                '_blank',
+                                'noopener,noreferrer'
+                            );
+
+                            if (openedWindow) {
+                                openedWindow.opener = null;
+                            }
+                        }
                     }
                 ],
                 params: {
