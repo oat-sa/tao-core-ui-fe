@@ -323,7 +323,12 @@ export default function (options) {
         if (!$innerList.length) {
             $innerList = $('<ul></ul>').insertAfter($parentLink);
         }
-        updateFolders(parentContent, $innerList);
+        const missingChildren = folderChildrenOnly(parentContent).filter(function (child) {
+            return !findFolderLink(child.path).length;
+        });
+        if (missingChildren.length) {
+            updateFolders(Object.assign({}, parentContent, { children: missingChildren }), $innerList);
+        }
         $parentLink.addClass('opened');
         if ($innerList.css('display') === 'none') {
             $innerList.show();
@@ -349,14 +354,74 @@ export default function (options) {
         }
     }
 
-    function openInitialPath(path) {
+    function fallbackToRoot() {
+        const rootContent = getByPath(fileTree, rootPath) || fileTree;
+        const fallbackPath = rootContent.path || rootPath;
+        selectFolder(rootContent, fallbackPath);
+        syncTreeActiveFolder(fallbackPath);
+    }
+
+    function attachFolderToParent(tree, parentPath, data) {
+        const parent = getByExactPath(tree, parentPath) || getByPath(tree, parentPath);
+        if (!parent || !data || !data.path) {
+            return;
+        }
+        const folderData = Object.assign({}, data, { children: folderChildrenOnly(data) });
+        if (!Array.isArray(parent.children)) {
+            parent.children = [];
+        }
+        const existing = getByExactPath(parent, folderData.path);
+        if (existing) {
+            Object.assign(existing, folderData);
+        } else {
+            parent.children.push(folderData);
+        }
+        delete parent.empty;
+    }
+
+    function fetchInitialPathChain(path) {
+        const chain = [];
+        function fetchLevel(levelPath) {
+            setTreeLoading(true);
+            return browseRequest(levelPath, {
+                part: 'tree',
+                depth: 1,
+                sortBy: sort.field,
+                sortDir: sort.direction
+            }).then(
+                function (data) {
+                    setTreeLoading(false);
+                    if (!data || !data.path) {
+                        return null;
+                    }
+                    chain.unshift({ path: levelPath, data: data });
+                    const parentFolderPath = data.parentFolderPath;
+                    if (
+                        !parentFolderPath ||
+                        parentFolderPath === levelPath ||
+                        parentFolderPath === rootPath ||
+                        parentFolderPath === fileTree.path ||
+                        findFolderLink(parentFolderPath).length
+                    ) {
+                        return chain;
+                    }
+                    return fetchLevel(parentFolderPath);
+                },
+                function (error) {
+                    setTreeLoading(false);
+                    LOGGER.error(error);
+                    return null;
+                }
+            );
+        }
+        return fetchLevel(path);
+    }
+
+    function openInitialPathContent(path) {
         getFolderContent(fileTree, path, function (content) {
             indexTree(fileTree);
             if (!content) {
-                const rootContent = getByPath(fileTree, rootPath) || fileTree;
-                const fallbackPath = rootContent.path || rootPath;
-                selectFolder(rootContent, fallbackPath);
-                syncTreeActiveFolder(fallbackPath);
+                fallbackToRoot();
                 return;
             }
 
@@ -380,6 +445,50 @@ export default function (options) {
             }
 
             finishOpen();
+        });
+    }
+
+    function openInitialPath(path) {
+        if (!splitBrowse || findFolderLink(path).length) {
+            openInitialPathContent(path);
+            return;
+        }
+
+        fetchInitialPathChain(path).then(function (chain) {
+            if (!chain || !chain.length) {
+                fallbackToRoot();
+                return;
+            }
+
+            const anchorPath = chain[0].data.parentFolderPath;
+            if (!anchorPath) {
+                fallbackToRoot();
+                return;
+            }
+
+            let parentPath = anchorPath;
+            chain.forEach(function (entry) {
+                attachFolderToParent(fileTree, parentPath, entry.data);
+                parentPath = entry.path;
+            });
+            indexTree(fileTree);
+
+            let mountPath = anchorPath;
+            chain.forEach(function (entry) {
+                const parentContent = getByExactPath(fileTree, mountPath) || getByPath(fileTree, mountPath);
+                mountFolderBranch(mountPath, parentContent);
+                mountPath = entry.path;
+            });
+
+            getFolderContent(fileTree, path, function (content) {
+                indexTree(fileTree);
+                if (!content) {
+                    fallbackToRoot();
+                    return;
+                }
+                markFolderActive(path);
+                selectFolder(content, path);
+            });
         });
     }
 
