@@ -517,13 +517,14 @@ export default function advancedSearchFactory(config) {
             templateToUse = listCheckboxCriterionTpl;
         }
 
+        const $criterionContainer = $(templateToUse({ criterion }));
+        $criterionContainer.attr('data-criterion-key', getCriterionStateId(criterion));
         if (config.collapsibleCriteria) {
-            $advancedCriteriaContainer.prepend(templateToUse({ criterion }));
+            $advancedCriteriaContainer.prepend($criterionContainer);
         } else {
-            $advancedCriteriaContainer.append(templateToUse({ criterion }));
+            $advancedCriteriaContainer.append($criterionContainer);
         }
 
-        const $criterionContainer = $(`.${criterion.id}-filter`, $container);
         const valueMapping = criteriaMapping[criterion.type];
 
         /**
@@ -598,12 +599,19 @@ export default function advancedSearchFactory(config) {
      * @returns {Object|null}
      */
     function findCriterionByContainer($criterionContainer) {
-        return (
-            _.find(
-                criteriaState || {},
-                criterion => criterion && $criterionContainer.hasClass(`${criterion.id}-filter`)
-            ) || null
-        );
+        const key = $criterionContainer.attr('data-criterion-key');
+        return (key && criteriaState[key]) || null;
+    }
+
+    /**
+     * Finds rendered criterion nodes by state key; criterion.id can collide because punctuation is stripped.
+     * @param {string} key
+     * @returns {jQuery}
+     */
+    function findRenderedCriterion(key) {
+        return $advancedCriteriaContainer
+            .find('[data-criterion-key]')
+            .filter((index, element) => $(element).attr('data-criterion-key') === key);
     }
 
     /**
@@ -819,7 +827,7 @@ export default function advancedSearchFactory(config) {
 
             if (deprecatedCriterion) {
                 if (criteriaState[oldCriterionKey].rendered) {
-                    $advancedCriteriaContainer.find(`.${oldCriterion.id}-filter`).remove();
+                    findRenderedCriterion(oldCriterionKey).remove();
                     invalidCriteria.push(oldCriterion.label);
                 }
                 delete criteriaState[oldCriterionKey];
@@ -843,7 +851,7 @@ export default function advancedSearchFactory(config) {
             if (criteriaState[criteriaStateId] && criteriaState[criteriaStateId].rendered === true) {
                 createOption = false;
 
-                if ($advancedCriteriaContainer.find(`.${criterion.id}-filter`).length === 0) {
+                if (findRenderedCriterion(criteriaStateId).length === 0) {
                     addNewCriterion(criteriaStateId);
                 }
             } else {
