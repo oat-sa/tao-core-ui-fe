@@ -300,8 +300,9 @@ export default function (options) {
     });
 
     /**
-     * Open and select an initial folder path after the root tree is available.
-     * @param {String} path
+     * Find the rendered tree anchor of a folder.
+     * @param {String} path - folder path, compared against the rendered data-path attribute
+     * @returns {jQuery} the matching anchors (empty when the folder is not rendered yet)
      */
     function findFolderLink(path) {
         return $folderContainer.find('a').filter(function () {
@@ -310,7 +311,29 @@ export default function (options) {
     }
 
     /**
+     * Refresh an already rendered folder link from a newer payload.
+     * Only the label text and the chevron state are touched; path attributes stay as rendered.
+     * @param {jQuery} $link - the existing anchor of the folder
+     * @param {Object} child - fresh folder stub from the browse payload
+     */
+    function refreshFolderLink($link, child) {
+        if (typeof child.label === 'string') {
+            const $labelNode = $link
+                .contents()
+                .filter(function () {
+                    return this.nodeType === 3 && this.nodeValue.trim() !== '';
+                })
+                .last();
+            if ($labelNode.length) {
+                $labelNode[0].nodeValue = child.label;
+            }
+        }
+        setFolderToggleState($link, hasNestedFolderChildren(child) !== false);
+    }
+
+    /**
      * Render directory children under an expanded folder anchor (replace / reopen).
+     * Existing links are refreshed, missing ones are mounted.
      * @param {String} parentPath
      * @param {Object} parentContent
      */
@@ -323,8 +346,14 @@ export default function (options) {
         if (!$innerList.length) {
             $innerList = $('<ul></ul>').insertAfter($parentLink);
         }
-        const missingChildren = folderChildrenOnly(parentContent).filter(function (child) {
-            return !findFolderLink(child.path).length;
+        const missingChildren = [];
+        folderChildrenOnly(parentContent).forEach(function (child) {
+            const $existingLink = findFolderLink(child.path);
+            if ($existingLink.length) {
+                refreshFolderLink($existingLink, child);
+            } else {
+                missingChildren.push(child);
+            }
         });
         if (missingChildren.length) {
             updateFolders(Object.assign({}, parentContent, { children: missingChildren }), $innerList);
@@ -354,6 +383,9 @@ export default function (options) {
         }
     }
 
+    /**
+     * Select the tree root when the requested initial path cannot be resolved.
+     */
     function fallbackToRoot() {
         const rootContent = getByPath(fileTree, rootPath) || fileTree;
         const fallbackPath = rootContent.path || rootPath;
@@ -361,6 +393,12 @@ export default function (options) {
         syncTreeActiveFolder(fallbackPath);
     }
 
+    /**
+     * Attach a fetched folder to its parent in the tree model, reusing an existing node.
+     * @param {Object} tree - the fileTree model
+     * @param {String} parentPath - path of the parent folder the stub belongs to
+     * @param {Object} data - browse payload of the folder (part=tree)
+     */
     function attachFolderToParent(tree, parentPath, data) {
         const parent = getByExactPath(tree, parentPath) || getByPath(tree, parentPath);
         if (!parent || !data || !data.path) {
@@ -379,6 +417,15 @@ export default function (options) {
         delete parent.empty;
     }
 
+    /**
+     * Fetch the ancestor chain of a folder that is missing from the lazily loaded tree.
+     * Walks up through parentFolderPath of each response until an ancestor is already rendered
+     * (or the root is reached).
+     * @param {String} path - the folder to open
+     * @returns {Promise<Array|null>} resolves to the ordered chain, highest ancestor first, each
+     * entry `{ path: String, data: Object }`; resolves to `null` when a request fails or a level
+     * yields no usable payload
+     */
     function fetchInitialPathChain(path) {
         const chain = [];
         function fetchLevel(levelPath) {
@@ -417,6 +464,10 @@ export default function (options) {
         return fetchLevel(path);
     }
 
+    /**
+     * Open a folder that is either already rendered or resolvable through its parent.
+     * @param {String} path - folder to open and select
+     */
     function openInitialPathContent(path) {
         getFolderContent(fileTree, path, function (content) {
             indexTree(fileTree);
@@ -448,6 +499,12 @@ export default function (options) {
         });
     }
 
+    /**
+     * Open and select an initial folder path after the root tree is available.
+     * When the folder is missing from the lazily loaded tree its ancestor chain is fetched first,
+     * so a path deeper than the rendered level is revealed instead of falling back to the root.
+     * @param {String} path - folder to open and select
+     */
     function openInitialPath(path) {
         if (!splitBrowse || findFolderLink(path).length) {
             openInitialPathContent(path);
