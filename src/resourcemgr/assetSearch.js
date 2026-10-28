@@ -353,13 +353,18 @@ export default function assetSearch(options) {
     updateScopeDisplay(scopeLabel);
     updateSearchActionState();
 
-    $input.on(`input.${EVENT_NS} search.${EVENT_NS}`, function () {
+    /**
+     * Clear search mode when no search parameters remain.
+     */
+    function handleSearchInput() {
         if (searchMode && !hasPendingSearchParams()) {
             clearSearch();
             return;
         }
         updateSearchActionState();
-    });
+    }
+
+    $input.on(`input.${EVENT_NS} search.${EVENT_NS}`, handleSearchInput);
 
     // advancedSearch fires criteriachange on add/remove only — re-evaluate Search when values change.
     $filtersMount.on(
