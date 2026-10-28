@@ -238,6 +238,8 @@ export default function assetSearch(options) {
 
     /**
      * Clear all is hidden until params change; Search is disabled (grey) until then.
+     * While searchMode is active the listing stays filtered, so Clear all must remain visible as
+     * the only way back to browse even when hasPendingSearchParams() is false (e.g. last filter removed).
      */
     function updateSearchActionState() {
         if (searchActionStateUpdating) {
@@ -359,7 +361,13 @@ export default function assetSearch(options) {
     updateScopeDisplay(scopeLabel);
     updateSearchActionState();
 
-    $input.on(`input.${EVENT_NS}`, updateSearchActionState);
+    $input.on(`input.${EVENT_NS} search.${EVENT_NS}`, function () {
+        if (searchMode && !hasPendingSearchParams()) {
+            clearSearch();
+            return;
+        }
+        updateSearchActionState();
+    });
 
     // advancedSearch fires criteriachange on add/remove only — re-evaluate Search when values change.
     $filtersMount.on(
