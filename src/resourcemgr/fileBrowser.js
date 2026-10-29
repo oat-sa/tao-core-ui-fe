@@ -1296,6 +1296,13 @@ export default function (options) {
                     const content = getByExactPath(fileTree, path);
                     if (content) {
                         selectedClass.total = +content.total || 0;
+                        const totalPages = Math.max(1, Math.ceil(selectedClass.total / (selectedClass.childrenLimit || 11)));
+                        if (selectedClass.page > totalPages) {
+                            selectedClass.page = totalPages;
+                            setFilesLoading(false);
+                            loadPage();
+                            return;
+                        }
                         $container.trigger(`folderselect.${NS}`, [
                             content.label,
                             getFilesForDisplay(content),
