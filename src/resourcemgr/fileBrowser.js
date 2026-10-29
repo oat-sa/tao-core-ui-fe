@@ -276,9 +276,7 @@ export default function (options) {
         selectedClass.page = 1;
 
         invalidateFolderFiles(targetPath);
-        const pendingUpload =
-            file && !file.error && (file.uri || file.name) ? file : null;
-        reloadSortedFolder(pendingUpload ? [pendingUpload] : []);
+        reloadSortedFolder();
     });
 
     $container.on(`filedelete.${NS}`, function (e, path) {
@@ -294,6 +292,8 @@ export default function (options) {
         if (path) {
             removeFromPath(fileTree, path);
         }
+
+        selectedClass.page = 1;
 
         invalidateFolderFiles(selectedClass.path);
         reloadSortedFolder();
@@ -579,8 +579,9 @@ export default function (options) {
      * Select a folder and publish its page of files to the selector.
      * @param {Object} content
      * @param {String} path
+     * @param {Number} [page]
      */
-    function selectFolder(content, path) {
+    function selectFolder(content, path, page) {
         if (!content) {
             return;
         }
@@ -595,7 +596,8 @@ export default function (options) {
             ]);
             return;
         }
-        updateSelectedClass(path, content.total, content.childrenLimit);
+        const total = +content.total || 0;
+        updateSelectedClass(path, total, content.childrenLimit, page);
         $container.trigger(`folderpath.${NS}`, [path, content.label]);
         $container.trigger(`folderselect.${NS}`, [
             content.label,
@@ -651,12 +653,13 @@ export default function (options) {
 
     /**
      * Snapshot list request identity (folder + page/sort) when a browse starts.
-     * @returns {{path: String, cacheKey: String}}
+     * @returns {{path: String, cacheKey: String, page: Number}}
      */
     function captureListRequestContext() {
         return {
             path: selectedClass.path,
-            cacheKey: listCacheKey()
+            cacheKey: listCacheKey(),
+            page: selectedClass.page
         };
     }
 
@@ -752,55 +755,6 @@ export default function (options) {
         node.listPage = listData.page;
         node.totalIsApproximate = listData.totalIsApproximate;
         node.listCacheKey = cacheKey;
-    }
-
-    /**
-     * Ensure upload responses appear in the table before Elasticsearch catches up.
-     * @param {String} path
-     * @param {Array<Object>} uploads
-     */
-    function mergePendingUploads(path, uploads) {
-        if (!uploads || !uploads.length) {
-            return;
-        }
-        const node = getByExactPath(fileTree, path) || getByPath(fileTree, path);
-        if (!node) {
-            return;
-        }
-        if (!Array.isArray(node.listItems)) {
-            node.listItems = [];
-        }
-        let added = 0;
-        uploads.forEach(function (uploaded) {
-            if (!uploaded || uploaded.error) {
-                return;
-            }
-            const normalized = updatePermissions(uploaded);
-            if (!normalized.uri && !normalized.name) {
-                return;
-            }
-            const exists = _.some(node.listItems, function (item) {
-                return (
-                    (normalized.uri && item.uri === normalized.uri) ||
-                    (normalized.name && item.name === normalized.name)
-                );
-            });
-            if (exists) {
-                return;
-            }
-            node.listItems.push(normalized);
-            added++;
-        });
-        if (!added) {
-            return;
-        }
-        if (splitBrowse) {
-            node.listItems = sortAssetItems(node.listItems, sort);
-        }
-        const total = Number(node.total);
-        if (Number.isFinite(total) && total >= 0) {
-            node.total = total + added;
-        }
     }
 
     /**
@@ -1220,10 +1174,12 @@ export default function (options) {
      * @param {String} path - the folder path
      * @param {Number} total - files in class
      * @param {Number} childrenLimit - page size
+     * @param {Number} [page] - page to select
      */
-    function updateSelectedClass(path, total, childrenLimit) {
+    function updateSelectedClass(path, total, childrenLimit, page) {
         const normalizedTotal = Number(total);
         const normalizedChildrenLimit = Number(childrenLimit);
+        const pageNumber = +page;
 
         selectedClass = {
             path,
@@ -1232,7 +1188,7 @@ export default function (options) {
                 Number.isFinite(normalizedChildrenLimit) && normalizedChildrenLimit > 0
                     ? normalizedChildrenLimit
                     : selectedClass.childrenLimit || 11,
-            page: 1
+            page: _.isFinite(pageNumber) && pageNumber > 0 ? pageNumber : 1
         };
     }
     /**
@@ -1275,8 +1231,9 @@ export default function (options) {
     /**
      * Re-fetch the current folder with the active sort and publish files.
      */
-    function reloadSortedFolder(pendingUploads) {
+    function reloadSortedFolder() {
         const listRequest = captureListRequestContext();
+        const page = listRequest.page;
         const path = listRequest.path;
         if (!searchMode && isActiveBrowser()) {
             setFilesLoading(true);
@@ -1302,9 +1259,8 @@ export default function (options) {
                     return;
                 }
                 replaceFolderContent(path, data, listRequest.cacheKey);
-                mergePendingUploads(path, pendingUploads);
                 const content = getByExactPath(fileTree, path) || data;
-                selectFolder(content, content.path || path);
+                selectFolder(content, content.path || path, page);
             })
             .catch(function (error) {
                 LOGGER.error(error);
@@ -1339,6 +1295,7 @@ export default function (options) {
                     applyListPayload(fileTree, path, data, listRequest.cacheKey);
                     const content = getByExactPath(fileTree, path);
                     if (content) {
+                        selectedClass.total = +content.total || 0;
                         $container.trigger(`folderselect.${NS}`, [
                             content.label,
                             getFilesForDisplay(content),
