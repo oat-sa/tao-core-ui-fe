@@ -93,6 +93,22 @@
             }
         }
     }
+    & > .grid-row:not(.first-child) {
+        & > [class*=' col-'],
+        & > [class^='col-'] {
+            &:not(:first-child)::before {
+                inset-block-end: -7px; /* if there are several grid-rows, it should look like there's only one separator line going through all of them */
+            }
+        }
+    }
+    & > .grid-row:not(.last-child) {
+        & > [class*=' col-'],
+        & > [class^='col-'] {
+            &:not(:first-child)::before {
+                inset-block-start: -7px;
+            }
+        }
+    }
 }
 
 #icon-editor {
