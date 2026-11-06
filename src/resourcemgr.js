@@ -589,12 +589,12 @@ var resourceMgr = {
             $elt.removeData(dataNs);
             $elt.removeData(baseDataNs);
             $(window).off('resize.resourcemgr');
-            that._unbindConsumerEvents($elt, live);
             /**
              * The plugin have been destroyed.
              * @event ResourceMgr#destroy.resourcemgr
              */
             $elt.trigger('destroy.' + ns);
+            that._unbindConsumerEvents($elt, live);
         });
     }
 };

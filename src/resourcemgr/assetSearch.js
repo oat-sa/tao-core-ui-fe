@@ -51,10 +51,6 @@ const DEFAULT_AJAX_TIMEOUT_MS = 30000;
 const DEFAULT_ROOT_CLASS_URI = 'http://www.tao.lu/Ontologies/TAOMedia.rdf#Media';
 const SEARCH_MODE_MODAL_TITLE = __('Please select a file from the resource manager.');
 
-// Suppresses the re-entrant criteriachange that advancedSearch.clear()
-// emits from inside clearSearch().
-let clearingSearch = false;
-
 /**
  * Encode a URI the TAO way (same as views/js/uri.encode / tao_helpers_Uri::encode).
  * ClassMetadata expects this form; searchModal gets it from the resource tree.
@@ -129,6 +125,9 @@ export default function assetSearch(options) {
     let searchInFlight = false;
     let advancedSearch = null;
     let shortcuts = null;
+    // Suppresses the re-entrant criteriachange that advancedSearch.clear()
+    // emits from inside clearSearch().
+    let clearingSearch = false;
     let searchActionStateUpdating = false;
 
     const previousTeardown = $container.data('assetSearchTeardown');
