@@ -49,6 +49,7 @@ export default function(options) {
             stopPreview();
         }
     });
+    $container.on('closed.modal', handleModalClosed);
 
     $selectButton.on('click', function(e) {
         e.preventDefault();
@@ -150,5 +151,18 @@ export default function(options) {
         $propSize.text(EMPTY_META);
         $('a', $propUrl).addClass('hidden');
         $selectButton.attr('disabled', 'disabled');
+    }
+
+    /**
+     * Drops the unconfirmed selection and resets the preview panel when the modal closes.
+     * The panel state outlives the modal (the dialog is only hidden, never destroyed),
+     * so reopening must not display, nor allow selecting, an asset that was clicked
+     * but never confirmed.
+     */
+    function handleModalClosed() {
+        if (currentSelection && currentSelection.file) {
+            currentSelection = [];
+            stopPreview();
+        }
     }
 }
