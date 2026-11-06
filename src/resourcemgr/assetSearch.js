@@ -51,6 +51,10 @@ const DEFAULT_AJAX_TIMEOUT_MS = 30000;
 const DEFAULT_ROOT_CLASS_URI = 'http://www.tao.lu/Ontologies/TAOMedia.rdf#Media';
 const SEARCH_MODE_MODAL_TITLE = __('Please select a file from the resource manager.');
 
+// Suppresses the re-entrant criteriachange that advancedSearch.clear()
+// emits from inside clearSearch().
+let clearingSearch = false;
+
 /**
  * Encode a URI the TAO way (same as views/js/uri.encode / tao_helpers_Uri::encode).
  * ClassMetadata expects this form; searchModal gets it from the resource tree.
@@ -235,14 +239,9 @@ export default function assetSearch(options) {
         return canSubmitScopedAssetSearch(buildTextQuery(), getCriteriaState());
     }
 
-    /**
-     * Clear all is hidden until params change; Search is disabled (grey) until then.
-     * While searchMode is active the listing stays filtered, so Clear all must remain visible as
-     * the only way back to browse even when hasPendingSearchParams() is false (e.g. last filter removed).
-     */
     function updateSearchActionState() {
         const pending = hasPendingSearchParams();
-        if (pending || searchMode) {
+        if (pending) {
             $clearButton.removeClass('hidden').removeAttr('hidden');
         } else {
             $clearButton.addClass('hidden').attr('hidden', 'hidden');
@@ -498,6 +497,13 @@ export default function assetSearch(options) {
                     });
             })
             .on('criteriachange', function () {
+                if (clearingSearch) {
+                    return;
+                }
+                if (searchMode && !hasPendingSearchParams()) {
+                    clearSearch();
+                    return;
+                }
                 updateCollapsedAppliedCount();
                 updateSearchActionState();
             })
@@ -583,20 +589,28 @@ export default function assetSearch(options) {
      * Clear text, criteria, and return to browse mode.
      */
     function clearSearch() {
-        $input.val('');
-        if (advancedSearch && typeof advancedSearch.clear === 'function') {
-            advancedSearch.clear();
+        if (clearingSearch) {
+            return;
         }
-        // clear() restores select options; keep Add filter when criteria exist
-        if (advancedSearch && advancedSearch.isEnabled()) {
-            setAddFilterReady(hasCriteriaOptions());
+        clearingSearch = true;
+        try {
+            $input.val('');
+            if (advancedSearch && typeof advancedSearch.clear === 'function') {
+                advancedSearch.clear();
+            }
+            // clear() restores select options; keep Add filter when criteria exist
+            if (advancedSearch && advancedSearch.isEnabled()) {
+                setAddFilterReady(hasCriteriaOptions());
+            }
+            query = '';
+            metadata = {};
+            appliedFilterCount = 0;
+            updateCollapsedAppliedCount();
+            exitSearchMode();
+            focusSearchInput();
+        } finally {
+            clearingSearch = false;
         }
-        query = '';
-        metadata = {};
-        appliedFilterCount = 0;
-        updateCollapsedAppliedCount();
-        exitSearchMode();
-        focusSearchInput();
     }
 
     /**
