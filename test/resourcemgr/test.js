@@ -118,6 +118,7 @@ define([
                 data: {
                     path: data.path,
                     label: data.label,
+                    parentFolderPath: data.parentFolderPath,
                     permissions: data.permissions,
                     childrenLimit: data.childrenLimit,
                     total: data.total,
@@ -754,6 +755,115 @@ define([
 
         createManager({
             currentAsset: 'asset://cat'
+        });
+    });
+
+    QUnit.test('currentAsset resolve reveals a deep parent folder chain and preselects asset', function (assert) {
+        const ready = assert.async();
+        assert.expect(5);
+
+        const deepPath = '/images/2026/spring';
+        const deepAsset = {
+            uri: 'asset://spring',
+            name: 'spring.png',
+            mime: 'image/png',
+            size: 256,
+            location: deepPath,
+            updatedAt: '2026-09-01T10:00:00Z',
+            permissions: ['READ', 'DOWNLOAD']
+        };
+        const deepBrowse = {
+            data: {
+                path: deepPath,
+                label: 'Spring',
+                parentFolderPath: '/images/2026',
+                childrenLimit: 10,
+                total: 1,
+                permissions: ['READ', 'WRITE', 'UPLOAD'],
+                children: [deepAsset]
+            }
+        };
+        const seasonBrowse = {
+            data: {
+                path: '/images/2026',
+                label: '2026',
+                parentFolderPath: '/images',
+                childrenLimit: 10,
+                total: 1,
+                permissions: ['READ', 'WRITE', 'UPLOAD'],
+                children: [
+                    {
+                        path: deepPath,
+                        label: 'Spring',
+                        childrenLimit: 10,
+                        total: 1,
+                        permissions: ['READ', 'WRITE', 'UPLOAD'],
+                        children: []
+                    }
+                ]
+            }
+        };
+
+        $.mockjax.clear();
+        mockAdvancedSearchApis();
+        $.mockjax({
+            url: browseUrl,
+            dataType: 'json',
+            response: function (settings) {
+                const path = settings.data && settings.data.path;
+                if (settings.data && settings.data.currentAsset) {
+                    this.responseText = {
+                        data: {
+                            parentPath: deepPath,
+                            currentAsset: {
+                                uri: 'asset://spring',
+                                label: 'spring.png',
+                                name: 'spring.png',
+                                mime: 'image/png',
+                                location: deepPath
+                            }
+                        }
+                    };
+                    return;
+                }
+                if (path === deepPath) {
+                    respondSplitBrowse.call(this, settings, deepBrowse);
+                    return;
+                }
+                if (path === '/images/2026') {
+                    respondSplitBrowse.call(this, settings, seasonBrowse);
+                    return;
+                }
+                respondSplitBrowse.call(this, settings);
+            }
+        });
+        mockSearch(function () {
+            return fixtures.searchResults;
+        });
+
+        const $launcher = $('#launcher');
+        $launcher.on('create.resourcemgr', function () {
+            const $modal = $('#outside-container .resourcemgr');
+            whenTableRows($modal, function () {
+                const $target = $modal.find('.folders a').filter(function () {
+                    return $(this).data('path') === deepPath;
+                });
+                assert.equal(
+                    $modal.find('.folders a[data-path="/images/2026"]').length,
+                    1,
+                    'missing ancestor is mounted in the tree'
+                );
+                assert.equal($target.length, 1, 'deep target folder is revealed in the tree');
+                assert.ok($target.parent('li').hasClass('active'), 'deep target folder is marked active');
+                const $row = $modal.find('.files-list tr[data-file="asset://spring"]');
+                assert.equal($row.length, 1, 'deep folder asset list is published');
+                assert.ok($row.hasClass('active'), 'current asset is preselected');
+                ready();
+            });
+        });
+
+        createManager({
+            currentAsset: 'asset://spring'
         });
     });
 
