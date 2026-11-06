@@ -14,6 +14,24 @@ import 'ui/resourcemgr/css/resourcemgr.css';
 
 var ns = 'resourcemgr';
 var dataNs = 'ui.' + ns;
+var baseDataNs = dataNs + '.base';
+// Keys created by a single mount and dropped together with the target.
+var mountKeys = [
+    '$target',
+    'targetId',
+    '_browsersStartPromise',
+    '_createEventEmitted',
+    'contextToken',
+    'currentAssetItem',
+    'hasAlreadySelected'
+];
+// Per-call context: consumed by the current mount, never persisted as configuration.
+var contextKeys = ['currentAsset', 'initialPath', 'initialSelection'];
+// Deleted from the live options when the target is discarded (mount keys + the media source
+// pointers that _startBrowsers rewrites).
+var runtimeKeys = mountKeys.concat(['root', 'path']);
+// Never persisted into the base configuration snapshot.
+var baseIgnoredKeys = mountKeys.concat(contextKeys);
 
 var defaults = {
     mediaSources: [{ root: 'local', path: '/' }],
@@ -62,83 +80,164 @@ var resourceMgr = {
      */
     init: function(options) {
         var that = resourceMgr;
-
-        //get options using default
-        options = _.defaults(options, defaults);
-        if (!options.browseUrl && options.url) {
-            options.browseUrl = options.url;
-        }
+        var incoming = options && typeof options === 'object' ? options : {};
 
         return this.each(function() {
             var $elt = $(this);
-            var $target;
+            var base = $elt.data(baseDataNs);
+            var initial;
+            var stored;
 
-            if (!$elt.data(dataNs)) {
-                //add data to the element
-                $elt.data(dataNs, options);
+            if (!base) {
+                initial = _.defaults({}, incoming, defaults);
+                base = that._createBaseOptions(that._normalizeBrowseUrl(initial));
+                $elt.data(baseDataNs, base);
 
                 //auto bind events configured in options
-                _.functions(options).forEach(function(eventName) {
-                    $elt.on(eventName + '.' + ns, function() {
-                        const live = $elt.data(dataNs);
-                        if (live && typeof live[eventName] === 'function') {
-                            live[eventName].apply($elt, arguments);
-                        }
-                    });
-                });
-
-                $target = options.$target || that._createTarget($elt);
-
-                $target.modal({
-                    startClosed: true,
-                    minWidth: 'responsive'
-                });
-
-                //rethrow some events
-                $target.on('select.' + ns, function(e, files) {
-                    that._close($elt);
-                    $elt.trigger(e, [files]);
-                });
-                $target.on('closed.modal', function() {
-                    $elt.trigger('close.' + ns);
-                });
-
-                options.contextToken = 1;
-                const initToken = options.contextToken;
-                $elt.data(dataNs, options);
-
-                that._resolveCurrentAssetContext(options, initToken).always(function(resolvedOptions) {
-                    const current = $elt.data(dataNs);
-                    if (!current) {
-                        return;
-                    }
-                    const ownsOpen = current.contextToken === initToken;
-                    if (!ownsOpen) {
-                        return;
-                    }
-                    $elt.data(dataNs, resolvedOptions);
-
-                    that._ensureBrowsersStarted($elt, resolvedOptions).always(function() {
-                        const latest = $elt.data(dataNs) || resolvedOptions;
-                        if (!latest._createEventEmitted) {
-                            latest._createEventEmitted = true;
-                            $elt.data(dataNs, latest);
-                            /**
-                             * The plugin have been created.
-                             * @event ResourceMgr#create.resourcemgr
-                             */
-                            $elt.trigger('create.' + ns, [latest.$target[0]]);
-                        }
-
-                        if (ownsOpen && latest.open) {
-                            that._open($elt);
-                        }
-                    });
-                });
+                that._bindConsumerEvents($elt, base);
             } else {
-                // Reopen: consumer may pass a new currentAsset (edit/change after create).
-                that._reopenWithContext($elt, options);
+                that._mergeBaseOptions(base, incoming);
+                that._normalizeBrowseUrl(base);
+                $elt.data(baseDataNs, base);
             }
+
+            stored = $elt.data(dataNs);
+
+            if (!stored) {
+                that._mount($elt, that._buildOptions(base, incoming), false);
+                return;
+            }
+
+            if (stored.$target && stored.$target.length && stored.$target.hasClass('opened')) {
+                // Reopen: consumer may pass a new currentAsset (edit/change after create).
+                that._reopenWithContext($elt, incoming);
+                return;
+            }
+
+            that._mount($elt, that._buildOptions(base, incoming), true);
+        });
+    },
+
+    _createBaseOptions: function(options) {
+        var base = _.assign({}, options);
+        baseIgnoredKeys.forEach(function(key) {
+            delete base[key];
+        });
+        return base;
+    },
+
+    // Keep consumer-provided configuration across remounts without touching runtime state.
+    _mergeBaseOptions: function(base, incoming) {
+        if (!incoming || typeof incoming !== 'object') {
+            return base;
+        }
+        Object.keys(incoming).forEach(function(key) {
+            if (baseIgnoredKeys.indexOf(key) === -1) {
+                base[key] = incoming[key];
+            }
+        });
+        return base;
+    },
+
+    _normalizeBrowseUrl: function(options) {
+        if (!options.browseUrl && options.url) {
+            options.browseUrl = options.url;
+        }
+        return options;
+    },
+
+    _buildOptions: function(base, incoming) {
+        var fresh = _.assign({}, base);
+        resourceMgr._mergeBaseOptions(fresh, incoming);
+        contextKeys.forEach(function(key) {
+            if (incoming && Object.prototype.hasOwnProperty.call(incoming, key)) {
+                fresh[key] = incoming[key];
+            }
+        });
+        resourceMgr._normalizeBrowseUrl(fresh);
+        return _.defaults(fresh, defaults);
+    },
+
+    _bindConsumerEvents: function($elt, options) {
+        _.functions(options).forEach(function(eventName) {
+            $elt.on(eventName + '.' + ns, function() {
+                const live = $elt.data(dataNs);
+                if (live && typeof live[eventName] === 'function') {
+                    live[eventName].apply($elt, arguments);
+                }
+            });
+        });
+    },
+
+    _unbindConsumerEvents: function($elt, options) {
+        _.functions(options || {}).forEach(function(eventName) {
+            $elt.off(eventName + '.' + ns);
+        });
+    },
+
+    _mount: function($elt, options, forceOpen) {
+        var that = resourceMgr;
+        var current = $elt.data(dataNs);
+        var $target;
+        var isCurrent;
+
+        if (current && current.$target) {
+            that._discard($elt, current.$target);
+        }
+
+        $elt.data(dataNs, options);
+
+        $target = that._createTarget($elt);
+
+        $target.modal({
+            startClosed: true,
+            minWidth: 'responsive',
+            animate: false
+        });
+
+        //rethrow some events
+        $target.on('select.' + ns, function(e, files) {
+            that._close($elt);
+            $elt.trigger(e, [files]);
+        });
+        // Capture the target before the close event and defer discard by one tick: a close can come from
+        // the select dispatch, so the consumer must still read the modal; close.resourcemgr fires before removal.
+        $target.on('closed.modal', function() {
+            var live = $elt.data(dataNs);
+            var capturedTarget = live && live.$target;
+            $elt.trigger('close.' + ns);
+            window.setTimeout(function() {
+                that._discard($elt, capturedTarget);
+            }, 0);
+        });
+
+        isCurrent = function() {
+            return $elt.data(dataNs) === options;
+        };
+
+        that._resolveCurrentAssetContext(options).always(function() {
+            if (!isCurrent() || !options.$target) {
+                return;
+            }
+
+            that._ensureBrowsersStarted($elt, options).always(function() {
+                if (!isCurrent() || !options.$target) {
+                    return;
+                }
+                if (!options._createEventEmitted) {
+                    options._createEventEmitted = true;
+                    $elt.data(dataNs, options);
+                    /**
+                     * The plugin have been created.
+                     * @event ResourceMgr#create.resourcemgr
+                     */
+                    $elt.trigger('create.' + ns, [options.$target[0]]);
+                }
+
+                if (forceOpen || options.open) {
+                    that._open($elt);
+                }
+            });
         });
     },
 
@@ -149,17 +248,27 @@ var resourceMgr = {
      */
     _reopenWithContext: function($elt, incoming) {
         const that = resourceMgr;
-        const stored = $elt.data(dataNs);
+        var stored = $elt.data(dataNs);
+        var token;
+
         if (!stored) {
             return;
         }
 
+        contextKeys.forEach(function(key) {
+            if (Object.prototype.hasOwnProperty.call(incoming, key)) {
+                stored[key] = incoming[key];
+            } else {
+                delete stored[key];
+            }
+        });
+
         if (Object.prototype.hasOwnProperty.call(incoming, 'currentAsset')) {
-            stored.currentAsset = incoming.currentAsset;
             stored.initialPath = null;
             stored.initialSelection = null;
-            stored.currentAssetItem = null;
         }
+        stored.currentAssetItem = null;
+
         if (incoming.params && typeof incoming.params === 'object') {
             stored.params = Object.assign({}, stored.params || {}, incoming.params);
         }
@@ -169,11 +278,13 @@ var resourceMgr = {
             }
         });
 
-        stored.contextToken = (stored.contextToken || 0) + 1;
-        const token = stored.contextToken;
+        stored.contextToken = (stored.contextToken || 1) + 1;
+        token = stored.contextToken;
+
+        stored = _.assign({}, stored);
         $elt.data(dataNs, stored);
 
-        that._resolveCurrentAssetContext(stored, token).always(function(resolved) {
+        that._resolveCurrentAssetContext(stored).always(function(resolved) {
             const current = $elt.data(dataNs);
             if (!current || current.contextToken !== token) {
                 return;
@@ -207,14 +318,10 @@ var resourceMgr = {
     /**
      * Resolve currentAsset via browse/search endpoint into initialPath/initialSelection.
      * @param {Object} options
-     * @param {number} [expectedToken] - contextToken that must still match before mutating options
      * @returns {Promise}
      */
-    _resolveCurrentAssetContext: function(options, expectedToken) {
+    _resolveCurrentAssetContext: function(options) {
         const deferred = $.Deferred();
-        const isStale = function() {
-            return typeof expectedToken !== 'undefined' && expectedToken !== null && options.contextToken !== expectedToken;
-        };
         if (!options.currentAsset || (!options.browseUrl && !options.searchUrl)) {
             deferred.resolve(options);
             return deferred.promise();
@@ -235,10 +342,6 @@ var resourceMgr = {
             data: params
         })
             .done(function(response) {
-                if (isStale()) {
-                    deferred.resolve(options);
-                    return;
-                }
                 const payload = response && response.data ? response.data : response;
                 if (payload && payload.parentPath) {
                     options.initialPath = payload.parentPath;
@@ -253,10 +356,6 @@ var resourceMgr = {
                 deferred.resolve(options);
             })
             .fail(function() {
-                if (isStale()) {
-                    deferred.resolve(options);
-                    return;
-                }
                 // AC6: keep RM usable without selection; surface recoverable feedback.
                 options.initialSelection = null;
                 options.currentAssetItem = null;
@@ -283,17 +382,20 @@ var resourceMgr = {
             return stored._browsersStartPromise;
         }
 
-        stored._browsersStartPromise = this._startBrowsers($elt, stored);
+        stored._browsersStartPromise = this._startBrowsers(stored);
         $elt.data(dataNs, stored);
         return stored._browsersStartPromise;
     },
 
     /**
      * Mount file browser / selector / search after options are ready.
-     * @param {jQuery} $elt
      * @param {Object} options
      */
-    _startBrowsers: function($elt, options) {
+    _startBrowsers: function(options) {
+        var $target = options.$target;
+        var isLive = function() {
+            return options.$target === $target;
+        };
         const $fileBrowser = $('.file-browser .file-browser-wrapper', options.$target);
 
         const waitForTreeWrapper = function() {
@@ -302,13 +404,17 @@ var resourceMgr = {
                 return $fileBrowser.children().length > 0;
             };
 
-            if (isMounted()) {
+            if (!isLive() || isMounted()) {
                 deferred.resolve();
                 return deferred.promise();
             }
 
             let attempts = 200;
             const poll = function() {
+                if (!isLive()) {
+                    deferred.resolve();
+                    return;
+                }
                 if (isMounted()) {
                     deferred.resolve();
                     return;
@@ -351,10 +457,16 @@ var resourceMgr = {
         if (options.mediaSourcesUrl) {
             return $.getJSON(options.mediaSourcesUrl).then(
                 function(data) {
+                    if (!isLive()) {
+                        return $.Deferred().resolve().promise();
+                    }
                     mountFromSources(data || defaults.mediaSources);
                     return afterComponentsMounted();
                 },
                 function() {
+                    if (!isLive()) {
+                        return $.Deferred().resolve().promise();
+                    }
                     mountFromSources(defaults.mediaSources);
                     return afterComponentsMounted();
                 }
@@ -416,6 +528,35 @@ var resourceMgr = {
             options.$target.modal('close');
         }
     },
+
+    // Idempotent: a missing or already detached target is ignored, so a deferred discard and a remount in the same tick cannot conflict.
+    _discard: function($elt, $target) {
+        var live;
+        var searchTeardown;
+
+        if (!$target || !$target.length || !$target[0].parentNode) {
+            return;
+        }
+
+        searchTeardown = $target.data('assetSearchTeardown');
+        if (typeof searchTeardown === 'function') {
+            searchTeardown();
+        }
+        $target.removeData('assetSearchTeardown');
+
+        if ($target.hasClass('modal')) {
+            $target.modal('destroy');
+        }
+        $target.remove();
+
+        live = $elt.data(dataNs);
+        if (live && live.$target === $target) {
+            runtimeKeys.forEach(function(key) {
+                delete live[key];
+            });
+        }
+    },
+
     /**
      * Destroy completely the plugin.
      *
@@ -424,37 +565,36 @@ var resourceMgr = {
      * @public
      */
     destroy: function() {
+        var that = resourceMgr;
 
         this.each(function() {
             var $elt = $(this);
-            var options = $elt.data(dataNs);
-            $elt.data(dataNs, null);
-            /*eslint no-undefined: "error"*/
-            if (typeof options.bindEvent !== 'undefined' && options.bindEvent !== false) {
-                $elt.off(options.bindEvent);
-            }
-
-            if (options.targetId) {
-
-                options.$target
-                    .on('closed.modal', function() {
-                        $('#' + options.targetId).remove();
-                        $(window).off('resize.resourcemgr');
-                        /**
-                         * The plugin have been destroyed.
-                         * @event ResourceMgr#destroy.resourcemgr
-                         */
-                        $elt.trigger('destroy.' + ns);
-                    })
-                    .modal('close');
-            } else {
+            var live = $elt.data(dataNs);
+            if (!live) {
                 $(window).off('resize.resourcemgr');
                 /**
                  * The plugin have been destroyed.
                  * @event ResourceMgr#destroy.resourcemgr
                  */
                 $elt.trigger('destroy.' + ns);
+                return;
             }
+
+            /*eslint no-undefined: "error"*/
+            if (typeof live.bindEvent !== 'undefined' && live.bindEvent !== false) {
+                $elt.off(live.bindEvent);
+            }
+
+            that._discard($elt, live.$target);
+            $elt.removeData(dataNs);
+            $elt.removeData(baseDataNs);
+            $(window).off('resize.resourcemgr');
+            that._unbindConsumerEvents($elt, live);
+            /**
+             * The plugin have been destroyed.
+             * @event ResourceMgr#destroy.resourcemgr
+             */
+            $elt.trigger('destroy.' + ns);
         });
     }
 };
