@@ -46,6 +46,55 @@ define([
         }
     });
 
+    const deliveryClassUri = 'http://www.tao.lu/Ontologies/TAODelivery.rdf#AssembledDelivery';
+    const originTestUri = 'http://www.tao.lu/Ontologies/TAOTest.rdf#origin-test';
+    $.mockjax({
+        url: /\/test\/searchModal\/mocks\/test-action\/search\.json/,
+        dataType: 'json',
+        responseText: {
+            data: {
+                url: '/test/searchModal/mocks/test-action/dataset.json',
+                settings: {
+                    availableColumns: [
+                        {
+                            id: 'label',
+                            sortId: 'label.raw',
+                            label: 'Label',
+                            type: 'text',
+                            alias: null,
+                            classLabel: null,
+                            isDuplicated: false,
+                            default: true,
+                            sortable: true
+                        }
+                    ]
+                },
+                params: {
+                    rootNode: deliveryClassUri,
+                    parentNode: deliveryClassUri,
+                    structure: 'delivery'
+                },
+                filter: []
+            }
+        }
+    });
+    $.mockjax({
+        url: /\/test\/searchModal\/mocks\/test-action\/dataset\.json/,
+        dataType: 'json',
+        responseText: {
+            data: [
+                { id: 'delivery-with-test', label: 'Delivery with test', test_uri: originTestUri },
+                { id: 'delivery-without-test', label: 'Delivery without test' }
+            ],
+            readonly: [],
+            success: true,
+            page: 1,
+            total: 1,
+            totalCount: 2,
+            records: 2
+        }
+    });
+
     QUnit.module('searchModal');
     QUnit.test('module', function (assert) {
         assert.expect(1);
@@ -373,6 +422,64 @@ define([
             $datatable.find('tbody .go-to-item').first().trigger('click');
             const $container = $('.search-modal');
             assert.equal($container.length, 0, 'search component modal is destroyed');
+            ready();
+        });
+    });
+
+    QUnit.test('Test action opens the origin test and is hidden when none exists', function (assert) {
+        advancedSearchEnabled = false;
+        const ready = assert.async();
+        assert.expect(12);
+
+        const instance = searchModalFactory({
+            criterias: { search: 'delivery' },
+            url: '/test/searchModal/mocks/test-action/search.json',
+            renderTo: '#testable-container',
+            hideResourceSelector: true,
+            hideCriteria: true,
+            rootClassUri: deliveryClassUri
+        });
+
+        instance.on('datatable-loaded', function () {
+            const $datatable = $('table.datatable');
+            const $testButton = $datatable.find('[data-item-identifier="delivery-with-test"] .go-to-test');
+
+            assert.equal($testButton.length, 1, 'Test is shown for a row with an origin test');
+            assert.equal(
+                $datatable.find('[data-item-identifier="delivery-without-test"] .go-to-test').length,
+                0,
+                'Test is hidden for a row without an origin test'
+            );
+            assert.ok(
+                $testButton.hasClass('search-modal-action-style') && !$testButton.hasClass('go-to-item'),
+                'Test shares View styling without matching the View action'
+            );
+            assert.equal($testButton.text().trim(), 'Test', 'Test uses the expected label');
+
+            const originalOpen = window.open;
+            let openedArgs;
+            const openedWindow = { opener: {} };
+            try {
+                window.open = (...args) => {
+                    openedArgs = args;
+                    return openedWindow;
+                };
+                $testButton.trigger('click');
+            } finally {
+                window.open = originalOpen;
+            }
+
+            assert.equal($('.search-modal').length, 1, 'Test does not trigger the View action');
+            const openedUrl = new URL(openedArgs && openedArgs[0], window.location.href);
+            assert.equal(openedUrl.searchParams.get('ext'), 'taoTests', 'Test opens the test workspace');
+            assert.equal(openedUrl.searchParams.get('section'), 'manage_tests', 'Test opens the test section');
+            assert.equal(openedUrl.searchParams.get('structure'), 'tests', 'Test opens the tests structure');
+            assert.equal(openedUrl.searchParams.get('uri'), originTestUri, 'Test passes the origin test URI');
+            assert.equal(openedArgs && openedArgs[1], '_blank', 'Test opens a new tab');
+            assert.equal(openedArgs && openedArgs[2], 'noopener,noreferrer', 'Test protects the new tab opener');
+            assert.strictEqual(openedWindow.opener, null, 'Test clears the new tab opener');
+
+            instance.destroy();
             ready();
         });
     });

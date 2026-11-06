@@ -128,6 +128,23 @@ export default function advancedSearchFactory(config) {
             return criteriaState;
         },
         /**
+         * Sync text criterion values from the DOM into state without dispatching events.
+         */
+        syncTextCriteriaFromDom() {
+            if (!$advancedCriteriaContainer || !$advancedCriteriaContainer.length) {
+                return;
+            }
+            $advancedCriteriaContainer
+                .find('.filter-container[data-type="text"] input')
+                .each(function () {
+                    const criterion = findCriterionByContainer($(this).closest('.filter-container'));
+                    if (!criterion || criterion.type !== criteriaTypes.text) {
+                        return;
+                    }
+                    criterion.value = $(this).val() || null;
+                });
+        },
+        /**
          * Removes every rendered criterion, updates criteria state accordingly
          * and removes classes applied to scrollable list of criteria
          */
@@ -215,6 +232,13 @@ export default function advancedSearchFactory(config) {
         }
 
         $advancedCriteriaContainer.on('scroll', _.throttle(animateScroll, 100));
+        $advancedCriteriaContainer.on('input.advancedSearch change.advancedSearch', 'input', function () {
+            const criterion = findCriterionByContainer($(this).closest('.filter-container'));
+            if (!criterion || criterion.type !== criteriaTypes.text) {
+                return;
+            }
+            criterion.value = $(this).val() || null;
+        });
     }
 
     /**
@@ -493,13 +517,14 @@ export default function advancedSearchFactory(config) {
             templateToUse = listCheckboxCriterionTpl;
         }
 
+        const $criterionContainer = $(templateToUse({ criterion }));
+        $criterionContainer.attr('data-criterion-key', getCriterionStateId(criterion));
         if (config.collapsibleCriteria) {
-            $advancedCriteriaContainer.prepend(templateToUse({ criterion }));
+            $advancedCriteriaContainer.prepend($criterionContainer);
         } else {
-            $advancedCriteriaContainer.append(templateToUse({ criterion }));
+            $advancedCriteriaContainer.append($criterionContainer);
         }
 
-        const $criterionContainer = $(`.${criterion.id}-filter`, $container);
         const valueMapping = criteriaMapping[criterion.type];
 
         /**
@@ -569,6 +594,27 @@ export default function advancedSearchFactory(config) {
     }
 
     /**
+     * Resolves the criterion state entry rendered in the given container.
+     * @param {jQuery} $criterionContainer
+     * @returns {Object|null}
+     */
+    function findCriterionByContainer($criterionContainer) {
+        const key = $criterionContainer.attr('data-criterion-key');
+        return (key && criteriaState[key]) || null;
+    }
+
+    /**
+     * Finds rendered criterion nodes by state key; criterion.id can collide because punctuation is stripped.
+     * @param {string} key
+     * @returns {jQuery}
+     */
+    function findRenderedCriterion(key) {
+        return $advancedCriteriaContainer
+            .find('[data-criterion-key]')
+            .filter((index, element) => $(element).attr('data-criterion-key') === key);
+    }
+
+    /**
      * Sets initial value for rendered criterion and sets binding between view and state
      * @param {object} criterion - criterion to be managed
      * @param {object} $criterionContainer - rendered criterion
@@ -578,9 +624,6 @@ export default function advancedSearchFactory(config) {
             // Bind synchronously so typing / Search right after Add filter is not lost
             // (getInitialCriterionLabel resolves on a microtask).
             $('input', $criterionContainer).val(criterion.value);
-            $('input', $criterionContainer).on('input change', function () {
-                criterion.value = $(this).val() || null;
-            });
             return;
         }
 
@@ -784,7 +827,7 @@ export default function advancedSearchFactory(config) {
 
             if (deprecatedCriterion) {
                 if (criteriaState[oldCriterionKey].rendered) {
-                    $advancedCriteriaContainer.find(`.${oldCriterion.id}-filter`).remove();
+                    findRenderedCriterion(oldCriterionKey).remove();
                     invalidCriteria.push(oldCriterion.label);
                 }
                 delete criteriaState[oldCriterionKey];
@@ -808,7 +851,7 @@ export default function advancedSearchFactory(config) {
             if (criteriaState[criteriaStateId] && criteriaState[criteriaStateId].rendered === true) {
                 createOption = false;
 
-                if ($advancedCriteriaContainer.find(`.${criterion.id}-filter`).length === 0) {
+                if (findRenderedCriterion(criteriaStateId).length === 0) {
                     addNewCriterion(criteriaStateId);
                 }
             } else {

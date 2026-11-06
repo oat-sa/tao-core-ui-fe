@@ -129,6 +129,7 @@ export default function assetSearch(options) {
     let searchInFlight = false;
     let advancedSearch = null;
     let shortcuts = null;
+    let searchActionStateUpdating = false;
 
     const previousTeardown = $container.data('assetSearchTeardown');
     if (typeof previousTeardown === 'function') {
@@ -239,21 +240,32 @@ export default function assetSearch(options) {
         return canSubmitScopedAssetSearch(buildTextQuery(), getCriteriaState());
     }
 
+    /**
+     * Clear all is hidden until params change; Search is disabled (grey) until then.
+     */
     function updateSearchActionState() {
-        const pending = hasPendingSearchParams();
-        if (pending) {
-            $clearButton.removeClass('hidden').removeAttr('hidden');
-        } else {
-            $clearButton.addClass('hidden').attr('hidden', 'hidden');
-        }
-        if (searchInFlight) {
-            $searchButton.prop('disabled', true);
+        if (searchActionStateUpdating) {
             return;
         }
-        if (canSubmitSearch()) {
-            $searchButton.prop('disabled', false);
-        } else {
-            $searchButton.prop('disabled', true);
+        searchActionStateUpdating = true;
+        try {
+            const pending = hasPendingSearchParams();
+            if (pending) {
+                $clearButton.removeClass('hidden').removeAttr('hidden');
+            } else {
+                $clearButton.addClass('hidden').attr('hidden', 'hidden');
+            }
+            if (searchInFlight) {
+                $searchButton.prop('disabled', true);
+                return;
+            }
+            if (canSubmitSearch()) {
+                $searchButton.prop('disabled', false);
+            } else {
+                $searchButton.prop('disabled', true);
+            }
+        } finally {
+            searchActionStateUpdating = false;
         }
     }
 
@@ -297,13 +309,12 @@ export default function assetSearch(options) {
     }
 
     /**
-     * Push pending text-criterion DOM values into advancedSearch state
-     * (covers Search click before blur when only change was bound historically).
+     * Sync text criterion values directly into Advanced Search state (no events).
      */
     function syncCriteriaFromDom() {
-        $('.advanced-criteria-container .filter-container[data-type="text"] input', $filtersMount).trigger(
-            'change'
-        );
+        if (advancedSearch && typeof advancedSearch.syncTextCriteriaFromDom === 'function') {
+            advancedSearch.syncTextCriteriaFromDom();
+        }
     }
 
     /**
@@ -545,6 +556,7 @@ export default function assetSearch(options) {
         advancedSearch = null;
         appliedFilterCount = 0;
         searchCollapsed = false;
+        searchActionStateUpdating = false;
     }
 
     $container.data('assetSearchTeardown', teardown);

@@ -276,9 +276,7 @@ export default function (options) {
         selectedClass.page = 1;
 
         invalidateFolderFiles(targetPath);
-        const pendingUpload =
-            file && !file.error && (file.uri || file.name) ? file : null;
-        reloadSortedFolder(pendingUpload ? [pendingUpload] : []);
+        reloadSortedFolder();
     });
 
     $container.on(`filedelete.${NS}`, function (e, path) {
@@ -295,13 +293,16 @@ export default function (options) {
             removeFromPath(fileTree, path);
         }
 
+        selectedClass.page = 1;
+
         invalidateFolderFiles(selectedClass.path);
         reloadSortedFolder();
     });
 
     /**
-     * Open and select an initial folder path after the root tree is available.
-     * @param {String} path
+     * Find the rendered tree anchor of a folder.
+     * @param {String} path - folder path, compared against the rendered data-path attribute
+     * @returns {jQuery} the matching anchors (empty when the folder is not rendered yet)
      */
     function findFolderLink(path) {
         return $folderContainer.find('a').filter(function () {
@@ -310,7 +311,29 @@ export default function (options) {
     }
 
     /**
+     * Refresh an already rendered folder link from a newer payload.
+     * Only the label text and the chevron state are touched; path attributes stay as rendered.
+     * @param {jQuery} $link - the existing anchor of the folder
+     * @param {Object} child - fresh folder stub from the browse payload
+     */
+    function refreshFolderLink($link, child) {
+        if (typeof child.label === 'string') {
+            const $labelNode = $link
+                .contents()
+                .filter(function () {
+                    return this.nodeType === 3 && this.nodeValue.trim() !== '';
+                })
+                .last();
+            if ($labelNode.length) {
+                $labelNode[0].nodeValue = child.label;
+            }
+        }
+        setFolderToggleState($link, hasNestedFolderChildren(child) !== false);
+    }
+
+    /**
      * Render directory children under an expanded folder anchor (replace / reopen).
+     * Existing links are refreshed, missing ones are mounted.
      * @param {String} parentPath
      * @param {Object} parentContent
      */
@@ -323,7 +346,18 @@ export default function (options) {
         if (!$innerList.length) {
             $innerList = $('<ul></ul>').insertAfter($parentLink);
         }
-        updateFolders(parentContent, $innerList);
+        const missingChildren = [];
+        folderChildrenOnly(parentContent).forEach(function (child) {
+            const $existingLink = findFolderLink(child.path);
+            if ($existingLink.length) {
+                refreshFolderLink($existingLink, child);
+            } else {
+                missingChildren.push(child);
+            }
+        });
+        if (missingChildren.length) {
+            updateFolders(Object.assign({}, parentContent, { children: missingChildren }), $innerList);
+        }
         $parentLink.addClass('opened');
         if ($innerList.css('display') === 'none') {
             $innerList.show();
@@ -349,14 +383,96 @@ export default function (options) {
         }
     }
 
-    function openInitialPath(path) {
+    /**
+     * Select the tree root when the requested initial path cannot be resolved.
+     */
+    function fallbackToRoot() {
+        const rootContent = getByPath(fileTree, rootPath) || fileTree;
+        const fallbackPath = rootContent.path || rootPath;
+        selectFolder(rootContent, fallbackPath);
+        syncTreeActiveFolder(fallbackPath);
+    }
+
+    /**
+     * Attach a fetched folder to its parent in the tree model, reusing an existing node.
+     * @param {Object} tree - the fileTree model
+     * @param {String} parentPath - path of the parent folder the stub belongs to
+     * @param {Object} data - browse payload of the folder (part=tree)
+     */
+    function attachFolderToParent(tree, parentPath, data) {
+        const parent = getByExactPath(tree, parentPath) || getByPath(tree, parentPath);
+        if (!parent || !data || !data.path) {
+            return;
+        }
+        const folderData = Object.assign({}, data, { children: folderChildrenOnly(data) });
+        if (!Array.isArray(parent.children)) {
+            parent.children = [];
+        }
+        const existing = getByExactPath(parent, folderData.path);
+        if (existing) {
+            Object.assign(existing, folderData);
+        } else {
+            parent.children.push(folderData);
+        }
+        delete parent.empty;
+    }
+
+    /**
+     * Fetch the ancestor chain of a folder that is missing from the lazily loaded tree.
+     * Walks up through parentFolderPath of each response until an ancestor is already rendered
+     * (or the root is reached).
+     * @param {String} path - the folder to open
+     * @returns {Promise<Array|null>} resolves to the ordered chain, highest ancestor first, each
+     * entry `{ path: String, data: Object }`; resolves to `null` when a request fails or a level
+     * yields no usable payload
+     */
+    function fetchInitialPathChain(path) {
+        const chain = [];
+        function fetchLevel(levelPath) {
+            setTreeLoading(true);
+            return browseRequest(levelPath, {
+                part: 'tree',
+                depth: 1,
+                sortBy: sort.field,
+                sortDir: sort.direction
+            }).then(
+                function (data) {
+                    setTreeLoading(false);
+                    if (!data || !data.path) {
+                        return null;
+                    }
+                    chain.unshift({ path: levelPath, data: data });
+                    const parentFolderPath = data.parentFolderPath;
+                    if (
+                        !parentFolderPath ||
+                        parentFolderPath === levelPath ||
+                        parentFolderPath === rootPath ||
+                        parentFolderPath === fileTree.path ||
+                        findFolderLink(parentFolderPath).length
+                    ) {
+                        return chain;
+                    }
+                    return fetchLevel(parentFolderPath);
+                },
+                function (error) {
+                    setTreeLoading(false);
+                    LOGGER.error(error);
+                    return null;
+                }
+            );
+        }
+        return fetchLevel(path);
+    }
+
+    /**
+     * Open a folder that is either already rendered or resolvable through its parent.
+     * @param {String} path - folder to open and select
+     */
+    function openInitialPathContent(path) {
         getFolderContent(fileTree, path, function (content) {
             indexTree(fileTree);
             if (!content) {
-                const rootContent = getByPath(fileTree, rootPath) || fileTree;
-                const fallbackPath = rootContent.path || rootPath;
-                selectFolder(rootContent, fallbackPath);
-                syncTreeActiveFolder(fallbackPath);
+                fallbackToRoot();
                 return;
             }
 
@@ -380,6 +496,56 @@ export default function (options) {
             }
 
             finishOpen();
+        });
+    }
+
+    /**
+     * Open and select an initial folder path after the root tree is available.
+     * When the folder is missing from the lazily loaded tree its ancestor chain is fetched first,
+     * so a path deeper than the rendered level is revealed instead of falling back to the root.
+     * @param {String} path - folder to open and select
+     */
+    function openInitialPath(path) {
+        if (!splitBrowse || findFolderLink(path).length) {
+            openInitialPathContent(path);
+            return;
+        }
+
+        fetchInitialPathChain(path).then(function (chain) {
+            if (!chain || !chain.length) {
+                fallbackToRoot();
+                return;
+            }
+
+            const anchorPath = chain[0].data.parentFolderPath;
+            if (!anchorPath) {
+                fallbackToRoot();
+                return;
+            }
+
+            let parentPath = anchorPath;
+            chain.forEach(function (entry) {
+                attachFolderToParent(fileTree, parentPath, entry.data);
+                parentPath = entry.path;
+            });
+            indexTree(fileTree);
+
+            let mountPath = anchorPath;
+            chain.forEach(function (entry) {
+                const parentContent = getByExactPath(fileTree, mountPath) || getByPath(fileTree, mountPath);
+                mountFolderBranch(mountPath, parentContent);
+                mountPath = entry.path;
+            });
+
+            getFolderContent(fileTree, path, function (content) {
+                indexTree(fileTree);
+                if (!content) {
+                    fallbackToRoot();
+                    return;
+                }
+                markFolderActive(path);
+                selectFolder(content, path);
+            });
         });
     }
 
@@ -413,8 +579,9 @@ export default function (options) {
      * Select a folder and publish its page of files to the selector.
      * @param {Object} content
      * @param {String} path
+     * @param {Number} [page]
      */
-    function selectFolder(content, path) {
+    function selectFolder(content, path, page) {
         if (!content) {
             return;
         }
@@ -429,7 +596,8 @@ export default function (options) {
             ]);
             return;
         }
-        updateSelectedClass(path, content.total, content.childrenLimit);
+        const total = +content.total || 0;
+        updateSelectedClass(path, total, content.childrenLimit, page);
         $container.trigger(`folderpath.${NS}`, [path, content.label]);
         $container.trigger(`folderselect.${NS}`, [
             content.label,
@@ -485,12 +653,13 @@ export default function (options) {
 
     /**
      * Snapshot list request identity (folder + page/sort) when a browse starts.
-     * @returns {{path: String, cacheKey: String}}
+     * @returns {{path: String, cacheKey: String, page: Number}}
      */
     function captureListRequestContext() {
         return {
             path: selectedClass.path,
-            cacheKey: listCacheKey()
+            cacheKey: listCacheKey(),
+            page: selectedClass.page
         };
     }
 
@@ -586,55 +755,6 @@ export default function (options) {
         node.listPage = listData.page;
         node.totalIsApproximate = listData.totalIsApproximate;
         node.listCacheKey = cacheKey;
-    }
-
-    /**
-     * Ensure upload responses appear in the table before Elasticsearch catches up.
-     * @param {String} path
-     * @param {Array<Object>} uploads
-     */
-    function mergePendingUploads(path, uploads) {
-        if (!uploads || !uploads.length) {
-            return;
-        }
-        const node = getByExactPath(fileTree, path) || getByPath(fileTree, path);
-        if (!node) {
-            return;
-        }
-        if (!Array.isArray(node.listItems)) {
-            node.listItems = [];
-        }
-        let added = 0;
-        uploads.forEach(function (uploaded) {
-            if (!uploaded || uploaded.error) {
-                return;
-            }
-            const normalized = updatePermissions(uploaded);
-            if (!normalized.uri && !normalized.name) {
-                return;
-            }
-            const exists = _.some(node.listItems, function (item) {
-                return (
-                    (normalized.uri && item.uri === normalized.uri) ||
-                    (normalized.name && item.name === normalized.name)
-                );
-            });
-            if (exists) {
-                return;
-            }
-            node.listItems.push(normalized);
-            added++;
-        });
-        if (!added) {
-            return;
-        }
-        if (splitBrowse) {
-            node.listItems = sortAssetItems(node.listItems, sort);
-        }
-        const total = Number(node.total);
-        if (Number.isFinite(total) && total >= 0) {
-            node.total = total + added;
-        }
     }
 
     /**
@@ -1054,10 +1174,12 @@ export default function (options) {
      * @param {String} path - the folder path
      * @param {Number} total - files in class
      * @param {Number} childrenLimit - page size
+     * @param {Number} [page] - page to select
      */
-    function updateSelectedClass(path, total, childrenLimit) {
+    function updateSelectedClass(path, total, childrenLimit, page) {
         const normalizedTotal = Number(total);
         const normalizedChildrenLimit = Number(childrenLimit);
+        const pageNumber = +page;
 
         selectedClass = {
             path,
@@ -1066,7 +1188,7 @@ export default function (options) {
                 Number.isFinite(normalizedChildrenLimit) && normalizedChildrenLimit > 0
                     ? normalizedChildrenLimit
                     : selectedClass.childrenLimit || 11,
-            page: 1
+            page: _.isFinite(pageNumber) && pageNumber > 0 ? pageNumber : 1
         };
     }
     /**
@@ -1109,8 +1231,9 @@ export default function (options) {
     /**
      * Re-fetch the current folder with the active sort and publish files.
      */
-    function reloadSortedFolder(pendingUploads) {
+    function reloadSortedFolder() {
         const listRequest = captureListRequestContext();
+        const page = listRequest.page;
         const path = listRequest.path;
         if (!searchMode && isActiveBrowser()) {
             setFilesLoading(true);
@@ -1136,9 +1259,8 @@ export default function (options) {
                     return;
                 }
                 replaceFolderContent(path, data, listRequest.cacheKey);
-                mergePendingUploads(path, pendingUploads);
                 const content = getByExactPath(fileTree, path) || data;
-                selectFolder(content, content.path || path);
+                selectFolder(content, content.path || path, page);
             })
             .catch(function (error) {
                 LOGGER.error(error);
@@ -1173,6 +1295,14 @@ export default function (options) {
                     applyListPayload(fileTree, path, data, listRequest.cacheKey);
                     const content = getByExactPath(fileTree, path);
                     if (content) {
+                        selectedClass.total = +content.total || 0;
+                        const totalPages = Math.max(1, Math.ceil(selectedClass.total / (selectedClass.childrenLimit || 11)));
+                        if (selectedClass.page > totalPages) {
+                            selectedClass.page = totalPages;
+                            setFilesLoading(false);
+                            loadPage();
+                            return;
+                        }
                         $container.trigger(`folderselect.${NS}`, [
                             content.label,
                             getFilesForDisplay(content),
