@@ -21,6 +21,7 @@ var mountKeys = [
     'targetId',
     '_browsersStartPromise',
     '_createEventEmitted',
+    '_closed',
     'contextToken',
     'currentAssetItem',
     'hasAlreadySelected'
@@ -108,8 +109,7 @@ var resourceMgr = {
                 return;
             }
 
-            if (stored.$target && stored.$target.length && stored.$target.hasClass('opened')) {
-                // Reopen: consumer may pass a new currentAsset (edit/change after create).
+            if (stored.$target && stored.$target.length && !stored._closed) {
                 that._reopenWithContext($elt, incoming);
                 return;
             }
@@ -159,19 +159,26 @@ var resourceMgr = {
     },
 
     _bindConsumerEvents: function($elt, options) {
+        var handlers = {};
         _.functions(options).forEach(function(eventName) {
-            $elt.on(eventName + '.' + ns, function() {
-                const live = $elt.data(dataNs);
+            handlers[eventName] = function() {
+                var live = $elt.data(dataNs);
                 if (live && typeof live[eventName] === 'function') {
                     live[eventName].apply($elt, arguments);
                 }
-            });
+            };
+            $elt.on(eventName + '.' + ns, handlers[eventName]);
         });
+        options._consumerHandlers = handlers;
     },
 
     _unbindConsumerEvents: function($elt, options) {
-        _.functions(options || {}).forEach(function(eventName) {
-            $elt.off(eventName + '.' + ns);
+        var handlers = options && options._consumerHandlers;
+        if (!handlers) {
+            return;
+        }
+        Object.keys(handlers).forEach(function(eventName) {
+            $elt.off(eventName + '.' + ns, handlers[eventName]);
         });
     },
 
@@ -184,6 +191,8 @@ var resourceMgr = {
         if (current && current.$target) {
             that._discard($elt, current.$target);
         }
+
+        delete options._closed;
 
         $elt.data(dataNs, options);
 
@@ -205,6 +214,9 @@ var resourceMgr = {
         $target.on('closed.modal', function() {
             var live = $elt.data(dataNs);
             var capturedTarget = live && live.$target;
+            if (live) {
+                live._closed = true;
+            }
             $elt.trigger('close.' + ns);
             window.setTimeout(function() {
                 that._discard($elt, capturedTarget);
