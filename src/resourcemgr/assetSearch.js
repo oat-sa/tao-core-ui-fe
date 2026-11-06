@@ -125,6 +125,9 @@ export default function assetSearch(options) {
     let searchInFlight = false;
     let advancedSearch = null;
     let shortcuts = null;
+    // Suppresses the re-entrant criteriachange that advancedSearch.clear()
+    // emits from inside clearSearch().
+    let clearingSearch = false;
     let searchActionStateUpdating = false;
 
     const previousTeardown = $container.data('assetSearchTeardown');
@@ -246,7 +249,7 @@ export default function assetSearch(options) {
         searchActionStateUpdating = true;
         try {
             const pending = hasPendingSearchParams();
-            if (pending || searchMode) {
+            if (pending) {
                 $clearButton.removeClass('hidden').removeAttr('hidden');
             } else {
                 $clearButton.addClass('hidden').attr('hidden', 'hidden');
@@ -359,7 +362,18 @@ export default function assetSearch(options) {
     updateScopeDisplay(scopeLabel);
     updateSearchActionState();
 
-    $input.on(`input.${EVENT_NS}`, updateSearchActionState);
+    /**
+     * Clear search mode when no search parameters remain.
+     */
+    function handleSearchInput() {
+        if (searchMode && !hasPendingSearchParams()) {
+            clearSearch();
+            return;
+        }
+        updateSearchActionState();
+    }
+
+    $input.on(`input.${EVENT_NS} search.${EVENT_NS}`, handleSearchInput);
 
     // advancedSearch fires criteriachange on add/remove only — re-evaluate Search when values change.
     $filtersMount.on(
@@ -493,6 +507,13 @@ export default function assetSearch(options) {
                     });
             })
             .on('criteriachange', function () {
+                if (clearingSearch) {
+                    return;
+                }
+                if (searchMode && !hasPendingSearchParams()) {
+                    clearSearch();
+                    return;
+                }
                 updateCollapsedAppliedCount();
                 updateSearchActionState();
             })
@@ -579,20 +600,28 @@ export default function assetSearch(options) {
      * Clear text, criteria, and return to browse mode.
      */
     function clearSearch() {
-        $input.val('');
-        if (advancedSearch && typeof advancedSearch.clear === 'function') {
-            advancedSearch.clear();
+        if (clearingSearch) {
+            return;
         }
-        // clear() restores select options; keep Add filter when criteria exist
-        if (advancedSearch && advancedSearch.isEnabled()) {
-            setAddFilterReady(hasCriteriaOptions());
+        clearingSearch = true;
+        try {
+            $input.val('');
+            if (advancedSearch && typeof advancedSearch.clear === 'function') {
+                advancedSearch.clear();
+            }
+            // clear() restores select options; keep Add filter when criteria exist
+            if (advancedSearch && advancedSearch.isEnabled()) {
+                setAddFilterReady(hasCriteriaOptions());
+            }
+            query = '';
+            metadata = {};
+            appliedFilterCount = 0;
+            updateCollapsedAppliedCount();
+            exitSearchMode();
+            focusSearchInput();
+        } finally {
+            clearingSearch = false;
         }
-        query = '';
-        metadata = {};
-        appliedFilterCount = 0;
-        updateCollapsedAppliedCount();
-        exitSearchMode();
-        focusSearchInput();
     }
 
     /**
