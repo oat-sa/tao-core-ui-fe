@@ -423,12 +423,13 @@ export default function (options) {
                 if (!existingChild) {
                     return child;
                 }
-                const mergedChild = Object.assign({}, existingChild, child);
-                if (Array.isArray(existingChild.children) && existingChild.children.length) {
-                    mergedChild.children = existingChild.children;
-                    delete mergedChild.empty;
+                const loadedChildren = existingChild.children;
+                Object.assign(existingChild, child);
+                if (Array.isArray(loadedChildren) && loadedChildren.length) {
+                    existingChild.children = loadedChildren;
+                    delete existingChild.empty;
                 }
-                return mergedChild;
+                return existingChild;
             });
             Object.assign(existing, folderData);
             if (folderData.children.length) {
