@@ -818,9 +818,11 @@ define([
             }
         };
         let remoteRootLoaded = false;
-        let wrongRootRequests = 0;
+        let earlyRemoteFolderTreeRequests = 0;
         const rootResponseOrder = [];
         let safety;
+        let finishTimer;
+        let completed = false;
 
         function requestParam(settings, name) {
             const data = settings.data;
@@ -854,6 +856,16 @@ define([
                 remoteRootLoaded = true;
             }
         });
+        $(document).on('ajaxSend.resourcemgrContextRace', function (event, xhr, settings) {
+            if (
+                String(settings.url).indexOf(browseUrl) !== -1 &&
+                requestParam(settings, 'path') === remoteFolderPath &&
+                requestParam(settings, 'part') === 'tree' &&
+                !remoteRootLoaded
+            ) {
+                earlyRemoteFolderTreeRequests++;
+            }
+        });
 
         $.mockjax({
             url: mediaSourcesUrl,
@@ -865,46 +877,66 @@ define([
         });
         $.mockjax({
             url: browseUrl,
+            data: { currentAsset: assetUri },
             dataType: 'json',
+            response: function () {
+                this.responseText = {
+                    data: {
+                        parentPath: remoteFolderPath,
+                        currentAsset: asset
+                    }
+                };
+            }
+        });
+        $.mockjax({
+            url: browseUrl,
+            data: { path: localRootPath },
+            dataType: 'json',
+            responseTime: 1,
             response: function (settings) {
-                const requestData = settings.data || {};
-                const path = requestData.path;
-                if (requestData.currentAsset) {
-                    this.responseText = {
-                        data: {
-                            parentPath: remoteFolderPath,
-                            currentAsset: asset
-                        }
-                    };
-                    return;
-                }
-                if (path === localRootPath) {
-                    this.responseTime = 1;
-                    respondSplitBrowse.call(this, settings, localRoot);
-                    return;
-                }
-                if (path === remoteRootPath) {
-                    this.responseTime = 120;
-                    respondSplitBrowse.call(this, settings, remoteRoot);
-                    return;
-                }
-                if (path === remoteFolderPath && !remoteRootLoaded) {
-                    wrongRootRequests++;
-                    this.responseTime = 250;
-                    this.responseText = { data: {} };
-                    return;
-                }
-                if (path === remoteFolderPath) {
-                    respondSplitBrowse.call(this, settings, remoteFolder);
-                    return;
-                }
+                respondSplitBrowse.call(this, settings, localRoot);
+            }
+        });
+        $.mockjax({
+            url: browseUrl,
+            data: { path: remoteRootPath },
+            dataType: 'json',
+            responseTime: 120,
+            response: function (settings) {
+                respondSplitBrowse.call(this, settings, remoteRoot);
+            }
+        });
+        $.mockjax({
+            url: browseUrl,
+            data: { path: remoteFolderPath },
+            dataType: 'json',
+            responseTime: 250,
+            response: function (settings) {
+                respondSplitBrowse.call(this, settings, remoteFolder);
+            }
+        });
+        $.mockjax({
+            url: browseUrl,
+            dataType: 'json',
+            response: function () {
                 this.responseText = { data: {} };
             }
         });
 
-        const finish = function () {
+        const complete = function (timedOut) {
+            if (completed) {
+                return;
+            }
+            completed = true;
             window.clearTimeout(safety);
+            window.clearTimeout(finishTimer);
             $(document).off('.resourcemgrContextRace');
+            if (timedOut) {
+                assert.ok(false, 'Resource Manager did not finish loading');
+                ready();
+                return;
+            }
+
             const $modal = $('#outside-container .resourcemgr');
             const $assetRow = $modal.find('.files-list tr').filter(function () {
                 return $(this).attr('data-file') === assetUri;
@@ -915,20 +947,27 @@ define([
                 ['local', 'mediamanager'],
                 'the local root response arrives before the remote root response'
             );
-            assert.equal(wrongRootRequests, 0, 'the local browser never requests the remote asset folder');
+            assert.equal(
+                earlyRemoteFolderTreeRequests,
+                1,
+                'only the remote browser opens the current asset before its root loads'
+            );
             assert.equal($assetRow.length, 1, 'the remote asset remains in the file list');
             ready();
         };
 
         safety = window.setTimeout(function () {
-            $(document).off('.resourcemgrContextRace');
-            assert.ok(false, 'Resource Manager did not finish loading');
-            ready();
+            complete(true);
         }, 3000);
 
         const $launcher = $('#launcher');
-        $launcher.on('create.resourcemgr', function () {
-            window.setTimeout(finish, 450);
+        $launcher.one('create.resourcemgr', function () {
+            if (completed) {
+                return;
+            }
+            finishTimer = window.setTimeout(function () {
+                complete(false);
+            }, 450);
         });
 
         createManager({
