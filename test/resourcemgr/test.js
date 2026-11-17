@@ -817,7 +817,7 @@ define([
                 children: [asset]
             }
         };
-        let remoteRootLoaded = false;
+        let remoteRootResponseReceived = false;
         let earlyRemoteFolderTreeRequests = 0;
         const rootResponseOrder = [];
         let safety;
@@ -853,7 +853,6 @@ define([
                 rootResponseOrder.push('local');
             } else if (path === remoteRootPath) {
                 rootResponseOrder.push('mediamanager');
-                remoteRootLoaded = true;
             }
         });
         $(document).on('ajaxSend.resourcemgrContextRace', function (event, xhr, settings) {
@@ -861,7 +860,7 @@ define([
                 String(settings.url).indexOf(browseUrl) !== -1 &&
                 requestParam(settings, 'path') === remoteFolderPath &&
                 requestParam(settings, 'part') === 'tree' &&
-                !remoteRootLoaded
+                !remoteRootResponseReceived
             ) {
                 earlyRemoteFolderTreeRequests++;
             }
@@ -903,6 +902,7 @@ define([
             dataType: 'json',
             responseTime: 120,
             response: function (settings) {
+                remoteRootResponseReceived = true;
                 respondSplitBrowse.call(this, settings, remoteRoot);
             }
         });
@@ -950,7 +950,7 @@ define([
             assert.equal(
                 earlyRemoteFolderTreeRequests,
                 1,
-                'only the remote browser opens the current asset before its root loads'
+                `only the remote browser opens the current asset before its root loads (got ${earlyRemoteFolderTreeRequests})`
             );
             assert.equal($assetRow.length, 1, 'the remote asset remains in the file list');
             ready();
