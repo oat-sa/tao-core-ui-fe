@@ -48,6 +48,11 @@ export default function (options) {
     const rootPath = options.path || '/';
     const initialPath = options.initialPath || rootPath;
     const $container = options.$target;
+
+    function pathMatchesRoot(path) {
+        const pathIsTaomedia = Boolean(path && String(path).indexOf('taomedia://') === 0);
+        return pathIsTaomedia === (root !== 'local');
+    }
     const $fileBrowser = $('.file-browser .file-browser-wrapper', $container);
     const $divContainer = $(`.${root}`, $fileBrowser);
     const $folderContainer = $('.folders', $divContainer);
@@ -138,11 +143,7 @@ export default function (options) {
     // Reopen with resolved parent (AC3 edit/change): leave search, open folder again.
     $container.on(`applycontext.${NS}`, function (e, ctx) {
         const path = (ctx && ctx.path) || rootPath;
-        const pathIsTaomedia = path && String(path).indexOf('taomedia://') === 0;
-        if (pathIsTaomedia && root === 'local') {
-            return;
-        }
-        if (!pathIsTaomedia && root !== 'local') {
+        if (!pathMatchesRoot(path)) {
             return;
         }
         $container.data('activeFileBrowserRoot', root);
@@ -186,7 +187,13 @@ export default function (options) {
         }
         updateFolders(content, $innerList);
 
-        if (content.permissions && content.permissions.read && !options.hasAlreadySelected) {
+        const shouldUseInitialContext = initialPath === rootPath || pathMatchesRoot(initialPath);
+        if (
+            content.permissions &&
+            content.permissions.read &&
+            !options.hasAlreadySelected &&
+            shouldUseInitialContext
+        ) {
             if (initialPath && initialPath !== rootPath) {
                 openInitialPath(initialPath);
             } else {

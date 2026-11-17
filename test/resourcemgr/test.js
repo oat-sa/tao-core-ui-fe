@@ -46,6 +46,7 @@ define([
         $launcher.off();
         $launcher.removeData('ui.resourcemgr');
         $launcher.removeData();
+        $(document).off('.resourcemgrContextRace');
         $.mockjax.clear();
     }
 
@@ -755,6 +756,185 @@ define([
 
         createManager({
             currentAsset: 'asset://cat'
+        });
+    });
+
+    QUnit.test('remote currentAsset context is not overwritten by the local root response', function (assert) {
+        const ready = assert.async();
+        assert.expect(3);
+
+        const mediaSourcesUrl = '/mock/resourcemgr/media-sources';
+        const localRootPath = '/';
+        const remoteRootPath = 'taomedia://mediamanager/';
+        const remoteFolderPath = `${remoteRootPath}images`;
+        const assetUri = `${remoteFolderPath}/cat.png`;
+        const asset = {
+            uri: assetUri,
+            label: 'cat.png',
+            name: 'cat.png',
+            mime: 'image/png',
+            size: 512,
+            location: remoteFolderPath,
+            permissions: ['READ', 'PREVIEW', 'DOWNLOAD']
+        };
+        const localRoot = {
+            data: {
+                path: localRootPath,
+                label: '10731 bis',
+                childrenLimit: 10,
+                total: 0,
+                permissions: ['READ', 'WRITE', 'UPLOAD'],
+                children: []
+            }
+        };
+        const remoteRoot = {
+            data: {
+                path: remoteRootPath,
+                label: 'Assets',
+                childrenLimit: 10,
+                total: 1,
+                permissions: ['READ', 'WRITE', 'UPLOAD'],
+                children: [
+                    {
+                        path: remoteFolderPath,
+                        label: 'images',
+                        childrenLimit: 10,
+                        total: 1,
+                        permissions: ['READ', 'WRITE', 'UPLOAD'],
+                        children: []
+                    }
+                ]
+            }
+        };
+        const remoteFolder = {
+            data: {
+                path: remoteFolderPath,
+                label: 'images',
+                parentFolderPath: remoteRootPath,
+                childrenLimit: 10,
+                total: 1,
+                permissions: ['READ', 'WRITE', 'UPLOAD'],
+                children: [asset]
+            }
+        };
+        let remoteRootLoaded = false;
+        let wrongRootRequests = 0;
+        const rootResponseOrder = [];
+        let safety;
+
+        function requestParam(settings, name) {
+            const data = settings.data;
+            if (data && typeof data === 'object') {
+                return data[name];
+            }
+            const serialized = typeof data === 'string' ? data : String(settings.url || '').split('?')[1] || '';
+            const entry = serialized.split('&').find(function (part) {
+                return decodeURIComponent(part.split('=')[0].replace(/\+/g, ' ')) === name;
+            });
+            return entry
+                ? decodeURIComponent(entry.slice(entry.indexOf('=') + 1).replace(/\+/g, ' '))
+                : null;
+        }
+
+        $.mockjax.clear();
+        mockAdvancedSearchApis();
+
+        $(document).on('ajaxComplete.resourcemgrContextRace', function (event, xhr, settings) {
+            if (String(settings.url).indexOf(browseUrl) === -1) {
+                return;
+            }
+            const path = requestParam(settings, 'path');
+            if (requestParam(settings, 'part') !== 'tree') {
+                return;
+            }
+            if (path === localRootPath) {
+                rootResponseOrder.push('local');
+            } else if (path === remoteRootPath) {
+                rootResponseOrder.push('mediamanager');
+                remoteRootLoaded = true;
+            }
+        });
+
+        $.mockjax({
+            url: mediaSourcesUrl,
+            dataType: 'json',
+            responseText: [
+                { root: 'local', path: localRootPath },
+                { root: 'mediamanager', path: remoteRootPath }
+            ]
+        });
+        $.mockjax({
+            url: browseUrl,
+            dataType: 'json',
+            response: function (settings) {
+                const requestData = settings.data || {};
+                const path = requestData.path;
+                if (requestData.currentAsset) {
+                    this.responseText = {
+                        data: {
+                            parentPath: remoteFolderPath,
+                            currentAsset: asset
+                        }
+                    };
+                    return;
+                }
+                if (path === localRootPath) {
+                    this.responseTime = 1;
+                    respondSplitBrowse.call(this, settings, localRoot);
+                    return;
+                }
+                if (path === remoteRootPath) {
+                    this.responseTime = 120;
+                    respondSplitBrowse.call(this, settings, remoteRoot);
+                    return;
+                }
+                if (path === remoteFolderPath && !remoteRootLoaded) {
+                    wrongRootRequests++;
+                    this.responseTime = 250;
+                    this.responseText = { data: {} };
+                    return;
+                }
+                if (path === remoteFolderPath) {
+                    respondSplitBrowse.call(this, settings, remoteFolder);
+                    return;
+                }
+                this.responseText = { data: {} };
+            }
+        });
+
+        const finish = function () {
+            window.clearTimeout(safety);
+            $(document).off('.resourcemgrContextRace');
+            const $modal = $('#outside-container .resourcemgr');
+            const $assetRow = $modal.find('.files-list tr').filter(function () {
+                return $(this).attr('data-file') === assetUri;
+            });
+
+            assert.deepEqual(
+                rootResponseOrder,
+                ['local', 'mediamanager'],
+                'the local root response arrives before the remote root response'
+            );
+            assert.equal(wrongRootRequests, 0, 'the local browser never requests the remote asset folder');
+            assert.equal($assetRow.length, 1, 'the remote asset remains in the file list');
+            ready();
+        };
+
+        safety = window.setTimeout(function () {
+            $(document).off('.resourcemgrContextRace');
+            assert.ok(false, 'Resource Manager did not finish loading');
+            ready();
+        }, 3000);
+
+        const $launcher = $('#launcher');
+        $launcher.on('create.resourcemgr', function () {
+            window.setTimeout(finish, 450);
+        });
+
+        createManager({
+            currentAsset: assetUri,
+            mediaSourcesUrl: mediaSourcesUrl,
+            open: true
         });
     });
 
