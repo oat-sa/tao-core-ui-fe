@@ -889,7 +889,7 @@ define([
         });
         $.mockjax({
             url: browseUrl,
-            data: { path: localRootPath },
+            data: { path: localRootPath, part: 'tree' },
             dataType: 'json',
             responseTime: 1,
             response: function (settings) {
@@ -898,11 +898,29 @@ define([
         });
         $.mockjax({
             url: browseUrl,
-            data: { path: remoteRootPath },
+            data: { path: localRootPath, part: 'list' },
+            dataType: 'json',
+            responseTime: 1,
+            response: function (settings) {
+                respondSplitBrowse.call(this, settings, localRoot);
+            }
+        });
+        $.mockjax({
+            url: browseUrl,
+            data: { path: remoteRootPath, part: 'tree' },
             dataType: 'json',
             responseTime: 120,
             response: function (settings) {
                 remoteRootResponseReceived = true;
+                respondSplitBrowse.call(this, settings, remoteRoot);
+            }
+        });
+        $.mockjax({
+            url: browseUrl,
+            data: { path: remoteRootPath, part: 'list' },
+            dataType: 'json',
+            responseTime: 1,
+            response: function (settings) {
                 respondSplitBrowse.call(this, settings, remoteRoot);
             }
         });
@@ -949,8 +967,8 @@ define([
             );
             assert.equal(
                 earlyRemoteFolderTreeRequests,
-                1,
-                `only the remote browser opens the current asset before its root loads (got ${earlyRemoteFolderTreeRequests})`
+                0,
+                'the remote folder is not requested before the remote root tree loads'
             );
             assert.equal($assetRow.length, 1, 'the remote asset remains in the file list');
             ready();
