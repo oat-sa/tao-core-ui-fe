@@ -417,7 +417,23 @@ export default function (options) {
         }
         const existing = getByExactPath(parent, folderData.path);
         if (existing) {
+            const existingChildren = Array.isArray(existing.children) ? existing.children : [];
+            folderData.children = folderData.children.map(function (child) {
+                const existingChild = _.find(existingChildren, { path: child.path });
+                if (!existingChild) {
+                    return child;
+                }
+                const mergedChild = Object.assign({}, existingChild, child);
+                if (Array.isArray(existingChild.children) && existingChild.children.length) {
+                    mergedChild.children = existingChild.children;
+                    delete mergedChild.empty;
+                }
+                return mergedChild;
+            });
             Object.assign(existing, folderData);
+            if (folderData.children.length) {
+                delete existing.empty;
+            }
         } else {
             parent.children.push(folderData);
         }
@@ -446,7 +462,7 @@ export default function (options) {
                 function (data) {
                     setTreeLoading(false);
                     if (!data || !data.path) {
-                        return null;
+                        return findFolderLink(levelPath).length ? chain : null;
                     }
                     chain.unshift({ path: levelPath, data: data });
                     const parentFolderPath = data.parentFolderPath;
@@ -463,7 +479,7 @@ export default function (options) {
                 function (error) {
                     setTreeLoading(false);
                     LOGGER.error(error);
-                    return null;
+                    return findFolderLink(levelPath).length ? chain : null;
                 }
             );
         }
@@ -523,7 +539,13 @@ export default function (options) {
                 return;
             }
 
-            const anchorPath = chain[0].data.parentFolderPath;
+            const firstEntry = chain[0];
+            const renderedParentPath = findFolderLink(firstEntry.path)
+                .closest('ul')
+                .parent('li')
+                .children('a')
+                .data('path');
+            const anchorPath = firstEntry.data.parentFolderPath || renderedParentPath;
             if (!anchorPath) {
                 fallbackToRoot();
                 return;
