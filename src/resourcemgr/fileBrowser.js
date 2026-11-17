@@ -426,8 +426,8 @@ export default function (options) {
 
     /**
      * Fetch the ancestor chain of a folder that is missing from the lazily loaded tree.
-     * Walks up through parentFolderPath of each response until an ancestor is already rendered
-     * (or the root is reached).
+     * Walks up through parentFolderPath of each response to load every ancestor's child list
+     * before mounting the requested path.
      * @param {String} path - the folder to open
      * @returns {Promise<Array|null>} resolves to the ordered chain, highest ancestor first, each
      * entry `{ path: String, data: Object }`; resolves to `null` when a request fails or a level
@@ -454,8 +454,7 @@ export default function (options) {
                         !parentFolderPath ||
                         parentFolderPath === levelPath ||
                         parentFolderPath === rootPath ||
-                        parentFolderPath === fileTree.path ||
-                        findFolderLink(parentFolderPath).length
+                        parentFolderPath === fileTree.path
                     ) {
                         return chain;
                     }

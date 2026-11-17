@@ -40,6 +40,7 @@
         "data": {
             "path": "/images",
             "label": "Images",
+            "parentFolderPath": "/",
             "childrenLimit": 10,
             "total": 1,
             "permissions": ["READ", "WRITE", "UPLOAD"],

@@ -997,9 +997,10 @@ define([
 
     QUnit.test('currentAsset resolve reveals a deep parent folder chain and preselects asset', function (assert) {
         const ready = assert.async();
-        assert.expect(5);
+        assert.expect(6);
 
         const deepPath = '/images/2026/spring';
+        const siblingPath = '/images/2026/autumn';
         const deepAsset = {
             uri: 'asset://spring',
             name: 'spring.png',
@@ -1034,6 +1035,14 @@ define([
                         label: 'Spring',
                         childrenLimit: 10,
                         total: 1,
+                        permissions: ['READ', 'WRITE', 'UPLOAD'],
+                        children: []
+                    },
+                    {
+                        path: siblingPath,
+                        label: 'Autumn',
+                        childrenLimit: 10,
+                        total: 0,
                         permissions: ['READ', 'WRITE', 'UPLOAD'],
                         children: []
                     }
@@ -1089,6 +1098,11 @@ define([
                     $modal.find('.folders a[data-path="/images/2026"]').length,
                     1,
                     'missing ancestor is mounted in the tree'
+                );
+                assert.equal(
+                    $modal.find(`.folders a[data-path="${siblingPath}"]`).length,
+                    1,
+                    'sibling class remains visible under the expanded ancestor'
                 );
                 assert.equal($target.length, 1, 'deep target folder is revealed in the tree');
                 assert.ok($target.parent('li').hasClass('active'), 'deep target folder is marked active');
