@@ -46,6 +46,7 @@ define([
         $launcher.off();
         $launcher.removeData('ui.resourcemgr');
         $launcher.removeData();
+        $(document).off('.resourcemgrContextRace');
         $.mockjax.clear();
     }
 
@@ -758,11 +759,436 @@ define([
         });
     });
 
+    QUnit.test('remote currentAsset context is not overwritten by the local root response', function (assert) {
+        const ready = assert.async();
+        assert.expect(14);
+
+        const mediaSourcesUrl = '/mock/resourcemgr/media-sources';
+        const localRootPath = '/';
+        const remoteRootPath = 'taomedia://mediamanager/';
+        const media2Path = `${remoteRootPath}media2`;
+        const remoteFolderPath = `${media2Path}/batch-003`;
+        const preservedChildPath = `${media2Path}/batch-002/already-loaded`;
+        const assetUri = `${remoteFolderPath}/Untitled.png`;
+        const asset = {
+            uri: assetUri,
+            label: 'Untitled.png',
+            name: 'Untitled.png',
+            mime: 'image/png',
+            size: 512,
+            location: remoteFolderPath,
+            permissions: ['READ', 'PREVIEW', 'DOWNLOAD']
+        };
+        const otherAsset = Object.assign({}, asset, {
+            uri: `${remoteFolderPath}/other.png`
+        });
+        const batchPaths = Array.from({ length: 8 }, function (value, index) {
+            return `${media2Path}/batch-${String(index + 1).padStart(3, '0')}`;
+        });
+        const localRoot = {
+            data: {
+                path: localRootPath,
+                label: '10731 bis',
+                childrenLimit: 10,
+                total: 0,
+                permissions: ['READ', 'WRITE', 'UPLOAD'],
+                children: []
+            }
+        };
+        const remoteRoot = {
+            data: {
+                path: remoteRootPath,
+                label: 'Assets',
+                childrenLimit: 10,
+                total: 1,
+                permissions: ['READ', 'WRITE', 'UPLOAD'],
+                children: [
+                    {
+                        path: media2Path,
+                        label: 'media2',
+                        childrenLimit: 10,
+                        total: batchPaths.length,
+                        permissions: ['READ', 'WRITE', 'UPLOAD'],
+                        children: [
+                            {
+                                path: `${media2Path}/batch-002`,
+                                label: 'stale batch-002',
+                                childrenLimit: 10,
+                                total: 1,
+                                permissions: ['READ', 'WRITE', 'UPLOAD'],
+                                children: [
+                                    {
+                                        path: preservedChildPath,
+                                        label: 'already-loaded',
+                                        childrenLimit: 10,
+                                        total: 0,
+                                        permissions: {
+                                            read: true,
+                                            write: true,
+                                            preview: true,
+                                            download: true,
+                                            upload: true,
+                                            delete: true
+                                        },
+                                        children: []
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        };
+        const media2 = {
+            data: {
+                path: media2Path,
+                label: 'media2',
+                childrenLimit: 10,
+                total: batchPaths.length,
+                permissions: ['READ', 'WRITE', 'UPLOAD'],
+                children: batchPaths.map(function (path) {
+                    return {
+                        path: path,
+                        label: path.slice(media2Path.length + 1),
+                        childrenLimit: 10,
+                        total: path === remoteFolderPath ? 2 : 0,
+                        permissions: ['READ', 'WRITE', 'UPLOAD'],
+                        children: []
+                    };
+                })
+            }
+        };
+        const remoteFolder = {
+            data: {
+                path: remoteFolderPath,
+                label: 'batch-003',
+                parentFolderPath: media2Path,
+                childrenLimit: 10,
+                total: 2,
+                permissions: ['READ', 'WRITE', 'UPLOAD'],
+                children: [otherAsset, asset]
+            }
+        };
+        let remoteRootResponseReceived = false;
+        let earlyRemoteFolderTreeRequests = 0;
+        const rootResponseOrder = [];
+        let safety;
+        let finishTimer;
+        let completed = false;
+
+        function requestParam(settings, name) {
+            const data = settings.data;
+            if (data && typeof data === 'object') {
+                return data[name];
+            }
+            const serialized = typeof data === 'string' ? data : String(settings.url || '').split('?')[1] || '';
+            const entry = serialized.split('&').find(function (part) {
+                return decodeURIComponent(part.split('=')[0].replace(/\+/g, ' ')) === name;
+            });
+            return entry
+                ? decodeURIComponent(entry.slice(entry.indexOf('=') + 1).replace(/\+/g, ' '))
+                : null;
+        }
+
+        $.mockjax.clear();
+        mockAdvancedSearchApis();
+
+        $(document).on('ajaxComplete.resourcemgrContextRace', function (event, xhr, settings) {
+            if (String(settings.url).indexOf(browseUrl) === -1) {
+                return;
+            }
+            const path = requestParam(settings, 'path');
+            if (requestParam(settings, 'part') !== 'tree') {
+                return;
+            }
+            if (path === localRootPath) {
+                rootResponseOrder.push('local');
+            } else if (path === remoteRootPath) {
+                rootResponseOrder.push('mediamanager');
+            }
+        });
+        $(document).on('ajaxSend.resourcemgrContextRace', function (event, xhr, settings) {
+            if (
+                String(settings.url).indexOf(browseUrl) !== -1 &&
+                requestParam(settings, 'path') === remoteFolderPath &&
+                requestParam(settings, 'part') === 'tree' &&
+                !remoteRootResponseReceived
+            ) {
+                earlyRemoteFolderTreeRequests++;
+            }
+        });
+
+        $.mockjax({
+            url: mediaSourcesUrl,
+            dataType: 'json',
+            responseText: [
+                { root: 'local', path: localRootPath },
+                { root: 'mediamanager', path: remoteRootPath }
+            ]
+        });
+        $.mockjax({
+            url: browseUrl,
+            data: { currentAsset: assetUri },
+            dataType: 'json',
+            response: function () {
+                this.responseText = {
+                    data: {
+                        parentPath: remoteFolderPath,
+                        currentAsset: asset
+                    }
+                };
+            }
+        });
+        $.mockjax({
+            url: browseUrl,
+            data: { path: localRootPath, part: 'tree' },
+            dataType: 'json',
+            responseTime: 1,
+            response: function (settings) {
+                respondSplitBrowse.call(this, settings, localRoot);
+            }
+        });
+        $.mockjax({
+            url: browseUrl,
+            data: { path: localRootPath, part: 'list' },
+            dataType: 'json',
+            responseTime: 1,
+            response: function (settings) {
+                respondSplitBrowse.call(this, settings, localRoot);
+            }
+        });
+        $.mockjax({
+            url: browseUrl,
+            data: { path: remoteRootPath, part: 'tree' },
+            dataType: 'json',
+            responseTime: 120,
+            response: function (settings) {
+                remoteRootResponseReceived = true;
+                respondSplitBrowse.call(this, settings, remoteRoot);
+            }
+        });
+        $.mockjax({
+            url: browseUrl,
+            data: { path: remoteRootPath, part: 'list' },
+            dataType: 'json',
+            responseTime: 1,
+            response: function (settings) {
+                respondSplitBrowse.call(this, settings, remoteRoot);
+            }
+        });
+        $.mockjax({
+            url: browseUrl,
+            data: { path: media2Path, part: 'tree' },
+            dataType: 'json',
+            response: function (settings) {
+                respondSplitBrowse.call(this, settings, media2);
+            }
+        });
+        $.mockjax({
+            url: browseUrl,
+            data: { path: remoteFolderPath },
+            dataType: 'json',
+            responseTime: 250,
+            response: function (settings) {
+                respondSplitBrowse.call(this, settings, remoteFolder);
+            }
+        });
+        $.mockjax({
+            url: browseUrl,
+            dataType: 'json',
+            response: function () {
+                this.responseText = { data: {} };
+            }
+        });
+
+        const complete = function (timedOut) {
+            if (completed) {
+                return;
+            }
+            completed = true;
+            window.clearTimeout(safety);
+            window.clearTimeout(finishTimer);
+            $(document).off('.resourcemgrContextRace');
+            if (timedOut) {
+                assert.ok(false, 'Resource Manager did not finish loading');
+                ready();
+                return;
+            }
+
+            const $modal = $('#outside-container .resourcemgr');
+            const $media2Link = $modal.find('.folders a').filter(function () {
+                return $(this).data('path') === media2Path;
+            });
+            const $targetFolder = $modal.find('.folders a').filter(function () {
+                return $(this).data('path') === remoteFolderPath;
+            });
+            const $siblingFolder = $modal.find('.folders a').filter(function () {
+                return $(this).data('path') === `${media2Path}/batch-002`;
+            });
+            const $assetRow = $modal.find('.files-list tr').filter(function () {
+                return $(this).attr('data-file') === assetUri;
+            });
+
+            assert.deepEqual(
+                rootResponseOrder,
+                ['local', 'mediamanager'],
+                'the local root response arrives before the remote root response'
+            );
+            assert.equal(
+                earlyRemoteFolderTreeRequests,
+                0,
+                'the remote folder is not requested before the remote root tree loads'
+            );
+            assert.equal($media2Link.length, 1, 'the media2 class is visible');
+            assert.equal($media2Link.hasClass('opened'), true, 'the media2 class is expanded');
+            assert.equal($targetFolder.length, 1, 'the current batch folder is visible');
+            assert.equal($targetFolder.parent('li').hasClass('active'), true, 'the current batch is selected');
+            assert.equal($siblingFolder.length, 1, 'sibling batches remain visible');
+            assert.equal($siblingFolder.text().trim(), 'batch-002', 'matching folder metadata is refreshed');
+            assert.ok(
+                $siblingFolder.children('.tree-toggle').hasClass('icon-right'),
+                'the refreshed sibling retains its loaded descendant'
+            );
+            assert.equal(
+                $modal.find('.file-selector h1 > .title').text(),
+                'batch-003',
+                'the main list is showing the selected batch'
+            );
+            assert.equal($modal.find('.files-list tr').length, 2, 'the selected batch assets are listed');
+            assert.equal($assetRow.length, 1, 'the remote asset remains in the file list');
+            assert.equal($assetRow.hasClass('active'), true, 'the current image is selected');
+
+            $siblingFolder.trigger('click');
+            const started = Date.now();
+            (function waitForPreservedChild() {
+                const $preservedChild = $modal.find('.folders a').filter(function () {
+                    return $(this).data('path') === preservedChildPath;
+                });
+                if ($preservedChild.length || Date.now() - started > 1000) {
+                    assert.equal($preservedChild.length, 1, 'refreshing media2 preserves loaded descendants');
+                    ready();
+                    return;
+                }
+                window.setTimeout(waitForPreservedChild, 20);
+            })();
+        };
+
+        safety = window.setTimeout(function () {
+            complete(true);
+        }, 3000);
+
+        const $launcher = $('#launcher');
+        $launcher.one('create.resourcemgr', function () {
+            if (completed) {
+                return;
+            }
+            finishTimer = window.setTimeout(function () {
+                complete(false);
+            }, 1200);
+        });
+
+        createManager({
+            currentAsset: assetUri,
+            mediaSourcesUrl: mediaSourcesUrl,
+            open: true
+        });
+    });
+
+    QUnit.test('currentAsset resolve uses a rendered ancestor when its refresh fails', function (assert) {
+        const ready = assert.async();
+        assert.expect(6);
+
+        const targetPath = '/images/spring';
+        const asset = {
+            uri: 'asset://spring',
+            label: 'spring.png',
+            name: 'spring.png',
+            mime: 'image/png',
+            size: 256,
+            location: targetPath,
+            permissions: ['READ', 'PREVIEW', 'DOWNLOAD']
+        };
+        const targetBrowse = {
+            data: {
+                path: targetPath,
+                label: 'Spring',
+                parentFolderPath: '/images',
+                childrenLimit: 10,
+                total: 1,
+                permissions: ['READ', 'WRITE', 'UPLOAD'],
+                children: [asset]
+            }
+        };
+
+        $.mockjax.clear();
+        mockAdvancedSearchApis();
+        $.mockjax({
+            url: browseUrl,
+            dataType: 'json',
+            response: function (settings) {
+                const requestData = settings.data || {};
+                if (requestData.currentAsset) {
+                    this.responseText = {
+                        data: {
+                            parentPath: targetPath,
+                            currentAsset: asset
+                        }
+                    };
+                    return;
+                }
+                if (requestData.path === targetPath) {
+                    respondSplitBrowse.call(this, settings, targetBrowse);
+                    return;
+                }
+                if (requestData.path === '/images' && requestData.part === 'tree') {
+                    this.status = 500;
+                    this.responseText = { success: false };
+                    return;
+                }
+                respondSplitBrowse.call(this, settings);
+            }
+        });
+        mockSearch(function () {
+            return fixtures.searchResults;
+        });
+
+        const $launcher = $('#launcher');
+        $launcher.on('create.resourcemgr', function () {
+            const started = Date.now();
+            const $modal = $('#outside-container .resourcemgr');
+            (function waitForSelection() {
+                const $ancestor = $modal.find('.folders a[data-path="/images"]');
+                const $target = $modal.find('.folders a').filter(function () {
+                    return $(this).data('path') === targetPath;
+                });
+                const $row = $modal.find('.files-list tr[data-file="asset://spring"]');
+                if (($target.parent('li').hasClass('active') && $row.hasClass('active')) || Date.now() - started > 2000) {
+                    assert.equal($ancestor.length, 1, 'rendered parent remains in the tree');
+                    assert.equal($target.length, 1, 'target folder is attached under the rendered parent');
+                    assert.equal(
+                        $target.closest('ul').parent('li').children('a').data('path'),
+                        '/images',
+                        'target folder is attached to its existing ancestor'
+                    );
+                    assert.ok($target.parent('li').hasClass('active'), 'target folder is selected');
+                    assert.equal($row.length, 1, 'target asset is shown in the folder');
+                    assert.ok($row.hasClass('active'), 'target asset is selected');
+                    ready();
+                    return;
+                }
+                window.setTimeout(waitForSelection, 20);
+            })();
+        });
+
+        createManager({ currentAsset: asset.uri });
+    });
+
     QUnit.test('currentAsset resolve reveals a deep parent folder chain and preselects asset', function (assert) {
         const ready = assert.async();
-        assert.expect(5);
+        assert.expect(6);
 
         const deepPath = '/images/2026/spring';
+        const siblingPath = '/images/2026/autumn';
         const deepAsset = {
             uri: 'asset://spring',
             name: 'spring.png',
@@ -797,6 +1223,14 @@ define([
                         label: 'Spring',
                         childrenLimit: 10,
                         total: 1,
+                        permissions: ['READ', 'WRITE', 'UPLOAD'],
+                        children: []
+                    },
+                    {
+                        path: siblingPath,
+                        label: 'Autumn',
+                        childrenLimit: 10,
+                        total: 0,
                         permissions: ['READ', 'WRITE', 'UPLOAD'],
                         children: []
                     }
@@ -852,6 +1286,11 @@ define([
                     $modal.find('.folders a[data-path="/images/2026"]').length,
                     1,
                     'missing ancestor is mounted in the tree'
+                );
+                assert.equal(
+                    $modal.find(`.folders a[data-path="${siblingPath}"]`).length,
+                    1,
+                    'sibling class remains visible under the expanded ancestor'
                 );
                 assert.equal($target.length, 1, 'deep target folder is revealed in the tree');
                 assert.ok($target.parent('li').hasClass('active'), 'deep target folder is marked active');
