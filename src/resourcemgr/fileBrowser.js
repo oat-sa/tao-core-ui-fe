@@ -48,6 +48,11 @@ export default function (options) {
     const rootPath = options.path || '/';
     const initialPath = options.initialPath || rootPath;
     const $container = options.$target;
+
+    function pathMatchesRoot(path) {
+        const pathIsTaomedia = Boolean(path && String(path).indexOf('taomedia://') === 0);
+        return pathIsTaomedia === (root !== 'local');
+    }
     const $fileBrowser = $('.file-browser .file-browser-wrapper', $container);
     const $divContainer = $(`.${root}`, $fileBrowser);
     const $folderContainer = $('.folders', $divContainer);
@@ -138,11 +143,7 @@ export default function (options) {
     // Reopen with resolved parent (AC3 edit/change): leave search, open folder again.
     $container.on(`applycontext.${NS}`, function (e, ctx) {
         const path = (ctx && ctx.path) || rootPath;
-        const pathIsTaomedia = path && String(path).indexOf('taomedia://') === 0;
-        if (pathIsTaomedia && root === 'local') {
-            return;
-        }
-        if (!pathIsTaomedia && root !== 'local') {
+        if (!pathMatchesRoot(path)) {
             return;
         }
         $container.data('activeFileBrowserRoot', root);
@@ -186,7 +187,13 @@ export default function (options) {
         }
         updateFolders(content, $innerList);
 
-        if (content.permissions && content.permissions.read && !options.hasAlreadySelected) {
+        const shouldUseInitialContext = initialPath === rootPath || pathMatchesRoot(initialPath);
+        if (
+            content.permissions &&
+            content.permissions.read &&
+            !options.hasAlreadySelected &&
+            shouldUseInitialContext
+        ) {
             if (initialPath && initialPath !== rootPath) {
                 openInitialPath(initialPath);
             } else {
@@ -410,7 +417,24 @@ export default function (options) {
         }
         const existing = getByExactPath(parent, folderData.path);
         if (existing) {
+            const existingChildren = Array.isArray(existing.children) ? existing.children : [];
+            folderData.children = folderData.children.map(function (child) {
+                const existingChild = _.find(existingChildren, { path: child.path });
+                if (!existingChild) {
+                    return child;
+                }
+                const loadedChildren = existingChild.children;
+                Object.assign(existingChild, child);
+                if (Array.isArray(loadedChildren) && loadedChildren.length) {
+                    existingChild.children = loadedChildren;
+                    delete existingChild.empty;
+                }
+                return existingChild;
+            });
             Object.assign(existing, folderData);
+            if (folderData.children.length) {
+                delete existing.empty;
+            }
         } else {
             parent.children.push(folderData);
         }
@@ -419,8 +443,8 @@ export default function (options) {
 
     /**
      * Fetch the ancestor chain of a folder that is missing from the lazily loaded tree.
-     * Walks up through parentFolderPath of each response until an ancestor is already rendered
-     * (or the root is reached).
+     * Walks up through parentFolderPath of each response to load every ancestor's child list
+     * before mounting the requested path.
      * @param {String} path - the folder to open
      * @returns {Promise<Array|null>} resolves to the ordered chain, highest ancestor first, each
      * entry `{ path: String, data: Object }`; resolves to `null` when a request fails or a level
@@ -439,7 +463,7 @@ export default function (options) {
                 function (data) {
                     setTreeLoading(false);
                     if (!data || !data.path) {
-                        return null;
+                        return findFolderLink(levelPath).length ? chain : null;
                     }
                     chain.unshift({ path: levelPath, data: data });
                     const parentFolderPath = data.parentFolderPath;
@@ -447,8 +471,7 @@ export default function (options) {
                         !parentFolderPath ||
                         parentFolderPath === levelPath ||
                         parentFolderPath === rootPath ||
-                        parentFolderPath === fileTree.path ||
-                        findFolderLink(parentFolderPath).length
+                        parentFolderPath === fileTree.path
                     ) {
                         return chain;
                     }
@@ -457,7 +480,7 @@ export default function (options) {
                 function (error) {
                     setTreeLoading(false);
                     LOGGER.error(error);
-                    return null;
+                    return findFolderLink(levelPath).length ? chain : null;
                 }
             );
         }
@@ -517,7 +540,13 @@ export default function (options) {
                 return;
             }
 
-            const anchorPath = chain[0].data.parentFolderPath;
+            const firstEntry = chain[0];
+            const renderedParentPath = findFolderLink(firstEntry.path)
+                .closest('ul')
+                .parent('li')
+                .children('a')
+                .data('path');
+            const anchorPath = firstEntry.data.parentFolderPath || renderedParentPath;
             if (!anchorPath) {
                 fallbackToRoot();
                 return;
